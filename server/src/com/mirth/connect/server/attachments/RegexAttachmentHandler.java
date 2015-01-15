@@ -33,7 +33,8 @@ public class RegexAttachmentHandler extends MirthAttachmentHandler {
     private String mimeType;
     private String message;
     private StringBuilder newMessage;
-    private Map<String, String> replacements = new HashMap<String, String>();
+    private Map<String, String> inboundReplacements = new HashMap<String, String>();
+    private Map<String, String> outboundReplacements = new HashMap<String, String>();
     private int offset;
     private int group;
 
@@ -72,7 +73,7 @@ public class RegexAttachmentHandler extends MirthAttachmentHandler {
                     String uuid = ServerUUIDGenerator.getUUID();
                     String attachmentString = message.substring(matcher.start(group), matcher.end(group));
 
-                    for (Entry<String, String> replacementEntry : replacements.entrySet()) {
+                    for (Entry<String, String> replacementEntry : inboundReplacements.entrySet()) {
                         String replaceKey = replacementEntry.getKey();
                         String replaceValue = replacementEntry.getValue();
 
@@ -130,7 +131,13 @@ public class RegexAttachmentHandler extends MirthAttachmentHandler {
 
         int count = 0;
         while (attachmentProperties.getProperties().containsKey("regex.replaceKey" + count)) {
-            replacements.put(StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceKey" + count)), StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceValue" + count)));
+            inboundReplacements.put(StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceKey" + count)), StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceValue" + count)));
+            count++;
+        }
+
+        count = 0;
+        while (attachmentProperties.getProperties().containsKey("outbound.regex.replaceKey" + count)) {
+            outboundReplacements.put(StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("outbound.regex.replaceKey" + count)), StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("outbound.regex.replaceValue" + count)));
             count++;
         }
 
@@ -144,5 +151,22 @@ public class RegexAttachmentHandler extends MirthAttachmentHandler {
     @Override
     public boolean canExtractAttachments() {
         return true;
+    }
+
+    @Override
+    public byte[] replaceOutboundAttachment(byte[] content) throws Exception {
+        String attachmentString = "";
+        attachmentString = new String(content, Constants.ATTACHMENT_CHARSET);
+
+        for (Entry<String, String> replacementEntry : outboundReplacements.entrySet()) {
+            String replaceKey = replacementEntry.getKey();
+            String replaceValue = replacementEntry.getValue();
+
+            if (replaceKey != null && replaceValue != null) {
+                attachmentString = attachmentString.replace(replaceKey, replaceValue);
+            }
+        }
+
+        return attachmentString.getBytes(Constants.ATTACHMENT_CHARSET);
     }
 }

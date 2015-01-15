@@ -100,4 +100,9 @@ public class DICOMAttachmentHandler extends MirthAttachmentHandler {
     public boolean canExtractAttachments() {
         return true;
     }
+
+    @Override
+    public byte[] replaceOutboundAttachment(byte[] content) {
+        return content;
+    }
 }

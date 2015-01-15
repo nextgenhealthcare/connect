@@ -32,4 +32,6 @@ public interface AttachmentHandler extends Serializable {
     public String reAttachMessage(String raw, ConnectorMessage message);
 
     public boolean canExtractAttachments();
+
+    public byte[] replaceOutboundAttachment(byte[] content) throws Exception;
 }

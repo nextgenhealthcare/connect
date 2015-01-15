@@ -38,4 +38,9 @@ public class PassthruAttachmentHandler extends MirthAttachmentHandler {
     public boolean canExtractAttachments() {
         return false;
     }
+
+    @Override
+    public byte[] replaceOutboundAttachment(byte[] content) {
+        return content;
+    }
 }

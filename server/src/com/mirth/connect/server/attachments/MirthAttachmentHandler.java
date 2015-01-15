@@ -133,8 +133,9 @@ public abstract class MirthAttachmentHandler implements AttachmentHandler {
 
                         if (attachmentMap.containsKey(attachmentId)) {
                             Attachment attachment = attachmentMap.get(attachmentId);
-                            replacementMap.put(KEY_DATA, attachment.getContent());
 
+                            attachment.setContent(replaceOutboundAttachment(attachment.getContent()));
+                            replacementMap.put(KEY_DATA, attachment.getContent());
                             bufferSize += attachment.getContent().length;
                         } else {
                             replacementMap.put(KEY_DATA, new byte[0]);
