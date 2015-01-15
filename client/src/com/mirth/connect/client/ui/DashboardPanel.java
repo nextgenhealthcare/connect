@@ -12,6 +12,8 @@ package com.mirth.connect.client.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -25,8 +27,11 @@ import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -76,6 +81,8 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     private Frame parent;
     private boolean showLifetimeStats = false;
+
+    private JMenuItem menuItem;
 
     public DashboardPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -204,7 +211,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
 
         if (statusTable == null) {
-            statusTable = new MirthTreeTable();
+            statusTable = new MirthTreeTable("dashboardPanel");
         }
 
         statusTable.setColumnFactory(new DashboardTableColumnFactory());
@@ -235,6 +242,12 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         // hack to make column headers clickable
         addColumnHeaderListeners();
+
+        int columnIndex = statusTable.restoreSortOrder();
+        if (columnIndex > -1) {
+            ((SortableHeaderCellRenderer) statusTable.getTableHeader().getDefaultRenderer()).setSortingIcon(model.getSortOrder());
+            ((SortableHeaderCellRenderer) statusTable.getTableHeader().getDefaultRenderer()).setColumnIndex(columnIndex);
+        }
 
         statusPane.setViewportView(statusTable);
 
@@ -287,6 +300,11 @@ public class DashboardPanel extends javax.swing.JPanel {
         // Add mouse listener to detect clicks on column header
         statusTable.getTableHeader().addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    getColumnMenu().show(e.getComponent(), e.getX(), e.getY());
+                    return;
+                }
+
                 JTableHeader h = (JTableHeader) e.getSource();
                 TableColumnModel columnModel = h.getColumnModel();
 
@@ -301,9 +319,28 @@ public class DashboardPanel extends javax.swing.JPanel {
                     // Set sorting icon and current column index
                     ((SortableHeaderCellRenderer) statusTable.getTableHeader().getDefaultRenderer()).setSortingIcon(model.getSortOrder());
                     ((SortableHeaderCellRenderer) statusTable.getTableHeader().getDefaultRenderer()).setColumnIndex(column);
+
+                    statusTable.saveSortOrder(column);
                 }
             }
         });
+    }
+
+    private JPopupMenu getColumnMenu() {
+        JPopupMenu columnMenu = new JPopupMenu();
+
+        menuItem = new JMenuItem();
+        menuItem.setText("Restore Default");
+
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                statusTable.restoreDefaults();
+            }
+        });
+
+        columnMenu.add(menuItem);
+        return columnMenu;
     }
 
     /**

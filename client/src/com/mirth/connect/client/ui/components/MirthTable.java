@@ -14,21 +14,35 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.table.TableModel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.JXTable;
 
+import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MirthTable extends JXTable {
+    private Preferences userPreferences;
+    private String prefix;
 
     public MirthTable() {
-        super();
+        this(null);
+    }
+
+    public MirthTable(String prefix) {
         this.setDragEnabled(true);
         this.addKeyListener(new KeyListener() {
 
@@ -45,11 +59,42 @@ public class MirthTable extends JXTable {
         });
 
         /*
-         * Swingx 1.0 has this set to true by default, which doesn't allow
-         * dragging and dropping into tables. Swingx 0.8 had this set to false.
-         * Tables that want it set to true can override it.
+         * Swingx 1.0 has this set to true by default, which doesn't allow dragging and dropping
+         * into tables. Swingx 0.8 had this set to false. Tables that want it set to true can
+         * override it.
          */
         this.putClientProperty("terminateEditOnFocusLost", Boolean.FALSE);
+
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);
+        this.prefix = prefix;
+    }
+
+    @Override
+    public void sorterChanged(RowSorterEvent e) {
+        if (StringUtils.isNotEmpty(prefix)) {
+            userPreferences.put(prefix + "SortOrder", ObjectXMLSerializer.getInstance().serialize(new ArrayList<SortKey>(getRowSorter().getSortKeys())));
+        }
+    }
+
+    @Override
+    public void setModel(TableModel tableModel) {
+        super.setModel(tableModel);
+
+        if (tableModel.getColumnCount() > 0 && StringUtils.isNotEmpty(prefix)) {
+            String sortOrder = userPreferences.get(prefix + "SortOrder", "");
+
+            if (StringUtils.isNotEmpty(sortOrder)) {
+                List<SortKey> sortKeys = ObjectXMLSerializer.getInstance().deserialize(sortOrder, List.class);
+                getRowSorter().setSortKeys(sortKeys);
+            }
+        }
+    }
+
+    public void restoreDefaults() {
+        if (StringUtils.isNotEmpty(prefix)) {
+            getRowSorter().setSortKeys(null);
+            userPreferences.put(prefix + "SortOrder", "");
+        }
     }
 
     public void setCustomEditorControls(boolean enabled) {
@@ -73,9 +118,8 @@ public class MirthTable extends JXTable {
             };
 
             /*
-             * Don't edit cells on any keystroke. Let the toggleEditing action
-             * handle it for 'Enter' only. Also surrender focus to any activated
-             * editor.
+             * Don't edit cells on any keystroke. Let the toggleEditing action handle it for 'Enter'
+             * only. Also surrender focus to any activated editor.
              */
             setAutoStartEditOnKeyStroke(false);
             setSurrendersFocusOnKeystroke(true);

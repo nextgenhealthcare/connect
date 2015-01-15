@@ -265,9 +265,6 @@ public class ChannelPanel extends javax.swing.JPanel {
 
         channelTable.setSortable(true);
 
-        // Sort by Channel Name column
-        channelTable.getRowSorter().toggleSortOrder(channelTable.getColumnExt(NAME_COLUMN_NAME).getModelIndex());
-
         channelPane.setViewportView(channelTable);
 
         channelTable.setDragEnabled(true);
@@ -392,6 +389,7 @@ public class ChannelPanel extends javax.swing.JPanel {
                     boolean enable = defaultVisibleColumns.contains(columnName);
                     columnExt.setVisible(enable);
                     Preferences.userNodeForPackage(Mirth.class).putBoolean("channelTableVisibleColumn" + columnName, enable);
+                    channelTable.restoreDefaults();
                 }
             }
 
@@ -480,7 +478,7 @@ public class ChannelPanel extends javax.swing.JPanel {
             RefreshTableModel model = (RefreshTableModel) channelTable.getModel();
             model.refreshDataVector(tableData);
         } else {
-            channelTable = new MirthTable();
+            channelTable = new MirthTable("channelPanel");
 
             ArrayList<String> columns = new ArrayList<String>();
             for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {

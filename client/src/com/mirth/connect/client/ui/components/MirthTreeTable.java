@@ -16,21 +16,33 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
+import javax.swing.SortOrder;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.AbstractDashboardTableNode;
+import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.SortableTreeTable;
+import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MirthTreeTable extends SortableTreeTable {
+    private Preferences userPreferences;
+    private String prefix;
 
     public MirthTreeTable() {
-        super();
+        this(null);
+    }
+
+    public MirthTreeTable(String prefix) {
         this.setDragEnabled(true);
         this.addKeyListener(new KeyListener() {
 
@@ -47,11 +59,43 @@ public class MirthTreeTable extends SortableTreeTable {
         });
 
         /*
-         * Swingx 1.0 has this set to true by default, which doesn't allow
-         * dragging and dropping into tables. Swingx 0.8 had this set to false.
-         * Tables that want it set to true can override it.
+         * Swingx 1.0 has this set to true by default, which doesn't allow dragging and dropping
+         * into tables. Swingx 0.8 had this set to false. Tables that want it set to true can
+         * override it.
          */
         this.putClientProperty("terminateEditOnFocusLost", Boolean.FALSE);
+
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);
+        this.prefix = prefix;
+    }
+
+    public void saveSortOrder(int column) {
+        if (StringUtils.isNotEmpty(prefix)) {
+            userPreferences.put(prefix + "SortOrder", ObjectXMLSerializer.getInstance().serialize(getSortOrder(column)));
+            userPreferences.putInt(prefix + "SortOrderColumn", column);
+        }
+    }
+
+    public int restoreSortOrder() {
+        int sortOrderColumn = -1;
+        if (StringUtils.isNotEmpty(prefix)) {
+            sortOrderColumn = userPreferences.getInt(prefix + "SortOrderColumn", -1);
+            if (sortOrderColumn > -1) {
+                SortableTreeTableModel model = (SortableTreeTableModel) getTreeTableModel();
+
+                model.setColumnAndToggleSortOrder(sortOrderColumn);
+                model.setSortOrder(ObjectXMLSerializer.getInstance().deserialize(userPreferences.get(prefix + "SortOrder", ""), SortOrder.class));
+            }
+        }
+        return sortOrderColumn;
+    }
+
+    public void restoreDefaults() {
+        if (StringUtils.isNotEmpty(prefix)) {
+            resetSortOrder();
+            userPreferences.put(prefix + "SortOrder", "");
+            userPreferences.putInt(prefix + "SortOrderColumn", -1);
+        }
     }
 
     public void setCustomEditorControls(boolean enabled) {
