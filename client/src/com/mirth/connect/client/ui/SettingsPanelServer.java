@@ -105,7 +105,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         try {
             String emailAddress = serverSettings.getSmtpFrom();
-            if (emailAddress != null) {
+            if (StringUtils.isNotBlank(emailAddress)) {
                 new InternetAddress(emailAddress).validate();
             }
         } catch (Exception e) {
