@@ -50,8 +50,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -117,7 +115,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     private boolean isResponse = false;
 
     private JTabbedPane tabbedPane;
-    private MirthSyntaxTextArea codeTextArea;
+    private MirthSyntaxTextArea scriptTextArea;
+    private JPanel generatedScriptPanel;
+
+    private int lastSelectedIndex = 0;
+    boolean switchTab = false;
 
     private static int CODE_TAB = 1;
 
@@ -324,24 +326,25 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         stepPanel = new BasePanel();
         blankPanel = new BasePanel();
 
-        codeTextArea = new MirthSyntaxTextArea(true, true, -1);
-        codeTextArea.setTokenMarker(new JavaScriptTokenMarker());
-        codeTextArea.setBorder(BorderFactory.createEtchedBorder());
-        codeTextArea.setEditable(false);
-        codeTextArea.setDropTarget(null);
+        scriptTextArea = new MirthSyntaxTextArea(true, true, -1);
+        scriptTextArea.setBackground(new Color(204, 204, 204));
+        scriptTextArea.setTokenMarker(new JavaScriptTokenMarker());
+        scriptTextArea.setBorder(BorderFactory.createEtchedBorder());
+        scriptTextArea.setEditable(false);
+        scriptTextArea.setDropTarget(null);
 
-        JPanel codePanel = new JPanel();
-        codePanel.setBackground(Color.white);
-        codePanel.setLayout(new CardLayout());
-        codePanel.add(codeTextArea, "");
+        generatedScriptPanel = new JPanel();
+        generatedScriptPanel.setBackground(Color.white);
+        generatedScriptPanel.setLayout(new CardLayout());
+        generatedScriptPanel.add(scriptTextArea, "");
 
         tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Step", stepPanel);
-        tabbedPane.addTab("Code", codePanel);
 
-        tabbedPane.addChangeListener(new ChangeListener() {
+        tabbedPane.addMouseListener(new MouseAdapter() {
             @Override
-            public void stateChanged(ChangeEvent event) {
+            public void mouseClicked(MouseEvent e) {
+                switchTab = (lastSelectedIndex == 0 && tabbedPane.getSelectedIndex() == 1) ? true : false;
                 updateCodePanel(null);
             }
         });
@@ -607,6 +610,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             public void valueChanged(ListSelectionEvent evt) {
                 if (!updating && !evt.getValueIsAdjusting()) {
                     TransformerListSelected(evt);
+                    updateCodePanel(null);
                 }
             }
         });
@@ -921,7 +925,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         updateStepNumbers();
 
         if (transformerTable.getRowCount() == 0) {
-            codeTextArea.setText("");
+            scriptTextArea.setText("");
         }
 
         invalidVar = false;
@@ -1325,18 +1329,29 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         int selectedTab = tabbedPane.getSelectedIndex();
         int row = transformerTable.getSelectedRow();
 
-        if (selectedTab == CODE_TAB) {
-            if (row != -1) {
-                String type = StringUtils.isNotEmpty(stepType) ? stepType : (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
+        if (row != -1) {
+            String type = StringUtils.isNotEmpty(stepType) ? stepType : (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
+            boolean hideScriptTab = type.equalsIgnoreCase("Javascript") || type.equalsIgnoreCase("External Script");
 
+            if (hideScriptTab && tabbedPane.getTabCount() == 2) {
+                tabbedPane.removeTabAt(CODE_TAB);
+            } else if (!hideScriptTab && tabbedPane.getTabCount() == 1) {
+                tabbedPane.addTab("Generated Script", generatedScriptPanel);
+            }
+
+            if (!hideScriptTab && selectedTab == CODE_TAB) {
                 TransformerStepPlugin plugin = null;
                 try {
                     plugin = getPlugin(type);
                     Map<Object, Object> dataMap = stepPanel.getData();
-                    codeTextArea.setText(dataMap != null ? plugin.getGeneratedScript(dataMap) : "");
+                    scriptTextArea.setText(dataMap != null ? plugin.getGeneratedScript(dataMap) : "");
                 } catch (Exception e) {
-                    codeTextArea.setText("");
+                    scriptTextArea.setText("");
                 }
+            }
+
+            if (switchTab && tabbedPane.getTabCount() == 2) {
+                tabbedPane.setSelectedIndex(CODE_TAB);
             }
         }
     }

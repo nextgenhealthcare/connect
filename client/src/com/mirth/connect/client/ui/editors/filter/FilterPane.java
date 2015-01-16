@@ -51,8 +51,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -124,7 +122,11 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     private DropTarget dropTarget;
 
     private JTabbedPane tabbedPane;
-    private MirthSyntaxTextArea codeTextArea;
+    private JPanel generatedScriptPanel;
+    private MirthSyntaxTextArea scriptTextArea;
+
+    boolean switchTab = false;
+    private int lastSelectedIndex = 0;
 
     private static int CODE_TAB = 1;
 
@@ -321,24 +323,25 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         rulePanel = new BasePanel();
         blankPanel = new BasePanel();
 
-        codeTextArea = new MirthSyntaxTextArea(true, true, -1);
-        codeTextArea.setTokenMarker(new JavaScriptTokenMarker());
-        codeTextArea.setBorder(BorderFactory.createEtchedBorder());
-        codeTextArea.setEditable(false);
-        codeTextArea.setDropTarget(null);
+        scriptTextArea = new MirthSyntaxTextArea(true, true, -1);
+        scriptTextArea.setBackground(new Color(204, 204, 204));
+        scriptTextArea.setTokenMarker(new JavaScriptTokenMarker());
+        scriptTextArea.setBorder(BorderFactory.createEtchedBorder());
+        scriptTextArea.setEditable(false);
+        scriptTextArea.setDropTarget(null);
         
-        JPanel codePanel = new JPanel();
-        codePanel.setBackground(Color.white);
-        codePanel.setLayout(new CardLayout());
-        codePanel.add(codeTextArea, "");
+        generatedScriptPanel = new JPanel();
+        generatedScriptPanel.setBackground(Color.white);
+        generatedScriptPanel.setLayout(new CardLayout());
+        generatedScriptPanel.add(scriptTextArea, "");
 
         tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Rule", rulePanel);
-        tabbedPane.addTab("Code", codePanel);
 
-        tabbedPane.addChangeListener(new ChangeListener() {
+        tabbedPane.addMouseListener(new MouseAdapter() {
             @Override
-            public void stateChanged(ChangeEvent event) {
+            public void mouseClicked(MouseEvent e) {
+                switchTab = (lastSelectedIndex == 0 && tabbedPane.getSelectedIndex() == 1) ? true : false;
                 updateCodePanel(null);
             }
         });
@@ -626,6 +629,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             public void valueChanged(ListSelectionEvent evt) {
                 if (!updating && !evt.getValueIsAdjusting()) {
                     FilterListSelected(evt);
+                    updateCodePanel(null);
                 }
             }
         });
@@ -907,7 +911,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         updateRuleNumbers();
 
         if (filterTable.getRowCount() == 0) {
-            codeTextArea.setText("");
+            scriptTextArea.setText("");
         }
     }
 
@@ -1280,22 +1284,33 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         tabTemplatePanel.resizePanes();
     }
 
-    private void updateCodePanel(String ruleType) {
+    private void updateCodePanel(String stepType) {
         int selectedTab = tabbedPane.getSelectedIndex();
         int row = filterTable.getSelectedRow();
 
-        if (selectedTab == CODE_TAB) {
-            if (row != -1) {
-                String type = StringUtils.isNotEmpty(ruleType) ? ruleType : (String) filterTable.getValueAt(row, RULE_TYPE_COL);
+        if (row != -1) {
+            String type = StringUtils.isNotEmpty(stepType) ? stepType : (String) filterTable.getValueAt(row, RULE_TYPE_COL);
+            boolean hideScriptTab = type.equalsIgnoreCase("Javascript") || type.equalsIgnoreCase("External Script");
 
+            if (hideScriptTab && tabbedPane.getTabCount() == 2) {
+                tabbedPane.removeTabAt(CODE_TAB);
+            } else if (!hideScriptTab && tabbedPane.getTabCount() == 1) {
+                tabbedPane.addTab("Generated Script", generatedScriptPanel);
+            }
+
+            if (!hideScriptTab && selectedTab == CODE_TAB) {
                 FilterRulePlugin plugin = null;
                 try {
                     plugin = getPlugin(type);
                     Map<Object, Object> dataMap = rulePanel.getData();
-                    codeTextArea.setText(dataMap != null ? plugin.getGeneratedScript(dataMap) : "");
+                    scriptTextArea.setText(dataMap != null ? plugin.getGeneratedScript(dataMap) : "");
                 } catch (Exception e) {
-                    codeTextArea.setText("");
+                    scriptTextArea.setText("");
                 }
+            }
+
+            if (switchTab && tabbedPane.getTabCount() == 2) {
+                tabbedPane.setSelectedIndex(CODE_TAB);
             }
         }
     }
