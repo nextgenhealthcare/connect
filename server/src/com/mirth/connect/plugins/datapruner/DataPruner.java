@@ -445,12 +445,12 @@ public class DataPruner implements Runnable {
                     archiveAndGetIdsToPrune(params, channelId, messageDateThreshold, archiveFolder, messageIds, contentMessageIds);
                 }
 
-                while (contentMessageIds.hasNext()) {
-                    result.numContentPruned += pruneChannelByIds(localChannelId, contentMessageIds, true);
-                }
-
                 while (messageIds.hasNext()) {
                     result.numMessagesPruned += pruneChannelByIds(localChannelId, messageIds, false);
+                }
+
+                while (contentMessageIds.hasNext()) {
+                    result.numContentPruned += pruneChannelByIds(localChannelId, contentMessageIds, true);
                 }
 
                 return result;
@@ -490,9 +490,9 @@ public class DataPruner implements Runnable {
 
                 if (messageDateThreshold != null && receivedDate < messageDateThreshold.getTimeInMillis()) {
                     messageIds.add(id);
+                } else {
+                    contentMessageIds.add(id);
                 }
-
-                contentMessageIds.add(id);
                 minMessageId = id + 1;
             }
         } while (maps != null && maps.size() == ID_RETRIEVE_LIMIT);
@@ -559,7 +559,7 @@ public class DataPruner implements Runnable {
                         minMessageId = message.getMessageId() + 1;
                     }
                 } while (messageList != null && messageList.size() == archiverBlockSize);
-    
+
                 archiver.finishWrite();
             } finally {
                 archiver.close();
@@ -615,10 +615,10 @@ public class DataPruner implements Runnable {
 
                 messages.add(message);
 
-                contentMessageIds.add(messageId);
-
                 if (messageDateThreshold != null && connectorReceivedDateMillis < messageDateThreshold.getTimeInMillis()) {
                     messageIds.add(messageId);
+                } else {
+                    contentMessageIds.add(messageId);
                 }
             }
             return messages;
@@ -641,6 +641,7 @@ public class DataPruner implements Runnable {
         ListRangeIterator listRangeIterator = new ListRangeIterator(ids, ListRangeIterator.DEFAULT_LIST_LIMIT, true, blockSize);
 
         while (listRangeIterator.hasNext()) {
+            ThreadUtils.checkInterruptedStatus();
             ListRangeItem item = listRangeIterator.next();
             List<Long> list = item.getList();
             Long startRange = item.getStartRange();
@@ -666,7 +667,7 @@ public class DataPruner implements Runnable {
         return numPruned;
     }
 
-    private int runDeleteQueries(Map<String, Object> params, boolean contentOnly) throws InterruptedException {
+    private int runDeleteQueries(Map<String, Object> params, boolean contentOnly) {
         int numPruned;
 
         if (contentOnly) {
@@ -691,8 +692,7 @@ public class DataPruner implements Runnable {
         return numPruned;
     }
 
-    private int runDelete(String query, Map<String, Object> params) throws InterruptedException {
-        ThreadUtils.checkInterruptedStatus();
+    private int runDelete(String query, Map<String, Object> params) {
         SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
 
         try {
@@ -703,7 +703,6 @@ public class DataPruner implements Runnable {
             status.setPruning(true);
 
             int count = session.delete(query, params);
-            ThreadUtils.checkInterruptedStatus();
             return count;
         } finally {
             session.close();
