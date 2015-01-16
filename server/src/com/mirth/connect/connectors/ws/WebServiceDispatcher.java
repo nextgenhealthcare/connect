@@ -41,6 +41,7 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPBinding;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -86,6 +87,7 @@ import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -492,6 +494,12 @@ public class WebServiceDispatcher extends DestinationConnector {
                             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Connection refused.", e);
                             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Connection refused.", e));
                         } else {
+                            if (e instanceof SOAPFaultException) {
+                                try {
+                                    responseData = new DonkeyElement(((SOAPFaultException) e).getFault()).toXml();
+                                } catch (DonkeyElementException e2) {
+                                }
+                            }
                             responseStatus = Status.ERROR;
                             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
                             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error invoking web service", e);
