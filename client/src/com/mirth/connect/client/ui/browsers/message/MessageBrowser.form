@@ -794,6 +794,9 @@
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
             <Component class="com.mirth.connect.client.ui.components.MirthTreeTable" name="messageTreeTable">
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthTreeTable(&quot;messageBrowser&quot;, defaultVisibleColumns)"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>

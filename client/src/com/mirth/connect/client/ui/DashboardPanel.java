@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,6 +84,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     private boolean showLifetimeStats = false;
 
     private JMenuItem menuItem;
+    private Set<String> defaultVisibleColumns;
 
     public DashboardPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -105,6 +107,9 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         };
         tabs.addChangeListener(changeListener);
+
+        defaultVisibleColumns = new LinkedHashSet<String>();
+        defaultVisibleColumns.addAll(Arrays.asList(defaultColumns));
 
         makeStatusTable();
         loadTablePlugins();
@@ -210,8 +215,10 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         }
 
+        defaultVisibleColumns.addAll(columns);
+
         if (statusTable == null) {
-            statusTable = new MirthTreeTable("dashboardPanel");
+            statusTable = new MirthTreeTable("dashboardPanel", defaultVisibleColumns);
         }
 
         statusTable.setColumnFactory(new DashboardTableColumnFactory());
@@ -230,6 +237,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.putClientProperty("JTree.lineStyle", "Horizontal");
         statusTable.setAutoCreateColumnsFromModel(false);
         statusTable.setShowGrid(true, true);
+        statusTable.restoreColumnOrder(model);
 
         // TODO: try using a custom tree cell renderer to set custom icons on connectors, so that we can display a chain icon to indicate that a destination waits for the previous one
         // http://www.java.net/forum/topic/javadesktop/java-desktop-technologies/swinglabs/jxtreetable-custom-icons-node
@@ -335,7 +343,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                statusTable.restoreDefaults();
+                statusTable.restoreDefaults(defaultVisibleColumns);
             }
         });
 

@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -71,7 +72,6 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
-import org.jdesktop.swingx.table.TableColumnModelExt;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
@@ -151,6 +151,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private String channelId;
     private Map<Integer, String> connectors;
     private List<MetaDataColumn> metaDataColumns;
+    private List<String> metaDataColumnNames;
     private MessageBrowserTableModel tableModel;
     private PaginatedMessageList messages;
     private Map<Long, Message> messageCache;
@@ -304,7 +305,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         columnList.addAll(columnMap.values());
 
         // Add custom columns
-        List<String> metaDataColumnNames = new ArrayList<String>();
+        metaDataColumnNames = new ArrayList<String>();
 
         for (MetaDataColumn column : metaDataColumns) {
             metaDataColumnNames.add(column.getName());
@@ -313,6 +314,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         Set<String> hiddenCustomColumns = customHiddenColumnMap.get(channelId);
         if (hiddenCustomColumns == null) {
             hiddenCustomColumns = new HashSet<String>();
+            hiddenCustomColumns.addAll(metaDataColumnNames);
             customHiddenColumnMap.put(channelId, hiddenCustomColumns);
         } else {
             // If this channel was viewed before, remove any hidden custom columns that no longer exist
@@ -331,24 +333,20 @@ public class MessageBrowser extends javax.swing.JPanel {
         MessageBrowserTableColumnFactory columnFactory = (MessageBrowserTableColumnFactory) messageTreeTable.getColumnFactory();
         for (int modelIndex = 0; modelIndex < columnList.size(); modelIndex++) {
             TableColumnExt column = columnFactory.createAndConfigureTableColumn(messageTreeTable.getModel(), modelIndex);
-            String columnName = column.getTitle();
-
-            boolean defaultVisible = false;
-            if (defaultVisibleColumns.contains(columnName)) {
-                defaultVisible = true;
-            }
-
-            // For system columns, check the preferences to see if they should be visible.
-            // Custom metadata columns will always be visible for now.
-            if (modelIndex < columnMap.size()) {
-                column.setVisible(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserVisibleColumn" + columnName, defaultVisible));
-            } else {
-                columnFactory.configureCustomColumn(column, metaDataColumns.get(modelIndex - columnMap.size()).getType());
-
-                column.setVisible(!hiddenCustomColumns.contains(columnName));
-            }
-
             messageTreeTable.addColumn(column);
+        }
+
+        Set<String> channelSpecificColumns = new LinkedHashSet<String>();
+        channelSpecificColumns.addAll(metaDataColumnNames);
+        messageTreeTable.setMetaDataColumns(channelSpecificColumns);
+        messageTreeTable.setDefaultVisibleColumns(defaultVisibleColumns);
+        messageTreeTable.restoreColumnOrder(tableModel);
+
+        // Enable/Disable cached metaDataColumns
+        if (customHiddenColumnMap.size() > 0) {
+            for (String col : customHiddenColumnMap.get(channelId)) {
+                messageTreeTable.getColumnExt(col).setVisible(true);
+            }
         }
 
         runSearch();
@@ -1012,7 +1010,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         columnMap.put(IMPORT_CHANNEL_ID_COLUMN, "Import Channel Id");
         columnMap.put(ORIGINAL_SERVER_ID_COLUMN, "Original Server Id");
 
-        defaultVisibleColumns = new HashSet<String>();
+        defaultVisibleColumns = new LinkedHashSet<String>();
         defaultVisibleColumns.add(columnMap.get(ID_COLUMN));
         defaultVisibleColumns.add(columnMap.get(CONNECTOR_COLUMN));
         defaultVisibleColumns.add(columnMap.get(STATUS_COLUMN));
@@ -1231,18 +1229,15 @@ public class MessageBrowser extends javax.swing.JPanel {
                     if (enable || messageTreeTable.getColumnCount() > 1) {
                         column.setVisible(enable);
 
-                        if (columnMap.values().contains(columnName)) {
-                            Preferences.userNodeForPackage(Mirth.class).putBoolean("messageBrowserVisibleColumn" + columnName, enable);
-                        } else {
-                            Set<String> customHiddenColumns = customHiddenColumnMap.get(channelId);
+                        Set<String> customHiddenColumns = customHiddenColumnMap.get(channelId);
 
-                            if (enable) {
-                                customHiddenColumns.remove(columnName);
-                            } else {
-                                customHiddenColumns.add(columnName);
-                            }
+                        if (enable) {
+                            customHiddenColumns.add(columnName);
+                        } else {
+                            customHiddenColumns.remove(columnName);
                         }
                     }
+                    messageTreeTable.saveColumnOrder();
                 }
             });
 
@@ -1280,23 +1275,8 @@ public class MessageBrowser extends javax.swing.JPanel {
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
-
-                for (TableColumn column : ((TableColumnModelExt) messageTreeTable.getColumnModel()).getColumns(true)) {
-                    TableColumnExt columnExt = (TableColumnExt) column;
-                    String columnName = columnExt.getTitle();
-
-                    if (columnExt.getModelIndex() < columnMap.size()) {
-                        boolean enable = defaultVisibleColumns.contains(columnName);
-
-                        columnExt.setVisible(enable);
-                        Preferences.userNodeForPackage(Mirth.class).putBoolean("messageBrowserVisibleColumn" + columnName, enable);
-                    } else {
-                        columnExt.setVisible(true);
-
-                        Set<String> customHiddenColumns = customHiddenColumnMap.get(channelId);
-                        customHiddenColumns.remove(columnName);
-                    }
-                }
+                defaultVisibleColumns.addAll(metaDataColumnNames);
+                messageTreeTable.restoreDefaults(defaultVisibleColumns);
             }
 
         });
@@ -2216,7 +2196,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentTable = null;
         messageScrollPane = new javax.swing.JScrollPane();
-        messageTreeTable = new com.mirth.connect.client.ui.components.MirthTreeTable();
+        messageTreeTable = new com.mirth.connect.client.ui.components.MirthTreeTable("messageBrowser", defaultVisibleColumns);
         jPanel1 = new javax.swing.JPanel();
         pageNumberLabel = new javax.swing.JLabel();
         mirthDatePicker1 = new com.mirth.connect.client.ui.components.MirthDatePicker();
