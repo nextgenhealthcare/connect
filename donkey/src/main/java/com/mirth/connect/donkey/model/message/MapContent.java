@@ -12,9 +12,11 @@ package com.mirth.connect.donkey.model.message;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapContent {
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+public class MapContent extends Content {
     private Object content = new HashMap<String, Object>();
-    private boolean encrypted = false;
     private transient boolean persisted = false;
 
     public MapContent() {
@@ -39,20 +41,13 @@ public class MapContent {
         this.content = map;
     }
 
-    public Object getContent() {
-        return content;
+    @Override
+    public String getContent() {
+        return new XStream(new DomDriver()).toXML(content);
     }
 
     public void setContent(Object content) {
         this.content = content;
-    }
-
-    public boolean isEncrypted() {
-        return encrypted;
-    }
-
-    public void setEncrypted(boolean encrypted) {
-        this.encrypted = encrypted;
     }
 
     public boolean isPersisted() {

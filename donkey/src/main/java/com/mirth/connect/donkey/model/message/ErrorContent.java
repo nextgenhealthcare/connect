@@ -9,9 +9,8 @@
 
 package com.mirth.connect.donkey.model.message;
 
-public class ErrorContent {
+public class ErrorContent extends Content {
     private String content = null;
-    private boolean encrypted = false;
     private transient boolean persisted = false;
 
     public ErrorContent() {
@@ -23,20 +22,13 @@ public class ErrorContent {
         this.persisted = persisted;
     }
 
+    @Override
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public boolean isEncrypted() {
-        return encrypted;
-    }
-
-    public void setEncrypted(boolean encrypted) {
-        this.encrypted = encrypted;
     }
 
     public boolean isPersisted() {

@@ -134,6 +134,26 @@ public class ConnectorMessage implements Serializable {
         }
     }
 
+    public Content getContent(ContentType contentType) {
+        Content content = getMessageContent(contentType);
+        if (content != null) {
+            return content;
+        }
+
+        switch (contentType) {
+            case SOURCE_MAP:
+                return  sourceMapContent;
+            case RESPONSE_MAP:
+                return responseMapContent;
+            case CHANNEL_MAP:
+                return channelMapContent;
+            case CONNECTOR_MAP:
+                return connectorMapContent;
+            default:
+                return null;
+        }
+    }
+
     public void setMessageContent(MessageContent messageContent) {
         switch (messageContent.getContentType()) {
             case RAW:

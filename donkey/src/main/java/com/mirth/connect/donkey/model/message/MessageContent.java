@@ -11,14 +11,13 @@ package com.mirth.connect.donkey.model.message;
 
 import java.io.Serializable;
 
-public class MessageContent implements Serializable {
+public class MessageContent extends Content implements Serializable {
     private String channelId;
     private long messageId;
     private int metaDataId;
     private ContentType contentType;
     private String content;
     private String dataType;
-    private boolean encrypted;
 
     public MessageContent() {}
 
@@ -29,7 +28,7 @@ public class MessageContent implements Serializable {
         this.contentType = contentType;
         this.content = content;
         this.dataType = dataType;
-        this.encrypted = encrypted;
+        super.setEncrypted(encrypted);
     }
 
     public String getChannelId() {
@@ -48,6 +47,7 @@ public class MessageContent implements Serializable {
         this.contentType = contentType;
     }
 
+    @Override
     public String getContent() {
         return content;
     }
@@ -62,14 +62,6 @@ public class MessageContent implements Serializable {
 
     public void setDataType(String dataType) {
         this.dataType = dataType;
-    }
-
-    public boolean isEncrypted() {
-        return encrypted;
-    }
-
-    public void setEncrypted(boolean encrypted) {
-        this.encrypted = encrypted;
     }
 
     public long getMessageId() {

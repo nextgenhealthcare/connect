@@ -19,10 +19,11 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 
 import com.mirth.commons.encryption.Encryptor;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.Content;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
-import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.MessageEncryptionUtil;
 import com.mirth.connect.util.ValueReplacer;
@@ -169,26 +170,33 @@ public class MessageWriterVfs implements MessageWriter {
 
         for (Entry<Integer, ConnectorMessage> entry : message.getConnectorMessages().entrySet()) {
             Integer metaDataId = entry.getKey();
-            ConnectorMessage connectorMessage = entry.getValue();
 
             if (((destinationContent && metaDataId != 0) || (!destinationContent && metaDataId == 0))) {
-                MessageContent messageContent = connectorMessage.getMessageContent(contentType);
+                Content content = null;
+                String stringContent = "";
 
-                if (messageContent != null) {
-                    String content = messageContent.getContent();
+                if (contentType == ContentType.SENT) {
+                    content = message.getConnectorMessages().get(metaDataId).getSent();
+                    ConnectorProperties sentContent = serializer.deserialize(content.getContent(), ConnectorProperties.class);
+                    stringContent = (sentContent == null) ? null : sentContent.toFormattedString();
+                } else {
+                    content = Content.getContent(message, metaDataId, contentType);
+                    stringContent = content.getContent();
+                }
 
+                if (content != null) {
                     if (encrypted) {
-                        if (!messageContent.isEncrypted()) {
-                            content = encryptor.encrypt(content);
+                        if (!content.isEncrypted()) {
+                            stringContent = encryptor.encrypt(stringContent);
                         }
                     } else {
-                        if (messageContent.isEncrypted()) {
-                            content = encryptor.decrypt(content);
+                        if (content.isEncrypted()) {
+                            stringContent = encryptor.decrypt(stringContent);
                         }
                     }
 
-                    if (StringUtils.isNotBlank(content)) {
-                        stringBuilder.append(content);
+                    if (StringUtils.isNotBlank(stringContent)) {
+                        stringBuilder.append(stringContent);
                         stringBuilder.append(IOUtils.LINE_SEPARATOR_WINDOWS); // the VFS output stream requires windows newlines
                         stringBuilder.append(IOUtils.LINE_SEPARATOR_WINDOWS);
                     }

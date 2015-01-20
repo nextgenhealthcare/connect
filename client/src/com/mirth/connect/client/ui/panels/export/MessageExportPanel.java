@@ -294,15 +294,21 @@ public class MessageExportPanel extends JPanel {
 
         DefaultComboBoxModel model = new DefaultComboBoxModel();
         model.addElement(XML_EXPORT_FORMAT);
-        model.addElement(new ExportFormat(false, ContentType.RAW));
-        model.addElement(new ExportFormat(false, ContentType.PROCESSED_RAW));
-        model.addElement(new ExportFormat(false, ContentType.TRANSFORMED));
-        model.addElement(new ExportFormat(false, ContentType.ENCODED));
-        model.addElement(new ExportFormat(false, ContentType.RESPONSE));
-        model.addElement(new ExportFormat(true, ContentType.TRANSFORMED));
-        model.addElement(new ExportFormat(true, ContentType.ENCODED));
-        model.addElement(new ExportFormat(true, ContentType.RESPONSE));
-        model.addElement(new ExportFormat(true, ContentType.PROCESSED_RESPONSE));
+        model.addElement(new ExportFormat(false, "Source", ContentType.RAW));
+        model.addElement(new ExportFormat(false, "Source", ContentType.PROCESSED_RAW));
+        model.addElement(new ExportFormat(false, "Source", ContentType.TRANSFORMED));
+        model.addElement(new ExportFormat(false, "Source", ContentType.ENCODED));
+        model.addElement(new ExportFormat(false, "Source", ContentType.RESPONSE));
+        model.addElement(new ExportFormat(true, "Destination", ContentType.RAW));
+        model.addElement(new ExportFormat(true, "Destination", ContentType.TRANSFORMED));
+        model.addElement(new ExportFormat(true, "Destination", ContentType.ENCODED));
+        model.addElement(new ExportFormat(true, "Destination", ContentType.SENT));
+        model.addElement(new ExportFormat(true, "Destination", ContentType.RESPONSE));
+        model.addElement(new ExportFormat(true, "Destination", ContentType.PROCESSED_RESPONSE));
+
+        model.addElement(new ExportFormat(true, "", ContentType.CHANNEL_MAP));
+        model.addElement(new ExportFormat(true, "", ContentType.SOURCE_MAP));
+        model.addElement(new ExportFormat(true, "", ContentType.RESPONSE_MAP));
         contentComboBox.setModel(model);
 
         contentComboBox.addActionListener(new ActionListener() {
