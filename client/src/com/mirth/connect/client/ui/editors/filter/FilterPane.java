@@ -125,8 +125,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     private JPanel generatedScriptPanel;
     private MirthSyntaxTextArea scriptTextArea;
 
-    boolean switchTab = false;
-    private int lastSelectedIndex = 0;
+    boolean switchTab;
+    private int lastSelectedIndex;
 
     private static int CODE_TAB = 1;
 
@@ -154,6 +154,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             return false;
         }
 
+        switchTab = false;
+        lastSelectedIndex = 0;
         tabbedPane.setSelectedIndex(0);
 
         prevSelRow = -1;
@@ -185,6 +187,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             filterTable.setRowSelectionInterval(0, 0);
             prevSelRow = 0;
         } else {
+            filterTable.getSelectionModel().clearSelection();
             rulePanel.showCard(BLANK_TYPE);
 
             for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
@@ -220,6 +223,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         } else {
             modified = false;
         }
+
+        updateCodePanel(null);
 
         return true;
     }
@@ -910,8 +915,12 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         updateRuleNumbers();
 
+
         if (filterTable.getRowCount() == 0) {
             scriptTextArea.setText("");
+            tabbedPane.setSelectedIndex(0);
+            filterTable.getSelectionModel().clearSelection();
+            updateCodePanel(null);
         }
     }
 
@@ -1285,7 +1294,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     private void updateCodePanel(String stepType) {
-        int selectedTab = tabbedPane.getSelectedIndex();
         int row = filterTable.getSelectedRow();
 
         if (row != -1) {
@@ -1298,7 +1306,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                 tabbedPane.addTab("Generated Script", generatedScriptPanel);
             }
 
-            if (!hideScriptTab && selectedTab == CODE_TAB) {
+            if (!hideScriptTab) {
                 FilterRulePlugin plugin = null;
                 try {
                     plugin = getPlugin(type);
@@ -1312,6 +1320,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             if (switchTab && tabbedPane.getTabCount() == 2) {
                 tabbedPane.setSelectedIndex(CODE_TAB);
             }
+        } else if (tabbedPane.getTabCount() == 2) {
+            tabbedPane.removeTabAt(CODE_TAB);
         }
     }
 }

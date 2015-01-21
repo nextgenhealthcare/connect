@@ -118,8 +118,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     private MirthSyntaxTextArea scriptTextArea;
     private JPanel generatedScriptPanel;
 
-    private int lastSelectedIndex = 0;
-    boolean switchTab = false;
+    private int lastSelectedIndex;
+    boolean switchTab;
 
     private static int CODE_TAB = 1;
 
@@ -147,6 +147,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         if (alertUnsupportedStepTypes(t)) {
             return false;
         }
+
+        switchTab = false;
+        lastSelectedIndex = 0;
+        tabbedPane.setSelectedIndex(0);
 
         this.isResponse = isResponse;
         prevSelRow = -1;
@@ -177,7 +181,9 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             transformerTable.setRowSelectionInterval(0, 0);
             prevSelRow = 0;
         } else {
+            transformerTable.getSelectionModel().clearSelection();
             stepPanel.showCard(BLANK_TYPE);
+
             for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
                 plugin.getPanel().setData(null);
             }
@@ -211,6 +217,9 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         } else {
             modified = false;
         }
+
+        updateCodePanel(null);
+
         return true;
     }
 
@@ -926,6 +935,9 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         if (transformerTable.getRowCount() == 0) {
             scriptTextArea.setText("");
+            tabbedPane.setSelectedIndex(0);
+            transformerTable.getSelectionModel().clearSelection();
+            updateCodePanel(null);
         }
 
         invalidVar = false;
@@ -1326,7 +1338,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     }
 
     private void updateCodePanel(String stepType) {
-        int selectedTab = tabbedPane.getSelectedIndex();
         int row = transformerTable.getSelectedRow();
 
         if (row != -1) {
@@ -1339,7 +1350,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 tabbedPane.addTab("Generated Script", generatedScriptPanel);
             }
 
-            if (!hideScriptTab && selectedTab == CODE_TAB) {
+            if (!hideScriptTab) {
                 TransformerStepPlugin plugin = null;
                 try {
                     plugin = getPlugin(type);
@@ -1353,6 +1364,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             if (switchTab && tabbedPane.getTabCount() == 2) {
                 tabbedPane.setSelectedIndex(CODE_TAB);
             }
+        } else if (tabbedPane.getTabCount() == 2) {
+            tabbedPane.removeTabAt(CODE_TAB);
         }
     }
 }
