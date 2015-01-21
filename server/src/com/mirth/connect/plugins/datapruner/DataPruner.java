@@ -32,7 +32,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
@@ -84,7 +83,7 @@ public class DataPruner implements Runnable {
     public DataPruner() {
         this.retryCount = 3;
         this.skipIncomplete = true;
-        this.skipStatuses = new Status[] { Status.ERROR, Status.QUEUED };
+        this.skipStatuses = new Status[] { Status.ERROR, Status.QUEUED, Status.PENDING };
     }
 
     public int getNumExported() {
@@ -430,6 +429,7 @@ public class DataPruner implements Runnable {
                 params.put("maxMessageId", maxMessageId);
                 params.put("skipIncomplete", isSkipIncomplete());
                 params.put("dateThreshold", (contentDateThreshold == null) ? messageDateThreshold : contentDateThreshold);
+                params.put("limit", ID_RETRIEVE_LIMIT);
 
                 if (getSkipStatuses().length > 0) {
                     params.put("skipStatuses", getSkipStatuses());
@@ -443,14 +443,15 @@ public class DataPruner implements Runnable {
                     getIdsToPrune(params, messageDateThreshold, messageIds, contentMessageIds);
                 } else {
                     archiveAndGetIdsToPrune(params, channelId, messageDateThreshold, archiveFolder, messageIds, contentMessageIds);
+                    result.numMessagesArchived = numExported;
                 }
 
                 while (messageIds.hasNext()) {
-                    result.numMessagesPruned += pruneChannelByIds(localChannelId, messageIds, false);
+                    pruneChannelByIds(localChannelId, messageIds, false, result);
                 }
 
                 while (contentMessageIds.hasNext()) {
-                    result.numContentPruned += pruneChannelByIds(localChannelId, contentMessageIds, true);
+                    pruneChannelByIds(localChannelId, contentMessageIds, true, result);
                 }
 
                 return result;
@@ -467,14 +468,13 @@ public class DataPruner implements Runnable {
         }
     }
 
-    private void getIdsToPrune(Map<String, Object> params, Calendar messageDateThreshold, PruneIds messageIds, PruneIds contentMessageIds) {
-        params.put("limit", ID_RETRIEVE_LIMIT);
-        params.put("archive", false);
-
+    private void getIdsToPrune(Map<String, Object> params, Calendar messageDateThreshold, PruneIds messageIds, PruneIds contentMessageIds) throws InterruptedException {
         long minMessageId = 0;
 
         List<Map<String, Object>> maps;
         do {
+            ThreadUtils.checkInterruptedStatus();
+
             SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
 
             try {
@@ -499,9 +499,6 @@ public class DataPruner implements Runnable {
     }
 
     private void archiveAndGetIdsToPrune(Map<String, Object> params, String channelId, Calendar messageDateThreshold, String archiveFolder, PruneIds messageIds, PruneIds contentMessageIds) throws Throwable {
-        params.put("limit", archiverBlockSize);
-        params.put("archive", true);
-
         String tempChannelFolder = archiveFolder + "/." + channelId;
         String finalChannelFolder = archiveFolder + "/" + channelId;
 
@@ -517,6 +514,7 @@ public class DataPruner implements Runnable {
             }
 
             logger.debug("Running archiver, channel: " + channelId + ", root folder: " + messageWriterOptions.getRootFolder() + ", archive format: " + messageWriterOptions.getArchiveFormat() + ", archive filename: " + messageWriterOptions.getArchiveFileName() + ", file pattern: " + messageWriterOptions.getFilePattern());
+            numExported = 0;
             status.setArchiving(true);
             MessageWriter archiver = MessageWriterFactory.getInstance().getMessageWriter(messageWriterOptions, ConfigurationController.getInstance().getEncryptor());
 
@@ -530,35 +528,57 @@ public class DataPruner implements Runnable {
                 };
             }
 
-            numExported = 0;
             long minMessageId = 0;
-            List<Message> messageList = null;
-
             try {
+                List<Map<String, Object>> maps;
                 do {
                     ThreadUtils.checkInterruptedStatus();
-                    params.put("minMessageId", minMessageId);
+                    SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
 
-                    messageList = getMessagesForArchive(channelId, params, messageDateThreshold, messageIds, contentMessageIds);
-
-                    for (Message message : messageList) {
-                        ThreadUtils.checkInterruptedStatus();
-
-                        if (attachmentSource != null) {
-                            List<Attachment> attachments = attachmentSource.getMessageAttachments(message);
-
-                            if (CollectionUtils.isNotEmpty(attachments)) {
-                                message.setAttachments(attachments);
-                            }
-                        }
-
-                        if (archiver.write(message)) {
-                            numExported++;
-                        }
-
-                        minMessageId = message.getMessageId() + 1;
+                    try {
+                        params.put("minMessageId", minMessageId);
+                        maps = session.selectList("Message.getMessagesToPrune", params);
+                    } finally {
+                        session.close();
                     }
-                } while (messageList != null && messageList.size() == archiverBlockSize);
+
+                    // Reuse the dao for each block
+                    DonkeyDao dao = getDaoFactory().getDao();
+                    try {
+                        for (Map<String, Object> map : maps) {
+                            ThreadUtils.checkInterruptedStatus();
+
+                            long receivedDate = ((Calendar) map.get("mm_received_date")).getTimeInMillis();
+                            long id = (Long) map.get("id");
+
+                            if (messageDateThreshold != null && receivedDate < messageDateThreshold.getTimeInMillis()) {
+                                messageIds.add(id);
+                            } else {
+                                contentMessageIds.add(id);
+                            }
+
+                            Message message = dao.getMessage(channelId, id);
+
+                            if (message != null) {
+                                if (attachmentSource != null) {
+                                    List<Attachment> attachments = attachmentSource.getMessageAttachments(message);
+
+                                    if (CollectionUtils.isNotEmpty(attachments)) {
+                                        message.setAttachments(attachments);
+                                    }
+                                }
+
+                                if (archiver.write(message)) {
+                                    numExported++;
+                                }
+                            }
+
+                            minMessageId = id + 1;
+                        }
+                    } finally {
+                        dao.close();
+                    }
+                } while (maps != null && maps.size() == ID_RETRIEVE_LIMIT);
 
                 archiver.finishWrite();
             } finally {
@@ -581,59 +601,11 @@ public class DataPruner implements Runnable {
         }
     }
 
-    private List<Message> getMessagesForArchive(String channelId, Map<String, Object> params, Calendar messageDateThreshold, PruneIds messageIds, PruneIds contentMessageIds) {
-        List<Map<String, Object>> maps;
-        SqlSession session = SqlConfig.getSqlSessionManager().openSession();
-
-        try {
-            maps = session.selectList("Message.getMessagesToPrune", params);
-        } finally {
-            session.close();
-        }
-
-        List<Message> messages = new ArrayList<Message>();
-
-        DonkeyDao dao = getDaoFactory().getDao();
-
-        try {
-            for (Map<String, Object> map : maps) {
-                Long messageId = (Long) map.get("id");
-                long connectorReceivedDateMillis = ((Calendar) map.get("mm_received_date")).getTimeInMillis();
-
-                Map<Integer, ConnectorMessage> connectorMessages = null;
-                connectorMessages = dao.getConnectorMessages(channelId, messageId);
-
-                Message message = new Message();
-                message.setMessageId(messageId);
-                message.setChannelId(channelId);
-                message.setReceivedDate((Calendar) map.get("received_date"));
-                message.setProcessed((Boolean) map.get("processed"));
-                message.setServerId((String) map.get("server_id"));
-                message.setOriginalId((Long) map.get("original_id"));
-                message.setImportId((Long) map.get("import_id"));
-                message.getConnectorMessages().putAll(connectorMessages);
-
-                messages.add(message);
-
-                if (messageDateThreshold != null && connectorReceivedDateMillis < messageDateThreshold.getTimeInMillis()) {
-                    messageIds.add(messageId);
-                } else {
-                    contentMessageIds.add(messageId);
-                }
-            }
-            return messages;
-        } finally {
-            dao.close();
-        }
-    }
-
-    private long pruneChannelByIds(long localChannelId, PruneIds ids, boolean contentOnly) throws DataPrunerException, InterruptedException {
+    private void pruneChannelByIds(long localChannelId, PruneIds ids, boolean contentOnly, PruneResult result) throws DataPrunerException, InterruptedException {
         if (!ids.hasNext()) {
             logger.debug("Skipping pruner since no messages were found to prune");
-            return 0;
+            return;
         }
-
-        int numPruned = 0;
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", localChannelId);
@@ -660,18 +632,14 @@ public class DataPruner implements Runnable {
                     params.put("maxMessageId", endRange);
                 }
 
-                numPruned = runDeleteQueries(params, contentOnly);
+                runDeleteQueries(params, contentOnly, result);
             }
         }
-
-        return numPruned;
     }
 
-    private int runDeleteQueries(Map<String, Object> params, boolean contentOnly) {
-        int numPruned;
-
+    private void runDeleteQueries(Map<String, Object> params, boolean contentOnly, PruneResult result) {
         if (contentOnly) {
-            numPruned = runDelete("Message.pruneMessageContent", params);
+            result.numContentPruned += runDelete("Message.pruneMessageContent", params);
         } else {
             if (DatabaseUtil.statementExists("Message.pruneAttachments")) {
                 runDelete("Message.pruneAttachments", params);
@@ -681,15 +649,14 @@ public class DataPruner implements Runnable {
                 runDelete("Message.pruneCustomMetaData", params);
             }
 
-            runDelete("Message.pruneMessageContent", params);
+            result.numContentPruned += runDelete("Message.pruneMessageContent", params);
 
             if (DatabaseUtil.statementExists("Message.pruneConnectorMessages")) {
                 runDelete("Message.pruneConnectorMessages", params);
             }
 
-            numPruned = runDelete("Message.pruneMessages", params);
+            result.numMessagesPruned += runDelete("Message.pruneMessages", params);
         }
-        return numPruned;
     }
 
     private int runDelete(String query, Map<String, Object> params) {

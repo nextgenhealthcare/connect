@@ -1464,6 +1464,31 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
+    public Message getMessage(String channelId, long messageId) {
+        ResultSet resultSet = null;
+        Message message = null;
+
+        try {
+            PreparedStatement statement = prepareStatement("getMessageByMessageId", channelId);
+            statement.setLong(1, messageId);
+            resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                message = getMessageFromResultSet(channelId, resultSet);
+            }
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            close(resultSet);
+        }
+
+        if (message != null) {
+            message.getConnectorMessages().putAll(getConnectorMessages(channelId, messageId));
+        }
+        return message;
+    }
+
+    @Override
     public Set<Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed) {
         ResultSet resultSet = null;
 

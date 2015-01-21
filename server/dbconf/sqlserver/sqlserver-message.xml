@@ -399,14 +399,6 @@
 			
 			SELECT
 				M.ID,
-				<if test="archive == true">
-					M.SERVER_ID,
-					M.RECEIVED_DATE,
-					M.PROCESSED,
-					M.ORIGINAL_ID,
-					M.IMPORT_ID,
-					M.IMPORT_CHANNEL_ID,
-				</if>
 				MM.RECEIVED_DATE AS MM_RECEIVED_DATE,
 				ROW_NUMBER() OVER (ORDER BY M.ID) AS ROWNUM
 			
@@ -439,7 +431,7 @@
 			</if>
 			
 		<if test="limit != null">
-			) AS A WHERE A.ROWNUM <![CDATA[ <= ]]> (${limit})
+			) AS A WHERE A.ROWNUM <![CDATA[ <= ]]> ${limit}
 		</if>
 	</select>
 	

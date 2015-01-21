@@ -273,6 +273,12 @@
 		AND METADATA_ID = ?
 	</query>
 	
+	<query id="getMessageByMessageId">
+		SELECT *
+		FROM D_M${localChannelId}
+		WHERE ID = ?
+	</query>
+	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
 		SELECT *
 		FROM D_MM${localChannelId}

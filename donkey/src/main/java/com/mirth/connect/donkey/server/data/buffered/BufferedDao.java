@@ -407,6 +407,17 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
+    public Message getMessage(String channelId, long messageId) {
+        DonkeyDao dao = getDelegateDao();
+
+        try {
+            return dao.getMessage(channelId, messageId);
+        } finally {
+            dao.close();
+        }
+    }
+
+    @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId) {
         DonkeyDao dao = getDelegateDao();
 

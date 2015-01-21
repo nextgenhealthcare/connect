@@ -92,6 +92,8 @@ public interface DonkeyDao {
 
     public long getNextMessageId(String channelId);
 
+    public Message getMessage(String channelId, long messageId);
+
     public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId);
 
     public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent);

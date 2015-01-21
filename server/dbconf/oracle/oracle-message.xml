@@ -378,19 +378,11 @@
 	
 	<select id="getMessagesToPrune" parameterType="map" resultMap="pruner-message-map">
 		<if test="limit != null">
-			SELECT A.* FROM (SELECT B.*, ROWNUM B_ROWNUM FROM (
+			SELECT A.* FROM (
 		</if>
 
 			SELECT
 				M.ID,
-				<if test="archive == true">
-					M.SERVER_ID,
-					M.RECEIVED_DATE,
-					M.PROCESSED,
-					M.ORIGINAL_ID,
-					M.IMPORT_ID,
-					M.IMPORT_CHANNEL_ID,
-				</if>
 				MM.RECEIVED_DATE AS MM_RECEIVED_DATE
 			
 			FROM D_M${localChannelId} M
@@ -424,7 +416,7 @@
 			ORDER BY M.ID
 		
 		<if test="limit != null">
-			) B WHERE ROWNUM <![CDATA[ <= ]]> (${limit})) A
+			) A WHERE ROWNUM <![CDATA[ <= ]]> ${limit}
 		</if>
 	</select>
 	
