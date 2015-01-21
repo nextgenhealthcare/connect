@@ -68,7 +68,6 @@ public class DataPruner implements Runnable {
     private Status[] skipStatuses;
     private Integer blockSize;
     private boolean archiveEnabled;
-    private Integer archiverBlockSize;
     private MessageWriterOptions archiverOptions;
     private boolean pruneEvents;
     private Integer maxEventAge;
@@ -136,14 +135,6 @@ public class DataPruner implements Runnable {
 
     public void setArchiveEnabled(boolean archiveEnabled) {
         this.archiveEnabled = archiveEnabled;
-    }
-
-    public int getArchiverBlockSize() {
-        return archiverBlockSize;
-    }
-
-    public void setArchiverBlockSize(int archiverBlockSize) {
-        this.archiverBlockSize = archiverBlockSize;
     }
 
     public MessageWriterOptions getArchiverOptions() {

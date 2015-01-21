@@ -60,7 +60,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         setStartTaskVisible(false);
         setStopTaskVisible(false);
-        
+
         initComponents();
         blockSizeTextField.setDocument(new MirthFieldConstraints(0, false, false, true));
         pruneEventAgeTextField.setDocument(new MirthFieldConstraints(0, false, false, true));
@@ -130,7 +130,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
             parent.alertError(this, "Please fill in required fields.");
             return false;
         }
-        
+
         return true;
     }
 
@@ -162,29 +162,29 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         };
 
         worker.execute();
-        
+
         return true;
     }
-    
+
     public void doViewEvents() {
         getFrame().doShowEvents("Data Pruner");
     }
-    
+
     public void doStart() {
         final MutableBoolean saveChanges = new MutableBoolean(false);
-        
+
         if (isSaveEnabled()) {
             if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this, "Settings changes must be saved first, would you like to save the settings and prune now?", "Select an Option", JOptionPane.OK_CANCEL_OPTION)) {
                 if (!validateFields()) {
                     return;
                 }
-                
+
                 saveChanges.setValue(true);
             } else {
                 return;
             }
         }
-        
+
         setStartTaskVisible(false);
         final String workingId = parent.startWorking("Starting the data pruner...");
 
@@ -199,7 +199,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                         return null;
                     }
                 }
-                
+
                 try {
                     parent.mirthClient.invokePluginMethod(plugin.getPluginName(), "start", null);
                 } catch (Exception e) {
@@ -215,7 +215,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                 if (saveChanges.getValue()) {
                     setSaveEnabled(false);
                 }
-                
+
                 parent.stopWorking(workingId);
                 updateStatus();
             }
@@ -223,7 +223,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         worker.execute();
     }
-    
+
     public void doStop() {
         setStopTaskVisible(false);
         final String workingId = parent.startWorking("Stopping the data pruner...");
@@ -276,7 +276,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         archiverPanel.resetInvalidProperties();
         archiverPanel.setIncludeAttachments(Boolean.parseBoolean(properties.getProperty("includeAttachments", Boolean.FALSE.toString())));
-        
+
         String archiverOptions = properties.getProperty("archiverOptions");
 
         /*
@@ -288,7 +288,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         } else {
             archiverPanel.setMessageWriterOptions(serializer.deserialize(archiverOptions, MessageWriterOptions.class));
         }
-        
+
         if (archiverPanel.isEnabled()) {
             archiverPanel.setArchiveEnabled(Boolean.parseBoolean(properties.getProperty("archiveEnabled", Boolean.FALSE.toString())));
         }
@@ -298,7 +298,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         } else {
             blockSizeTextField.setText("50000");
         }
-        
+
         if (Boolean.parseBoolean(properties.getProperty("pruneEvents", Boolean.FALSE.toString()))) {
             pruneEventsYes.setSelected(true);
             pruneEventsNo.setSelected(false);
@@ -312,12 +312,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         }
 
         pruneEventAgeTextField.setText(properties.getProperty("maxEventAge"));
-
-        if (properties.getProperty("archiverBlockSize") != null && !properties.getProperty("archiverBlockSize").equals("")) {
-            archiverPanel.setArchiverBlockSize(properties.getProperty("archiverBlockSize"));
-        } else {
-            archiverPanel.setArchiverBlockSize("100");
-        }
 
         repaint();
         updateStatus();
@@ -352,16 +346,15 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         properties.setProperty("maxEventAge", pruneEventAgeTextField.getText());
 
         properties.setProperty("archiveEnabled", Boolean.toString(archiverPanel.isArchiveEnabled()));
-        properties.setProperty("archiverBlockSize", archiverPanel.getArchiverBlockSize());
         properties.setProperty("includeAttachments", Boolean.toString(archiverPanel.isIncludeAttachments()));
         properties.setProperty("archiverOptions", serializer.serialize(archiverPanel.getMessageWriterOptions()));
 
         return properties;
     }
-    
+
     private void updateStatus() {
         final String workingId = parent.startWorking("Refreshing status...");
-        
+
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
@@ -812,15 +805,15 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         pruneEventAgeLabel.setEnabled(false);
         pruneEventAgeTextField.setEnabled(false);
     }//GEN-LAST:event_pruneEventsNoActionPerformed
-    
+
     private void setStartTaskVisible(boolean visible) {
         setVisibleTasks(startIndex, startIndex, visible);
     }
-    
+
     private void setStopTaskVisible(boolean visible) {
         setVisibleTasks(stopIndex, stopIndex, visible);
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel archiverContainerPanel;
     private javax.swing.JLabel blockSizeLabel;
