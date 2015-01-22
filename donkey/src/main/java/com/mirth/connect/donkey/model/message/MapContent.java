@@ -12,9 +12,6 @@ package com.mirth.connect.donkey.model.message;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
 public class MapContent extends Content {
     private Object content = new HashMap<String, Object>();
     private transient boolean persisted = false;
@@ -42,8 +39,8 @@ public class MapContent extends Content {
     }
 
     @Override
-    public String getContent() {
-        return new XStream(new DomDriver()).toXML(content);
+    public Object getContent() {
+        return content;
     }
 
     public void setContent(Object content) {

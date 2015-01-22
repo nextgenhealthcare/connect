@@ -11,8 +11,10 @@ package com.mirth.connect.util.messagewriter;
 
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -23,7 +25,9 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Content;
 import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.MapContent;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.util.MapUtil;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.MessageEncryptionUtil;
 import com.mirth.connect.util.ValueReplacer;
@@ -170,35 +174,66 @@ public class MessageWriterVfs implements MessageWriter {
 
         for (Entry<Integer, ConnectorMessage> entry : message.getConnectorMessages().entrySet()) {
             Integer metaDataId = entry.getKey();
+            ConnectorMessage connectorMessage = entry.getValue();
 
             if (((destinationContent && metaDataId != 0) || (!destinationContent && metaDataId == 0))) {
                 Content content = null;
-                String stringContent = "";
 
-                if (contentType == ContentType.SENT) {
-                    content = message.getConnectorMessages().get(metaDataId).getSent();
-                    ConnectorProperties sentContent = serializer.deserialize(content.getContent(), ConnectorProperties.class);
-                    stringContent = (sentContent == null) ? null : sentContent.toFormattedString();
+                if (contentType == ContentType.CHANNEL_MAP) {
+                    content = message.getMergedConnectorMessage().getChannelMapContent();
+                } else if (contentType == ContentType.SOURCE_MAP) {
+                    content = message.getMergedConnectorMessage().getSourceMapContent();
+                } else if (contentType == ContentType.RESPONSE_MAP) {
+                    content = message.getMergedConnectorMessage().getResponseMapContent();
                 } else {
-                    content = Content.getContent(message, metaDataId, contentType);
-                    stringContent = content.getContent();
+                    content = connectorMessage.getMessageContent(contentType);
                 }
 
                 if (content != null) {
-                    if (encrypted) {
-                        if (!content.isEncrypted()) {
-                            stringContent = encryptor.encrypt(stringContent);
+                    String stringContent = null;
+                    boolean contentEncrypted = content.isEncrypted();
+
+                    if (contentType == ContentType.SENT) {
+                        String tempContent = (String) content.getContent();
+
+                        if (contentEncrypted) {
+                            tempContent = encryptor.decrypt(tempContent);
+                            contentEncrypted = false;
+                        }
+
+                        if (StringUtils.isNotEmpty(tempContent)) {
+                            ConnectorProperties sentContent = serializer.deserialize(tempContent, ConnectorProperties.class);
+                            stringContent = sentContent.toFormattedString();
+                        }
+                    } else if (content instanceof MapContent) {
+                        /*
+                         * We don't need to check if the content is encrypted because map content is
+                         * always decrypted when it is retrieved by JdbcDao
+                         */
+                        Map<String, Object> tempContent = (Map<String, Object>) content.getContent();
+                        if (MapUtils.isNotEmpty(tempContent)) {
+                            stringContent = MapUtil.serializeMap(serializer, tempContent);
                         }
                     } else {
-                        if (content.isEncrypted()) {
-                            stringContent = encryptor.decrypt(stringContent);
-                        }
+                        stringContent = (String) content.getContent();
                     }
 
-                    if (StringUtils.isNotBlank(stringContent)) {
-                        stringBuilder.append(stringContent);
-                        stringBuilder.append(IOUtils.LINE_SEPARATOR_WINDOWS); // the VFS output stream requires windows newlines
-                        stringBuilder.append(IOUtils.LINE_SEPARATOR_WINDOWS);
+                    if (StringUtils.isNotEmpty(stringContent)) {
+                        if (encrypted) {
+                            if (!contentEncrypted) {
+                                stringContent = encryptor.encrypt(stringContent);
+                            }
+                        } else {
+                            if (contentEncrypted) {
+                                stringContent = encryptor.decrypt(stringContent);
+                            }
+                        }
+
+                        if (StringUtils.isNotBlank(stringContent)) {
+                            stringBuilder.append(stringContent);
+                            stringBuilder.append(IOUtils.LINE_SEPARATOR_WINDOWS); // the VFS output stream requires windows newlines
+                            stringBuilder.append(IOUtils.LINE_SEPARATOR_WINDOWS);
+                        }
                     }
                 }
             }

@@ -155,7 +155,7 @@ public class ImmutableConnectorMessage {
      *            The ContentType (e.g. RAW, ENCODED) of the content to retrieve.
      * @return The content, as an ImmutableMessageContent object.
      */
-    public ImmutableMessageContent getContent(ContentType contentType) {
+    public ImmutableMessageContent getMessageContent(ContentType contentType) {
         if (contentType == ContentType.SENT) {
             // TODO: Remove in 3.1, change the logger statement
             logger.error("The getSent() and getSentData() methods have been deprecated and will soon be removed. Please use map variables to retrieve post-replacement data instead. This method will always return null for the SENT content type.");
@@ -167,6 +167,22 @@ public class ImmutableConnectorMessage {
         }
 
         return null;
+    }
+
+    /**
+     * Retrieves content associated with this connector message.
+     * 
+     * @param contentType
+     *            The ContentType (e.g. RAW, ENCODED) of the content to retrieve.
+     * @return The content, as an ImmutableMessageContent object.
+     * 
+     * @deprecated The getContent(contentType) method has been deprecated and will soon be removed.
+     *             Please use getMessageContent(contentType) instead.
+     */
+    @Deprecated
+    public ImmutableMessageContent getContent(ContentType contentType) {
+        logger.error("The getContent(contentType) method has been deprecated and will soon be removed. Please use getMessageContent(contentType) instead.");
+        return getMessageContent(contentType);
     }
 
     /**
