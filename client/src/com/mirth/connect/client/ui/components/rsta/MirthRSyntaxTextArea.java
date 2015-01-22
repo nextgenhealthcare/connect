@@ -30,7 +30,6 @@ import javax.swing.text.DefaultEditorKit;
 import org.fife.rsta.ac.LanguageSupportFactory;
 import org.fife.ui.rsyntaxtextarea.EOLPreservingRSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.InsertBreakAction;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaHighlighter;
 
 import com.mirth.connect.client.ui.PlatformUI;
@@ -41,6 +40,7 @@ import com.mirth.connect.client.ui.components.rsta.actions.CopyAction;
 import com.mirth.connect.client.ui.components.rsta.actions.CutAction;
 import com.mirth.connect.client.ui.components.rsta.actions.FindNextAction;
 import com.mirth.connect.client.ui.components.rsta.actions.FindReplaceAction;
+import com.mirth.connect.client.ui.components.rsta.actions.InsertBreakAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ShowLineEndingsAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ShowTabLinesAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ShowWhitespaceAction;
