@@ -217,6 +217,7 @@ return p + 1;
 		// the loop below, so unfortunately we must manually do it here.
 		if (token!=null && token.getType()==Token.NULL) {
 			h.paintLayeredHighlights(g, p0,p1, r, host, this);
+            SyntaxViewUtil.drawEOL(host, g, x, y);
 			return;
 		}
 
@@ -249,13 +250,7 @@ return p + 1;
 			
 		} // End of while (token!=null && token.isPaintable()).
 
-		// NOTE: We should re-use code from Token (paintBackground()) here,
-		// but don't because I'm just too lazy.
-		if (host.getEOLMarkersVisible()) {
-			g.setColor(host.getForegroundForTokenType(Token.WHITESPACE));
-			g.setFont(host.getFontForTokenType(Token.WHITESPACE));
-			g.drawString("\u00B6", x, y-fontHeight);
-		}
+        SyntaxViewUtil.drawEOL(host, g, x, y - fontHeight);
 
 	}
 
@@ -300,6 +295,7 @@ return p + 1;
 		// the loop below, so unfortunately we must manually do it here.
 		if (token!=null && token.getType()==Token.NULL) {
 			h.paintLayeredHighlights(g, p0,p1, r, host, this);
+            SyntaxViewUtil.drawEOL(host, g, x, y);
 			return;
 		}
 
@@ -447,14 +443,7 @@ return p + 1;
 			
 		} // End of while (token!=null && token.isPaintable()).
 
-		// NOTE: We should re-use code from Token (paintBackground()) here,
-		// but don't because I'm just too lazy.
-		if (host.getEOLMarkersVisible()) {
-			g.setColor(host.getForegroundForTokenType(Token.WHITESPACE));
-			g.setFont(host.getFontForTokenType(Token.WHITESPACE));
-			g.drawString("\u00B6", x, y-fontHeight);
-		}
-
+        SyntaxViewUtil.drawEOL(host, g, x, y - fontHeight);
 	}
 
 

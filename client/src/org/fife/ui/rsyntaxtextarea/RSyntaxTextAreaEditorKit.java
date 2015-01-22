@@ -1263,6 +1263,16 @@ public class RSyntaxTextAreaEditorKit extends RTextAreaEditorKit {
 
 		private static final long serialVersionUID = 1L;
 
+        private String lineBreak;
+
+        public InsertBreakAction() {
+            this("\n");
+        }
+
+        public InsertBreakAction(String lineBreak) {
+            this.lineBreak = lineBreak;
+        }
+
 		@Override
 		public void actionPerformedImpl(ActionEvent e, RTextArea textArea) {
 
@@ -1336,7 +1346,7 @@ public class RSyntaxTextAreaEditorKit extends RTextAreaEditorKit {
 				insertNewlineWithAutoIndent(textArea);
 			}
 			else {
-				textArea.replaceSelection("\n");
+				textArea.replaceSelection(lineBreak);
 				if (noSelection) {
 					possiblyCloseCurlyBrace(textArea, null);
 				}
@@ -1360,7 +1370,7 @@ public class RSyntaxTextAreaEditorKit extends RTextAreaEditorKit {
 				// endWS is the end of the leading whitespace of the
 				// current line.
 				String leadingWS = RSyntaxUtilities.getLeadingWhitespace(s);
-				StringBuilder sb = new StringBuilder("\n");
+				StringBuilder sb = new StringBuilder(lineBreak);
 				sb.append(leadingWS);
 
 				// If there is only whitespace between the caret and
@@ -1398,7 +1408,7 @@ public class RSyntaxTextAreaEditorKit extends RTextAreaEditorKit {
 				possiblyCloseCurlyBrace(sta, leadingWS);
 
 			} catch (BadLocationException ble) { // Never happens
-				sta.replaceSelection("\n");
+				sta.replaceSelection(lineBreak);
 				ble.printStackTrace();
 			}
 
@@ -1422,12 +1432,13 @@ public class RSyntaxTextAreaEditorKit extends RTextAreaEditorKit {
 							getOpenBraceCount(doc, languageIndex)>0) {
 						StringBuilder sb = new StringBuilder();
 						if (line==textArea.getLineCount()-1) {
-							sb.append('\n');
+							sb.append(lineBreak);
 						}
 						if (leadingWS!=null) {
 							sb.append(leadingWS);
 						}
-						sb.append("}\n");
+                        sb.append("}");
+                        sb.append(lineBreak);
 						int dot = textArea.getCaretPosition();
 						int end = textArea.getLineEndOffsetOfCurrentLine();
 						// Insert at end of line, not at dot: they may have

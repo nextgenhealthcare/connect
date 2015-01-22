@@ -28,6 +28,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
 
 import org.fife.rsta.ac.LanguageSupportFactory;
+import org.fife.ui.rsyntaxtextarea.EOLPreservingRSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.InsertBreakAction;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaHighlighter;
@@ -135,11 +136,11 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
 
         // Map a regular enter keypress to an LF character insertion
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Insert LF Break");
-        getActionMap().put("Insert LF Break", new InsertBreakAction());
+        getActionMap().put("Insert LF Break", new InsertBreakAction("\n"));
 
         // Map a shift + enter keypress to a CR character insertion
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.SHIFT_MASK), "Insert CR Break");
-        getActionMap().put("Insert CR Break", new InsertBreakAction());
+        getActionMap().put("Insert CR Break", new InsertBreakAction("\r"));
 
         findReplaceMenuItem = new CustomMenuItem(this, new FindReplaceAction(this), KeyEvent.VK_F, defaultModifier);
         findNextMenuItem = new CustomMenuItem(this, new FindNextAction(this), KeyEvent.VK_G, defaultModifier);
@@ -170,6 +171,12 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
     }
 
     public String getEOLFixedText() {
+        if (getDocument() instanceof EOLPreservingRSyntaxDocument) {
+            try {
+                return ((EOLPreservingRSyntaxDocument) getDocument()).getEOLFixedText(0, getDocument().getLength());
+            } catch (BadLocationException e) {
+            }
+        }
         return getText();
     }
 
@@ -180,7 +187,7 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         if (p0 != p1) {
             try {
                 MirthRSyntaxDocument doc = (MirthRSyntaxDocument) getDocument();
-                txt = doc.getText(p0, p1 - p0);
+                txt = doc.getEOLFixedText(p0, p1 - p0);
             } catch (BadLocationException e) {
                 throw new IllegalArgumentException(e.getMessage());
             }

@@ -14,9 +14,12 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
+
 import javax.swing.text.Element;
 
+import org.apache.commons.io.IOUtils;
 import org.fife.io.DocumentReader;
 import org.fife.rsta.ac.js.ast.VariableResolver;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
@@ -67,7 +70,10 @@ public class JavaScriptParser extends AbstractParser {
 	 * <code>org.mozilla.javascript.ast.AstRoot</code>.
 	 */
 	public static final String PROPERTY_AST = "AST";
-	
+
+    private static final String MIRTH_SCRIPT_PREFIX = "function doScript(){\n";
+    private static final String MIRTH_SCRIPT_SUFFIX = "\n}";
+
 	private AstRoot astRoot;
 	private JavaScriptLanguageSupport langSupport;
 	private PropertyChangeSupport support;
@@ -161,7 +167,10 @@ public class JavaScriptParser extends AbstractParser {
 
 			for (ParseProblem problem : errors) {
 
-				int offs = problem.getFileOffset();
+                int offs = problem.getFileOffset() - MIRTH_SCRIPT_PREFIX.length();
+                if (offs >= root.getEndOffset()) {
+                    offs = root.getEndOffset() - MIRTH_SCRIPT_SUFFIX.length();
+                }
 				int len = problem.getLength();
 				int line = root.getElementIndex(offs);
 				String desc = problem.getMessage();
@@ -224,13 +233,16 @@ public class JavaScriptParser extends AbstractParser {
 
 		DocumentReader r = new DocumentReader(doc);
 		ErrorCollector errorHandler = new ErrorCollector();
-		CompilerEnvirons env = createCompilerEnvironment(errorHandler, langSupport);
 		long start = System.currentTimeMillis();
 		try {
-			Parser parser = new Parser(env);
-			astRoot = parser.parse(r, null, 0);
-			long time = System.currentTimeMillis() - start;
-			result.setParseTime(time);
+            String script = IOUtils.toString(r);
+            CompilerEnvirons env = createCompilerEnvironment(errorHandler, langSupport);
+            Parser parser = new Parser(env);
+            astRoot = parser.parse(new StringReader(MIRTH_SCRIPT_PREFIX + script + MIRTH_SCRIPT_SUFFIX), null, 0);
+            env = createCompilerEnvironment(new ErrorCollector(), langSupport);
+            astRoot = new Parser(env).parse(script, null, 0);
+            long time = System.currentTimeMillis() - start;
+            result.setParseTime(time);
 		} catch (IOException ioe) { // Never happens
 			result.setError(ioe);
 			ioe.printStackTrace();

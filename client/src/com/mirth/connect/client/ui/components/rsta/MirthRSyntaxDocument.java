@@ -9,18 +9,18 @@
 
 package com.mirth.connect.client.ui.components.rsta;
 
-import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.EOLPreservingRSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 
 import com.mirth.connect.client.ui.components.rsta.token.MirthTokenMakerFactory;
 
-public class MirthRSyntaxDocument extends RSyntaxDocument {
+public class MirthRSyntaxDocument extends EOLPreservingRSyntaxDocument {
 
     static {
         System.setProperty(TokenMakerFactory.PROPERTY_DEFAULT_TOKEN_MAKER_FACTORY, MirthTokenMakerFactory.class.getName());
     }
 
     public MirthRSyntaxDocument(String syntaxStyle) {
-        super(syntaxStyle);
+        super(syntaxStyle, true);
     }
 }

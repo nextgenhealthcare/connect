@@ -179,13 +179,7 @@ public class SyntaxView extends View implements TabExpander,
 			token = token.getNextToken();
 		}
 
-		// NOTE: We should re-use code from Token (paintBackground()) here,
-		// but don't because I'm just too lazy.
-		if (host.getEOLMarkersVisible()) {
-			g.setColor(host.getForegroundForTokenType(Token.WHITESPACE));
-			g.setFont(host.getFontForTokenType(Token.WHITESPACE));
-			g.drawString("\u00B6", nextX, y);
-		}
+        SyntaxViewUtil.drawEOL(host, g, nextX, y);
 
 		// Return the x-coordinate at the end of the painted text.
 		return nextX;
@@ -277,13 +271,7 @@ public class SyntaxView extends View implements TabExpander,
 
 		}
 
-		// NOTE: We should re-use code from Token (paintBackground()) here,
-		// but don't because I'm just too lazy.
-		if (host.getEOLMarkersVisible()) {
-			g.setColor(host.getForegroundForTokenType(Token.WHITESPACE));
-			g.setFont(host.getFontForTokenType(Token.WHITESPACE));
-			g.drawString("\u00B6", nextX, y);
-		}
+        SyntaxViewUtil.drawEOL(host, g, nextX, y);
 
 		// Return the x-coordinate at the end of the painted text.
 		return nextX;
@@ -351,7 +339,7 @@ public class SyntaxView extends View implements TabExpander,
 			case View.X_AXIS:
 				float span = longLineWidth + getRhsCorrection(); // fudge factor
 				if (host.getEOLMarkersVisible()) {
-					span += metrics.charWidth('\u00B6');
+				    span += metrics.charsWidth("\r\n".toCharArray(), 0, 2);
 				}
 				return span;
 			case View.Y_AXIS:
