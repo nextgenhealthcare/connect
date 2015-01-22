@@ -87,7 +87,9 @@ public class MessageExportDialog extends MirthDialog {
     public void setBackground(Color color) {
         super.setBackground(color);
         getContentPane().setBackground(color);
-        messageExportPanel.setBackground(color);
+        if (messageExportPanel != null) {
+            messageExportPanel.setBackground(color);
+        }
     }
 
     private void initComponents() {
