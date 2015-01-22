@@ -16,12 +16,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
-import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 
 public class ScriptPanel extends BasePanel {
 
-    protected static SyntaxDocument scriptDoc;
     protected MirthEditorPane parent;
     protected int context;
 
@@ -30,13 +28,9 @@ public class ScriptPanel extends BasePanel {
         parent = p;
         this.context = context;
         initComponents();
-        scriptDoc = new SyntaxDocument();
-        scriptDoc.setTokenMarker(tokenMarker);
-        scriptTextPane.setDocument(scriptDoc);
         scriptTextPane.getDocument().addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent arg0) {
-            }
+            public void changedUpdate(DocumentEvent arg0) {}
 
             public void insertUpdate(DocumentEvent arg0) {
                 parent.modified = true;
@@ -84,7 +78,7 @@ public class ScriptPanel extends BasePanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        scriptTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
+        scriptTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true,this.context);
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -102,6 +96,6 @@ public class ScriptPanel extends BasePanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea scriptTextPane;
+    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane scriptTextPane;
     // End of variables declaration//GEN-END:variables
 }

@@ -35,8 +35,7 @@ import com.mirth.connect.client.ui.actions.ShowLineEndingsAction;
 import com.mirth.connect.client.ui.actions.SnippetAction;
 import com.mirth.connect.client.ui.actions.UndoAction;
 import com.mirth.connect.client.ui.actions.ViewUserApiAction;
-import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
-import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory.ListType;
+import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 
@@ -102,8 +101,8 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         if (showSnippets) {
             varlist = new JMenu("Built-in Variables");
             funclist = new JMenu("Built-in Functions");
-            ReferenceListFactory functionBuilder = ReferenceListFactory.getInstance();
-            List<CodeTemplate> jshelpers = functionBuilder.getVariableListItems(ListType.ALL.getValue(), context);
+            ReferenceListFactory factory = ReferenceListFactory.getInstance();
+            List<CodeTemplate> jshelpers = factory.getCodeTemplates(null, context);
             Iterator<CodeTemplate> it = jshelpers.iterator();
 
             while (it.hasNext()) {

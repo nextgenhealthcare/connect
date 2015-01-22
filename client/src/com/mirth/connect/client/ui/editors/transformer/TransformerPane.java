@@ -55,12 +55,12 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.ui.CenterCellRenderer;
 import com.mirth.connect.client.ui.Frame;
@@ -73,14 +73,15 @@ import com.mirth.connect.client.ui.TreeTransferable;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
-import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTree;
+import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
@@ -115,7 +116,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     private boolean isResponse = false;
 
     private JTabbedPane tabbedPane;
-    private MirthSyntaxTextArea scriptTextArea;
+    private MirthRTextScrollPane scriptTextArea;
     private JPanel generatedScriptPanel;
 
     private int lastSelectedIndex;
@@ -335,12 +336,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         stepPanel = new BasePanel();
         blankPanel = new BasePanel();
 
-        scriptTextArea = new MirthSyntaxTextArea(true, true, -1);
+        scriptTextArea = new MirthRTextScrollPane(true, ContextType.MESSAGE_CONTEXT.getContext(), SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, false);
         scriptTextArea.setBackground(new Color(204, 204, 204));
-        scriptTextArea.setTokenMarker(new JavaScriptTokenMarker());
         scriptTextArea.setBorder(BorderFactory.createEtchedBorder());
-        scriptTextArea.setEditable(false);
-        scriptTextArea.setDropTarget(null);
+        scriptTextArea.getTextArea().setEditable(false);
+        scriptTextArea.getTextArea().setDropTarget(null);
 
         generatedScriptPanel = new JPanel();
         generatedScriptPanel.setBackground(Color.white);

@@ -13,8 +13,6 @@ import java.util.UUID;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
@@ -23,15 +21,8 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public class JavaScriptReader extends ConnectorSettingsPanel {
 
-    private static SyntaxDocument jsMappingDoc;
-
     public JavaScriptReader() {
         initComponents();
-
-        jsMappingDoc = new SyntaxDocument();
-        jsMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
-
-        javascriptTextPane.setDocument(jsMappingDoc);
     }
 
     @Override
@@ -125,7 +116,7 @@ public class JavaScriptReader extends ConnectorSettingsPanel {
     private void initComponents() {
 
         jsLabel = new javax.swing.JLabel();
-        javascriptTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);
+        javascriptTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -157,7 +148,7 @@ public class JavaScriptReader extends ConnectorSettingsPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea javascriptTextPane;
+    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane javascriptTextPane;
     private javax.swing.JLabel jsLabel;
     // End of variables declaration//GEN-END:variables
 }

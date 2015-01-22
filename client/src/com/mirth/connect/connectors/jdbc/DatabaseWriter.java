@@ -14,11 +14,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
-import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
@@ -33,8 +31,6 @@ import com.mirth.connect.model.DriverInfo;
 
 public class DatabaseWriter extends ConnectorSettingsPanel {
 
-    private static SyntaxDocument sqlMappingDoc;
-    private static SyntaxDocument jsMappingDoc;
     private List<DriverInfo> drivers;
     private Frame parent;
 
@@ -57,11 +53,6 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         }
 
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));
-
-        sqlMappingDoc = new SyntaxDocument();
-        sqlMappingDoc.setTokenMarker(new TSQLTokenMarker());
-        jsMappingDoc = new SyntaxDocument();
-        jsMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
     }
 
     @Override
@@ -231,7 +222,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         databaseURLField = new com.mirth.connect.client.ui.components.MirthTextField();
         databaseUsernameField = new com.mirth.connect.client.ui.components.MirthTextField();
         databasePasswordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
-        databaseSQLTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);
+        databaseSQLTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);
         useJavaScriptYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         useJavaScriptNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel6 = new javax.swing.JLabel();
@@ -483,7 +474,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     private void generateConnectionActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_generateConnectionActionPerformed
     {// GEN-HEADEREND:event_generateConnectionActionPerformed
         databaseSQLTextPane.setText(generateConnectionString() + "\n\n" + databaseSQLTextPane.getText());
-        databaseSQLTextPane.requestFocus();
+        databaseSQLTextPane.getTextArea().requestFocus();
         databaseSQLTextPane.setCaretPosition(databaseSQLTextPane.getText().lastIndexOf("\n\n", databaseSQLTextPane.getText().length() - 3) + 1);
         parent.setSaveEnabled(true);
     }// GEN-LAST:event_generateConnectionActionPerformed
@@ -491,7 +482,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     private void useJavaScriptYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptYesActionPerformed
     {// GEN-HEADEREND:event_useJavaScriptYesActionPerformed
         sqlLabel.setText("JavaScript:");
-        databaseSQLTextPane.setDocument(jsMappingDoc);
+        databaseSQLTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
         databaseSQLTextPane.setText(generateConnectionString());
         generateConnection.setEnabled(true);
         parent.channelEditPanel.destinationVariableList.setTransferMode(TransferMode.JAVASCRIPT);
@@ -500,7 +491,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     private void useJavaScriptNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptNoActionPerformed
     {// GEN-HEADEREND:event_useJavaScriptNoActionPerformed
         sqlLabel.setText("SQL:");
-        databaseSQLTextPane.setDocument(sqlMappingDoc);
+        databaseSQLTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
         databaseSQLTextPane.setText("");
         generateConnection.setEnabled(false);
         parent.channelEditPanel.destinationVariableList.setTransferMode(TransferMode.VELOCITY);
@@ -509,7 +500,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     private javax.swing.ButtonGroup buttonGroup1;
     private com.mirth.connect.client.ui.components.MirthComboBox databaseDriverCombobox;
     private com.mirth.connect.client.ui.components.MirthPasswordField databasePasswordField;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
+    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane databaseSQLTextPane;
     private com.mirth.connect.client.ui.components.MirthTextField databaseURLField;
     private com.mirth.connect.client.ui.components.MirthTextField databaseUsernameField;
     private javax.swing.JButton generateConnection;

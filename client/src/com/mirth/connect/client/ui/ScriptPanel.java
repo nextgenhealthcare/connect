@@ -16,12 +16,9 @@ import javax.swing.DefaultComboBoxModel;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 public class ScriptPanel extends javax.swing.JPanel {
 
-    private static SyntaxDocument scriptDoc;
     private String selectedItem = null;
     private int context;
     public static String DEPLOY_SCRIPT = "Deploy";
@@ -29,7 +26,8 @@ public class ScriptPanel extends javax.swing.JPanel {
     public static String PREPROCESSOR_SCRIPT = "Preprocessor";
     public static String POSTPROCESSOR_SCRIPT = "Postprocessor";
     Map<String, String> loadedScripts;
-    private String[] scripts = new String[]{DEPLOY_SCRIPT, UNDEPLOY_SCRIPT, PREPROCESSOR_SCRIPT, POSTPROCESSOR_SCRIPT};
+    private String[] scripts = new String[] { DEPLOY_SCRIPT, UNDEPLOY_SCRIPT, PREPROCESSOR_SCRIPT,
+            POSTPROCESSOR_SCRIPT };
 
     public ScriptPanel() {
         initComponents();
@@ -41,10 +39,6 @@ public class ScriptPanel extends javax.swing.JPanel {
         this.context = context;
 
         initComponents();
-        scriptDoc = new SyntaxDocument();
-        scriptDoc.setTokenMarker(new JavaScriptTokenMarker());
-        script.setDocument(scriptDoc);
-
         scriptList.setModel(new DefaultComboBoxModel(scripts));
     }
 
@@ -102,7 +96,7 @@ public class ScriptPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         functionList1 = new FunctionList(this.context);
-        script = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
+        script = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true,this.context);
         jLabel5 = new javax.swing.JLabel();
         scriptList = new javax.swing.JComboBox();
 
@@ -163,7 +157,7 @@ public class ScriptPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.FunctionList functionList1;
     private javax.swing.JLabel jLabel5;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea script;
+    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane script;
     private javax.swing.JComboBox scriptList;
     // End of variables declaration//GEN-END:variables
 }

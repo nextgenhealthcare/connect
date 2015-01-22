@@ -845,6 +845,13 @@
 				<attribute name="Class-Path" value="server-lib/log4j-1.2.16.jar server-lib/commons/commons-io-2.3.jar conf/" />
 			</manifest>
 		</jar>
+		
+		<!-- create the userutil-sources jar -->
+		<jar destfile="${setup.client.lib}/${userutil-sources.jar}" basedir="${src}">
+			<include name="com/mirth/connect/userutil/**.java" />
+			<include name="com/mirth/connect/server/userutil/**.java" />
+			<exclude name="**/package-info.java" />
+		</jar>
 
 		<!-- remove svn folders -->
 		<delete>

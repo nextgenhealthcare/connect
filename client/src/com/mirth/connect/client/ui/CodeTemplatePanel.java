@@ -22,8 +22,6 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
@@ -44,19 +42,18 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
     private final String TEMPLATE_DESCRIPTION_COLUMN_NAME = "Description";
     private final JPanel blankPanel;
     private boolean updating = false;
-    private SyntaxDocument jsMappingDoc;
     private final String functionCodeExample = "// modify function_name and parameters as you wish.\n// one function per template is recommended. i.e.) create a new code template for each new function.\nfunction function_name() {\n\t// write code here.\n}";
 
     /**
-     * Creates the Channel Editor panel. Calls initComponents() and sets up the
-     * model, dropdowns, and mouse listeners.
+     * Creates the Channel Editor panel. Calls initComponents() and sets up the model, dropdowns,
+     * and mouse listeners.
      */
     public CodeTemplatePanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         lastModelRow = -1;
         blankPanel = new JPanel();
         initComponents();
-        
+
         description.setDocument(new MirthFieldConstraints(255));
 
         ContextType[] contexts = ContextType.values();
@@ -78,16 +75,11 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         type.setModel(new javax.swing.DefaultComboBoxModel(typeNames));
 
         makeCodeTemplateTable();
-
-        jsMappingDoc = new SyntaxDocument();
-        jsMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
-
-        template.setDocument(jsMappingDoc);
     }
 
     /**
-     * Makes the codeTemplate table with a parameter that is true if a new
-     * codeTemplate should be added as well.
+     * Makes the codeTemplate table with a parameter that is true if a new codeTemplate should be
+     * added as well.
      */
     public void makeCodeTemplateTable() {
         updateCodeTemplateTable();
@@ -97,7 +89,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         // Set the custom cell editor for the CodeTemplate Name column.
         templateTable.getColumnModel().getColumn(templateTable.getColumnModelIndex(TEMPLATE_NAME_COLUMN_NAME)).setCellEditor(new CodeTemplateTableCellEditor());
         templateTable.setCustomEditorControls(true);
-        
+
         templateTable.setSelectionMode(0);
         templateTable.setRowSelectionAllowed(true);
         templateTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -127,9 +119,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
                 }
 
                 if (!evt.getValueIsAdjusting()) {
-                    if (lastModelRow != -1
-                            && lastModelRow != templateTable.getSelectedModelIndex()
-                            && lastModelRow < templateTable.getModel().getRowCount()) {
+                    if (lastModelRow != -1 && lastModelRow != templateTable.getSelectedModelIndex() && lastModelRow < templateTable.getModel().getRowCount()) {
                         saveCodeTemplate();
                     }
 
@@ -163,11 +153,9 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
                 }
             }
 
-            public void keyReleased(KeyEvent e) {
-            }
+            public void keyReleased(KeyEvent e) {}
 
-            public void keyTyped(KeyEvent e) {
-            }
+            public void keyTyped(KeyEvent e) {}
         });
     }
 
@@ -201,10 +189,12 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
             updating = false;
         } else {
             templateTable = new MirthTable();
-            
-            templateTable.setModel(new RefreshTableModel(tableData, new String[]{TEMPLATE_NAME_COLUMN_NAME, TEMPLATE_TYPE_COLUMN_NAME, TEMPLATE_CONTEXT_COLUMN_NAME, TEMPLATE_DESCRIPTION_COLUMN_NAME}) {
 
-                boolean[] canEdit = new boolean[]{true, false, false, false};
+            templateTable.setModel(new RefreshTableModel(tableData, new String[] {
+                    TEMPLATE_NAME_COLUMN_NAME, TEMPLATE_TYPE_COLUMN_NAME,
+                    TEMPLATE_CONTEXT_COLUMN_NAME, TEMPLATE_DESCRIPTION_COLUMN_NAME }) {
+
+                boolean[] canEdit = new boolean[] { true, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -339,8 +329,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
     }
 
     /**
-     * Get the name that should be used for a new codeTemplate so that it is
-     * unique.
+     * Get the name that should be used for a new codeTemplate so that it is unique.
      */
     private String getNewCodeTemplateName(int size) {
         String temp = "Template ";
@@ -360,8 +349,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed.
+     * Shows the popup menu when the trigger button (right-click) has been pushed.
      */
     private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = templateTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
@@ -471,7 +459,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         templatePane = new javax.swing.JScrollPane();
         templateTable = null;
         bottomPane = new javax.swing.JPanel();
-        template = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true,ContextType.MESSAGE_CONTEXT.getContext());
+        template = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true,ContextType.MESSAGE_CONTEXT.getContext());
         templateLabel = new javax.swing.JLabel();
         contextLabel = new javax.swing.JLabel();
         context = new com.mirth.connect.client.ui.components.MirthComboBox();
@@ -631,7 +619,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
     private com.mirth.connect.client.ui.components.MirthTextField description;
     private javax.swing.JLabel descriptionLabel;
     private javax.swing.JSplitPane split;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea template;
+    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane template;
     private javax.swing.JLabel templateLabel;
     private javax.swing.JScrollPane templatePane;
     private com.mirth.connect.client.ui.components.MirthTable templateTable;

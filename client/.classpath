@@ -87,6 +87,7 @@
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/dcm4che-core-2.0.28.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
+	<classpathentry kind="lib" path="/Server/setup/client-lib/userutil-sources.jar"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
 	<classpathentry kind="lib" path="lib/commons-compress-1.4.1.jar"/>
@@ -107,5 +108,9 @@
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-151.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-151.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-151.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea-2.5.6.jar"/>
+	<classpathentry kind="lib" path="lib/autocomplete-2.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/language_support.jar"/>
+	<classpathentry kind="lib" path="lib/javaparser-1.0.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

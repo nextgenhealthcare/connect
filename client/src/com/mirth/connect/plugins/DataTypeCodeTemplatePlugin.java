@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory.ListType;
+import com.mirth.connect.client.ui.reference.Category;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.CodeTemplate.ContextType;
@@ -56,7 +56,7 @@ public abstract class DataTypeCodeTemplatePlugin extends CodeTemplatePlugin {
             conversionTemplates.add(new CodeTemplate("Convert XML to " + getDisplayName() + " (custom parameters)", "Converts an XML string to " + getDisplayName() + " with custom serializer parameters. " + getMapKeysToolTipText(), "var deserializationProperties = SerializerFactory.getDefaultDeserializationProperties('" + pluginName + "');\nSerializerFactory.getSerializer('" + pluginName + "', null, deserializationProperties).fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         }
 
-        referenceItems.put(ListType.CONVERSION.getValue(), conversionTemplates);
+        referenceItems.put(Category.CONVERSION.toString(), conversionTemplates);
         return referenceItems;
     }
 

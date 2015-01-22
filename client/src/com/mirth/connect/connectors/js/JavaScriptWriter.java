@@ -15,8 +15,6 @@ import java.util.UUID;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
@@ -25,15 +23,8 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public class JavaScriptWriter extends ConnectorSettingsPanel {
 
-    private static SyntaxDocument jsMappingDoc;
-
     public JavaScriptWriter() {
         initComponents();
-
-        jsMappingDoc = new SyntaxDocument();
-        jsMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
-
-        javaScriptTextPane.setDocument(jsMappingDoc);
     }
 
     @Override
@@ -45,7 +36,7 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
     public ConnectorProperties getProperties() {
         JavaScriptDispatcherProperties properties = new JavaScriptDispatcherProperties();
 
-        properties.setScript(javaScriptTextPane.getText());
+        properties.setScript(javaScriptTextScrollPane.getText());
 
         return properties;
     }
@@ -54,7 +45,7 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
     public void setProperties(ConnectorProperties properties) {
         JavaScriptDispatcherProperties props = (JavaScriptDispatcherProperties) properties;
 
-        javaScriptTextPane.setText(props.getScript());
+        javaScriptTextScrollPane.setText(props.getScript());
     }
 
     @Override
@@ -71,7 +62,7 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
         if (props.getScript().length() == 0) {
             valid = false;
             if (highlight) {
-                javaScriptTextPane.setBackground(UIConstants.INVALID_COLOR);
+                javaScriptTextScrollPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -84,7 +75,7 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
 
     @Override
     public void resetInvalidProperties() {
-        javaScriptTextPane.setBackground(null);
+        javaScriptTextScrollPane.setBackground(null);
     }
 
     @Override
@@ -138,14 +129,12 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
     private void initComponents() {
 
         jsLabel = new javax.swing.JLabel();
-        javaScriptTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);
+        javaScriptTextScrollPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         jsLabel.setText("JavaScript:");
-
-        javaScriptTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -155,20 +144,22 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
                 .addContainerGap()
                 .addComponent(jsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(javaScriptTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
+                .addComponent(javaScriptTextScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(javaScriptTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
-                    .addComponent(jsLabel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jsLabel)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(javaScriptTextScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea javaScriptTextPane;
+    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane javaScriptTextScrollPane;
     private javax.swing.JLabel jsLabel;
     // End of variables declaration//GEN-END:variables
 }

@@ -56,7 +56,7 @@
         <Property name="text" type="java.lang.String" value="JavaScript:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="javascriptTextPane">
+    <Component class="com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane" name="javascriptTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -65,7 +65,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);"/>
       </AuxValues>
     </Component>
   </SubComponents>

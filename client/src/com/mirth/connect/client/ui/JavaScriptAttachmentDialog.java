@@ -18,8 +18,6 @@ import javax.swing.JDialog;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.model.CodeTemplate.ContextType;
@@ -36,10 +34,7 @@ public class JavaScriptAttachmentDialog extends MirthDialog {
 
         attachmentHandlerProperties = properties;
 
-        SyntaxDocument doc = new SyntaxDocument();
-        doc.setTokenMarker(new JavaScriptTokenMarker());
         scriptContent.setSaveEnabled(false);
-        scriptContent.setDocument(doc);
         scriptContent.setCaretPosition(0);
         scriptContent.setText(attachmentHandlerProperties.getProperties().get("javascript.script"));
 
@@ -79,7 +74,7 @@ public class JavaScriptAttachmentDialog extends MirthDialog {
         jPanel1 = new javax.swing.JPanel();
         cancelButton = new javax.swing.JButton();
         validateScriptButton = new javax.swing.JButton();
-        scriptContent = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);
+        scriptContent = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);
         okButton = new javax.swing.JButton();
         functionList1 = new com.mirth.connect.client.ui.FunctionList(ContextType.CHANNEL_CONTEXT.getContext());
         jSeparator1 = new javax.swing.JSeparator();
@@ -203,7 +198,7 @@ public class JavaScriptAttachmentDialog extends MirthDialog {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton okButton;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea scriptContent;
+    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane scriptContent;
     private javax.swing.JButton validateScriptButton;
     // End of variables declaration//GEN-END:variables
 }

@@ -21,6 +21,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang.StringUtils;
 
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.PluginClass;
 import com.mirth.connect.model.PluginMetaData;
@@ -151,6 +152,9 @@ public class LoadedExtensions {
                 PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), "Could not load code template plugin: " + metaData.getTemplateClassName());
             }
         }
+        
+        // Signal the reference list factory that code template plugins have been loaded
+        ReferenceListFactory.getInstance().loadPluginReferences();
 
         // Load the plugins in order of their weight
         for (List<String> classList : weightedPlugins.descendingMap().values()) {
@@ -199,6 +203,9 @@ public class LoadedExtensions {
                 PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), "Could not load connector class: " + metaData.getClientClassName());
             }
         }
+        
+        // Signal the reference list factory that all other plugins have been loaded
+        ReferenceListFactory.getInstance().loadReferencesAfterPlugins();
     }
 
     public void startPlugins() {

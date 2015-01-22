@@ -30,8 +30,6 @@ import javax.swing.JDialog;
 import org.apache.commons.io.FileUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.MirthDialog;
@@ -61,10 +59,7 @@ public class JavaScriptEditorDialog extends MirthDialog implements DropTargetLis
     private void initialize(String script) {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-        SyntaxDocument doc = new SyntaxDocument();
-        doc.setTokenMarker(new JavaScriptTokenMarker());
         scriptContent.setSaveEnabled(false);
-        scriptContent.setDocument(doc);
         setSavedScript(script);
         scriptContent.setCaretPosition(0);
 
@@ -160,7 +155,7 @@ public class JavaScriptEditorDialog extends MirthDialog implements DropTargetLis
         jPanel1 = new javax.swing.JPanel();
         cancelButton = new javax.swing.JButton();
         validateScriptButton = new javax.swing.JButton();
-        scriptContent = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);
+        scriptContent = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);
         openFileButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
 
@@ -288,7 +283,7 @@ public class JavaScriptEditorDialog extends MirthDialog implements DropTargetLis
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton okButton;
     private javax.swing.JButton openFileButton;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea scriptContent;
+    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane scriptContent;
     private javax.swing.JButton validateScriptButton;
     // End of variables declaration//GEN-END:variables
 }

@@ -72,6 +72,8 @@ import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.fife.rsta.ac.LanguageSupportFactory;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTaskPane;
@@ -95,8 +97,9 @@ import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
+import com.mirth.connect.client.ui.components.rsta.ac.js.MirthJavaScriptLanguageSupport;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
-import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
+import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -223,6 +226,9 @@ public class Frame extends JXFrame {
     private static final int REFRESH_BLOCK_SIZE = 100;
 
     public Frame() {
+        // Load RSyntaxTextArea language support
+        LanguageSupportFactory.get().addLanguageSupport(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, MirthJavaScriptLanguageSupport.class.getName());
+
         rightContainer = new JXTitledPanel();
         channelStatuses = new HashMap<String, ChannelStatus>();
         channelTagInfo = new ChannelTagInfo();
@@ -4488,6 +4494,8 @@ public class Frame extends JXFrame {
                 alertException(this, e.getStackTrace(), e.getMessage());
             }
         }
+
+        ReferenceListFactory.getInstance().updateUserCodeTemplates();
     }
 
     public void doSaveCodeTemplates() {
@@ -4520,7 +4528,7 @@ public class Frame extends JXFrame {
                 }
             }
             mirthClient.updateCodeTemplates(codeTemplates);
-            ReferenceListFactory.getInstance().updateUserTemplates();
+            ReferenceListFactory.getInstance().updateUserCodeTemplates();
             setSaveEnabled(false);
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), e.getMessage());

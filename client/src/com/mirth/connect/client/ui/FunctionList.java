@@ -9,18 +9,17 @@
 
 package com.mirth.connect.client.ui;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 
-import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
-import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory.ListType;
+import org.apache.commons.collections.CollectionUtils;
+
 import com.mirth.connect.client.ui.panels.reference.ReferenceListPanel;
+import com.mirth.connect.client.ui.reference.Category;
+import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.model.CodeTemplate;
 
 public class FunctionList extends javax.swing.JPanel {
@@ -72,20 +71,13 @@ public class FunctionList extends javax.swing.JPanel {
     }
 
     public void setup() {
-        ReferenceListFactory builder = ReferenceListFactory.getInstance();
+        ReferenceListFactory factory = ReferenceListFactory.getInstance();
+        addPanel(new ReferenceListPanel("All", factory.getCodeTemplates(null, context)), "All");
 
-        Map<String, List<CodeTemplate>> references = builder.getReferences();
-        Iterator<Entry<String, List<CodeTemplate>>> i = references.entrySet().iterator();
-        addPanel(new ReferenceListPanel(ListType.ALL.getValue(), builder.getVariableListItems(ListType.ALL.getValue(), context)), "All");
-
-        while (i.hasNext()) {
-            Entry<String, List<CodeTemplate>> entry = i.next();
-            String key = entry.getKey();
-            references.get(entry.getKey());
-            List<CodeTemplate> items = builder.getVariableListItems(key, context);
-
-            if (items != null && items.size() > 0) {
-                addPanel(new ReferenceListPanel(key, items), key);
+        for (String category : factory.getCodeTemplateMap().keySet()) {
+            List<CodeTemplate> items = factory.getCodeTemplates(category, context);
+            if (CollectionUtils.isNotEmpty(items)) {
+                addPanel(new ReferenceListPanel(category.toString(), items), category.toString());
             }
         }
 
@@ -95,29 +87,28 @@ public class FunctionList extends javax.swing.JPanel {
     }
 
     public void updateUserTemplates() {
-        ReferenceListFactory builder = ReferenceListFactory.getInstance();
+        ReferenceListFactory factory = ReferenceListFactory.getInstance();
+        addPanel(new ReferenceListPanel("All", factory.getCodeTemplates(null, context)), "All");
 
-        addPanel(new ReferenceListPanel(ListType.ALL.getValue(), builder.getVariableListItems(ListType.ALL.getValue(), context)), "All");
-
-        List<CodeTemplate> variableListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_VARIABLES, context);
-        if (variableListItems.size() > 0) {
-            addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_VARIABLES, variableListItems), ReferenceListFactory.USER_TEMPLATE_VARIABLES);
-        } else if (panels.get(ReferenceListFactory.USER_TEMPLATE_VARIABLES) != null) {
-            panels.remove(ReferenceListFactory.USER_TEMPLATE_VARIABLES);
+        List<CodeTemplate> variableListItems = factory.getCodeTemplates(Category.USER_VARAIBLES.toString(), context);
+        if (CollectionUtils.isNotEmpty(variableListItems)) {
+            addPanel(new ReferenceListPanel(Category.USER_VARAIBLES.toString(), variableListItems), Category.USER_VARAIBLES.toString());
+        } else if (panels.get(Category.USER_VARAIBLES.toString()) != null) {
+            panels.remove(Category.USER_VARAIBLES.toString());
         }
 
-        List<CodeTemplate> codeListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_CODE, context);
+        List<CodeTemplate> codeListItems = factory.getCodeTemplates(Category.USER_CODE.toString(), context);
         if (codeListItems.size() > 0) {
-            addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_CODE, codeListItems), ReferenceListFactory.USER_TEMPLATE_CODE);
-        } else if (panels.get(ReferenceListFactory.USER_TEMPLATE_CODE) != null) {
-            panels.remove(ReferenceListFactory.USER_TEMPLATE_CODE);
+            addPanel(new ReferenceListPanel(Category.USER_CODE.toString(), codeListItems), Category.USER_CODE.toString());
+        } else if (panels.get(Category.USER_CODE.toString()) != null) {
+            panels.remove(Category.USER_CODE.toString());
         }
 
-        List<CodeTemplate> functionListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context);
+        List<CodeTemplate> functionListItems = factory.getCodeTemplates(Category.USER_FUNCTIONS.toString(), context);
         if (functionListItems.size() > 0) {
-            addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, functionListItems), ReferenceListFactory.USER_TEMPLATE_FUNCTIONS);
-        } else if (panels.get(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS) != null) {
-            panels.remove(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS);
+            addPanel(new ReferenceListPanel(Category.USER_FUNCTIONS.toString(), functionListItems), Category.USER_FUNCTIONS.toString());
+        } else if (panels.get(Category.USER_FUNCTIONS.toString()) != null) {
+            panels.remove(Category.USER_FUNCTIONS.toString());
         }
 
         updateDropDown();
@@ -125,7 +116,7 @@ public class FunctionList extends javax.swing.JPanel {
 
     public void setDefaultDropDownValue() {
         variableReferenceDropDownActionPerformed(null);
-        variableReferenceDropDown.setSelectedItem(ListType.ALL.getValue());
+        variableReferenceDropDown.setSelectedItem("All");
     }
 
     public void addPanel(JPanel panel, String name) {

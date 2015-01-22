@@ -19,7 +19,6 @@ import javax.swing.table.DefaultTableModel;
 
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 
 public class MirthEditorPane extends JPanel {
     // transformer constants
@@ -47,13 +46,11 @@ public class MirthEditorPane extends JPanel {
     public JPanel refPanel;
     public TabbedTemplatePanel tabTemplatePanel;
 
-    public void updateTaskPane(String type) {
-    }
+    public void updateTaskPane(String type) {}
 
     public MirthEditorPane() {
         super();
         this.setBorder(BorderFactory.createEmptyBorder());
-        ReferenceListFactory builder = ReferenceListFactory.getInstance();
         tabTemplatePanel = new TabbedTemplatePanel(this);
         tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());
         refPanel = new JPanel();
