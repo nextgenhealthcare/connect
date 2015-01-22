@@ -105,12 +105,12 @@ public class Donkey {
         JdbcDaoFactory jdbcDaoFactory = JdbcDaoFactory.getInstance(database);
         jdbcDaoFactory.setStatsServerId(donkeyConfiguration.getServerId());
 
-        if (StringUtils.equalsIgnoreCase(pool, "HikariCP")) {
-            logger.debug("Initializing HikariCP");
-            jdbcDaoFactory.setConnectionPool(new HikariConnectionPool(driver, url, username, password, maxConnections, jdbc4, testQuery));
-        } else {
+        if (StringUtils.equalsIgnoreCase(pool, "DBCP")) {
             logger.debug("Initializing DBCP");
             jdbcDaoFactory.setConnectionPool(new DBCPConnectionPool(url, username, password, maxConnections));
+        } else {
+            logger.debug("Initializing HikariCP");
+            jdbcDaoFactory.setConnectionPool(new HikariConnectionPool(driver, url, username, password, maxConnections, jdbc4, testQuery));
         }
 
         jdbcDaoFactory.setSerializer(serializer);
