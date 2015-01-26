@@ -12,6 +12,8 @@ package com.mirth.connect.model.alert;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
@@ -54,7 +56,10 @@ public class AlertAction implements Migratable, Purgable {
     public void migrate3_1_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_2_0(DonkeyElement element) {}
+    public void migrate3_2_0(DonkeyElement element) {
+        DonkeyElement recipient = element.getChildElement("protocol");
+        recipient.setTextContent(StringUtils.capitalize(recipient.getTextContent().toLowerCase()));
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
