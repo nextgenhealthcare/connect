@@ -57,8 +57,11 @@ public class AlertAction implements Migratable, Purgable {
 
     @Override
     public void migrate3_2_0(DonkeyElement element) {
-        DonkeyElement recipient = element.getChildElement("protocol");
-        recipient.setTextContent(StringUtils.capitalize(recipient.getTextContent().toLowerCase()));
+        DonkeyElement protocol = element.getChildElement("protocol");
+
+        if (protocol != null) {
+            protocol.setTextContent(StringUtils.capitalize(protocol.getTextContent().toLowerCase()));
+        }
     }
 
     @Override
