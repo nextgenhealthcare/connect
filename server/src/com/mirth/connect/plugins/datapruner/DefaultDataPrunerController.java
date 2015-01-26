@@ -44,6 +44,7 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DefaultDataPrunerController extends DataPrunerController {
     private static final int DEFAULT_PRUNING_BLOCK_SIZE = 50000;
+    private static final int DEFAULT_ARCHIVING_BLOCK_SIZE = 50;
     private static final String PRUNER_JOB_KEY = "prunerJob";
     private static final String DATE_FORMAT = "MM/dd/yyyy hh:mm aa";
     private static final String PRUNER_TRIGGER_KEY = "prunerTrigger";
@@ -271,6 +272,12 @@ public class DefaultDataPrunerController extends DataPrunerController {
         } else {
             pruner.setPruneEvents(false);
             pruner.setMaxEventAge(null);
+        }
+
+        if (StringUtils.isNotEmpty(properties.getProperty("archiverBlockSize"))) {
+            pruner.setArchiverBlockSize(Integer.parseInt(properties.getProperty("archiverBlockSize")));
+        } else {
+            pruner.setArchiverBlockSize(DEFAULT_ARCHIVING_BLOCK_SIZE);
         }
     }
 

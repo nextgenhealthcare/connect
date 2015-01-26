@@ -313,6 +313,12 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         pruneEventAgeTextField.setText(properties.getProperty("maxEventAge"));
 
+        if (properties.getProperty("archiverBlockSize") != null && !properties.getProperty("archiverBlockSize").equals("")) {
+            archiverPanel.setArchiverBlockSize(properties.getProperty("archiverBlockSize"));
+        } else {
+            archiverPanel.setArchiverBlockSize("50");
+        }
+
         repaint();
         updateStatus();
     }
@@ -346,6 +352,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         properties.setProperty("maxEventAge", pruneEventAgeTextField.getText());
 
         properties.setProperty("archiveEnabled", Boolean.toString(archiverPanel.isArchiveEnabled()));
+        properties.setProperty("archiverBlockSize", archiverPanel.getArchiverBlockSize());
         properties.setProperty("includeAttachments", Boolean.toString(archiverPanel.isIncludeAttachments()));
         properties.setProperty("archiverOptions", serializer.serialize(archiverPanel.getMessageWriterOptions()));
 

@@ -242,6 +242,12 @@
 		AND METADATA_ID = ?
 	</query>
 	
+	<query id="getMessageContentByMessageIds">
+		SELECT *
+		FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID IN (${messageIds})
+	</query>
+	
 	<query id="getDestinationMessageContentFromSource">
 		SELECT CONTENT, CONTENT_TYPE, DATA_TYPE, IS_ENCRYPTED
 		FROM D_MC${localChannelId}
@@ -255,6 +261,12 @@
 		FROM D_MCM${localChannelId}
 		WHERE MESSAGE_ID = ?
 		AND METADATA_ID = ?
+	</query>
+	
+	<query id="getMetaDataMapByMessageId">
+		SELECT *
+		FROM D_MCM${localChannelId}
+		WHERE MESSAGE_ID IN (${messageIds})
 	</query>
 
 	<query id="createChannel">
@@ -273,10 +285,11 @@
 		AND METADATA_ID = ?
 	</query>
 	
-	<query id="getMessageByMessageId">
+	<query id="getMessagesByMessageIds">
 		SELECT *
 		FROM D_M${localChannelId}
-		WHERE ID = ?
+		WHERE ID IN (${messageIds})
+		ORDER BY ID ASC
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">

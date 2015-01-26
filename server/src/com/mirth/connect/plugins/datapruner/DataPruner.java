@@ -68,6 +68,7 @@ public class DataPruner implements Runnable {
     private Status[] skipStatuses;
     private Integer blockSize;
     private boolean archiveEnabled;
+    private Integer archiverBlockSize;
     private MessageWriterOptions archiverOptions;
     private boolean pruneEvents;
     private Integer maxEventAge;
@@ -135,6 +136,14 @@ public class DataPruner implements Runnable {
 
     public void setArchiveEnabled(boolean archiveEnabled) {
         this.archiveEnabled = archiveEnabled;
+    }
+
+    public int getArchiverBlockSize() {
+        return archiverBlockSize;
+    }
+
+    public void setArchiverBlockSize(int archiverBlockSize) {
+        this.archiverBlockSize = archiverBlockSize;
     }
 
     public MessageWriterOptions getArchiverOptions() {
@@ -518,7 +527,6 @@ public class DataPruner implements Runnable {
                     }
                 };
             }
-
             long minMessageId = 0;
             try {
                 List<Map<String, Object>> maps;
@@ -533,41 +541,48 @@ public class DataPruner implements Runnable {
                         session.close();
                     }
 
-                    // Reuse the dao for each block
-                    DonkeyDao dao = getDaoFactory().getDao();
-                    try {
-                        for (Map<String, Object> map : maps) {
+                    List<Long> archiveMessageIds = new ArrayList<Long>();
+                    Iterator<Map<String, Object>> iterator = maps.iterator();
+                    while (iterator.hasNext()) {
+                        Map<String, Object> map = iterator.next();
+
+                        long receivedDate = ((Calendar) map.get("mm_received_date")).getTimeInMillis();
+                        long id = (Long) map.get("id");
+
+                        if (messageDateThreshold != null && receivedDate < messageDateThreshold.getTimeInMillis()) {
+                            messageIds.add(id);
+                        } else {
+                            contentMessageIds.add(id);
+                        }
+
+                        minMessageId = id + 1;
+                        archiveMessageIds.add(id);
+
+                        if (archiveMessageIds.size() == archiverBlockSize || !iterator.hasNext()) {
                             ThreadUtils.checkInterruptedStatus();
+                            DonkeyDao dao = getDaoFactory().getDao();
+                            try {
+                                List<Message> messages = dao.getMessages(channelId, archiveMessageIds);
 
-                            long receivedDate = ((Calendar) map.get("mm_received_date")).getTimeInMillis();
-                            long id = (Long) map.get("id");
+                                for (Message message : messages) {
+                                    if (attachmentSource != null) {
+                                        List<Attachment> attachments = attachmentSource.getMessageAttachments(message);
 
-                            if (messageDateThreshold != null && receivedDate < messageDateThreshold.getTimeInMillis()) {
-                                messageIds.add(id);
-                            } else {
-                                contentMessageIds.add(id);
-                            }
+                                        if (CollectionUtils.isNotEmpty(attachments)) {
+                                            message.setAttachments(attachments);
+                                        }
+                                    }
 
-                            Message message = dao.getMessage(channelId, id);
-
-                            if (message != null) {
-                                if (attachmentSource != null) {
-                                    List<Attachment> attachments = attachmentSource.getMessageAttachments(message);
-
-                                    if (CollectionUtils.isNotEmpty(attachments)) {
-                                        message.setAttachments(attachments);
+                                    if (archiver.write(message)) {
+                                        numExported++;
                                     }
                                 }
 
-                                if (archiver.write(message)) {
-                                    numExported++;
-                                }
+                                archiveMessageIds.clear();
+                            } finally {
+                                dao.close();
                             }
-
-                            minMessageId = id + 1;
                         }
-                    } finally {
-                        dao.close();
                     }
                 } while (maps != null && maps.size() == ID_RETRIEVE_LIMIT);
 

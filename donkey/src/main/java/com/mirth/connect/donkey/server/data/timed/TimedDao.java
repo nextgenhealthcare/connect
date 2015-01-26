@@ -502,13 +502,13 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public Message getMessage(String channelId, long messageId) {
+    public List<Message> getMessages(String channelId, List<Long> messageIds) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getMessage(channelId, messageId);
+            return dao.getMessages(channelId, messageIds);
         } finally {
-            timer.log("getMessage", System.currentTimeMillis() - startTime);
+            timer.log("getMessages", System.currentTimeMillis() - startTime);
         }
     }
 
