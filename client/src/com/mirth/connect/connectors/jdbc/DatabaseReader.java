@@ -437,11 +437,11 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         driverLabel.setText("Driver:");
 
-        urlLabel.setText("Password:");
+        urlLabel.setText("URL:");
 
-        usernameLabel.setText("URL:");
+        usernameLabel.setText("Username:");
 
-        passwordLabel.setText("Username:");
+        passwordLabel.setText("Password:");
 
         selectLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         selectLabel.setText("JavaScript:");
