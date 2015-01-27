@@ -1427,8 +1427,11 @@ public class JdbcDao implements DonkeyDao {
                         // Load the destination's raw content and source map from the source
                         connectorMessage.setSourceMap(sourceConnectorMessage.getSourceMap());
                         MessageContent sourceEncoded = sourceConnectorMessage.getEncoded();
-                        MessageContent destinationRaw = new MessageContent(channelId, sourceEncoded.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RAW, sourceEncoded.getContent(), sourceEncoded.getDataType(), sourceEncoded.isEncrypted());
-                        connectorMessage.setRaw(destinationRaw);
+                        if (sourceEncoded != null) {
+                            // If the source encoded exists, set it as the destination raw
+                            MessageContent destinationRaw = new MessageContent(channelId, sourceEncoded.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RAW, sourceEncoded.getContent(), sourceEncoded.getDataType(), sourceEncoded.isEncrypted());
+                            connectorMessage.setRaw(destinationRaw);
+                        }
                     }
 
                     // Get this connector's message content from the cache and store it in the connector
