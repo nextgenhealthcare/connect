@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui.components.rsta;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -77,6 +78,7 @@ public class FindReplaceDialog extends MirthDialog {
 
         SearchContext context = getContext();
         SearchResult result = getResult(context, find, replaceAll);
+        boolean wrapped = false;
 
         if (result.getCount() == 0 && wrapSearchCheckBox.isSelected()) {
             int position = textArea.getCaretPosition();
@@ -84,13 +86,16 @@ public class FindReplaceDialog extends MirthDialog {
             result = getResult(context, find, replaceAll);
             if (result.getCount() == 0) {
                 textArea.setCaretPosition(position);
+            } else {
+                wrapped = true;
+                Toolkit.getDefaultToolkit().beep();
             }
         }
 
         if ((find || !replaceAll) && result.getMarkedCount() == 0 || replaceAll && result.getCount() == 0) {
             warningLabel.setText("No results found.");
         } else if (find) {
-            warningLabel.setText(result.getMarkedCount() + " results found.");
+            warningLabel.setText(result.getMarkedCount() + " results found" + (wrapped ? "; wrapped." : "."));
         } else {
             warningLabel.setText(result.getCount() + " out of " + (replaceAll ? result.getCount() : result.getMarkedCount()) + " results replaced.");
         }
