@@ -256,6 +256,13 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     }
 
     @Override
+    public void setVisible(boolean aFlag) {
+        super.setVisible(aFlag);
+        selectTextPane.updateDisplayOptions();
+        updateTextPane.updateDisplayOptions();
+    }
+
+    @Override
     public String doValidate(ConnectorProperties properties, boolean highlight) {
         DatabaseReceiverProperties props = (DatabaseReceiverProperties) properties;
         StringBuilder error = new StringBuilder();

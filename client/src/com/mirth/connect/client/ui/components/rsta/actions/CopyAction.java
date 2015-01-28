@@ -12,14 +12,12 @@ package com.mirth.connect.client.ui.components.rsta.actions;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 
-import javax.swing.text.DefaultEditorKit;
-
 import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 
 public class CopyAction extends MirthRecordableTextAction {
 
     public CopyAction(MirthRSyntaxTextArea textArea) {
-        super(textArea, DefaultEditorKit.copyAction);
+        super(textArea, ActionInfo.COPY);
     }
 
     @Override

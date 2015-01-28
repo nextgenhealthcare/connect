@@ -9,26 +9,80 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.EventObject;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableCellRenderer;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.components.KeyStrokeTextField;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.components.MirthTextField;
+import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
+import com.mirth.connect.client.ui.components.rsta.RSTAPreferences;
+import com.mirth.connect.client.ui.components.rsta.actions.ActionInfo;
 import com.mirth.connect.model.User;
 
 public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
     public static final String TAB_NAME = "Administrator";
+
+    private static final int ACTION_INFO_COLUMN = 0;
+    private static final int NAME_COLUMN = 1;
+    private static final int DESCRIPTION_COLUMN = 2;
+    private static final int KEY_COLUMN = 3;
+
     private static Preferences userPreferences;
+
     private User currentUser = getFrame().getCurrentUser(getFrame());
+    private List<ActionInfo> shortcutKeyList;
 
     public SettingsPanelAdministrator(String tabName) {
         super(tabName);
 
+        shortcutKeyList = new ArrayList<ActionInfo>();
+        ResourceBundle resourceBundle = MirthRSyntaxTextArea.getResourceBundle();
+        for (ActionInfo actionInfo : ActionInfo.values()) {
+            if (!BooleanUtils.toBoolean(resourceBundle.getString(actionInfo.toString() + ".Toggle"))) {
+                shortcutKeyList.add(actionInfo);
+            }
+        }
+
         initComponents();
+        initLayout();
     }
 
     public void doRefresh() {
@@ -57,13 +111,13 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             } else {
                 textSearchWarningNoRadio.setSelected(true);
             }
-            
+
             final String workingId = getFrame().startWorking("Loading " + getTabName() + " settings...");
-            
+
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                
+
                 private String checkForNotifications = null;
-                
+
                 public Void doInBackground() {
                     try {
                         checkForNotifications = getFrame().mirthClient.getUserPreference(currentUser, "checkForNotifications");
@@ -72,7 +126,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                     }
                     return null;
                 }
-                
+
                 @Override
                 public void done() {
                     if (checkForNotifications == null || BooleanUtils.toBoolean(checkForNotifications)) {
@@ -83,8 +137,11 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                     getFrame().stopWorking(workingId);
                 }
             };
-            
+
             worker.execute();
+
+            updateShortcutKeyTable(MirthRSyntaxTextArea.getRSTAPreferences());
+            updateRestoreDefaultsButton();
         }
     }
 
@@ -120,7 +177,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             userPreferences.putBoolean("textSearchWarning", textSearchWarningYesRadio.isSelected());
         }
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " settings...");
-        
+
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
                 try {
@@ -128,239 +185,299 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                 } catch (ClientException e) {
                     getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
                 }
-                
+
                 return null;
             }
-            
+
             @Override
             public void done() {
                 getFrame().setSaveEnabled(false);
                 getFrame().stopWorking(workingId);
             }
         };
-        
+
         worker.execute();
-        
+
+        RSTAPreferences rstaPreferences = MirthRSyntaxTextArea.getRSTAPreferences();
+        for (int row = 0; row < shortcutKeyTable.getRowCount(); row++) {
+            ActionInfo actionInfo = (ActionInfo) shortcutKeyTable.getModel().getValueAt(row, ACTION_INFO_COLUMN);
+            KeyStroke keyStroke = (KeyStroke) shortcutKeyTable.getModel().getValueAt(row, KEY_COLUMN);
+            rstaPreferences.getKeyStrokeMap().put(actionInfo.getActionMapKey(), keyStroke);
+        }
+        MirthRSyntaxTextArea.updateRSTAPreferences(userPreferences);
+
         return true;
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+    private void updateRestoreDefaultsButton() {
+        boolean isDefault = true;
+        Map<String, KeyStroke> defaultKeyStrokeMap = new RSTAPreferences().getKeyStrokeMap();
+
+        for (int row = 0; row < shortcutKeyTable.getRowCount(); row++) {
+            ActionInfo actionInfo = (ActionInfo) shortcutKeyTable.getModel().getValueAt(row, ACTION_INFO_COLUMN);
+            KeyStroke keyStroke = (KeyStroke) shortcutKeyTable.getModel().getValueAt(row, KEY_COLUMN);
+
+            if (!ObjectUtils.equals(keyStroke, defaultKeyStrokeMap.get(actionInfo.getActionMapKey()))) {
+                isDefault = false;
+                break;
+            }
+        }
+
+        restoreDefaultsButton.setEnabled(!isDefault);
+    }
+
+    private void restoreDefaults() {
+        if (PlatformUI.MIRTH_FRAME.alertOkCancel(PlatformUI.MIRTH_FRAME, "<html>This will reset all the code editor shortcut keys to their defaults.<br/>Are you sure you wish to continue?</html>")) {
+            updateShortcutKeyTable(new RSTAPreferences());
+            restoreDefaultsButton.setEnabled(false);
+            PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
+        }
+    }
+
+    private void updateShortcutKeyTable(RSTAPreferences rstaPreferences) {
+        ResourceBundle resourceBundle = MirthRSyntaxTextArea.getResourceBundle();
+        Object[][] data = new Object[shortcutKeyList.size()][4];
+        int i = 0;
+
+        for (ActionInfo actionInfo : shortcutKeyList) {
+            data[i][ACTION_INFO_COLUMN] = actionInfo;
+            data[i][NAME_COLUMN] = resourceBundle.getString(actionInfo.toString() + ".Name");
+            data[i][DESCRIPTION_COLUMN] = resourceBundle.getString(actionInfo.toString() + ".Desc");
+            data[i][KEY_COLUMN] = rstaPreferences.getKeyStrokeMap().get(actionInfo.getActionMapKey());
+            i++;
+        }
+
+        ((RefreshTableModel) shortcutKeyTable.getModel()).refreshDataVector(data);
+    }
+
     private void initComponents() {
+        setBackground(UIConstants.BACKGROUND_COLOR);
 
-        formatXmlButtonGroup = new javax.swing.ButtonGroup();
-        textSearchWarningButtonGroup = new javax.swing.ButtonGroup();
-        notificationButtonGroup = new javax.swing.ButtonGroup();
-        systemSettings = new javax.swing.JPanel();
-        dashboardRefreshIntervalLabel = new javax.swing.JLabel();
-        dashboardRefreshIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
-        messageBrowserPageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
-        messageBrowserPageSizeLabel = new javax.swing.JLabel();
-        formatXmlLabel = new javax.swing.JLabel();
-        formatXmlYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        formatXmlNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        eventBrowserPageSizeLabel = new javax.swing.JLabel();
-        eventBrowserPageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
-        textSearchWarningLabel = new javax.swing.JLabel();
-        textSearchWarningYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        textSearchWarningNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        userSettings = new javax.swing.JPanel();
-        checkForNotificationsLabel = new javax.swing.JLabel();
-        checkForNotificationsYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        checkForNotificationsNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        systemSettingsPanel = new JPanel();
+        systemSettingsPanel.setBackground(getBackground());
+        systemSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "System Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
-        systemSettings.setBackground(new java.awt.Color(255, 255, 255));
-        systemSettings.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "System Preferences", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-
-        dashboardRefreshIntervalLabel.setText("Dashboard refresh interval (seconds):");
-
+        dashboardRefreshIntervalLabel = new JLabel("Dashboard refresh interval (seconds):");
+        dashboardRefreshIntervalField = new MirthTextField();
         dashboardRefreshIntervalField.setToolTipText("<html>Interval in seconds at which to refresh the Dashboard. Decrement this for <br>faster updates, and increment it for slower servers with more channels.</html>");
 
-        messageBrowserPageSizeField.setToolTipText("Sets the default page size for browsers (message, event, etc.)");
+        String toolTipText = "Sets the default page size for browsers (message, event, etc.)";
+        messageBrowserPageSizeLabel = new JLabel("Message browser page size:");
+        messageBrowserPageSizeField = new MirthTextField();
+        messageBrowserPageSizeField.setToolTipText(toolTipText);
 
-        messageBrowserPageSizeLabel.setText("Message browser page size:");
+        eventBrowserPageSizeLabel = new JLabel("Event browser page size:");
+        eventBrowserPageSizeField = new MirthTextField();
+        eventBrowserPageSizeField.setToolTipText(toolTipText);
 
-        formatXmlLabel.setText("Format XML in message browser:");
+        formatXmlLabel = new JLabel("Format XML in message browser:");
+        formatXmlButtonGroup = new ButtonGroup();
 
-        formatXmlYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        formatXmlYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        toolTipText = "Pretty print messages in the message browser that are XML.";
+        formatXmlYesRadio = new MirthRadioButton("Yes");
+        formatXmlYesRadio.setBackground(systemSettingsPanel.getBackground());
+        formatXmlYesRadio.setToolTipText(toolTipText);
         formatXmlButtonGroup.add(formatXmlYesRadio);
-        formatXmlYesRadio.setText("Yes");
-        formatXmlYesRadio.setToolTipText("Pretty print messages in the message browser that are XML.");
-        formatXmlYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        formatXmlNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        formatXmlNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        formatXmlNoRadio = new MirthRadioButton("No");
+        formatXmlNoRadio.setBackground(systemSettingsPanel.getBackground());
+        formatXmlNoRadio.setToolTipText(toolTipText);
         formatXmlButtonGroup.add(formatXmlNoRadio);
-        formatXmlNoRadio.setText("No");
-        formatXmlNoRadio.setToolTipText("Pretty print messages in the message browser that are XML.");
-        formatXmlNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        eventBrowserPageSizeLabel.setText("Event browser page size:");
+        textSearchWarningLabel = new JLabel("Message browser text search confirmation:");
+        textSearchWarningButtonGroup = new ButtonGroup();
 
-        eventBrowserPageSizeField.setToolTipText("Sets the default page size for browsers (message, event, etc.)");
-
-        textSearchWarningLabel.setText("Message browser text search confirmation:");
-
-        textSearchWarningYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        textSearchWarningYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        toolTipText = "<html>Show a confirmation dialog in the message browser when attempting a text search, warning users<br/>that the query may take a long time depending on the amount of messages being searched.</html>";
+        textSearchWarningYesRadio = new MirthRadioButton("Yes");
+        textSearchWarningYesRadio.setBackground(systemSettingsPanel.getBackground());
+        textSearchWarningYesRadio.setToolTipText(toolTipText);
         textSearchWarningButtonGroup.add(textSearchWarningYesRadio);
-        textSearchWarningYesRadio.setText("Yes");
-        textSearchWarningYesRadio.setToolTipText("<html>Show a confirmation dialog in the message browser when attempting a text search, warning users<br/>that the query may take a long time depending on the amount of messages being searched.</html>");
-        textSearchWarningYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        textSearchWarningNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        textSearchWarningNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        textSearchWarningNoRadio = new MirthRadioButton("No");
+        textSearchWarningNoRadio.setBackground(systemSettingsPanel.getBackground());
+        textSearchWarningNoRadio.setToolTipText(toolTipText);
         textSearchWarningButtonGroup.add(textSearchWarningNoRadio);
-        textSearchWarningNoRadio.setText("No");
-        textSearchWarningNoRadio.setToolTipText("<html>Show a confirmation dialog in the message browser when attempting a text search, warning users<br/>that the query may take a long time depending on the amount of messages being searched.</html>");
-        textSearchWarningNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        javax.swing.GroupLayout systemSettingsLayout = new javax.swing.GroupLayout(systemSettings);
-        systemSettings.setLayout(systemSettingsLayout);
-        systemSettingsLayout.setHorizontalGroup(
-            systemSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(systemSettingsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(systemSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textSearchWarningLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(formatXmlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(eventBrowserPageSizeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(messageBrowserPageSizeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(dashboardRefreshIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(systemSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(dashboardRefreshIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(systemSettingsLayout.createSequentialGroup()
-                        .addComponent(formatXmlYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(formatXmlNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(eventBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(systemSettingsLayout.createSequentialGroup()
-                        .addComponent(textSearchWarningYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(textSearchWarningNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(198, Short.MAX_VALUE))
-        );
-        systemSettingsLayout.setVerticalGroup(
-            systemSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(systemSettingsLayout.createSequentialGroup()
-                .addGroup(systemSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(dashboardRefreshIntervalLabel)
-                    .addComponent(dashboardRefreshIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(systemSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(messageBrowserPageSizeLabel)
-                    .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(systemSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(eventBrowserPageSizeLabel)
-                    .addComponent(eventBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(systemSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(formatXmlLabel)
-                    .addComponent(formatXmlYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(formatXmlNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(systemSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textSearchWarningLabel)
-                    .addComponent(textSearchWarningYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(textSearchWarningNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        );
+        userSettingsPanel = new JPanel();
+        userSettingsPanel.setBackground(getBackground());
+        userSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "User Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-        userSettings.setBackground(new java.awt.Color(255, 255, 255));
-        userSettings.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "User Preferences", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        checkForNotificationsLabel = new JLabel("Check for new notifications on login:");
+        notificationButtonGroup = new ButtonGroup();
 
-        checkForNotificationsLabel.setText("Check for new notifications on login:");
-
-        checkForNotificationsYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        checkForNotificationsYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        notificationButtonGroup.add(checkForNotificationsYesRadio);
-        checkForNotificationsYesRadio.setText("Yes");
+        checkForNotificationsYesRadio = new MirthRadioButton("Yes");
+        checkForNotificationsYesRadio.setBackground(userSettingsPanel.getBackground());
         checkForNotificationsYesRadio.setToolTipText("<html>Checks for notifications from Mirth (announcements, available updates, etc.)<br/>relevant to this version of Mirth Connect whenever user logs in.</html>");
-        checkForNotificationsYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        notificationButtonGroup.add(checkForNotificationsYesRadio);
 
-        checkForNotificationsNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        checkForNotificationsNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        notificationButtonGroup.add(checkForNotificationsNoRadio);
-        checkForNotificationsNoRadio.setText("No");
+        checkForNotificationsNoRadio = new MirthRadioButton("No");
+        checkForNotificationsNoRadio.setBackground(userSettingsPanel.getBackground());
         checkForNotificationsNoRadio.setToolTipText("<html>Checks for notifications from Mirth (announcements, available updates, etc.)<br/>relevant to this version of Mirth Connect whenever user logs in.</html>");
-        checkForNotificationsNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        notificationButtonGroup.add(checkForNotificationsNoRadio);
 
-        javax.swing.GroupLayout userSettingsLayout = new javax.swing.GroupLayout(userSettings);
-        userSettings.setLayout(userSettingsLayout);
-        userSettingsLayout.setHorizontalGroup(
-            userSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(userSettingsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(checkForNotificationsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(checkForNotificationsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(checkForNotificationsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        userSettingsLayout.setVerticalGroup(
-            userSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(userSettingsLayout.createSequentialGroup()
-                .addGroup(userSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkForNotificationsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(checkForNotificationsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(checkForNotificationsLabel))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        codeEditorSettingsPanel = new JPanel();
+        codeEditorSettingsPanel.setBackground(getBackground());
+        codeEditorSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Code Editor Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(systemSettings, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(userSettings, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(systemSettings, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(userSettings, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-    }// </editor-fold>                        
+        shortcutKeyTable = new MirthTable();
+        shortcutKeyTable.setModel(new RefreshTableModel(new Object[] { "Action Info", "Name",
+                "Description", "Shortcut Key Mapping" }, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == KEY_COLUMN;
+            }
+        });
 
-    // Variables declaration - do not modify                     
-    private javax.swing.JLabel checkForNotificationsLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton checkForNotificationsNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton checkForNotificationsYesRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField dashboardRefreshIntervalField;
-    private javax.swing.JLabel dashboardRefreshIntervalLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField eventBrowserPageSizeField;
-    private javax.swing.JLabel eventBrowserPageSizeLabel;
-    private javax.swing.ButtonGroup formatXmlButtonGroup;
-    private javax.swing.JLabel formatXmlLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton formatXmlNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton formatXmlYesRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField messageBrowserPageSizeField;
-    private javax.swing.JLabel messageBrowserPageSizeLabel;
-    private javax.swing.ButtonGroup notificationButtonGroup;
-    private javax.swing.JPanel systemSettings;
-    private javax.swing.ButtonGroup textSearchWarningButtonGroup;
-    private javax.swing.JLabel textSearchWarningLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton textSearchWarningNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton textSearchWarningYesRadio;
-    private javax.swing.JPanel userSettings;
-    // End of variables declaration                   
+        shortcutKeyTable.setDragEnabled(false);
+        shortcutKeyTable.setRowSelectionAllowed(false);
+        shortcutKeyTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        shortcutKeyTable.setFocusable(false);
+        shortcutKeyTable.setOpaque(true);
+        shortcutKeyTable.getTableHeader().setReorderingAllowed(false);
+        shortcutKeyTable.setSortable(false);
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            shortcutKeyTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
+        }
+
+        shortcutKeyTable.getColumnModel().getColumn(NAME_COLUMN).setMinWidth(145);
+        shortcutKeyTable.getColumnModel().getColumn(NAME_COLUMN).setPreferredWidth(145);
+
+        shortcutKeyTable.getColumnModel().getColumn(DESCRIPTION_COLUMN).setPreferredWidth(600);
+
+        shortcutKeyTable.getColumnModel().getColumn(KEY_COLUMN).setMinWidth(120);
+        shortcutKeyTable.getColumnModel().getColumn(KEY_COLUMN).setPreferredWidth(150);
+        shortcutKeyTable.getColumnModel().getColumn(KEY_COLUMN).setCellRenderer(new KeyStrokeCellRenderer());
+        shortcutKeyTable.getColumnModel().getColumn(KEY_COLUMN).setCellEditor(new KeyStrokeCellEditor());
+
+        shortcutKeyTable.removeColumn(shortcutKeyTable.getColumnModel().getColumn(ACTION_INFO_COLUMN));
+
+        shortcutKeyTable.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent evt) {
+                updateRestoreDefaultsButton();
+            }
+        });
+
+        shortcutKeyScrollPane = new JScrollPane(shortcutKeyTable);
+
+        restoreDefaultsButton = new JButton("Restore Defaults");
+        restoreDefaultsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                restoreDefaults();
+            }
+        });
+    }
+
+    private void initLayout() {
+        setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gap 6 6", "", "[][][][grow]"));
+
+        systemSettingsPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "12[]13[][grow]", ""));
+        systemSettingsPanel.add(dashboardRefreshIntervalLabel, "right");
+        systemSettingsPanel.add(dashboardRefreshIntervalField, "w 30!");
+        systemSettingsPanel.add(messageBrowserPageSizeLabel, "newline, right");
+        systemSettingsPanel.add(messageBrowserPageSizeField, "w 30!");
+        systemSettingsPanel.add(eventBrowserPageSizeLabel, "newline, right");
+        systemSettingsPanel.add(eventBrowserPageSizeField, "w 30!");
+        systemSettingsPanel.add(formatXmlLabel, "newline, right");
+        systemSettingsPanel.add(formatXmlYesRadio, "split");
+        systemSettingsPanel.add(formatXmlNoRadio);
+        systemSettingsPanel.add(textSearchWarningLabel, "newline, right");
+        systemSettingsPanel.add(textSearchWarningYesRadio, "split");
+        systemSettingsPanel.add(textSearchWarningNoRadio);
+        add(systemSettingsPanel, "grow");
+
+        userSettingsPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "12[]13[][grow]", ""));
+        userSettingsPanel.add(checkForNotificationsLabel, "right");
+        userSettingsPanel.add(checkForNotificationsYesRadio, "split");
+        userSettingsPanel.add(checkForNotificationsNoRadio);
+        add(userSettingsPanel, "newline, grow");
+
+        codeEditorSettingsPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "12[][]", ""));
+        codeEditorSettingsPanel.add(shortcutKeyScrollPane, "grow, push, h ::179");
+        codeEditorSettingsPanel.add(restoreDefaultsButton, "top");
+        add(codeEditorSettingsPanel, "newline, grow");
+    }
+
+    private class KeyStrokeCellRenderer extends KeyStrokeTextField implements TableCellRenderer {
+
+        public KeyStrokeCellRenderer() {
+            setBorder(BorderFactory.createEmptyBorder());
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setKeyStroke((KeyStroke) value);
+            return this;
+        }
+    }
+
+    private class KeyStrokeCellEditor extends DefaultCellEditor {
+
+        private KeyStrokeTextField textField;
+
+        public KeyStrokeCellEditor() {
+            super(new KeyStrokeTextField());
+            textField = (KeyStrokeTextField) getComponent();
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return textField.getKeyStroke();
+        }
+
+        @Override
+        public boolean isCellEditable(EventObject evt) {
+            if (evt != null && evt instanceof MouseEvent) {
+                return ((MouseEvent) evt).getClickCount() >= 2;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            KeyStroke keyStroke = (KeyStroke) getCellEditorValue();
+            if (keyStroke != null) {
+                for (int row = 0; row < shortcutKeyTable.getRowCount(); row++) {
+                    if (keyStroke.equals((KeyStroke) shortcutKeyTable.getModel().getValueAt(row, KEY_COLUMN))) {
+                        cancelCellEditing();
+                    }
+                }
+            }
+
+            return super.stopCellEditing();
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            textField.setKeyStroke((KeyStroke) value);
+            return textField;
+        }
+    }
+
+    private JPanel systemSettingsPanel;
+    private JLabel dashboardRefreshIntervalLabel;
+    private JTextField dashboardRefreshIntervalField;
+    private JLabel messageBrowserPageSizeLabel;
+    private JTextField messageBrowserPageSizeField;
+    private JLabel eventBrowserPageSizeLabel;
+    private JTextField eventBrowserPageSizeField;
+    private JLabel formatXmlLabel;
+    private ButtonGroup formatXmlButtonGroup;
+    private JRadioButton formatXmlYesRadio;
+    private JRadioButton formatXmlNoRadio;
+    private JLabel textSearchWarningLabel;
+    private ButtonGroup textSearchWarningButtonGroup;
+    private JRadioButton textSearchWarningYesRadio;
+    private JRadioButton textSearchWarningNoRadio;
+    private JPanel userSettingsPanel;
+    private JLabel checkForNotificationsLabel;
+    private ButtonGroup notificationButtonGroup;
+    private JRadioButton checkForNotificationsYesRadio;
+    private JRadioButton checkForNotificationsNoRadio;
+    private JPanel codeEditorSettingsPanel;
+    private JScrollPane shortcutKeyScrollPane;
+    private MirthTable shortcutKeyTable;
+    private JButton restoreDefaultsButton;
 }

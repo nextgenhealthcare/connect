@@ -83,6 +83,10 @@ public class MirthRTextScrollPane extends RTextScrollPane implements SyntaxConst
         textArea.setSyntaxEditingStyle(styleKey);
     }
 
+    public void updateDisplayOptions() {
+        textArea.updateDisplayOptions();
+    }
+
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);

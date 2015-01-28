@@ -17,7 +17,7 @@ import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 public class FindReplaceAction extends MirthRecordableTextAction {
 
     public FindReplaceAction(MirthRSyntaxTextArea textArea) {
-        super(textArea, "Find/Replace");
+        super(textArea, ActionInfo.FIND_REPLACE);
     }
 
     @Override

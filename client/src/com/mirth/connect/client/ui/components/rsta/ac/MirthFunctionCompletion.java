@@ -31,6 +31,7 @@ public abstract class MirthFunctionCompletion extends FunctionCompletion impleme
     protected String id;
     protected List<Parameter> parameters;
     protected String iconName;
+    protected boolean deprecated;
 
     public MirthFunctionCompletion(CompletionProvider provider, FunctionReference reference) {
         super(provider, reference.getFunctionName(), MirthXmlUtil.encode(StringUtils.defaultString(reference.getReturnType())));
@@ -49,6 +50,7 @@ public abstract class MirthFunctionCompletion extends FunctionCompletion impleme
         setParams(list);
 
         this.iconName = reference.getIconName();
+        this.deprecated = reference.isDeprecated();
     }
 
     @Override
@@ -74,6 +76,10 @@ public abstract class MirthFunctionCompletion extends FunctionCompletion impleme
             return IconFactory.getIcon(iconName);
         }
         return IconFactory.getIcon(IconFactory.PUBLIC_METHOD_ICON);
+    }
+
+    public boolean isDeprecated() {
+        return deprecated;
     }
 
     @Override

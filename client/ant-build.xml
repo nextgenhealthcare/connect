@@ -79,6 +79,13 @@
 		<copy todir="${classes}/com/mirth/connect/client/ui/images">
 			<fileset dir="${src}/com/mirth/connect/client/ui/images" />
 		</copy>
+		
+		<!-- Copy syntax text area resource bundle properties files -->
+		<copy todir="${classes}/com/mirth/connect/client/ui/components/rsta">
+			<fileset dir="${src}/com/mirth/connect/client/ui/components/rsta">
+				<include name="*.properties" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="build" depends="compile">

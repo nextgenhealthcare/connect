@@ -25,6 +25,7 @@ public class MirthJavaScriptLanguageSupport extends JavaScriptLanguageSupport im
 
     public MirthJavaScriptLanguageSupport() {
         setXmlAvailable(true);
+        setDefaultCompletionCellRenderer(new MirthJavaScriptCellRenderer());
     }
 
     @Override

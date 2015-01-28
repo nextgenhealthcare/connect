@@ -205,8 +205,17 @@ public class ReferenceListFactory {
     }
 
     public synchronized void loadReferencesAfterPlugins() {
+        MirthLanguageSupport languageSupport = (MirthLanguageSupport) LanguageSupportFactory.get().getSupportFor(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+        MirthCompletionCacheInterface completionCache = languageSupport.getCompletionCache();
+        List<Reference> references = new ArrayList<Reference>();
+        Reference reference;
+
         // Conversion reference; this needs the data type plugins to already have been loaded
-        addReference(new ParameterizedCodeReference(SCOPE_GLOBAL, Category.CONVERSION.toString(), "Get Serializer", "Creates and returns a data type serializer with the specified serialization and deserialization properties. " + getDataTypesToolTipText(), "var ${dataType} = '${HL7V2}';\nvar ${serializationProperties} = SerializerFactory.getDefaultSerializationProperties(${dataType});\nvar ${deserializationProperties} = SerializerFactory.getDefaultDeserializationProperties(${dataType});\nvar ${serializer} = SerializerFactory.getSerializer(${dataType}, ${serializationProperties}, ${deserializationProperties});"), true);
+        reference = new ParameterizedCodeReference(SCOPE_GLOBAL, Category.CONVERSION.toString(), "Get Serializer", "Creates and returns a data type serializer with the specified serialization and deserialization properties. " + getDataTypesToolTipText(), "var ${dataType} = '${HL7V2}';\nvar ${serializationProperties} = SerializerFactory.getDefaultSerializationProperties(${dataType});\nvar ${deserializationProperties} = SerializerFactory.getDefaultDeserializationProperties(${dataType});\nvar ${serializer} = SerializerFactory.getSerializer(${dataType}, ${serializationProperties}, ${deserializationProperties});");
+        references.add(reference);
+        addReference(reference, true);
+
+        completionCache.addReferences(references);
     }
 
     private void addReferences(Collection<Reference> references) {

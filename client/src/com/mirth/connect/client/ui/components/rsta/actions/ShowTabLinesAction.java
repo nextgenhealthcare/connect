@@ -16,11 +16,12 @@ import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 public class ShowTabLinesAction extends MirthRecordableTextAction {
 
     public ShowTabLinesAction(MirthRSyntaxTextArea textArea) {
-        super(textArea, "Show Tab Lines");
+        super(textArea, ActionInfo.DISPLAY_SHOW_TAB_LINES);
     }
 
     @Override
     public void actionPerformedImpl(ActionEvent evt) {
-        textArea.setPaintTabLines(!textArea.getPaintTabLines());
+        boolean result = !evt.getActionCommand().equals(FORCE_OFF_COMMAND) && (evt.getActionCommand().equals(FORCE_ON_COMMAND) || !textArea.getPaintTabLines());
+        textArea.setPaintTabLines(result);
     }
 }

@@ -79,6 +79,12 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
     }
 
     @Override
+    public void setVisible(boolean aFlag) {
+        super.setVisible(aFlag);
+        javaScriptTextScrollPane.updateDisplayOptions();
+    }
+
+    @Override
     public String doValidate(ConnectorProperties properties, boolean highlight) {
         JavaScriptDispatcherProperties props = (JavaScriptDispatcherProperties) properties;
 

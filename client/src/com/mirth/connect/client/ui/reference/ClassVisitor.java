@@ -270,6 +270,10 @@ public class ClassVisitor extends VoidVisitorAdapter<Object> {
             reference = new FunctionReference(ContextType.GLOBAL_CONTEXT.getContext(), null, className, name, comment, null, name, params, type, returnComment, inputTextList);
         }
 
+        if (StringUtils.isNotBlank(deprecatedComment)) {
+            reference.setDeprecated(true);
+        }
+
         reference.setIconName(iconName);
         references.add(reference);
     }
@@ -279,7 +283,7 @@ public class ClassVisitor extends VoidVisitorAdapter<Object> {
     }
 
     private String convertComment(String comment) {
-        return comment.replaceAll("(?m)^[\\s*]*", "").replaceAll("\\{@\\w*\\s*(#[^\\}\\s]*)?\\s*(?<value>[^\\}]*)\\s*\\}", "\\k<value>").replaceAll("(\r\n|\r|\n)@[\\S\\s]*", "").replaceAll("\r\n|\r|\n", " ").replaceAll("\\s{2,}", " ").trim();
+        return comment.replaceAll("(?m)^[\\s*]*", "").replaceAll("\\{@\\w*\\s*(#[^\\}\\s]*)?\\s*(?<value>[^\\}]*)\\s*\\}", "${value}").replaceAll("(\r\n|\r|\n)@[\\S\\s]*", "").replaceAll("\r\n|\r|\n", " ").replaceAll("\\s{2,}", " ").trim();
     }
 
     private String encode(String str) {

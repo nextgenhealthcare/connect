@@ -19,7 +19,7 @@ import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 public class ViewUserAPIAction extends MirthRecordableTextAction {
 
     public ViewUserAPIAction(MirthRSyntaxTextArea textArea) {
-        super(textArea, "View User API");
+        super(textArea, ActionInfo.VIEW_USER_API);
     }
 
     @Override

@@ -52,6 +52,7 @@ public class ACKGenerator {
         return generateAckResponse(message, false, acknowledgementCode, textMessage, DEFAULTDATEFORMAT, "");
     }
 
+    // TODO: Remove in 3.1
     /**
      * Generates an HL7 v2.x acknowledgment.
      * 
@@ -77,7 +78,6 @@ public class ACKGenerator {
      *             generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat,
      *             errorMessage) instead.
      */
-    // TODO: Remove in 3.1
     public static String generateAckResponse(String message, String dataType, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
         logger.error("This generateAckResponse(message, dataType, acknowledgementCode, textMessage, dateFormat, errorMessage) method is deprecated and will soon be removed. Please use generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat, errorMessage) instead.");
         return generateAckResponse(message, dataType.equals("XML"), acknowledgementCode, textMessage, dateFormat, errorMessage);

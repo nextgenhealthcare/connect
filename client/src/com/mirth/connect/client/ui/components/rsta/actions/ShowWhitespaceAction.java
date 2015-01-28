@@ -16,11 +16,11 @@ import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 public class ShowWhitespaceAction extends MirthRecordableTextAction {
 
     public ShowWhitespaceAction(MirthRSyntaxTextArea textArea) {
-        super(textArea, "Show Whitespace");
+        super(textArea, ActionInfo.DISPLAY_SHOW_WHITESPACE);
     }
 
     @Override
     public void actionPerformedImpl(ActionEvent evt) {
-        textArea.setWhitespaceVisible(!textArea.isWhitespaceVisible());
+        textArea.setWhitespaceVisible(!evt.getActionCommand().equals(FORCE_OFF_COMMAND) && (evt.getActionCommand().equals(FORCE_ON_COMMAND) || !textArea.isWhitespaceVisible()));
     }
 }

@@ -13,10 +13,13 @@ import java.awt.event.ActionEvent;
 
 import org.fife.ui.rtextarea.RTextArea;
 
+import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
+
 public class InsertBreakAction extends org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.InsertBreakAction {
 
     public InsertBreakAction(String lineBreak) {
         super(lineBreak);
+        setProperties(MirthRSyntaxTextArea.getResourceBundle(), (lineBreak.equals("\r") ? ActionInfo.INSERT_CR_BREAK : ActionInfo.INSERT_LF_BREAK).toString());
     }
 
     @Override

@@ -120,7 +120,7 @@ public class FindReplaceDialog extends MirthDialog {
     }
 
     private void setProperties() {
-        FindReplaceProperties findReplaceProperties = textArea.getFindReplaceProperties();
+        FindReplaceProperties findReplaceProperties = MirthRSyntaxTextArea.getRSTAPreferences().getFindReplaceProperties();
 
         List<String> findHistory = findReplaceProperties.getFindHistory();
         findComboBox.setModel(new DefaultComboBoxModel(findHistory.toArray(new String[findHistory.size()])));
@@ -151,7 +151,7 @@ public class FindReplaceDialog extends MirthDialog {
     }
 
     private void updateProperties() {
-        FindReplaceProperties findReplaceProperties = textArea.getFindReplaceProperties();
+        FindReplaceProperties findReplaceProperties = MirthRSyntaxTextArea.getRSTAPreferences().getFindReplaceProperties();
 
         String findText = (String) findComboBox.getSelectedItem();
         List<String> findHistory = findReplaceProperties.getFindHistory();
@@ -180,6 +180,8 @@ public class FindReplaceDialog extends MirthDialog {
         findReplaceProperties.setMatchCase(matchCaseCheckBox.isSelected());
         findReplaceProperties.setRegularExpression(regularExpressionCheckBox.isSelected());
         findReplaceProperties.setWholeWord(wholeWordCheckBox.isSelected());
+
+        MirthRSyntaxTextArea.updateRSTAPreferences();
     }
 
     private void initComponents() {

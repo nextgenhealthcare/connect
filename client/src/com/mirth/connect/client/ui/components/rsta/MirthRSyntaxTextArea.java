@@ -9,59 +9,108 @@
 
 package com.mirth.connect.client.ui.components.rsta;
 
-import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultEditorKit;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.fife.rsta.ac.LanguageSupportFactory;
+import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.rsyntaxtextarea.EOLPreservingRSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaHighlighter;
+import org.fife.ui.rtextarea.RTextAreaUI;
 
+import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTextInterface;
+import com.mirth.connect.client.ui.components.rsta.actions.ActionInfo;
 import com.mirth.connect.client.ui.components.rsta.actions.ClearMarkedOccurrencesAction;
+import com.mirth.connect.client.ui.components.rsta.actions.CollapseAllCommentFoldsAction;
+import com.mirth.connect.client.ui.components.rsta.actions.CollapseAllFoldsAction;
+import com.mirth.connect.client.ui.components.rsta.actions.CollapseFoldAction;
 import com.mirth.connect.client.ui.components.rsta.actions.CopyAction;
 import com.mirth.connect.client.ui.components.rsta.actions.CutAction;
+import com.mirth.connect.client.ui.components.rsta.actions.DeleteAction;
+import com.mirth.connect.client.ui.components.rsta.actions.ExpandAllFoldsAction;
+import com.mirth.connect.client.ui.components.rsta.actions.ExpandFoldAction;
 import com.mirth.connect.client.ui.components.rsta.actions.FindNextAction;
 import com.mirth.connect.client.ui.components.rsta.actions.FindReplaceAction;
 import com.mirth.connect.client.ui.components.rsta.actions.InsertBreakAction;
+import com.mirth.connect.client.ui.components.rsta.actions.PasteAction;
+import com.mirth.connect.client.ui.components.rsta.actions.RedoAction;
+import com.mirth.connect.client.ui.components.rsta.actions.SelectAllAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ShowLineEndingsAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ShowTabLinesAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ShowWhitespaceAction;
+import com.mirth.connect.client.ui.components.rsta.actions.UndoAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ViewUserAPIAction;
 import com.mirth.connect.client.ui.components.rsta.actions.WrapLinesAction;
+import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextInterface {
 
+    public static final String PREFERENCES_KEY = "rstaPreferences";
+
+    private static RSTAPreferences rstaPreferences;
+    private static ResourceBundle resourceBundle = ResourceBundle.getBundle(MirthRSyntaxTextArea.class.getName());
+
     private boolean saveEnabled = true;
-    private FindReplaceProperties findReplaceProperties = new FindReplaceProperties();
-    private JMenuItem findReplaceMenuItem;
-    private JMenuItem findNextMenuItem;
-    private JMenuItem clearMarkedOccurrencesMenuItem;
-    private JMenu displayMenu;
-    private JMenuItem showTabLinesMenuItem;
-    private JMenuItem showWhitespaceMenuItem;
-    private JMenuItem showLineEndingsMenuItem;
-    private JMenuItem wrapLinesMenuItem;
-    private JMenuItem viewUserAPIMenuItem;
     private String cachedStyleKey;
+
+    private CustomMenuItem undoMenuItem;
+    private CustomMenuItem redoMenuItem;
+    private CustomMenuItem cutMenuItem;
+    private CustomMenuItem copyMenuItem;
+    private CustomMenuItem pasteMenuItem;
+    private CustomMenuItem deleteMenuItem;
+    private CustomMenuItem selectAllMenuItem;
+    private CustomMenuItem findReplaceMenuItem;
+    private CustomMenuItem findNextMenuItem;
+    private CustomMenuItem clearMarkedOccurrencesMenuItem;
+    private JMenu foldingMenu;
+    private CustomMenuItem collapseFoldMenuItem;
+    private CustomMenuItem expandFoldMenuItem;
+    private CustomMenuItem collapseAllFoldsMenuItem;
+    private CustomMenuItem collapseAllCommentFoldsMenuItem;
+    private CustomMenuItem expandAllFoldsMenuItem;
+    private JMenu displayMenu;
+    private CustomJCheckBoxMenuItem showTabLinesMenuItem;
+    private CustomJCheckBoxMenuItem showWhitespaceMenuItem;
+    private CustomJCheckBoxMenuItem showLineEndingsMenuItem;
+    private CustomJCheckBoxMenuItem wrapLinesMenuItem;
+    private CustomMenuItem viewUserAPIMenuItem;
+
+    static {
+        Preferences userPreferences = Preferences.userNodeForPackage(Mirth.class);
+
+        RSTAPreferences rstaPreferences = null;
+        try {
+            String rstaPreferencesString = userPreferences.get(PREFERENCES_KEY, "");
+            if (StringUtils.isNotEmpty(rstaPreferencesString)) {
+                rstaPreferences = ObjectXMLSerializer.getInstance().deserialize(rstaPreferencesString, RSTAPreferences.class);
+            }
+        } catch (SerializerException e) {
+        }
+
+        MirthRSyntaxTextArea.rstaPreferences = new RSTAPreferences(rstaPreferences);
+        updateRSTAPreferences(userPreferences);
+    }
 
     public MirthRSyntaxTextArea() {
         this(SYNTAX_STYLE_JAVASCRIPT);
@@ -120,42 +169,58 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
             }
         });
 
-        int defaultModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-
-        // Use custom cut/copy actions to handle EOLs
-        getActionMap().put(DefaultEditorKit.cutAction, new CutAction(this));
-        getActionMap().put(DefaultEditorKit.copyAction, new CopyAction(this));
-
-        Action clearMarkedOccurrencesAction = new ClearMarkedOccurrencesAction(this);
-        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "Clear Marked Occurrences");
-        getActionMap().put("Clear Marked Occurrences", clearMarkedOccurrencesAction);
-
-        // Map the home/end buttons to start/end of line actions
-        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0), DefaultEditorKit.beginLineAction);
-        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0), DefaultEditorKit.endLineAction);
-
-        // Map a regular enter keypress to an LF character insertion
-        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Insert LF Break");
-        getActionMap().put("Insert LF Break", new InsertBreakAction("\n"));
-
-        // Map a shift + enter keypress to a CR character insertion
-        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.SHIFT_MASK), "Insert CR Break");
-        getActionMap().put("Insert CR Break", new InsertBreakAction("\r"));
-
-        findReplaceMenuItem = new CustomMenuItem(this, new FindReplaceAction(this), KeyEvent.VK_F, defaultModifier);
-        findNextMenuItem = new CustomMenuItem(this, new FindNextAction(this), KeyEvent.VK_G, defaultModifier);
-        clearMarkedOccurrencesMenuItem = new CustomMenuItem(this, clearMarkedOccurrencesAction);
+        undoMenuItem = new CustomMenuItem(this, new UndoAction(), ActionInfo.UNDO);
+        redoMenuItem = new CustomMenuItem(this, new RedoAction(), ActionInfo.REDO);
+        cutMenuItem = new CustomMenuItem(this, new CutAction(this), ActionInfo.CUT);
+        copyMenuItem = new CustomMenuItem(this, new CopyAction(this), ActionInfo.COPY);
+        pasteMenuItem = new CustomMenuItem(this, new PasteAction(), ActionInfo.PASTE);
+        deleteMenuItem = new CustomMenuItem(this, new DeleteAction(), ActionInfo.DELETE);
+        selectAllMenuItem = new CustomMenuItem(this, new SelectAllAction(), ActionInfo.SELECT_ALL);
+        findReplaceMenuItem = new CustomMenuItem(this, new FindReplaceAction(this), ActionInfo.FIND_REPLACE);
+        findNextMenuItem = new CustomMenuItem(this, new FindNextAction(this), ActionInfo.FIND_NEXT);
+        clearMarkedOccurrencesMenuItem = new CustomMenuItem(this, new ClearMarkedOccurrencesAction(this), ActionInfo.CLEAR_MARKED_OCCURRENCES);
+        foldingMenu = new JMenu("Folding");
+        collapseFoldMenuItem = new CustomMenuItem(this, new CollapseFoldAction(), ActionInfo.FOLD_COLLAPSE);
+        expandFoldMenuItem = new CustomMenuItem(this, new ExpandFoldAction(), ActionInfo.FOLD_EXPAND);
+        collapseAllFoldsMenuItem = new CustomMenuItem(this, new CollapseAllFoldsAction(), ActionInfo.FOLD_COLLAPSE_ALL);
+        collapseAllCommentFoldsMenuItem = new CustomMenuItem(this, new CollapseAllCommentFoldsAction(), ActionInfo.FOLD_COLLAPSE_ALL_COMMENTS);
+        expandAllFoldsMenuItem = new CustomMenuItem(this, new ExpandAllFoldsAction(), ActionInfo.FOLD_EXPAND_ALL);
         displayMenu = new JMenu("Display");
-        showTabLinesMenuItem = new JCheckBoxMenuItem(new ShowTabLinesAction(this));
-        showWhitespaceMenuItem = new JCheckBoxMenuItem(new ShowWhitespaceAction(this));
-        showLineEndingsMenuItem = new JCheckBoxMenuItem(new ShowLineEndingsAction(this));
-        wrapLinesMenuItem = new JCheckBoxMenuItem(new WrapLinesAction(this));
-        viewUserAPIMenuItem = new CustomMenuItem(this, new ViewUserAPIAction(this));
+        showTabLinesMenuItem = new CustomJCheckBoxMenuItem(this, new ShowTabLinesAction(this), ActionInfo.DISPLAY_SHOW_TAB_LINES);
+        showWhitespaceMenuItem = new CustomJCheckBoxMenuItem(this, new ShowWhitespaceAction(this), ActionInfo.DISPLAY_SHOW_WHITESPACE);
+        showLineEndingsMenuItem = new CustomJCheckBoxMenuItem(this, new ShowLineEndingsAction(this), ActionInfo.DISPLAY_SHOW_LINE_ENDINGS);
+        wrapLinesMenuItem = new CustomJCheckBoxMenuItem(this, new WrapLinesAction(this), ActionInfo.DISPLAY_WRAP_LINES);
+        viewUserAPIMenuItem = new CustomMenuItem(this, new ViewUserAPIAction(this), ActionInfo.VIEW_USER_API);
 
-        initPopupMenuLayout();
+        getActionMap().put(ActionInfo.INSERT_LF_BREAK.getActionMapKey(), new InsertBreakAction("\n"));
+        getActionMap().put(ActionInfo.INSERT_CR_BREAK.getActionMapKey(), new InsertBreakAction("\r"));
+
         if (autoCompleteEnabled) {
             LanguageSupportFactory.get().register(this);
+            // Remove the default auto-completion trigger since we handle that ourselves
+            getInputMap().remove(AutoCompletion.getDefaultTriggerKey());
         }
+    }
+
+    public static RSTAPreferences getRSTAPreferences() {
+        return rstaPreferences;
+    }
+
+    public static void updateRSTAPreferences() {
+        updateRSTAPreferences(Preferences.userNodeForPackage(Mirth.class));
+    }
+
+    public static void updateRSTAPreferences(Preferences userPreferences) {
+        MirthInputMap.getInstance().update(rstaPreferences.getKeyStrokeMap());
+
+        try {
+            userPreferences.put(PREFERENCES_KEY, ObjectXMLSerializer.getInstance().serialize(rstaPreferences));
+        } catch (SerializerException e) {
+        }
+    }
+
+    public static ResourceBundle getResourceBundle() {
+        return resourceBundle;
     }
 
     public boolean isSaveEnabled() {
@@ -164,10 +229,6 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
 
     public void setSaveEnabled(boolean saveEnabled) {
         this.saveEnabled = saveEnabled;
-    }
-
-    public FindReplaceProperties getFindReplaceProperties() {
-        return findReplaceProperties;
     }
 
     public String getEOLFixedText() {
@@ -211,6 +272,16 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
             setBracketMatchingEnabled(false);
             super.setSyntaxEditingStyle(SYNTAX_STYLE_NONE);
         }
+
+        updateDisplayOptions();
+    }
+
+    public void updateDisplayOptions() {
+        // Update display options from preferences
+        showTabLinesMenuItem.setSelected(BooleanUtils.toBoolean(rstaPreferences.getToggleOptions().get(ActionInfo.DISPLAY_SHOW_TAB_LINES.getActionMapKey())));
+        showWhitespaceMenuItem.setSelected(BooleanUtils.toBoolean(rstaPreferences.getToggleOptions().get(ActionInfo.DISPLAY_SHOW_WHITESPACE.getActionMapKey())));
+        showLineEndingsMenuItem.setSelected(BooleanUtils.toBoolean(rstaPreferences.getToggleOptions().get(ActionInfo.DISPLAY_SHOW_LINE_ENDINGS.getActionMapKey())));
+        wrapLinesMenuItem.setSelected(BooleanUtils.toBoolean(rstaPreferences.getToggleOptions().get(ActionInfo.DISPLAY_WRAP_LINES.getActionMapKey())));
     }
 
     public void setSelectedText(String text) {
@@ -234,38 +305,86 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
     }
 
     @Override
+    protected RTextAreaUI createRTextAreaUI() {
+        return new MirthRSyntaxTextAreaUI(this);
+    }
+
+    @Override
+    protected JPopupMenu createPopupMenu() {
+        JPopupMenu menu = new JPopupMenu();
+
+        menu.add(undoMenuItem);
+        menu.add(redoMenuItem);
+        menu.addSeparator();
+
+        menu.add(cutMenuItem);
+        menu.add(copyMenuItem);
+        menu.add(pasteMenuItem);
+        menu.add(deleteMenuItem);
+        menu.addSeparator();
+
+        menu.add(selectAllMenuItem);
+        menu.add(findReplaceMenuItem);
+        menu.add(findNextMenuItem);
+        menu.add(clearMarkedOccurrencesMenuItem);
+        menu.addSeparator();
+
+        foldingMenu.add(collapseFoldMenuItem);
+        foldingMenu.add(expandFoldMenuItem);
+        foldingMenu.add(collapseAllFoldsMenuItem);
+        foldingMenu.add(collapseAllCommentFoldsMenuItem);
+        foldingMenu.add(expandAllFoldsMenuItem);
+        menu.add(foldingMenu);
+        menu.addSeparator();
+
+        displayMenu.add(showTabLinesMenuItem);
+        displayMenu.add(showWhitespaceMenuItem);
+        displayMenu.add(showLineEndingsMenuItem);
+        displayMenu.add(wrapLinesMenuItem);
+        menu.add(displayMenu);
+        menu.addSeparator();
+
+        menu.add(viewUserAPIMenuItem);
+
+        return menu;
+    }
+
+    @Override
     protected void configurePopupMenu(JPopupMenu popupMenu) {
-        super.configurePopupMenu(popupMenu);
-        boolean canType = isEditable() && isEnabled();
-        clearMarkedOccurrencesMenuItem.setEnabled(canType && ((RSyntaxTextAreaHighlighter) getHighlighter()).getMarkAllHighlightCount() > 0);
+        if (popupMenu != null) {
+            boolean canType = isEditable() && isEnabled();
+
+            undoMenuItem.setEnabled(undoMenuItem.getAction().isEnabled() && canType && canUndo());
+            redoMenuItem.setEnabled(redoMenuItem.getAction().isEnabled() && canType && canRedo());
+            cutMenuItem.setEnabled(cutMenuItem.getAction().isEnabled() && canType);
+            pasteMenuItem.setEnabled(pasteMenuItem.getAction().isEnabled() && canType);
+            deleteMenuItem.setEnabled(deleteMenuItem.getAction().isEnabled() && canType);
+            findNextMenuItem.setEnabled(findNextMenuItem.getAction().isEnabled() && CollectionUtils.isNotEmpty(rstaPreferences.getFindReplaceProperties().getFindHistory()));
+            clearMarkedOccurrencesMenuItem.setEnabled(clearMarkedOccurrencesMenuItem.getAction().isEnabled() && canType && ((RSyntaxTextAreaHighlighter) getHighlighter()).getMarkAllHighlightCount() > 0);
+            foldingMenu.setEnabled(getFoldManager().isCodeFoldingSupportedAndEnabled());
+
+            undoMenuItem.updateAccelerator();
+            redoMenuItem.updateAccelerator();
+            cutMenuItem.updateAccelerator();
+            copyMenuItem.updateAccelerator();
+            pasteMenuItem.updateAccelerator();
+            deleteMenuItem.updateAccelerator();
+            selectAllMenuItem.updateAccelerator();
+            findReplaceMenuItem.updateAccelerator();
+            findNextMenuItem.updateAccelerator();
+            clearMarkedOccurrencesMenuItem.updateAccelerator();
+            collapseFoldMenuItem.updateAccelerator();
+            expandFoldMenuItem.updateAccelerator();
+            collapseAllFoldsMenuItem.updateAccelerator();
+            collapseAllCommentFoldsMenuItem.updateAccelerator();
+            expandAllFoldsMenuItem.updateAccelerator();
+            viewUserAPIMenuItem.updateAccelerator();
+        }
     }
 
     @Override
     public void setSyntaxEditingStyle(String styleKey) {
         super.setSyntaxEditingStyle(styleKey);
         cachedStyleKey = styleKey;
-    }
-
-    private void initPopupMenuLayout() {
-        // Find the Select All menu item so we know where to insert after
-        Component[] menuComponents = getPopupMenu().getComponents();
-        int insertIndex = -1;
-        for (int i = 0; i < menuComponents.length; i++) {
-            if (menuComponents[i] instanceof JMenuItem && ((JMenuItem) menuComponents[i]).getText().equals("Select All")) {
-                insertIndex = i;
-            }
-        }
-
-        getPopupMenu().insert(findReplaceMenuItem, ++insertIndex);
-        getPopupMenu().insert(findNextMenuItem, ++insertIndex);
-        getPopupMenu().insert(clearMarkedOccurrencesMenuItem, ++insertIndex);
-        getPopupMenu().addSeparator();
-        displayMenu.add(showTabLinesMenuItem);
-        displayMenu.add(showWhitespaceMenuItem);
-        displayMenu.add(showLineEndingsMenuItem);
-        displayMenu.add(wrapLinesMenuItem);
-        getPopupMenu().add(displayMenu);
-        getPopupMenu().addSeparator();
-        getPopupMenu().add(viewUserAPIMenuItem);
     }
 }

@@ -16,11 +16,11 @@ import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 public class ShowLineEndingsAction extends MirthRecordableTextAction {
 
     public ShowLineEndingsAction(MirthRSyntaxTextArea textArea) {
-        super(textArea, "Show Line Endings");
+        super(textArea, ActionInfo.DISPLAY_SHOW_LINE_ENDINGS);
     }
 
     @Override
     public void actionPerformedImpl(ActionEvent evt) {
-        textArea.setEOLMarkersVisible(!textArea.getEOLMarkersVisible());
+        textArea.setEOLMarkersVisible(!evt.getActionCommand().equals(FORCE_OFF_COMMAND) && (evt.getActionCommand().equals(FORCE_ON_COMMAND) || !textArea.getEOLMarkersVisible()));
     }
 }

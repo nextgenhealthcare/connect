@@ -23,12 +23,12 @@ import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 public class FindNextAction extends MirthRecordableTextAction {
 
     public FindNextAction(MirthRSyntaxTextArea textArea) {
-        super(textArea, "Find Next");
+        super(textArea, ActionInfo.FIND_NEXT);
     }
 
     @Override
     public void actionPerformedImpl(ActionEvent evt) {
-        FindReplaceProperties findReplaceProperties = textArea.getFindReplaceProperties();
+        FindReplaceProperties findReplaceProperties = MirthRSyntaxTextArea.getRSTAPreferences().getFindReplaceProperties();
         List<String> findHistory = findReplaceProperties.getFindHistory();
         if (CollectionUtils.isEmpty(findHistory)) {
             return;

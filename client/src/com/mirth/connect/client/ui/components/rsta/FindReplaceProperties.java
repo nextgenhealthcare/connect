@@ -9,18 +9,33 @@
 
 package com.mirth.connect.client.ui.components.rsta;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class FindReplaceProperties {
+import org.apache.commons.collections.MapUtils;
+
+public class FindReplaceProperties implements Serializable {
+
+    private static final String KEY_FORWARD = "forward";
+    private static final String KEY_WRAP_SEARCH = "wrapSearch";
+    private static final String KEY_MATCH_CASE = "matchCase";
+    private static final String KEY_REGULAR_EXPRESSION = "regularExpression";
+    private static final String KEY_WHOLE_WORD = "wholeWord";
 
     private List<String> findHistory = new ArrayList<String>();
     private List<String> replaceHistory = new ArrayList<String>();
-    private boolean forward = true;
-    private boolean wrapSearch = true;
-    private boolean matchCase;
-    private boolean regularExpression;
-    private boolean wholeWord;
+    private Map<String, Boolean> optionsMap = new HashMap<String, Boolean>();
+
+    public FindReplaceProperties() {
+        setForward(true);
+        setWrapSearch(true);
+        setMatchCase(false);
+        setRegularExpression(false);
+        setWholeWord(false);
+    }
 
     public List<String> getFindHistory() {
         return findHistory;
@@ -39,42 +54,54 @@ public class FindReplaceProperties {
     }
 
     public boolean isForward() {
-        return forward;
+        return getOption(KEY_FORWARD, true);
     }
 
     public void setForward(boolean forward) {
-        this.forward = forward;
+        putOption(KEY_FORWARD, forward);
     }
 
     public boolean isWrapSearch() {
-        return wrapSearch;
+        return getOption(KEY_WRAP_SEARCH, true);
     }
 
     public void setWrapSearch(boolean wrapSearch) {
-        this.wrapSearch = wrapSearch;
+        putOption(KEY_WRAP_SEARCH, wrapSearch);
     }
 
     public boolean isMatchCase() {
-        return matchCase;
+        return getOption(KEY_MATCH_CASE);
     }
 
     public void setMatchCase(boolean matchCase) {
-        this.matchCase = matchCase;
+        putOption(KEY_MATCH_CASE, matchCase);
     }
 
     public boolean isRegularExpression() {
-        return regularExpression;
+        return getOption(KEY_REGULAR_EXPRESSION);
     }
 
     public void setRegularExpression(boolean regularExpression) {
-        this.regularExpression = regularExpression;
+        putOption(KEY_REGULAR_EXPRESSION, regularExpression);
     }
 
     public boolean isWholeWord() {
-        return wholeWord;
+        return getOption(KEY_WHOLE_WORD);
     }
 
     public void setWholeWord(boolean wholeWord) {
-        this.wholeWord = wholeWord;
+        putOption(KEY_WHOLE_WORD, wholeWord);
+    }
+
+    private boolean getOption(String key) {
+        return getOption(key, false);
+    }
+
+    private boolean getOption(String key, boolean def) {
+        return MapUtils.getBooleanValue(optionsMap, key, def);
+    }
+
+    private void putOption(String key, boolean value) {
+        optionsMap.put(key, value);
     }
 }

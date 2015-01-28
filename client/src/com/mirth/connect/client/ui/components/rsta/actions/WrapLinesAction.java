@@ -16,11 +16,11 @@ import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 public class WrapLinesAction extends MirthRecordableTextAction {
 
     public WrapLinesAction(MirthRSyntaxTextArea textArea) {
-        super(textArea, "Wrap Lines");
+        super(textArea, ActionInfo.DISPLAY_WRAP_LINES);
     }
 
     @Override
     public void actionPerformedImpl(ActionEvent evt) {
-        textArea.setLineWrap(!textArea.getLineWrap());
+        textArea.setLineWrap(!evt.getActionCommand().equals(FORCE_OFF_COMMAND) && (evt.getActionCommand().equals(FORCE_ON_COMMAND) || !textArea.getLineWrap()));
     }
 }

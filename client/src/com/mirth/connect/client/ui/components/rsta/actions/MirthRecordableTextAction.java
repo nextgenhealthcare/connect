@@ -18,11 +18,15 @@ import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 
 public abstract class MirthRecordableTextAction extends RecordableTextAction {
 
+    public static final String FORCE_ON_COMMAND = "forceOn";
+    public static final String FORCE_OFF_COMMAND = "forceOff";
+
     protected MirthRSyntaxTextArea textArea;
 
-    public MirthRecordableTextAction(MirthRSyntaxTextArea textArea, String name) {
-        super(name);
+    public MirthRecordableTextAction(MirthRSyntaxTextArea textArea, ActionInfo actionInfo) {
+        super(null);
         this.textArea = textArea;
+        setProperties(MirthRSyntaxTextArea.getResourceBundle(), actionInfo.toString());
     }
 
     public abstract void actionPerformedImpl(ActionEvent evt);

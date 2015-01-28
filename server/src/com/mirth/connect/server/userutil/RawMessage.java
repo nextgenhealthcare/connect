@@ -135,18 +135,19 @@ public class RawMessage {
         rawMessage.setDestinationMetaDataIds(convertCollection(destinationMetaDataIds));
     }
 
+    // TODO: Remove in 3.1
     /**
      * Returns the channel map to be used at the beginning of the channel dispatch.
      * 
      * @deprecated This method is deprecated and will soon be removed. Please use
      *             {@link #getSourceMap()} instead.
      */
-    // TODO: Remove in 3.1
     public Map<String, Object> getChannelMap() {
         logger.error("This method is deprecated and will soon be removed. Please use getSourceMap() instead.");
         return getSourceMap();
     }
 
+    // TODO: Remove in 3.1
     /**
      * Sets the channel map to be used at the beginning of the channel dispatch.
      * 
@@ -157,7 +158,6 @@ public class RawMessage {
      * @deprecated This method is deprecated and will soon be removed. Please use
      *             {@link #setSourceMap(java.util.Map) setSourceMap(sourceMap)} instead.
      */
-    // TODO: Remove in 3.1
     public void setChannelMap(Map<String, Object> channelMap) {
         logger.error("This method is deprecated and will soon be removed. Please use setSourceMap(sourceMap) instead.");
         setSourceMap(channelMap);

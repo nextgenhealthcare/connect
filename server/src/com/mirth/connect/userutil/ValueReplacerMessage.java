@@ -51,6 +51,7 @@ public class ValueReplacerMessage {
         return message.getChannelId();
     }
 
+    // TODO: Remove in 3.1
     /**
      * Returns the original date/time that this message was created by the channel. If the message
      * is reprocessed at a later point, this date will remain the same and instead the connector
@@ -59,7 +60,6 @@ public class ValueReplacerMessage {
      * @deprecated This method is deprecated and will soon be removed. This method currently returns
      *             the received date of the source connector message.
      */
-    // TODO: Remove in 3.1
     public Calendar getReceivedDate() {
         return message.getReceivedDate();
     }

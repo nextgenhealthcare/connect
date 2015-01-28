@@ -159,6 +159,12 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     }
 
     @Override
+    public void setVisible(boolean aFlag) {
+        super.setVisible(aFlag);
+        databaseSQLTextPane.updateDisplayOptions();
+    }
+
+    @Override
     public String doValidate(ConnectorProperties properties, boolean highlight) {
         DatabaseDispatcherProperties props = (DatabaseDispatcherProperties) properties;
 

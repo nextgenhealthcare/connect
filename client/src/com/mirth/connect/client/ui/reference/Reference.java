@@ -32,6 +32,7 @@ public abstract class Reference {
     private String replacementCode;
     private String summary;
     private String iconName;
+    private boolean deprecated;
 
     public Reference(Type type, int scope, String category) {
         this(type, scope, category, null);
@@ -125,6 +126,14 @@ public abstract class Reference {
 
     public void setIconName(String iconName) {
         this.iconName = iconName;
+    }
+
+    public boolean isDeprecated() {
+        return deprecated;
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
     }
 
     public CodeTemplate toCodeTemplate() {

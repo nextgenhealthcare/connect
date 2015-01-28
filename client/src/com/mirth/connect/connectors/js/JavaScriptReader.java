@@ -77,6 +77,12 @@ public class JavaScriptReader extends ConnectorSettingsPanel {
     }
 
     @Override
+    public void setVisible(boolean aFlag) {
+        super.setVisible(aFlag);
+        javascriptTextPane.updateDisplayOptions();
+    }
+
+    @Override
     public String doValidate(ConnectorProperties properties, boolean highlight) {
         JavaScriptReceiverProperties props = (JavaScriptReceiverProperties) properties;
 

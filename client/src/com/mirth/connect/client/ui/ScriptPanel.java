@@ -54,6 +54,10 @@ public class ScriptPanel extends javax.swing.JPanel {
         return this.loadedScripts;
     }
 
+    public void updateDisplayOptions() {
+        script.updateDisplayOptions();
+    }
+
     public void validateCurrentScript() {
         StringBuilder sb = new StringBuilder();
         Context context = Context.enter();

@@ -9,18 +9,11 @@
 
 package com.mirth.connect.client.ui.components.rsta.actions;
 
-import java.awt.event.ActionEvent;
-
 import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 
-public class ClearMarkedOccurrencesAction extends MirthRecordableTextAction {
+public class RedoAction extends org.fife.ui.rtextarea.RTextAreaEditorKit.RedoAction {
 
-    public ClearMarkedOccurrencesAction(MirthRSyntaxTextArea textArea) {
-        super(textArea, ActionInfo.CLEAR_MARKED_OCCURRENCES);
-    }
-
-    @Override
-    public void actionPerformedImpl(ActionEvent evt) {
-        textArea.clearMarkAllHighlights();
+    public RedoAction() {
+        setProperties(MirthRSyntaxTextArea.getResourceBundle(), ActionInfo.REDO.toString());
     }
 }

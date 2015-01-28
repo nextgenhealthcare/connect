@@ -163,6 +163,10 @@ public class ChannelSetup extends javax.swing.JPanel {
                     updateScriptsPanel(scriptMap);
                 }
 
+                if (selectedTab == SCRIPTS_TAB_INDEX) {
+                    scripts.updateDisplayOptions();
+                }
+
                 /*
                  * When connector-specific resources are changed and the connector panel has already
                  * been loaded, returning to the connector panel will not trigger a call to

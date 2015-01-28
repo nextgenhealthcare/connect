@@ -9,18 +9,11 @@
 
 package com.mirth.connect.client.ui.components.rsta.actions;
 
-import java.awt.event.ActionEvent;
-
 import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 
-public class ClearMarkedOccurrencesAction extends MirthRecordableTextAction {
+public class CollapseAllCommentFoldsAction extends org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.CollapseAllCommentFoldsAction {
 
-    public ClearMarkedOccurrencesAction(MirthRSyntaxTextArea textArea) {
-        super(textArea, ActionInfo.CLEAR_MARKED_OCCURRENCES);
-    }
-
-    @Override
-    public void actionPerformedImpl(ActionEvent evt) {
-        textArea.clearMarkAllHighlights();
+    public CollapseAllCommentFoldsAction() {
+        setProperties(MirthRSyntaxTextArea.getResourceBundle(), ActionInfo.FOLD_COLLAPSE_ALL_COMMENTS.toString());
     }
 }
