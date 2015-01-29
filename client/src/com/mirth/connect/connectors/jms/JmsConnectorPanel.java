@@ -577,10 +577,13 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         connectionFactoryNameField.setEnabled(true);
         connectionFactoryClassLabel.setEnabled(false);
         connectionFactoryClassField.setEnabled(false);
-        destinationTypeLabel.setEnabled(false);
-        destinationTypeQueue.setEnabled(false);
-        destinationTypeTopic.setEnabled(false);
-        durableTopicCheckbox.setEnabled(false);
+
+        if (connectorType == TYPE_SENDER) {
+            destinationTypeLabel.setEnabled(false);
+            destinationTypeQueue.setEnabled(false);
+            destinationTypeTopic.setEnabled(false);
+            durableTopicCheckbox.setEnabled(false);
+        }
     }//GEN-LAST:event_useJndiYesActionPerformed
 
     private void useJndiNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useJndiNoActionPerformed
@@ -590,12 +593,15 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         initialContextFactoryField.setEnabled(false);
         connectionFactoryNameLabel.setEnabled(false);
         connectionFactoryNameField.setEnabled(false);
-        destinationTypeLabel.setEnabled(true);
-        destinationTypeQueue.setEnabled(true);
-        destinationTypeTopic.setEnabled(true);
 
-        if (destinationTypeTopic.isSelected()) {
-            durableTopicCheckbox.setEnabled(true);
+        if (connectorType == TYPE_SENDER) {
+            destinationTypeLabel.setEnabled(true);
+            destinationTypeQueue.setEnabled(true);
+            destinationTypeTopic.setEnabled(true);
+
+            if (destinationTypeTopic.isSelected()) {
+                durableTopicCheckbox.setEnabled(true);
+            }
         }
 
         connectionFactoryClassLabel.setEnabled(true);
@@ -607,7 +613,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
     }//GEN-LAST:event_destinationTypeQueueActionPerformed
 
     private void destinationTypeTopicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_destinationTypeTopicActionPerformed
-        if (useJndiNo.isSelected()) {
+        if (useJndiNo.isSelected() || connectorType == TYPE_LISTENER) {
             durableTopicCheckbox.setEnabled(true);
         }
     }//GEN-LAST:event_destinationTypeTopicActionPerformed
