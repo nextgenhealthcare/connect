@@ -114,6 +114,12 @@ public class EOLPreservingRSyntaxDocument extends RSyntaxDocument {
 
                         wasCR = false;
                     } else if (replaceControlCharacters && c != '\t' && (c < ' ' || c == 0x7F)) {
+                        if (wasCR) {
+                            // Insert previous CR
+                            tempMap.put(cOffset++, CR);
+                            builder.append(LF);
+                        }
+
                         // Insert control character
                         cOffset++;
                         builder.append((char) (c == 0x7F ? '\u2421' : '\u2400' + c));
