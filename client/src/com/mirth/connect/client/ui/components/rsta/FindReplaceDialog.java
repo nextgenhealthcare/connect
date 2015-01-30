@@ -186,7 +186,7 @@ public class FindReplaceDialog extends MirthDialog {
         findReplaceProperties.setRegularExpression(regularExpressionCheckBox.isSelected());
         findReplaceProperties.setWholeWord(wholeWordCheckBox.isSelected());
 
-        MirthRSyntaxTextArea.updateRSTAPreferences();
+        MirthRSyntaxTextArea.updateFindReplacePreferences();
     }
 
     private void initComponents() {

@@ -25,7 +25,6 @@ import javax.swing.text.BadLocationException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.fife.rsta.ac.LanguageSupportFactory;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.rsyntaxtextarea.EOLPreservingRSyntaxDocument;
@@ -45,27 +44,47 @@ import com.mirth.connect.client.ui.components.rsta.actions.CollapseFoldAction;
 import com.mirth.connect.client.ui.components.rsta.actions.CopyAction;
 import com.mirth.connect.client.ui.components.rsta.actions.CutAction;
 import com.mirth.connect.client.ui.components.rsta.actions.DeleteAction;
+import com.mirth.connect.client.ui.components.rsta.actions.DeleteLineAction;
+import com.mirth.connect.client.ui.components.rsta.actions.DeleteRestOfLineAction;
+import com.mirth.connect.client.ui.components.rsta.actions.DocumentEndAction;
+import com.mirth.connect.client.ui.components.rsta.actions.DocumentStartAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ExpandAllFoldsAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ExpandFoldAction;
 import com.mirth.connect.client.ui.components.rsta.actions.FindNextAction;
 import com.mirth.connect.client.ui.components.rsta.actions.FindReplaceAction;
+import com.mirth.connect.client.ui.components.rsta.actions.GoToMatchingBracketAction;
+import com.mirth.connect.client.ui.components.rsta.actions.HorizontalPageAction;
 import com.mirth.connect.client.ui.components.rsta.actions.InsertBreakAction;
+import com.mirth.connect.client.ui.components.rsta.actions.JoinLineAction;
+import com.mirth.connect.client.ui.components.rsta.actions.LineEndAction;
+import com.mirth.connect.client.ui.components.rsta.actions.LineStartAction;
+import com.mirth.connect.client.ui.components.rsta.actions.MoveDownAction;
+import com.mirth.connect.client.ui.components.rsta.actions.MoveLeftAction;
+import com.mirth.connect.client.ui.components.rsta.actions.MoveLeftWordAction;
+import com.mirth.connect.client.ui.components.rsta.actions.MoveLineAction;
+import com.mirth.connect.client.ui.components.rsta.actions.MoveRightAction;
+import com.mirth.connect.client.ui.components.rsta.actions.MoveRightWordAction;
+import com.mirth.connect.client.ui.components.rsta.actions.MoveUpAction;
+import com.mirth.connect.client.ui.components.rsta.actions.PageDownAction;
+import com.mirth.connect.client.ui.components.rsta.actions.PageUpAction;
 import com.mirth.connect.client.ui.components.rsta.actions.PasteAction;
 import com.mirth.connect.client.ui.components.rsta.actions.RedoAction;
+import com.mirth.connect.client.ui.components.rsta.actions.ScrollAction;
 import com.mirth.connect.client.ui.components.rsta.actions.SelectAllAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ShowLineEndingsAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ShowTabLinesAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ShowWhitespaceAction;
+import com.mirth.connect.client.ui.components.rsta.actions.ToggleCommentAction;
 import com.mirth.connect.client.ui.components.rsta.actions.UndoAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ViewUserAPIAction;
 import com.mirth.connect.client.ui.components.rsta.actions.WrapLinesAction;
-import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.CodeTemplate.ContextType;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextInterface {
 
-    public static final String PREFERENCES_KEY = "rstaPreferences";
+    private static final String PREFERENCES_KEYSTROKES = "rstaPreferencesKeyStrokes";
+    private static final String PREFERENCES_FIND_REPLACE = "rstaPreferencesFindReplace";
+    private static final String PREFERENCES_TOGGLE_OPTIONS = "rstaPreferencesToggleOptions";
 
     private static RSTAPreferences rstaPreferences;
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle(MirthRSyntaxTextArea.class.getName());
@@ -98,18 +117,13 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
 
     static {
         Preferences userPreferences = Preferences.userNodeForPackage(Mirth.class);
-
-        RSTAPreferences rstaPreferences = null;
-        try {
-            String rstaPreferencesString = userPreferences.get(PREFERENCES_KEY, "");
-            if (StringUtils.isNotEmpty(rstaPreferencesString)) {
-                rstaPreferences = ObjectXMLSerializer.getInstance().deserialize(rstaPreferencesString, RSTAPreferences.class);
-            }
-        } catch (SerializerException e) {
-        }
-
-        MirthRSyntaxTextArea.rstaPreferences = new RSTAPreferences(rstaPreferences);
-        updateRSTAPreferences(userPreferences);
+        String keyStrokesJSON = userPreferences.get(PREFERENCES_KEYSTROKES, null);
+        String findReplaceJSON = userPreferences.get(PREFERENCES_FIND_REPLACE, null);
+        String toggleOptionsJSON = userPreferences.get(PREFERENCES_TOGGLE_OPTIONS, null);
+        MirthRSyntaxTextArea.rstaPreferences = RSTAPreferences.fromJSON(keyStrokesJSON, findReplaceJSON, toggleOptionsJSON);
+        updateKeyStrokePreferences(userPreferences);
+        updateFindReplacePreferences(userPreferences);
+        updateToggleOptionPreferences(userPreferences);
     }
 
     public MirthRSyntaxTextArea() {
@@ -192,6 +206,42 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         wrapLinesMenuItem = new CustomJCheckBoxMenuItem(this, new WrapLinesAction(this), ActionInfo.DISPLAY_WRAP_LINES);
         viewUserAPIMenuItem = new CustomMenuItem(this, new ViewUserAPIAction(this), ActionInfo.VIEW_USER_API);
 
+        // Add actions that wont be in the popup menu
+        getActionMap().put(ActionInfo.DELETE_REST_OF_LINE.getActionMapKey(), new DeleteRestOfLineAction());
+        getActionMap().put(ActionInfo.DELETE_LINE.getActionMapKey(), new DeleteLineAction());
+        getActionMap().put(ActionInfo.JOIN_LINE.getActionMapKey(), new JoinLineAction());
+        getActionMap().put(ActionInfo.GO_TO_MATCHING_BRACKET.getActionMapKey(), new GoToMatchingBracketAction());
+        getActionMap().put(ActionInfo.TOGGLE_COMMENT.getActionMapKey(), new ToggleCommentAction());
+        getActionMap().put(ActionInfo.DOCUMENT_START.getActionMapKey(), new DocumentStartAction(false));
+        getActionMap().put(ActionInfo.DOCUMENT_SELECT_START.getActionMapKey(), new DocumentStartAction(true));
+        getActionMap().put(ActionInfo.DOCUMENT_END.getActionMapKey(), new DocumentEndAction(false));
+        getActionMap().put(ActionInfo.DOCUMENT_SELECT_END.getActionMapKey(), new DocumentEndAction(true));
+        getActionMap().put(ActionInfo.LINE_START.getActionMapKey(), new LineStartAction(false));
+        getActionMap().put(ActionInfo.LINE_SELECT_START.getActionMapKey(), new LineStartAction(true));
+        getActionMap().put(ActionInfo.LINE_END.getActionMapKey(), new LineEndAction(false));
+        getActionMap().put(ActionInfo.LINE_SELECT_END.getActionMapKey(), new LineEndAction(true));
+        getActionMap().put(ActionInfo.MOVE_LEFT.getActionMapKey(), new MoveLeftAction(false));
+        getActionMap().put(ActionInfo.MOVE_LEFT_SELECT.getActionMapKey(), new MoveLeftAction(true));
+        getActionMap().put(ActionInfo.MOVE_LEFT_WORD.getActionMapKey(), new MoveLeftWordAction(false));
+        getActionMap().put(ActionInfo.MOVE_LEFT_WORD_SELECT.getActionMapKey(), new MoveLeftWordAction(true));
+        getActionMap().put(ActionInfo.MOVE_RIGHT.getActionMapKey(), new MoveRightAction(false));
+        getActionMap().put(ActionInfo.MOVE_RIGHT_SELECT.getActionMapKey(), new MoveRightAction(true));
+        getActionMap().put(ActionInfo.MOVE_RIGHT_WORD.getActionMapKey(), new MoveRightWordAction(false));
+        getActionMap().put(ActionInfo.MOVE_RIGHT_WORD_SELECT.getActionMapKey(), new MoveRightWordAction(true));
+        getActionMap().put(ActionInfo.MOVE_UP.getActionMapKey(), new MoveUpAction(false));
+        getActionMap().put(ActionInfo.MOVE_UP_SELECT.getActionMapKey(), new MoveUpAction(true));
+        getActionMap().put(ActionInfo.MOVE_UP_SCROLL.getActionMapKey(), new ScrollAction(true));
+        getActionMap().put(ActionInfo.MOVE_UP_LINE.getActionMapKey(), new MoveLineAction(true));
+        getActionMap().put(ActionInfo.MOVE_DOWN.getActionMapKey(), new MoveDownAction(false));
+        getActionMap().put(ActionInfo.MOVE_DOWN_SELECT.getActionMapKey(), new MoveDownAction(true));
+        getActionMap().put(ActionInfo.MOVE_DOWN_SCROLL.getActionMapKey(), new ScrollAction(false));
+        getActionMap().put(ActionInfo.MOVE_DOWN_LINE.getActionMapKey(), new MoveLineAction(false));
+        getActionMap().put(ActionInfo.PAGE_UP.getActionMapKey(), new PageUpAction(false));
+        getActionMap().put(ActionInfo.PAGE_UP_SELECT.getActionMapKey(), new PageUpAction(true));
+        getActionMap().put(ActionInfo.PAGE_LEFT_SELECT.getActionMapKey(), new HorizontalPageAction(this, true));
+        getActionMap().put(ActionInfo.PAGE_DOWN.getActionMapKey(), new PageDownAction(false));
+        getActionMap().put(ActionInfo.PAGE_DOWN_SELECT.getActionMapKey(), new PageDownAction(true));
+        getActionMap().put(ActionInfo.PAGE_RIGHT_SELECT.getActionMapKey(), new HorizontalPageAction(this, false));
         getActionMap().put(ActionInfo.INSERT_LF_BREAK.getActionMapKey(), new InsertBreakAction("\n"));
         getActionMap().put(ActionInfo.INSERT_CR_BREAK.getActionMapKey(), new InsertBreakAction("\r"));
 
@@ -206,17 +256,29 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         return rstaPreferences;
     }
 
-    public static void updateRSTAPreferences() {
-        updateRSTAPreferences(Preferences.userNodeForPackage(Mirth.class));
+    public static void updateKeyStrokePreferences() {
+        updateKeyStrokePreferences(Preferences.userNodeForPackage(Mirth.class));
     }
 
-    public static void updateRSTAPreferences(Preferences userPreferences) {
+    public static void updateKeyStrokePreferences(Preferences userPreferences) {
         MirthInputMap.getInstance().update(rstaPreferences.getKeyStrokeMap());
+        userPreferences.put(PREFERENCES_KEYSTROKES, rstaPreferences.getKeyStrokesJSON());
+    }
 
-        try {
-            userPreferences.put(PREFERENCES_KEY, ObjectXMLSerializer.getInstance().serialize(rstaPreferences));
-        } catch (SerializerException e) {
-        }
+    public static void updateFindReplacePreferences() {
+        updateFindReplacePreferences(Preferences.userNodeForPackage(Mirth.class));
+    }
+
+    public static void updateFindReplacePreferences(Preferences userPreferences) {
+        userPreferences.put(PREFERENCES_FIND_REPLACE, rstaPreferences.getFindReplaceJSON());
+    }
+
+    public static void updateToggleOptionPreferences() {
+        updateToggleOptionPreferences(Preferences.userNodeForPackage(Mirth.class));
+    }
+
+    public static void updateToggleOptionPreferences(Preferences userPreferences) {
+        userPreferences.put(PREFERENCES_TOGGLE_OPTIONS, rstaPreferences.getToggleOptionsJSON());
     }
 
     public static ResourceBundle getResourceBundle() {

@@ -48,7 +48,7 @@ public class CustomJCheckBoxMenuItem extends JCheckBoxMenuItem implements Action
     public void actionPerformed(ActionEvent evt) {
         // When a check box item is selected, update the user preferences
         MirthRSyntaxTextArea.getRSTAPreferences().getToggleOptions().put(actionInfo.getActionMapKey(), isSelected());
-        MirthRSyntaxTextArea.updateRSTAPreferences();
+        MirthRSyntaxTextArea.updateToggleOptionPreferences();
     }
 
     @Override

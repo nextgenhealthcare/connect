@@ -204,7 +204,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             KeyStroke keyStroke = (KeyStroke) shortcutKeyTable.getModel().getValueAt(row, KEY_COLUMN);
             rstaPreferences.getKeyStrokeMap().put(actionInfo.getActionMapKey(), keyStroke);
         }
-        MirthRSyntaxTextArea.updateRSTAPreferences(userPreferences);
+        MirthRSyntaxTextArea.updateKeyStrokePreferences(userPreferences);
 
         return true;
     }
@@ -333,8 +333,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         shortcutKeyTable.setRowHeight(UIConstants.ROW_HEIGHT);
         shortcutKeyTable.setFocusable(false);
         shortcutKeyTable.setOpaque(true);
-        shortcutKeyTable.getTableHeader().setReorderingAllowed(false);
-        shortcutKeyTable.setSortable(false);
+        shortcutKeyTable.setSortable(true);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             shortcutKeyTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));

@@ -22,10 +22,12 @@ public abstract class MirthRecordableTextAction extends RecordableTextAction {
     public static final String FORCE_OFF_COMMAND = "forceOff";
 
     protected MirthRSyntaxTextArea textArea;
+    protected ActionInfo actionInfo;
 
     public MirthRecordableTextAction(MirthRSyntaxTextArea textArea, ActionInfo actionInfo) {
         super(null);
         this.textArea = textArea;
+        this.actionInfo = actionInfo;
         setProperties(MirthRSyntaxTextArea.getResourceBundle(), actionInfo.toString());
     }
 
