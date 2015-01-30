@@ -14,6 +14,8 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -438,9 +440,16 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         public boolean stopCellEditing() {
             KeyStroke keyStroke = (KeyStroke) getCellEditorValue();
             if (keyStroke != null) {
-                for (int row = 0; row < shortcutKeyTable.getRowCount(); row++) {
-                    if (keyStroke.equals((KeyStroke) shortcutKeyTable.getModel().getValueAt(row, KEY_COLUMN))) {
-                        cancelCellEditing();
+                // Don't allow alphabetic key strokes without modifiers (or with only shift).
+                if (keyStroke.getKeyCode() >= KeyEvent.VK_A && keyStroke.getKeyCode() <= KeyEvent.VK_Z && (keyStroke.getModifiers() == 0 || (keyStroke.getModifiers() & InputEvent.SHIFT_MASK) > 0)) {
+                    cancelCellEditing();
+                } else {
+                    // Don't allow key strokes already mapped to something else in the table
+                    for (int row = 0; row < shortcutKeyTable.getRowCount(); row++) {
+                        if (keyStroke.equals((KeyStroke) shortcutKeyTable.getModel().getValueAt(row, KEY_COLUMN))) {
+                            cancelCellEditing();
+                            break;
+                        }
                     }
                 }
             }
