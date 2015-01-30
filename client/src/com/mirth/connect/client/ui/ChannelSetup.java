@@ -154,13 +154,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 int selectedTab = channelView.getSelectedIndex();
 
                 if (previousTab == SCRIPTS_TAB_INDEX && selectedTab != SCRIPTS_TAB_INDEX) {
-                    LinkedHashMap<String, String> scriptMap = new LinkedHashMap<String, String>();
-                    scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, scripts.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
-                    scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
-                    scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
-                    scriptMap.put(ScriptPanel.UNDEPLOY_SCRIPT, scripts.getScripts().get(ScriptPanel.UNDEPLOY_SCRIPT));
-
-                    updateScriptsPanel(scriptMap);
+                    updateScriptsPanel(getScriptsMap());
                 }
 
                 if (selectedTab == SCRIPTS_TAB_INDEX) {
@@ -1106,6 +1100,19 @@ public class ChannelSetup extends javax.swing.JPanel {
         currentChannel.setDeployScript(scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
         currentChannel.setUndeployScript(scripts.getScripts().get(ScriptPanel.UNDEPLOY_SCRIPT));
         currentChannel.setPostprocessingScript(scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
+
+        updateScriptsPanel(getScriptsMap());
+    }
+
+    private Map<String, String> getScriptsMap() {
+        LinkedHashMap<String, String> scriptMap = new LinkedHashMap<String, String>();
+
+        scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, scripts.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
+        scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
+        scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
+        scriptMap.put(ScriptPanel.UNDEPLOY_SCRIPT, scripts.getScripts().get(ScriptPanel.UNDEPLOY_SCRIPT));
+
+        return scriptMap;
     }
 
     public void saveSourcePanel() {
