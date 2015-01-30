@@ -243,7 +243,7 @@ Or in the Mirth Connect source code distribution, it can be found at:
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes the jTDS JDBC driver version 1.2.8. This library and it's
+Mirth Connect includes the jTDS JDBC driver version 1.3.1. This library and it's
 use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source
 code is available at http://jtds.sourceforge.net/.
 
