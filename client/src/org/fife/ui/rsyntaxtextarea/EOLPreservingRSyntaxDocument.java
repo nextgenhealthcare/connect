@@ -54,9 +54,24 @@ public class EOLPreservingRSyntaxDocument extends RSyntaxDocument {
 
     @Override
     public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
-        lastEdit = null;
+        InsertStringResult result = insertStringImpl(offset, str, a);
+        lastEdit = result.edit;
+        super.insertString(offset, result.str, a);
+    }
+
+    private class InsertStringResult {
+        public String str;
+        public UndoableEdit edit;
+
+        public InsertStringResult(String str, UndoableEdit edit) {
+            this.str = str;
+            this.edit = edit;
+        }
+    }
+
+    private InsertStringResult insertStringImpl(int offset, String str, AttributeSet a) throws BadLocationException {
         if (StringUtils.isEmpty(str)) {
-            return;
+            return new InsertStringResult(str, null);
         }
 
         PeekReader reader = null;
@@ -168,39 +183,86 @@ public class EOLPreservingRSyntaxDocument extends RSyntaxDocument {
             }
         }
 
-        if (edit != null) {
-            edit.end();
-            lastEdit = edit;
-        }
-        super.insertString(offset, str, a);
+        edit.end();
+        return new InsertStringResult(str, edit);
     }
 
     @Override
     public void remove(int offs, int len) throws BadLocationException {
-        lastEdit = null;
+        RemoveResult result = removeImpl(offs, len);
+        lastEdit = result.edit;
+        super.remove(offs, result.len);
+    }
+
+    private class RemoveResult {
+        public int len;
+        public UndoableEdit edit;
+
+        public RemoveResult(int len, UndoableEdit edit) {
+            this.len = len;
+            this.edit = edit;
+        }
+    }
+
+    private RemoveResult removeImpl(int offs, int len) throws BadLocationException {
+        CompoundEdit edit = new CompoundEdit();
 
         // Combine edge CRs and LFs if necessary
         if (Arrays.equals(eolMap.get(offs - 1), CR) && Arrays.equals(eolMap.get(offs + len), LF)) {
+            edit.addEdit(new ChangeEOLEdit(offs - 1, CRLF));
             eolMap.put(offs - 1, CRLF);
             len++;
         }
 
-        super.remove(offs, len);
-
+        // Move EOLs past the edge of the removal boundary into their new positions
         for (Integer offset : eolMap.keySet().toArray(new Integer[eolMap.size()])) {
             if (offset >= offs) {
+                edit.addEdit(new ChangeEOLEdit(offset, null));
                 char[] eol = eolMap.remove(offset);
+
                 if (offset >= offs + len) {
+                    edit.addEdit(new ChangeEOLEdit(offset - len, eol));
                     eolMap.put(offset - len, eol);
                 }
             }
         }
+
+        edit.end();
+        return new RemoveResult(len, edit);
     }
 
     @Override
     public void replace(int offset, int length, String text, AttributeSet a) throws BadLocationException {
-        remove(offset, length);
-        insertString(offset, text, a);
+        lastEdit = null;
+
+        if (length == 0 && StringUtils.isEmpty(text)) {
+            return;
+        }
+
+        RemoveResult removeResult = removeImpl(offset, length);
+        InsertStringResult insertResult = insertStringImpl(offset, text, a);
+
+        if (removeResult.edit != null) {
+            if (insertResult.edit != null) {
+                CompoundEdit edit = new CompoundEdit();
+                edit.addEdit(removeResult.edit);
+                edit.addEdit(insertResult.edit);
+                edit.end();
+                lastEdit = edit;
+            } else {
+                lastEdit = removeResult.edit;
+            }
+        } else if (insertResult.edit != null) {
+            lastEdit = insertResult.edit;
+        }
+
+        writeLock();
+        try {
+            super.remove(offset, removeResult.len);
+            super.insertString(offset, insertResult.str, a);
+        } finally {
+            writeUnlock();
+        }
     }
 
     public char[] getEOL(int line) {
@@ -361,6 +423,39 @@ public class EOLPreservingRSyntaxDocument extends RSyntaxDocument {
         @Override
         public String getRedoPresentationName() {
             return null;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder(getClass().getSimpleName()).append('[');
+
+            if (newEOL != null) {
+                if (oldEOL != null) {
+                    builder.append("Replace ").append(getEOLDisplay(oldEOL)).append(" with ").append(getEOLDisplay(newEOL)).append(" at offset ").append(offset);
+                } else {
+                    builder.append("Add ").append(getEOLDisplay(newEOL)).append(" at offset ").append(offset);
+                }
+            } else {
+                if (oldEOL != null) {
+                    builder.append("Remove ").append(getEOLDisplay(oldEOL)).append(" at offset ").append(offset);
+                } else {
+                    builder.append("Do nothing at offset ").append(offset);
+                }
+            }
+
+            return builder.append(']').toString();
+        }
+
+        private String getEOLDisplay(char[] eol) {
+            if (Arrays.equals(eol, CR)) {
+                return "CR";
+            } else if (Arrays.equals(eol, LF)) {
+                return "LF";
+            } else if (Arrays.equals(eol, CRLF)) {
+                return "CRLF";
+            } else {
+                return Arrays.toString(eol);
+            }
         }
     }
 }
