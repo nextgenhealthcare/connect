@@ -449,14 +449,13 @@ public class SearchEngine {
 
         // Search forwards
         if (goForward) {
-            if (m.find()) {
-                if (replaceStr==null) { // Find, not replace.
+            while (m.find()) {
+                if (replaceStr == null) { // Find, not replace.
                     return new Point(m.start(), m.end());
+                } else if (m.end() != 0) {
+                    // Guard against infinite matches by only returning info if the matcher end is nonzero.
+                    return new RegExReplaceInfo(m.group(0), m.start(), m.end(), getReplacementText(m, replaceStr));
                 }
-                // Otherwise, replace
-                return new RegExReplaceInfo(m.group(0),
-                        m.start(), m.end(),
-                        getReplacementText(m, replaceStr));
             }
         }
 
