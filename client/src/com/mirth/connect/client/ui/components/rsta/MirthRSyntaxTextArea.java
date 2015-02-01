@@ -27,6 +27,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.fife.rsta.ac.LanguageSupportFactory;
 import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.autocomplete.CompletionProvider;
+import org.fife.ui.autocomplete.CompletionProviderBase;
+import org.fife.ui.autocomplete.LanguageAwareCompletionProvider;
 import org.fife.ui.rsyntaxtextarea.EOLPreservingRSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaHighlighter;
@@ -36,6 +39,7 @@ import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTextInterface;
+import com.mirth.connect.client.ui.components.rsta.ac.MirthLanguageSupport;
 import com.mirth.connect.client.ui.components.rsta.actions.ActionInfo;
 import com.mirth.connect.client.ui.components.rsta.actions.ClearMarkedOccurrencesAction;
 import com.mirth.connect.client.ui.components.rsta.actions.CollapseAllCommentFoldsAction;
@@ -85,6 +89,7 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
     private static final String PREFERENCES_KEYSTROKES = "rstaPreferencesKeyStrokes";
     private static final String PREFERENCES_FIND_REPLACE = "rstaPreferencesFindReplace";
     private static final String PREFERENCES_TOGGLE_OPTIONS = "rstaPreferencesToggleOptions";
+    private static final String PREFERENCES_AUTO_COMPLETE = "rstaPreferencesAutoComplete";
 
     private static RSTAPreferences rstaPreferences;
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle(MirthRSyntaxTextArea.class.getName());
@@ -120,10 +125,14 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         String keyStrokesJSON = userPreferences.get(PREFERENCES_KEYSTROKES, null);
         String findReplaceJSON = userPreferences.get(PREFERENCES_FIND_REPLACE, null);
         String toggleOptionsJSON = userPreferences.get(PREFERENCES_TOGGLE_OPTIONS, null);
-        MirthRSyntaxTextArea.rstaPreferences = RSTAPreferences.fromJSON(keyStrokesJSON, findReplaceJSON, toggleOptionsJSON);
+        String autoCompleteJSON = userPreferences.get(PREFERENCES_AUTO_COMPLETE, null);
+
+        rstaPreferences = RSTAPreferences.fromJSON(keyStrokesJSON, findReplaceJSON, toggleOptionsJSON, autoCompleteJSON);
+
         updateKeyStrokePreferences(userPreferences);
         updateFindReplacePreferences(userPreferences);
         updateToggleOptionPreferences(userPreferences);
+        updateAutoCompletePreferences(userPreferences);
     }
 
     public MirthRSyntaxTextArea() {
@@ -281,6 +290,14 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         userPreferences.put(PREFERENCES_TOGGLE_OPTIONS, rstaPreferences.getToggleOptionsJSON());
     }
 
+    public static void updateAutoCompletePreferences() {
+        updateAutoCompletePreferences(Preferences.userNodeForPackage(Mirth.class));
+    }
+
+    public static void updateAutoCompletePreferences(Preferences userPreferences) {
+        userPreferences.put(PREFERENCES_AUTO_COMPLETE, rstaPreferences.getAutoCompleteJSON());
+    }
+
     public static ResourceBundle getResourceBundle() {
         return resourceBundle;
     }
@@ -344,6 +361,28 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         showWhitespaceMenuItem.setSelected(BooleanUtils.toBoolean(rstaPreferences.getToggleOptions().get(ActionInfo.DISPLAY_SHOW_WHITESPACE.getActionMapKey())));
         showLineEndingsMenuItem.setSelected(BooleanUtils.toBoolean(rstaPreferences.getToggleOptions().get(ActionInfo.DISPLAY_SHOW_LINE_ENDINGS.getActionMapKey())));
         wrapLinesMenuItem.setSelected(BooleanUtils.toBoolean(rstaPreferences.getToggleOptions().get(ActionInfo.DISPLAY_WRAP_LINES.getActionMapKey())));
+
+        MirthLanguageSupport languageSupport = (MirthLanguageSupport) LanguageSupportFactory.get().getSupportFor(getSyntaxEditingStyle());
+        AutoCompletion autoCompletion = languageSupport.getAutoCompletionFor(this);
+        LanguageAwareCompletionProvider provider = (LanguageAwareCompletionProvider) autoCompletion.getCompletionProvider();
+        AutoCompleteProperties autoCompleteProperties = rstaPreferences.getAutoCompleteProperties();
+        autoCompletion.setAutoActivationDelay(autoCompleteProperties.getActivationDelay());
+        setAutoActivationRules(provider, autoCompleteProperties.isActivateAfterLetters(), autoCompleteProperties.getActivateAfterOthers());
+    }
+
+    private void setAutoActivationRules(CompletionProvider provider, boolean letters, String others) {
+        if (provider != null) {
+            if (provider instanceof CompletionProviderBase) {
+                ((CompletionProviderBase) provider).setAutoActivationRules(letters, others);
+            }
+            if (provider instanceof LanguageAwareCompletionProvider) {
+                LanguageAwareCompletionProvider langProvider = (LanguageAwareCompletionProvider) provider;
+                setAutoActivationRules(langProvider.getDefaultCompletionProvider(), letters, others);
+                setAutoActivationRules(langProvider.getStringCompletionProvider(), letters, others);
+                setAutoActivationRules(langProvider.getCommentCompletionProvider(), letters, others);
+                setAutoActivationRules(langProvider.getDocCommentCompletionProvider(), letters, others);
+            }
+        }
     }
 
     public void setSelectedText(String text) {

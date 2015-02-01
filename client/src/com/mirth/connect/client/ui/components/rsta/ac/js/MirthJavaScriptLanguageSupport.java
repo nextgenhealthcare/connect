@@ -51,4 +51,9 @@ public class MirthJavaScriptLanguageSupport extends JavaScriptLanguageSupport im
     public MirthCompletionCacheInterface getCompletionCache() {
         return shorthandCompletionCache;
     }
+
+    @Override
+    public AutoCompletion getAutoCompletionFor(RSyntaxTextArea textArea) {
+        return super.getAutoCompletionFor(textArea);
+    }
 }

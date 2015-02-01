@@ -12,7 +12,6 @@ package com.mirth.connect.client.ui.components.rsta;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,20 +29,22 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mirth.connect.client.ui.components.rsta.actions.ActionInfo;
 
-public class RSTAPreferences implements Serializable {
+public class RSTAPreferences {
 
     private Map<String, KeyStroke> keyStrokeMap;
     private FindReplaceProperties findReplaceProperties;
     private Map<String, Boolean> toggleOptions;
+    private AutoCompleteProperties autoCompleteProperties;
 
     public RSTAPreferences() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
-    public RSTAPreferences(Map<String, KeyStroke> keyStrokeMap, FindReplaceProperties findReplaceProperties, Map<String, Boolean> toggleOptions) {
+    public RSTAPreferences(Map<String, KeyStroke> keyStrokeMap, FindReplaceProperties findReplaceProperties, Map<String, Boolean> toggleOptions, AutoCompleteProperties autoCompleteProperties) {
         setDefaultKeyStrokeMap();
-        setDefaultToggleOptions();
         setDefaultFindReplaceProperties();
+        setDefaultToggleOptions();
+        setDefaultAutoCompleteProperties();
 
         if (keyStrokeMap != null) {
             this.keyStrokeMap.putAll(keyStrokeMap);
@@ -53,6 +54,9 @@ public class RSTAPreferences implements Serializable {
         }
         if (toggleOptions != null) {
             this.toggleOptions.putAll(toggleOptions);
+        }
+        if (autoCompleteProperties != null) {
+            this.autoCompleteProperties = new AutoCompleteProperties(autoCompleteProperties);
         }
     }
 
@@ -83,6 +87,15 @@ public class RSTAPreferences implements Serializable {
         this.toggleOptions = toggleOptions;
     }
 
+    public AutoCompleteProperties getAutoCompleteProperties() {
+        check();
+        return autoCompleteProperties;
+    }
+
+    public void setAutoCompleteProperties(AutoCompleteProperties autoCompleteProperties) {
+        this.autoCompleteProperties = autoCompleteProperties;
+    }
+
     String getKeyStrokesJSON() {
         ObjectNode keyStrokesNode = JsonNodeFactory.instance.objectNode();
 
@@ -111,7 +124,11 @@ public class RSTAPreferences implements Serializable {
         return toggleOptionsNode.toString();
     }
 
-    static RSTAPreferences fromJSON(String keyStrokesJSON, String findReplaceJSON, String toggleOptionsJSON) {
+    String getAutoCompleteJSON() {
+        return getAutoCompleteProperties().toJsonNode().toString();
+    }
+
+    static RSTAPreferences fromJSON(String keyStrokesJSON, String findReplaceJSON, String toggleOptionsJSON, String autoCompleteJSON) {
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, KeyStroke> keyStrokeMap = new HashMap<String, KeyStroke>();
@@ -156,7 +173,9 @@ public class RSTAPreferences implements Serializable {
             }
         }
 
-        return new RSTAPreferences(keyStrokeMap, findReplaceProperties, toggleOptions);
+        AutoCompleteProperties autoCompleteProperties = AutoCompleteProperties.fromJSON(autoCompleteJSON);
+
+        return new RSTAPreferences(keyStrokeMap, findReplaceProperties, toggleOptions, autoCompleteProperties);
     }
 
     private void check() {
@@ -164,12 +183,16 @@ public class RSTAPreferences implements Serializable {
             setDefaultKeyStrokeMap();
         }
 
+        if (findReplaceProperties == null) {
+            setDefaultFindReplaceProperties();
+        }
+
         if (toggleOptions == null) {
             setDefaultToggleOptions();
         }
 
-        if (findReplaceProperties == null) {
-            setDefaultFindReplaceProperties();
+        if (autoCompleteProperties == null) {
+            setDefaultAutoCompleteProperties();
         }
     }
 
@@ -263,6 +286,10 @@ public class RSTAPreferences implements Serializable {
         keyStrokeMap.put(actionInfo.getActionMapKey(), KeyStroke.getKeyStroke(keyCode, modifiers));
     }
 
+    private void setDefaultFindReplaceProperties() {
+        findReplaceProperties = new FindReplaceProperties();
+    }
+
     private void setDefaultToggleOptions() {
         toggleOptions = new HashMap<String, Boolean>();
         toggleOptions.put(ActionInfo.DISPLAY_SHOW_TAB_LINES.getActionMapKey(), false);
@@ -271,7 +298,7 @@ public class RSTAPreferences implements Serializable {
         toggleOptions.put(ActionInfo.DISPLAY_WRAP_LINES.getActionMapKey(), false);
     }
 
-    private void setDefaultFindReplaceProperties() {
-        findReplaceProperties = new FindReplaceProperties();
+    private void setDefaultAutoCompleteProperties() {
+        autoCompleteProperties = new AutoCompleteProperties();
     }
 }

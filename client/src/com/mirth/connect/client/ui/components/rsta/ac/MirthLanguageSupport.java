@@ -10,8 +10,12 @@
 package com.mirth.connect.client.ui.components.rsta.ac;
 
 import org.fife.rsta.ac.LanguageSupport;
+import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 public interface MirthLanguageSupport extends LanguageSupport {
 
     public MirthCompletionCacheInterface getCompletionCache();
+
+    public AutoCompletion getAutoCompletionFor(RSyntaxTextArea textArea);
 }

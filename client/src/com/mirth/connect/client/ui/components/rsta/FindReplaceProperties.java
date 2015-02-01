@@ -9,7 +9,6 @@
 
 package com.mirth.connect.client.ui.components.rsta;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,7 +25,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class FindReplaceProperties implements Serializable {
+public class FindReplaceProperties {
 
     private static final String KEY_FORWARD = "forward";
     private static final String KEY_WRAP_SEARCH = "wrapSearch";

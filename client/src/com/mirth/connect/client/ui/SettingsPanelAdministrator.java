@@ -28,6 +28,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -37,6 +38,8 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
@@ -45,14 +48,18 @@ import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.KeyStrokeTextField;
+import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTextField;
+import com.mirth.connect.client.ui.components.rsta.AutoCompleteProperties;
 import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 import com.mirth.connect.client.ui.components.rsta.RSTAPreferences;
 import com.mirth.connect.client.ui.components.rsta.actions.ActionInfo;
@@ -142,8 +149,14 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
             worker.execute();
 
-            updateShortcutKeyTable(MirthRSyntaxTextArea.getRSTAPreferences());
+            RSTAPreferences rstaPreferences = MirthRSyntaxTextArea.getRSTAPreferences();
+            updateShortcutKeyTable(rstaPreferences);
             updateRestoreDefaultsButton();
+
+            AutoCompleteProperties autoCompleteProperties = rstaPreferences.getAutoCompleteProperties();
+            autoCompleteIncludeLettersCheckBox.setSelected(autoCompleteProperties.isActivateAfterLetters());
+            autoCompleteCharactersField.setText(autoCompleteProperties.getActivateAfterOthers());
+            autoCompleteDelayField.setText(String.valueOf(autoCompleteProperties.getActivationDelay()));
         }
     }
 
@@ -158,6 +171,11 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         }
         if (eventBrowserPageSizeField.getText().length() == 0) {
             getFrame().alertWarning(this, "Please enter a valid event browser page size.");
+            return false;
+        }
+
+        if (autoCompleteDelayField.isEnabled() && StringUtils.isBlank(autoCompleteDelayField.getText())) {
+            getFrame().alertWarning(this, "Please enter a valid auto-complete activation delay.");
             return false;
         }
 
@@ -208,6 +226,12 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         }
         MirthRSyntaxTextArea.updateKeyStrokePreferences(userPreferences);
 
+        AutoCompleteProperties autoCompleteProperties = rstaPreferences.getAutoCompleteProperties();
+        autoCompleteProperties.setActivateAfterLetters(autoCompleteIncludeLettersCheckBox.isSelected());
+        autoCompleteProperties.setActivateAfterOthers(autoCompleteCharactersField.getText());
+        autoCompleteProperties.setActivationDelay(NumberUtils.toInt(autoCompleteDelayField.getText()));
+        MirthRSyntaxTextArea.updateAutoCompletePreferences(userPreferences);
+
         return true;
     }
 
@@ -250,6 +274,12 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         }
 
         ((RefreshTableModel) shortcutKeyTable.getModel()).refreshDataVector(data);
+    }
+
+    private void autoCompleteActionPerformed() {
+        boolean enabled = StringUtils.isNotEmpty(autoCompleteCharactersField.getText()) || autoCompleteIncludeLettersCheckBox.isSelected();
+        autoCompleteDelayLabel.setEnabled(enabled);
+        autoCompleteDelayField.setEnabled(enabled);
     }
 
     private void initComponents() {
@@ -320,6 +350,46 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         codeEditorSettingsPanel = new JPanel();
         codeEditorSettingsPanel.setBackground(getBackground());
         codeEditorSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Code Editor Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+
+        toolTipText = "<html>The auto-completion popup will be triggered<br/>after any of these characters are typed.</html>";
+        autoCompleteCharactersLabel = new JLabel("Auto-Complete Characters:");
+        autoCompleteCharactersField = new MirthTextField();
+        autoCompleteCharactersField.setToolTipText(toolTipText);
+        autoCompleteCharactersField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent evt) {
+                autoCompleteActionPerformed();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent evt) {
+                autoCompleteActionPerformed();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent evt) {
+                autoCompleteActionPerformed();
+            }
+        });
+
+        toolTipText = "<html>If selected, auto-completion will be<br/>triggered after any letter is typed.</html>";
+        autoCompleteIncludeLettersCheckBox = new MirthCheckBox("Include Letters");
+        autoCompleteIncludeLettersCheckBox.setBackground(codeEditorSettingsPanel.getBackground());
+        autoCompleteIncludeLettersCheckBox.setToolTipText(toolTipText);
+        autoCompleteIncludeLettersCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                autoCompleteActionPerformed();
+            }
+        });
+
+        toolTipText = "<html>The amount of time to wait after typing<br/>an activation character before opening<br/>the auto-completion popup menu.</html>";
+        autoCompleteDelayLabel = new JLabel("Activation Delay (ms):");
+        autoCompleteDelayField = new MirthTextField();
+        autoCompleteDelayField.setToolTipText(toolTipText);
+        autoCompleteDelayField.setDocument(new MirthFieldConstraints(9, false, false, true));
+
+        shortcutKeyLabel = new JLabel("Shortcut Key Mappings:");
 
         shortcutKeyTable = new MirthTable();
         shortcutKeyTable.setModel(new RefreshTableModel(new Object[] { "Action Info", "Name",
@@ -395,7 +465,13 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         userSettingsPanel.add(checkForNotificationsNoRadio);
         add(userSettingsPanel, "newline, grow");
 
-        codeEditorSettingsPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "12[][]", ""));
+        codeEditorSettingsPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "12[]13[][]", ""));
+        codeEditorSettingsPanel.add(autoCompleteCharactersLabel, "right");
+        codeEditorSettingsPanel.add(autoCompleteCharactersField, "w 50, split");
+        codeEditorSettingsPanel.add(autoCompleteIncludeLettersCheckBox, "gapbefore 6");
+        codeEditorSettingsPanel.add(autoCompleteDelayLabel, "newline, right");
+        codeEditorSettingsPanel.add(autoCompleteDelayField, "w 50");
+        codeEditorSettingsPanel.add(shortcutKeyLabel, "newline, top, right, gaptop 2");
         codeEditorSettingsPanel.add(shortcutKeyScrollPane, "grow, push, h ::179");
         codeEditorSettingsPanel.add(restoreDefaultsButton, "top");
         add(codeEditorSettingsPanel, "newline, grow");
@@ -485,6 +561,12 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     private JRadioButton checkForNotificationsYesRadio;
     private JRadioButton checkForNotificationsNoRadio;
     private JPanel codeEditorSettingsPanel;
+    private JLabel autoCompleteCharactersLabel;
+    private JTextField autoCompleteCharactersField;
+    private JCheckBox autoCompleteIncludeLettersCheckBox;
+    private JLabel autoCompleteDelayLabel;
+    private JTextField autoCompleteDelayField;
+    private JLabel shortcutKeyLabel;
     private JScrollPane shortcutKeyScrollPane;
     private MirthTable shortcutKeyTable;
     private JButton restoreDefaultsButton;
