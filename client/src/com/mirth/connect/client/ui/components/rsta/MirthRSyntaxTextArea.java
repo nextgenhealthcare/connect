@@ -13,9 +13,12 @@ import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
+import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
@@ -41,6 +44,7 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTextInterface;
 import com.mirth.connect.client.ui.components.rsta.ac.MirthLanguageSupport;
 import com.mirth.connect.client.ui.components.rsta.actions.ActionInfo;
+import com.mirth.connect.client.ui.components.rsta.actions.BeginMacroAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ClearMarkedOccurrencesAction;
 import com.mirth.connect.client.ui.components.rsta.actions.CollapseAllCommentFoldsAction;
 import com.mirth.connect.client.ui.components.rsta.actions.CollapseAllFoldsAction;
@@ -52,6 +56,7 @@ import com.mirth.connect.client.ui.components.rsta.actions.DeleteLineAction;
 import com.mirth.connect.client.ui.components.rsta.actions.DeleteRestOfLineAction;
 import com.mirth.connect.client.ui.components.rsta.actions.DocumentEndAction;
 import com.mirth.connect.client.ui.components.rsta.actions.DocumentStartAction;
+import com.mirth.connect.client.ui.components.rsta.actions.EndMacroAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ExpandAllFoldsAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ExpandFoldAction;
 import com.mirth.connect.client.ui.components.rsta.actions.FindNextAction;
@@ -72,6 +77,7 @@ import com.mirth.connect.client.ui.components.rsta.actions.MoveUpAction;
 import com.mirth.connect.client.ui.components.rsta.actions.PageDownAction;
 import com.mirth.connect.client.ui.components.rsta.actions.PageUpAction;
 import com.mirth.connect.client.ui.components.rsta.actions.PasteAction;
+import com.mirth.connect.client.ui.components.rsta.actions.PlaybackMacroAction;
 import com.mirth.connect.client.ui.components.rsta.actions.RedoAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ScrollAction;
 import com.mirth.connect.client.ui.components.rsta.actions.SelectAllAction;
@@ -96,6 +102,7 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
 
     private boolean saveEnabled = true;
     private String cachedStyleKey;
+    private Action[] actions;
 
     private CustomMenuItem undoMenuItem;
     private CustomMenuItem redoMenuItem;
@@ -118,6 +125,10 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
     private CustomJCheckBoxMenuItem showWhitespaceMenuItem;
     private CustomJCheckBoxMenuItem showLineEndingsMenuItem;
     private CustomJCheckBoxMenuItem wrapLinesMenuItem;
+    private JMenu macroMenu;
+    private CustomMenuItem beginMacroMenuItem;
+    private CustomMenuItem endMacroMenuItem;
+    private CustomMenuItem playbackMacroMenuItem;
     private CustomMenuItem viewUserAPIMenuItem;
 
     static {
@@ -213,6 +224,10 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         showWhitespaceMenuItem = new CustomJCheckBoxMenuItem(this, new ShowWhitespaceAction(this), ActionInfo.DISPLAY_SHOW_WHITESPACE);
         showLineEndingsMenuItem = new CustomJCheckBoxMenuItem(this, new ShowLineEndingsAction(this), ActionInfo.DISPLAY_SHOW_LINE_ENDINGS);
         wrapLinesMenuItem = new CustomJCheckBoxMenuItem(this, new WrapLinesAction(this), ActionInfo.DISPLAY_WRAP_LINES);
+        macroMenu = new JMenu("Macro");
+        beginMacroMenuItem = new CustomMenuItem(this, new BeginMacroAction(), ActionInfo.MACRO_BEGIN);
+        endMacroMenuItem = new CustomMenuItem(this, new EndMacroAction(), ActionInfo.MACRO_END);
+        playbackMacroMenuItem = new CustomMenuItem(this, new PlaybackMacroAction(), ActionInfo.MACRO_PLAYBACK);
         viewUserAPIMenuItem = new CustomMenuItem(this, new ViewUserAPIAction(this), ActionInfo.VIEW_USER_API);
 
         // Add actions that wont be in the popup menu
@@ -253,6 +268,12 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         getActionMap().put(ActionInfo.PAGE_RIGHT_SELECT.getActionMapKey(), new HorizontalPageAction(this, false));
         getActionMap().put(ActionInfo.INSERT_LF_BREAK.getActionMapKey(), new InsertBreakAction("\n"));
         getActionMap().put(ActionInfo.INSERT_CR_BREAK.getActionMapKey(), new InsertBreakAction("\r"));
+
+        List<Action> actionList = new ArrayList<Action>();
+        for (Object key : getActionMap().allKeys()) {
+            actionList.add(getActionMap().get(key));
+        }
+        actions = actionList.toArray(new Action[actionList.size()]);
 
         if (autoCompleteEnabled) {
             LanguageSupportFactory.get().register(this);
@@ -445,6 +466,12 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         menu.add(displayMenu);
         menu.addSeparator();
 
+        macroMenu.add(beginMacroMenuItem);
+        macroMenu.add(endMacroMenuItem);
+        macroMenu.add(playbackMacroMenuItem);
+        menu.add(macroMenu);
+        menu.addSeparator();
+
         menu.add(viewUserAPIMenuItem);
 
         return menu;
@@ -463,6 +490,9 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
             findNextMenuItem.setEnabled(findNextMenuItem.getAction().isEnabled() && CollectionUtils.isNotEmpty(rstaPreferences.getFindReplaceProperties().getFindHistory()));
             clearMarkedOccurrencesMenuItem.setEnabled(clearMarkedOccurrencesMenuItem.getAction().isEnabled() && canType && ((RSyntaxTextAreaHighlighter) getHighlighter()).getMarkAllHighlightCount() > 0);
             foldingMenu.setEnabled(getFoldManager().isCodeFoldingSupportedAndEnabled());
+            beginMacroMenuItem.setEnabled(!isRecordingMacro());
+            endMacroMenuItem.setEnabled(isRecordingMacro());
+            playbackMacroMenuItem.setEnabled(!isRecordingMacro() && getCurrentMacro() != null);
 
             undoMenuItem.updateAccelerator();
             redoMenuItem.updateAccelerator();
@@ -479,6 +509,9 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
             collapseAllFoldsMenuItem.updateAccelerator();
             collapseAllCommentFoldsMenuItem.updateAccelerator();
             expandAllFoldsMenuItem.updateAccelerator();
+            beginMacroMenuItem.updateAccelerator();
+            endMacroMenuItem.updateAccelerator();
+            playbackMacroMenuItem.updateAccelerator();
             viewUserAPIMenuItem.updateAccelerator();
         }
     }
@@ -487,5 +520,10 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
     public void setSyntaxEditingStyle(String styleKey) {
         super.setSyntaxEditingStyle(styleKey);
         cachedStyleKey = styleKey;
+    }
+
+    @Override
+    public Action[] getActions() {
+        return actions != null ? actions : getUI().getEditorKit(this).getActions();
     }
 }

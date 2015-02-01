@@ -73,7 +73,10 @@ public enum ActionInfo {
     PAGE_DOWN_SELECT            (RTextAreaEditorKit.rtaSelectionPageDownAction),
     PAGE_RIGHT_SELECT           (RTextAreaEditorKit.rtaSelectionPageRightAction),
     INSERT_LF_BREAK             ("mirth-insert-lf-break"),
-    INSERT_CR_BREAK             ("mirth-insert-cr-break");
+    INSERT_CR_BREAK             ("mirth-insert-cr-break"),
+    MACRO_BEGIN                 (RTextAreaEditorKit.rtaBeginRecordingMacroAction),
+    MACRO_END                   (RTextAreaEditorKit.rtaEndRecordingMacroAction),
+    MACRO_PLAYBACK              (RTextAreaEditorKit.rtaPlaybackLastMacroAction);
     // @formatter:on
 
     private String actionMapKey;

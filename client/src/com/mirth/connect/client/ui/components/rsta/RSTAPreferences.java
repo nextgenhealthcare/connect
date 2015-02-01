@@ -280,6 +280,9 @@ public class RSTAPreferences {
         putKeyStroke(ActionInfo.PAGE_RIGHT_SELECT, KeyEvent.VK_PAGE_DOWN, defaultShift);
         putKeyStroke(ActionInfo.INSERT_LF_BREAK, KeyEvent.VK_ENTER, 0);
         putKeyStroke(ActionInfo.INSERT_CR_BREAK, KeyEvent.VK_ENTER, shift);
+        putKeyStroke(ActionInfo.MACRO_BEGIN, KeyEvent.VK_B, defaultShift);
+        putKeyStroke(ActionInfo.MACRO_END, KeyEvent.VK_N, defaultShift);
+        putKeyStroke(ActionInfo.MACRO_PLAYBACK, KeyEvent.VK_M, defaultShift);
     }
 
     private void putKeyStroke(ActionInfo actionInfo, int keyCode, int modifiers) {
