@@ -33,7 +33,9 @@ public class VMRouter {
     public VMRouter() {}
 
     /**
-     * Dispatches a message to a channel, specified by the deployed channel name.
+     * Dispatches a message to a channel, specified by the deployed channel name. If the dispatch
+     * fails for any reason (for example, if the target channel is not started), a Response object
+     * with the ERROR status and the error message will be returned.
      * 
      * @param channelName
      *            The name of the deployed channel to dispatch the message to.
@@ -47,7 +49,9 @@ public class VMRouter {
     }
 
     /**
-     * Dispatches a message to a channel, specified by the deployed channel name.
+     * Dispatches a message to a channel, specified by the deployed channel name. If the dispatch
+     * fails for any reason (for example, if the target channel is not started), a Response object
+     * with the ERROR status and the error message will be returned.
      * 
      * @param channelName
      *            The name of the deployed channel to dispatch the message to.
@@ -68,7 +72,9 @@ public class VMRouter {
     }
 
     /**
-     * Dispatches a message to a channel, specified by the deployed channel ID.
+     * Dispatches a message to a channel, specified by the deployed channel ID. If the dispatch
+     * fails for any reason (for example, if the target channel is not started), a Response object
+     * with the ERROR status and the error message will be returned.
      * 
      * @param channelId
      *            The ID of the deployed channel to dispatch the message to.
@@ -82,7 +88,9 @@ public class VMRouter {
     }
 
     /**
-     * Dispatches a message to a channel, specified by the deployed channel ID.
+     * Dispatches a message to a channel, specified by the deployed channel ID. If the dispatch
+     * fails for any reason (for example, if the target channel is not started), a Response object
+     * with the ERROR status and the error message will be returned.
      * 
      * @param channelId
      *            The ID of the deployed channel to dispatch the message to.
