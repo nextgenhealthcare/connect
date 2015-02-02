@@ -32,7 +32,7 @@ public class DefaultWebServiceConfiguration implements WebServiceConfiguration {
     @Override
     public void configureConnectorDeploy(Connector connector) throws Exception {
         if (connector instanceof WebServiceDispatcher) {
-            sslContext = SSLContexts.createDefault();
+            sslContext = SSLContexts.createSystemDefault();
             enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols());
             enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites());
             SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, enabledProtocols, enabledCipherSuites, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
