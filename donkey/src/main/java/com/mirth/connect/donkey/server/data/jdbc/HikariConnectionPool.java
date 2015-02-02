@@ -12,7 +12,6 @@ package com.mirth.connect.donkey.server.data.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 public class HikariConnectionPool implements ConnectionPool {
@@ -22,22 +21,19 @@ public class HikariConnectionPool implements ConnectionPool {
     public HikariConnectionPool(String driver, String url, String username, String password, int maxConnections, boolean jdbc4, String testQuery) {
         this.maxConnections = maxConnections;
 
-        HikariConfig config = new HikariConfig();
-        config.setDriverClassName(driver);
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
-        config.setConnectionTimeout(0);
-        config.setAutoCommit(false);
-        config.setMaximumPoolSize(maxConnections);
-        config.setMinimumIdle(0);
+        dataSource = new HikariDataSource();
+        dataSource.setDriverClassName(driver);
+        dataSource.setJdbcUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        dataSource.setConnectionTimeout(0);
+        dataSource.setAutoCommit(false);
+        dataSource.setMaximumPoolSize(maxConnections);
+        dataSource.setMinimumIdle(0);
 
         if (!jdbc4) {
-            config.setJdbc4ConnectionTest(false);
-            config.setConnectionTestQuery(testQuery);
+            dataSource.setConnectionTestQuery(testQuery);
         }
-
-        dataSource = new HikariDataSource(config);
     }
 
     @Override
