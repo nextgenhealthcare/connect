@@ -201,7 +201,7 @@ public class JdbcDao implements DonkeyDao {
                 encrypted = messageContent.isEncrypted();
             }
 
-            PreparedStatement statement = prepareStatement("insertMessageContent", messageContent.getChannelId());
+            PreparedStatement statement = prepareStatement("batchInsertMessageContent", messageContent.getChannelId());
             statement.setInt(1, messageContent.getMetaDataId());
             statement.setLong(2, messageContent.getMessageId());
             statement.setInt(3, messageContent.getContentType().getContentTypeCode());
@@ -221,7 +221,16 @@ public class JdbcDao implements DonkeyDao {
         logger.debug(channelId + ": executing batch message content insert");
 
         try {
-            prepareStatement("insertMessageContent", channelId).executeBatch();
+            /*
+             * MIRTH-3597 Batch statements need to have their own prepared statement object due to a
+             * bug? in the Oracle 12 JDBC driver. Therefore we need to have both
+             * insertMessageContent and insertMessageContentBatch even though they are the same
+             * query. We should also call clearBatch() after each batch execution to verify that all
+             * internal buffers are cleared.
+             */
+            PreparedStatement statement = prepareStatement("batchInsertMessageContent", channelId);
+            statement.executeBatch();
+            statement.clearBatch();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }

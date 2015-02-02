@@ -11,6 +11,11 @@
 		VALUES (?, ?, ?, ?, ?, ?)
 	</query>
 	
+	<query id="batchInsertMessageContent">
+		INSERT INTO D_MC${localChannelId} (METADATA_ID, MESSAGE_ID, CONTENT_TYPE, CONTENT, DATA_TYPE, IS_ENCRYPTED)
+		VALUES (?, ?, ?, ?, ?, ?)
+	</query>
+	
 	<query id="storeMessageContent">
 		UPDATE D_MC${localChannelId} SET CONTENT = ?, DATA_TYPE = ?, IS_ENCRYPTED = ?
 		WHERE METADATA_ID = ?
