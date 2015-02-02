@@ -28,6 +28,7 @@ import javax.swing.text.BadLocationException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.fife.rsta.ac.LanguageSupport;
 import org.fife.rsta.ac.LanguageSupportFactory;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
@@ -383,12 +384,16 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         showLineEndingsMenuItem.setSelected(BooleanUtils.toBoolean(rstaPreferences.getToggleOptions().get(ActionInfo.DISPLAY_SHOW_LINE_ENDINGS.getActionMapKey())));
         wrapLinesMenuItem.setSelected(BooleanUtils.toBoolean(rstaPreferences.getToggleOptions().get(ActionInfo.DISPLAY_WRAP_LINES.getActionMapKey())));
 
-        MirthLanguageSupport languageSupport = (MirthLanguageSupport) LanguageSupportFactory.get().getSupportFor(getSyntaxEditingStyle());
-        AutoCompletion autoCompletion = languageSupport.getAutoCompletionFor(this);
-        LanguageAwareCompletionProvider provider = (LanguageAwareCompletionProvider) autoCompletion.getCompletionProvider();
-        AutoCompleteProperties autoCompleteProperties = rstaPreferences.getAutoCompleteProperties();
-        autoCompletion.setAutoActivationDelay(autoCompleteProperties.getActivationDelay());
-        setAutoActivationRules(provider, autoCompleteProperties.isActivateAfterLetters(), autoCompleteProperties.getActivateAfterOthers());
+        LanguageSupport languageSupport = (LanguageSupport) LanguageSupportFactory.get().getSupportFor(getSyntaxEditingStyle());
+        if (languageSupport != null && languageSupport instanceof MirthLanguageSupport) {
+            AutoCompletion autoCompletion = ((MirthLanguageSupport) languageSupport).getAutoCompletionFor(this);
+            if (autoCompletion != null) {
+                LanguageAwareCompletionProvider provider = (LanguageAwareCompletionProvider) autoCompletion.getCompletionProvider();
+                AutoCompleteProperties autoCompleteProperties = rstaPreferences.getAutoCompleteProperties();
+                autoCompletion.setAutoActivationDelay(autoCompleteProperties.getActivationDelay());
+                setAutoActivationRules(provider, autoCompleteProperties.isActivateAfterLetters(), autoCompleteProperties.getActivateAfterOthers());
+            }
+        }
     }
 
     private void setAutoActivationRules(CompletionProvider provider, boolean letters, String others) {
