@@ -12,6 +12,7 @@ APACHE-LICENSE-2.0.txt):
 	Apache Velocity Engine 1.7
 	Apache Velocity Tools 2.0
 	Apache XMLBeans [Mirth Connect only]
+	HikariCP 2.3.2 [Mirth Connect only]
 	Jasypt 1.7.1 [Mirth Connect only]
 	Jetty 7.6.7 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
