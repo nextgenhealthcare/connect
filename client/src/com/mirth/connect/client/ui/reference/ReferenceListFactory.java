@@ -363,6 +363,8 @@ public class ReferenceListFactory {
         addReference(new ParameterizedCodeReference(SCOPE_CONNECTOR, Category.MESSAGE.toString(), "Remove one or more from Destination Set", "Stop one or more destinations from being processed for this message. Only available in the preprocessor or source filter/transformer.", "destinationSet.remove([${metaDataIdOrConnectorNames}]);"));
         addReference(new ParameterizedCodeReference(SCOPE_CONNECTOR, Category.MESSAGE.toString(), "Remove all except specified from Destination Set", "Stop all except the specified destinations from being processed for this message. Only available in the preprocessor or source filter/transformer.", "destinationSet.removeAllExcept([${metaDataIdOrConnectorNames}]);"));
         addReference(new ParameterizedCodeReference(SCOPE_CONNECTOR, Category.MESSAGE.toString(), "Remove all from Destination Set", "Stop all destinations from being processed for this message. Only available in the preprocessor or source filter/transformer.", "destinationSet.removeAll();"));
+        addReference(new ParameterizedCodeReference(SCOPE_CHANNEL, Category.MESSAGE.toString(), "Message Reprocessed", "Get a variable indicating if this message was reprocessed.", "var reprocessed = sourceMap.get('reprocessed') == true;"));
+        addReference(new ParameterizedCodeReference(SCOPE_CHANNEL, Category.MESSAGE.toString(), "Message Replaced", "Get a variable indicating if this message was reprocessed and replaced.", "var replaced = sourceMap.get('replaced') == true;"));
 
         // Response references
         addReference(new CodeReference(SCOPE_CONNECTOR, Category.RESPONSE.toString(), "Set Response Status to SENT", "Indicates message was successfully SENT.", "responseStatus = SENT;"));

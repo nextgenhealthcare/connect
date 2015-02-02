@@ -412,6 +412,7 @@ public class DonkeyMessageController extends MessageController {
                     rawMessage.setOriginalMessageId(messageId);
 
                     try {
+                        Map<String, Object> sourceMap = rawMessage.getSourceMap();
                         if (sourceMapContent != null && sourceMapContent.getContent() != null) {
                             if (sourceMapContent.isEncrypted()) {
                                 sourceMapContent.setContent(encryptor.decrypt(sourceMapContent.getContent()));
@@ -424,8 +425,11 @@ public class DonkeyMessageController extends MessageController {
                              * destination metadata IDs after this, so the map needs to be
                              * modifiable.
                              */
-                            rawMessage.getSourceMap().putAll(MapUtil.deserializeMap(ObjectXMLSerializer.getInstance(), sourceMapContent.getContent()));
+                            sourceMap.putAll(MapUtil.deserializeMap(ObjectXMLSerializer.getInstance(), sourceMapContent.getContent()));
                         }
+
+                        sourceMap.put(Constants.REPROCESSED_KEY, true);
+                        sourceMap.put(Constants.REPLACED_KEY, replace);
 
                         // Set the destination metadata ID list here to overwrite anything that was previously stored 
                         rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);

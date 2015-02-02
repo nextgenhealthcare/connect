@@ -26,9 +26,19 @@ public class Constants {
     public static final String BATCH_COMPLETE_KEY = "batchComplete";
 
     /**
-     * Reserve source map key for the sequence number of a batch
+     * Reserved source map key for the sequence number of a batch
      */
     public static final String BATCH_SEQUENCE_ID_KEY = "batchSequenceId";
+
+    /**
+     * Reserved source map key for whether the message is reprocessed
+     */
+    public static final String REPROCESSED_KEY = "reprocessed";
+
+    /**
+     * Reserved source map key for whether the message is reprocessed and replaced
+     */
+    public static final String REPLACED_KEY = "replaced";
 
     /**
      * The number of milliseconds to wait for incoming messages on the source queue before timing
