@@ -141,7 +141,11 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
     public void migrate3_1_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_2_0(DonkeyElement element) {}
+    public void migrate3_2_0(DonkeyElement element) {
+        element.addChildElementIfNotExists("validateMessageControlId", "false");
+        element.addChildElementIfNotExists("originalMessageControlId", "Destination_Encoded");
+        element.addChildElementIfNotExists("originalIdMapVariable", "");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
