@@ -14,8 +14,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
@@ -24,10 +27,14 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.event.RowSorterEvent;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.table.TableColumnExt;
+import org.jdesktop.swingx.table.TableColumnModelExt;
 
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -37,12 +44,13 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 public class MirthTable extends JXTable {
     private Preferences userPreferences;
     private String prefix;
+    private Set<String> defaultVisibleColumns;
 
     public MirthTable() {
-        this(null);
+        this(null, null);
     }
 
-    public MirthTable(String prefix) {
+    public MirthTable(String prefix, Set<String> defaultVisibleColumns) {
         this.setDragEnabled(true);
         this.addKeyListener(new KeyListener() {
 
@@ -67,6 +75,13 @@ public class MirthTable extends JXTable {
 
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
         this.prefix = prefix;
+        this.defaultVisibleColumns = defaultVisibleColumns;
+
+        this.getTableHeader().addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent e) {
+                determineColumnOrder();
+            }
+        });
     }
 
     @Override
@@ -87,14 +102,67 @@ public class MirthTable extends JXTable {
                 List<SortKey> sortKeys = ObjectXMLSerializer.getInstance().deserialize(sortOrder, List.class);
                 getRowSorter().setSortKeys(sortKeys);
             }
+
+            String cNames = userPreferences.get(prefix + "ColumnOrderNames", "");
+            if (StringUtils.isNotEmpty(cNames)) {
+                List<String> columnOrderNames = ObjectXMLSerializer.getInstance().deserializeList(cNames, String.class);
+
+                String defaultColumnsString = userPreferences.get(prefix + "DefaultVisibleColumns", "");
+                if (StringUtils.isNotEmpty(defaultColumnsString)) {
+                    Set<String> previousDefaultColumns = ObjectXMLSerializer.getInstance().deserialize(defaultColumnsString, Set.class);
+
+                    if (defaultVisibleColumns != null && !CollectionUtils.subtract(defaultVisibleColumns, previousDefaultColumns).isEmpty()) {
+                        restoreDefaults();
+                        columnOrderNames = ObjectXMLSerializer.getInstance().deserializeList(userPreferences.get(prefix + "ColumnOrderNames", ""), String.class);
+                    }
+                }
+                userPreferences.put(prefix + "DefaultVisibleColumns", ObjectXMLSerializer.getInstance().serialize(defaultVisibleColumns));
+
+                TableColumnModelExt columnModel = (TableColumnModelExt) getTableHeader().getColumnModel();
+                for (int index = 0; index < columnOrderNames.size(); index++) {
+                    String columnName = columnOrderNames.get(index);
+                    columnModel.moveColumn(columnModel.getColumnIndex(columnName), index);
+                }
+            }
         }
     }
 
     public void restoreDefaults() {
         if (StringUtils.isNotEmpty(prefix)) {
             getRowSorter().setSortKeys(null);
+
+            List<String> columnOrderNames = new ArrayList<String>();
+
+            TableColumnModelExt columnModel = (TableColumnModelExt) getTableHeader().getColumnModel();
+
+            int index = 0;
+            for (TableColumn column : columnModel.getColumns(true)) {
+                TableColumnExt columnExt = (TableColumnExt) column;
+                String columnName = columnExt.getTitle();
+
+                boolean enable = defaultVisibleColumns.contains(columnName);
+                columnExt.setVisible(enable);
+
+                if (enable) {
+                    columnModel.moveColumn(columnModel.getColumnIndex(columnName), index++);
+                }
+
+                columnOrderNames.add(columnName);
+            }
+
+            userPreferences.put(prefix + "ColumnOrderNames", ObjectXMLSerializer.getInstance().serialize(columnOrderNames));
             userPreferences.put(prefix + "SortOrder", "");
         }
+    }
+
+    private void determineColumnOrder() {
+        List<String> columnOrderNames = new ArrayList<String>();
+
+        for (TableColumn column : getColumns()) {
+            columnOrderNames.add((String) column.getHeaderValue());
+        }
+
+        userPreferences.put(prefix + "ColumnOrderNames", ObjectXMLSerializer.getInstance().serialize(columnOrderNames));
     }
 
     public void setCustomEditorControls(boolean enabled) {

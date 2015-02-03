@@ -22,7 +22,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.prefs.Preferences;
@@ -110,7 +110,7 @@ public class ChannelPanel extends javax.swing.JPanel {
         };
         tabs.addChangeListener(changeListener);
 
-        defaultVisibleColumns = new HashSet<String>();
+        defaultVisibleColumns = new LinkedHashSet<String>();
         defaultVisibleColumns.add(STATUS_COLUMN_NAME);
         defaultVisibleColumns.add(DATA_TYPE_COLUMN_NAME);
         defaultVisibleColumns.add(NAME_COLUMN_NAME);
@@ -478,7 +478,7 @@ public class ChannelPanel extends javax.swing.JPanel {
             RefreshTableModel model = (RefreshTableModel) channelTable.getModel();
             model.refreshDataVector(tableData);
         } else {
-            channelTable = new MirthTable("channelPanel");
+            channelTable = new MirthTable("channelPanel", defaultVisibleColumns);
 
             ArrayList<String> columns = new ArrayList<String>();
             for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
