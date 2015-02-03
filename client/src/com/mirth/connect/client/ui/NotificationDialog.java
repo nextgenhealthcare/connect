@@ -122,7 +122,7 @@ public class NotificationDialog extends MirthDialog {
 
             public Void doInBackground() {
                 try {
-                    notifications = ConnectServiceUtil.getNotifications(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, LoadedExtensions.getInstance().getExtensionVersions());
+                    notifications = ConnectServiceUtil.getNotifications(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, LoadedExtensions.getInstance().getExtensionVersions(), PlatformUI.HTTPS_PROTOCOLS, PlatformUI.HTTPS_CIPHER_SUITES);
                 } catch (Exception e) {
                     PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Failed to retrieve notifications. Please try again later.");
                 }
@@ -148,7 +148,7 @@ public class NotificationDialog extends MirthDialog {
 
         worker.execute();
     }
-    
+
     @Override
     public void onCloseAction() {
         doSave();
@@ -395,14 +395,14 @@ public class NotificationDialog extends MirthDialog {
         private JPanel panel;
         private JLabel nameLabel;
         private JLabel dateLabel;
-        
+
         public NotificationListCellRenderer() {
             nameLabel = new JLabel();
-            
+
             dateLabel = new JLabel();
             dateLabel.setFont(list.getFont().deriveFont(10f));
             dateLabel.setForeground(Color.GRAY);
-            
+
             panel = new JPanel();
             panel.setLayout(new MigLayout("insets 2, wrap"));
             panel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.HIGHLIGHTER_COLOR));
@@ -432,7 +432,7 @@ public class NotificationDialog extends MirthDialog {
             return panel;
         }
     }
-    
+
     private class NotificationModel extends AbstractListModel {
         private List<Notification> notifications = new ArrayList<Notification>();
 
@@ -470,7 +470,6 @@ public class NotificationDialog extends MirthDialog {
             fireIntervalAdded(this, 0, getSize() - 1);
         }
     }
-
 
     private Frame parent;
     private JPanel notificationPanel;

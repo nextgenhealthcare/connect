@@ -1629,7 +1629,7 @@ public class Frame extends JXFrame {
 
             public Void doInBackground() {
                 try {
-                    ConnectServiceUtil.registerUser(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, user);
+                    ConnectServiceUtil.registerUser(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, user, PlatformUI.HTTPS_PROTOCOLS, PlatformUI.HTTPS_CIPHER_SUITES);
                 } catch (ClientException e) {
                     // ignore errors connecting to update/stats server
                 }
@@ -1651,7 +1651,7 @@ public class Frame extends JXFrame {
             updateSettings = mirthClient.getUpdateSettings();
         } catch (Exception e) {
         }
-        
+
         if (updateSettings != null && updateSettings.getStatsEnabled()) {
             final String workingId = startWorking("Sending usage statistics...");
 
@@ -1661,7 +1661,7 @@ public class Frame extends JXFrame {
                     try {
                         String usageData = mirthClient.getUsageData();
                         if (usageData != null) {
-                            boolean isSent = ConnectServiceUtil.sendStatistics(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, false, usageData);
+                            boolean isSent = ConnectServiceUtil.sendStatistics(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, false, usageData, PlatformUI.HTTPS_PROTOCOLS, PlatformUI.HTTPS_CIPHER_SUITES);
                             if (isSent) {
                                 UpdateSettings settings = new UpdateSettings();
                                 settings.setLastStatsTime(System.currentTimeMillis());

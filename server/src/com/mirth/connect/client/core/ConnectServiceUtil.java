@@ -28,9 +28,15 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -39,6 +45,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.notification.Notification;
+import com.mirth.connect.util.MirthSSLUtil;
 
 public class ConnectServiceUtil {
     private final static String URL_CONNECT_SERVER = "https://connect.mirthcorp.com";
@@ -50,7 +57,7 @@ public class ConnectServiceUtil {
     private final static int TIMEOUT = 10000;
     public final static Integer MILLIS_PER_DAY = 86400000;
 
-    public static void registerUser(String serverId, String mirthVersion, User user) throws ClientException {
+    public static void registerUser(String serverId, String mirthVersion, User user, String[] protocols, String[] cipherSuites) throws ClientException {
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
         NameValuePair[] params = { new BasicNameValuePair("serverId", serverId),
@@ -65,7 +72,7 @@ public class ConnectServiceUtil {
         try {
             HttpClientContext postContext = HttpClientContext.create();
             postContext.setRequestConfig(requestConfig);
-            httpClient = HttpClients.createDefault();
+            httpClient = getClient(protocols, cipherSuites);
             httpResponse = httpClient.execute(post, postContext);
             StatusLine statusLine = httpResponse.getStatusLine();
             int statusCode = statusLine.getStatusCode();
@@ -80,7 +87,7 @@ public class ConnectServiceUtil {
         }
     }
 
-    public static List<Notification> getNotifications(String serverId, String mirthVersion, Map<String, String> extensionVersions) throws Exception {
+    public static List<Notification> getNotifications(String serverId, String mirthVersion, Map<String, String> extensionVersions, String[] protocols, String[] cipherSuites) throws Exception {
         CloseableHttpClient client = null;
         HttpPost post = new HttpPost();
         CloseableHttpResponse response = null;
@@ -101,7 +108,7 @@ public class ConnectServiceUtil {
 
             HttpClientContext postContext = HttpClientContext.create();
             postContext.setRequestConfig(requestConfig);
-            client = HttpClients.createDefault();
+            client = getClient(protocols, cipherSuites);
             response = client.execute(post, postContext);
             StatusLine statusLine = response.getStatusLine();
             int statusCode = statusLine.getStatusCode();
@@ -138,7 +145,7 @@ public class ConnectServiceUtil {
         return allNotifications;
     }
 
-    public static int getNotificationCount(String serverId, String mirthVersion, Map<String, String> extensionVersions, Set<Integer> archivedNotifications) {
+    public static int getNotificationCount(String serverId, String mirthVersion, Map<String, String> extensionVersions, Set<Integer> archivedNotifications, String[] protocols, String[] cipherSuites) {
         CloseableHttpClient client = null;
         HttpPost post = new HttpPost();
         CloseableHttpResponse response = null;
@@ -159,7 +166,7 @@ public class ConnectServiceUtil {
 
             HttpClientContext postContext = HttpClientContext.create();
             postContext.setRequestConfig(requestConfig);
-            client = HttpClients.createDefault();
+            client = getClient(protocols, cipherSuites);
             response = client.execute(post, postContext);
             StatusLine statusLine = response.getStatusLine();
             int statusCode = statusLine.getStatusCode();
@@ -188,7 +195,7 @@ public class ConnectServiceUtil {
         return notificationCount;
     }
 
-    public static boolean sendStatistics(String serverId, String mirthVersion, boolean server, String data) {
+    public static boolean sendStatistics(String serverId, String mirthVersion, boolean server, String data, String[] protocols, String[] cipherSuites) {
         if (data == null) {
             return false;
         }
@@ -210,7 +217,7 @@ public class ConnectServiceUtil {
         try {
             HttpClientContext postContext = HttpClientContext.create();
             postContext.setRequestConfig(requestConfig);
-            client = HttpClients.createDefault();
+            client = getClient(protocols, cipherSuites);
             response = client.execute(post, postContext);
             StatusLine statusLine = response.getStatusLine();
             int statusCode = statusLine.getStatusCode();
@@ -223,5 +230,17 @@ public class ConnectServiceUtil {
             HttpClientUtils.closeQuietly(client);
         }
         return isSent;
+    }
+
+    private static CloseableHttpClient getClient(String[] protocols, String[] cipherSuites) {
+        RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create();
+        String[] enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(protocols);
+        String[] enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(cipherSuites);
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), enabledProtocols, enabledCipherSuites, SSLConnectionSocketFactory.STRICT_HOSTNAME_VERIFIER);
+        socketFactoryRegistry.register("https", sslConnectionSocketFactory);
+
+        BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
+        httpClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(TIMEOUT).build());
+        return HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
     }
 }

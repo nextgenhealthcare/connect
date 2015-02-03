@@ -465,7 +465,7 @@ public class LoginPanel extends javax.swing.JFrame {
                                     archivedNotifications = ObjectXMLSerializer.getInstance().deserialize(archivedNotificationString, Set.class);
                                 }
                                 // Update the Other Tasks pane with the unarchived notification count
-                                int unarchivedNotifications = ConnectServiceUtil.getNotificationCount(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, LoadedExtensions.getInstance().getExtensionVersions(), archivedNotifications);
+                                int unarchivedNotifications = ConnectServiceUtil.getNotificationCount(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, LoadedExtensions.getInstance().getExtensionVersions(), archivedNotifications, PlatformUI.HTTPS_PROTOCOLS, PlatformUI.HTTPS_CIPHER_SUITES);
                                 PlatformUI.MIRTH_FRAME.updateNotificationTaskName(unarchivedNotifications);
 
                                 // Display notification dialog if enabled and if there are new notifications
