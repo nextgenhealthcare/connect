@@ -11,7 +11,6 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.io.UnsupportedEncodingException;
 
 import javax.swing.Icon;
 import javax.swing.UIManager;
@@ -40,7 +39,7 @@ public class ErrorDialog extends MirthDialog {
         questionPane.setBorder(null);
         try {
             message = java.net.URLDecoder.decode(message, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
         }
         loadContent(message);
         errorContent.setCaretPosition(0);

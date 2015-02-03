@@ -243,7 +243,7 @@ public class MessageImportDialog extends MirthDialog {
         } catch (Exception e) {
             setCursor(Cursor.getDefaultCursor());
             Throwable cause = (e.getCause() == null) ? e : e.getCause();
-            parent.alertException(parent, cause.getStackTrace(), cause.getMessage());
+            parent.alertThrowable(parent, cause);
         }
     }
 

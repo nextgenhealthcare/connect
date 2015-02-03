@@ -230,7 +230,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         try {
             result = invokeRemoteMethod("getTemplates", null);
         } catch (Exception e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(parent, e);
         }
 
         if (result != null && result instanceof Map) {
@@ -684,7 +684,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         try {
             invokeRemoteMethod("saveTemplate", new Object[] { templateName, template });
         } catch (Exception e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(parent, e);
             return;
         }
 
@@ -702,7 +702,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         try {
             invokeRemoteMethod("deleteTemplate", templateName);
         } catch (Exception e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(parent, e);
             return;
         }
 

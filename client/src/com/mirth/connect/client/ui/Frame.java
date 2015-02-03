@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -71,6 +72,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.log4j.Logger;
 import org.fife.rsta.ac.LanguageSupportFactory;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -485,7 +487,7 @@ public class Frame extends JXFrame {
             loadedPlugins = mirthClient.getPluginMetaData();
             loadedConnectors = mirthClient.getConnectorMetaData();
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), "Unable to load extensions");
+            alertThrowable(this, e, "Unable to load extensions");
         }
     }
 
@@ -1160,14 +1162,22 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
-    public void alertException(Component parentComponent, StackTraceElement[] strace, String message) {
-        alertException(parentComponent, strace, message, null);
+
+    public void alertThrowable(Component parentComponent, Throwable t) {
+        alertThrowable(parentComponent, t, null);
     }
 
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
-    public void alertException(Component parentComponent, StackTraceElement[] strace, String message, String safeErrorKey) {
+    public void alertThrowable(Component parentComponent, Throwable t, String customMessage) {
+        alertThrowable(parentComponent, t, customMessage, null);
+    }
+
+    /**
+     * Alerts the user with an exception dialog with the passed in stack trace.
+     */
+    public void alertThrowable(Component parentComponent, Throwable t, String customMessage, String safeErrorKey) {
         if (connectionError) {
             return;
         }
@@ -1181,61 +1191,78 @@ public class Frame extends JXFrame {
         }
 
         parentComponent = getVisibleComponent(parentComponent);
+        String message = StringUtils.trimToEmpty(customMessage);
 
-        if (message != null) {
-            if (message.indexOf("Received close_notify during handshake") != -1) {
-                return;
+        if (t != null) {
+            if (t instanceof ExecutionException && t.getCause() != null) {
+                t = t.getCause();
             }
 
-            if (message.indexOf("Forbidden") != -1 || message.indexOf("reset") != -1) {
-                connectionError = true;
-                statusUpdaterExecutor.shutdownNow();
+            if (StringUtils.isBlank(message) && StringUtils.isNotBlank(t.getMessage())) {
+                message = t.getMessage();
+            }
 
-                alertWarning(parentComponent, "Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
-                if (!exportChannelOnError()) {
+            /*
+             * Logout if an exception occurs that indicates the server is no longer running or
+             * accessible. We only want to do this if a ClientException was passed in, indicating it
+             * was actually due to a request to the server. Other places in the application could
+             * call this method with an exception that happens to contain the string
+             * "Connection reset", for example.
+             */
+            if (t instanceof ClientException) {
+                if (StringUtils.contains(t.getMessage(), "Received close_notify during handshake")) {
                     return;
-                }
-                mirthClient.cleanup();
-                this.dispose();
-                LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
-                return;
-            } else if (message.startsWith("org.apache.http.conn.HttpHostConnectException") && message.indexOf("Connection refused") != -1) {
-                connectionError = true;
-                statusUpdaterExecutor.shutdownNow();
+                } else if (StringUtils.contains(t.getMessage(), "Forbidden") || StringUtils.contains(t.getMessage(), "reset")) {
+                    connectionError = true;
+                    statusUpdaterExecutor.shutdownNow();
 
-                String server;
-                if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
-                    server = PlatformUI.SERVER_NAME + "(" + PlatformUI.SERVER_URL + ")";
-                } else {
-                    server = PlatformUI.SERVER_URL;
-                }
-                alertWarning(parentComponent, "The Mirth Connect server " + server + " is no longer running.  Please start it and log in again.");
-                if (!exportChannelOnError()) {
+                    alertWarning(parentComponent, "Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
+                    if (!exportChannelOnError()) {
+                        return;
+                    }
+                    mirthClient.cleanup();
+                    this.dispose();
+                    LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
                     return;
+                } else if (t.getCause() != null && t.getCause() instanceof HttpHostConnectException && StringUtils.contains(t.getCause().getMessage(), "Connection refused")) {
+                    connectionError = true;
+                    statusUpdaterExecutor.shutdownNow();
+
+                    String server;
+                    if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
+                        server = PlatformUI.SERVER_NAME + "(" + PlatformUI.SERVER_URL + ")";
+                    } else {
+                        server = PlatformUI.SERVER_URL;
+                    }
+                    alertWarning(parentComponent, "The Mirth Connect server " + server + " is no longer running.  Please start it and log in again.");
+                    if (!exportChannelOnError()) {
+                        return;
+                    }
+                    mirthClient.cleanup();
+                    this.dispose();
+                    LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
+                    return;
+                } else if (t.getCause() != null && t.getCause() instanceof UnauthorizedException) {
+                    message = "You are not authorized to peform this action.\n\n" + message;
                 }
-                mirthClient.cleanup();
-                this.dispose();
-                LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
-                return;
-            } else if (message.startsWith("com.mirth.connect.client.core.UnauthorizedException")) {
-                message = "You are not authorized to peform this action.\n\n" + message;
+            }
+
+            for (StackTraceElement element : t.getStackTrace()) {
+                if (StringUtils.isNotEmpty(message)) {
+                    message += '\n';
+                }
+                message += element.toString();
             }
         }
 
-        String stackTrace = (message == null ? "" : message + "\n");
-
-        for (int i = 0; i < strace.length; i++) {
-            stackTrace += strace[i].toString() + "\n";
-        }
-
-        logger.error(stackTrace);
+        logger.error(message);
 
         Window owner = getWindowForComponent(parentComponent);
 
         if (owner instanceof java.awt.Frame) {
-            new ErrorDialog((java.awt.Frame) owner, stackTrace);
+            new ErrorDialog((java.awt.Frame) owner, message);
         } else { // window instanceof Dialog
-            new ErrorDialog((java.awt.Dialog) owner, stackTrace);
+            new ErrorDialog((java.awt.Dialog) owner, message);
         }
     }
 
@@ -1447,7 +1474,7 @@ public class Frame extends JXFrame {
                 if (e.getMessage() != null && e.getMessage().contains("username must be unique")) {
                     alertWarning(parentComponent, "This username already exists. Please choose another one.");
                 } else {
-                    alertException(parentComponent, e.getStackTrace(), e.getMessage());
+                    alertThrowable(parentComponent, e);
                 }
 
                 return false;
@@ -1470,7 +1497,7 @@ public class Frame extends JXFrame {
                     checkOrUpdateUserPassword(parentComponent, newUser, newPassword);
                 }
             } catch (ClientException e) {
-                alertException(parentComponent, e.getStackTrace(), e.getMessage());
+                alertThrowable(parentComponent, e);
             } finally {
                 // The userPanel will be null if the user panel has not been viewed (i.e. registration).
                 if (userPanel != null) {
@@ -1520,7 +1547,7 @@ public class Frame extends JXFrame {
                 if (e.getMessage() != null && e.getMessage().contains("username must be unique")) {
                     alertWarning(parentComponent, "This username already exists. Please choose another one.");
                 } else {
-                    alertException(parentComponent, e.getStackTrace(), e.getMessage());
+                    alertThrowable(parentComponent, e);
                 }
 
                 return false;
@@ -1529,7 +1556,7 @@ public class Frame extends JXFrame {
             try {
                 retrieveUsers();
             } catch (ClientException e) {
-                alertException(parentComponent, e.getStackTrace(), e.getMessage());
+                alertThrowable(parentComponent, e);
             } finally {
                 // The userPanel will be null if the user panel has not been viewed (i.e. registration).
                 if (userPanel != null) {
@@ -1550,7 +1577,7 @@ public class Frame extends JXFrame {
                 mirthClient.login(currentUser.getUsername(), newPassword, PlatformUI.CLIENT_VERSION);
                 PlatformUI.USER_NAME = currentUser.getUsername();
             } catch (ClientException e) {
-                alertException(parentComponent, e.getStackTrace(), e.getMessage());
+                alertThrowable(parentComponent, e);
             } finally {
                 stopWorking(workingId2);
             }
@@ -1571,7 +1598,7 @@ public class Frame extends JXFrame {
                 return false;
             }
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            alertThrowable(this, e);
             return false;
         }
 
@@ -1589,7 +1616,7 @@ public class Frame extends JXFrame {
                 }
             }
         } catch (ClientException e) {
-            alertException(parentComponent, e.getStackTrace(), e.getMessage());
+            alertThrowable(parentComponent, e);
         }
 
         return currentUser;
@@ -1937,7 +1964,7 @@ public class Frame extends JXFrame {
                 LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
             }
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            alertThrowable(this, e);
         }
 
         return true;
@@ -1968,7 +1995,7 @@ public class Frame extends JXFrame {
         try {
             channel.setId(mirthClient.getGuid());
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            alertThrowable(this, e);
         }
 
         channel.setName("");
@@ -1994,12 +2021,12 @@ public class Frame extends JXFrame {
                 if (channel instanceof InvalidChannel) {
                     InvalidChannel invalidChannel = (InvalidChannel) channel;
                     Throwable cause = invalidChannel.getCause();
-                    alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be edited. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
+                    alertThrowable(this, cause, "Channel \"" + channel.getName() + "\" is invalid and cannot be edited. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
                 } else {
                     editChannel((Channel) SerializationUtils.clone(channel));
                 }
             } catch (SerializationException e) {
-                alertException(this, e.getStackTrace(), e.getMessage());
+                alertThrowable(this, e);
             }
         }
         isEditingChannel = false;
@@ -2161,7 +2188,7 @@ public class Frame extends JXFrame {
 
                 globalScriptsPanel.importAllScripts(importScripts);
             } catch (Exception e) {
-                alertException(this, e.getStackTrace(), "Invalid scripts file. " + e.getMessage());
+                alertThrowable(this, e, "Invalid scripts file. " + e.getMessage());
             }
         }
     }
@@ -2242,7 +2269,7 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.removeChannels(channelIds);
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
 
                 return null;
@@ -2312,7 +2339,7 @@ public class Frame extends JXFrame {
         try {
             updateChannelStatuses(mirthClient.getChannelSummary(getChannelHeaders()));
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            alertThrowable(this, e);
         }
     }
 
@@ -2415,7 +2442,7 @@ public class Frame extends JXFrame {
                     }
                 } catch (ClientException e) {
                     status = null;
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage(), TaskConstants.DASHBOARD_REFRESH);
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e, e.getMessage(), TaskConstants.DASHBOARD_REFRESH);
                 }
 
                 return null;
@@ -2472,7 +2499,7 @@ public class Frame extends JXFrame {
                         mirthClient.resumeChannels(resumeChannelIds);
                     }
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
 
                 return null;
@@ -2508,7 +2535,7 @@ public class Frame extends JXFrame {
                         mirthClient.stopChannels(channelIds);
                     }
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
 
                 return null;
@@ -2545,7 +2572,7 @@ public class Frame extends JXFrame {
                         mirthClient.haltChannels(channelIds);
                     }
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
 
                 return null;
@@ -2582,7 +2609,7 @@ public class Frame extends JXFrame {
                         mirthClient.pauseChannels(channelIds);
                     }
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -2626,7 +2653,7 @@ public class Frame extends JXFrame {
                         mirthClient.startConnectors(connectorInfo);
                     }
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
 
                 return null;
@@ -2680,7 +2707,7 @@ public class Frame extends JXFrame {
                         mirthClient.stopConnectors(connectorInfo);
                     }
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
 
                 return null;
@@ -2765,7 +2792,7 @@ public class Frame extends JXFrame {
                     try {
                         mirthClient.setChannelEnabled(channelIds, true);
                     } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
                     }
                     return null;
                 }
@@ -2786,7 +2813,7 @@ public class Frame extends JXFrame {
                 if (channel instanceof InvalidChannel) {
                     InvalidChannel invalidChannel = (InvalidChannel) channel;
                     Throwable cause = invalidChannel.getCause();
-                    alertException(this, cause.getStackTrace(), "Channel \"" + invalidChannel.getName() + "\" is invalid and cannot be enabled. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
+                    alertThrowable(this, cause, "Channel \"" + invalidChannel.getName() + "\" is invalid and cannot be enabled. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
                 } else {
                     alertCustomError(this, firstValidationMessage, CustomErrorDialog.ERROR_ENABLING_CHANNEL);
                 }
@@ -2824,7 +2851,7 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.setChannelEnabled(channelIds, false);
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -2875,7 +2902,7 @@ public class Frame extends JXFrame {
                         retrieveUsers();
                     }
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -2929,7 +2956,7 @@ public class Frame extends JXFrame {
                 }
             }
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            alertThrowable(this, e);
         }
 
         // as long as the channel was not deleted
@@ -2953,7 +2980,7 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.redeployAllChannels();
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -3038,7 +3065,7 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.deployChannels(selectedChannelIds);
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -3076,7 +3103,7 @@ public class Frame extends JXFrame {
 
                     mirthClient.undeployChannels(channelIds);
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -3175,7 +3202,7 @@ public class Frame extends JXFrame {
                     connectors = mirthClient.getConnectorNames(channelId);
                     metaDataColumns = mirthClient.getMetaDataColumns(channelId);
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -3280,7 +3307,7 @@ public class Frame extends JXFrame {
             importChannel = ObjectXMLSerializer.getInstance().deserialize(content, Channel.class);
         } catch (Exception e) {
             if (showAlerts) {
-                alertException(this, e.getStackTrace(), "Invalid channel file:\n" + e.getMessage());
+                alertThrowable(this, e, "Invalid channel file:\n" + e.getMessage());
             }
 
             return;
@@ -3331,7 +3358,7 @@ public class Frame extends JXFrame {
             channelStatuses.put(importChannel.getId(), new ChannelStatus(importChannel));
             updateChannelTags(false);
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            alertThrowable(this, e);
         }
 
         /*
@@ -3345,12 +3372,12 @@ public class Frame extends JXFrame {
                 if (importChannel instanceof InvalidChannel && showAlerts) {
                     InvalidChannel invalidChannel = (InvalidChannel) importChannel;
                     Throwable cause = invalidChannel.getCause();
-                    alertException(this, cause.getStackTrace(), "Channel \"" + importChannel.getName() + "\" is invalid. " + getMissingExtensions(invalidChannel) + " Original cause:\n" + cause.getMessage());
+                    alertThrowable(this, cause, "Channel \"" + importChannel.getName() + "\" is invalid. " + getMissingExtensions(invalidChannel) + " Original cause:\n" + cause.getMessage());
                 }
             } catch (Exception e) {
                 channelStatuses.remove(importChannel.getId());
                 updateChannelTags(false);
-                alertException(this, e.getStackTrace(), e.getMessage());
+                alertThrowable(this, e);
                 return;
             } finally {
                 doRefreshChannels();
@@ -3625,7 +3652,7 @@ public class Frame extends JXFrame {
             try {
                 channelEditPanel.importConnector(ObjectXMLSerializer.getInstance().deserialize(content, Connector.class));
             } catch (Exception e) {
-                alertException(this, e.getStackTrace(), e.getMessage());
+                alertThrowable(this, e);
             }
         }
     }
@@ -3670,14 +3697,14 @@ public class Frame extends JXFrame {
         if (channel instanceof InvalidChannel) {
             InvalidChannel invalidChannel = (InvalidChannel) channel;
             Throwable cause = invalidChannel.getCause();
-            alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be cloned. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
+            alertThrowable(this, cause, "Channel \"" + channel.getName() + "\" is invalid and cannot be cloned. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
             return;
         }
 
         try {
             channel = (Channel) SerializationUtils.clone(channel);
         } catch (SerializationException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            alertThrowable(this, e);
             return;
         }
 
@@ -3685,7 +3712,7 @@ public class Frame extends JXFrame {
             channel.setRevision(0);
             channel.setId(mirthClient.getGuid());
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            alertThrowable(this, e);
         }
 
         String channelName = channel.getName();
@@ -3812,7 +3839,7 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.clearStatistics(channelConnectorMapFinal, deleteReceived, deleteFiltered, deleteSent, deleteErrored);
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -3839,7 +3866,7 @@ public class Frame extends JXFrame {
                         if (e.getCause() instanceof RequestAbortedException) {
                             // The client is no longer waiting for the delete request
                         } else {
-                            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                            alertThrowable(PlatformUI.MIRTH_FRAME, e);
                         }
                     }
                     return null;
@@ -3879,7 +3906,7 @@ public class Frame extends JXFrame {
                         filter.setIncludedMetaDataIds(metaDataIds);
                         mirthClient.removeMessages(channelId, filter);
                     } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
                     }
                     return null;
                 }
@@ -3946,7 +3973,7 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds);
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -3996,7 +4023,7 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.processMessage(channelId, rawMessage);
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -4039,7 +4066,7 @@ public class Frame extends JXFrame {
                         mirthClient.removeAllEvents();
                     }
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -4070,7 +4097,7 @@ public class Frame extends JXFrame {
                     try {
                         exportPath = mirthClient.exportAllEvents();
                     } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
                     }
                     return null;
                 }
@@ -4103,7 +4130,7 @@ public class Frame extends JXFrame {
                 try {
                     alertStatusList = mirthClient.getAlertStatusList();
                 } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 return null;
             }
@@ -4126,7 +4153,7 @@ public class Frame extends JXFrame {
                 }
             } catch (ClientException e) {
                 if (!(e.getCause() instanceof UnauthorizedException)) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
             }
 
@@ -4167,7 +4194,7 @@ public class Frame extends JXFrame {
                     try {
                         mirthClient.removeAlert(alertId);
                     } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
                         return null;
                     }
                 }
@@ -4214,7 +4241,7 @@ public class Frame extends JXFrame {
                     editAlert(alertInfo.getModel(), alertInfo.getProtocolOptions());
                 }
             } catch (ClientException e) {
-                alertException(this, e.getStackTrace(), e.getMessage());
+                alertThrowable(this, e);
             }
         }
         isEditingAlert = false;
@@ -4232,7 +4259,7 @@ public class Frame extends JXFrame {
                     try {
                         mirthClient.enableAlert(alertId);
                     } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
                         return null;
                     }
                 }
@@ -4261,7 +4288,7 @@ public class Frame extends JXFrame {
                     try {
                         mirthClient.disableAlert(alertId);
                     } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
                         return null;
                     }
                 }
@@ -4312,7 +4339,7 @@ public class Frame extends JXFrame {
         try {
             alerts = mirthClient.getAlert(selectedAlertIds.get(0));
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            alertThrowable(this, e);
             return;
         }
 
@@ -4351,7 +4378,7 @@ public class Frame extends JXFrame {
                 try {
                     alerts = mirthClient.getAlert(null);
                 } catch (ClientException e) {
-                    alertException(this, e.getStackTrace(), e.getMessage());
+                    alertThrowable(this, e);
                     return;
                 }
 
@@ -4392,7 +4419,7 @@ public class Frame extends JXFrame {
             alertList = (List<AlertModel>) serializer.deserializeList(alertXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"), AlertModel.class);
         } catch (Exception e) {
             if (showAlerts) {
-                alertException(this, e.getStackTrace(), "Invalid alert file:\n" + e.getMessage());
+                alertThrowable(this, e, "Invalid alert file:\n" + e.getMessage());
             }
             return;
         }
@@ -4430,7 +4457,7 @@ public class Frame extends JXFrame {
 
                 mirthClient.updateAlert(importAlert);
             } catch (Exception e) {
-                alertException(this, e.getStackTrace(), "Error importing alert:\n" + e.getMessage());
+                alertThrowable(this, e, "Error importing alert:\n" + e.getMessage());
             }
         }
 
@@ -4491,7 +4518,7 @@ public class Frame extends JXFrame {
             if (e.getCause() instanceof UnauthorizedException && codeTemplates == null) {
                 codeTemplates = new ArrayList<CodeTemplate>();
             } else {
-                alertException(this, e.getStackTrace(), e.getMessage());
+                alertThrowable(this, e);
             }
         }
 
@@ -4531,7 +4558,7 @@ public class Frame extends JXFrame {
             ReferenceListFactory.getInstance().updateUserCodeTemplates();
             setSaveEnabled(false);
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            alertThrowable(this, e);
             return false;
         }
         return true;
@@ -4634,7 +4661,7 @@ public class Frame extends JXFrame {
                     codeTemplatePanel.updateCodeTemplateTable();
                 }
             } catch (Exception e) {
-                alertException(this, e.getStackTrace(), "Invalid code template file: " + e.getMessage());
+                alertThrowable(this, e, "Invalid code template file: " + e.getMessage());
             }
         }
     }
@@ -4666,7 +4693,7 @@ public class Frame extends JXFrame {
                     mirthClient.setExtensionEnabled(extensionsPanel.getSelectedExtension().getName(), true);
                 } catch (ClientException e) {
                     success = false;
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
 
                 return null;
@@ -4695,7 +4722,7 @@ public class Frame extends JXFrame {
                     mirthClient.setExtensionEnabled(extensionsPanel.getSelectedExtension().getName(), false);
                 } catch (ClientException e) {
                     success = false;
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
 
                 return null;
@@ -4731,7 +4758,7 @@ public class Frame extends JXFrame {
                         mirthClient.uninstallExtension(packageName);
                     } catch (ClientException e) {
                         success = false;
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
                     }
                 }
 
@@ -4770,7 +4797,7 @@ public class Frame extends JXFrame {
             if (messageIndex != -1) {
                 alertError(this, errorMessage.substring(messageIndex + versionError.length()));
             } else {
-                alertException(this, e.getStackTrace(), "Unable to install extension: " + errorMessage);
+                alertThrowable(this, e, "Unable to install extension: " + errorMessage);
             }
 
             return false;

@@ -75,7 +75,7 @@ public class AlertActionPane extends JPanel {
         try {
             updateProtocols(PlatformUI.MIRTH_FRAME.mirthClient.getAlertProtocolOptions());
         } catch (ClientException e) {
-            PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), "An error occurred while attempting to initialize the alert editor.");
+            PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, "An error occurred while attempting to initialize the alert editor.");
         }
 
         makeActionTable();
@@ -433,7 +433,7 @@ public class AlertActionPane extends JPanel {
 
             @Override
             public void changedUpdate(DocumentEvent e) {}
-            
+
         });
 
         subjectPane = new JPanel();
@@ -457,9 +457,9 @@ public class AlertActionPane extends JPanel {
 
             @Override
             public void changedUpdate(DocumentEvent e) {}
-            
+
         });
-        
+
         templateScrollPane = new JScrollPane(templateTextArea);
         templateScrollPane.setBackground(UIConstants.BACKGROUND_COLOR);
 

@@ -96,7 +96,7 @@ public class DirectoryResourcePropertiesPanel extends ResourcePropertiesPanel {
                     if (t instanceof ExecutionException) {
                         t = t.getCause();
                     }
-                    PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, t.getStackTrace(), "Error loading libraries: " + t.toString());
+                    PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, t, "Error loading libraries: " + t.toString());
                 } finally {
                     PlatformUI.MIRTH_FRAME.stopWorking(workingId);
                 }

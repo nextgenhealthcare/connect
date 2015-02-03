@@ -477,7 +477,7 @@ public class LoginPanel extends javax.swing.JFrame {
                                 }
                             }
                         } catch (ClientException e) {
-                            PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                            PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e);
                         }
 
                         PlatformUI.MIRTH_FRAME.sendUsageStatistics();

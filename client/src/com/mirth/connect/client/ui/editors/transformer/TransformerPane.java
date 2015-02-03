@@ -561,7 +561,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                         updateTaskPane(selectedType);
                         updateCodePanel(selectedType);
                     } catch (Exception e) {
-                        parent.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        parent.alertThrowable(PlatformUI.MIRTH_FRAME, e);
                     }
                 }
             }
@@ -744,7 +744,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 List<Step> list = buildStepList(new ArrayList<Step>(), transformerTable.getRowCount());
                 transformer.setSteps(list);
             } catch (Exception e) {
-                parent.alertException(this, e.getStackTrace(), e.getMessage());
+                parent.alertThrowable(this, e);
             }
         }
     }
@@ -778,7 +778,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             plugin = getPlugin(type);
             plugin.setData(data);
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
     }
 
@@ -827,7 +827,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             }
             updating = false;
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
     }
 
@@ -848,7 +848,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         try {
             plugin = getPlugin(type);
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
             return;
         }
 
@@ -1050,7 +1050,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 parent.alertInformation(this, validationMessage);
             }
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
     }
 
@@ -1065,7 +1065,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             TransformerStepPlugin stepPlugin = getPlugin(step.getType());
             return stepPlugin.doValidate((Map<Object, Object>) step.getData());
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
             return "Exception occurred during validation.";
         }
     }
@@ -1127,7 +1127,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             try {
                 step.setScript(getPlugin(step.getType()).getScript(map));
             } catch (Exception e) {
-                parent.alertException(this, e.getStackTrace(), e.getMessage());
+                parent.alertThrowable(this, e);
             }
             list.add(step);
         }
@@ -1311,7 +1311,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, false);
             }
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
     }
 

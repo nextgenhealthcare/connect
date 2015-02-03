@@ -151,7 +151,7 @@ public class ServerLogClient extends DashboardTabPlugin {
             // either way, the sessionId is gone.
             PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethodAsync(SERVER_LOG_SERVICE_PLUGINPOINT, REMOVE_SESSIONID, null);
         } catch (ClientException e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(parent, e);
         }
     }
 

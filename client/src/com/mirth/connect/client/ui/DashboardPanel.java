@@ -161,7 +161,7 @@ public class DashboardPanel extends javax.swing.JPanel {
                         plugin.prepareData();
                     }
                 } catch (ClientException e) {
-                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                    parent.alertThrowable(parent, e);
                 }
                 return null;
             }

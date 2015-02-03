@@ -100,7 +100,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
                     if (t instanceof ExecutionException) {
                         t = t.getCause();
                     }
-                    getFrame().alertException(getFrame(), t.getStackTrace(), "Error loading database tasks: " + t.toString());
+                    getFrame().alertThrowable(getFrame(), t, "Error loading database tasks: " + t.toString());
                 } finally {
                     getFrame().stopWorking(workingId);
                 }
@@ -142,7 +142,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
                     if (t instanceof ExecutionException) {
                         t = t.getCause();
                     }
-                    getFrame().alertException(getFrame(), t.getStackTrace(), "Error running database task: " + t.getMessage());
+                    getFrame().alertThrowable(getFrame(), t, "Error running database task: " + t.getMessage());
                 } finally {
                     getFrame().stopWorking(workingId);
                     doRefresh();
@@ -184,7 +184,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
                     if (t instanceof ExecutionException) {
                         t = t.getCause();
                     }
-                    getFrame().alertException(getFrame(), t.getStackTrace(), "Error cancelling database task: " + t.getMessage());
+                    getFrame().alertThrowable(getFrame(), t, "Error cancelling database task: " + t.getMessage());
                 } finally {
                     getFrame().stopWorking(workingId);
                     doRefresh();

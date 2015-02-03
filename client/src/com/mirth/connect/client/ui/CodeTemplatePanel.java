@@ -373,7 +373,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         try {
             codeTemplate.setId(parent.mirthClient.getGuid());
         } catch (ClientException e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
 
         codeTemplate.setName(getNewCodeTemplateName(model.getRowCount() + 1));

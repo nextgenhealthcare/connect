@@ -55,7 +55,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         try {
             drivers = this.parent.mirthClient.getDatabaseDrivers();
         } catch (ClientException e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
 
         initComponents();

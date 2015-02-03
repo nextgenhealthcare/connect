@@ -146,7 +146,7 @@ public class RemoveMessagesDialog extends MirthDialog {
                 try {
                     parent.mirthClient.clearMessages(channelIds, includeRunningChannels.isSelected(), clearStatsCheckBox.isSelected());
                 } catch (ClientException e) {
-                    parent.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    parent.alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
                 
                 return null;

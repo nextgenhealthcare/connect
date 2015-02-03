@@ -1035,7 +1035,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
 
                     return null;
                 } catch (Exception e) {
-                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                    parent.alertThrowable(parent, e);
                     return null;
                 }
             }

@@ -100,7 +100,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                         serverProperties.putAll(propertiesFromServer);
                     }
                 } catch (Exception e) {
-                    getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                    getFrame().alertThrowable(getFrame(), e);
                 }
                 return null;
             }
@@ -148,7 +148,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                 try {
                     plugin.setPropertiesToServer(getProperties());
                 } catch (Exception e) {
-                    getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                    getFrame().alertThrowable(getFrame(), e);
                 }
                 return null;
             }
@@ -195,7 +195,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                     try {
                         plugin.setPropertiesToServer(getProperties());
                     } catch (Exception e) {
-                        getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                        getFrame().alertThrowable(getFrame(), e);
                         return null;
                     }
                 }
@@ -203,7 +203,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                 try {
                     parent.mirthClient.invokePluginMethod(plugin.getPluginName(), "start", null);
                 } catch (Exception e) {
-                    parent.alertException(parent, e.getStackTrace(), "An error occurred while attempting to start the data pruner.");
+                    parent.alertThrowable(parent, e, "An error occurred while attempting to start the data pruner.");
                     return null;
                 }
 
@@ -234,7 +234,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                 try {
                     parent.mirthClient.invokePluginMethod(plugin.getPluginName(), "stop", null);
                 } catch (Exception e) {
-                    parent.alertException(parent, e.getStackTrace(), "An error occurred while attempting to stop the data pruner.");
+                    parent.alertThrowable(parent, e, "An error occurred while attempting to stop the data pruner.");
                     return null;
                 }
 
@@ -389,7 +389,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                     nextProcessTextLabel.setText("");
                     setStartTaskVisible(false);
                     setStopTaskVisible(false);
-                    parent.alertException(parent, e.getStackTrace(), "An error occurred while attempting to retrieve the status of the data pruner.");
+                    parent.alertThrowable(parent, e, "An error occurred while attempting to retrieve the status of the data pruner.");
                 }
 
                 return null;

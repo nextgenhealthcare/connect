@@ -372,7 +372,7 @@ public class NotificationDialog extends MirthDialog {
                     try {
                         parent.mirthClient.setUserPreferences(parent.getCurrentUser(parent), personPreferences);
                     } catch (ClientException e) {
-                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                        parent.alertThrowable(parent, e);
                     }
                     return null;
                 }

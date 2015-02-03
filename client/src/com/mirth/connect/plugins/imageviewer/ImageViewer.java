@@ -113,7 +113,7 @@ public class ImageViewer extends AttachmentViewer {
 
             frame.setVisible(true);
         } catch (Exception e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(parent, e);
         }
     }
 
@@ -123,16 +123,13 @@ public class ImageViewer extends AttachmentViewer {
     }
 
     @Override
-    public void start() {
-    }
+    public void start() {}
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
     public String getPluginPointName() {

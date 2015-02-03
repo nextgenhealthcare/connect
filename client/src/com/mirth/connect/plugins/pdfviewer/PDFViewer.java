@@ -40,15 +40,15 @@ public class PDFViewer extends AttachmentViewer {
 
             File temp = File.createTempFile(attachment.getId(), ".pdf");
             temp.deleteOnExit();
-            
+
             OutputStream out = new FileOutputStream(temp);
             IOUtils.copy(in, out);
             out.close();
-            
+
             new MirthPDFViewer(true, temp);
-            
+
         } catch (Exception e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(parent, e);
         }
     }
 
@@ -58,16 +58,13 @@ public class PDFViewer extends AttachmentViewer {
     }
 
     @Override
-    public void start() {
-    }
+    public void start() {}
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
     public String getPluginPointName() {

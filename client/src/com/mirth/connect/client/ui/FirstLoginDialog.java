@@ -220,7 +220,7 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         	User currentUser = parent.getCurrentUser(parent);
             parent.mirthClient.setUserPreference(currentUser, "firstlogin", "false");
         } catch (ClientException e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
 
         this.dispose();

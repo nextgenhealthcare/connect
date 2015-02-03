@@ -127,7 +127,7 @@ public class LoadedExtensions {
                     }
                 }
             } catch (Exception e) {
-                PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e);
             }
         }
 
@@ -149,10 +149,10 @@ public class LoadedExtensions {
                     }
                 }
             } catch (Exception e) {
-                PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), "Could not load code template plugin: " + metaData.getTemplateClassName());
+                PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, "Could not load code template plugin: " + metaData.getTemplateClassName());
             }
         }
-        
+
         // Signal the reference list factory that code template plugins have been loaded
         ReferenceListFactory.getInstance().loadPluginReferences();
 
@@ -176,7 +176,7 @@ public class LoadedExtensions {
                         }
                     }
                 } catch (Exception e) {
-                    PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }
             }
         }
@@ -200,10 +200,10 @@ public class LoadedExtensions {
                     }
                 }
             } catch (Exception e) {
-                PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), "Could not load connector class: " + metaData.getClientClassName());
+                PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, "Could not load connector class: " + metaData.getClientClassName());
             }
         }
-        
+
         // Signal the reference list factory that all other plugins have been loaded
         ReferenceListFactory.getInstance().loadReferencesAfterPlugins();
     }
@@ -402,11 +402,11 @@ public class LoadedExtensions {
     public Map<String, LibraryClientPlugin> getLibraryClientPlugins() {
         return libraryClientPlugins;
     }
-    
+
     public Map<String, ChannelTabPlugin> getChannelTabPlugins() {
         return channelTabPlugins;
     }
-    
+
     public Map<String, TaskPlugin> getTaskPlugins() {
         return taskPlugins;
     }

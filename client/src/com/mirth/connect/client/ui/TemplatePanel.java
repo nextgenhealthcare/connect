@@ -392,7 +392,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
             parent.modified = true;
         } catch (Exception e) {
-            PlatformUI.MIRTH_FRAME.alertException(this, e.getStackTrace(), "Invalid template file. " + e.getMessage());
+            PlatformUI.MIRTH_FRAME.alertThrowable(this, e, "Invalid template file. " + e.getMessage());
         }
     }//GEN-LAST:event_openFileButtonActionPerformed
 

@@ -110,7 +110,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
             if (e.getCause() instanceof UnauthorizedException) {
                 currentStates = null;
             } else {
-                PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e);
             }
             // we can safely ignore this
             // e.printStackTrace();

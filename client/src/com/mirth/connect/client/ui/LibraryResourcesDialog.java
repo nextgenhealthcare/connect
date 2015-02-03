@@ -156,7 +156,7 @@ public class LibraryResourcesDialog extends MirthDialog implements ListSelection
                     if (t instanceof ExecutionException) {
                         t = t.getCause();
                     }
-                    PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, t.getStackTrace(), "Error loading library resources: " + t.toString());
+                    PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, t, "Error loading library resources: " + t.toString());
                 } finally {
                     PlatformUI.MIRTH_FRAME.stopWorking(workingId);
                 }

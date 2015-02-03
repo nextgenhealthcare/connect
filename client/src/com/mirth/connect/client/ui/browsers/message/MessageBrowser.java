@@ -538,7 +538,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 Long maxMessageId = parent.mirthClient.getMaxMessageId(channelId);
                 messageFilter.setMaxMessageId(maxMessageId);
             } catch (ClientException e) {
-                parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                parent.alertThrowable(parent, e);
                 return false;
             }
         }
@@ -778,7 +778,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     } else if (t.getCause() instanceof RequestAbortedException) {
                         // The client is no longer waiting for the search request
                     } else {
-                        parent.alertException(parent, t.getStackTrace(), t.getMessage());
+                        parent.alertThrowable(parent, t);
                     }
                     cancel(true);
                 }
@@ -1753,7 +1753,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                             } else if (t.getCause() instanceof RequestAbortedException) {
                                 // The client is no longer waiting for the message content request
                             } else {
-                                parent.alertException(parent, t.getStackTrace(), t.getMessage());
+                                parent.alertThrowable(parent, t);
                             }
                             this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                             return;
@@ -2931,7 +2931,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     if (e.getCause() instanceof RequestAbortedException) {
                         // The client is no longer waiting for the count request
                     } else {
-                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                        parent.alertThrowable(parent, e);
                     }
                     cancel(true);
                 }
@@ -2943,7 +2943,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 if (!isCancelled()) {
                     if (e != null) {
                         countButton.setEnabled(true);
-                        parent.alertException(messageBrowser, e.getStackTrace(), e.getMessage());
+                        parent.alertThrowable(messageBrowser, e);
                     } else {
                         updatePagination();
                         countButton.setEnabled(false);

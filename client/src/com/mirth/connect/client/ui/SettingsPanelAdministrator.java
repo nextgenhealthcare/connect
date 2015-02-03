@@ -131,7 +131,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                     try {
                         checkForNotifications = getFrame().mirthClient.getUserPreference(currentUser, "checkForNotifications");
                     } catch (ClientException e) {
-                        getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                        getFrame().alertThrowable(getFrame(), e);
                     }
                     return null;
                 }
@@ -203,7 +203,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                 try {
                     getFrame().mirthClient.setUserPreference(currentUser, "checkForNotifications", Boolean.toString(checkForNotificationsYesRadio.isSelected()));
                 } catch (ClientException e) {
-                    getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                    getFrame().alertThrowable(getFrame(), e);
                 }
 
                 return null;

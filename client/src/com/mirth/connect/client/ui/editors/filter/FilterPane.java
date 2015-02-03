@@ -559,7 +559,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                         updateTaskPane(selectedType);
                         updateCodePanel(selectedType);
                     } catch (Exception e) {
-                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                        parent.alertThrowable(parent, e);
                     }
 
                 }
@@ -727,7 +727,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                 List<Rule> list = buildRuleList(new ArrayList<Rule>(), filterTable.getRowCount());
                 filter.setRules(list);
             } catch (Exception e) {
-                parent.alertException(this, e.getStackTrace(), e.getMessage());
+                parent.alertThrowable(this, e);
             }
         }
 
@@ -760,7 +760,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             plugin = getPlugin(type);
             plugin.setData(data);
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
     }
 
@@ -790,7 +790,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             }
             updating = false;
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
     }
 
@@ -1076,7 +1076,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                 parent.alertInformation(this, validationMessage);
             }
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
     }
 
@@ -1091,7 +1091,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             FilterRulePlugin rulePlugin = getPlugin(rule.getType());
             return rulePlugin.doValidate((Map<Object, Object>) rule.getData());
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
             return "Exception occurred during validation.";
         }
     }
@@ -1116,7 +1116,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             try {
                 rule.setScript(getPlugin(rule.getType()).getScript(map));
             } catch (Exception e) {
-                parent.alertException(this, e.getStackTrace(), e.getMessage());
+                parent.alertThrowable(this, e);
             }
 
             list.add(rule);
@@ -1261,7 +1261,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                 parent.setVisibleTasks(filterTasks, filterPopupMenu, 4, 4, false);
             }
         } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
     }
 

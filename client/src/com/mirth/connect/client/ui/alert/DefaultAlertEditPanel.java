@@ -178,7 +178,7 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
             if (e.getMessage().contains("An alert with that name already exists.")) {
                 parent.alertWarning(parent, "Alert \"" + alertModel.getName() + "\" already exists.");
             } else {
-                parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
+                parent.alertThrowable(this.parent, e);
             }
         }
 

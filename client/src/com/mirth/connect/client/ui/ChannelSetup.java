@@ -680,7 +680,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         try {
             currentChannel.getProperties().setMetaDataColumns(parent.mirthClient.getServerSettings().getDefaultMetaDataColumns());
         } catch (ClientException e) {
-            parent.alertException(parent, e.getStackTrace(), "Error loading default metadata columns: " + e.getMessage());
+            parent.alertThrowable(parent, e, "Error loading default metadata columns: " + e.getMessage());
         }
         updateMetaDataTable();
 
@@ -1304,10 +1304,10 @@ public class ChannelSetup extends javax.swing.JPanel {
                 updateRevision();
                 updateLastModified();
             } catch (SerializationException e) {
-                parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
+                parent.alertThrowable(this.parent, e);
             }
         } catch (ClientException e) {
-            parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this.parent, e);
         }
 
         sourceConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
@@ -1435,7 +1435,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         try {
             destination = (Connector) SerializationUtils.clone(destinationConnectors.get(destinationTable.getSelectedModelIndex()));
         } catch (SerializationException e) {
-            parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this.parent, e);
             return;
         }
 

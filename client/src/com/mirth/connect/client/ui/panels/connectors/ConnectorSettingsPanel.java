@@ -171,7 +171,7 @@ public abstract class ConnectorSettingsPanel extends JPanel {
                         cause = e.getCause();
                     }
 
-                    PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), errorText + cause.getMessage());
+                    PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, errorText + cause.getMessage());
                 } finally {
                     PlatformUI.MIRTH_FRAME.stopWorking(workingId);
                 }

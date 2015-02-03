@@ -40,7 +40,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         try {
             drivers = this.parent.mirthClient.getDatabaseDrivers();
         } catch (ClientException e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
 
         initComponents();

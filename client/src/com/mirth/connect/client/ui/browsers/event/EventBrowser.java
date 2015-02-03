@@ -303,7 +303,7 @@ public class EventBrowser extends javax.swing.JPanel {
             Integer maxEventId = parent.mirthClient.getMaxEventId();
             eventFilter.setMaxEventId(maxEventId);
         } catch (ClientException e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(parent, e);
             return false;
         }
 
@@ -436,7 +436,7 @@ public class EventBrowser extends javax.swing.JPanel {
                     } else if (t.getCause() instanceof RequestAbortedException) {
                         // The client is no longer waiting for the search request
                     } else {
-                        parent.alertException(parent, t.getStackTrace(), t.getMessage());
+                        parent.alertThrowable(parent, t);
                     }
                     cancel(true);
                 }
@@ -534,7 +534,7 @@ public class EventBrowser extends javax.swing.JPanel {
         try {
             parent.retrieveUsers();
         } catch (ClientException e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
 
         userMapById.clear();
@@ -1213,7 +1213,7 @@ public class EventBrowser extends javax.swing.JPanel {
                     if (e.getCause() instanceof RequestAbortedException) {
                         // The client is no longer waiting for the count request
                     } else {
-                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                        parent.alertThrowable(parent, e);
                     }
                     cancel(true);
                 }
@@ -1225,7 +1225,7 @@ public class EventBrowser extends javax.swing.JPanel {
                 if (!isCancelled()) {
                     if (e != null) {
                         countButton.setEnabled(true);
-                        parent.alertException(eventBrowser, e.getStackTrace(), e.getMessage());
+                        parent.alertThrowable(eventBrowser, e);
                     } else {
                         updatePagination();
                         countButton.setEnabled(false);

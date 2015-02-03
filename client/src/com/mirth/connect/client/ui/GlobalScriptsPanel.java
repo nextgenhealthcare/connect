@@ -32,7 +32,7 @@ public class GlobalScriptsPanel extends javax.swing.JPanel {
         try {
             scriptPanel.setScripts(parent.mirthClient.getGlobalScripts());
         } catch (ClientException e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
     }
 
@@ -75,7 +75,7 @@ public class GlobalScriptsPanel extends javax.swing.JPanel {
         try {
             parent.mirthClient.setGlobalScripts(scriptPanel.getScripts());
         } catch (ClientException e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(this, e);
         }
     }
 

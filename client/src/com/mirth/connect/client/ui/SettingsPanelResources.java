@@ -149,7 +149,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
                     if (t instanceof ExecutionException) {
                         t = t.getCause();
                     }
-                    getFrame().alertException(getFrame(), t.getStackTrace(), "Error loading resources: " + t.toString());
+                    getFrame().alertThrowable(getFrame(), t, "Error loading resources: " + t.toString());
                 } finally {
                     getFrame().stopWorking(workingId);
                 }
@@ -194,7 +194,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
                     if (t instanceof ExecutionException) {
                         t = t.getCause();
                     }
-                    getFrame().alertException(getFrame(), t.getStackTrace(), "Error saving resources: " + t.toString());
+                    getFrame().alertThrowable(getFrame(), t, "Error saving resources: " + t.toString());
                 } finally {
                     getFrame().stopWorking(workingId);
                 }
@@ -309,7 +309,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
                         if (t instanceof ExecutionException) {
                             t = t.getCause();
                         }
-                        getFrame().alertException(getFrame(), t.getStackTrace(), "Error reloading resource: " + t.toString());
+                        getFrame().alertThrowable(getFrame(), t, "Error reloading resource: " + t.toString());
                     } finally {
                         getFrame().stopWorking(workingId);
                     }

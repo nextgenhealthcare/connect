@@ -128,7 +128,7 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
                 if (e.getCause() instanceof UnauthorizedException) {
                     // Don't error. Let an empty list be processed
                 } else {
-                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                    parent.alertThrowable(parent, e);
                 }
             }
 
@@ -208,7 +208,7 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
         try {
             PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(DASHBOARD_SERVICE_PLUGINPOINT, REMOVE_SESSIONID, null);
         } catch (ClientException e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(parent, e);
         }
     }
 

@@ -80,7 +80,7 @@ public class TextViewer extends AttachmentViewer {
 
             frame.setVisible(true);
         } catch (Exception e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            parent.alertThrowable(parent, e);
         }
     }
 

@@ -74,7 +74,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         updateSettings = getFrame().mirthClient.getUpdateSettings();
                     }
                 } catch (ClientException e) {
-                    getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                    getFrame().alertThrowable(getFrame(), e);
                 }
                 return null;
             }
@@ -141,7 +141,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
                     getFrame().mirthClient.setUpdateSettings(updateSettings);
                 } catch (ClientException e) {
-                    getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                    getFrame().alertThrowable(getFrame(), e);
                 }
 
                 return null;
@@ -357,7 +357,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     try {
                         configuration = getFrame().mirthClient.getServerConfiguration();
                     } catch (ClientException e) {
-                        getFrame().alertException(SettingsPanelServer.this, e.getStackTrace(), e.getMessage());
+                        getFrame().alertThrowable(SettingsPanelServer.this, e);
                         return null;
                     }
 
@@ -415,7 +415,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                                 doRefresh();
                                 getFrame().alertInformation(SettingsPanelServer.this, "Your configuration was successfully restored.");
                             } catch (ClientException e) {
-                                getFrame().alertException(SettingsPanelServer.this, e.getStackTrace(), e.getMessage());
+                                getFrame().alertThrowable(SettingsPanelServer.this, e);
                             }
                             return null;
                         }
@@ -453,7 +453,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         getFrame().mirthClient.clearAllStatistics();
                     } catch (ClientException e) {
                         exception = e;
-                        getFrame().alertException(SettingsPanelServer.this, e.getStackTrace(), e.getMessage());
+                        getFrame().alertThrowable(SettingsPanelServer.this, e);
                     }
                     return null;
                 }

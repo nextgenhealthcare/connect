@@ -87,7 +87,8 @@ public class ChannelPanel extends javax.swing.JPanel {
 
     private final String[] DEFAULT_COLUMNS = new String[] { STATUS_COLUMN_NAME,
             DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, LOCAL_CHANNEL_ID,
-            DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME, LAST_MODIFIED_COLUMN_NAME };
+            DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME,
+            LAST_DEPLOYED_COLUMN_NAME, LAST_MODIFIED_COLUMN_NAME };
 
     private Frame parent;
 
@@ -155,7 +156,7 @@ public class ChannelPanel extends javax.swing.JPanel {
                             plugin.prepareData();
                         }
                     } catch (ClientException e) {
-                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                        parent.alertThrowable(parent, e);
                     }
                     return null;
                 }

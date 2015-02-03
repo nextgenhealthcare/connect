@@ -71,7 +71,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                         configurationMap = getFrame().mirthClient.getConfigurationMap();
                     }
                 } catch (ClientException e) {
-                    getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                    getFrame().alertThrowable(getFrame(), e);
                 }
                 return null;
             }
@@ -115,7 +115,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                 try {
                     getFrame().mirthClient.setConfigurationMap(configurationMap);
                 } catch (ClientException e) {
-                    getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                    getFrame().alertThrowable(getFrame(), e);
                 }
 
                 return null;
@@ -157,7 +157,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                 updateConfigurationTable(configurationMap);
                 setSaveEnabled(true);
             } catch (Exception e) {
-                getFrame().alertException(getFrame(), e.getStackTrace(), "Error importing configuration map");
+                getFrame().alertThrowable(getFrame(), e, "Error importing configuration map");
             }
         }
     }
@@ -209,7 +209,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                         properties.save(file);
                     }
                 } catch (Exception e) {
-                    getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                    getFrame().alertThrowable(getFrame(), e);
                 }
 
                 return null;
