@@ -17,6 +17,7 @@ public class DirectoryResourceProperties extends LibraryProperties {
     public static final String TYPE = "Directory";
 
     private String directory;
+    private boolean directoryRecursion = true;
 
     public DirectoryResourceProperties() {
         super(PLUGIN_POINT, TYPE);
@@ -28,5 +29,13 @@ public class DirectoryResourceProperties extends LibraryProperties {
 
     public void setDirectory(String directory) {
         this.directory = directory;
+    }
+
+    public boolean isDirectoryRecursion() {
+        return directoryRecursion;
+    }
+
+    public void setDirectoryRecursion(boolean directoryRecursion) {
+        this.directoryRecursion = directoryRecursion;
     }
 }

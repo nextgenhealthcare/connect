@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -35,6 +36,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.ResourcePropertiesPanel;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.components.MirthTextPane;
@@ -42,22 +44,16 @@ import com.mirth.connect.model.ResourceProperties;
 
 public class DirectoryResourcePropertiesPanel extends ResourcePropertiesPanel {
 
-    private JLabel directoryLabel;
-    private JTextField directoryField;
-    private JLabel descriptionLabel;
-    private JScrollPane descriptionScrollPane;
-    private JTextPane descriptionTextPane;
-    private JLabel libraryLabel;
-    private MirthTable libraryTable;
-
     public DirectoryResourcePropertiesPanel() {
         initComponents();
+        initLayout();
     }
 
     @Override
     public void fillProperties(ResourceProperties properties) {
         DirectoryResourceProperties props = (DirectoryResourceProperties) properties;
         props.setDirectory(directoryField.getText());
+        props.setDirectoryRecursion(includeSubdirectoriesCheckBox.isSelected());
         props.setDescription(descriptionTextPane.getText());
     }
 
@@ -65,6 +61,7 @@ public class DirectoryResourcePropertiesPanel extends ResourcePropertiesPanel {
     public void setProperties(ResourceProperties properties) {
         final DirectoryResourceProperties props = (DirectoryResourceProperties) properties;
         directoryField.setText(props.getDirectory());
+        includeSubdirectoriesCheckBox.setSelected(props.isDirectoryRecursion());
         descriptionTextPane.setText(props.getDescription());
 
         final String workingId = PlatformUI.MIRTH_FRAME.startWorking("Loading libraries...");
@@ -132,26 +129,24 @@ public class DirectoryResourcePropertiesPanel extends ResourcePropertiesPanel {
     }
 
     private void initComponents() {
-        setLayout(new MigLayout("insets 5, novisualpadding, hidemode 3, fill"));
         setBackground(UIConstants.BACKGROUND_COLOR);
         setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Directory Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
         directoryLabel = new JLabel("Directory:");
-        add(directoryLabel, "right");
 
         directoryField = new MirthTextField();
         directoryField.setToolTipText("The directory to load libraries from.");
-        add(directoryField, "w 300!");
+
+        includeSubdirectoriesCheckBox = new MirthCheckBox("Include All Subdirectories");
+        includeSubdirectoriesCheckBox.setBackground(getBackground());
+        includeSubdirectoriesCheckBox.setToolTipText("<html>Select Yes to traverse directories recursively and search for files in each one.</html>");
 
         descriptionLabel = new JLabel("Description:");
-        add(descriptionLabel, "newline, top, right");
 
         descriptionTextPane = new MirthTextPane();
         descriptionScrollPane = new JScrollPane(descriptionTextPane);
-        add(descriptionScrollPane, "grow, sx, push, h 50%");
 
         libraryLabel = new JLabel("Loaded Libraries:");
-        add(libraryLabel, "newline, top, right");
 
         libraryTable = new MirthTable();
         libraryTable.setModel(new RefreshTableModel(new Object[] { "Library" }, 0));
@@ -168,6 +163,27 @@ public class DirectoryResourcePropertiesPanel extends ResourcePropertiesPanel {
             libraryTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
 
-        add(new JScrollPane(libraryTable), "grow, sx, push, h 50%");
+        libraryScrollPane = new JScrollPane(libraryTable);
     }
+
+    private void initLayout() {
+        setLayout(new MigLayout("insets 5, novisualpadding, hidemode 3, fill"));
+        add(directoryLabel, "right");
+        add(directoryField, "w 300!, split");
+        add(includeSubdirectoriesCheckBox);
+        add(descriptionLabel, "newline, top, right");
+        add(descriptionScrollPane, "grow, sx, push, h 50%");
+        add(libraryLabel, "newline, top, right");
+        add(libraryScrollPane, "grow, sx, push, h 50%");
+    }
+
+    private JLabel directoryLabel;
+    private JTextField directoryField;
+    private JCheckBox includeSubdirectoriesCheckBox;
+    private JLabel descriptionLabel;
+    private JScrollPane descriptionScrollPane;
+    private JTextPane descriptionTextPane;
+    private JLabel libraryLabel;
+    private MirthTable libraryTable;
+    private JScrollPane libraryScrollPane;
 }

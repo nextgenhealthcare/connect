@@ -96,7 +96,7 @@ public class DirectoryResourcePlugin implements ServicePlugin, LibraryPlugin {
         File directory = new File(props.getDirectory());
 
         if (directory.exists() && directory.isDirectory()) {
-            for (File file : FileUtils.listFiles(directory, new NotFileFilter(new WildcardFileFilter(".*")), FileFilterUtils.trueFileFilter())) {
+            for (File file : FileUtils.listFiles(directory, new NotFileFilter(new WildcardFileFilter(".*")), props.isDirectoryRecursion() ? FileFilterUtils.trueFileFilter() : null)) {
                 if (file.isFile()) {
                     try {
                         libraries.add(file.toURI().toURL());
