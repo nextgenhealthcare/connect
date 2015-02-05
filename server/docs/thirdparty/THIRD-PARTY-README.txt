@@ -701,7 +701,7 @@ included with Mirth Connect within the MyBatis 3.1.1 library.
 --------------------------------------------------------------------------------
 
 
-The license below pertains to the PostgreSQL JDBC Driver version 9.3 build 1102, which is included with Mirth Connect.
+The license below pertains to the PostgreSQL JDBC Driver version 9.4 build 1200, which is included with Mirth Connect.
 
 =================== Beginning of License ===================
 
