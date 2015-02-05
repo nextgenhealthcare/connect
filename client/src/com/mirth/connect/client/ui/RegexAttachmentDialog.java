@@ -55,7 +55,6 @@ public class RegexAttachmentDialog extends MirthDialog {
         setLayout(new MigLayout("novisualpadding, hidemode 3, insets 12", "[fill, grow]"));
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(650, 550));
-        setLocationRelativeTo(parent);
 
         initComponents();
         initLayout();
@@ -98,6 +97,7 @@ public class RegexAttachmentDialog extends MirthDialog {
         }
 
         pack();
+        setLocationRelativeTo(parent);
         setVisible(true);
     }
 
