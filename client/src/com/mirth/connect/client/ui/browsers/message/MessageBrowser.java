@@ -208,6 +208,17 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
         attachmentPopupMenu.add(viewAttach);
 
+        JMenuItem exportAttach = new JMenuItem("Export Attachment");
+        exportAttach.setIcon(new ImageIcon(Frame.class.getResource("images/report_disk.png")));
+        exportAttach.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                exportAttachment();
+            }
+        });
+        attachmentPopupMenu.add(exportAttach);
+
         pageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
         pageNumberField.setDocument(new MirthFieldConstraints(7, false, false, true));
 
@@ -1701,6 +1712,10 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         } catch (Exception e) {
         }
+    }
+
+    public void exportAttachment() {
+        parent.doExportAttachment();
     }
 
     private int getSelectedMessageIndex() {
