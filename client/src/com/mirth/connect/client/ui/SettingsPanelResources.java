@@ -168,6 +168,10 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
             return false;
         }
 
+        if (!getFrame().alertOption(getFrame(), "<html>Libraries associated with any changed resources will be reloaded.<br/>Any channels / connectors using those libraries will be affected.<br/>Also, a maximum of 1000 files may be loaded into a directory<br/>resource, with additional files being skipped.<br/>Are you sure you wish to continue?</html>")) {
+            return false;
+        }
+
         updateResource(resourceTable.getSelectedRow());
 
         final String workingId = getFrame().startWorking("Saving resources...");
@@ -278,7 +282,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
                 return;
             }
 
-            if (!getFrame().alertOption(getFrame(), "<html>Libraries associated with this resource will be reloaded.<br/>Any channels / connectors using those libraries will be<br/>affected. Are you sure you wish to continue?</html>")) {
+            if (!getFrame().alertOption(getFrame(), "<html>Libraries associated with this resource will be reloaded.<br/>Any channels / connectors using those libraries will be<br/>affected. Also, a maximum of 1000 files may be loaded into<br/>a directory resource, with additional files being skipped.<br/>Are you sure you wish to continue?</html>")) {
                 return;
             }
 

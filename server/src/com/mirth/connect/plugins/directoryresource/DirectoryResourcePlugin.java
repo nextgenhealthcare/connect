@@ -33,6 +33,8 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class DirectoryResourcePlugin implements ServicePlugin, LibraryPlugin {
 
+    private static final int MAX_FILES = 1000;
+
     private Logger logger = Logger.getLogger(getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
 
@@ -98,6 +100,10 @@ public class DirectoryResourcePlugin implements ServicePlugin, LibraryPlugin {
                 if (file.isFile()) {
                     try {
                         libraries.add(file.toURI().toURL());
+                        if (libraries.size() >= MAX_FILES) {
+                            logger.error("Directory resource " + properties.getName() + " has reached the maximum amount of files allowed (" + MAX_FILES + "). Additional files will not be loaded.");
+                            break;
+                        }
                     } catch (MalformedURLException e) {
                         logger.warn("Unable to load library: " + file.getName(), e);
                     }
