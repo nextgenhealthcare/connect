@@ -17,6 +17,7 @@ import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
@@ -181,6 +182,13 @@ public class TcpDispatcher extends DestinationConnector {
         Thread timeoutThread = null;
 
         try {
+            // Do some validation first to avoid unnecessarily creating sockets
+            if (StringUtils.isBlank(tcpDispatcherProperties.getRemoteAddress())) {
+                throw new Exception("Remote address is blank.");
+            } else if (NumberUtils.toInt(tcpDispatcherProperties.getRemotePort()) <= 0) {
+                throw new Exception("Remote port is invalid.");
+            }
+
             socket = connectedSockets.get(socketKey);
             timeoutThread = timeoutThreads.get(socketKey);
 
