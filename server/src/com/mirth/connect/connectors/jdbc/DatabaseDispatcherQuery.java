@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.DbUtils;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -162,6 +162,16 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
         dataSource.setUsername(connectorProperties.getUsername());
         dataSource.setPassword(connectorProperties.getPassword());
         dataSource.setUrl(connectorProperties.getUrl());
+
+        /*
+         * MIRTH-3570: As of DBCP version 2.0, test-on-borrow is enabled by default in
+         * BasicDataSource and is automatically done using the JDBC 4.0 isValid method. We don't
+         * want to do this for two reasons: 1) Our SQL Server (JTDS) driver doesn't support JDBC
+         * 4.0, so it would be necessary to provide a validation query and 2) DBCP's test-on-borrow
+         * happens on every single borrow, which could slow performance (unlike HikariCP which tests
+         * at most once a second).
+         */
+        dataSource.setTestOnBorrow(false);
 
         dataSources.put(dispatcherId, dataSource);
 

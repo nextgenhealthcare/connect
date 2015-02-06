@@ -9,10 +9,9 @@
 
 package com.mirth.connect.connectors.doc;
 
+import java.io.File;
+
 import com.mirth.connect.connectors.ConnectorService;
-import com.mirth.connect.connectors.file.FileScheme;
-import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
-import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ConnectionTestResponse;
 
@@ -24,23 +23,16 @@ public class DocumentWriterService implements ConnectorService {
             DocumentDispatcherProperties props = (DocumentDispatcherProperties) object;
             String directory = replacer.replaceValues(props.getHost(), channelId);
 
-            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(FileScheme.FILE, null, null, directory, 0, false, false, 0);
-            FileSystemConnection connection = null;
-
             try {
-                connection = (FileSystemConnection) factory.makeObject();
+                File writeDirectory = new File(directory);
 
-                if (connection.canWrite(directory)) {
+                if (writeDirectory.isDirectory() && writeDirectory.canWrite()) {
                     return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to: " + directory);
                 } else {
                     return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + directory);
                 }
             } catch (Exception e) {
                 return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + directory + ", Reason: " + e.getMessage());
-            } finally {
-                if (connection != null) {
-                    connection.destroy();
-                }
             }
         }
 

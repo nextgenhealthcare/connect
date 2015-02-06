@@ -13,7 +13,9 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.pool.PoolableObjectFactory;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.PooledObjectFactory;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
 
 import com.mirth.connect.connectors.file.FileScheme;
 
@@ -21,7 +23,7 @@ import com.mirth.connect.connectors.file.FileScheme;
  * A factory to create instances of FileSystemConnection based on the endpoint and connector
  * properties, and to adapt between them and the connection pool.
  */
-public class FileSystemConnectionFactory implements PoolableObjectFactory {
+public class FileSystemConnectionFactory implements PooledObjectFactory<FileSystemConnection> {
     private static transient Log logger = LogFactory.getLog(FileSystemConnectionFactory.class);
     protected FileScheme scheme;
     protected String username;
@@ -86,40 +88,41 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
         }
     }
 
-    public Object makeObject() throws Exception {
+    @Override
+    public PooledObject<FileSystemConnection> makeObject() throws Exception {
         if (scheme.equals(FileScheme.FILE)) {
-            return new FileConnection();
+            return new DefaultPooledObject<FileSystemConnection>(new FileConnection());
         } else if (scheme.equals(FileScheme.FTP)) {
-            return new FtpConnection(host, port, username, password, passive, timeout);
+            return new DefaultPooledObject<FileSystemConnection>(new FtpConnection(host, port, username, password, passive, timeout));
         } else if (scheme.equals(FileScheme.SFTP)) {
-            return new SftpConnection(host, port, username, password, timeout);
+            return new DefaultPooledObject<FileSystemConnection>(new SftpConnection(host, port, username, password, timeout));
         } else if (scheme.equals(FileScheme.SMB)) {
-            return new SmbFileConnection(host, username, password, timeout);
+            return new DefaultPooledObject<FileSystemConnection>(new SmbFileConnection(host, username, password, timeout));
         } else if (scheme.equals(FileScheme.WEBDAV)) {
-            return new WebDavConnection(host, secure, username, password);
+            return new DefaultPooledObject<FileSystemConnection>(new WebDavConnection(host, secure, username, password));
         } else {
             logger.error("makeObject doesn't handle scheme " + scheme);
             throw new IOException("Unimplemented or unrecognized scheme");
         }
     }
 
-    public void destroyObject(Object arg0) throws Exception {
-        FileSystemConnection connection = (FileSystemConnection) arg0;
-        connection.destroy();
+    @Override
+    public void destroyObject(PooledObject<FileSystemConnection> pooledConnection) throws Exception {
+        pooledConnection.getObject().destroy();
     }
 
-    public void activateObject(Object arg0) throws Exception {
-        FileSystemConnection connection = (FileSystemConnection) arg0;
-        connection.activate();
+    @Override
+    public void activateObject(PooledObject<FileSystemConnection> pooledConnection) throws Exception {
+        pooledConnection.getObject().activate();
     }
 
-    public void passivateObject(Object arg0) throws Exception {
-        FileSystemConnection connection = (FileSystemConnection) arg0;
-        connection.passivate();
+    @Override
+    public void passivateObject(PooledObject<FileSystemConnection> pooledConnection) throws Exception {
+        pooledConnection.getObject().passivate();
     }
 
-    public boolean validateObject(Object arg0) {
-        FileSystemConnection connection = (FileSystemConnection) arg0;
-        return connection.isValid();
+    @Override
+    public boolean validateObject(PooledObject<FileSystemConnection> pooledConnection) {
+        return pooledConnection.getObject().isValid();
     }
 }

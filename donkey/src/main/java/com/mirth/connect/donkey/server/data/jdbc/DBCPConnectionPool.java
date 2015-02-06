@@ -12,26 +12,37 @@ package com.mirth.connect.donkey.server.data.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.apache.commons.dbcp.ConnectionFactory;
-import org.apache.commons.dbcp.DelegatingConnection;
-import org.apache.commons.dbcp.DriverManagerConnectionFactory;
-import org.apache.commons.dbcp.PoolableConnectionFactory;
-import org.apache.commons.dbcp.PoolingDataSource;
-import org.apache.commons.pool.impl.GenericObjectPool;
+import javax.sql.DataSource;
+
+import org.apache.commons.dbcp2.ConnectionFactory;
+import org.apache.commons.dbcp2.DelegatingConnection;
+import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
+import org.apache.commons.dbcp2.PoolableConnection;
+import org.apache.commons.dbcp2.PoolableConnectionFactory;
+import org.apache.commons.dbcp2.PoolingDataSource;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 
 public class DBCPConnectionPool implements ConnectionPool {
-    private PoolingDataSource dataSource;
+    private DataSource dataSource;
     private int maxConnections;
 
     public DBCPConnectionPool(String url, String username, String password, int maxConnections) {
         this.maxConnections = maxConnections;
-        GenericObjectPool connectionPool = new GenericObjectPool(null);
-        connectionPool.setMaxActive(maxConnections);
-        connectionPool.setMaxIdle(maxConnections);
+
         ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(url, username, password);
-        PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(connectionFactory, connectionPool, null, null, false, false);
-        dataSource = new PoolingDataSource(connectionPool);
+        PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(connectionFactory, null);
+        poolableConnectionFactory.setDefaultAutoCommit(false);
+
+        GenericObjectPool<PoolableConnection> connectionPool = new GenericObjectPool<PoolableConnection>(poolableConnectionFactory);
+        connectionPool.setMaxTotal(maxConnections);
+        connectionPool.setMaxIdle(maxConnections);
+
+        poolableConnectionFactory.setPool(connectionPool);
+
+        PoolingDataSource<PoolableConnection> dataSource = new PoolingDataSource<PoolableConnection>(connectionPool);
         dataSource.setAccessToUnderlyingConnectionAllowed(true);
+
+        this.dataSource = dataSource;
     }
 
     @Override

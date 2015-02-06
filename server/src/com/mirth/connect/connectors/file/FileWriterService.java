@@ -11,6 +11,8 @@ package com.mirth.connect.connectors.file;
 
 import java.net.URI;
 
+import org.apache.commons.pool2.PooledObject;
+
 import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
@@ -69,7 +71,7 @@ public class FileWriterService implements ConnectorService {
             FileSystemConnection connection = null;
 
             try {
-                connection = (FileSystemConnection) factory.makeObject();
+                connection = ((PooledObject<FileSystemConnection>) factory.makeObject()).getObject();
 
                 if (connection.canWrite(dir)) {
                     return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to: " + fileHost);

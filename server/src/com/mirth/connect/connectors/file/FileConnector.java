@@ -21,8 +21,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.pool.ObjectPool;
-import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
@@ -33,7 +34,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 public class FileConnector {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private Map<String, ObjectPool> pools = new HashMap<String, ObjectPool>();
+    private Map<String, ObjectPool<FileSystemConnection>> pools = new HashMap<String, ObjectPool<FileSystemConnection>>();
     private FileOutputStream outputStream = null;
     private Set<FileSystemConnection> connections = new HashSet<FileSystemConnection>();
 
@@ -148,8 +149,8 @@ public class FileConnector {
             }
         }
         try {
-            for (Iterator<ObjectPool> it = pools.values().iterator(); it.hasNext();) {
-                ObjectPool pool = it.next();
+            for (Iterator<ObjectPool<FileSystemConnection>> it = pools.values().iterator(); it.hasNext();) {
+                ObjectPool<FileSystemConnection> pool = it.next();
                 pool.close();
             }
             pools.clear();
@@ -171,11 +172,11 @@ public class FileConnector {
      * @return The allocated connection.
      */
     protected FileSystemConnection getConnection(URI uri, ConnectorMessage message, String username, String password) throws Exception {
-        ObjectPool pool = getConnectionPool(uri, message, username, password);
-        FileSystemConnection con = (FileSystemConnection) pool.borrowObject();
+        ObjectPool<FileSystemConnection> pool = getConnectionPool(uri, message, username, password);
+        FileSystemConnection con = pool.borrowObject();
         if (!con.isConnected() || !con.isValid()) {
             destroyConnection(uri, con, message, username, password);
-            con = (FileSystemConnection) pool.borrowObject();
+            con = pool.borrowObject();
         }
         synchronized (connections) {
             connections.add(con);
@@ -202,7 +203,7 @@ public class FileConnector {
             connections.remove(connection);
         }
         if (connection != null && connection.isConnected()) {
-            ObjectPool pool = getConnectionPool(uri, message, username, password);
+            ObjectPool<FileSystemConnection> pool = getConnectionPool(uri, message, username, password);
             pool.returnObject(connection);
         }
 //        }
@@ -232,7 +233,7 @@ public class FileConnector {
      */
     protected void destroyConnection(URI uri, FileSystemConnection connection, ConnectorMessage message, String username, String password) throws Exception {
         if (connection != null) {
-            ObjectPool pool = getConnectionPool(uri, message, username, password);
+            ObjectPool<FileSystemConnection> pool = getConnectionPool(uri, message, username, password);
             pool.invalidateObject(connection);
         }
     }
@@ -247,18 +248,18 @@ public class FileConnector {
      *            ???
      * @return The pool of connections for this endpoint.
      */
-    private synchronized ObjectPool getConnectionPool(URI uri, ConnectorMessage message, String username, String password) throws Exception {
+    private synchronized ObjectPool<FileSystemConnection> getConnectionPool(URI uri, ConnectorMessage message, String username, String password) throws Exception {
         FileSystemConnectionFactory fileSystemConnectionFactory = getFileSystemConnectionFactory(uri, username, password);
         String key = fileSystemConnectionFactory.getPoolKey();
-        ObjectPool pool = pools.get(key);
+        ObjectPool<FileSystemConnection> pool = pools.get(key);
 
         if (pool == null) {
-            GenericObjectPool.Config config = new GenericObjectPool.Config();
+            GenericObjectPoolConfig config = new GenericObjectPoolConfig();
             if (isValidateConnection()) {
-                config.testOnBorrow = true;
-                config.testOnReturn = true;
+                config.setTestOnBorrow(true);
+                config.setTestOnReturn(true);
             }
-            pool = new GenericObjectPool(fileSystemConnectionFactory, config);
+            pool = new GenericObjectPool<FileSystemConnection>(fileSystemConnectionFactory, config);
 
             pools.put(key, pool);
         }
