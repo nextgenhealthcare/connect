@@ -38,6 +38,7 @@ public class EventFilter {
     private Outcome outcome;
     private Integer userId;
     private String ipAddress;
+    private String serverId;
 
     public Integer getMaxEventId() {
         return maxEventId;
@@ -109,6 +110,14 @@ public class EventFilter {
 
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
+    }
+
+    public String getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
     }
 
     public String toString() {

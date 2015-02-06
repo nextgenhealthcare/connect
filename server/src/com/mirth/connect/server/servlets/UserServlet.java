@@ -43,6 +43,7 @@ import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.util.UserSessionCache;
 
 public class UserServlet extends MirthServlet {
+    private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
     private Logger logger = Logger.getLogger(this.getClass());
 
     public static final String SESSION_USER = "user";
@@ -253,10 +254,9 @@ public class UserServlet extends MirthServlet {
 
             // Manually audit the Login event with the username since the user
             // id has not been stored to the session yet
-            ServerEvent event = new ServerEvent();
+            ServerEvent event = new ServerEvent(serverId, Operations.USER_LOGIN.getDisplayName());
             event.setIpAddress(getRequestIpAddress(request));
             event.setLevel(Level.INFORMATION);
-            event.setName(Operations.USER_LOGIN.getDisplayName());
 
             // Set the outcome to the result of the login attempt
             event.setOutcome(((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD)) ? Outcome.SUCCESS : Outcome.FAILURE);

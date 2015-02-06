@@ -77,6 +77,7 @@ public class EventBrowser extends javax.swing.JPanel {
     private final String EVENT_DATE_COLUMN_NAME = "Date & Time";
     private final String EVENT_LEVEL_COLUMN_NAME = "Level";
     private final String EVENT_NAME_COLUMN_NAME = "Name";
+    private final String EVENT_SERVER_ID_COLUMN_NAME = "Server ID";
     private final String EVENT_USER_COLUMN_NAME = "User";
     private final String EVENT_OUTCOME_COLUMN_NAME = "Outcome";
     private final String EVENT_IP_ADDRESS_COLUMN_NAME = "IP Address";
@@ -297,6 +298,10 @@ public class EventBrowser extends javax.swing.JPanel {
 
         if (!advancedSearchPopup.getIpAddress().equals("")) {
             eventFilter.setIpAddress(advancedSearchPopup.getIpAddress());
+        }
+
+        if (!StringUtils.isBlank(advancedSearchPopup.getServerId())) {
+            eventFilter.setServerId(advancedSearchPopup.getServerId());
         }
 
         try {
@@ -599,7 +604,7 @@ public class EventBrowser extends javax.swing.JPanel {
         Object[][] tableData = null;
 
         if (systemEventList != null) {
-            tableData = new Object[systemEventList.size()][7];
+            tableData = new Object[systemEventList.size()][8];
 
             for (int i = 0; i < systemEventList.size(); i++) {
                 ServerEvent systemEvent = systemEventList.get(i);
@@ -620,26 +625,28 @@ public class EventBrowser extends javax.swing.JPanel {
 
                 tableData[i][3] = systemEvent.getName();
 
+                tableData[i][4] = systemEvent.getServerId();
+
                 // Write the username (if cached) next to the user id
                 int userId = systemEvent.getUserId();
                 String user = String.valueOf(userId);
                 if (userMapById.containsKey(userId)) {
                     user += " (" + userMapById.get(userId) + ")";
                 }
-                tableData[i][4] = user;
+                tableData[i][5] = user;
 
                 if (systemEvent.getOutcome().equals(Outcome.SUCCESS)) {
-                    tableData[i][5] = new CellData(UIConstants.ICON_CHECK, "");
+                    tableData[i][6] = new CellData(UIConstants.ICON_CHECK, "");
                 } else if (systemEvent.getOutcome().equals(Outcome.FAILURE)) {
-                    tableData[i][5] = new CellData(UIConstants.ICON_X, "");
+                    tableData[i][6] = new CellData(UIConstants.ICON_X, "");
                 } else {
-                    tableData[i][5] = new CellData(null, systemEvent.getOutcome().toString());
+                    tableData[i][6] = new CellData(null, systemEvent.getOutcome().toString());
                 }
 
-                tableData[i][6] = systemEvent.getIpAddress();
+                tableData[i][7] = systemEvent.getIpAddress();
             }
         } else {
-            tableData = new Object[0][7];
+            tableData = new Object[0][8];
         }
 
         if (eventTable != null) {
@@ -649,10 +656,10 @@ public class EventBrowser extends javax.swing.JPanel {
             eventTable = new MirthTable();
             eventTable.setModel(new RefreshTableModel(tableData, new String[] {
                     EVENT_ID_COLUMN_NAME, EVENT_LEVEL_COLUMN_NAME, EVENT_DATE_COLUMN_NAME,
-                    EVENT_NAME_COLUMN_NAME, EVENT_USER_COLUMN_NAME, EVENT_OUTCOME_COLUMN_NAME,
-                    EVENT_IP_ADDRESS_COLUMN_NAME }) {
+                    EVENT_NAME_COLUMN_NAME, EVENT_SERVER_ID_COLUMN_NAME, EVENT_USER_COLUMN_NAME,
+                    EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -683,6 +690,8 @@ public class EventBrowser extends javax.swing.JPanel {
         eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setMaxWidth(140);
         eventTable.getColumnExt(EVENT_LEVEL_COLUMN_NAME).setMinWidth(50);
         eventTable.getColumnExt(EVENT_LEVEL_COLUMN_NAME).setMaxWidth(50);
+        eventTable.getColumnExt(EVENT_SERVER_ID_COLUMN_NAME).setMinWidth(220);
+        eventTable.getColumnExt(EVENT_SERVER_ID_COLUMN_NAME).setMaxWidth(220);
         eventTable.getColumnExt(EVENT_OUTCOME_COLUMN_NAME).setMinWidth(65);
         eventTable.getColumnExt(EVENT_OUTCOME_COLUMN_NAME).setMaxWidth(65);
 

@@ -56,6 +56,7 @@ public class JavaScriptUtil {
     private static ExecutorService executor = Executors.newCachedThreadPool();
     private static ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private static volatile String globalScriptContextFactoryId = null;
+    private static String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
 
     public static <T> T execute(JavaScriptTask<T> task) throws JavaScriptExecutorException, InterruptedException {
         Future<T> future = executor.submit(task);
@@ -493,7 +494,7 @@ public class JavaScriptUtil {
             error += "Global";
         }
 
-        ServerEvent event = new ServerEvent(error);
+        ServerEvent event = new ServerEvent(serverId, error);
         event.setLevel(Level.ERROR);
         event.getAttributes().put(ServerEvent.ATTR_EXCEPTION, ExceptionUtils.getStackTrace(t));
         eventController.dispatchEvent(event);

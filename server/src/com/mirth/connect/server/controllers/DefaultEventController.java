@@ -210,6 +210,7 @@ public class DefaultEventController extends EventController {
         params.put("outcome", filter.getOutcome());
         params.put("userId", filter.getUserId());
         params.put("ipAddress", filter.getIpAddress());
+        params.put("serverId", filter.getServerId());
 
         return params;
     }
@@ -254,7 +255,7 @@ public class DefaultEventController extends EventController {
             IOUtils.closeQuietly(writer);
             logger.debug("events exported to file: " + exportFile.getAbsolutePath());
 
-            ServerEvent event = new ServerEvent("Sucessfully exported events");
+            ServerEvent event = new ServerEvent(ControllerFactory.getFactory().createConfigurationController().getServerId(), "Sucessfully exported events");
             event.addAttribute("file", exportFile.getAbsolutePath());
             dispatchEvent(event);
         } catch (IOException e) {

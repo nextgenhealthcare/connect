@@ -126,6 +126,10 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
         return ipAddressField.getText();
     }
 
+    public String getServerId() {
+        return serverIdField.getText();
+    }
+
     @Override
     public void onCloseAction() {
         formWindowClosing(null);
@@ -149,6 +153,8 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
         jSeparator1 = new javax.swing.JSeparator();
         cancelButton = new javax.swing.JButton();
         okButton1 = new javax.swing.JButton();
+        serverIdField = new com.mirth.connect.client.ui.components.MirthTextField();
+        serverIdLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -206,6 +212,8 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
                     .addComponent(okButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
+        serverIdLabel.setText("Server ID:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -215,13 +223,16 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(outcomeLabel)
                     .addComponent(userLabel)
-                    .addComponent(ipAddressLabel))
+                    .addComponent(ipAddressLabel)
+                    .addComponent(serverIdLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(outcomeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(userComboBox, 0, 125, Short.MAX_VALUE)
-                    .addComponent(ipAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(146, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(outcomeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(userComboBox, 0, 125, Short.MAX_VALUE)
+                        .addComponent(ipAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(56, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -242,6 +253,10 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ipAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ipAddressLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(serverIdLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -274,6 +289,8 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
     private javax.swing.JButton okButton1;
     private javax.swing.JComboBox outcomeComboBox;
     private javax.swing.JLabel outcomeLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField serverIdField;
+    private javax.swing.JLabel serverIdLabel;
     private javax.swing.JComboBox userComboBox;
     private javax.swing.JLabel userLabel;
     // End of variables declaration//GEN-END:variables

@@ -43,6 +43,7 @@ public abstract class AlertWorker extends EventListener {
     protected EventController eventController = ControllerFactory.getFactory().createEventController();
 
     private AlertController alertController;
+    private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
 
     public AlertWorker() {
         super();
@@ -146,7 +147,7 @@ public abstract class AlertWorker extends EventListener {
                 }
 
                 // Dispatch a server event to notify that an alert was dispatched
-                ServerEvent serverEvent = new ServerEvent("Alert Dispatched");
+                ServerEvent serverEvent = new ServerEvent(serverId, "Alert Dispatched");
                 for (Entry<String, Object> entry : context.entrySet()) {
                     String value = entry.getValue().toString();
                     serverEvent.addAttribute(entry.getKey(), value);

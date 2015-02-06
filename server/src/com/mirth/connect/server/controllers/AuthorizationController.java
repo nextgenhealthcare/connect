@@ -26,6 +26,7 @@ import com.mirth.connect.model.ServerEvent.Level;
 
 public abstract class AuthorizationController {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
 
     public abstract boolean isUserAuthorized(Integer userId, String operation, Map<String, Object> parameterMap, String address) throws ControllerException;
 
@@ -54,16 +55,9 @@ public abstract class AuthorizationController {
         }
 
         if ((operation != null) && operation.isAuditable()) {
-            ServerEvent serverEvent = new ServerEvent();
+            ServerEvent serverEvent = new ServerEvent(serverId, operation.getDisplayName() + ((extensionName == null) ? "" : (" invoked through " + extensionName)));
             serverEvent.setLevel(Level.INFORMATION);
             serverEvent.setUserId(userId);
-
-            if (extensionName != null) {
-                serverEvent.setName(operation.getDisplayName() + " invoked through " + extensionName);
-            } else {
-                serverEvent.setName(operation.getDisplayName());
-            }
-
             serverEvent.setOutcome(outcome);
             serverEvent.setIpAddress(address);
 

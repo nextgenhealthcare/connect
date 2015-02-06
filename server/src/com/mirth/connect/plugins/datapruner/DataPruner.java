@@ -73,6 +73,7 @@ public class DataPruner implements Runnable {
     private boolean pruneEvents;
     private Integer maxEventAge;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
     private DonkeyDaoFactory daoFactory;
     private AtomicBoolean running = new AtomicBoolean(false);
     private Thread pruneThread;
@@ -269,7 +270,7 @@ public class DataPruner implements Runnable {
                         attributes.put("Channel", channel.getName());
                         attributes.put("Error", errorMessage);
 
-                        eventController.dispatchEvent(new ServerEvent(DataPrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
+                        eventController.dispatchEvent(new ServerEvent(serverId, DataPrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
                         break;
                 }
             }
@@ -324,7 +325,7 @@ public class DataPruner implements Runnable {
                     attributes.put("Messages Pruned", Long.toString(result.numMessagesPruned));
                     attributes.put("Content Rows Pruned", Long.toString(result.numContentPruned));
                     attributes.put("Time Elapsed", getTimeElapsed());
-                    eventController.dispatchEvent(new ServerEvent(DataPrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
+                    eventController.dispatchEvent(new ServerEvent(serverId, DataPrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
                 } catch (InterruptedException e) {
                     throw e;
                 } catch (Exception e) {
@@ -334,7 +335,7 @@ public class DataPruner implements Runnable {
                     attributes.put("channel", task.getChannelName());
                     attributes.put("error", e.getMessage());
                     attributes.put("trace", ExceptionUtils.getStackTrace(e));
-                    eventController.dispatchEvent(new ServerEvent(DataPrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
+                    eventController.dispatchEvent(new ServerEvent(serverId, DataPrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
                     Throwable t = e;
                     if (e instanceof DataPrunerException) {
                         t = e.getCause();
@@ -351,7 +352,7 @@ public class DataPruner implements Runnable {
         } catch (InterruptedException e) {
             // We need to clear this thread's interrupted status, or else the EventController will fail to dispatch the event
             Thread.interrupted();
-            ServerEvent event = new ServerEvent(DataPrunerService.PLUGINPOINT + " Halted");
+            ServerEvent event = new ServerEvent(serverId, DataPrunerService.PLUGINPOINT + " Halted");
             event.setLevel(Level.INFORMATION);
             event.setOutcome(Outcome.SUCCESS);
             eventController.dispatchEvent(event);
@@ -386,7 +387,7 @@ public class DataPruner implements Runnable {
                 Map<String, String> attributes = new HashMap<String, String>();
                 attributes.put("Events Pruned", Integer.toString(numEventsPruned));
                 attributes.put("Time Elapsed", getTimeElapsed());
-                eventController.dispatchEvent(new ServerEvent(DataPrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
+                eventController.dispatchEvent(new ServerEvent(serverId, DataPrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
             } finally {
                 session.close();
             }

@@ -9,6 +9,7 @@
       <result property='attributes' column='ATTRIBUTES' typeHandler='MapTypeHandler'/>
       <result property='userId' column='USER_ID'/>
       <result property='ipAddress' column='IP_ADDRESS'/>
+      <result property='serverId' column='SERVER_ID'/>
    </resultMap>
    
    <sql id='searchEventsBody'>
@@ -27,6 +28,7 @@
          <if test='outcome != null'>AND OUTCOME = #{outcome}</if>
          <if test='userId != null'>AND USER_ID = #{userId}</if>
          <if test='ipAddress != null'>AND IP_ADDRESS = #{ipAddress}</if>
+         <if test='serverId != null'>AND SERVER_ID LIKE '%' + #{serverId} + '%'</if>
       </where>
 	</sql>
 	
@@ -60,8 +62,8 @@
 	
 	<insert id='insertEvent' parameterType='com.mirth.connect.model.ServerEvent'>
 		INSERT INTO
-		EVENT (NAME, EVENT_LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS, DATE_CREATED)
-		VALUES (#{name}, #{level}, #{outcome}, #{attributes,typeHandler=MapTypeHandler}, #{userId}, #{ipAddress}, #{eventTime})
+		EVENT (NAME, EVENT_LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS, SERVER_ID, DATE_CREATED)
+		VALUES (#{name}, #{level}, #{outcome}, #{attributes,typeHandler=MapTypeHandler}, #{userId}, #{ipAddress}, #{serverId}, #{eventTime})
 	</insert>
 	
 	<delete id='deleteAllEvents'>

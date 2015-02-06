@@ -45,27 +45,26 @@ public class ServerEvent extends Event {
     private Outcome outcome = Outcome.SUCCESS;
     private int userId = 0;
     private String ipAddress;
+    private String serverId;
 
     public ServerEvent() {
         eventTime = Calendar.getInstance();
         eventTime.setTimeInMillis(getDateTime());
     }
 
-    public ServerEvent(String name) {
+    public ServerEvent(String serverId, String name) {
+        this();
+        this.serverId = serverId;
         this.name = name;
-
-        eventTime = Calendar.getInstance();
-        eventTime.setTimeInMillis(getDateTime());
     }
 
-    public ServerEvent(String name, Level level, Outcome outcome, Map<String, String> attributes) {
+    public ServerEvent(String serverId, String name, Level level, Outcome outcome, Map<String, String> attributes) {
+        this();
+        this.serverId = serverId;
         this.name = name;
         this.level = level;
         this.outcome = outcome;
         this.attributes = attributes;
-
-        eventTime = Calendar.getInstance();
-        eventTime.setTimeInMillis(getDateTime());
     }
 
     public int getId() {
@@ -138,6 +137,14 @@ public class ServerEvent extends Event {
 
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
+    }
+
+    public String getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
     }
 
     public boolean equals(Object obj) {

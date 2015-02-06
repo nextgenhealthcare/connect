@@ -262,7 +262,7 @@ public class Mirth extends Thread {
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
 
-        eventController.dispatchEvent(new ServerEvent("Server startup"));
+        eventController.dispatchEvent(new ServerEvent(configurationController.getServerId(), "Server startup"));
 
         // Start web server before starting the engine in case there is a 
         // problem starting the engine that causes it to hang
@@ -333,7 +333,7 @@ public class Mirth extends Thread {
             SqlConfig.getSqlSessionManager().startManagedSession();
             SqlConfig.getSqlSessionManager().getConnection();
             // add event after stopping the engine, but before stopping the plugins
-            eventController.dispatchEvent(new ServerEvent("Server shutdown"));
+            eventController.dispatchEvent(new ServerEvent(configurationController.getServerId(), "Server shutdown"));
         } catch (Exception e) {
             logger.debug("could not log shutdown even since database is unavailable", e);
         } finally {
