@@ -11,6 +11,7 @@ package com.mirth.connect.server.controllers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class DefaultAlertController extends AlertController {
     private static AlertController instance = null;
     private static Map<Class<?>, AlertWorker> alertWorkers = new HashMap<Class<?>, AlertWorker>();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private Map<String, Protocol> alertActionProtocols = new HashMap<String, Protocol>();
+    private Map<String, Protocol> alertActionProtocols = new LinkedHashMap<String, Protocol>();
 
     private DefaultAlertController() {
         addWorker(new DefaultAlertWorker());
@@ -285,7 +286,7 @@ public class DefaultAlertController extends AlertController {
 
     @Override
     public Map<String, Map<String, String>> getAlertActionProtocolOptions() {
-        Map<String, Map<String, String>> options = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> options = new LinkedHashMap<String, Map<String, String>>();
 
         for (String protocol : alertActionProtocols.keySet()) {
             options.put(protocol, alertActionProtocols.get(protocol).getRecipientOptions());

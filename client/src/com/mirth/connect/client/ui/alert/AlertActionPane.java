@@ -15,12 +15,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractCellEditor;
@@ -488,7 +489,7 @@ public class AlertActionPane extends JPanel {
     }
 
     private void updateProtocols(Map<String, Map<String, String>> protocolOptions) {
-        protocols = new HashMap<String, AlertActionPane.Protocol>();
+        protocols = new LinkedHashMap<String, AlertActionPane.Protocol>();
 
         for (Entry<String, Map<String, String>> entry : protocolOptions.entrySet()) {
             protocols.put(entry.getKey(), new Protocol(entry.getKey(), entry.getValue()));
@@ -525,7 +526,9 @@ public class AlertActionPane extends JPanel {
             if (options == null) {
                 return null;
             } else {
-                return new HashSet<String>(options.values());
+                Set<String> names = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+                names.addAll(options.values());
+                return names;
             }
         }
 
