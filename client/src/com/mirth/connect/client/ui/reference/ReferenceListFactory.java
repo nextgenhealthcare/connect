@@ -66,6 +66,7 @@ public class ReferenceListFactory {
     private Map<String, List<CodeTemplate>> codeTemplateMap = new TreeMap<String, List<CodeTemplate>>(new CategoryComparator());
     private Map<String, List<String>> aliasMap = new HashMap<String, List<String>>();
     private boolean pluginReferencesLoaded;
+    private boolean afterPluginReferencesLoaded;
 
     private ReferenceListFactory() {
         initialize();
@@ -205,6 +206,11 @@ public class ReferenceListFactory {
     }
 
     public synchronized void loadReferencesAfterPlugins() {
+        if (afterPluginReferencesLoaded) {
+            return;
+        }
+        afterPluginReferencesLoaded = true;
+
         MirthLanguageSupport languageSupport = (MirthLanguageSupport) LanguageSupportFactory.get().getSupportFor(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
         MirthCompletionCacheInterface completionCache = languageSupport.getCompletionCache();
         List<Reference> references = new ArrayList<Reference>();
@@ -541,41 +547,43 @@ public class ReferenceListFactory {
     private void addUserutilReferences() {
         populateAliases();
 
+        if (Thread.currentThread().getContextClassLoader() instanceof URLClassLoader) {
+            URLClassLoader classLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
+            for (URL url : classLoader.getURLs()) {
+                String urlString = url.toString();
+                if (StringUtils.endsWithIgnoreCase(urlString, "userutil-sources.jar")) {
+                    addUserutilReferences(url);
+                }
+            }
+        }
+    }
+
+    private void addUserutilReferences(URL url) {
         InputStream inputStream = null;
+
         try {
-            if (Thread.currentThread().getContextClassLoader() instanceof URLClassLoader) {
-                URLClassLoader classLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-                for (URL url : classLoader.getURLs()) {
-                    String urlString = url.toString();
-                    if (urlString.equalsIgnoreCase("userutil-sources.jar") || StringUtils.endsWithIgnoreCase(urlString, "/userutil-sources.jar")) {
-                        inputStream = url.openStream();
-                    }
+            inputStream = url.openStream();
+            ZipInputStream zis = new ZipInputStream(inputStream);
+            ZipEntry zipEntry;
+            Map<String, InputStream> entryMap = new HashMap<String, InputStream>();
+
+            // Iterate through each entry in the JAR file
+            while ((zipEntry = zis.getNextEntry()) != null) {
+                if (!zipEntry.isDirectory() && StringUtils.endsWithIgnoreCase(zipEntry.getName(), ".java")) {
+                    entryMap.put(zipEntry.getName(), new ByteArrayInputStream(IOUtils.toByteArray(zis)));
                 }
             }
 
-            if (inputStream != null) {
-                ZipInputStream zis = new ZipInputStream(inputStream);
-                ZipEntry zipEntry;
-                Map<String, InputStream> entryMap = new HashMap<String, InputStream>();
-
-                // Iterate through each entry in the JAR file
-                while ((zipEntry = zis.getNextEntry()) != null) {
-                    if (!zipEntry.isDirectory() && StringUtils.endsWithIgnoreCase(zipEntry.getName(), ".java")) {
-                        entryMap.put(zipEntry.getName(), new ByteArrayInputStream(IOUtils.toByteArray(zis)));
-                    }
-                }
-
-                for (Entry<String, InputStream> entry : entryMap.entrySet()) {
-                    try {
-                        // Parse the source file
-                        CompilationUnit compilationUnit = JavaParser.parse(entry.getValue());
-                        // Determine any runtime aliases for the class
-                        List<String> inputTextList = aliasMap.get(entry.getKey().replaceAll("\\.java$", "").replace('/', '.'));
-                        // Create and add references for the parsed source file
-                        addReferences(ClassVisitor.getReferencesByCompilationUnit(compilationUnit, inputTextList));
-                    } catch (Exception e) {
-                        logger.error("Unable to load references from userutil entry " + entry.getKey(), e);
-                    }
+            for (Entry<String, InputStream> entry : entryMap.entrySet()) {
+                try {
+                    // Parse the source file
+                    CompilationUnit compilationUnit = JavaParser.parse(entry.getValue());
+                    // Determine any runtime aliases for the class
+                    List<String> inputTextList = aliasMap.get(entry.getKey().replaceAll("\\.java$", "").replace('/', '.'));
+                    // Create and add references for the parsed source file
+                    addReferences(ClassVisitor.getReferencesByCompilationUnit(compilationUnit, inputTextList));
+                } catch (Exception e) {
+                    logger.error("Unable to load references from userutil entry " + entry.getKey(), e);
                 }
             }
         } catch (Exception e) {
