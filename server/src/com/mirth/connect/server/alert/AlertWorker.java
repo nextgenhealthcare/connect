@@ -10,7 +10,7 @@
 package com.mirth.connect.server.alert;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -120,9 +120,8 @@ public abstract class AlertWorker extends EventListener {
                     body = replacer.replaceValues(actionGroup.getTemplate(), context);
                 }
 
-                Map<String, List<String>> protocolRecipients = new HashMap<String, List<String>>();
+                Map<String, List<String>> protocolRecipients = new LinkedHashMap<String, List<String>>();
 
-                // Split the recipients into separate lists for emails and channels
                 for (AlertAction action : actionGroup.getActions()) {
                     String recipient = replacer.replaceValues(action.getRecipient(), context);
 
@@ -143,7 +142,15 @@ public abstract class AlertWorker extends EventListener {
                 }
 
                 for (String protocol : protocolRecipients.keySet()) {
-                    alertController.getAlertActionProtocol(protocol).getDispatcher().dispatch(protocolRecipients.get(protocol), subject, body);
+                    try {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Dispatching alert ID " + alertId + " with protocol '" + protocol + "' to recipients: " + StringUtils.join(protocolRecipients.get(protocol), ", "));
+                        }
+
+                        alertController.getAlertActionProtocol(protocol).getDispatcher().dispatch(protocolRecipients.get(protocol), subject, body);
+                    } catch (Exception e) {
+                        logger.error("An error occurred while attempting to dispatch '" + protocol + "' alerts.", e);
+                    }
                 }
 
                 // Dispatch a server event to notify that an alert was dispatched

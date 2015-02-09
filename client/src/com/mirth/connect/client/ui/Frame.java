@@ -4149,7 +4149,7 @@ public class Frame extends JXFrame {
             try {
                 ServerSettings serverSettings = mirthClient.getServerSettings();
                 if (StringUtils.isBlank(serverSettings.getSmtpHost()) || StringUtils.isBlank(serverSettings.getSmtpPort())) {
-                    alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+                    alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send email alerts.");
                 }
             } catch (ClientException e) {
                 if (!(e.getCause() instanceof UnauthorizedException)) {
