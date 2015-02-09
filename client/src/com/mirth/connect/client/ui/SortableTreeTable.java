@@ -140,7 +140,7 @@ public class SortableTreeTable extends JXTreeTable {
             throw new IllegalStateException("No TreeTable Model");
         }
         order = sortModel.getSortOrder();
-        sortColumn = sortModel.getSortColumnIndex();
+        sortColumn = convertColumnIndexToModel(sortModel.getSortColumnIndex());
     }
 
 }

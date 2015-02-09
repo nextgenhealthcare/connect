@@ -109,7 +109,6 @@ public class DashboardPanel extends javax.swing.JPanel {
         tabs.addChangeListener(changeListener);
 
         defaultVisibleColumns = new LinkedHashSet<String>();
-        defaultVisibleColumns.addAll(Arrays.asList(defaultColumns));
 
         makeStatusTable();
         loadTablePlugins();
@@ -209,7 +208,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
             statusTable = plugin.getTable();
-            
+
             if (statusTable != null) {
                 break;
             }
