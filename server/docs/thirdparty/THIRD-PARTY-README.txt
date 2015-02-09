@@ -40,6 +40,9 @@ the same license terms.
 	http://search.maven.org/remotecontent?filepath=com/lowagie/itext/2.1.7/itext
 	-2.1.7-sources.jar)
 
+	Javassist 3.19.0 (source code can be downloaded at: 
+	http://www.csg.ci.i.u-tokyo.ac.jp/~chiba/javassist/)
+
 	
 --------------------------------------------------------------------------------
 
