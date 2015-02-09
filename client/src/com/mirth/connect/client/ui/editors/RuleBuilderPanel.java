@@ -345,6 +345,9 @@ public class RuleBuilderPanel extends BasePanel {
     }
 
     private void setValuesEnabled(boolean enabled) {
+        if (valuesTable.isEditing()) {
+            valuesTable.getCellEditor().stopCellEditing();
+        }
         valuesScrollPane.setEnabled(enabled);
         valuesTable.setEnabled(enabled);
         valuesLabel.setEnabled(enabled);
