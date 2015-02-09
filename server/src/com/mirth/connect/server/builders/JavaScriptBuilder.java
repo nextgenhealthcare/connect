@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -22,6 +23,7 @@ import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.Filter;
+import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
@@ -34,6 +36,7 @@ import com.mirth.connect.server.controllers.ScriptController;
 
 public class JavaScriptBuilder {
     private static Logger logger = Logger.getLogger(JavaScriptBuilder.class);
+    private static ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
     /*
      * Generates the global JavaScript contained in all new scopes created
@@ -43,6 +46,22 @@ public class JavaScriptBuilder {
 
         // add #trim() function to JavaScript String prototype
         script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
+
+        for (MetaData metaData : extensionController.getConnectorMetaData().values()) {
+            if (CollectionUtils.isNotEmpty(metaData.getUserutilPackages())) {
+                for (String packageName : metaData.getUserutilPackages()) {
+                    script.append("importPackage(").append(packageName).append(");\n");
+                }
+            }
+        }
+
+        for (MetaData metaData : extensionController.getPluginMetaData().values()) {
+            if (CollectionUtils.isNotEmpty(metaData.getUserutilPackages())) {
+                for (String packageName : metaData.getUserutilPackages()) {
+                    script.append("importPackage(").append(packageName).append(");\n");
+                }
+            }
+        }
 
         script.append("importPackage(Packages.com.mirth.connect.userutil);\n");
         script.append("importPackage(Packages.com.mirth.connect.server.userutil);\n");
