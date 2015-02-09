@@ -34,6 +34,7 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
 
     public static final String DOCUMENT_TYPE_PDF = "pdf";
     public static final String DOCUMENT_TYPE_RTF = "rtf";
+    public static final String OUTPUT_TYPE = "FILE";
 
     public DocumentDispatcherProperties() {
         destinationConnectorProperties = new DestinationConnectorProperties();
@@ -44,7 +45,7 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         this.encrypt = false;
         this.password = "";
         this.template = "";
-        this.output = "";
+        this.output = OUTPUT_TYPE;
     }
 
     public DocumentDispatcherProperties(DocumentDispatcherProperties props) {
