@@ -116,22 +116,41 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
     }
 
     private boolean validateFields() {
+        boolean valid = true;
+        StringBuilder builder = new StringBuilder();
+
         archiverPanel.resetInvalidProperties();
         pruneEventAgeTextField.setBackground(null);
+        blockSizeTextField.setBackground(null);
 
-        String errorMessage = archiverPanel.validate(true);
-        if (StringUtils.isNotEmpty(errorMessage)) {
-            parent.alertError(this, errorMessage);
-            return false;
+        String prunerBlockSize = blockSizeTextField.getText();
+        if (StringUtils.isEmpty(prunerBlockSize) || Integer.parseInt(prunerBlockSize) <= 50 || Integer.parseInt(prunerBlockSize) > 10000) {
+            blockSizeTextField.setBackground(UIConstants.INVALID_COLOR);
+            builder.append("Pruner Block size must be between 50 and 10000. The recommended value for most servers is 1000.");
+
+            valid = false;
         }
 
         if (pruneEventsYes.isSelected() && StringUtils.isBlank(pruneEventAgeTextField.getText())) {
             pruneEventAgeTextField.setBackground(UIConstants.INVALID_COLOR);
-            parent.alertError(this, "Please fill in required fields.");
-            return false;
+            builder.append("\n");
+            builder.append("Event Age is required when pruning events.");
+
+            valid = false;
         }
 
-        return true;
+        String errorMessage = archiverPanel.validate(true);
+        if (StringUtils.isNotEmpty(errorMessage)) {
+            builder.append("\n");
+            builder.append(errorMessage);
+            valid = false;
+        }
+
+        if (!valid) {
+            parent.alertError(this, builder.toString());
+        }
+
+        return valid;
     }
 
     @Override
@@ -296,7 +315,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         if (properties.getProperty("pruningBlockSize") != null && !properties.getProperty("pruningBlockSize").equals("")) {
             blockSizeTextField.setText(properties.getProperty("pruningBlockSize"));
         } else {
-            blockSizeTextField.setText("50000");
+            blockSizeTextField.setText("1000");
         }
 
         if (Boolean.parseBoolean(properties.getProperty("pruneEvents", Boolean.FALSE.toString()))) {
@@ -466,7 +485,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         pruneSettingsPanel.setBackground(new java.awt.Color(255, 255, 255));
         pruneSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Prune Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
-        blockSizeTextField.setToolTipText("<html>The maximum number of messages that will be pruned in a single query. If this number is 0, there is<br>no limit to the number of messages that may be pruned in a single query. Setting a block size may<br>improve performance for channels that receive a high volume of messages.</html>");
+        blockSizeTextField.setToolTipText("<html>The number of messages that will be pruned at a time. This value must<br/>be between 50 and 10000. The recommended value is 1000.</html>");
 
         blockSizeLabel.setText("Block Size:");
 

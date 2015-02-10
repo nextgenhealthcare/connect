@@ -67,7 +67,7 @@ public class MessageExportPanel extends JPanel {
     private JLabel archiveLabel = new JLabel("Enable Archiving:");
     private JRadioButton archiveYes = new MirthRadioButton("Yes");
     private JRadioButton archiveNo = new MirthRadioButton("No");
-    private JLabel archiverBlockSizeLabel = new JLabel("Block Size:");
+    private JLabel archiverBlockSizeLabel = new JLabel("Archiver Block Size:");
     private JTextField archiverBlockSizeField = new MirthTextField();
     private JLabel contentLabel = new JLabel("Content:");
     private JComboBox contentComboBox = new MirthComboBox();
@@ -242,7 +242,7 @@ public class MessageExportPanel extends JPanel {
 
         String archiverBlockSize = archiverBlockSizeField.getText();
         if (archiverMode && archiveYes.isSelected() && (StringUtils.isBlank(archiverBlockSize) || Integer.parseInt(archiverBlockSize) <= 0 || Integer.parseInt(archiverBlockSize) > 1000)) {
-            builder.append("Block size must be greater than 0 and less than or equal to 1000.");
+            builder.append("Archiver block size must be between 1 and 1000. The recommended value for most servers is 50.");
             builder.append("\n");
 
             if (highlight) {
@@ -286,7 +286,7 @@ public class MessageExportPanel extends JPanel {
         exportLocalRadio.setToolTipText("<html>Store exported files on this computer, in the Root Path specified below.</html>");
         rootPathTextField.setToolTipText("<html>The root path to store the exported files/folders or compressed file.<br/>Relative paths will be resolved against the Mirth Connect Server home directory.</html>");
         filePatternTextPane.setToolTipText("<html>The file/folder pattern in which to write the exported message files.<br />Variables from the Variables list to the right may be used in the pattern.</html>");
-        archiverBlockSizeField.setToolTipText("<html>The number of messages that will be cached by the archiver at a given time.<br/>This value must be greater than 0 and less than or equal to 1000. Lower this<br/>value if you are running out of memory during archiving.</html>");
+        archiverBlockSizeField.setToolTipText("<html>The number of messages that will be cached by the archiver. Increase this value<br/>to improve performance. Decrease this value to reduce memory usage. This value<br/>must be between 1 and 1000. The recommended value is 50.</html>");
 
         archiveYes = new MirthRadioButton("Yes");
         archiveNo = new MirthRadioButton("No");

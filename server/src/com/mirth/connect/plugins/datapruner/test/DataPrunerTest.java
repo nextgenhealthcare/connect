@@ -111,7 +111,7 @@ public class DataPrunerTest {
                 pruner.setArchiveEnabled(true);
                 pruner.setArchiverOptions(writerOptions);
                 pruner.setRetryCount(0);
-                pruner.setBlockSize(blockSize);
+                pruner.setPrunerBlockSize(blockSize);
 
                 logger.info("Running pruner w/ archiver test, block size: " + blockSize + ", prune messages: " + messagesPrunable + ", prune content: " + contentPrunable);
 
@@ -204,7 +204,7 @@ public class DataPrunerTest {
         TestUtils.startMirthServer(15000);
 
         DataPruner pruner = new DataPruner();
-        pruner.setBlockSize(1);
+        pruner.setPrunerBlockSize(1);
         pruner.setRetryCount(0);
 
         TestUtils.deleteAllMessages(readerChannelId);

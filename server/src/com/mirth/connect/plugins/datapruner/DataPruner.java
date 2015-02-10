@@ -60,15 +60,17 @@ import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DataPruner implements Runnable {
-    private final static int ID_RETRIEVE_LIMIT = 100000;
+    public static final int DEFAULT_PRUNING_BLOCK_SIZE = 1000;
+    public static final int DEFAULT_ARCHIVING_BLOCK_SIZE = 50;
+    private static final int ID_RETRIEVE_LIMIT = 100000;
 
     private int numExported;
     private int retryCount;
     private boolean skipIncomplete;
     private Status[] skipStatuses;
-    private Integer blockSize;
+    private int prunerBlockSize = DEFAULT_PRUNING_BLOCK_SIZE;
     private boolean archiveEnabled;
-    private Integer archiverBlockSize;
+    private int archiverBlockSize = DEFAULT_ARCHIVING_BLOCK_SIZE;
     private MessageWriterOptions archiverOptions;
     private boolean pruneEvents;
     private Integer maxEventAge;
@@ -119,16 +121,12 @@ public class DataPruner implements Runnable {
         this.skipStatuses = skipStatuses;
     }
 
-    public Integer getBlockSize() {
-        return blockSize;
+    public int getPrunerBlockSize() {
+        return prunerBlockSize;
     }
 
-    public void setBlockSize(Integer blockSize) {
-        if (blockSize != null && blockSize > 0) {
-            this.blockSize = blockSize;
-        } else {
-            this.blockSize = null;
-        }
+    public void setPrunerBlockSize(int prunerBlockSize) {
+        this.prunerBlockSize = prunerBlockSize;
     }
 
     public boolean isArchiveEnabled() {
@@ -617,7 +615,7 @@ public class DataPruner implements Runnable {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", localChannelId);
 
-        ListRangeIterator listRangeIterator = new ListRangeIterator(ids, ListRangeIterator.DEFAULT_LIST_LIMIT, true, blockSize);
+        ListRangeIterator listRangeIterator = new ListRangeIterator(ids, ListRangeIterator.DEFAULT_LIST_LIMIT, true, prunerBlockSize);
 
         while (listRangeIterator.hasNext()) {
             ThreadUtils.checkInterruptedStatus();

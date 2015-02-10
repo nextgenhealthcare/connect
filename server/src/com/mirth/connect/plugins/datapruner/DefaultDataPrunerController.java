@@ -27,6 +27,7 @@ import java.util.Properties;
 import javax.swing.text.DateFormatter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -43,8 +44,8 @@ import com.mirth.connect.util.PropertyLoader;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DefaultDataPrunerController extends DataPrunerController {
-    private static final int DEFAULT_PRUNING_BLOCK_SIZE = 50000;
-    private static final int DEFAULT_ARCHIVING_BLOCK_SIZE = 50;
+    private static final int MAX_PRUNING_BLOCK_SIZE = 10000;
+    private static final int MAX_ARCHIVING_BLOCK_SIZE = 1000;
     private static final String PRUNER_JOB_KEY = "prunerJob";
     private static final String DATE_FORMAT = "MM/dd/yyyy hh:mm aa";
     private static final String PRUNER_TRIGGER_KEY = "prunerTrigger";
@@ -251,9 +252,13 @@ public class DefaultDataPrunerController extends DataPrunerController {
 
     private void applyPrunerSettings(Properties properties) {
         if (StringUtils.isNotEmpty(properties.getProperty("pruningBlockSize"))) {
-            pruner.setBlockSize(Integer.parseInt(properties.getProperty("pruningBlockSize")));
+            int blockSize = NumberUtils.toInt(properties.getProperty("pruningBlockSize"));
+            if (blockSize <= 0 || blockSize > MAX_PRUNING_BLOCK_SIZE) {
+                blockSize = DataPruner.DEFAULT_PRUNING_BLOCK_SIZE;
+            }
+            pruner.setPrunerBlockSize(blockSize);
         } else {
-            pruner.setBlockSize(DEFAULT_PRUNING_BLOCK_SIZE);
+            pruner.setPrunerBlockSize(DataPruner.DEFAULT_PRUNING_BLOCK_SIZE);
         }
 
         pruner.setArchiveEnabled(Boolean.parseBoolean(properties.getProperty("archiveEnabled", Boolean.FALSE.toString())));
@@ -275,9 +280,13 @@ public class DefaultDataPrunerController extends DataPrunerController {
         }
 
         if (StringUtils.isNotEmpty(properties.getProperty("archiverBlockSize"))) {
-            pruner.setArchiverBlockSize(Integer.parseInt(properties.getProperty("archiverBlockSize")));
+            int blockSize = NumberUtils.toInt(properties.getProperty("archiverBlockSize"));
+            if (blockSize <= 0 || blockSize > MAX_ARCHIVING_BLOCK_SIZE) {
+                blockSize = DataPruner.DEFAULT_ARCHIVING_BLOCK_SIZE;
+            }
+            pruner.setArchiverBlockSize(blockSize);
         } else {
-            pruner.setArchiverBlockSize(DEFAULT_ARCHIVING_BLOCK_SIZE);
+            pruner.setArchiverBlockSize(DataPruner.DEFAULT_ARCHIVING_BLOCK_SIZE);
         }
     }
 
