@@ -242,7 +242,7 @@ public class MessageExportPanel extends JPanel {
 
         String archiverBlockSize = archiverBlockSizeField.getText();
         if (archiverMode && archiveYes.isSelected() && (StringUtils.isBlank(archiverBlockSize) || Integer.parseInt(archiverBlockSize) <= 0 || Integer.parseInt(archiverBlockSize) > 1000)) {
-            builder.append("Archiver block size must be between 1 and 1000. The recommended value for most servers is 50.");
+            builder.append("Archiver block size must be between 1 and 1000. The recommended value is 50.");
             builder.append("\n");
 
             if (highlight) {

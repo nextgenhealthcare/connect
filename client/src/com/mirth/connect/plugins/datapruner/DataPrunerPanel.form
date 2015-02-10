@@ -179,7 +179,7 @@
                 <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="blockSizeTextField">
                   <Properties>
                     <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="&quot;&lt;html&gt;The number of messages that will be pruned at a time. This value must&lt;br/&gt;be between 50 and 10000. The recommended value is 1000.&lt;/html&gt;&quot;" type="code"/>
+                      <Connection code="&quot;&lt;html&gt;The number of messages that will be pruned at a time. This value must&lt;br/&gt;be between 50 and 10000. The recommended value for most servers is 1000.&lt;/html&gt;&quot;" type="code"/>
                     </Property>
                   </Properties>
                 </Component>

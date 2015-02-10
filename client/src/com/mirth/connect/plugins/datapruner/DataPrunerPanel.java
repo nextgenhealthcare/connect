@@ -485,7 +485,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         pruneSettingsPanel.setBackground(new java.awt.Color(255, 255, 255));
         pruneSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Prune Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
-        blockSizeTextField.setToolTipText("<html>The number of messages that will be pruned at a time. This value must<br/>be between 50 and 10000. The recommended value is 1000.</html>");
+        blockSizeTextField.setToolTipText("<html>The number of messages that will be pruned at a time. This value must<br/>be between 50 and 10000. The recommended value for most servers is 1000.</html>");
 
         blockSizeLabel.setText("Block Size:");
 
