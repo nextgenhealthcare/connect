@@ -45,10 +45,10 @@ public class MessageWriterFactory {
             filePattern = filePattern.substring(1);
         }
 
-        MessageWriterVfs vfsWriter = new MessageWriterVfs("file://" + rootFolder, filePattern, options.getContentType(), options.isDestinationContent(), options.isEncrypt(), encryptor);
+        MessageWriterFile fileWriter = new MessageWriterFile(rootFolder, filePattern, options.getContentType(), options.isDestinationContent(), options.isEncrypt(), encryptor);
 
         if (options.getArchiveFormat() == null) {
-            return vfsWriter;
+            return fileWriter;
         }
         
         if (options.getArchiveFileName() == null) {
@@ -61,11 +61,11 @@ public class MessageWriterFactory {
          */
         String tempFolder = rootFolder + IOUtils.DIR_SEPARATOR + "." + options.getArchiveFileName();
         FileUtils.deleteQuietly(new File(tempFolder));
-        vfsWriter.setUri("file://" + tempFolder);
+        fileWriter.setPath(tempFolder);
 
         File archiveFile = new File(rootFolder + IOUtils.DIR_SEPARATOR + options.getArchiveFileName() + "." + getArchiveExtension(options.getArchiveFormat(), options.getCompressFormat()));
 
-        return new MessageWriterArchive(vfsWriter, new File(tempFolder), archiveFile, options.getArchiveFormat(), options.getCompressFormat());
+        return new MessageWriterArchive(fileWriter, new File(tempFolder), archiveFile, options.getArchiveFormat(), options.getCompressFormat());
     }
 
     private String getArchiveExtension(String archiver, String compressor) {

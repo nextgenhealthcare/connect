@@ -19,7 +19,7 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.util.ArchiveUtils;
 
 public class MessageWriterArchive implements MessageWriter {
-    private MessageWriterVfs vfsWriter;
+    private MessageWriter fileWriter;
     private File rootFolder;
     private File archiveFile;
     private String archiver;
@@ -30,7 +30,7 @@ public class MessageWriterArchive implements MessageWriter {
      * Writes messages to the file-system using MessageWriterVfs, then moves the resulting
      * folders/files into the archive file.
      * 
-     * @param vfsWriter
+     * @param fileWriter
      * @param rootFolder
      * @param archiveFile
      * @param archiver
@@ -39,8 +39,8 @@ public class MessageWriterArchive implements MessageWriter {
      *            The compressor type, see
      *            org.apache.commons.compress.compressors.CompressorStreamFactory
      */
-    public MessageWriterArchive(MessageWriterVfs vfsWriter, File rootFolder, File archiveFile, String archiver, String compressor) {
-        this.vfsWriter = vfsWriter;
+    public MessageWriterArchive(MessageWriter fileWriter, File rootFolder, File archiveFile, String archiver, String compressor) {
+        this.fileWriter = fileWriter;
         this.rootFolder = rootFolder;
         this.archiveFile = archiveFile;
         this.archiver = archiver;
@@ -49,7 +49,7 @@ public class MessageWriterArchive implements MessageWriter {
 
     @Override
     public boolean write(Message message) throws MessageWriterException {
-        boolean result = vfsWriter.write(message);
+        boolean result = fileWriter.write(message);
 
         if (!messagesWritten && result) {
             messagesWritten = true;
@@ -63,7 +63,7 @@ public class MessageWriterArchive implements MessageWriter {
      */
     @Override
     public void finishWrite() throws MessageWriterException {
-        vfsWriter.close();
+        fileWriter.close();
 
         if (messagesWritten) {
             try {
@@ -95,6 +95,6 @@ public class MessageWriterArchive implements MessageWriter {
      */
     @Override
     public void close() throws MessageWriterException {
-        vfsWriter.close();
+        fileWriter.close();
     }
 }
