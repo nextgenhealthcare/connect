@@ -26,7 +26,7 @@ public class VfsUtils {
          * Map of file extensions to Apache VFS file-system types (see
          * http://commons.apache.org/proper/commons-vfs/filesystems.html). The import dialog will
          * detect files with these extensions and send the appropriate uri format to the
-         * MessageWriterVfs class.
+         * MessageImporter.
          */
         uriExtensionMap = new HashMap<String, String>();
         uriExtensionMap.put("zip", "zip://");
