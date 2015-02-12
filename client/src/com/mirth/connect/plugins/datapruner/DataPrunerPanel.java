@@ -37,6 +37,8 @@ import com.mirth.connect.plugins.SettingsPanelPlugin;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DataPrunerPanel extends AbstractSettingsPanel {
+    private static final int MIN_PRUNING_BLOCK_SIZE = 50;
+    private static final int MAX_PRUNING_BLOCK_SIZE = 10000;
     private final static Color ACTIVE_STATUS_COLOR = new Color(200, 0, 0);
     private final static Color INACTIVE_STATUS_COLOR = new Color(0, 100, 0);
     private final static Color UNKNOWN_STATUS_COLOR = new Color(0, 0, 0);
@@ -124,7 +126,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         blockSizeTextField.setBackground(null);
 
         String prunerBlockSize = blockSizeTextField.getText();
-        if (StringUtils.isEmpty(prunerBlockSize) || Integer.parseInt(prunerBlockSize) <= 50 || Integer.parseInt(prunerBlockSize) > 10000) {
+        if (StringUtils.isEmpty(prunerBlockSize) || Integer.parseInt(prunerBlockSize) < MIN_PRUNING_BLOCK_SIZE || Integer.parseInt(prunerBlockSize) > MAX_PRUNING_BLOCK_SIZE) {
             blockSizeTextField.setBackground(UIConstants.INVALID_COLOR);
             builder.append("Pruner Block size must be between 50 and 10000. The recommended value for most servers is 1000.");
 

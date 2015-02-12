@@ -242,7 +242,7 @@ public class MessageExportPanel extends JPanel {
 
         String archiverBlockSize = archiverBlockSizeField.getText();
         if (archiverMode && archiveYes.isSelected() && (StringUtils.isBlank(archiverBlockSize) || Integer.parseInt(archiverBlockSize) <= 0 || Integer.parseInt(archiverBlockSize) > 1000)) {
-            builder.append("Archiver block size must be between 1 and 1000. The recommended value is 50.");
+            builder.append("Archiver block size must be between 1 and 1000. The recommended value for most servers is 50.");
             builder.append("\n");
 
             if (highlight) {
@@ -286,7 +286,7 @@ public class MessageExportPanel extends JPanel {
         exportLocalRadio.setToolTipText("<html>Store exported files on this computer, in the Root Path specified below.</html>");
         rootPathTextField.setToolTipText("<html>The root path to store the exported files/folders or compressed file.<br/>Relative paths will be resolved against the Mirth Connect Server home directory.</html>");
         filePatternTextPane.setToolTipText("<html>The file/folder pattern in which to write the exported message files.<br />Variables from the Variables list to the right may be used in the pattern.</html>");
-        archiverBlockSizeField.setToolTipText("<html>The number of messages that will be cached by the archiver. Increase this value<br/>to improve performance. Decrease this value to reduce memory usage. This value<br/>must be between 1 and 1000. The recommended value is 50.</html>");
+        archiverBlockSizeField.setToolTipText("<html>The number of messages that will be cached by the archiver. Increase this value<br/>to improve performance. Decrease this value to reduce memory usage. This value<br/>must be between 1 and 1000. The recommended value for most servers is 50.</html>");
 
         archiveYes = new MirthRadioButton("Yes");
         archiveNo = new MirthRadioButton("No");

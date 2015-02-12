@@ -44,6 +44,7 @@ import com.mirth.connect.util.PropertyLoader;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DefaultDataPrunerController extends DataPrunerController {
+    private static final int MIN_PRUNING_BLOCK_SIZE = 50;
     private static final int MAX_PRUNING_BLOCK_SIZE = 10000;
     private static final int MAX_ARCHIVING_BLOCK_SIZE = 1000;
     private static final String PRUNER_JOB_KEY = "prunerJob";
@@ -253,7 +254,9 @@ public class DefaultDataPrunerController extends DataPrunerController {
     private void applyPrunerSettings(Properties properties) {
         if (StringUtils.isNotEmpty(properties.getProperty("pruningBlockSize"))) {
             int blockSize = NumberUtils.toInt(properties.getProperty("pruningBlockSize"));
-            if (blockSize <= 0 || blockSize > MAX_PRUNING_BLOCK_SIZE) {
+            if (blockSize < MIN_PRUNING_BLOCK_SIZE) {
+                blockSize = MIN_PRUNING_BLOCK_SIZE;
+            } else if (blockSize > MAX_PRUNING_BLOCK_SIZE) {
                 blockSize = DataPruner.DEFAULT_PRUNING_BLOCK_SIZE;
             }
             pruner.setPrunerBlockSize(blockSize);
