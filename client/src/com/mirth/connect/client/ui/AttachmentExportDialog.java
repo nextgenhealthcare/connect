@@ -135,7 +135,7 @@ public class AttachmentExportDialog extends MirthDialog {
         attachmentExportPanel.add(new JLabel("File:"));
         attachmentExportPanel.add(fileField, "push, grow, span");
 
-        setLayout(new MigLayout("insets 12, wrap", "", "[fill][]"));
+        setLayout(new MigLayout("insets 12, wrap", "[]", "[fill][]"));
 
         add(attachmentExportPanel, "grow, push");
         add(new JSeparator(), "grow, span");
