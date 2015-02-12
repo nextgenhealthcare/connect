@@ -1129,7 +1129,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         temp = currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex());
         temp.setProperties(destinationConnectorPanel.getProperties());
 
-        if (!loadingChannel && resourceIds.containsKey(temp.getMetaDataId())) {
+        if (!loadingChannel && temp.getProperties() != null && resourceIds.containsKey(temp.getMetaDataId())) {
             ((DestinationConnectorPropertiesInterface) temp.getProperties()).getDestinationConnectorProperties().setResourceIds(resourceIds.get(temp.getMetaDataId()));
         }
     }

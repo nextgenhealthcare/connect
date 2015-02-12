@@ -145,10 +145,6 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
     @Override
     public ConnectorProperties getProperties() {
-        if (channelList == null) {
-            return null;
-        }
-
         VmDispatcherProperties properties = new VmDispatcherProperties();
 
         properties.setChannelId(StringUtils.isBlank(channelIdField.getText()) ? "none" : channelIdField.getText());
