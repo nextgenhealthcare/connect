@@ -10,32 +10,66 @@
 package com.mirth.connect.connectors.jdbc;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
+import com.mirth.connect.server.controllers.ContextFactoryController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
+    private final static long MAX_CONNECTION_IDLE_TIME_NS = 300_000_000_000L;
+
     private DatabaseDispatcher connector;
-    private Map<Long, BasicDataSource> dataSources = new ConcurrentHashMap<Long, BasicDataSource>();
+    private Map<Long, SimpleDataSource> dataSources = new ConcurrentHashMap<>();
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private CustomDriver customDriver;
+    private Logger logger = Logger.getLogger(getClass());
 
     public DatabaseDispatcherQuery(DatabaseDispatcher connector) {
         this.connector = connector;
     }
 
     @Override
-    public void deploy() throws ConnectorTaskException {}
+    public void deploy() throws ConnectorTaskException {
+        DatabaseDispatcherProperties connectorProperties = (DatabaseDispatcherProperties) connector.getConnectorProperties();
+
+        try {
+            Class.forName(connectorProperties.getDriver());
+        } catch (ClassNotFoundException e) {
+            try {
+                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+                if (CollectionUtils.isNotEmpty(contextFactory.getResourceIds())) {
+                    customDriver = new CustomDriver(contextFactory.getApplicationClassLoader(), connectorProperties.getDriver());
+                } else {
+                    throw new ConnectorTaskException(e);
+                }
+            } catch (Exception e2) {
+                throw new ConnectorTaskException(e2);
+            }
+        }
+    }
 
     @Override
-    public void undeploy() throws ConnectorTaskException {}
+    public void undeploy() throws ConnectorTaskException {
+        if (customDriver != null) {
+            try {
+                customDriver.dispose();
+            } catch (SQLException e) {
+            }
+        }
+    }
 
     @Override
     public void start() throws ConnectorTaskException {}
@@ -44,20 +78,18 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
     public void stop() throws ConnectorTaskException {
         Throwable firstThrowable = null;
 
-        for (BasicDataSource dataSource : dataSources.values()) {
-            if (dataSource != null && !dataSource.isClosed()) {
-                try {
-                    dataSource.close();
-                } catch (Throwable t) {
-                    if (firstThrowable == null) {
-                        firstThrowable = t;
-                    }
+        for (SimpleDataSource dataSource : dataSources.values()) {
+            try {
+                dataSource.closeConnection();
+            } catch (Throwable t) {
+                if (firstThrowable == null) {
+                    firstThrowable = t;
                 }
             }
         }
 
         if (firstThrowable != null) {
-            throw new ConnectorTaskException("Failed to close data source", firstThrowable);
+            throw new ConnectorTaskException("Failed to close one or more connections.", firstThrowable);
         }
 
         dataSources.clear();
@@ -70,16 +102,18 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
 
     @Override
     public Response send(DatabaseDispatcherProperties connectorProperties, ConnectorMessage connectorMessage) throws DatabaseDispatcherException {
-        // send the message and retry (once) if the database connection fails
-        return send(connectorProperties, true);
-    }
+        long dispatcherId = connector.getDispatcherId();
+        SimpleDataSource dataSource = dataSources.get(dispatcherId);
 
-    private Response send(DatabaseDispatcherProperties connectorProperties, boolean retryOnConnectionFailure) throws DatabaseDispatcherException {
-        Connection connection = null;
+        if (dataSource == null) {
+            dataSource = new SimpleDataSource();
+            dataSources.put(dispatcherId, dataSource);
+        }
+
         PreparedStatement statement = null;
 
         try {
-            connection = getConnection(connectorProperties);
+            Connection connection = dataSource.getConnection(connectorProperties);
             statement = connection.prepareStatement(connectorProperties.getQuery());
             int i = 1;
 
@@ -106,77 +140,47 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
 
             return new Response(Status.SENT, responseData, responseMessageStatus);
         } catch (SQLException e) {
-            if (connection != null && !JdbcUtils.isValidConnection(connection)) {
-                try {
-                    connection.close();
-                } catch (SQLException e1) {
-                    throw new DatabaseDispatcherException("Failed to close an invalid database connection", e1);
-                }
-            }
-
-            try {
-                if (retryOnConnectionFailure && (connection == null || connection.isClosed())) {
-                    // retry sending on a new connection and pass retryOnConnectionFailure = false this time, so that we only retry once
-                    return send(connectorProperties, false);
-                }
-            } catch (SQLException e1) {
-                // if connection.isClosed() threw a SQLException, ignore it and refer to the original exception
-            }
-
             throw new DatabaseDispatcherException("Failed to write to database", e);
         } finally {
             DbUtils.closeQuietly(statement);
-            DbUtils.closeQuietly(connection);
         }
     }
 
-    /**
-     * Get a database connection based on the given connector properties.
-     */
-    private Connection getConnection(DatabaseDispatcherProperties connectorProperties) throws SQLException {
-        long dispatcherId = connector.getDispatcherId();
-        BasicDataSource dataSource = dataSources.get(dispatcherId);
+    private class SimpleDataSource {
+        private Connection connection;
+        private String username;
+        private String password;
+        private String url;
+        private long lastAccessTime;
 
-        /*
-         * If we have an existing connection pool and it is based on the same
-         * driver/username/password/url that is set in the given connector properties, then re-use
-         * the pool. Otherwise, close it and create a new pool since the connection settings have
-         * changed.
-         */
+        // TODO cache the PreparedStatement also
 
-        if (dataSource != null && !dataSource.isClosed()) {
-            if (connectorProperties.getDriver().equals(dataSource.getDriverClassName()) && connectorProperties.getUsername().equals(dataSource.getUsername()) && connectorProperties.getPassword().equals(dataSource.getPassword()) && connectorProperties.getUrl().equals(dataSource.getUrl())) {
-                Connection connection = dataSource.getConnection();
+        public Connection getConnection(DatabaseDispatcherProperties properties) throws SQLException {
+            /*
+             * If a connection hasn't been initialized yet, or if the connection is stale, or if the
+             * connection url/username/password have changed, then close the old connection (if
+             * applicable) and create a new one.
+             */
+            if (connection == null || connection.isClosed() || lastAccessTime < (System.nanoTime() - MAX_CONNECTION_IDLE_TIME_NS) || !properties.getUsername().equals(username) || !properties.getPassword().equals(password) || !properties.getUrl().equals(url)) {
+                closeConnection();
+
+                logger.debug("Creating connection to " + url);
+                connection = DriverManager.getConnection(url, username, password);
                 connection.setAutoCommit(true);
-                return connection;
+
+                username = properties.getUsername();
+                password = properties.getPassword();
+                url = properties.getUrl();
             }
 
-            try {
-                dataSource.close();
-            } catch (SQLException e) {
-            }
+            lastAccessTime = System.nanoTime();
+            return connection;
         }
 
-        dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(connectorProperties.getDriver());
-        dataSource.setUsername(connectorProperties.getUsername());
-        dataSource.setPassword(connectorProperties.getPassword());
-        dataSource.setUrl(connectorProperties.getUrl());
-
-        /*
-         * MIRTH-3570: As of DBCP version 2.0, test-on-borrow is enabled by default in
-         * BasicDataSource and is automatically done using the JDBC 4.0 isValid method. We don't
-         * want to do this for two reasons: 1) Our SQL Server (JTDS) driver doesn't support JDBC
-         * 4.0, so it would be necessary to provide a validation query and 2) DBCP's test-on-borrow
-         * happens on every single borrow, which could slow performance (unlike HikariCP which tests
-         * at most once a second).
-         */
-        dataSource.setTestOnBorrow(false);
-
-        dataSources.put(dispatcherId, dataSource);
-
-        Connection connection = dataSource.getConnection();
-        connection.setAutoCommit(true);
-        return connection;
+        public void closeConnection() throws SQLException {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        }
     }
 }
