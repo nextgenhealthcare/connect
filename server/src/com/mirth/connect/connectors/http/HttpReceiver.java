@@ -83,9 +83,9 @@ import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.userutil.MessageHeaders;
-import com.mirth.connect.server.userutil.MessageParameters;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.userutil.MessageHeaders;
+import com.mirth.connect.userutil.MessageParameters;
 import com.mirth.connect.util.CharsetUtils;
 
 public class HttpReceiver extends SourceConnector implements BinaryContentTypeResolver {

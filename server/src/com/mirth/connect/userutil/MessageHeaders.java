@@ -1,4 +1,4 @@
-package com.mirth.connect.server.userutil;
+package com.mirth.connect.userutil;
 
 import java.util.Collections;
 import java.util.List;
@@ -8,38 +8,38 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
-public class MessageParameters {
-    private static Logger logger = Logger.getLogger(MessageParameters.class);
+public class MessageHeaders {
+    private static Logger logger = Logger.getLogger(MessageHeaders.class);
     private Map<String, List<String>> delegate;
 
-    public MessageParameters(Map<String, List<String>> delegate) {
+    public MessageHeaders(Map<String, List<String>> delegate) {
         this.delegate = delegate;
     }
 
     /**
-     * Get the first parameter value for the given key.
+     * Get the first header value for the given key.
      * 
      * @param key
-     *            The name of the parameter key.
+     *            The name of the header key.
      * @return The associated value or null if no value exists.
-     * @deprecated This method is deprecated and will soon be removed. Please use getParameter(key)
+     * @deprecated This method is deprecated and will soon be removed. Please use getHeader(key)
      *             instead.
      */
     @Deprecated
     public String get(String key) {
-        logger.error("This method is deprecated and will soon be removed. Please call getParameter(key) instead.");
-        return getParameter(key);
+        logger.error("This method is deprecated and will soon be removed. Please call getHeader(key) instead.");
+        return getHeader(key);
     }
 
     /**
-     * Get the first parameter value for the given key.
+     * Get the first header value for the given key.
      * 
      * @param key
-     *            The name of the parameter key.
+     *            The name of the header key.
      * @return The associated value or null if no value exists.
      * 
      */
-    public String getParameter(String key) {
+    public String getHeader(String key) {
         List<String> list = delegate.get(key);
 
         if (CollectionUtils.isNotEmpty(list)) {
@@ -50,14 +50,14 @@ public class MessageParameters {
     }
 
     /**
-     * Get all parameter values for the given key.
+     * Get all header values for the given key.
      * 
      * @param key
-     *            The name of parameter key.
-     * @return A list of all parameter values for the given key or null if no values exist.
+     *            The name of header key.
+     * @return A list of all header values for the given key or null if no values exist.
      * 
      */
-    public List<String> getParameterList(String key) {
+    public List<String> getHeaderList(String key) {
         List<String> list = delegate.get(key);
 
         if (CollectionUtils.isNotEmpty(list)) {
@@ -68,20 +68,20 @@ public class MessageParameters {
     }
 
     /**
-     * Get all parameter keys.
+     * Get all header keys.
      * 
-     * @return A set of all parameter keys.
+     * @return A set of all header keys.
      */
     public Set<String> getKeys() {
         return Collections.unmodifiableSet(delegate.keySet());
     }
 
     /**
-     * Check if parameters exist for a given key.
+     * Check if headers exists for a given key.
      * 
      * @param key
-     *            The name of the parameter key.
-     * @return true if parameters exist for the given key, false otherwise.
+     *            The name of the header key.
+     * @return true if headers exist for the given key, false otherwise.
      */
     public boolean contains(String key) {
         return delegate.keySet().contains(key);
