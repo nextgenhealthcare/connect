@@ -12,7 +12,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -35,9 +34,10 @@ public class AttachmentExportDialog extends MirthDialog {
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
 
         setTitle("Export Attachment");
-        setPreferredSize(new Dimension(500, 145));
+        setPreferredSize(new Dimension(500, 155));
         getContentPane().setBackground(Color.white);
         setLocationRelativeTo(null);
+        setResizable(false);
         setModal(true);
 
         initComponents();
@@ -46,9 +46,6 @@ public class AttachmentExportDialog extends MirthDialog {
     }
 
     private void initComponents() {
-        attachmentExportPanel = new JPanel();
-        attachmentExportPanel.setBackground(Color.white);
-
         binaryButton = new JRadioButton("Binary");
         binaryButton.setSelected(true);
         binaryButton.setBackground(Color.white);
@@ -121,25 +118,22 @@ public class AttachmentExportDialog extends MirthDialog {
     }
 
     private void initLayout() {
-        attachmentExportPanel.setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0", "[right][left]"));
+        setLayout(new MigLayout("insets 12, fill", "[right][left]"));
 
-        attachmentExportPanel.add(new JLabel("File Type:"));
-        attachmentExportPanel.add(binaryButton, "split 2");
-        attachmentExportPanel.add(textButton, "wrap");
+        add(new JLabel("File Type:"));
+        add(binaryButton, "split 2");
+        add(textButton, "wrap");
 
-        attachmentExportPanel.add(new JLabel("Export To:"));
-        attachmentExportPanel.add(serverButton, "split 3");
-        attachmentExportPanel.add(localButton);
-        attachmentExportPanel.add(browseButton, "wrap");
+        add(new JLabel("Export To:"));
+        add(serverButton, "split 3");
+        add(localButton);
+        add(browseButton, "wrap");
 
-        attachmentExportPanel.add(new JLabel("File:"));
-        attachmentExportPanel.add(fileField, "push, grow, span");
+        add(new JLabel("File:"));
+        add(fileField, "push, growx, span");
 
-        setLayout(new MigLayout("insets 12, wrap", "[]", "[fill][]"));
-
-        add(attachmentExportPanel, "grow, push");
         add(new JSeparator(), "grow, span");
-        add(exportButton, "split 2, alignx right, width 60, gaptop 4");
+        add(exportButton, "width 60, right, split 2, spanx, gaptop 4");
         add(cancelButton, "width 60, gaptop 4");
     }
 
@@ -218,7 +212,6 @@ public class AttachmentExportDialog extends MirthDialog {
         return PlatformUI.MIRTH_FRAME.mirthClient.getAttachment(PlatformUI.MIRTH_FRAME.messageBrowser.getChannelId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedAttachmentId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedMessageId());
     }
 
-    private JPanel attachmentExportPanel;
     private JRadioButton textButton;
     private JRadioButton binaryButton;
 
