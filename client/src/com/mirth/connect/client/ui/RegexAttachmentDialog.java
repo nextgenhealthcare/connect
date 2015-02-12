@@ -96,7 +96,6 @@ public class RegexAttachmentDialog extends MirthDialog {
             count++;
         }
 
-        pack();
         setLocationRelativeTo(parent);
         setVisible(true);
     }
@@ -179,7 +178,7 @@ public class RegexAttachmentDialog extends MirthDialog {
         regexTextField.setToolTipText("<html>The regular expression that will be used to match and extract attachments.<br>If capturing groups are used, only the last group will be extracted.</html>");
 
         regexExampleTextField = new JTextField();
-        regexExampleTextField.setText("Example for OBX 5.5: (?:OBX\\|(?:[^|]*\\|){4}(?:[^|^]*\\^){4})([^|^\\r\\n]*)(?:[|^\\r\\n]|$)");
+        regexExampleTextField.setText("(?:OBX\\|(?:[^|]*\\|){4}(?:[^|^]*\\^){4})([^|^\\r\\n]*)(?:[|^\\r\\n]|$)");
         regexExampleTextField.setEditable(false);
         regexExampleTextField.setBorder(null);
         regexExampleTextField.setOpaque(false);
@@ -253,7 +252,8 @@ public class RegexAttachmentDialog extends MirthDialog {
     }
 
     private void initLayout() {
-        regularExpressionPanel.add(regexExampleTextField, "sx, growx, wrap");
+        regularExpressionPanel.add(new JLabel("Example for OBX 5.5: "));
+        regularExpressionPanel.add(regexExampleTextField, "left, push, wrap");
         regularExpressionPanel.add(regexTextField, "sx, growx");
 
         mimeTypePanel.add(mimeTypeField, "sx, growx");
@@ -277,6 +277,7 @@ public class RegexAttachmentDialog extends MirthDialog {
 
         add(separator, "wrap");
         add(closeButton, " w 50!, right");
+        pack();
     }
 
     private void closeButtonActionPerformed(ActionEvent evt) {
