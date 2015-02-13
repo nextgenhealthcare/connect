@@ -10,10 +10,12 @@
 package com.mirth.connect.server.alert;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -29,13 +32,16 @@ import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
+import com.mirth.connect.server.alert.action.Protocol;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.event.EventListener;
+import com.mirth.connect.server.util.ServerSMTPConnectionFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public abstract class AlertWorker extends EventListener {
+    private static final String DEFAULT_SUBJECT = "Mirth Connect Alert";
 
     protected Logger logger = Logger.getLogger(this.getClass());
     protected ExecutorService actionExecutor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
@@ -120,6 +126,10 @@ public abstract class AlertWorker extends EventListener {
                     body = replacer.replaceValues(actionGroup.getTemplate(), context);
                 }
 
+                if (StringUtils.isEmpty(subject)) {
+                    subject = DEFAULT_SUBJECT;
+                }
+
                 Map<String, List<String>> protocolRecipients = new LinkedHashMap<String, List<String>>();
 
                 for (AlertAction action : actionGroup.getActions()) {
@@ -141,15 +151,36 @@ public abstract class AlertWorker extends EventListener {
                     alertController = ControllerFactory.getFactory().createAlertController();
                 }
 
-                for (String protocol : protocolRecipients.keySet()) {
-                    try {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Dispatching alert ID " + alertId + " with protocol '" + protocol + "' to recipients: " + StringUtils.join(protocolRecipients.get(protocol), ", "));
-                        }
+                Set<String> emailAddresses = new HashSet<>();
 
-                        alertController.getAlertActionProtocol(protocol).getDispatcher().dispatch(protocolRecipients.get(protocol), subject, body);
+                for (Entry<String, List<String>> protocolEntry : protocolRecipients.entrySet()) {
+                    String protocolName = protocolEntry.getKey();
+
+                    try {
+                        Protocol alertProtocol = alertController.getAlertActionProtocol(protocolName);
+
+                        if (alertProtocol == null) {
+                            logger.warn("Alert protocol '" + protocolName + "' is not currently installed, skipping.");
+                        } else {
+                            List<String> recipients = protocolEntry.getValue();
+                            List<String> protocolEmailAddresses = alertProtocol.getEmailAddressesForDispatch(recipients);
+
+                            alertProtocol.doCustomDispatch(recipients, subject, body);
+
+                            if (CollectionUtils.isNotEmpty(protocolEmailAddresses)) {
+                                emailAddresses.addAll(protocolEmailAddresses);
+                            }
+                        }
                     } catch (Exception e) {
-                        logger.error("An error occurred while attempting to dispatch '" + protocol + "' alerts.", e);
+                        logger.error("An error occurred while attempting to dispatch '" + protocolName + "' alerts.", e);
+                    }
+                }
+
+                if (!emailAddresses.isEmpty()) {
+                    try {
+                        ServerSMTPConnectionFactory.createSMTPConnection().send(StringUtils.join(emailAddresses, ","), null, subject, body);
+                    } catch (Exception e) {
+                        logger.error("Error sending alert email.", e);
                     }
                 }
 

@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -149,7 +148,7 @@ public class AlertServlet extends MirthServlet {
 
                         if (doesUserHaveChannelRestrictions(request)) {
                             channelSummaries = redactChannelSummaries(request, channelSummaries);
-                            redactProtocolOptions(request, protocolOptions);
+                            protocolOptions = redactProtocolOptions(request, protocolOptions);
                         }
 
                         AlertInfo alertInfo = new AlertInfo();
@@ -171,7 +170,7 @@ public class AlertServlet extends MirthServlet {
                         Map<String, Map<String, String>> protocolOptions = alertController.getAlertActionProtocolOptions();
 
                         if (doesUserHaveChannelRestrictions(request)) {
-                            redactProtocolOptions(request, protocolOptions);
+                            protocolOptions = redactProtocolOptions(request, protocolOptions);
                         }
 
                         serializer.serialize(protocolOptions, out);
@@ -186,16 +185,22 @@ public class AlertServlet extends MirthServlet {
         }
     }
 
-    private void redactProtocolOptions(HttpServletRequest request, Map<String, Map<String, String>> protocolOptions) throws ServletException {
-        Set<String> authorizedChannelIds = new HashSet<String>(getAuthorizedChannelIds(request));
+    private Map<String, Map<String, String>> redactProtocolOptions(HttpServletRequest request, Map<String, Map<String, String>> protocolOptions) throws ServletException {
         Map<String, String> channelOptions = protocolOptions.get(ChannelProtocol.NAME);
 
         if (channelOptions != null) {
+            Set<String> authorizedChannelIds = new HashSet<>(getAuthorizedChannelIds(request));
+            Map<String, String> authorizedChannelOptions = new HashMap<>();
+
             for (String channelId : channelOptions.keySet()) {
-                if (!authorizedChannelIds.contains(channelId)) {
-                    channelOptions.remove(channelId);
+                if (authorizedChannelIds.contains(channelId)) {
+                    authorizedChannelOptions.put(channelId, channelOptions.get(channelId));
                 }
             }
+
+            protocolOptions.put(ChannelProtocol.NAME, authorizedChannelOptions);
         }
+
+        return protocolOptions;
     }
 }

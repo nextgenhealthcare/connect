@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class AlertActionPane extends JPanel {
     private static final String DEFAULT_PROTOCOL = "Email";
     private static int PROTOCOL_COLUMN_WIDTH = 65;
 
-    private volatile Map<String, Protocol> protocols;
+    private volatile Map<String, Protocol> protocols = new LinkedHashMap<String, AlertActionPane.Protocol>();
     private AlertActionGroup actionGroup;
 
     public AlertActionPane() {
@@ -269,14 +270,29 @@ public class AlertActionPane extends JPanel {
         }
 
         public void refreshData(List<AlertAction> actions) {
+            /*
+             * Remove any actions that belong to a protocol that is not currently installed (for
+             * example: if the the user role plugin were to be uninstalled). This will modify the
+             * AlertModel, so the next time the user saves the alert, these alert actions will be
+             * permanently removed.
+             */
+            for (Iterator<AlertAction> iterator = actions.iterator(); iterator.hasNext();) {
+                if (!protocols.containsKey(iterator.next().getProtocol())) {
+                    iterator.remove();
+                }
+            }
+
             this.actions = actions;
             fireTableDataChanged();
         }
 
         public void addRow(AlertAction action) {
-            int row = actions.size();
-            actions.add(action);
-            fireTableRowsInserted(row, row);
+            // Skip if the action's protocol is not currently installed
+            if (protocols.containsKey(action.getProtocol())) {
+                int row = actions.size();
+                actions.add(action);
+                fireTableRowsInserted(row, row);
+            }
         }
 
         public void removeRow(int rowIndex) {

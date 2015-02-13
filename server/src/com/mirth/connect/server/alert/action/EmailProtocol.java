@@ -1,5 +1,6 @@
 package com.mirth.connect.server.alert.action;
 
+import java.util.List;
 import java.util.Map;
 
 public class EmailProtocol implements Protocol {
@@ -14,7 +15,10 @@ public class EmailProtocol implements Protocol {
     }
 
     @Override
-    public Dispatcher getDispatcher() {
-        return new EmailDispatcher();
+    public List<String> getEmailAddressesForDispatch(List<String> emailAddresses) {
+        return emailAddresses;
     }
+
+    @Override
+    public void doCustomDispatch(List<String> emailAddresses, String subject, String content) {}
 }

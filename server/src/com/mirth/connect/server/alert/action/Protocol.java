@@ -1,5 +1,6 @@
 package com.mirth.connect.server.alert.action;
 
+import java.util.List;
 import java.util.Map;
 
 public interface Protocol {
@@ -15,7 +16,13 @@ public interface Protocol {
     public Map<String, String> getRecipientOptions();
 
     /**
-     * Returns the dispatcher implementation to use for this protocol.
+     * From the given list of recipients, obtain a list of email addresses that will receive the
+     * dispatched alert.
      */
-    public Dispatcher getDispatcher();
+    public List<String> getEmailAddressesForDispatch(List<String> recipients);
+
+    /**
+     * Dispatch an alert using a custom (non-email) method.
+     */
+    public void doCustomDispatch(List<String> recipients, String subject, String content);
 }
