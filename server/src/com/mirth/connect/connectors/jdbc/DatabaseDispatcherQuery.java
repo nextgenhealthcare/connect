@@ -164,8 +164,8 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
             if (connection == null || connection.isClosed() || lastAccessTime < (System.nanoTime() - MAX_CONNECTION_IDLE_TIME_NS) || !properties.getUsername().equals(username) || !properties.getPassword().equals(password) || !properties.getUrl().equals(url)) {
                 closeConnection();
 
-                logger.debug("Creating connection to " + url);
-                connection = DriverManager.getConnection(url, username, password);
+                logger.debug("Creating connection to " + properties.getUrl());
+                connection = DriverManager.getConnection(properties.getUrl(), properties.getUsername(), properties.getPassword());
                 connection.setAutoCommit(true);
 
                 username = properties.getUsername();
