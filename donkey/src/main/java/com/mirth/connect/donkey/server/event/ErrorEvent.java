@@ -26,6 +26,7 @@ public class ErrorEvent extends Event {
     public ErrorEvent(String channelId, Integer metaDataId, Long messageId, ErrorEventType type, String connectorName, String connectorType, String customMessage, Throwable throwable) {
         this.channelId = channelId;
         this.metaDataId = metaDataId;
+        this.messageId = messageId;
         this.type = type;
         this.connectorName = connectorName;
         this.connectorType = connectorType;
