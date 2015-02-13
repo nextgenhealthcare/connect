@@ -210,6 +210,12 @@ public class WebServiceDispatcher extends DestinationConnector {
                 dispatch.getRequestContext().put("com.sun.xml.ws.request.timeout", timeout);
             }
 
+            Map<String, List<String>> requestHeaders = (Map<String, List<String>>) dispatch.getRequestContext().get(MessageContext.HTTP_REQUEST_HEADERS);
+            if (requestHeaders == null) {
+                requestHeaders = new HashMap<String, List<String>>();
+            }
+            dispatchContainer.setDefaultRequestHeaders(requestHeaders);
+
             dispatchContainer.setDispatch(dispatch);
         }
     }
@@ -370,6 +376,7 @@ public class WebServiceDispatcher extends DestinationConnector {
             createDispatch(webServiceDispatcherProperties, dispatchContainer);
 
             Dispatch<SOAPMessage> dispatch = dispatchContainer.getDispatch();
+
             configuration.configureDispatcher(this, webServiceDispatcherProperties, dispatch.getRequestContext());
 
             SOAPBinding soapBinding = (SOAPBinding) dispatch.getBinding();
@@ -391,25 +398,24 @@ public class WebServiceDispatcher extends DestinationConnector {
                 dispatch.getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
             }
 
+            // Get default headers
+            Map<String, List<String>> requestHeaders = new HashMap<String, List<String>>(dispatchContainer.getDefaultRequestHeaders());
+
             // Add custom headers
             if (MapUtils.isNotEmpty(webServiceDispatcherProperties.getHeaders())) {
-                Map<String, List<String>> requestHeaders = (Map<String, List<String>>) dispatch.getRequestContext().get(MessageContext.HTTP_REQUEST_HEADERS);
-                if (requestHeaders == null) {
-                    requestHeaders = new HashMap<String, List<String>>();
-                }
-
                 for (Entry<String, List<String>> entry : webServiceDispatcherProperties.getHeaders().entrySet()) {
                     List<String> valueList = requestHeaders.get(entry.getKey());
-                    
+
                     if (valueList == null) {
                         valueList = new ArrayList<String>();
                         requestHeaders.put(entry.getKey(), valueList);
                     }
 
-                   valueList.addAll(entry.getValue());
+                    valueList.addAll(entry.getValue());
                 }
-                dispatch.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
             }
+
+            dispatch.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
 
             // build the message
             logger.debug("Creating SOAP envelope.");
@@ -531,6 +537,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         private String currentServiceName = null;
         private String currentPortName = null;
         private List<File> tempFiles = new ArrayList<File>();
+        private Map<String, List<String>> defaultRequestHeaders;
 
         public Dispatch<SOAPMessage> getDispatch() {
             return dispatch;
@@ -582,6 +589,14 @@ public class WebServiceDispatcher extends DestinationConnector {
 
         public List<File> getTempFiles() {
             return tempFiles;
+        }
+
+        public Map<String, List<String>> getDefaultRequestHeaders() {
+            return defaultRequestHeaders;
+        }
+
+        public void setDefaultRequestHeaders(Map<String, List<String>> defaultRequestHeaders) {
+            this.defaultRequestHeaders = defaultRequestHeaders;
         }
     }
 
