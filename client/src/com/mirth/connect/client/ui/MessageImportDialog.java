@@ -9,7 +9,6 @@
 
 package com.mirth.connect.client.ui;
 
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -42,20 +41,8 @@ import com.mirth.connect.util.messagewriter.MessageWriterException;
 
 public class MessageImportDialog extends MirthDialog {
     private String channelId;
-    private MessageBrowser messageBrowser;
     private Frame parent;
     private Preferences userPreferences;
-    private JLabel importFromLabel = new JLabel("Import From:");
-    private ButtonGroup importFromButtonGroup = new ButtonGroup();
-    private MirthRadioButton importServerRadio = new MirthRadioButton("Server");
-    private MirthRadioButton importLocalRadio = new MirthRadioButton("My Computer");
-    private MirthButton browseButton = new MirthButton("Browse...");
-    private JLabel fileLabel = new JLabel("File/Folder/Archive:");
-    private MirthTextField fileTextField = new MirthTextField();
-    private MirthCheckBox subfoldersCheckbox = new MirthCheckBox("Include Sub-folders");
-    private JLabel noteLabel = new JLabel("<html><i>Note: RECEIVED, QUEUED, or PENDING messages will be set to ERROR upon import.</i></html>");
-    private MirthButton importButton = new MirthButton("Import");
-    private MirthButton cancelButton = new MirthButton("Cancel");
 
     public MessageImportDialog() {
         super(PlatformUI.MIRTH_FRAME);
@@ -63,7 +50,6 @@ public class MessageImportDialog extends MirthDialog {
         userPreferences = Frame.userPreferences;
 
         setTitle("Import Messages");
-        setBackground(new Color(255, 255, 255));
         setLocationRelativeTo(null);
         setModal(true);
         initComponents();
@@ -79,34 +65,10 @@ public class MessageImportDialog extends MirthDialog {
         this.messageBrowser = messageBrowser;
     }
 
-    @Override
-    public void setBackground(Color color) {
-        super.setBackground(color);
-        getContentPane().setBackground(color);
-        importServerRadio.setBackground(color);
-        importLocalRadio.setBackground(color);
-        subfoldersCheckbox.setBackground(color);
-    }
-
     private void initComponents() {
-        importServerRadio.setToolTipText("<html>Import messages from a file, folder or archive<br />on the Mirth Connect Server.</html>");
-        importLocalRadio.setToolTipText("<html>Import messages from a file, folder<br />or archive on this computer.</html>");
-        fileTextField.setToolTipText("<html>A file containing message(s) in XML format, or a folder/archive<br />containing files with message(s) in XML format.</html>");
-        subfoldersCheckbox.setToolTipText("<html>If checked, sub-folders of the folder/archive shown above<br />will be searched for messages to import.</html>");
+        getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);
 
-        importFromButtonGroup.add(importServerRadio);
-        importFromButtonGroup.add(importLocalRadio);
-
-        importServerRadio.setSelected(true);
-        subfoldersCheckbox.setSelected(true);
-        browseButton.setEnabled(false);
-
-        ActionListener browseSelected = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                browseSelected();
-            }
-        };
+        importFromLabel = new JLabel("Import From:");
 
         ActionListener importDestinationChanged = new ActionListener() {
             @Override
@@ -121,25 +83,57 @@ public class MessageImportDialog extends MirthDialog {
             }
         };
 
-        ActionListener importMessages = new ActionListener() {
+        importServerRadio = new MirthRadioButton("Server");
+        importServerRadio.setSelected(true);
+        importServerRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        importServerRadio.addActionListener(importDestinationChanged);
+        importServerRadio.setToolTipText("<html>Import messages from a file, folder or archive<br />on the Mirth Connect Server.</html>");
+
+        importLocalRadio = new MirthRadioButton("My Computer");
+        importLocalRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        importLocalRadio.addActionListener(importDestinationChanged);
+        importLocalRadio.setToolTipText("<html>Import messages from a file, folder<br />or archive on this computer.</html>");
+
+        importFromButtonGroup = new ButtonGroup();
+        importFromButtonGroup.add(importServerRadio);
+        importFromButtonGroup.add(importLocalRadio);
+
+        browseButton = new MirthButton("Browse...");
+        browseButton.setEnabled(false);
+        browseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                browseSelected();
+            }
+        });
+
+        fileLabel = new JLabel("File/Folder/Archive:");
+
+        fileTextField = new MirthTextField();
+        fileTextField.setToolTipText("<html>A file containing message(s) in XML format, or a folder/archive<br />containing files with message(s) in XML format.</html>");
+
+        subfoldersCheckbox = new MirthCheckBox("Include Sub-folders");
+        subfoldersCheckbox.setSelected(true);
+        subfoldersCheckbox.setBackground(UIConstants.BACKGROUND_COLOR);
+        subfoldersCheckbox.setToolTipText("<html>If checked, sub-folders of the folder/archive shown above<br />will be searched for messages to import.</html>");
+
+        noteLabel = new JLabel("<html><i>Note: RECEIVED, QUEUED, or PENDING messages will be set to ERROR upon import.</i></html>");
+
+        importButton = new MirthButton("Import");
+        importButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 importMessages();
             }
-        };
+        });
 
-        ActionListener cancel = new ActionListener() {
+        cancelButton = new MirthButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
             }
-        };
-
-        browseButton.addActionListener(browseSelected);
-        importServerRadio.addActionListener(importDestinationChanged);
-        importLocalRadio.addActionListener(importDestinationChanged);
-        importButton.addActionListener(importMessages);
-        cancelButton.addActionListener(cancel);
+        });
     }
 
     private void browseSelected() {
@@ -247,26 +241,16 @@ public class MessageImportDialog extends MirthDialog {
         }
     }
 
-//    public static void main(String[] args) {
-//        Mirth.initUIManager();
-//
-//        PlatformUI.MIRTH_FRAME = new Frame() {
-//            public Client mirthClient;
-//
-//            public void setSaveEnabled(boolean enabled) {}
-//        };
-//
-//        PlatformUI.MIRTH_FRAME.mirthClient = new Client(null) {
-//            public void importMessage(String channelId, Message message) throws ClientException {}
-//
-//            public MessageImportResult importMessagesServer(String channelId, String folder, boolean includeSubfolders) throws ClientException {
-//                return new MessageImportResult(3, 3, System.getProperty("user.dir"));
-//            }
-//        };
-//
-//        JDialog dialog = new MessageImportDialog();
-//        dialog.setLocationRelativeTo(null);
-//        dialog.setVisible(true);
-//        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-//    }
+    private MessageBrowser messageBrowser;
+    private JLabel importFromLabel;
+    private ButtonGroup importFromButtonGroup;
+    private MirthRadioButton importServerRadio;
+    private MirthRadioButton importLocalRadio;
+    private MirthButton browseButton;
+    private JLabel fileLabel;
+    private MirthTextField fileTextField;
+    private MirthCheckBox subfoldersCheckbox;
+    private JLabel noteLabel;
+    private MirthButton importButton;
+    private MirthButton cancelButton;
 }

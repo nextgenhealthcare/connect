@@ -9,7 +9,6 @@
 
 package com.mirth.connect.client.ui;
 
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -38,8 +37,7 @@ import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 /**
- * Dialog containing MessageExportPanel that is used in the message browser to
- * export messages
+ * Dialog containing MessageExportPanel that is used in the message browser to export messages
  */
 public class MessageExportDialog extends MirthDialog {
     private Frame parent;
@@ -47,19 +45,13 @@ public class MessageExportDialog extends MirthDialog {
     private MessageFilter messageFilter;
     private int pageSize;
     private Encryptor encryptor;
-    private MessageExportPanel messageExportPanel;
-    private JButton exportButton = new JButton("Export");
-    private JButton cancelButton = new JButton("Cancel");
 
     public MessageExportDialog() {
         super(PlatformUI.MIRTH_FRAME);
         parent = PlatformUI.MIRTH_FRAME;
-        messageExportPanel = new MessageExportPanel(Frame.userPreferences, false, true);
-        messageExportPanel.setExportLocal(true);
 
         setTitle("Export Results");
         setPreferredSize(new Dimension(800, 300));
-        setBackground(new Color(255, 255, 255));
         setLocationRelativeTo(null);
         setModal(true);
         initComponents();
@@ -83,32 +75,28 @@ public class MessageExportDialog extends MirthDialog {
         this.encryptor = encryptor;
     }
 
-    @Override
-    public void setBackground(Color color) {
-        super.setBackground(color);
-        getContentPane().setBackground(color);
-        if (messageExportPanel != null) {
-            messageExportPanel.setBackground(color);
-        }
-    }
-
     private void initComponents() {
-        ActionListener exportAction = new ActionListener() {
+        getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);
+
+        messageExportPanel = new MessageExportPanel(Frame.userPreferences, false, true);
+        messageExportPanel.setExportLocal(true);
+        messageExportPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+
+        exportButton = new JButton("Export");
+        exportButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 export();
             }
-        };
+        });
 
-        ActionListener cancelAction = new ActionListener() {
+        cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
             }
-        };
-
-        exportButton.addActionListener(exportAction);
-        cancelButton.addActionListener(cancelAction);
+        });
     }
 
     private void initLayout() {
@@ -181,18 +169,7 @@ public class MessageExportDialog extends MirthDialog {
         }
     }
 
-    /**
-     * Launches the dialog in a test frame
-     */
-//    public static void main(String[] args) {
-//        Mirth.initUIManager();
-//        PlatformUI.MIRTH_FRAME = new Frame() {
-//            public void setSaveEnabled(boolean enabled) {}
-//        };
-//
-//        JDialog dialog = new MessageExportDialog();
-//        dialog.setLocationRelativeTo(null);
-//        dialog.setVisible(true);
-//        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-//    }
+    private MessageExportPanel messageExportPanel;
+    private JButton exportButton;
+    private JButton cancelButton;
 }
