@@ -95,7 +95,7 @@
 				AND RECEIVED_DATE <![CDATA[ <= ]]> #{endDate}
 			</if>
 			<if test="serverId != null">
-				AND SERVER_ID ILIKE '%' || #{serverId} || '%'
+				AND UPPER(SERVER_ID) LIKE '%' || UPPER(#{serverId}) || '%'
 			</if>
 			<if test="attachment != null and attachment == true">
 				AND EXISTS (SELECT 1 FROM D_MA${localChannelId} MA WHERE MA.MESSAGE_ID = M.ID)

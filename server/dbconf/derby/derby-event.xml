@@ -28,7 +28,7 @@
          <if test='outcome != null'>AND OUTCOME = #{outcome}</if>
          <if test='userId != null'>AND USER_ID = #{userId}</if>
          <if test='ipAddress != null'>AND IP_ADDRESS = #{ipAddress}</if>
-         <if test='serverId != null'>AND SERVER_ID ILIKE '%' || #{serverId} || '%'</if>
+         <if test='serverId != null'>AND UPPER(SERVER_ID) LIKE '%' || UPPER(#{serverId}) || '%'</if>
       </where>
 	</sql>
 	
