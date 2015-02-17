@@ -23,11 +23,11 @@ public class MessageParameters {
      *            The name of the parameter key.
      * @return The associated value or null if no value exists.
      * @deprecated This method is deprecated and will soon be removed. Please use getParameter(key)
-     *             instead.
+     *             or getParameterList(key) instead.
      */
     @Deprecated
     public String get(String key) {
-        logger.error("This method is deprecated and will soon be removed. Please call getParameter(key) instead.");
+        logger.error("The get(key) method for retrieving Http parameters is deprecated and will soon be removed. Please use getParameter(key) or getParameterList(key) instead.");
         return getParameter(key);
     }
 

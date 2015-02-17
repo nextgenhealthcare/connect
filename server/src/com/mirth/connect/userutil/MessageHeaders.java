@@ -22,12 +22,12 @@ public class MessageHeaders {
      * @param key
      *            The name of the header key.
      * @return The associated value or null if no value exists.
-     * @deprecated This method is deprecated and will soon be removed. Please use getHeader(key)
-     *             instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use getHeader(key) or
+     *             getHeaderList(key) instead.
      */
     @Deprecated
     public String get(String key) {
-        logger.error("This method is deprecated and will soon be removed. Please call getHeader(key) instead.");
+        logger.error("The get(key) method for retrieving Http headers is deprecated and will soon be removed. Please use getHeader(key) or getHeaderList(key) instead.");
         return getHeader(key);
     }
 
