@@ -35,21 +35,21 @@
 		SELECT PASSWORD, PASSWORD_DATE
 		FROM PERSON_PASSWORD
 		WHERE PERSON_ID = #{id}
-		ORDER BY PASSWORD_DATE DESC
+		ORDER BY PASSWORD_DATE DESC NULLS LAST
 	</select>
 	
 	<select id="getLatestUserCredentials" parameterType="java.lang.Integer" resultMap="get-user-credentials">
 		SELECT PASSWORD, PASSWORD_DATE
 		FROM PERSON_PASSWORD
 		WHERE PERSON_ID = #{id}
-		ORDER BY PASSWORD_DATE DESC
+		ORDER BY PASSWORD_DATE DESC NULLS LAST
 		FETCH FIRST ROW ONLY
 	</select>
 	
 	<delete id="prunePasswords" parameterType="java.util.Map">
 		DELETE FROM PERSON_PASSWORD
 		WHERE PERSON_ID = #{id}
-		AND PASSWORD_DATE <![CDATA[ <= ]]> #{pruneDate}
+		AND PASSWORD_DATE <![CDATA[ <= ]]> #{pruneDate} OR PASSWORD_DATE IS NULL
 	</delete>
 	
 	<insert id="insertUser" parameterType="java.util.Map">
