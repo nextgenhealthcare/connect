@@ -305,9 +305,9 @@ public class MessageExportPanel extends JPanel {
         model.addElement(new ExportFormat(true, "Destination", ContentType.RESPONSE));
         model.addElement(new ExportFormat(true, "Destination", ContentType.PROCESSED_RESPONSE));
 
-        model.addElement(new ExportFormat(true, "", ContentType.CHANNEL_MAP));
-        model.addElement(new ExportFormat(true, "", ContentType.SOURCE_MAP));
-        model.addElement(new ExportFormat(true, "", ContentType.RESPONSE_MAP));
+        model.addElement(new ExportFormat(false, "", ContentType.SOURCE_MAP));
+        model.addElement(new ExportFormat(false, "", ContentType.CHANNEL_MAP));
+        model.addElement(new ExportFormat(false, "", ContentType.RESPONSE_MAP));
         contentComboBox.setModel(model);
 
         contentComboBox.addActionListener(new ActionListener() {

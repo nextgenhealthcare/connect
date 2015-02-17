@@ -121,10 +121,10 @@ public class MessageWriterFile implements MessageWriter {
             if (((destinationContent && metaDataId != 0) || (!destinationContent && metaDataId == 0))) {
                 Content content = null;
 
-                if (contentType == ContentType.CHANNEL_MAP) {
-                    content = message.getMergedConnectorMessage().getChannelMapContent();
-                } else if (contentType == ContentType.SOURCE_MAP) {
+                if (contentType == ContentType.SOURCE_MAP) {
                     content = message.getMergedConnectorMessage().getSourceMapContent();
+                } else if (contentType == ContentType.CHANNEL_MAP) {
+                    content = message.getMergedConnectorMessage().getChannelMapContent();
                 } else if (contentType == ContentType.RESPONSE_MAP) {
                     content = message.getMergedConnectorMessage().getResponseMapContent();
                 } else {
