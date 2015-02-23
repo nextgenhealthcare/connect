@@ -490,6 +490,7 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
             undoMenuItem.setEnabled(undoMenuItem.getAction().isEnabled() && canType && canUndo());
             redoMenuItem.setEnabled(redoMenuItem.getAction().isEnabled() && canType && canRedo());
             cutMenuItem.setEnabled(cutMenuItem.getAction().isEnabled() && canType);
+            copyMenuItem.setEnabled(copyMenuItem.getAction().isEnabled() && canType);
             pasteMenuItem.setEnabled(pasteMenuItem.getAction().isEnabled() && canType);
             deleteMenuItem.setEnabled(deleteMenuItem.getAction().isEnabled() && canType);
             findNextMenuItem.setEnabled(findNextMenuItem.getAction().isEnabled() && CollectionUtils.isNotEmpty(rstaPreferences.getFindReplaceProperties().getFindHistory()));
