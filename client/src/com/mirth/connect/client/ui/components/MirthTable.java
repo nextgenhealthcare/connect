@@ -51,6 +51,7 @@ public class MirthTable extends JXTable {
     }
 
     public MirthTable(String prefix, Set<String> defaultVisibleColumns) {
+        super();
         this.setDragEnabled(true);
         this.addKeyListener(new KeyListener() {
 
@@ -86,6 +87,7 @@ public class MirthTable extends JXTable {
 
     @Override
     public void sorterChanged(RowSorterEvent e) {
+        super.sorterChanged(e);
         if (StringUtils.isNotEmpty(prefix)) {
             userPreferences.put(prefix + "SortOrder", ObjectXMLSerializer.getInstance().serialize(new ArrayList<SortKey>(getRowSorter().getSortKeys())));
         }
@@ -95,7 +97,7 @@ public class MirthTable extends JXTable {
     public void setModel(TableModel tableModel) {
         super.setModel(tableModel);
 
-        if (tableModel.getColumnCount() > 0 && StringUtils.isNotEmpty(prefix)) {
+        if (StringUtils.isNotEmpty(prefix) && tableModel.getColumnCount() > 0) {
             String sortOrder = userPreferences.get(prefix + "SortOrder", "");
 
             if (StringUtils.isNotEmpty(sortOrder)) {
@@ -156,13 +158,15 @@ public class MirthTable extends JXTable {
     }
 
     private void determineColumnOrder() {
-        List<String> columnOrderNames = new ArrayList<String>();
+        if (StringUtils.isNotEmpty(prefix)) {
+            List<String> columnOrderNames = new ArrayList<String>();
 
-        for (TableColumn column : getColumns()) {
-            columnOrderNames.add((String) column.getHeaderValue());
+            for (TableColumn column : getColumns()) {
+                columnOrderNames.add((String) column.getHeaderValue());
+            }
+
+            userPreferences.put(prefix + "ColumnOrderNames", ObjectXMLSerializer.getInstance().serialize(columnOrderNames));
         }
-
-        userPreferences.put(prefix + "ColumnOrderNames", ObjectXMLSerializer.getInstance().serialize(columnOrderNames));
     }
 
     public void setCustomEditorControls(boolean enabled) {
