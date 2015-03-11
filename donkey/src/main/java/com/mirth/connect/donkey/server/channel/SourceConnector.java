@@ -306,6 +306,7 @@ public abstract class SourceConnector extends Connector {
             boolean attemptedResponse = dispatchResult.isAttemptedResponse();
             String responseError = dispatchResult.getResponseError();
             Response selectedResponse = dispatchResult.getSelectedResponse();
+            Message processedMessage = dispatchResult.getProcessedMessage();
 
             DonkeyDaoFactory daoFactory = channel.getDaoFactory();
             StorageSettings storageSettings = channel.getStorageSettings();
@@ -313,25 +314,6 @@ public abstract class SourceConnector extends Connector {
             long messageId = dispatchResult.getMessageId();
 
             try {
-                if (selectedResponse != null && storageSettings.isStoreSentResponse()) {
-                    dao = daoFactory.getDao();
-                    String responseContent = channel.getSerializer().serialize(selectedResponse);
-
-                    // The source response content cannot know the data type of the response it is using.
-                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, responseContent, null, false));
-                }
-
-                Message processedMessage = dispatchResult.getProcessedMessage();
-
-                if (storageSettings.isStoreMergedResponseMap() && processedMessage != null) {
-                    if (dao == null) {
-                        dao = daoFactory.getDao();
-                    }
-
-                    // Store the merged response map
-                    dao.updateResponseMap(processedMessage.getConnectorMessages().get(0));
-                }
-
                 if (attemptedResponse || responseError != null) {
                     if (dao == null) {
                         dao = daoFactory.getDao();
@@ -364,6 +346,26 @@ public abstract class SourceConnector extends Connector {
                         connectorMessage.setResponseError(responseError);
                         dao.updateErrors(connectorMessage);
                     }
+                }
+
+                if (selectedResponse != null && storageSettings.isStoreSentResponse()) {
+                    if (dao == null) {
+                        dao = daoFactory.getDao();
+                    }
+
+                    String responseContent = channel.getSerializer().serialize(selectedResponse);
+
+                    // The source response content cannot know the data type of the response it is using.
+                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, responseContent, null, false));
+                }
+
+                if (storageSettings.isStoreMergedResponseMap() && processedMessage != null) {
+                    if (dao == null) {
+                        dao = daoFactory.getDao();
+                    }
+
+                    // Store the merged response map
+                    dao.updateResponseMap(processedMessage.getConnectorMessages().get(0));
                 }
 
                 if (dispatchResult.isMarkAsProcessed()) {
