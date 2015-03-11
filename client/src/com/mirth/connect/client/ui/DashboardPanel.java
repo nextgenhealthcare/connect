@@ -85,9 +85,18 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     private JMenuItem menuItem;
     private Set<String> defaultVisibleColumns;
+    private Set<DeployedState> haltableStates = new HashSet<DeployedState>();
 
     public DashboardPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
+
+        haltableStates.add(DeployedState.DEPLOYING);
+        haltableStates.add(DeployedState.UNDEPLOYING);
+        haltableStates.add(DeployedState.STARTING);
+        haltableStates.add(DeployedState.STOPPING);
+        haltableStates.add(DeployedState.PAUSING);
+        haltableStates.add(DeployedState.SYNCING);
+        haltableStates.add(DeployedState.UNKNOWN);
 
         initComponents();
         statusPane.setDoubleBuffered(true);
@@ -517,9 +526,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     private boolean isHaltable(AbstractDashboardTableNode node) {
         DeployedState nodeState = node.getStatus().getState();
 
-        boolean haltable = (nodeState == DeployedState.DEPLOYING || nodeState == DeployedState.UNDEPLOYING || nodeState == DeployedState.STARTING || nodeState == DeployedState.STOPPING || nodeState == DeployedState.PAUSING || nodeState == DeployedState.UNKNOWN);
-
-        if (haltable) {
+        if (haltableStates.contains(nodeState)) {
             return true;
         } else {
             for (int i = 0; i < node.getChildCount(); i++) {
