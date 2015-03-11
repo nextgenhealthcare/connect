@@ -58,11 +58,13 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.config.RegistryBuilder;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
@@ -192,7 +194,9 @@ public class WebServiceDispatcher extends DestinationConnector {
             dispatchContainer.setCurrentServiceName(serviceName);
             dispatchContainer.setCurrentPortName(portName);
 
-            URL endpointUrl = getWsdlUrl(dispatchContainer);
+            int timeout = NumberUtils.toInt(webServiceDispatcherProperties.getSocketTimeout());
+
+            URL endpointUrl = getWsdlUrl(dispatchContainer, timeout);
             QName serviceQName = QName.valueOf(serviceName);
             QName portQName = QName.valueOf(portName);
 
@@ -202,7 +206,6 @@ public class WebServiceDispatcher extends DestinationConnector {
 
             Dispatch<SOAPMessage> dispatch = service.createDispatch(portQName, SOAPMessage.class, Service.Mode.MESSAGE);
 
-            int timeout = NumberUtils.toInt(webServiceDispatcherProperties.getSocketTimeout());
             if (timeout > 0) {
                 dispatch.getRequestContext().put("com.sun.xml.internal.ws.connect.timeout", timeout);
                 dispatch.getRequestContext().put("com.sun.xml.internal.ws.request.timeout", timeout);
@@ -230,12 +233,13 @@ public class WebServiceDispatcher extends DestinationConnector {
      * @return
      * @throws Exception
      */
-    private URL getWsdlUrl(DispatchContainer dispatchContainer) throws Exception {
+    private URL getWsdlUrl(DispatchContainer dispatchContainer, int timeout) throws Exception {
         URI uri = new URI(dispatchContainer.getCurrentWsdlUrl());
 
         // If the URL points to file, just return it
         if (!uri.getScheme().equalsIgnoreCase("file")) {
             BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
+            httpClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build());
             CloseableHttpClient client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
 
             try {
@@ -254,6 +258,9 @@ public class WebServiceDispatcher extends DestinationConnector {
                     context.setAuthSchemeRegistry(registryBuilder.build());
                     context.setAuthCache(authCache);
                 }
+
+                RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(timeout).setSocketTimeout(timeout).build();
+                context.setRequestConfig(requestConfig);
 
                 return getWsdl(client, context, dispatchContainer, new HashMap<String, File>(), dispatchContainer.getCurrentWsdlUrl()).toURI().toURL();
             } finally {
