@@ -109,6 +109,10 @@ public class DashboardTableNode extends AbstractDashboardTableNode {
                     row[colOffset] = new CellData(UIConstants.ICON_BULLET_YELLOW, "Paused");
                     break;
 
+                case SYNCING:
+                    row[colOffset] = new CellData(UIConstants.ICON_BULLET_ORANGE, "Syncing");
+                    break;
+
                 case UNKNOWN:
                     row[colOffset] = new CellData(UIConstants.ICON_BULLET_BLACK, "Unknown");
                     break;
