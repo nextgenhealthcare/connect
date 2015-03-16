@@ -25,12 +25,16 @@ import com.mirth.connect.donkey.server.data.jdbc.JdbcDao;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.PooledConnection;
 import com.mirth.connect.donkey.server.data.jdbc.PreparedStatementSource;
+import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.SerializerProvider;
+import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
 public class TestDaoFactory extends JdbcDaoFactory {
     private Donkey donkey;
     private ChannelController channelController;
     private Logger logger = Logger.getLogger(getClass());
     private Map<Connection, PreparedStatementSource> statementSources = new ConcurrentHashMap<Connection, PreparedStatementSource>();
+    private SerializerProvider serializerProvider;
     private int errorPct = 0;
     private int hangPct = 0;
     private int hangMillis = 0;
@@ -38,6 +42,12 @@ public class TestDaoFactory extends JdbcDaoFactory {
     public TestDaoFactory() {
         donkey = Donkey.getInstance();
         channelController = ChannelController.getInstance();
+        serializerProvider = new SerializerProvider() {
+            @Override
+            public Serializer getSerializer(Integer metaDataId) {
+                return new XStreamSerializer();
+            }
+        };
     }
     
     public int getErrorPct() {
@@ -102,6 +112,6 @@ public class TestDaoFactory extends JdbcDaoFactory {
             }
         }
 
-        return new TestDao(donkey, connection, getQuerySource(), statementSource, getSerializer(), channelController.getStatistics(), channelController.getTotalStatistics(), getStatsServerId(), errorPct, hangPct, hangMillis);
+        return new TestDao(donkey, connection, getQuerySource(), statementSource, serializerProvider, channelController.getStatistics(), channelController.getTotalStatistics(), getStatsServerId(), errorPct, hangPct, hangMillis);
     }
 }

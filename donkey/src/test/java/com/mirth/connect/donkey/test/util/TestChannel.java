@@ -19,6 +19,9 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
+import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.SerializerProvider;
+import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
 public class TestChannel extends Channel {
     private List<Long> messageIds = new ArrayList<Long>();
@@ -28,7 +31,12 @@ public class TestChannel extends Channel {
 
     public TestChannel() {
         super();
-        setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()));
+        setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory(), new SerializerProvider() {
+            @Override
+            public Serializer getSerializer(Integer metaDataId) {
+                return new XStreamSerializer();
+            }
+        }));
     }
 
     public int getNumMessages() {

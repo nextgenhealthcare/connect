@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
+import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class PostgresqlDaoFactory extends JdbcDaoFactory {
     private final static String COMMAND = "SET LOCAL synchronous_commit TO OFF; COMMIT;";
@@ -25,8 +26,8 @@ public class PostgresqlDaoFactory extends JdbcDaoFactory {
     private Logger logger = Logger.getLogger(this.getClass());
 
     @Override
-    public JdbcDao getDao() {
-        JdbcDao dao = super.getDao();
+    public JdbcDao getDao(SerializerProvider serializerProvider) {
+        JdbcDao dao = super.getDao(serializerProvider);
         dao.setAsyncCommitCommand(getAsyncCommitCommand(dao));
         return dao;
     }

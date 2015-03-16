@@ -9,10 +9,12 @@
 
 package com.mirth.connect.donkey.server.data.jdbc;
 
+import com.mirth.connect.donkey.util.SerializerProvider;
+
 public class MysqlDaoFactory extends JdbcDaoFactory {
     @Override
-    public JdbcDao getDao() {
-        JdbcDao dao = super.getDao();
+    public JdbcDao getDao(SerializerProvider serializerProvider) {
+        JdbcDao dao = super.getDao(serializerProvider);
         dao.setQuoteChar('`');
         return dao;
     }

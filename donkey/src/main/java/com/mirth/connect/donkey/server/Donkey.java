@@ -33,6 +33,7 @@ import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource.XmlQuerySourceException;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.SerializerProvider;
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
 public class Donkey {
@@ -113,7 +114,12 @@ public class Donkey {
             jdbcDaoFactory.setConnectionPool(new HikariConnectionPool(driver, url, username, password, maxConnections, jdbc4, testQuery));
         }
 
-        jdbcDaoFactory.setSerializer(serializer);
+        jdbcDaoFactory.setSerializerProvider(new SerializerProvider() {
+            @Override
+            public Serializer getSerializer(Integer metaDataId) {
+                return serializer;
+            }
+        });
 
         XmlQuerySource xmlQuerySource = new XmlQuerySource();
 

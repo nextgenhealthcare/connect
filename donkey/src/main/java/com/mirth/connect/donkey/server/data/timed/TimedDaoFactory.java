@@ -12,6 +12,7 @@ package com.mirth.connect.donkey.server.data.timed;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.util.ActionTimer;
+import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class TimedDaoFactory implements DonkeyDaoFactory {
     private DonkeyDaoFactory delegateFactory;
@@ -53,6 +54,14 @@ public class TimedDaoFactory implements DonkeyDaoFactory {
     @Override
     public DonkeyDao getDao() {
         DonkeyDao dao = new TimedDao(delegateFactory.getDao(), timer);
+        dao.setEncryptData(encryptData);
+        dao.setDecryptData(decryptData);
+        return dao;
+    }
+
+    @Override
+    public DonkeyDao getDao(SerializerProvider serializerProvider) {
+        DonkeyDao dao = new TimedDao(delegateFactory.getDao(serializerProvider), timer);
         dao.setEncryptData(encryptData);
         dao.setDecryptData(decryptData);
         return dao;

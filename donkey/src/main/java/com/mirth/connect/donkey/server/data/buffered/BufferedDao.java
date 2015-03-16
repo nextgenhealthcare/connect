@@ -26,17 +26,20 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class BufferedDao implements DonkeyDao {
     private DonkeyDaoFactory daoFactory;
+    private SerializerProvider serializerProvider;
     private boolean encryptData;
     private boolean decryptData;
     private Queue<DaoTask> tasks = new LinkedList<DaoTask>();
     private boolean closed = false;
     private Logger logger = Logger.getLogger(this.getClass());
 
-    protected BufferedDao(DonkeyDaoFactory daoFactory, boolean encryptData, boolean decryptData) {
+    protected BufferedDao(DonkeyDaoFactory daoFactory, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData) {
         this.daoFactory = daoFactory;
+        this.serializerProvider = serializerProvider;
         this.encryptData = encryptData;
         this.decryptData = decryptData;
     }
@@ -75,7 +78,7 @@ public class BufferedDao implements DonkeyDao {
     }
 
     private DonkeyDao getDelegateDao() {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = daoFactory.getDao(serializerProvider);
 
         dao.setEncryptData(encryptData);
         dao.setDecryptData(decryptData);

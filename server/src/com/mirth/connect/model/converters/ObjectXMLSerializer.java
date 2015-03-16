@@ -120,7 +120,11 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     private Logger logger = Logger.getLogger(getClass());
 
     private ObjectXMLSerializer() {
-        super(new InvalidChannelWrapper());
+        this(null);
+    }
+
+    public ObjectXMLSerializer(ClassLoader classLoader) {
+        super(new InvalidChannelWrapper(), classLoader);
         processAnnotations(annotatedClasses);
         getXStream().registerConverter(new MapContentConverter(getXStream().getMapper()));
         getXStream().registerConverter(new PluginMetaDataConverter(getXStream().getMapper()));

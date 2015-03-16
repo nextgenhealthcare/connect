@@ -87,6 +87,8 @@ import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
 import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 import com.mirth.connect.donkey.server.queue.DestinationQueue;
 import com.mirth.connect.donkey.server.queue.SourceQueue;
+import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.SerializerProvider;
 import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardStatus;
@@ -96,6 +98,7 @@ import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.datatype.BatchProperties;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
@@ -560,7 +563,29 @@ public class DonkeyEngineController implements EngineController {
         }
 
         if (storageSettings.isEnabled()) {
-            BufferedDaoFactory bufferedDaoFactory = new BufferedDaoFactory(donkey.getDaoFactory());
+            final Map<Integer, Set<String>> resourceIdMap = new HashMap<Integer, Set<String>>();
+            resourceIdMap.put(null, channelModel.getProperties().getResourceIds());
+            resourceIdMap.put(0, ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties().getResourceIds());
+            for (com.mirth.connect.model.Connector destinationConnector : channelModel.getDestinationConnectors()) {
+                resourceIdMap.put(destinationConnector.getMetaDataId(), ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().getResourceIds());
+            }
+
+            SerializerProvider serializerProvider = new SerializerProvider() {
+                @Override
+                public Serializer getSerializer(Integer metaDataId) {
+                    try {
+                        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(resourceIdMap.get(metaDataId));
+                        if (contextFactory != null) {
+                            return contextFactory.getSerializer();
+                        }
+                    } catch (Throwable t) {
+                    }
+
+                    return ObjectXMLSerializer.getInstance();
+                }
+            };
+
+            BufferedDaoFactory bufferedDaoFactory = new BufferedDaoFactory(donkey.getDaoFactory(), serializerProvider);
             bufferedDaoFactory.setEncryptData(channelProperties.isEncryptData());
 
             channel.setDaoFactory(bufferedDaoFactory);

@@ -63,6 +63,9 @@ import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.donkey.server.queue.DestinationQueue;
+import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.SerializerProvider;
+import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.Filter;
@@ -229,7 +232,12 @@ public class TestUtils {
         channel.setChannelId(channelId);
         channel.setServerId(serverId);
         channel.setEnabled(true);
-        channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()));
+        channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory(), new SerializerProvider() {
+            @Override
+            public Serializer getSerializer(Integer metaDataId) {
+                return new XStreamSerializer();
+            }
+        }));
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 

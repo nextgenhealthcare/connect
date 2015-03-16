@@ -11,14 +11,17 @@ package com.mirth.connect.donkey.server.data.buffered;
 
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class BufferedDaoFactory implements DonkeyDaoFactory {
     private DonkeyDaoFactory delegateFactory;
+    private SerializerProvider serializerProvider;
     private boolean encryptData = false;
     private boolean decryptData = true;
 
-    public BufferedDaoFactory(DonkeyDaoFactory delegateFactory) {
+    public BufferedDaoFactory(DonkeyDaoFactory delegateFactory, SerializerProvider serializerProvider) {
         this.delegateFactory = delegateFactory;
+        this.serializerProvider = serializerProvider;
     }
 
     public DonkeyDaoFactory getDelegateFactory() {
@@ -41,7 +44,11 @@ public class BufferedDaoFactory implements DonkeyDaoFactory {
 
     @Override
     public DonkeyDao getDao() {
-        return new BufferedDao(delegateFactory, encryptData, decryptData);
+        return getDao(serializerProvider);
     }
 
+    @Override
+    public DonkeyDao getDao(SerializerProvider serializerProvider) {
+        return new BufferedDao(delegateFactory, serializerProvider, encryptData, decryptData);
+    }
 }

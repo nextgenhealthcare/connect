@@ -15,6 +15,7 @@ import java.sql.Statement;
 import org.apache.commons.dbutils.DbUtils;
 
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
+import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class SqlServerDaoFactory extends JdbcDaoFactory {
     private Integer deadlockPriority = 8;
@@ -28,8 +29,8 @@ public class SqlServerDaoFactory extends JdbcDaoFactory {
     }
 
     @Override
-    public JdbcDao getDao() {
-        JdbcDao dao = super.getDao();
+    public JdbcDao getDao(SerializerProvider serializerProvider) {
+        JdbcDao dao = super.getDao(serializerProvider);
 
         if (deadlockPriority != null) {
             Statement statement = null;
