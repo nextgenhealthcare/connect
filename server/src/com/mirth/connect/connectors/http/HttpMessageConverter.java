@@ -26,6 +26,7 @@ import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -149,25 +150,47 @@ public class HttpMessageConverter {
             // Call the resolver to determine if the content should be Base64 encoded
             if (resolver.isBinaryContentType(contentType)) {
                 contentElement.setAttribute("encoding", "Base64");
-                byte[] contentByteArray;
+                byte[] contentByteArray = null;
 
-                if (content instanceof InputStream) {
+                if (content instanceof StreamSource) {
+                    StreamSource streamSource = (StreamSource) content;
+                    if (streamSource.getInputStream() != null) {
+                        contentByteArray = IOUtils.toByteArray(streamSource.getInputStream());
+                    } else if (streamSource.getReader() != null) {
+                        contentByteArray = IOUtils.toString(streamSource.getReader()).getBytes(charset);
+                    }
+                } else if (content instanceof InputStream) {
                     contentByteArray = IOUtils.toByteArray((InputStream) content);
                 } else if (content instanceof byte[]) {
                     contentByteArray = (byte[]) content;
-                } else {
+                }
+
+                if (contentByteArray == null) {
                     contentByteArray = (content != null ? content.toString() : "").getBytes(charset);
                 }
 
                 contentElement.setTextContent(new String(Base64Util.encodeBase64(contentByteArray), "US-ASCII"));
             } else {
-                if (content instanceof InputStream) {
-                    contentElement.setTextContent(IOUtils.toString((InputStream) content, charset));
+                String contentText = null;
+
+                if (content instanceof StreamSource) {
+                    StreamSource streamSource = (StreamSource) content;
+                    if (streamSource.getInputStream() != null) {
+                        contentText = IOUtils.toString(streamSource.getInputStream(), charset);
+                    } else if (streamSource.getReader() != null) {
+                        contentText = IOUtils.toString(streamSource.getReader());
+                    }
+                } else if (content instanceof InputStream) {
+                    contentText = IOUtils.toString((InputStream) content, charset);
                 } else if (content instanceof byte[]) {
-                    contentElement.setTextContent(new String((byte[]) content, charset));
-                } else {
-                    contentElement.setTextContent(content != null ? content.toString() : "");
+                    contentText = new String((byte[]) content, charset);
                 }
+
+                if (contentText == null) {
+                    contentText = content != null ? content.toString() : "";
+                }
+
+                contentElement.setTextContent(contentText);
             }
         }
     }
