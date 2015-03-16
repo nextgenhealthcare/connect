@@ -361,6 +361,7 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
     public void setText(String text) {
         boolean visible = PlatformUI.MIRTH_FRAME.changesHaveBeenMade();
         super.setText(text);
+        setCaretPosition(0);
         discardAllEdits();
 
         if (visible) {
