@@ -9,11 +9,15 @@
 
 package com.mirth.connect.donkey.server.data;
 
+import com.mirth.connect.donkey.util.SerializerProvider;
+
 public interface DonkeyDaoFactory {
     /**
      * Get a DonkeyDao instance.
      */
     public DonkeyDao getDao();
+
+    public DonkeyDao getDao(SerializerProvider serializerProvider);
 
     public void setEncryptData(boolean encryptData);
 

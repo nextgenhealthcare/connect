@@ -20,7 +20,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
-import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class JdbcDaoFactory implements DonkeyDaoFactory {
     public static JdbcDaoFactory getInstance() {
@@ -48,7 +48,7 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
     private String statsServerId;
     private ConnectionPool connectionPool;
     private QuerySource querySource;
-    private Serializer serializer;
+    private SerializerProvider serializerProvider;
     private boolean encryptData = false;
     private boolean decryptData = true;
     private Map<Connection, PreparedStatementSource> statementSources = new ConcurrentHashMap<Connection, PreparedStatementSource>();
@@ -83,12 +83,8 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
         this.querySource = querySource;
     }
 
-    public Serializer getSerializer() {
-        return serializer;
-    }
-
-    public void setSerializer(Serializer serializer) {
-        this.serializer = serializer;
+    public void setSerializerProvider(SerializerProvider serializerProvider) {
+        this.serializerProvider = serializerProvider;
     }
 
     public Map<Connection, PreparedStatementSource> getStatementSources() {
@@ -107,6 +103,11 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
 
     @Override
     public JdbcDao getDao() {
+        return getDao(serializerProvider);
+    }
+
+    @Override
+    public JdbcDao getDao(SerializerProvider serializerProvider) {
         PooledConnection pooledConnection;
 
         try {
@@ -141,6 +142,6 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
             }
         }
 
-        return new JdbcDao(donkey, connection, querySource, statementSource, serializer, encryptData, decryptData, channelController.getStatistics(), channelController.getTotalStatistics(), statsServerId);
+        return new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, channelController.getStatistics(), channelController.getTotalStatistics(), statsServerId);
     }
 }

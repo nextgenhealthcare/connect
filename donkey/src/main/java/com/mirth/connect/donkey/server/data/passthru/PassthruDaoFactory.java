@@ -9,7 +9,9 @@
 
 package com.mirth.connect.donkey.server.data.passthru;
 
+import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class PassthruDaoFactory implements DonkeyDaoFactory {
     private StatisticsUpdater statisticsUpdater;
@@ -43,5 +45,10 @@ public class PassthruDaoFactory implements DonkeyDaoFactory {
         }
 
         return dao;
+    }
+
+    @Override
+    public DonkeyDao getDao(SerializerProvider serializerProvider) {
+        return getDao();
     }
 }

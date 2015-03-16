@@ -83,6 +83,9 @@ import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.donkey.server.queue.DestinationQueue;
 import com.mirth.connect.donkey.util.ResourceUtil;
+import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.SerializerProvider;
+import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
 public class TestUtils {
     final public static String TEST_HL7_MESSAGE = "MSH|^~\\&|LABNET|Acme Labs|||20090601105700||ORU^R01|HMCDOOGAL-0088|D|2.2\rPID|1|8890088|8890088^^^72777||McDoogal^Hattie^||19350118|F||2106-3|100 Beach Drive^Apt. 5^Mission Viejo^CA^92691^US^H||(949) 555-0025|||||8890088^^^72|604422825\rPV1|1|R|C3E^C315^B||||2^HIBBARD^JULIUS^|5^ZIMMERMAN^JOE^|9^ZOIDBERG^JOHN^|CAR||||4|||2301^OBRIEN, KEVIN C|I|1783332658^1^1||||||||||||||||||||DISNEY CLINIC||N|||20090514205600\rORC|RE|928272608|056696716^LA||CM||||20090601105600||||  C3E|||^RESULT PERFORMED\rOBR|1|928272608|056696716^LA|1001520^K|||20090601101300|||MLH25|||HEMOLYZED/VP REDRAW|20090601102400||2301^OBRIEN, KEVIN C||||01123085310001100100152023509915823509915800000000101|0000915200932|20090601105600||LAB|F||^^^20090601084100^^ST~^^^^^ST\rOBX|1|NM|1001520^K||5.3|MMOL/L|3.5-5.5||||F|||20090601105600|IIM|IIM\r";
@@ -100,7 +103,12 @@ public class TestUtils {
     private static Logger logger = Logger.getLogger(TestUtils.class);
 
     public static DonkeyDaoFactory getDaoFactory() {
-        return new BufferedDaoFactory(Donkey.getInstance().getDaoFactory());
+        return new BufferedDaoFactory(Donkey.getInstance().getDaoFactory(), new SerializerProvider() {
+            @Override
+            public Serializer getSerializer(Integer metaDataId) {
+                return new XStreamSerializer();
+            }
+        });
     }
 
     public static void initChannel(String channelId) throws SQLException {
@@ -168,7 +176,12 @@ public class TestUtils {
         channel.setStorageSettings(storageSettings);
 
         if (storageSettings.isEnabled()) {
-            channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()));
+            channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory(), new SerializerProvider() {
+                @Override
+                public Serializer getSerializer(Integer metaDataId) {
+                    return new XStreamSerializer();
+                }
+            }));
         } else {
             channel.setDaoFactory(new PassthruDaoFactory(new DelayedStatisticsUpdater(Donkey.getInstance().getDaoFactory())));
         }

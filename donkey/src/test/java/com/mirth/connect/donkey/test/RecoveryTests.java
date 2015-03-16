@@ -50,6 +50,8 @@ import com.mirth.connect.donkey.test.util.TestDestinationConnector;
 import com.mirth.connect.donkey.test.util.TestSourceConnector;
 import com.mirth.connect.donkey.test.util.TestUtils;
 import com.mirth.connect.donkey.util.ActionTimer;
+import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.SerializerProvider;
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
 public class RecoveryTests {
@@ -66,7 +68,12 @@ public class RecoveryTests {
         Donkey donkey = Donkey.getInstance();
         donkey.startEngine(TestUtils.getDonkeyTestConfiguration());
 
-        daoFactory = new BufferedDaoFactory(new TimedDaoFactory(donkey.getDaoFactory(), daoTimer));
+        daoFactory = new BufferedDaoFactory(new TimedDaoFactory(donkey.getDaoFactory(), daoTimer), new SerializerProvider() {
+            @Override
+            public Serializer getSerializer(Integer metaDataId) {
+                return new XStreamSerializer();
+            }
+        });
         donkey.setDaoFactory(daoFactory);
     }
 

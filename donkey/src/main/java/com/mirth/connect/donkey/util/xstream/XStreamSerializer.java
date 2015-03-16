@@ -44,10 +44,10 @@ public class XStreamSerializer implements Serializer {
     private XStream xstream;
 
     public XStreamSerializer() {
-        this(null);
+        this(null, null);
     }
 
-    public XStreamSerializer(final DonkeyMapperWrapper mapperWrapper) {
+    public XStreamSerializer(final DonkeyMapperWrapper mapperWrapper, ClassLoader classLoader) {
         if (mapperWrapper != null) {
             xstream = new XStream(new Xpp3Driver()) {
                 @Override
@@ -57,6 +57,10 @@ public class XStreamSerializer implements Serializer {
             };
         } else {
             xstream = new XStream(new Xpp3Driver());
+        }
+
+        if (classLoader != null) {
+            xstream.setClassLoader(classLoader);
         }
 
         xstream.registerConverter(new ConcurrentHashMapConverter(xstream.getMapper()));

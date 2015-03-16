@@ -53,14 +53,14 @@ import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.util.MapUtil;
-import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class JdbcDao implements DonkeyDao {
     private Donkey donkey;
     private Connection connection;
     private QuerySource querySource;
     private PreparedStatementSource statementSource;
-    private Serializer serializer;
+    private SerializerProvider serializerProvider;
     private boolean encryptData;
     private boolean decryptData;
     private Set<ContentType> alwaysDecrypt = new HashSet<ContentType>();
@@ -78,12 +78,12 @@ public class JdbcDao implements DonkeyDao {
     private char quoteChar = '"';
     private Logger logger = Logger.getLogger(this.getClass());
 
-    protected JdbcDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, boolean encryptData, boolean decryptData, Statistics currentStats, Statistics totalStats, String statsServerId) {
+    protected JdbcDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, Statistics currentStats, Statistics totalStats, String statsServerId) {
         this.donkey = donkey;
         this.connection = connection;
         this.querySource = querySource;
         this.statementSource = statementSource;
-        this.serializer = serializer;
+        this.serializerProvider = serializerProvider;
         this.encryptData = encryptData;
         this.decryptData = decryptData;
         this.currentStats = currentStats;
@@ -818,7 +818,7 @@ public class JdbcDao implements DonkeyDao {
             } else {
                 Map<String, Object> map = mapContent.getMap();
                 if (MapUtils.isNotEmpty(map)) {
-                    content = MapUtil.serializeMap(serializer, map);
+                    content = MapUtil.serializeMap(serializerProvider.getSerializer(metaDataId), map);
                 }
             }
 
@@ -2312,7 +2312,7 @@ public class JdbcDao implements DonkeyDao {
             return new MapContent(new HashMap<String, Object>(), true);
         }
 
-        return new MapContent(MapUtil.deserializeMap(serializer, content.getContent()), true);
+        return new MapContent(MapUtil.deserializeMap(serializerProvider.getSerializer(content.getMetaDataId()), content.getContent()), true);
     }
 
     private ErrorContent getErrorContentFromMessageContent(MessageContent content) {
