@@ -312,7 +312,7 @@ public class DestinationSettingsPanel extends JPanel {
             retryCountField.setText(String.valueOf(retryCount));
             retryIntervalField.setText(String.valueOf(retryIntervalMillis));
             queueThreadsField.setText(String.valueOf(threadCount));
-            threadAssignmentVariableField.setText(String.valueOf(threadAssignmentVariable));
+            threadAssignmentVariableField.setText(StringUtils.defaultString(threadAssignmentVariable));
 
             boolean queueEnabled = !queueMessagesNeverRadio.isSelected();
             boolean sendFirst = queueMessagesOnFailureRadio.isSelected();
