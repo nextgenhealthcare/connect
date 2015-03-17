@@ -563,28 +563,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         if (storageSettings.isEnabled()) {
-            final Map<Integer, Set<String>> resourceIdMap = new HashMap<Integer, Set<String>>();
-            resourceIdMap.put(null, channelModel.getProperties().getResourceIds());
-            resourceIdMap.put(0, ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties().getResourceIds());
-            for (com.mirth.connect.model.Connector destinationConnector : channelModel.getDestinationConnectors()) {
-                resourceIdMap.put(destinationConnector.getMetaDataId(), ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().getResourceIds());
-            }
-
-            SerializerProvider serializerProvider = new SerializerProvider() {
-                @Override
-                public Serializer getSerializer(Integer metaDataId) {
-                    try {
-                        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(resourceIdMap.get(metaDataId));
-                        if (contextFactory != null) {
-                            return contextFactory.getSerializer();
-                        }
-                    } catch (Throwable t) {
-                    }
-
-                    return ObjectXMLSerializer.getInstance();
-                }
-            };
-
+            SerializerProvider serializerProvider = createSerializerProvider(channelModel);
             BufferedDaoFactory bufferedDaoFactory = new BufferedDaoFactory(donkey.getDaoFactory(), serializerProvider);
             bufferedDaoFactory.setEncryptData(channelProperties.isEncryptData());
 
@@ -618,6 +597,30 @@ public class DonkeyEngineController implements EngineController {
         }
 
         return channel;
+    }
+
+    protected SerializerProvider createSerializerProvider(com.mirth.connect.model.Channel channelModel) {
+        final Map<Integer, Set<String>> resourceIdMap = new HashMap<Integer, Set<String>>();
+        resourceIdMap.put(null, channelModel.getProperties().getResourceIds());
+        resourceIdMap.put(0, ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties().getResourceIds());
+        for (com.mirth.connect.model.Connector destinationConnector : channelModel.getDestinationConnectors()) {
+            resourceIdMap.put(destinationConnector.getMetaDataId(), ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().getResourceIds());
+        }
+
+        return new SerializerProvider() {
+            @Override
+            public Serializer getSerializer(Integer metaDataId) {
+                try {
+                    MirthContextFactory contextFactory = contextFactoryController.getContextFactory(resourceIdMap.get(metaDataId));
+                    if (contextFactory != null) {
+                        return contextFactory.getSerializer();
+                    }
+                } catch (Throwable t) {
+                }
+
+                return ObjectXMLSerializer.getInstance();
+            }
+        };
     }
 
     public static StorageSettings getStorageSettings(MessageStorageMode messageStorageMode, ChannelProperties channelProperties) {
