@@ -15,7 +15,7 @@ import org.apache.commons.lang3.text.WordUtils;
  * States of DEPLOYING, UNDEPLOYING, STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED
  */
 public enum DeployedState {
-    DEPLOYING, UNDEPLOYING, STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;
+    DEPLOYING, UNDEPLOYING, STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED, SYNCING, UNKNOWN;
 
     private DeployedState() {}
 
@@ -40,6 +40,10 @@ public enum DeployedState {
                 return PAUSED;
             case STOPPED:
                 return STOPPED;
+            case SYNCING:
+                return SYNCING;
+            case UNKNOWN:
+                return UNKNOWN;
             default:
                 return null;
         }
