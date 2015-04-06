@@ -26,6 +26,7 @@ import java.util.regex.PatternSyntaxException;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.io.FileUtils;
@@ -499,9 +500,14 @@ public class HttpDispatcher extends DestinationConnector {
 
         if (httpMethod instanceof HttpEntityEnclosingRequestBase) {
             // Compress the request entity if necessary
-            String contentEncoding = (String) new CaseInsensitiveMap(headers).get(HTTP.CONTENT_ENCODING);
-            if (contentEncoding != null && (contentEncoding.toLowerCase().equals("gzip") || contentEncoding.toLowerCase().equals("x-gzip"))) {
-                httpEntity = new GzipCompressingEntity(httpEntity);
+            List<String> contentEncodingList = (List<String>) new CaseInsensitiveMap(headers).get(HTTP.CONTENT_ENCODING);
+            if (CollectionUtils.isNotEmpty(contentEncodingList)) {
+                for (String contentEncoding : contentEncodingList) {
+                    if (contentEncoding != null && (contentEncoding.toLowerCase().equals("gzip") || contentEncoding.toLowerCase().equals("x-gzip"))) {
+                        httpEntity = new GzipCompressingEntity(httpEntity);
+                        break;
+                    }
+                }
             }
 
             ((HttpEntityEnclosingRequestBase) httpMethod).setEntity(httpEntity);
