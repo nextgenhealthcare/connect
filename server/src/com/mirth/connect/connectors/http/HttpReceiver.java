@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -376,8 +377,17 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                 }
 
                 // If the client accepts GZIP compression, compress the content
-                String acceptEncoding = baseRequest.getHeader("Accept-Encoding");
-                if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
+                boolean gzipResponse = false;
+                for (Enumeration<String> en = baseRequest.getHeaders("Accept-Encoding"); en.hasMoreElements();) {
+                    String acceptEncoding = en.nextElement();
+
+                    if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
+                        gzipResponse = true;
+                        break;
+                    }
+                }
+
+                if (gzipResponse) {
                     servletResponse.setHeader(HTTP.CONTENT_ENCODING, "gzip");
                     GZIPOutputStream gzipOutputStream = new GZIPOutputStream(responseOutputStream);
                     gzipOutputStream.write(responseBytes);
@@ -468,9 +478,13 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
             // If the request is GZIP encoded, uncompress the content
             List<String> contentEncodingList = requestMessage.getCaseInsensitiveHeaders().get(HTTP.CONTENT_ENCODING);
-            String contentEncoding = CollectionUtils.isNotEmpty(contentEncodingList) ? contentEncodingList.get(0) : null;
-            if (contentEncoding != null && (contentEncoding.equalsIgnoreCase("gzip") || contentEncoding.equalsIgnoreCase("x-gzip"))) {
-                requestInputStream = new GZIPInputStream(requestInputStream);
+            if (CollectionUtils.isNotEmpty(contentEncodingList)) {
+                for (String contentEncoding : contentEncodingList) {
+                    if (contentEncoding != null && (contentEncoding.equalsIgnoreCase("gzip") || contentEncoding.equalsIgnoreCase("x-gzip"))) {
+                        requestInputStream = new GZIPInputStream(requestInputStream);
+                        break;
+                    }
+                }
             }
 
             /*
@@ -569,10 +583,14 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
                 // If the client accepts GZIP compression, compress the content
                 List<String> acceptEncodingList = requestMessage.getCaseInsensitiveHeaders().get("Accept-Encoding");
-                String acceptEncoding = CollectionUtils.isNotEmpty(acceptEncodingList) ? acceptEncodingList.get(0) : null;
-                if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
-                    servletResponse.setHeader(HTTP.CONTENT_ENCODING, "gzip");
-                    responseOutputStream = new GZIPOutputStream(responseOutputStream);
+                if (CollectionUtils.isNotEmpty(acceptEncodingList)) {
+                    for (String acceptEncoding : acceptEncodingList) {
+                        if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
+                            servletResponse.setHeader(HTTP.CONTENT_ENCODING, "gzip");
+                            responseOutputStream = new GZIPOutputStream(responseOutputStream);
+                            break;
+                        }
+                    }
                 }
 
                 if (staticResource.getResourceType() == ResourceType.FILE) {
