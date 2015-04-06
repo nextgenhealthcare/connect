@@ -61,7 +61,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private String destinationName;
     private boolean enabled;
     private AtomicBoolean forceQueue = new AtomicBoolean(false);
-    private FilterTransformerExecutor filterTransformerExecutor;
     private MetaDataReplacer metaDataReplacer;
     private List<MetaDataColumn> metaDataColumns;
     private ResponseValidator responseValidator;
@@ -144,14 +143,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
         if (connectorProperties instanceof DestinationConnectorPropertiesInterface) {
             this.destinationConnectorProperties = ((DestinationConnectorPropertiesInterface) connectorProperties).getDestinationConnectorProperties();
         }
-    }
-
-    public FilterTransformerExecutor getFilterTransformerExecutor() {
-        return filterTransformerExecutor;
-    }
-
-    public void setFilterTransformerExecutor(FilterTransformerExecutor filterTransformerExecutor) {
-        this.filterTransformerExecutor = filterTransformerExecutor;
     }
 
     public void setMetaDataReplacer(MetaDataReplacer metaDataReplacer) {
@@ -326,7 +317,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     public void transform(DonkeyDao dao, ConnectorMessage message, Status previousStatus, boolean initialAttempt) throws InterruptedException {
         try {
-            filterTransformerExecutor.processConnectorMessage(message);
+            getFilterTransformerExecutor().processConnectorMessage(message);
         } catch (DonkeyException e) {
             if (e instanceof XmlSerializerException) {
                 Donkey.getInstance().getEventDispatcher().dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), message.getMessageId(), ErrorEventType.SERIALIZER, destinationName, null, e.getMessage(), e));
