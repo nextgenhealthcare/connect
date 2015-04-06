@@ -13,11 +13,14 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
 
+import com.mirth.connect.server.logging.MirthLog4jFilter;
+
 public class ArrayAppender extends AppenderSkeleton {
     private ServerLogProvider serverLogProvider;
 
     public ArrayAppender(ServerLogProvider serverLogProvider) {
         this.serverLogProvider = serverLogProvider;
+        addFilter(new MirthLog4jFilter());
     }
 
     protected void append(LoggingEvent loggingEvent) {
