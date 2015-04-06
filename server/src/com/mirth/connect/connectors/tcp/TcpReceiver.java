@@ -190,6 +190,9 @@ public class TcpReceiver extends SourceConnector {
                             SocketUtil.connectSocket(socket, getRemoteAddress(), getRemotePort(), timeout);
                         } catch (Exception e) {
                             logger.error("Error initiating new socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                            closeSocketQuietly(socket);
+                            socket = null;
+                            clientSocket = null;
                         }
                     }
 
@@ -197,22 +200,26 @@ public class TcpReceiver extends SourceConnector {
                         ThreadUtils.checkInterruptedStatus();
 
                         if (socket != null) {
-                            try {
-                                synchronized (clientReaders) {
+                            synchronized (clientReaders) {
+                                TcpReader reader = null;
+
+                                try {
                                     // Only allow worker threads to be submitted if we're not currently trying to stop the connector
                                     if (disposing.get()) {
                                         return;
                                     }
-                                    TcpReader reader = new TcpReader(socket);
+                                    reader = new TcpReader(socket);
                                     clientReaders.add(reader);
                                     results.add(executor.submit(reader));
+                                } catch (RejectedExecutionException | SocketException e) {
+                                    if (e instanceof RejectedExecutionException) {
+                                        logger.debug("Executor rejected new task (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                                    } else {
+                                        logger.debug("Error initializing socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                                    }
+                                    clientReaders.remove(reader);
+                                    closeSocketQuietly(socket);
                                 }
-                            } catch (RejectedExecutionException e) {
-                                logger.debug("Executor rejected new task (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                                closeSocketQuietly(socket);
-                            } catch (SocketException e) {
-                                logger.debug("Error initializing socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                                closeSocketQuietly(socket);
                             }
                         }
 
