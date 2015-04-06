@@ -1,19 +1,16 @@
-/* 
- * Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package com.mirth.connect.server.logging;
@@ -25,14 +22,15 @@ import java.io.OutputStream;
 import org.apache.log4j.Logger;
 
 /**
- * Base class to connect a logging system to the output and/or error stream of
- * then external process. The implementation parses the incoming data to
- * construct a line and passes the complete line to an user-defined
- * implementation.
+ * Base class to connect a logging system to the output and/or error stream of then external
+ * process. The implementation parses the incoming data to construct a line and passes the complete
+ * line to an user-defined implementation.
  */
 public class LogOutputStream extends OutputStream {
 
-    private Logger logger = Logger.getLogger("Server");
+    static final String LOGGER_NAME = "Server";
+
+    private Logger logger = Logger.getLogger(LOGGER_NAME);
 
     /** Initial buffer size. */
     private static final int INTIAL_SIZE = 132;
@@ -49,8 +47,7 @@ public class LogOutputStream extends OutputStream {
     private boolean skip = false;
 
     /**
-     * Write the data to the buffer and flush the buffer, if a line separator is
-     * detected.
+     * Write the data to the buffer and flush the buffer, if a line separator is detected.
      * 
      * @param cc
      *            data to log (byte).

@@ -25,6 +25,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,6 +33,7 @@ import java.util.TimerTask;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -73,6 +75,7 @@ import com.mirth.connect.server.controllers.UsageController;
 import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.logging.JuliToLog4JService;
 import com.mirth.connect.server.logging.LogOutputStream;
+import com.mirth.connect.server.logging.MirthLog4jFilter;
 import com.mirth.connect.server.servlets.AlertServlet;
 import com.mirth.connect.server.servlets.ChannelServlet;
 import com.mirth.connect.server.servlets.ChannelStatisticsServlet;
@@ -732,6 +735,11 @@ public class Mirth extends Thread {
         System.setErr(new PrintStream(new LogOutputStream()));
         // Route all java.util.logging.Logger output to log4j
         JuliToLog4JService.getInstance().start();
+
+        // Add a custom filter to appenders to suppress SAXParser warnings introduced in 7u40 (MIRTH-3548)
+        for (Enumeration<?> en = Logger.getRootLogger().getAllAppenders(); en.hasMoreElements();) {
+            ((Appender) en.nextElement()).addFilter(new MirthLog4jFilter());
+        }
     }
 
     private class UsageSenderTask extends TimerTask {
