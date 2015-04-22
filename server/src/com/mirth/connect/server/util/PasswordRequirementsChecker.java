@@ -156,7 +156,7 @@ public class PasswordRequirementsChecker implements Serializable {
                 return PASSWORD_MUST_NOT_CONTAIN_A_NUMERIC_VALUE;
             }
         } else {
-            Pattern pattern = Pattern.compile("[0-9]{" + minNumeric + ",}");
+            Pattern pattern = Pattern.compile("(?=(.*[0-9]){" + minNumeric + "})");
             Matcher matcher = pattern.matcher(plainTextPassword);
 
             if (!matcher.find()) {
@@ -176,7 +176,7 @@ public class PasswordRequirementsChecker implements Serializable {
                 return PASSWORD_MUST_NOT_CONTAIN_AN_UPPERCASE_LETTER;
             }
         } else {
-            Pattern pattern = Pattern.compile("[A-Z]{" + minUpper + ",}");
+            Pattern pattern = Pattern.compile("(?=(.*[A-Z]){" + minUpper + "})");
             Matcher matcher = pattern.matcher(plainTextPassword);
 
             if (!matcher.find()) {
@@ -196,7 +196,7 @@ public class PasswordRequirementsChecker implements Serializable {
                 return PASSWORD_MUST_NOT_CONTAIN_A_LOWERCASE_LETTER;
             }
         } else {
-            Pattern pattern = Pattern.compile("[a-z]{" + minLower + ",}");
+            Pattern pattern = Pattern.compile("(?=(.*[a-z]){" + minLower + "})");
             Matcher matcher = pattern.matcher(plainTextPassword);
 
             if (!matcher.find()) {
@@ -216,7 +216,7 @@ public class PasswordRequirementsChecker implements Serializable {
                 return PASSWORD_MUST_NOT_CONTAIN_A_SPECIAL_CHARACTER;
             }
         } else {
-            Pattern pattern = Pattern.compile("[!,@,#,$,%,^,&,*,?,_,~,\\+,-,=,\\(,\\),`,\\[,\\],:,;,\",\',/,<,>]{" + minSpecial + ",}");
+            Pattern pattern = Pattern.compile("(?=(.*[!,@,#,$,%,^,&,*,?,_,~,\\+,-,=,\\(,\\),`,\\[,\\],:,;,\",\',/,<,>]){" + minSpecial + "})");
             Matcher matcher = pattern.matcher(plainTextPassword);
 
             if (!matcher.find()) {
