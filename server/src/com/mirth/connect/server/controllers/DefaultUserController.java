@@ -145,6 +145,7 @@ public class DefaultUserController extends UserController {
             userPasswordMap.put("password", digester.digest(plainPassword));
             userPasswordMap.put("passwordDate", Calendar.getInstance());
             SqlConfig.getSqlSessionManager().insert("User.updateUserPassword", userPasswordMap);
+            SqlConfig.getSqlSessionManager().update("User.clearGracePeriod", userId);
 
             return null;
         } catch (PersistenceException e) {
