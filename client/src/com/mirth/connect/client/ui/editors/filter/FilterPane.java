@@ -915,7 +915,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         updateRuleNumbers();
 
-
         if (filterTable.getRowCount() == 0) {
             scriptTextArea.setText("");
             tabbedPane.setSelectedIndex(0);
@@ -1178,6 +1177,12 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         List<Rule> list = buildRuleList(new ArrayList<Rule>(), filterTable.getRowCount());
         filter.setRules(list);
+
+        String inboundDataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(tabTemplatePanel.getIncomingDataType());
+
+        if (LoadedExtensions.getInstance().getDataTypePlugins().containsKey(inboundDataType)) {
+            transformer.setInboundDataType(inboundDataType);
+        }
 
         transformer.setInboundTemplate(tabTemplatePanel.getIncomingMessage());
         transformer.setInboundProperties(tabTemplatePanel.getIncomingDataProperties());
