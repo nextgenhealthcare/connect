@@ -12,8 +12,6 @@ package com.mirth.connect.server.launcher;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -39,6 +37,7 @@ public class MirthLauncher {
     private static final String MIRTH_PROPERTIES_FILE = "./conf/mirth.properties";
     private static final String EXTENSION_PROPERTIES = "extension.properties";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
+    private static final String PROPERTY_INCLUDE_CUSTOM_LIB = "server.includecustomlib";
 
     private static String appDataDir = null;
 
@@ -53,8 +52,13 @@ public class MirthLauncher {
                 logger.error("Error uninstalling or installing pending extensions.", e);
             }
 
+            Properties mirthProperties = new Properties();
+            String includeCustomLib = null;
+
             try {
-                createAppdataDir();
+                mirthProperties.load(new FileInputStream(new File(MIRTH_PROPERTIES_FILE)));
+                includeCustomLib = mirthProperties.getProperty(PROPERTY_INCLUDE_CUSTOM_LIB);
+                createAppdataDir(mirthProperties);
             } catch (Exception e) {
                 logger.error("Error creating the appdata directory.", e);
             }
@@ -63,8 +67,18 @@ public class MirthLauncher {
             ManifestFile mirthClientCoreJar = new ManifestFile("server-lib/mirth-client-core.jar");
             ManifestDirectory serverLibDir = new ManifestDirectory("server-lib");
             serverLibDir.setExcludes(new String[] { "mirth-client-core.jar" });
-            ManifestEntry[] manifest = new ManifestEntry[] { mirthServerJar, mirthClientCoreJar,
-                    serverLibDir };
+
+            List<ManifestEntry> manifestList = new ArrayList<ManifestEntry>();
+            manifestList.add(mirthServerJar);
+            manifestList.add(mirthClientCoreJar);
+            manifestList.add(serverLibDir);
+
+            // We want to include custom-lib if the property isn't found, or if it equals "true"
+            if (includeCustomLib == null || Boolean.valueOf(includeCustomLib)) {
+                manifestList.add(new ManifestDirectory("custom-lib"));
+            }
+
+            ManifestEntry[] manifest = manifestList.toArray(new ManifestEntry[manifestList.size()]);
 
             // Get the current server version
             JarFile mirthClientCoreJarFile = new JarFile(mirthClientCoreJar.getName());
@@ -247,10 +261,7 @@ public class MirthLauncher {
         return false;
     }
 
-    private static void createAppdataDir() throws FileNotFoundException, IOException {
-        Properties mirthProperties = new Properties();
-        mirthProperties.load(new FileInputStream(new File(MIRTH_PROPERTIES_FILE)));
-
+    private static void createAppdataDir(Properties mirthProperties) {
         File appDataDirFile = null;
 
         if (mirthProperties.getProperty(PROPERTY_APP_DATA_DIR) != null) {

@@ -24,7 +24,10 @@ import java.util.Map.Entry;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.PropertiesConfigurationLayout;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
@@ -99,16 +102,38 @@ public class ServerMigrator extends Migrator {
         if (propertiesToAdd != null) {
             for (Entry<String, Object> propertyToAdd : propertiesToAdd.entrySet()) {
                 if (!mirthConfig.containsKey(propertyToAdd.getKey())) {
-                    mirthConfig.setProperty(propertyToAdd.getKey(), propertyToAdd.getValue());
+                    PropertiesConfigurationLayout layout = mirthConfig.getLayout();
+                    String key = propertyToAdd.getKey();
+                    Object value;
+                    String comment = "";
 
-                    // If this is the first added property, add a blank line and
-                    // comment before it
-                    if (addedProperties.isEmpty()) {
-                        mirthConfig.getLayout().setBlancLinesBefore(propertyToAdd.getKey(), 1);
-                        mirthConfig.getLayout().setComment(propertyToAdd.getKey(), "The following properties were automatically added on startup - they are required beginning in version " + version);
+                    if (propertyToAdd.getValue() instanceof Pair) {
+                        // If a pair is used, get both the value and comment
+                        Pair<Object, String> pair = (Pair<Object, String>) propertyToAdd.getValue();
+                        value = pair.getLeft();
+                        comment = pair.getRight();
+                    } else {
+                        // Only the value was specified
+                        value = propertyToAdd.getValue();
                     }
 
-                    addedProperties.put(propertyToAdd.getKey(), propertyToAdd.getValue());
+                    mirthConfig.setProperty(key, value);
+
+                    // If this is the first added property, add a general comment about the added properties before it
+                    if (addedProperties.isEmpty()) {
+                        if (StringUtils.isNotEmpty(comment)) {
+                            comment = "\n\n" + comment;
+                        }
+                        comment = "The following properties were automatically added on startup for version " + version + comment;
+                    }
+
+                    if (StringUtils.isNotEmpty(comment)) {
+                        // When a comment is specified, always put a blank line before it
+                        layout.setBlancLinesBefore(key, 1);
+                        layout.setComment(key, comment);
+                    }
+
+                    addedProperties.put(key, value);
                 }
             }
         }
@@ -170,7 +195,7 @@ public class ServerMigrator extends Migrator {
             case V3_1_1: return new Migrate3_1_1();
             case V3_2_0: return new Migrate3_2_0();
             case V3_2_1: return null;
-            case V3_2_2: return null;
+            case V3_2_2: return new Migrate3_2_2();
         } // @formatter:on
 
         return null;
