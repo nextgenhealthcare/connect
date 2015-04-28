@@ -1441,6 +1441,8 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         destination.setName(getNewDestinationName(destinationConnectors.size() + 1));
         currentChannel.addDestination(destination);
+        // After adding the destination to the channel, make sure to update the cached resource ID map too
+        resourceIds.put(destination.getMetaDataId(), ((DestinationConnectorPropertiesInterface) destination.getProperties()).getDestinationConnectorProperties().getResourceIds());
         makeDestinationTable(false);
         parent.setSaveEnabled(true);
     }
