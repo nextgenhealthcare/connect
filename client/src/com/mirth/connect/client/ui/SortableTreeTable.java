@@ -84,9 +84,9 @@ public class SortableTreeTable extends JXTreeTable {
         if (!started || sortModel == null) {
             return SortOrder.UNSORTED;
         }
-        int x = convertColumnIndexToModel(colIndex);
+
         getSortParams();
-        if (x != sortColumn) {
+        if (colIndex != sortColumn) {
             return SortOrder.UNSORTED;
         } else {
             return order;
@@ -140,7 +140,7 @@ public class SortableTreeTable extends JXTreeTable {
             throw new IllegalStateException("No TreeTable Model");
         }
         order = sortModel.getSortOrder();
-        sortColumn = convertColumnIndexToModel(sortModel.getSortColumnIndex());
+        sortColumn = sortModel.getSortColumnIndex();
     }
 
 }

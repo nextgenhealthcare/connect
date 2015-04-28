@@ -12,8 +12,6 @@ package com.mirth.connect.client.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -29,16 +27,12 @@ import java.util.prefs.Preferences;
 
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -245,7 +239,8 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.putClientProperty("JTree.lineStyle", "Horizontal");
         statusTable.setAutoCreateColumnsFromModel(false);
         statusTable.setShowGrid(true, true);
-        statusTable.restoreColumnOrder(model);
+        statusTable.restoreColumnPreferences();
+        statusTable.setMirthColumnControlEnabled(true);
 
         // TODO: try using a custom tree cell renderer to set custom icons on connectors, so that we can display a chain icon to indicate that a destination waits for the previous one
         // http://www.java.net/forum/topic/javadesktop/java-desktop-technologies/swinglabs/jxtreetable-custom-icons-node
@@ -255,15 +250,6 @@ public class DashboardPanel extends javax.swing.JPanel {
 //                return UIConstants.ICON_CHANNEL;
 //            }
 //        }));
-
-        // hack to make column headers clickable
-        addColumnHeaderListeners();
-
-        int columnIndex = statusTable.restoreSortOrder();
-        if (columnIndex > -1) {
-            ((SortableHeaderCellRenderer) statusTable.getTableHeader().getDefaultRenderer()).setSortingIcon(model.getSortOrder());
-            ((SortableHeaderCellRenderer) statusTable.getTableHeader().getDefaultRenderer()).setColumnIndex(columnIndex);
-        }
 
         statusPane.setViewportView(statusTable);
 
@@ -305,58 +291,6 @@ public class DashboardPanel extends javax.swing.JPanel {
                 updatePopupMenu(!event.getValueIsAdjusting());
             }
         });
-    }
-
-    // Make column headers clickable and render sorting arrows
-    private void addColumnHeaderListeners() {
-        // Add custom table header renderer to generate sorting arrows
-        JTableHeader header = statusTable.getTableHeader();
-        header.setDefaultRenderer(new SortableHeaderCellRenderer(header.getDefaultRenderer()));
-
-        // Add mouse listener to detect clicks on column header
-        statusTable.getTableHeader().addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    getColumnMenu().show(e.getComponent(), e.getX(), e.getY());
-                    return;
-                }
-
-                JTableHeader h = (JTableHeader) e.getSource();
-                TableColumnModel columnModel = h.getColumnModel();
-
-                int viewColumn = h.columnAtPoint(e.getPoint());
-                int column = columnModel.getColumn(viewColumn).getModelIndex();
-
-                if (column != -1 && statusTable.getColumnExt(column).isSortable()) {
-                    // Toggle sort order (ascending <-> descending)
-                    SortableTreeTableModel model = (SortableTreeTableModel) statusTable.getTreeTableModel();
-                    model.setColumnAndToggleSortOrder(column);
-
-                    // Set sorting icon and current column index
-                    ((SortableHeaderCellRenderer) statusTable.getTableHeader().getDefaultRenderer()).setSortingIcon(model.getSortOrder());
-                    ((SortableHeaderCellRenderer) statusTable.getTableHeader().getDefaultRenderer()).setColumnIndex(column);
-
-                    statusTable.saveSortOrder(column);
-                }
-            }
-        });
-    }
-
-    private JPopupMenu getColumnMenu() {
-        JPopupMenu columnMenu = new JPopupMenu();
-
-        menuItem = new JMenuItem();
-        menuItem.setText("Restore Default");
-
-        menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                statusTable.restoreDefaults(defaultVisibleColumns);
-            }
-        });
-
-        columnMenu.add(menuItem);
-        return columnMenu;
     }
 
     /**

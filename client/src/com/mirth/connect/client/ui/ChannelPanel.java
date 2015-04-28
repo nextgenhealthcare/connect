@@ -11,14 +11,9 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,21 +24,13 @@ import java.util.prefs.Preferences;
 
 import javax.swing.DropMode;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -53,9 +40,6 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jdesktop.swingx.table.ColumnControlButton;
-import org.jdesktop.swingx.table.TableColumnExt;
-import org.jdesktop.swingx.table.TableColumnModelExt;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ChannelFilter.ChannelFilterSaveTask;
@@ -82,8 +66,6 @@ public class ChannelPanel extends javax.swing.JPanel {
     private final String LOCAL_CHANNEL_ID = "Local Id";
     private final int LOCAL_CHANNEL_ID_COLUMN_NUMBER = 4;
     private final String LAST_MODIFIED_COLUMN_NAME = "Last Modified";
-    private JMenuItem menuItem;
-    private Set<String> defaultVisibleColumns;
 
     private final String[] DEFAULT_COLUMNS = new String[] { STATUS_COLUMN_NAME,
             DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, LOCAL_CHANNEL_ID,
@@ -110,15 +92,6 @@ public class ChannelPanel extends javax.swing.JPanel {
             }
         };
         tabs.addChangeListener(changeListener);
-
-        defaultVisibleColumns = new LinkedHashSet<String>();
-        defaultVisibleColumns.add(STATUS_COLUMN_NAME);
-        defaultVisibleColumns.add(DATA_TYPE_COLUMN_NAME);
-        defaultVisibleColumns.add(NAME_COLUMN_NAME);
-        defaultVisibleColumns.add(ID_COLUMN_NAME);
-        defaultVisibleColumns.add(DESCRIPTION_COLUMN_NAME);
-        defaultVisibleColumns.add(DEPLOYED_REVISION_DELTA_COLUMN_NAME);
-        defaultVisibleColumns.add(LAST_DEPLOYED_COLUMN_NAME);
 
         makeChannelTable();
 
@@ -184,6 +157,10 @@ public class ChannelPanel extends javax.swing.JPanel {
     /** Creates the channel table */
     public void makeChannelTable() {
         updateChannelTable(null);
+
+        channelTable.setMirthColumnControlEnabled(true);
+        channelTable.restoreColumnPreferences();
+
         channelTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
@@ -251,13 +228,6 @@ public class ChannelPanel extends javax.swing.JPanel {
             }
         }
 
-        for (TableColumn column : ((TableColumnModelExt) channelTable.getColumnModel()).getColumns(true)) {
-            TableColumnExt columnExt = (TableColumnExt) column;
-            String columnName = columnExt.getTitle();
-            boolean enable = Preferences.userNodeForPackage(Mirth.class).getBoolean("channelTableVisibleColumn" + columnName, defaultVisibleColumns.contains(columnName));
-            columnExt.setVisible(enable);
-        }
-
         channelTable.packTable(UIConstants.COL_MARGIN);
 
         channelTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -319,85 +289,6 @@ public class ChannelPanel extends javax.swing.JPanel {
 
             public void keyTyped(KeyEvent e) {}
         });
-
-        JTableHeader header = channelTable.getTableHeader();
-
-        header.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    getColumnMenu().show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        channelTable.setColumnControlVisible(true);
-        final JButton columnControlButton = new JButton(new ColumnControlButton(channelTable).getIcon());
-
-        columnControlButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JPopupMenu columnMenu = getColumnMenu();
-                Dimension buttonSize = columnControlButton.getSize();
-                int xPos = columnControlButton.getComponentOrientation().isLeftToRight() ? buttonSize.width - columnMenu.getPreferredSize().width : 0;
-                columnMenu.show(columnControlButton, xPos, columnControlButton.getHeight());
-            }
-        });
-        channelTable.setColumnControl(columnControlButton);
-    }
-
-    private JPopupMenu getColumnMenu() {
-        JPopupMenu columnMenu = new JPopupMenu();
-        DefaultTableModel model = (DefaultTableModel) channelTable.getModel();
-
-        for (int i = 0; i < model.getColumnCount(); i++) {
-            final String columnName = model.getColumnName(i);
-            // Get the column object by name. Using an index may not return the column object if the column is hidden
-            TableColumnExt column = channelTable.getColumnExt(columnName);
-
-            // Create the menu item
-            final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(columnName);
-            // Show or hide the checkbox
-            menuItem.setSelected(column.isVisible());
-
-            menuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent evt) {
-                    TableColumnExt column = channelTable.getColumnExt(menuItem.getText());
-                    // Determine whether to show or hide the selected column
-                    boolean enable = !column.isVisible();
-                    // Do not hide a column if it is the last remaining visible column              
-                    if (enable || channelTable.getColumnCount() > 1) {
-                        column.setVisible(enable);
-                        Preferences.userNodeForPackage(Mirth.class).putBoolean("channelTableVisibleColumn" + columnName, enable);
-                    }
-                }
-            });
-
-            columnMenu.add(menuItem);
-        }
-
-        columnMenu.addSeparator();
-
-        menuItem = new JMenuItem("Restore Default");
-        menuItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                for (TableColumn column : ((TableColumnModelExt) channelTable.getColumnModel()).getColumns(true)) {
-                    TableColumnExt columnExt = (TableColumnExt) column;
-                    String columnName = columnExt.getTitle();
-
-                    boolean enable = defaultVisibleColumns.contains(columnName);
-                    columnExt.setVisible(enable);
-                    Preferences.userNodeForPackage(Mirth.class).putBoolean("channelTableVisibleColumn" + columnName, enable);
-                    channelTable.restoreDefaults();
-                }
-            }
-
-        });
-        columnMenu.add(menuItem);
-
-        return columnMenu;
     }
 
     public void updateChannelTable(List<ChannelStatus> channelStatuses) {
@@ -479,6 +370,15 @@ public class ChannelPanel extends javax.swing.JPanel {
             RefreshTableModel model = (RefreshTableModel) channelTable.getModel();
             model.refreshDataVector(tableData);
         } else {
+            Set<String> defaultVisibleColumns = new LinkedHashSet<String>();
+            defaultVisibleColumns.add(STATUS_COLUMN_NAME);
+            defaultVisibleColumns.add(DATA_TYPE_COLUMN_NAME);
+            defaultVisibleColumns.add(NAME_COLUMN_NAME);
+            defaultVisibleColumns.add(ID_COLUMN_NAME);
+            defaultVisibleColumns.add(DESCRIPTION_COLUMN_NAME);
+            defaultVisibleColumns.add(DEPLOYED_REVISION_DELTA_COLUMN_NAME);
+            defaultVisibleColumns.add(LAST_DEPLOYED_COLUMN_NAME);
+
             channelTable = new MirthTable("channelPanel", defaultVisibleColumns);
 
             ArrayList<String> columns = new ArrayList<String>();
