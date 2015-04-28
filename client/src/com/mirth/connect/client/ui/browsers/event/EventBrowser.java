@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,8 +75,8 @@ public class EventBrowser extends javax.swing.JPanel {
     private final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
 
     private final String EVENT_ID_COLUMN_NAME = "ID";
-    private final String EVENT_DATE_COLUMN_NAME = "Date & Time";
     private final String EVENT_LEVEL_COLUMN_NAME = "Level";
+    private final String EVENT_DATE_COLUMN_NAME = "Date & Time";
     private final String EVENT_NAME_COLUMN_NAME = "Name";
     private final String EVENT_SERVER_ID_COLUMN_NAME = "Server ID";
     private final String EVENT_USER_COLUMN_NAME = "User";
@@ -653,7 +654,16 @@ public class EventBrowser extends javax.swing.JPanel {
             RefreshTableModel model = (RefreshTableModel) eventTable.getModel();
             model.refreshDataVector(tableData);
         } else {
-            eventTable = new MirthTable();
+            Set<String> defaultVisibleColumns = new LinkedHashSet<String>();
+            defaultVisibleColumns.add(EVENT_LEVEL_COLUMN_NAME);
+            defaultVisibleColumns.add(EVENT_DATE_COLUMN_NAME);
+            defaultVisibleColumns.add(EVENT_NAME_COLUMN_NAME);
+            defaultVisibleColumns.add(EVENT_SERVER_ID_COLUMN_NAME);
+            defaultVisibleColumns.add(EVENT_USER_COLUMN_NAME);
+            defaultVisibleColumns.add(EVENT_OUTCOME_COLUMN_NAME);
+            defaultVisibleColumns.add(EVENT_IP_ADDRESS_COLUMN_NAME);
+
+            eventTable = new MirthTable("eventBrowser", defaultVisibleColumns);
             eventTable.setModel(new RefreshTableModel(tableData, new String[] {
                     EVENT_ID_COLUMN_NAME, EVENT_LEVEL_COLUMN_NAME, EVENT_DATE_COLUMN_NAME,
                     EVENT_NAME_COLUMN_NAME, EVENT_SERVER_ID_COLUMN_NAME, EVENT_USER_COLUMN_NAME,
@@ -676,6 +686,8 @@ public class EventBrowser extends javax.swing.JPanel {
         updateEventTable(null);
 
         eventTable.setSelectionMode(0);
+        eventTable.setMirthColumnControlEnabled(true);
+        eventTable.restoreColumnPreferences();
 
         eventTable.getColumnExt(EVENT_LEVEL_COLUMN_NAME).setCellRenderer(new ImageCellRenderer(SwingConstants.CENTER));
         eventTable.getColumnExt(EVENT_OUTCOME_COLUMN_NAME).setCellRenderer(new ImageCellRenderer(SwingConstants.CENTER));

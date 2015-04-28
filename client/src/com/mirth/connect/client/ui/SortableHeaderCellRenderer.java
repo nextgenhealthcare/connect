@@ -38,7 +38,7 @@ public class SortableHeaderCellRenderer implements TableCellRenderer {
         if (c instanceof JLabel) {
             JLabel label = (JLabel) c;
 
-            if (currentModelIndex != -1 && currentIcon != null) {
+            if (column != -1 && currentModelIndex != -1 && currentIcon != null) {
                 TableColumnModel model = table.getColumnModel();
                 if (currentModelIndex == model.getColumn(column).getModelIndex()) {
                     label.setHorizontalTextPosition(JLabel.LEFT);
