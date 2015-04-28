@@ -257,7 +257,6 @@ public class MirthTable extends JXTable {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
             restoreDefaultColumnPreferences();
         }
     }
