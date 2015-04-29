@@ -19,6 +19,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -855,7 +856,15 @@ public class TcpReceiver extends SourceConnector {
         while (!success) {
             try {
                 bindAttempts++;
-                if (hostAddress.equals(InetAddress.getLocalHost()) || hostAddress.isLoopbackAddress() || host.trim().equals("localhost")) {
+                boolean isLoopback = false;
+
+                try {
+                    isLoopback = (hostAddress.isLoopbackAddress() || host.trim().equals("localhost") || hostAddress.equals(InetAddress.getLocalHost()));
+                } catch (UnknownHostException e) {
+                    logger.warn("Failed to determine if '" + hostAddress.getHostAddress() + "' is a loopback address. Could not resolve the system's host name to an address.", e);
+                }
+
+                if (isLoopback) {
                     serverSocket = new StateAwareServerSocket(port, backlog);
                 } else {
                     serverSocket = new StateAwareServerSocket(port, backlog, hostAddress);
