@@ -326,10 +326,14 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     }
 
     private void sendResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult) throws Exception {
-        ContentType contentType = ContentType.parse(replacer.replaceValues(connectorProperties.getResponseContentType(), getChannelId()));
+        ContentType contentType = ContentType.parse(replaceValues(connectorProperties.getResponseContentType(), dispatchResult));
         if (!connectorProperties.isResponseDataTypeBinary() && contentType.getCharset() == null) {
-            // If text mode is used and a specific charset isn't already defined, use the one from the connector properties
-            contentType = contentType.withCharset(CharsetUtils.getEncoding(connectorProperties.getCharset()));
+            /*
+             * If text mode is used and a specific charset isn't already defined, use the one from
+             * the connector properties. We can't use ContentType.withCharset here because it
+             * doesn't preserve other parameters, like boundary definitions
+             */
+            contentType = ContentType.parse(contentType.toString() + "; charset=" + CharsetUtils.getEncoding(connectorProperties.getCharset()));
         }
         servletResponse.setContentType(contentType.toString());
 
