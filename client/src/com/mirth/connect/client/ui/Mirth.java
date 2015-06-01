@@ -67,11 +67,12 @@ public class Mirth {
 
         if (SystemUtils.IS_OS_MAC) {
             /*
-             * Only maximize the window when there is no width or height preference saved. Just set
-             * the width and height on mac. Don't bother with the maximized state because the user
-             * can maximize the window, then manually resize it, leaving the maximum state as true.
+             * The window is only maximized when there is no width or height preference saved.
+             * Previously, we just set the dimensions on mac and didn't bother with the maximized
+             * state because the user could maximize the window then manually resize it, leaving the
+             * maximum state as true. As of MIRTH-3691, this no longer happens.
              */
-            maximized = (userPreferences.get("width", null) == null || userPreferences.get("height", null) == null);
+            maximized = (userPreferences.get("width", null) == null || userPreferences.get("height", null) == null) || (userPreferences.getInt("maximizedState", Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH);
 
             width = userPreferences.getInt("width", UIConstants.MIRTH_WIDTH);
             height = userPreferences.getInt("height", UIConstants.MIRTH_WIDTH);
