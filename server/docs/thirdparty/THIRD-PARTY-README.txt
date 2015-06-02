@@ -65,6 +65,9 @@ the Common Development and Distribution License version 1.1 (see CDDL-1.1.txt):
 	http://search.maven.org/remotecontent?filepath=com/sun/mail/javax.mail/1.5.0
 	/javax.mail-1.5.0-sources.jar)
 
+	JSON Processing API (source code can be downloaded from: 
+	https://jsonp.java.net/download.html)
+
 
 --------------------------------------------------------------------------------
 
