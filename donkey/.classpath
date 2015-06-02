@@ -16,11 +16,7 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/io/api-release/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.1.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api/"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-lang-2.6.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-2.6/"/>
