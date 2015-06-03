@@ -98,13 +98,13 @@ public class EDIBatchAdaptor extends BatchAdaptor {
         if (splitType == SplitType.JavaScript) {
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-                
+
                 MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
                     JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
                     factory.setContextFactoryId(contextFactory.getId());
                 }
-                
+
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory) {
                     @Override
                     public String call() throws Exception {
@@ -117,7 +117,7 @@ public class EDIBatchAdaptor extends BatchAdaptor {
                             Logger scriptLogger = Logger.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
 
                             try {
-                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), scriptLogger, batchScriptId, getScopeObjects(bufferedReader));
+                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), scriptLogger, sourceConnector.getChannelId(), getScopeObjects(bufferedReader));
                                 return (String) Context.jsToJava(executeScript(compiledScript, scope), String.class);
                             } finally {
                                 Context.exit();
