@@ -116,7 +116,7 @@ public class HL7V3BatchAdaptor extends BatchAdaptor {
                             Logger scriptLogger = Logger.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
 
                             try {
-                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), scriptLogger, batchScriptId, getScopeObjects(bufferedReader));
+                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), scriptLogger, sourceConnector.getChannelId(), getScopeObjects(bufferedReader));
                                 return (String) Context.jsToJava(executeScript(compiledScript, scope), String.class);
                             } finally {
                                 Context.exit();
