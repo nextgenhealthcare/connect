@@ -6,14 +6,14 @@
 
 package org.mozilla.javascript;
 
-import org.mozilla.javascript.json.JsonParser;
-
-import java.util.Stack;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Arrays;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
+
+import org.mozilla.javascript.json.JsonParser;
 
 /**
  * This class implements the JSON native object.
@@ -276,7 +276,17 @@ public final class NativeJSON extends IdScriptableObject
             value = getProperty(holder, ((Number) key).intValue());
         }
 
-        if (value instanceof Scriptable) {
+        // Modified JSON.stringify to work with native Java objects, arrays, and collections
+        if (value instanceof NativeJavaObject) {
+            value = ((NativeJavaObject) value).unwrap();
+            if (value instanceof Collection<?>) {
+                Collection<?> col = (Collection<?>) value;
+                value = col.toArray(new Object[col.size()]);
+            }
+            if (value instanceof Object[]) {
+                value = new NativeArray((Object[]) value);
+            }
+        } else if (value instanceof Scriptable) {
             Object toJSON = getProperty((Scriptable) value, "toJSON");
             if (toJSON instanceof Callable) {
                 value = callMethod(state.cx, (Scriptable) value, "toJSON",

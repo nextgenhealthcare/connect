@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.dcm4che2.data.DicomObject;
 
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
@@ -72,10 +72,10 @@ public class DICOMUtil {
      * @param attachments
      *            The DICOM attachments to merge with the header data.
      * @return The merged DICOM data as a Base-64 encoded String.
-     * @throws XmlSerializerException
+     * @throws MessageSerializerException
      * @throws IOException
      */
-    public static String mergeHeaderAttachments(ImmutableConnectorMessage connectorMessage, List<Attachment> attachments) throws XmlSerializerException, IOException {
+    public static String mergeHeaderAttachments(ImmutableConnectorMessage connectorMessage, List<Attachment> attachments) throws MessageSerializerException, IOException {
         return new String(Base64Util.encodeBase64(com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderAttachments(connectorMessage, AttachmentUtil.convertToDonkeyAttachmentList(attachments))));
     }
 

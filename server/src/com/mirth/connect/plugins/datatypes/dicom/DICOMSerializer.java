@@ -41,17 +41,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.converters.IMessageSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
-public class DICOMSerializer implements IXMLSerializer {
+public class DICOMSerializer implements IMessageSerializer {
     private DocumentSerializer documentSerializer = new DocumentSerializer();
 
     public DICOMSerializer() {
@@ -81,12 +81,12 @@ public class DICOMSerializer implements IXMLSerializer {
     }
 
     @Override
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException {
+    public String transformWithoutSerializing(String message, MessageSerializer outboundSerializer) throws MessageSerializerException {
         return null;
     }
 
     @Override
-    public String fromXML(String source) throws XmlSerializerException {
+    public String fromXML(String source) throws MessageSerializerException {
         if (source == null || source.length() == 0) {
             return org.apache.commons.lang3.StringUtils.EMPTY;
         }
@@ -139,12 +139,12 @@ public class DICOMSerializer implements IXMLSerializer {
             parser.parse(new InputSource(new ByteArrayInputStream(documentBytes)), contentHandler);
             return StringUtils.newStringUsAscii(Base64Util.encodeBase64(DICOMConverter.dicomObjectToByteArray(dicomObject)));
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting XML to DICOM", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to DICOM", e));
+            throw new MessageSerializerException("Error converting XML to DICOM", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to DICOM", e));
         }
     }
 
     @Override
-    public String toXML(String source) throws XmlSerializerException {
+    public String toXML(String source) throws MessageSerializerException {
         try {
             byte[] encodedMessage = org.apache.commons.codec.binary.StringUtils.getBytesUsAscii(source);
 
@@ -190,7 +190,7 @@ public class DICOMSerializer implements IXMLSerializer {
                 }
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting DICOM to XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting DICOM to XML", e));
+            throw new MessageSerializerException("Error converting DICOM to XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting DICOM to XML", e));
         }
     }
 
@@ -230,4 +230,14 @@ public class DICOMSerializer implements IXMLSerializer {
 
     @Override
     public void populateMetaData(String message, Map<String, Object> map) {}
+
+    @Override
+    public String toJSON(String message) throws MessageSerializerException {
+        return null;
+    }
+
+    @Override
+    public String fromJSON(String message) throws MessageSerializerException {
+        return null;
+    }
 }

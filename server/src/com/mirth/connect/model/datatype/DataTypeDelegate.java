@@ -10,7 +10,7 @@
 package com.mirth.connect.model.datatype;
 
 import com.mirth.connect.donkey.model.message.SerializationType;
-import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.converters.IMessageSerializer;
 
 public interface DataTypeDelegate {
 
@@ -22,7 +22,7 @@ public interface DataTypeDelegate {
     /**
      * Get an instance of the data type's serializer with the given properties
      */
-    public IXMLSerializer getSerializer(SerializerProperties properties);
+    public IMessageSerializer getSerializer(SerializerProperties properties);
 
     /**
      * Indicates if the data type is in binary format

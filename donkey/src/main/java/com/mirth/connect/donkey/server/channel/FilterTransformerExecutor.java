@@ -84,7 +84,9 @@ public class FilterTransformerExecutor {
                 case RAW:
                     // Only the raw/processed raw content is used for the raw serialization type, so nothing needs to be done here
                     break;
-
+                case JSON:
+                    setTransformedContent(connectorMessage, inbound.getSerializer().toJSON(content), inbound.getSerializationType());
+                    break;
                 case XML:
                 default:
                     // Convert the content to xml and set as the transformed content
@@ -112,7 +114,9 @@ public class FilterTransformerExecutor {
                 case RAW:
                     encodedContent = transformedContent;
                     break;
-
+                case JSON:
+                    encodedContent = outbound.getSerializer().fromJSON(connectorMessage.getTransformed().getContent());
+                    break;
                 case XML:
                 default:
                     // Convert the transformed content to the outbound data type

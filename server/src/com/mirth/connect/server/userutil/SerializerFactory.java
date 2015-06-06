@@ -14,7 +14,7 @@ import java.util.Map;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.converters.IMessageSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -36,7 +36,7 @@ public class SerializerFactory {
      *            The plugin point (e.g. "HL7V2") of the data type to create the serializer for.
      * @return The instantiated IXMLSerializer object.
      */
-    public static IXMLSerializer getSerializer(String dataType) {
+    public static IMessageSerializer getSerializer(String dataType) {
         return getSerializer(dataType, null, null);
     }
 
@@ -53,7 +53,7 @@ public class SerializerFactory {
      *            type is performed.
      * @return The instantiated IXMLSerializer object.
      */
-    public static IXMLSerializer getSerializer(String dataType, Map<String, Object> serializationPropertiesMap, Map<String, Object> deserializationPropertiesMap) {
+    public static IMessageSerializer getSerializer(String dataType, Map<String, Object> serializationPropertiesMap, Map<String, Object> deserializationPropertiesMap) {
         DataTypeServerPlugin plugin = dataPlugins.get(dataType);
         if (plugin != null) {
             if (serializationPropertiesMap == null) {
@@ -114,7 +114,7 @@ public class SerializerFactory {
 
     @Deprecated
     // TODO: Remove in 3.1
-    private static IXMLSerializer getHL7SerializerQuietly(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
+    private static IMessageSerializer getHL7SerializerQuietly(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
         String dataType = "HL7V2";
         Map<String, Object> serializationPropertiesMap = getDefaultSerializationProperties(dataType);
         serializationPropertiesMap.put("handleRepetitions", handleRepetitions);
@@ -157,7 +157,7 @@ public class SerializerFactory {
      *             instead. The new method will now strip namespaces by default unless the
      *             'stripNamespaces' property is set to false.
      */
-    public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
+    public static IMessageSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents);
     }
@@ -183,7 +183,7 @@ public class SerializerFactory {
      *             instead. The new method will now strip namespaces by default unless the
      *             'stripNamespaces' property is set to false.
      */
-    public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR) {
+    public static IMessageSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, false);
     }
@@ -206,7 +206,7 @@ public class SerializerFactory {
      *             instead. The new method will now strip namespaces by default unless the
      *             'stripNamespaces' property is set to false.
      */
-    public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions) {
+    public static IMessageSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, true, false);
     }
@@ -227,7 +227,7 @@ public class SerializerFactory {
      *             instead. The new method will now strip namespaces by default unless the
      *             'stripNamespaces' property is set to false.
      */
-    public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation) {
+    public static IMessageSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, false, true, false);
     }
@@ -243,7 +243,7 @@ public class SerializerFactory {
      *             instead. The new method will now strip namespaces by default unless the
      *             'stripNamespaces' property is set to false.
      */
-    public static IXMLSerializer getHL7Serializer() {
+    public static IMessageSerializer getHL7Serializer() {
         logger.error("The getHL7Serializer() method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(false, false, false, true, false);
     }
@@ -261,7 +261,7 @@ public class SerializerFactory {
      *             getSerializer(dataType, serializationPropertiesMap, deserializationPropertiesMap)
      *             instead.
      */
-    public static IXMLSerializer getX12Serializer(boolean inferDelimiters) {
+    public static IMessageSerializer getX12Serializer(boolean inferDelimiters) {
         logger.error("The getX12Serializer(inferDelimiters) method is deprecated and will soon be removed. Please use the \"Convert EDI / X12\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
 
         String dataType = "EDI/X12";
@@ -287,7 +287,7 @@ public class SerializerFactory {
      *             getSerializer(dataType, serializationPropertiesMap, deserializationPropertiesMap)
      *             instead.
      */
-    public static IXMLSerializer getEDISerializer(String segmentDelim, String elementDelim, String subelementDelim) {
+    public static IMessageSerializer getEDISerializer(String segmentDelim, String elementDelim, String subelementDelim) {
         logger.error("The getEDISerializer(segmentDelim, elementDelim, subelementDelim) method is deprecated and will soon be removed. Please use the \"Convert EDI / X12\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
 
         String dataType = "EDI/X12";
@@ -302,7 +302,7 @@ public class SerializerFactory {
 
     @Deprecated
     // TODO: Remove in 3.1
-    private static IXMLSerializer getNCPDPSerializerQuietly(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
+    private static IMessageSerializer getNCPDPSerializerQuietly(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
         String dataType = "NCPDP";
         Map<String, Object> serializationPropertiesMap = getDefaultSerializationProperties(dataType);
         serializationPropertiesMap.put("segmentDelimiter", segmentDelim);
@@ -336,7 +336,7 @@ public class SerializerFactory {
      *             getSerializer(dataType, serializationPropertiesMap, deserializationPropertiesMap)
      *             instead.
      */
-    public static IXMLSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
+    public static IMessageSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
         logger.error("The getNCPDPSerializer(segmentDelim, groupDelim, fieldDelim, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert NCPDP\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
         return getNCPDPSerializerQuietly(segmentDelim, groupDelim, fieldDelim, useStrictValidation);
     }
@@ -357,7 +357,7 @@ public class SerializerFactory {
      *             getSerializer(dataType, serializationPropertiesMap, deserializationPropertiesMap)
      *             instead.
      */
-    public static IXMLSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim) {
+    public static IMessageSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim) {
         logger.error("The getNCPDPSerializer(segmentDelim, groupDelim, fieldDelim) method is deprecated and will soon be removed. Please use the \"Convert NCPDP\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
         return getNCPDPSerializerQuietly(segmentDelim, groupDelim, fieldDelim, false);
     }

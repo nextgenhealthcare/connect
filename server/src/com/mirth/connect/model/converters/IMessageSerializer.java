@@ -11,8 +11,8 @@ package com.mirth.connect.model.converters;
 
 import java.util.Map;
 
-import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
 
-public interface IXMLSerializer extends XmlSerializer {
+public interface IMessageSerializer extends MessageSerializer {
     public Map<String, Object> getMetaDataFromMessage(String message);
 }

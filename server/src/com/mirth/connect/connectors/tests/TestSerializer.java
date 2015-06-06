@@ -11,10 +11,10 @@ package com.mirth.connect.connectors.tests;
 
 import java.util.Map;
 
-import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 
-public class TestSerializer implements XmlSerializer {
+public class TestSerializer implements MessageSerializer {
 
     @Override
     public boolean isSerializationRequired(boolean isXml) {
@@ -22,20 +22,30 @@ public class TestSerializer implements XmlSerializer {
     }
 
     @Override
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+    public String transformWithoutSerializing(String message, MessageSerializer outboundSerializer) {
         return message;
     }
 
     @Override
-    public String toXML(String message) throws XmlSerializerException {
+    public String toXML(String message) throws MessageSerializerException {
         return message;
     }
 
     @Override
-    public String fromXML(String message) throws XmlSerializerException {
+    public String fromXML(String message) throws MessageSerializerException {
         return message;
     }
 
     @Override
     public void populateMetaData(String message, Map<String, Object> map) {}
+
+    @Override
+    public String toJSON(String message) throws MessageSerializerException {
+        return null;
+    }
+
+    @Override
+    public String fromJSON(String message) throws MessageSerializerException {
+        return null;
+    }
 }

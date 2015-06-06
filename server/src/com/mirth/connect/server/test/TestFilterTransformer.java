@@ -23,11 +23,11 @@ import org.junit.Test;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
-import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.model.CodeTemplate.ContextType;
-import com.mirth.connect.plugins.datatypes.xml.DefaultXMLSerializer;
+import com.mirth.connect.plugins.datatypes.xml.XMLSerializer;
 import com.mirth.connect.server.Mirth;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
@@ -131,14 +131,14 @@ public class TestFilterTransformer {
         System.out.println("\nFilter/Transformer Performance: " + duration + "ms\n");
     }
 
-    private ConnectorMessage createConnectorMessage(String channelId, long messageId, int metaDataId) throws XmlSerializerException {
+    private ConnectorMessage createConnectorMessage(String channelId, long messageId, int metaDataId) throws MessageSerializerException {
         ConnectorMessage connectorMessage = new ConnectorMessage();
         connectorMessage.setChannelId(channelId);
         connectorMessage.setMessageId(messageId);
         connectorMessage.setMetaDataId(metaDataId);
         connectorMessage.setMessageContent(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, TEST_HL7_MESSAGE, "HL7V2", false));
 
-        XmlSerializer xmlSerializer = new DefaultXMLSerializer(null);
+        MessageSerializer xmlSerializer = new XMLSerializer(null);
         String serializedMessage = xmlSerializer.toXML(connectorMessage.getRaw().getContent());
 
         connectorMessage.setTransformed(new MessageContent(channelId, messageId, metaDataId, ContentType.TRANSFORMED, serializedMessage, "XML", false));

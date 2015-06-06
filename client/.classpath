@@ -101,9 +101,6 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.3.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.7.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-annotations-2.4.0.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-core-2.4.1.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-databind-2.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax.mail-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-151.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-151.jar"/>
@@ -112,5 +109,8 @@
 	<classpathentry kind="lib" path="lib/autocomplete-2.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/language_support.jar"/>
 	<classpathentry kind="lib" path="lib/javaparser-1.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.5.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

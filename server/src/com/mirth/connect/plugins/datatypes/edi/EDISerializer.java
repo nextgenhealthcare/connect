@@ -22,16 +22,16 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
-import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
+import com.mirth.connect.model.converters.IMessageSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
-public class EDISerializer implements IXMLSerializer {
+public class EDISerializer implements IMessageSerializer {
     private Logger logger = Logger.getLogger(this.getClass());
     private EDISerializationProperties serializationProperties;
 
@@ -59,17 +59,17 @@ public class EDISerializer implements IXMLSerializer {
     }
 
     @Override
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException {
+    public String transformWithoutSerializing(String message, MessageSerializer outboundSerializer) throws MessageSerializerException {
         return null;
     }
 
     @Override
-    public String fromXML(String source) throws XmlSerializerException {
+    public String fromXML(String source) throws MessageSerializerException {
         XMLReader xr;
         try {
             xr = XMLReaderFactory.createXMLReader();
         } catch (SAXException e) {
-            throw new XmlSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to EDI", e));
+            throw new MessageSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to EDI", e));
         }
         EDIXMLHandler handler = new EDIXMLHandler();
         xr.setContentHandler(handler);
@@ -78,13 +78,13 @@ public class EDISerializer implements IXMLSerializer {
             //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
             xr.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("</$1><"))));
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to EDI", e));
+            throw new MessageSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to EDI", e));
         }
         return handler.getOutput().toString();
     }
 
     @Override
-    public String toXML(String source) throws XmlSerializerException {
+    public String toXML(String source) throws MessageSerializerException {
         try {
             Delimiters delimiters = getDelimiters(source);
             EDIReader ediReader = new EDIReader(delimiters.segmentDelimiter, delimiters.elementDelimiter, delimiters.subelementDelimiter);
@@ -95,7 +95,7 @@ public class EDISerializer implements IXMLSerializer {
             ediReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting EDI to XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting EDI to XML", e));
+            throw new MessageSerializerException("Error converting EDI to XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting EDI to XML", e));
         }
     }
 
@@ -219,5 +219,15 @@ public class EDISerializer implements IXMLSerializer {
         }
 
         return found ? builder.toString() : null;
+    }
+
+    @Override
+    public String toJSON(String message) throws MessageSerializerException {
+        return null;
+    }
+
+    @Override
+    public String fromJSON(String message) throws MessageSerializerException {
+        return null;
     }
 }

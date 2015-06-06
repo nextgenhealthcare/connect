@@ -40,6 +40,7 @@ import com.mirth.connect.client.ui.TreeTransferable;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.editors.MessageTreePanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.donkey.model.message.SerializationType;
 
 public class MirthTree extends JXTree implements DropTargetListener {
 
@@ -58,7 +59,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
 
     public MirthTree(MirthTreeNode root, String prefix, String suffix) {
         this.parent = PlatformUI.MIRTH_FRAME;
-        
+
         setCellRenderer(new DefaultTreeCellRenderer() {
             @Override
             public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
@@ -67,7 +68,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
                 return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
             }
         });
-        
+
         mf = new MyFilter();
         ftm = new FilterTreeModel(root, mf);
         this.setModel(ftm);
@@ -318,21 +319,30 @@ public class MirthTree extends JXTree implements DropTargetListener {
         StringBuilder sb = new StringBuilder();
         sb.insert(0, prefix);
 
+        MirthTreeNode node = (MirthTreeNode) parent;
+        SerializationType serializationType = node.getSerializationType();
+
         // Get the parent if the leaf was actually passed in instead of the parent.
-        if (parent.isLeaf()) {
-            parent = parent.getParent();
+        if (node.isLeaf()) {
+            node = (MirthTreeNode) node.getParent();
         }
 
         LinkedList<String> nodeQ = new LinkedList<String>();
-        while (parent != null) {
-            nodeQ.add("'" + parent.toString().replaceAll(" \\(.*\\)", "") + "'");
+        while (node != null) {
+            if (serializationType.equals(SerializationType.JSON) && node.isArrayElement()) {
+                nodeQ.add(String.valueOf(node.getParent().getIndex(node) - 1));
+            } else {
+                nodeQ.add("'" + node.getValue().replaceAll(" \\(.*\\)", "") + "'");
 
-            int parentIndexValue = getIndexOfNode(parent);
-            if (parentIndexValue != -1) {
-                nodeQ.add(nodeQ.size() - 1, parentIndexValue + "");
+                if (serializationType.equals(SerializationType.XML)) {
+                    int parentIndexValue = getIndexOfNode(node);
+                    if (parentIndexValue != -1) {
+                        nodeQ.add(nodeQ.size() - 1, String.valueOf(parentIndexValue));
+                    }
+                }
             }
 
-            parent = parent.getParent();
+            node = (MirthTreeNode) node.getParent();
         }
 
         if (!nodeQ.isEmpty()) {
@@ -343,7 +353,9 @@ public class MirthTree extends JXTree implements DropTargetListener {
             sb.append("[" + nodeQ.removeLast() + "]");
         }
 
-        sb.append(suffix);
+        if (!serializationType.equals(SerializationType.JSON)) {
+            sb.append(suffix);
+        }
 
         return sb;
     }
@@ -357,38 +369,55 @@ public class MirthTree extends JXTree implements DropTargetListener {
     public static String constructVariable(TreeNode parent) {
         String variable = "";
 
+        MirthTreeNode node = (MirthTreeNode) parent;
+        SerializationType serializationType = node.getSerializationType();
+        
         // Get the parent if the leaf was actually passed in instead of the parent.
-        if (parent.isLeaf()) {
-            parent = parent.getParent();
+        if (node.isLeaf()) {
+            node = (MirthTreeNode) node.getParent();
         }
+        
+        boolean wasArrayElement = false;
 
         // Stop the loop as soon as the parent or grandparent is null,
         // because we don't want to include the root node.
-        while (parent != null && parent.getParent() != null) {
-            String parentName = parent.toString();
+        while (node != null && node.getParent() != null) {
+            String parentName = node.getValue();
             Pattern pattern = Pattern.compile(" (\\(.*\\))");
             Matcher matcher = pattern.matcher(parentName.toString());
 
-            // Get the index of the parent about to be added.
-            String parentIndex = "";
-            int parentIndexValue = MirthTree.getIndexOfNode(parent);
-            if (parentIndexValue != -1) {
-                parentIndex += parentIndexValue;
-            }
-
-            // If something has already been added, then prepend it with an "_"
-            if (variable.length() != 0) {
-                variable = "_" + variable;
-            }
-
-            // Add either the vocab (if there is one) or the name.
-            if (matcher.find()) {
-                variable = removeInvalidVariableCharacters(matcher.group(1)) + parentIndex + variable;
+            if (serializationType.equals(SerializationType.JSON) && node.isArrayElement()) {
+                if (variable.length() != 0) {
+                    variable = "_" + variable;
+                }
+                variable = (node.getParent().getIndex(node) - 1) + variable; // JSON array
+                wasArrayElement = true;
             } else {
-                variable = removeInvalidVariableCharacters(parent.toString().replaceAll(" \\(.*\\)", "")) + parentIndex + variable;
+                String parentIndex = "";
+                if (serializationType.equals(SerializationType.XML)) {
+                    // Get the index of the parent about to be added.
+                    int parentIndexValue = MirthTree.getIndexOfNode(node);
+                    if (parentIndexValue != -1) {
+                        parentIndex += parentIndexValue;
+                    }
+                }
+                
+                // If something has already been added and last node processed wasn't an array element, then prepend it with an "_"
+                if (variable.length() != 0 && !wasArrayElement) {
+                    variable = "_" + variable;
+                }
+
+                // Add either the vocab (if there is one) or the name.
+                if (matcher.find()) {
+                    variable = removeInvalidVariableCharacters(matcher.group(1)) + parentIndex + variable;
+                } else {
+                    variable = removeInvalidVariableCharacters(node.getValue().replaceAll(" \\(.*\\)", "")) + parentIndex + variable;
+                }
+
+                wasArrayElement = false;
             }
 
-            parent = parent.getParent();
+            node = (MirthTreeNode) node.getParent();
         }
 
         return variable;
@@ -405,36 +434,53 @@ public class MirthTree extends JXTree implements DropTargetListener {
     public static String constructNodeDescription(TreeNode parent) {
         String description = "";
 
+        MirthTreeNode node = (MirthTreeNode) parent;
+        SerializationType serializationType = node.getSerializationType();
+
         // Get the parent if the leaf was actually passed in instead of the parent.
-        if (parent.isLeaf()) {
-            parent = parent.getParent();
+        if (node.isLeaf()) {
+            node = (MirthTreeNode) node.getParent();
         }
 
+        boolean wasArrayElement = false;
         // Stop the loop as soon as the parent or grandparent is null,
         // because we don't want to include the root node.
-        while (parent != null && parent.getParent() != null) {
-            String parentName = parent.toString();
+        while (node != null && node.getParent() != null) {
+            String parentName = node.getValue();
             Pattern pattern = Pattern.compile(" (\\(.*\\))");
             Matcher matcher = pattern.matcher(parentName.toString());
 
             // Get the index of the parent about to be added.
             String parentIndex = "";
-            int parentIndexValue = MirthTree.getIndexOfNode(parent);
-            if (parentIndexValue != -1) {
-                parentIndex = " [" + parentIndexValue + "]";
-            }
-
-            // Add either the vocab (if there is one) or the name.
-            if (matcher.find()) {
-                String matchDescription = matcher.group(1);
-                matchDescription = matchDescription.substring(1, matchDescription.length() - 1);
-                // Also add the segment name for the last node if vocab was used.
-                description = matchDescription + parentIndex + (description.length() == 0 ? " (" + parent.toString().replaceAll(" \\(.*\\)", "") + ")" : " - ") + description;
+            if (serializationType.equals(SerializationType.JSON) && node.isArrayElement()) {
+                // Prepend " - " to description if last node processed was not an array element.
+                if (!wasArrayElement) {
+                    description = " - " + description;
+                }
+                description = " [" + (node.getParent().getIndex(node) - 1) + "]" + description; // JSON array
+                wasArrayElement = true;
             } else {
-                description = parent.toString() + parentIndex + (description.length() == 0 ? "" : " - ") + description;
+                if (serializationType.equals(SerializationType.XML)) {
+                    int parentIndexValue = MirthTree.getIndexOfNode(node);
+                    if (parentIndexValue != -1) {
+                        parentIndex = " [" + parentIndexValue + "]";
+                    }
+                }
+
+                // Add either the vocab (if there is one) or the name.
+                if (matcher.find()) {
+                    String matchDescription = matcher.group(1);
+                    matchDescription = matchDescription.substring(1, matchDescription.length() - 1);
+                    // Also add the segment name for the last node if vocab was used.
+                    description = matchDescription + parentIndex + (description.length() == 0 ? " (" + node.getValue().replaceAll(" \\(.*\\)", "") + ")" : " - ") + description;
+                } else {
+                    description = node.getValue() + parentIndex + (description.length() != 0 && !wasArrayElement ? " - " : "") + description;
+                }
+
+                wasArrayElement = false;
             }
 
-            parent = parent.getParent();
+            node = (MirthTreeNode) node.getParent();
         }
 
         return description;
@@ -452,7 +498,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
         source = source.replaceAll(" - ", "_");
         source = source.replaceAll("&", " and ");
         source = source.replace("@", "att ");
-        source = source.replaceAll("[^a-zA-Z0-9_\\s]", "");	// get rid of everything not a letter, number, underscore, or space
+        source = source.replaceAll("[^a-zA-Z0-9_\\s]", ""); // get rid of everything not a letter, number, underscore, or space
 
         // Trim all whitespace and '.' from the variable
         source = source.trim();

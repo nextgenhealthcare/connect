@@ -38,6 +38,7 @@
 		<property name="plugins.datatype-ncpdp" value="${extensions}/datatype-ncpdp" />
 		<property name="plugins.datatype-xml" value="${extensions}/datatype-xml" />
 		<property name="plugins.datatype-raw" value="${extensions}/datatype-raw" />
+		<property name="plugins.datatype-json" value="${extensions}/datatype-json" />
 		
 		<!-- plugins -->
 		<property name="plugins.directoryresource" value="${extensions}/directoryresource" />
@@ -538,6 +539,24 @@
 			<include name="com/mirth/connect/plugins/datatypes/raw/RawDataTypeServerPlugin.class" />
 		</jar>
 		
+		<!-- plugins.datatype-json -->
+		<mkdir dir="${plugins.datatype-json}" />
+		<copy todir="${plugins.datatype-json}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/json">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.datatype-json}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datatypes/json" />
+		</copy>
+		<jar destfile="${plugins.datatype-json}/datatype-json-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/json/**" />
+			<exclude name="com/mirth/connect/plugins/datatypes/json/JSONDataTypeServerPlugin.class" />
+		</jar>
+		<jar destfile="${plugins.datatype-json}/datatype-json-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/json/JSONDataTypeServerPlugin.class" />
+		</jar>
+		
 		<!-- plugins.directoryresource -->
 		<mkdir dir="${plugins.directoryresource}" />
 		<copy todir="${plugins.directoryresource}">
@@ -930,6 +949,7 @@
 		<zip destfile="${dist.extensions}/datatype-ncpdp-${version}.zip" basedir="${extensions}" includes="datatype-ncpdp/**/*" />
 		<zip destfile="${dist.extensions}/datatype-xml-${version}.zip" basedir="${extensions}" includes="datatype-xml/**/*" />
 		<zip destfile="${dist.extensions}/datatype-raw-${version}.zip" basedir="${extensions}" includes="datatype-raw/**/*" />
+		<zip destfile="${dist.extensions}/datatype-json-${version}.zip" basedir="${extensions}" includes="datatype-json/**/*" />
 
 		<zip destfile="${dist.extensions}/directoryresource-${version}.zip" basedir="${extensions}" includes="directoryresource/**/*" />
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />

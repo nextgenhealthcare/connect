@@ -19,7 +19,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
@@ -230,12 +230,12 @@ public abstract class MirthAttachmentHandler implements AttachmentHandler {
         return false;
     }
     
-    public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage message) throws XmlSerializerException {
+    public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage message) throws MessageSerializerException {
         List<Attachment> attachments;
         try {
             attachments = MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());
         } catch (Exception e) {
-            throw new XmlSerializerException(e.getMessage());
+            throw new MessageSerializerException(e.getMessage());
         }
         return attachments;
     }

@@ -35,7 +35,7 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.Constants;
@@ -319,7 +319,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         try {
             getFilterTransformerExecutor().processConnectorMessage(message);
         } catch (DonkeyException e) {
-            if (e instanceof XmlSerializerException) {
+            if (e instanceof MessageSerializerException) {
                 Donkey.getInstance().getEventDispatcher().dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), message.getMessageId(), ErrorEventType.SERIALIZER, destinationName, null, e.getMessage(), e));
             }
 

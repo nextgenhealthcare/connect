@@ -10,20 +10,20 @@
 package com.mirth.connect.donkey.server.message;
 
 import com.mirth.connect.donkey.model.message.SerializationType;
-import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
 
 public class DataType {
 
     private String type;
-    private XmlSerializer serializer;
+    private MessageSerializer serializer;
     private AutoResponder autoResponder;
     private SerializationType serializationType;
 
-    public DataType(String type, XmlSerializer serializer, AutoResponder autoResponder) {
+    public DataType(String type, MessageSerializer serializer, AutoResponder autoResponder) {
         this(type, serializer, autoResponder, SerializationType.XML);
     }
 
-    public DataType(String type, XmlSerializer serializer, AutoResponder autoResponder, SerializationType serializationType) {
+    public DataType(String type, MessageSerializer serializer, AutoResponder autoResponder, SerializationType serializationType) {
         this.type = type;
         this.serializer = serializer;
         this.autoResponder = autoResponder;
@@ -34,7 +34,7 @@ public class DataType {
         return type;
     }
 
-    public XmlSerializer getSerializer() {
+    public MessageSerializer getSerializer() {
         return serializer;
     }
 

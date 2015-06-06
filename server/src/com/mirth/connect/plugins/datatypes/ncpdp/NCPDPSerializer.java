@@ -21,16 +21,16 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
-import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
+import com.mirth.connect.model.converters.IMessageSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
-public class NCPDPSerializer implements IXMLSerializer {
+public class NCPDPSerializer implements IMessageSerializer {
     private NCPDPSerializationProperties serializationProperties;
     private NCPDPDeserializationProperties deserializationProperties;
     private Logger logger = Logger.getLogger(getClass());
@@ -89,7 +89,7 @@ public class NCPDPSerializer implements IXMLSerializer {
     }
 
     @Override
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException {
+    public String transformWithoutSerializing(String message, MessageSerializer outboundSerializer) throws MessageSerializerException {
         try {
             boolean transformed = false;
 
@@ -118,14 +118,14 @@ public class NCPDPSerializer implements IXMLSerializer {
                 return message;
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error transforming NCPDP", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming NCPDP", e));
+            throw new MessageSerializerException("Error transforming NCPDP", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming NCPDP", e));
         }
 
         return null;
     }
 
     @Override
-    public String fromXML(String source) throws XmlSerializerException {
+    public String fromXML(String source) throws MessageSerializerException {
         /*
          * Need to determine the version by looking at the raw message.
          * The transaction header will contain the version ("51" for 5.1 and
@@ -162,12 +162,12 @@ public class NCPDPSerializer implements IXMLSerializer {
             reader.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("><"))));
             return handler.getOutput().toString();
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to NCPDP", e));
+            throw new MessageSerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to NCPDP", e));
         }
     }
 
     @Override
-    public String toXML(String source) throws XmlSerializerException {
+    public String toXML(String source) throws MessageSerializerException {
         try {
             NCPDPReader ncpdpReader = new NCPDPReader(serializationSegmentDelimiter, serializationGroupDelimiter, serializationFieldDelimiter);
             StringWriter stringWriter = new StringWriter();
@@ -176,7 +176,7 @@ public class NCPDPSerializer implements IXMLSerializer {
             ncpdpReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting NCPDP message to XML.", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting NCPDP to XML", e));
+            throw new MessageSerializerException("Error converting NCPDP message to XML.", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting NCPDP to XML", e));
         }
     }
 
@@ -222,5 +222,15 @@ public class NCPDPSerializer implements IXMLSerializer {
         } catch (Exception e) {
             logger.error("Error populating NCPDP metadata.", e);
         }
+    }
+
+    @Override
+    public String toJSON(String message) throws MessageSerializerException {
+        return null;
+    }
+
+    @Override
+    public String fromJSON(String message) throws MessageSerializerException {
+        return null;
     }
 }

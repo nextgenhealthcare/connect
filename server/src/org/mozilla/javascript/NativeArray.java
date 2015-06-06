@@ -79,6 +79,13 @@ public class NativeArray extends IdScriptableObject implements List
     {
         return "Array";
     }
+    
+    @Override
+    public String toString()
+    {
+        // Overriding toString() to return the JSON.stringify() representation instead of the object hash code.
+        return NativeJSON.stringify(null, this, this, null, null).toString();
+    }
 
     private static final int
         Id_length        =  1,

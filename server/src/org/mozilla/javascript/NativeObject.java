@@ -40,7 +40,9 @@ public class NativeObject extends IdScriptableObject implements Map
     @Override
     public String toString()
     {
-        return ScriptRuntime.defaultObjectToString(this);
+        // Modified toString() to return the JSON.stringify() representation instead of "[object Object]"
+        return NativeJSON.stringify(null, this, this, null, null).toString();
+//        return ScriptRuntime.defaultObjectToString(this);
     }
 
     @Override
@@ -137,7 +139,10 @@ public class NativeObject extends IdScriptableObject implements Map
                 }
                 return s;
             }
-            return ScriptRuntime.defaultObjectToString(thisObj);
+            
+            // Modified toString() to return the JSON.stringify() representation instead of "[object Object]"
+            return NativeJSON.stringify(cx, scope, thisObj, null, null);
+//            return ScriptRuntime.defaultObjectToString(thisObj);
           }
 
           case Id_valueOf:

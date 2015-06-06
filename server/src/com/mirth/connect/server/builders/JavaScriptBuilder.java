@@ -137,6 +137,10 @@ public class JavaScriptBuilder {
         DataTypeServerPlugin inboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType());
 
         switch (inboundServerPlugin.getSerializationType()) {
+            case JSON:
+                builder.append("msg = JSON.parse(connectorMessage.getTransformedData());\n");
+                break;
+
             case XML:
                 // Turn the inbound message into an E4X XML object
                 builder.append("msg = new XML(connectorMessage.getTransformedData());\n");
@@ -155,6 +159,10 @@ public class JavaScriptBuilder {
             DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
 
             switch (outboundServerPlugin.getSerializationType()) {
+                case JSON:
+                    builder.append("tmp = JSON.parse(template);\n");
+                    break;
+
                 case XML:
                     builder.append("tmp = new XML(template);\n");
                     break;
@@ -183,6 +191,11 @@ public class JavaScriptBuilder {
         DataTypeServerPlugin inboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType());
 
         switch (inboundServerPlugin.getSerializationType()) {
+            case JSON:
+                // Turn the inbound message into a JavaScript object
+                builder.append("msg = JSON.parse(connectorMessage.getResponseTransformedData());\n");
+                break;
+
             case XML:
                 // Turn the inbound message into an E4X XML object
                 builder.append("msg = new XML(connectorMessage.getResponseTransformedData());\n");
@@ -196,12 +209,17 @@ public class JavaScriptBuilder {
                 break;
         }
 
-        // Turn the outbound template into an E4X XML object, if there is one
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
             DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
 
             switch (outboundServerPlugin.getSerializationType()) {
+                case JSON:
+                    // Turn the outbound template into a JavaScript object, if there is one
+                    builder.append("tmp = JSON.parse(template);\n");
+                    break;
+
                 case XML:
+                    // Turn the outbound template into an E4X XML object, if there is one
                     builder.append("tmp = new XML(template);\n");
                     break;
 
@@ -334,10 +352,12 @@ public class JavaScriptBuilder {
         builder.append("var result = mapping;");
         builder.append("if ((result == undefined) || (result.toString().length == 0)) { ");
         builder.append("if (defaultValue == undefined) { defaultValue = ''} result = defaultValue; } ");
+        builder.append("if ('string' === typeof result || result instanceof java.lang.String) { ");
         builder.append("result = new java.lang.String(result.toString()); ");
         builder.append("if (replacement != undefined) {");
         builder.append("for (var i = 0; i < replacement.length; i++) { ");
-        builder.append("var entry = replacement[i]; result = result.replaceAll(entry[0], entry[1]); } } return result; }");
+        builder.append("var entry = replacement[i]; result = result.replaceAll(entry[0], entry[1]); } } }");
+        builder.append("return result; }");
 
         // Helper function to create segments
         builder.append("function createSegment(name, msgObj, index) {");

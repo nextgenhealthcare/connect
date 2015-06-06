@@ -109,10 +109,10 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             int eventBrowserPageSize = userPreferences.getInt("eventBrowserPageSize", 100);
             eventBrowserPageSizeField.setText(eventBrowserPageSize + "");
 
-            if (userPreferences.getBoolean("messageBrowserFormatXml", true)) {
-                formatXmlYesRadio.setSelected(true);
+            if (userPreferences.getBoolean("messageBrowserFormat", true)) {
+                formatYesRadio.setSelected(true);
             } else {
-                formatXmlNoRadio.setSelected(true);
+                formatNoRadio.setSelected(true);
             }
 
             if (userPreferences.getBoolean("textSearchWarning", true)) {
@@ -193,7 +193,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             userPreferences.putInt("intervalTime", interval);
             userPreferences.putInt("messageBrowserPageSize", messageBrowserPageSize);
             userPreferences.putInt("eventBrowserPageSize", eventBrowserPageSize);
-            userPreferences.putBoolean("messageBrowserFormatXml", formatXmlYesRadio.isSelected());
+            userPreferences.putBoolean("messageBrowserFormat", formatYesRadio.isSelected());
             userPreferences.putBoolean("textSearchWarning", textSearchWarningYesRadio.isSelected());
         }
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " settings...");
@@ -302,19 +302,19 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         eventBrowserPageSizeField = new MirthTextField();
         eventBrowserPageSizeField.setToolTipText(toolTipText);
 
-        formatXmlLabel = new JLabel("Format XML in message browser:");
-        formatXmlButtonGroup = new ButtonGroup();
+        formatLabel = new JLabel("Format text in message browser:");
+        formatButtonGroup = new ButtonGroup();
 
-        toolTipText = "Pretty print messages in the message browser that are XML.";
-        formatXmlYesRadio = new MirthRadioButton("Yes");
-        formatXmlYesRadio.setBackground(systemSettingsPanel.getBackground());
-        formatXmlYesRadio.setToolTipText(toolTipText);
-        formatXmlButtonGroup.add(formatXmlYesRadio);
+        toolTipText = "Pretty print messages in the message browser.";
+        formatYesRadio = new MirthRadioButton("Yes");
+        formatYesRadio.setBackground(systemSettingsPanel.getBackground());
+        formatYesRadio.setToolTipText(toolTipText);
+        formatButtonGroup.add(formatYesRadio);
 
-        formatXmlNoRadio = new MirthRadioButton("No");
-        formatXmlNoRadio.setBackground(systemSettingsPanel.getBackground());
-        formatXmlNoRadio.setToolTipText(toolTipText);
-        formatXmlButtonGroup.add(formatXmlNoRadio);
+        formatNoRadio = new MirthRadioButton("No");
+        formatNoRadio.setBackground(systemSettingsPanel.getBackground());
+        formatNoRadio.setToolTipText(toolTipText);
+        formatButtonGroup.add(formatNoRadio);
 
         textSearchWarningLabel = new JLabel("Message browser text search confirmation:");
         textSearchWarningButtonGroup = new ButtonGroup();
@@ -451,9 +451,9 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         systemSettingsPanel.add(messageBrowserPageSizeField, "w 30!");
         systemSettingsPanel.add(eventBrowserPageSizeLabel, "newline, right");
         systemSettingsPanel.add(eventBrowserPageSizeField, "w 30!");
-        systemSettingsPanel.add(formatXmlLabel, "newline, right");
-        systemSettingsPanel.add(formatXmlYesRadio, "split");
-        systemSettingsPanel.add(formatXmlNoRadio);
+        systemSettingsPanel.add(formatLabel, "newline, right");
+        systemSettingsPanel.add(formatYesRadio, "split");
+        systemSettingsPanel.add(formatNoRadio);
         systemSettingsPanel.add(textSearchWarningLabel, "newline, right");
         systemSettingsPanel.add(textSearchWarningYesRadio, "split");
         systemSettingsPanel.add(textSearchWarningNoRadio);
@@ -547,10 +547,10 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     private JTextField messageBrowserPageSizeField;
     private JLabel eventBrowserPageSizeLabel;
     private JTextField eventBrowserPageSizeField;
-    private JLabel formatXmlLabel;
-    private ButtonGroup formatXmlButtonGroup;
-    private JRadioButton formatXmlYesRadio;
-    private JRadioButton formatXmlNoRadio;
+    private JLabel formatLabel;
+    private ButtonGroup formatButtonGroup;
+    private JRadioButton formatYesRadio;
+    private JRadioButton formatNoRadio;
     private JLabel textSearchWarningLabel;
     private ButtonGroup textSearchWarningButtonGroup;
     private JRadioButton textSearchWarningYesRadio;

@@ -12,15 +12,15 @@ package com.mirth.connect.plugins.datatypes.hl7v3;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
-import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
+import com.mirth.connect.model.converters.IMessageSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
-public class HL7V3Serializer implements IXMLSerializer {
+public class HL7V3Serializer implements IMessageSerializer {
 
     private HL7V3SerializationProperties serializationProperties;
 
@@ -36,34 +36,34 @@ public class HL7V3Serializer implements IXMLSerializer {
     }
 
     @Override
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException {
+    public String transformWithoutSerializing(String message, MessageSerializer outboundSerializer) throws MessageSerializerException {
         try {
             if (serializationProperties.isStripNamespaces()) {
                 return StringUtil.stripNamespaces(message);
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error transforming HL7 v3.x", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming HL7 v3.x", e));
+            throw new MessageSerializerException("Error transforming HL7 v3.x", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming HL7 v3.x", e));
         }
 
         return null;
     }
 
     @Override
-    public String toXML(String source) throws XmlSerializerException {
+    public String toXML(String source) throws MessageSerializerException {
         try {
             if (serializationProperties.isStripNamespaces()) {
                 source = StringUtil.stripNamespaces(source);
             }
             source = source.trim();
         } catch (Exception e) {
-            throw new XmlSerializerException("Error transforming HL7 v3.x", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming HL7 v3.x", e));
+            throw new MessageSerializerException("Error transforming HL7 v3.x", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming HL7 v3.x", e));
         }
 
         return source;
     }
 
     @Override
-    public String fromXML(String source) throws XmlSerializerException {
+    public String fromXML(String source) throws MessageSerializerException {
         return source;
     }
 
@@ -102,4 +102,14 @@ public class HL7V3Serializer implements IXMLSerializer {
 
     @Override
     public void populateMetaData(String message, Map<String, Object> map) {}
+
+    @Override
+    public String toJSON(String message) throws MessageSerializerException {
+        return null;
+    }
+
+    @Override
+    public String fromJSON(String message) throws MessageSerializerException {
+        return null;
+    }
 }

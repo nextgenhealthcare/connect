@@ -39,6 +39,7 @@
 		<property name="plugins.datatype-ncpdp" value="${extensions}/datatype-ncpdp" />
 		<property name="plugins.datatype-xml" value="${extensions}/datatype-xml" />
 		<property name="plugins.datatype-raw" value="${extensions}/datatype-raw" />
+		<property name="plugins.datatype-json" value = "${extensions}/datatype-json" />
 
 		<!-- plugins -->
 		<property name="plugins.directoryresource" value="${extensions}/directoryresource" />
@@ -195,6 +196,11 @@
 		<mkdir dir="${plugins.datatype-raw}" />
 		<jar destfile="${plugins.datatype-raw}/datatype-raw-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/raw/**" />
+		</jar>
+		
+		<mkdir dir="${plugins.datatype-json}" />
+		<jar destfile="${plugins.datatype-json}/datatype-json-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/json/**" />
 		</jar>
 		
 		<mkdir dir="${plugins.directoryresource}" />

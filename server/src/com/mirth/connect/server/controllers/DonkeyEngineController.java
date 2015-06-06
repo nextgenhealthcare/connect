@@ -48,8 +48,8 @@ import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.SerializationType;
-import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.Constants;
@@ -790,15 +790,16 @@ public class DonkeyEngineController implements EngineController {
         // Serialize the outbound template if needed
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
             DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
-            XmlSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
+            MessageSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
 
-            if (outboundServerPlugin.isBinary() || outboundServerPlugin.getSerializationType() == SerializationType.RAW) {
+            // Serialize template to XML only if serialization type is XML
+            if (outboundServerPlugin.isBinary() || outboundServerPlugin.getSerializationType() != SerializationType.XML) {
                 template = transformer.getOutboundTemplate();
             } else {
                 try {
                     template = serializer.toXML(transformer.getOutboundTemplate());
-                } catch (XmlSerializerException e) {
-                    throw new XmlSerializerException("Error serializing transformer outbound template for connector \"" + connectorModel.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
+                } catch (MessageSerializerException e) {
+                    throw new MessageSerializerException("Error serializing transformer outbound template for connector \"" + connectorModel.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
                 }
             }
 
@@ -846,15 +847,15 @@ public class DonkeyEngineController implements EngineController {
         // Serialize the outbound template if needed
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
             DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
-            XmlSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
+            MessageSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
 
             if (outboundServerPlugin.isBinary() || outboundServerPlugin.getSerializationType() == SerializationType.RAW) {
                 template = transformer.getOutboundTemplate();
             } else {
                 try {
                     template = serializer.toXML(transformer.getOutboundTemplate());
-                } catch (XmlSerializerException e) {
-                    throw new XmlSerializerException("Error serializing response transformer outbound template for connector \"" + connectorModel.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
+                } catch (MessageSerializerException e) {
+                    throw new MessageSerializerException("Error serializing response transformer outbound template for connector \"" + connectorModel.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
                 }
             }
 

@@ -21,7 +21,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.tests.Stopwatch;
 import com.mirth.connect.plugins.datatypes.ncpdp.NCPDPSerializer;
@@ -110,7 +110,7 @@ public class NCPDPTest {
         }
     }
 
-	private static long runTest(String testMessage) throws XmlSerializerException, SAXException, IOException {
+	private static long runTest(String testMessage) throws MessageSerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
 //		Properties properties = new Properties();
         String SchemaUrl = "/ncpdp51.xsd";

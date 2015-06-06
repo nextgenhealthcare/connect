@@ -26,8 +26,8 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
@@ -83,29 +83,39 @@ public class FilterTransformerTests {
         ConnectorMessage connectorMessage;
         FilterTransformerExecutor filterTransformerExecutor;
 
-        class FailingTestSerializer implements XmlSerializer {
+        class FailingTestSerializer implements MessageSerializer {
             @Override
             public boolean isSerializationRequired(boolean isXml) {
                 return false;
             }
 
             @Override
-            public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+            public String transformWithoutSerializing(String message, MessageSerializer outboundSerializer) {
                 return message;
             }
 
             @Override
-            public String toXML(String message) throws XmlSerializerException {
-                throw new XmlSerializerException("Inbound serialization failed.");
+            public String toXML(String message) throws MessageSerializerException {
+                throw new MessageSerializerException("Inbound serialization failed.");
             }
 
             @Override
-            public String fromXML(String message) throws XmlSerializerException {
-                throw new XmlSerializerException("Outbound serialization failed.");
+            public String fromXML(String message) throws MessageSerializerException {
+                throw new MessageSerializerException("Outbound serialization failed.");
             }
 
             @Override
             public void populateMetaData(String message, Map<String, Object> map) {}
+
+            @Override
+            public String toJSON(String message) throws MessageSerializerException {
+                return null;
+            }
+
+            @Override
+            public String fromJSON(String message) throws MessageSerializerException {
+                return null;
+            }
         }
 
         class FailingTestDataType extends DataType {
@@ -128,7 +138,7 @@ public class FilterTransformerTests {
 
             try {
                 filterTransformerExecutor.processConnectorMessage(connectorMessage);
-            } catch (XmlSerializerException e) {
+            } catch (MessageSerializerException e) {
             }
 
             assertNull(connectorMessage.getTransformed());

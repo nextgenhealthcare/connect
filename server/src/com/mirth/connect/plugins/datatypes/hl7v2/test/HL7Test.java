@@ -17,7 +17,7 @@ import java.io.InputStream;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.tests.Stopwatch;
 import com.mirth.connect.plugins.datatypes.hl7v2.ER7Serializer;
@@ -56,7 +56,7 @@ public class HL7Test {
 
 	}
 
-	private static long runTest(String testMessage, String xml) throws XmlSerializerException, SAXException, IOException {
+	private static long runTest(String testMessage, String xml) throws MessageSerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
 //		Properties properties = new Properties();
 //		properties.put("useStrictParser", "false");

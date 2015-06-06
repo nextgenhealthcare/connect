@@ -11,14 +11,18 @@ package com.mirth.connect.donkey.model.message;
 
 import java.util.Map;
 
-public interface XmlSerializer {
-    public String toXML(String message) throws XmlSerializerException;
+public interface MessageSerializer {
+    public String toXML(String message) throws MessageSerializerException;
 
-    public String fromXML(String message) throws XmlSerializerException;
+    public String fromXML(String message) throws MessageSerializerException;
+    
+    public String toJSON(String message) throws MessageSerializerException;
+    
+    public String fromJSON(String message) throws MessageSerializerException;
 
     public boolean isSerializationRequired(boolean toXml);
 
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException;
+    public String transformWithoutSerializing(String message, MessageSerializer outboundSerializer) throws MessageSerializerException;
 
     public void populateMetaData(String message, Map<String, Object> map);
 }

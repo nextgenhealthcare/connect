@@ -50,7 +50,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
@@ -1492,7 +1492,7 @@ public class Channel implements Runnable {
             try {
                 sourceConnector.getFilterTransformerExecutor().processConnectorMessage(sourceMessage);
             } catch (DonkeyException e) {
-                if (e instanceof XmlSerializerException) {
+                if (e instanceof MessageSerializerException) {
                     eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, messageId, ErrorEventType.SERIALIZER, sourceConnector.getSourceName(), null, e.getMessage(), e));
                 }
 

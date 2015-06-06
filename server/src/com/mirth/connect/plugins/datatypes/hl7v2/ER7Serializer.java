@@ -30,16 +30,16 @@ import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
-import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
-import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
+import com.mirth.connect.model.converters.IMessageSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
-public class ER7Serializer implements IXMLSerializer {
+public class ER7Serializer implements IMessageSerializer {
     private Logger logger = Logger.getLogger(this.getClass());
     private PipeParser serializationPipeParser = null;
     private XMLParser serializationXmlParser = null;
@@ -126,7 +126,7 @@ public class ER7Serializer implements IXMLSerializer {
     }
 
     @Override
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException {
+    public String transformWithoutSerializing(String message, MessageSerializer outboundSerializer) throws MessageSerializerException {
         try {
             boolean transformed = false;
             ER7Serializer serializer = (ER7Serializer) outboundSerializer;
@@ -160,7 +160,7 @@ public class ER7Serializer implements IXMLSerializer {
                 return message;
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error transforming ER7", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming ER7", e));
+            throw new MessageSerializerException("Error transforming ER7", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming ER7", e));
         }
 
         return null;
@@ -174,7 +174,7 @@ public class ER7Serializer implements IXMLSerializer {
      * @return
      */
     @Override
-    public String toXML(String source) throws XmlSerializerException {
+    public String toXML(String source) throws MessageSerializerException {
         try {
             if (serializationProperties.isConvertLineBreaks()) {
                 source = StringUtil.convertLineBreaks(source, serializationSegmentDelimiter);
@@ -214,7 +214,7 @@ public class ER7Serializer implements IXMLSerializer {
                 return stringWriter.toString();
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting ER7 to XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting ER7 to XML", e));
+            throw new MessageSerializerException("Error converting ER7 to XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting ER7 to XML", e));
         }
     }
 
@@ -226,7 +226,7 @@ public class ER7Serializer implements IXMLSerializer {
      * @return
      */
     @Override
-    public String fromXML(String source) throws XmlSerializerException {
+    public String fromXML(String source) throws MessageSerializerException {
         try {
             if (deserializationProperties.isUseStrictParser()) {
                 return deserializationPipeParser.encode(deserializationXmlParser.parse(source));
@@ -278,7 +278,7 @@ public class ER7Serializer implements IXMLSerializer {
                 return handler.getOutput().toString();
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting XML to ER7", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to ER7", e));
+            throw new MessageSerializerException("Error converting XML to ER7", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to ER7", e));
         }
     }
 
@@ -452,5 +452,15 @@ public class ER7Serializer implements IXMLSerializer {
         }
 
         return result.toString();
+    }
+
+    @Override
+    public String toJSON(String message) throws MessageSerializerException {
+        return null;
+    }
+
+    @Override
+    public String fromJSON(String message) throws MessageSerializerException {
+        return null;
     }
 }

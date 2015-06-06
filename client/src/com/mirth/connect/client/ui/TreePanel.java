@@ -23,7 +23,9 @@ import java.awt.event.MouseMotionAdapter;
 import java.io.StringReader;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -45,12 +47,17 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.components.MirthTree.FilterTreeModel;
 import com.mirth.connect.client.ui.components.MirthTreeNode;
+import com.mirth.connect.client.ui.components.MirthTreeNode.JSONType;
 import com.mirth.connect.client.ui.editors.MessageTreePanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
-import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.donkey.model.message.SerializationType;
+import com.mirth.connect.model.converters.IMessageSerializer;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.model.util.MessageVocabulary;
@@ -337,13 +344,15 @@ public class TreePanel extends javax.swing.JPanel {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder;
 
+        JsonNode jsonDoc = null;
+
         messageName = "";
         version = "";
         type = "";
         String messageDescription = "";
         String dataType = null;
         if (source.length() > 0 && !source.equals(ignoreText)) {
-            IXMLSerializer serializer;
+            IMessageSerializer serializer;
 
             if (PlatformUI.MIRTH_FRAME.displayNameToDataType.containsKey(messageType)) {
                 dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(messageType);
@@ -355,6 +364,47 @@ public class TreePanel extends javax.swing.JPanel {
             DataTypeClientPlugin clientPlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType);
 
             switch (clientPlugin.getSerializationType()) {
+                case JSON:
+                    try {
+                        serializer = clientPlugin.getSerializer(dataTypeProperties.getSerializerProperties());
+                        Map<String, Object> metadata = serializer.getMetaDataFromMessage(source);
+
+                        if (metadata.get(DefaultMetaData.TYPE_VARIABLE_MAPPING) != null) {
+                            type = ((String) metadata.get(DefaultMetaData.TYPE_VARIABLE_MAPPING)).trim();
+                        } else {
+                            type = "Unknown type";
+                        }
+
+                        messageName = type;
+
+                        ObjectMapper mapper = new ObjectMapper();
+                        String message;
+
+                        if (clientPlugin.isBinary()) {
+                            message = source;
+                        } else {
+                            message = serializer.toJSON(source);
+                        }
+
+                        jsonDoc = mapper.readTree(message);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    if (jsonDoc != null) {
+                        boolean documentIsArray = false;
+
+                        if (jsonDoc.isArray()) {
+                            documentIsArray = true;
+                        }
+
+                        MirthTreeNode top = processJsonElement(dataType, messageName, jsonDoc, null, documentIsArray);
+                        createTree(top);
+                        filter();
+                    } else {
+                        setInvalidMessage(messageType);
+                    }
+                    break;
                 case XML:
                     try {
                         serializer = clientPlugin.getSerializer(dataTypeProperties.getSerializerProperties());
@@ -399,7 +449,24 @@ public class TreePanel extends javax.swing.JPanel {
                     }
 
                     if (xmlDoc != null) {
-                        createTree(dataType, xmlDoc, messageName, messageDescription);
+                        Element element = xmlDoc.getDocumentElement();
+                        MirthTreeNode top;
+
+                        if (messageDescription.length() > 0) {
+                            top = new MirthTreeNode(messageName + " (" + messageDescription + ")");
+                        } else {
+                            top = new MirthTreeNode(messageName);
+                        }
+
+                        processAttributes(element, top);
+
+                        NodeList children = element.getChildNodes();
+
+                        for (int i = 0; i < children.getLength(); i++) {
+                            processXmlElement(dataType, children.item(i), top);
+                        }
+
+                        createTree(top);
                         filter();
                     } else {
                         setInvalidMessage(messageType);
@@ -430,24 +497,7 @@ public class TreePanel extends javax.swing.JPanel {
     /**
      * Updates the panel with a new Message.
      */
-    private void createTree(String dataType, Document document, String messageName, String messageDescription) {
-        Element element = document.getDocumentElement();
-        MirthTreeNode top;
-
-        if (messageDescription.length() > 0) {
-            top = new MirthTreeNode(messageName + " (" + messageDescription + ")");
-        } else {
-            top = new MirthTreeNode(messageName);
-        }
-
-        processAttributes(element, top);
-
-        NodeList children = element.getChildNodes();
-
-        for (int i = 0; i < children.getLength(); i++) {
-            processElement(dataType, children.item(i), top);
-        }
-
+    private void createTree(MirthTreeNode top) {
         tree = new MirthTree(top, _dropPrefix, _dropSuffix);
         tree.setDragEnabled(true);
         tree.setTransferHandler(new TreeTransferHandler());
@@ -507,11 +557,80 @@ public class TreePanel extends javax.swing.JPanel {
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
-    private void processElement(String dataType, Object elo, MirthTreeNode mtn) {
+    private MirthTreeNode processJsonElement(String dataType, String fieldName, JsonNode element, MirthTreeNode mtn, boolean parentIsArray) {
+
+        MirthTreeNode currentNode = new MirthTreeNode(fieldName);
+        currentNode.setSerializationType(SerializationType.JSON);
+        
+        if (parentIsArray) {
+            currentNode.setArrayElement(true);
+        }
+
+        if (element.isArray()) {
+            ArrayNode arrNode = (ArrayNode) element;
+            currentNode.setJSONType(JSONType.ARRAY);
+            
+            MirthTreeNode childNode = new MirthTreeNode("");
+            childNode.setSerializationType(SerializationType.JSON);
+            childNode.setArrayElement(true);
+            currentNode.add(childNode);
+            
+            // If array is empty, add blank node. Otherwise, process each element.
+            if (arrNode.get(0) == null) {
+                childNode.setUserObject(EMPTY);
+            } else {
+                childNode.setUserObject(fieldName);
+                        
+                for (int i = 0; i < arrNode.size(); i++) {
+                    // The node name is the index of the array.
+                    String arrDescription = "[" + i + "]";
+                    // Include the field name as long as the parent isn't also an array.
+                    if (!parentIsArray) {
+                        arrDescription = fieldName + " " + arrDescription;
+                    }
+                    processJsonElement(dataType, arrDescription, arrNode.get(i), currentNode, true);
+                }
+            }
+        } else {
+            MirthTreeNode childNode;
+            // Check if the value of this node "other things" is a container node
+            if (element.isValueNode()) {
+                // If the element is textual and not blank, use the element's value
+                childNode = new MirthTreeNode(element.toString());
+            } else if (element.isContainerNode() && element.size() > 0) {
+                // If the element is an array or a JSON object and not empty, use the element's field name
+                childNode = new MirthTreeNode(fieldName);
+            } else {
+                childNode = new MirthTreeNode(EMPTY);
+            }
+            
+            // Set type as object
+            if (element.isObject()) {
+                currentNode.setJSONType(JSONType.OBJECT);
+            }
+            
+            childNode.setSerializationType(SerializationType.JSON);
+            currentNode.add(childNode);
+
+            for (Iterator<Entry<String, JsonNode>> children = element.fields(); children.hasNext();) {
+                Entry<String, JsonNode> child = children.next();
+                processJsonElement(dataType, child.getKey(), child.getValue(), currentNode, false);
+            }
+        }
+        
+        if (mtn != null) {
+            mtn.setSerializationType(SerializationType.JSON);
+            mtn.add(currentNode);
+        }
+
+        return currentNode;
+    }
+
+    private void processXmlElement(String dataType, Object elo, MirthTreeNode mtn) {
         if (elo instanceof Element) {
             Element element = (Element) elo;
             String description;
-            MirthTreeNode currentNode = new MirthTreeNode(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getNodeText(vocabulary, element));
+            MirthTreeNode currentNode = new MirthTreeNode(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getNodeText(vocabulary, element.getNodeName()));
 
             String text = "";
             if (element.hasChildNodes()) {
@@ -559,7 +678,7 @@ public class TreePanel extends javax.swing.JPanel {
 
             NodeList children = element.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
-                processElement(dataType, children.item(i), currentNode);
+                processXmlElement(dataType, children.item(i), currentNode);
             }
             mtn.add(currentNode);
         }

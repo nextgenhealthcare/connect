@@ -14,7 +14,7 @@ import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
-import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.converters.IMessageSerializer;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
@@ -29,7 +29,7 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
     /**
      * Get an instance of the data type's serializer with the given properties
      */
-    final public IXMLSerializer getSerializer(SerializerProperties properties) {
+    final public IMessageSerializer getSerializer(SerializerProperties properties) {
         return getDataTypeDelegate().getSerializer(properties);
     }
 
@@ -95,13 +95,20 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
      * Get the node text for a given element in the tree.
      */
     public String getNodeText(MessageVocabulary vocabulary, Element element) {
-        String description = vocabulary.getDescription(element.getNodeName());
+        return getNodeText(vocabulary, element.getNodeName());
+    }
+    
+    /**
+     * Get the node text for a given element in the tree.
+     */
+    public String getNodeText(MessageVocabulary vocabulary, String nodeName) {
+        String description = vocabulary.getDescription(nodeName);
 
         String nodeText;
         if (description != null && description.length() > 0) {
-            nodeText = element.getNodeName() + " (" + description + ")";
+            nodeText = nodeName + " (" + description + ")";
         } else {
-            nodeText = element.getNodeName();
+            nodeText = nodeName;
         }
 
         return nodeText;

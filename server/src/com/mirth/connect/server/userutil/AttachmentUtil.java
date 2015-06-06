@@ -14,7 +14,7 @@ import java.util.List;
 
 import javax.activation.UnsupportedDataTypeException;
 
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.server.attachments.MirthAttachmentHandler;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -84,7 +84,7 @@ public class AttachmentUtil {
      *            The connector message associated with the attachments.
      * @return A list of attachments associated with the connector message.
      */
-    public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws XmlSerializerException {
+    public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws MessageSerializerException {
         return convertFromDonkeyAttachmentList(MirthAttachmentHandler.getMessageAttachments(connectorMessage));
     }
 

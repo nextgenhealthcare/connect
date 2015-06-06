@@ -1,13 +1,4 @@
-/*
- * Copyright (c) Mirth Corporation. All rights reserved.
- * 
- * http://www.mirthcorp.com
- * 
- * The software in this package is published under the terms of the MPL license a copy of which has
- * been included with this distribution in the LICENSE.txt file.
- */
-
-package com.mirth.connect.plugins.datatypes.hl7v3;
+package com.mirth.connect.plugins.datatypes.json;
 
 import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.model.converters.IMessageSerializer;
@@ -15,16 +6,16 @@ import com.mirth.connect.model.datatype.DataTypeDelegate;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
 
-public class HL7V3DataTypeDelegate implements DataTypeDelegate {
+public class JSONDataTypeDelegate implements DataTypeDelegate {
 
     @Override
     public String getName() {
-        return "HL7V3";
+        return "JSON";
     }
 
     @Override
     public IMessageSerializer getSerializer(SerializerProperties properties) {
-        return new HL7V3Serializer(properties);
+        return new JSONSerializer(properties);
     }
 
     @Override
@@ -34,11 +25,12 @@ public class HL7V3DataTypeDelegate implements DataTypeDelegate {
 
     @Override
     public SerializationType getSerializationType() {
-        return SerializationType.XML;
+        return SerializationType.JSON;
     }
 
     @Override
     public DataTypeProperties getDefaultProperties() {
-        return new HL7V3DataTypeProperties();
+        return new JSONDataTypeProperties();
     }
+
 }

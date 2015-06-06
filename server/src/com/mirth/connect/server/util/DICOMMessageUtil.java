@@ -36,7 +36,7 @@ import org.dcm4che2.data.Tag;
 import org.dcm4che2.data.VR;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
@@ -110,7 +110,7 @@ public class DICOMMessageUtil {
         return getDICOMRawBytes(message);
     }
 
-    public static byte[] mergeHeaderAttachments(ImmutableConnectorMessage message, List<Attachment> attachments) throws XmlSerializerException {
+    public static byte[] mergeHeaderAttachments(ImmutableConnectorMessage message, List<Attachment> attachments) throws MessageSerializerException {
         try {
             byte[] headerBytes;
 
@@ -127,7 +127,7 @@ public class DICOMMessageUtil {
 
             return mergeHeaderPixelData(headerBytes, attachments);
         } catch (IOException e) {
-            throw new XmlSerializerException(e);
+            throw new MessageSerializerException(e);
         }
     }
 

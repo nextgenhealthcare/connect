@@ -135,7 +135,7 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="MessagesCardPane" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="formatXmlMessageCheckBox" min="-2" max="-2" attributes="0"/>
+                                  <Component id="formatMessageCheckBox" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                               <Component id="MessagesRadioPane" alignment="0" max="32767" attributes="0"/>
@@ -152,7 +152,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="MessagesCardPane" pref="134" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="formatXmlMessageCheckBox" min="-2" max="-2" attributes="0"/>
+                          <Component id="formatMessageCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -556,7 +556,7 @@
                     </Container>
                   </SubComponents>
                 </Container>
-                <Component class="javax.swing.JCheckBox" name="formatXmlMessageCheckBox">
+                <Component class="javax.swing.JCheckBox" name="formatMessageCheckBox">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -565,7 +565,7 @@
                     <Property name="toolTipText" type="java.lang.String" value="Pretty print messages that are XML."/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="formatXmlMessageCheckBoxActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="formatMessageCheckBoxActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>

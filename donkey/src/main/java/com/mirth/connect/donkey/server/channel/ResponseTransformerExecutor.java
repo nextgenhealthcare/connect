@@ -70,7 +70,10 @@ public class ResponseTransformerExecutor {
                 case RAW:
                     // Only the raw/processed raw content is used for the raw serialization type, so nothing needs to be done here
                     break;
-
+                case JSON:
+                    responseTransformedContent = inbound.getSerializer().toJSON(response.getMessage());
+                    setResponseTransformedContent(connectorMessage, responseTransformedContent, inbound.getSerializationType());
+                    break;
                 case XML:
                 default:
                     responseTransformedContent = inbound.getSerializer().toXML(response.getMessage());
@@ -105,7 +108,9 @@ public class ResponseTransformerExecutor {
                 case RAW:
                     processedResponseContent = responseTransformedContent;
                     break;
-
+                case JSON:
+                    processedResponseContent = outbound.getSerializer().fromJSON(responseTransformedContent);
+                    break;
                 case XML:
                 default:
                     // Convert the response transformed data to the outbound data type

@@ -10,7 +10,7 @@
 package com.mirth.connect.server.message;
 
 import com.mirth.connect.donkey.model.message.SerializationType;
-import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.MessageSerializer;
 import com.mirth.connect.donkey.server.message.AutoResponder;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
@@ -26,7 +26,7 @@ public class DataTypeFactory {
 
         // Create the serializer
         SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
-        XmlSerializer serializer = dataTypePlugin.getSerializer(serializerProperties);
+        MessageSerializer serializer = dataTypePlugin.getSerializer(serializerProperties);
 
         // Create the autoresponder
         AutoResponder autoResponder = dataTypePlugin.getAutoResponder(serializerProperties.getSerializationProperties(), dataTypeProperties.getResponseGenerationProperties());
