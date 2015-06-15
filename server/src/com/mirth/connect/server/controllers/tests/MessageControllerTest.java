@@ -83,7 +83,7 @@ public class MessageControllerTest {
         logger.info("Running select queries");
 
         for (int i = 0; i < searchCount; i++) {
-            messageController.getMessages(filter, donkeyChannel, false, 0, pageSize);
+            messageController.getMessages(filter, donkeyChannel.getChannelId(), false, 0, pageSize);
         }
 
         logger.info("Select queries completed");
