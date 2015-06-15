@@ -9,14 +9,11 @@
 
 package com.mirth.connect.client.ui;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.SwingWorker;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.donkey.model.channel.DeployedState;
-import com.mirth.connect.model.DashboardStatus;
 
 public class RemoveMessagesDialog extends MirthDialog {
     private Frame parent;
@@ -28,20 +25,11 @@ public class RemoveMessagesDialog extends MirthDialog {
         this.parent = parent;
     }
 
-    public void init(Set<DashboardStatus> selectedChannelStatuses) {
+    public void init(Set<String> selectedChannelIds, boolean restartCheckboxEnabled) {
         yesButton.requestFocus();
         clearStatsCheckBox.setSelected(true);
         includeRunningChannels.setSelected(false);
-        channelIds = new HashSet<String>();
-        boolean restartCheckboxEnabled = false;
-
-        for (final DashboardStatus channelStatus : selectedChannelStatuses) {
-            channelIds.add(channelStatus.getChannelId());
-
-            if (!channelStatus.getState().equals(DeployedState.STOPPED) && !restartCheckboxEnabled) {
-                restartCheckboxEnabled = true;
-            }
-        }
+        channelIds = selectedChannelIds;
 
         includeRunningChannels.setEnabled(restartCheckboxEnabled);
     }

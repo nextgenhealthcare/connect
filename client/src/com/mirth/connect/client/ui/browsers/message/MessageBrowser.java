@@ -142,6 +142,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private String lastUserSelectedErrorType = "Processing Error";
     private Frame parent;
     private String channelId;
+    private boolean isChannelDeployed;
     private Map<Integer, String> connectors;
     private List<MetaDataColumn> metaDataColumns;
     private MessageBrowserTableModel tableModel;
@@ -282,7 +283,11 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
     }
 
-    public void loadChannel(String channelId, Map<Integer, String> connectors, List<MetaDataColumn> metaDataColumns, List<Integer> selectedMetaDataIds) {
+    public void loadChannel(String channelId, Map<Integer, String> connectors, List<MetaDataColumn> metaDataColumns, List<Integer> selectedMetaDataIds, boolean isChannelDeployed) {
+        this.isChannelDeployed = isChannelDeployed;
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 1, 1, isChannelDeployed);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 8, isChannelDeployed);
+
         //Set the FormatCheckboxes to their default setting
         formatMessageCheckBox.setSelected(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserFormat", true));
 
@@ -1435,7 +1440,7 @@ public class MessageBrowser extends javax.swing.JPanel {
      */
     public void clearDescription(String text) {
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, isChannelDeployed);
 
         RawMessageTextPane.setDocument(new SyntaxDocument());
         RawMessageTextPane.setText(text != null ? text : "Select a message to view the raw message.");
@@ -1593,7 +1598,9 @@ public class MessageBrowser extends javax.swing.JPanel {
             int row = getSelectedMessageIndex();
 
             if (row >= 0) {
-                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, true);
+                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
+                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, -1, isChannelDeployed);
+
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                 // Get the table node

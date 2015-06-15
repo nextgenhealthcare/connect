@@ -184,9 +184,8 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public List<Message> getMessages(MessageFilter filter, Channel channel, Boolean includeContent, Integer offset, Integer limit) {
+    public List<Message> getMessages(MessageFilter filter, String channelId, Boolean includeContent, Integer offset, Integer limit) {
         List<Message> messages = new ArrayList<Message>();
-        String channelId = channel.getChannelId();
 
         if (filter.getIncludedMetaDataIds() != null && filter.getIncludedMetaDataIds().isEmpty() && filter.getExcludedMetaDataIds() == null) {
             return messages;
@@ -466,7 +465,7 @@ public class DonkeyMessageController extends MessageController {
 
             @Override
             protected List<Message> getItems(int offset, int limit) throws Exception {
-                return messageController.getMessages(messageFilter, engineController.getDeployedChannel(channelId), true, offset, limit);
+                return messageController.getMessages(messageFilter, channelId, true, offset, limit);
             }
         };
 

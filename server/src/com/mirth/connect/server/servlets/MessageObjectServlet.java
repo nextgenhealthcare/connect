@@ -95,9 +95,8 @@ public class MessageObjectServlet extends MirthServlet {
                         } catch (NumberFormatException e) {
                         }
 
-                        Channel channel = engineController.getDeployedChannel(channelId);
                         response.setContentType(APPLICATION_XML);
-                        serializer.serialize(messageController.getMessages(filter, channel, includeContent, offset, limit), out);
+                        serializer.serialize(messageController.getMessages(filter, channelId, includeContent, offset, limit), out);
                     }
                 } else if (operation.equals(Operations.MESSAGE_GET_COUNT)) {
                     String channelId = request.getParameter("channelId");

@@ -32,7 +32,7 @@ public abstract class MessageController {
 
     public abstract long getMinMessageId(String channelId);
 
-    public abstract List<Message> getMessages(MessageFilter filter, Channel channel, Boolean includeContent, Integer offset, Integer limit);
+    public abstract List<Message> getMessages(MessageFilter filter, String channelId, Boolean includeContent, Integer offset, Integer limit);
 
     public abstract Long getMessageCount(MessageFilter filter, Channel channel);
 

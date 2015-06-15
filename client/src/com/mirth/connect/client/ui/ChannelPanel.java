@@ -490,7 +490,7 @@ public class ChannelPanel extends javax.swing.JPanel {
             }
 
             if (rows.length > 1) {
-                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 10, 13, false); // hide edit, clone, enable, and disable
+                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 10, 14, false); // hide edit, clone, enable, and disable
             } else {
                 parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 12, 13, false); // hide enable and disable
             }

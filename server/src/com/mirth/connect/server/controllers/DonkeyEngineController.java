@@ -46,10 +46,11 @@ import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
-import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.model.message.MessageSerializer;
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
+import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.SerializationType;
+import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.Constants;
@@ -73,6 +74,7 @@ import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
 import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
+import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.data.passthru.DelayedStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
@@ -1477,7 +1479,7 @@ public class DonkeyEngineController implements EngineController {
 
                 Channel channel = getDeployedChannel(channelId);
                 // Allow unprocessed messages to be deleted only if the channel is undeployed or stopped.
-                if (channel != null && (channel.getCurrentState() == DeployedState.STOPPED || processed)) {
+                if (channel == null || channel.getCurrentState() == DeployedState.STOPPED || processed) {
                     if (metaDataIds.contains(0)) {
                         // Delete the entire message if the source connector message is to be deleted
                         messages.put(messageId, null);
@@ -1517,6 +1519,31 @@ public class DonkeyEngineController implements EngineController {
 
             if (channel != null) {
                 channel.removeAllMessages(force, clearStatistics);
+            } else {
+                com.mirth.connect.model.Channel channelModel = channelController.getChannelById(channelId);
+                if (channelModel != null) {
+
+                    DonkeyDao dao = null;
+                    try {
+                        dao = donkey.getDaoFactory().getDao();
+                        dao.deleteAllMessages(channelId);
+
+                        if (clearStatistics) {
+                            Set<Status> statuses = Statistics.getTrackedStatuses();
+                            dao.resetStatistics(channelId, null, statuses);
+
+                            for (com.mirth.connect.model.Connector connector : channelModel.getDestinationConnectors()) {
+                                dao.resetStatistics(channelId, connector.getMetaDataId(), statuses);
+                            }
+                        }
+
+                        dao.commit();
+                    } finally {
+                        if (dao != null) {
+                            dao.close();
+                        }
+                    }
+                }
             }
 
             return null;

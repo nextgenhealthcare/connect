@@ -838,6 +838,7 @@ public class Frame extends JXFrame {
         addTask(TaskConstants.CHANNEL_EDIT, "Edit Channel", "Edit the currently selected channel.", "I", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_edit.png")), channelTasks, channelPopupMenu);
         addTask(TaskConstants.CHANNEL_ENABLE, "Enable Channel", "Enable the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), channelTasks, channelPopupMenu);
         addTask(TaskConstants.CHANNEL_DISABLE, "Disable Channel", "Disable the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")), channelTasks, channelPopupMenu);
+        addTask(TaskConstants.DASHBOARD_SHOW_MESSAGES, "View Messages", "Show the messages for the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_stack.png")), channelTasks, channelPopupMenu);
 
         setNonFocusable(channelTasks);
         taskPaneContainer.add(channelTasks);
@@ -3166,31 +3167,55 @@ public class Frame extends JXFrame {
             messageBrowser = new MessageBrowser();
         }
 
-        List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
-        Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
+        String id = "";
+        String channelName = "";
+        boolean channelDeployed = true;
 
-        if (selectedStatuses.size() == 0) {
-            return;
-        }
-
-        if (selectedChannelStatuses.size() > 1) {
-            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
-            return;
-        }
-
-        final String channelId = selectedStatuses.get(0).getChannelId();
         final List<Integer> metaDataIds = new ArrayList<Integer>();
+        if (currentContentPage == dashboardPanel) {
+            List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
+            Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
 
-        for (DashboardStatus status : selectedStatuses) {
-            metaDataIds.add(status.getMetaDataId());
+            if (selectedStatuses.size() == 0) {
+                return;
+            }
+
+            if (selectedChannelStatuses.size() > 1) {
+                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
+                return;
+            }
+
+            for (DashboardStatus status : selectedStatuses) {
+                metaDataIds.add(status.getMetaDataId());
+            }
+
+            id = selectedStatuses.get(0).getChannelId();
+            channelName = selectedChannelStatuses.iterator().next().getName();
+        } else if (currentContentPage == channelPanel) {
+            Channel selectedChannel = channelPanel.getSelectedChannels().get(0);
+
+            metaDataIds.add(null);
+
+            id = selectedChannel.getId();
+            channelName = selectedChannel.getName();
+
+            channelDeployed = false;
+            for (DashboardStatus dashStatus : status) {
+                if (dashStatus.getChannelId().equals(id)) {
+                    channelDeployed = true;
+                }
+            }
         }
 
         retrieveChannels();
 
         setBold(viewPane, -1);
-        setPanelName("Channel Messages - " + selectedChannelStatuses.iterator().next().getName());
+        setPanelName("Channel Messages - " + channelName);
         setCurrentContentPage(messageBrowser);
         setFocus(messageTasks);
+
+        final String channelId = id;
+        final boolean isChannelDeployed = channelDeployed;
 
         final String workingId = startWorking("Retrieving channel metadata...");
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3213,7 +3238,7 @@ public class Frame extends JXFrame {
                 if (connectors == null || metaDataColumns == null) {
                     alertError(PlatformUI.MIRTH_FRAME, "Could not retrieve metadata for channel.");
                 } else {
-                    messageBrowser.loadChannel(channelId, connectors, metaDataColumns, metaDataIds);
+                    messageBrowser.loadChannel(channelId, connectors, metaDataColumns, metaDataIds, isChannelDeployed);
                 }
             }
         };
@@ -3798,7 +3823,37 @@ public class Frame extends JXFrame {
             removeMessagesDialog = new RemoveMessagesDialog(this, true);
         }
 
-        removeMessagesDialog.init(dashboardPanel.getSelectedChannelStatuses());
+        String channelId = "";
+        boolean isChannelDeployed = false;
+        Set<String> channelIds = new HashSet<String>();
+
+        if (channelPanel != null) {
+            List<Channel> selectedChannels = channelPanel.getSelectedChannels();
+
+            if (CollectionUtils.isNotEmpty(selectedChannels)) {
+                channelId = selectedChannels.get(0).getId();
+                channelIds.add(channelId);
+
+                for (DashboardStatus dashStatus : status) {
+                    if (dashStatus.getChannelId().equals(channelId)) {
+                        isChannelDeployed = true;
+                    }
+                }
+            }
+        }
+
+        boolean restartCheckboxEnabled = false;
+        if (isChannelDeployed || currentContentPage == dashboardPanel) {
+            for (DashboardStatus channelStatus : dashboardPanel.getSelectedChannelStatuses()) {
+                channelIds.add(channelStatus.getChannelId());
+
+                if (!channelStatus.getState().equals(DeployedState.STOPPED) && !restartCheckboxEnabled) {
+                    restartCheckboxEnabled = true;
+                }
+            }
+        }
+
+        removeMessagesDialog.init(channelIds, restartCheckboxEnabled);
         removeMessagesDialog.setLocationRelativeTo(this);
         removeMessagesDialog.setVisible(true);
     }
