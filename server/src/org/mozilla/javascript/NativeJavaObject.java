@@ -165,6 +165,8 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
         if (hint == null) {
             if (javaObject instanceof Boolean) {
                 hint = ScriptRuntime.BooleanClass;
+            } else if (javaObject instanceof Number) {
+                hint = ScriptRuntime.NumberClass;
             }
         }
         if (hint == null || hint == ScriptRuntime.StringClass) {
