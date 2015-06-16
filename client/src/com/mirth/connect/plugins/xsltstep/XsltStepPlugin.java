@@ -105,7 +105,7 @@ public class XsltStepPlugin extends TransformerStepPlugin {
         script.append("sourceVar = new Packages.java.io.StringReader(" + data.get("Source") + ");\n");
         script.append("resultVar = new Packages.java.io.StringWriter();\n");
         script.append("transformer.transform(new Packages.javax.xml.transform.stream.StreamSource(sourceVar), new Packages.javax.xml.transform.stream.StreamResult(resultVar));\n");
-        script.append("channelMap.put('" + data.get("Result") + "', resultVar);\n");
+        script.append("channelMap.put('" + data.get("Result") + "', resultVar.toString());\n");
 
         return script.toString();
     }
