@@ -154,4 +154,7 @@ public class ServerConfiguration implements Serializable, Migratable {
             throw new SerializerException("Failed to migrate server configuration.", e);
         }
     }
+
+    @Override
+    public void migrate3_3_0(DonkeyElement element) {}
 }

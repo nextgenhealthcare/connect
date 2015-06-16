@@ -41,4 +41,7 @@ public abstract class ConnectorPluginProperties implements Serializable, Migrata
 
     @Override
     public void migrate3_2_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_3_0(DonkeyElement element) {}
 }

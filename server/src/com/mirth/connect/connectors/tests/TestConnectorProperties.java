@@ -55,6 +55,9 @@ public class TestConnectorProperties extends ConnectorProperties {
     public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
+    public void migrate3_3_0(DonkeyElement element) {}
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         return null;
     }
