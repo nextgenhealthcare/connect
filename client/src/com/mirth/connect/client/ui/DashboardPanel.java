@@ -266,11 +266,12 @@ public class DashboardPanel extends javax.swing.JPanel {
 
             @Override
             public void mouseClicked(MouseEvent event) {
-                if (statusTable.rowAtPoint(new Point(event.getX(), event.getY())) == -1) {
+                int clickedRow = statusTable.rowAtPoint(new Point(event.getX(), event.getY()));
+                if (clickedRow == -1) {
                     return;
                 }
 
-                if (event.getClickCount() >= 2) {
+                if (event.getClickCount() >= 2 && statusTable.getSelectedRowCount() == 1 && statusTable.getSelectedRow() == clickedRow) {
                     parent.doShowMessages();
                 }
             }
