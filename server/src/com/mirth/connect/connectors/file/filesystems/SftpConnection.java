@@ -17,9 +17,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Vector;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,6 +33,8 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.UserInfo;
+import com.mirth.connect.connectors.file.SftpSchemeProperties;
+import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 public class SftpConnection implements FileSystemConnection {
@@ -95,13 +101,45 @@ public class SftpConnection implements FileSystemConnection {
     private ChannelSftp client = null;
     private Session session = null;
     private String lastDir = null;
+    private Properties configuration;
+    private boolean isPasswordAuth = true;
 
-    public SftpConnection(String host, int port, String username, String password, int timeout) throws Exception {
+    public SftpConnection(String host, int port, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
 
         JSch jsch = new JSch();
         client = new ChannelSftp();
+        configuration = new Properties();
 
         try {
+            SftpSchemeProperties sftpSchemeProperties = (SftpSchemeProperties) fileSystemOptions.getSchemeProperties();
+            isPasswordAuth = sftpSchemeProperties.isPasswordAuth();
+
+            String knownHostsFile = sftpSchemeProperties.getKnownHostsFile();
+            if (StringUtils.isNotEmpty(knownHostsFile)) {
+                jsch.setKnownHosts(knownHostsFile);
+            }
+
+            configuration.put("StrictHostKeyChecking", sftpSchemeProperties.getHostChecking());
+
+            if (sftpSchemeProperties.isKeyAuth()) {
+                String keyLocation = sftpSchemeProperties.getKeyFile();
+                String keyPassphrase = sftpSchemeProperties.getPassPhrase();
+
+                if (StringUtils.isNotEmpty(keyPassphrase)) {
+                    jsch.addIdentity(keyLocation, keyPassphrase);
+                } else {
+                    jsch.addIdentity(keyLocation);
+                }
+            }
+
+            Map<String, String> configurationSettings = sftpSchemeProperties.getConfigurationSettings();
+            if (MapUtils.isNotEmpty(configurationSettings)) {
+                for (Map.Entry<String, String> configEntry : configurationSettings.entrySet()) {
+                    configuration.put(configEntry.getKey(), configEntry.getValue());
+                }
+            }
+
+            String username = fileSystemOptions.getUsername();
             if (port > 0) {
                 session = jsch.getSession(username, host, port);
             } else {
@@ -110,8 +148,15 @@ public class SftpConnection implements FileSystemConnection {
 
             session.setTimeout(timeout);
 
-            UserInfo userInfo = new SftpUserInfo(password);
-            session.setUserInfo(userInfo);
+            if (isPasswordAuth) {
+                UserInfo userInfo = new SftpUserInfo(fileSystemOptions.getPassword());
+                session.setUserInfo(userInfo);
+            }
+
+            if (!configuration.isEmpty()) {
+                session.setConfig(configuration);
+            }
+
             session.connect(timeout);
 
             Channel channel = session.openChannel("sftp");

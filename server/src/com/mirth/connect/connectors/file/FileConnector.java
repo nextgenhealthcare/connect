@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.message.ConnectorMessage;
 
 public class FileConnector {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -63,7 +62,6 @@ public class FileConnector {
             this.secure = fileDispatcherProperties.isSecure();
             this.validateConnection = fileDispatcherProperties.isValidateConnection();
         }
-
     }
 
     public String getChannelId() {
@@ -171,11 +169,11 @@ public class FileConnector {
      *            ??
      * @return The allocated connection.
      */
-    protected FileSystemConnection getConnection(URI uri, ConnectorMessage message, String username, String password) throws Exception {
-        ObjectPool<FileSystemConnection> pool = getConnectionPool(uri, message, username, password);
+    protected FileSystemConnection getConnection(FileSystemConnectionOptions fileSystemOptions) throws Exception {
+        ObjectPool<FileSystemConnection> pool = getConnectionPool(fileSystemOptions);
         FileSystemConnection con = pool.borrowObject();
         if (!con.isConnected() || !con.isValid()) {
-            destroyConnection(uri, con, message, username, password);
+            destroyConnection(con, fileSystemOptions);
             con = pool.borrowObject();
         }
         synchronized (connections) {
@@ -195,7 +193,7 @@ public class FileConnector {
      *            ??
      * @throws Exception
      */
-    protected void releaseConnection(URI uri, FileSystemConnection connection, ConnectorMessage message, String username, String password) throws Exception {
+    protected void releaseConnection(FileSystemConnection connection, FileSystemConnectionOptions fileSystemOptions) throws Exception {
 //        if (isCreateDispatcherPerRequest()) {
 //            destroyConnection(uri, connection, message);
 //        } else {
@@ -203,7 +201,7 @@ public class FileConnector {
             connections.remove(connection);
         }
         if (connection != null && connection.isConnected()) {
-            ObjectPool<FileSystemConnection> pool = getConnectionPool(uri, message, username, password);
+            ObjectPool<FileSystemConnection> pool = getConnectionPool(fileSystemOptions);
             pool.returnObject(connection);
         }
 //        }
@@ -231,9 +229,9 @@ public class FileConnector {
      *            ??
      * @throws Exception
      */
-    protected void destroyConnection(URI uri, FileSystemConnection connection, ConnectorMessage message, String username, String password) throws Exception {
+    protected void destroyConnection(FileSystemConnection connection, FileSystemConnectionOptions fileSystemOptions) throws Exception {
         if (connection != null) {
-            ObjectPool<FileSystemConnection> pool = getConnectionPool(uri, message, username, password);
+            ObjectPool<FileSystemConnection> pool = getConnectionPool(fileSystemOptions);
             pool.invalidateObject(connection);
         }
     }
@@ -248,8 +246,8 @@ public class FileConnector {
      *            ???
      * @return The pool of connections for this endpoint.
      */
-    private synchronized ObjectPool<FileSystemConnection> getConnectionPool(URI uri, ConnectorMessage message, String username, String password) throws Exception {
-        FileSystemConnectionFactory fileSystemConnectionFactory = getFileSystemConnectionFactory(uri, username, password);
+    private synchronized ObjectPool<FileSystemConnection> getConnectionPool(FileSystemConnectionOptions fileSystemOptions) throws Exception {
+        FileSystemConnectionFactory fileSystemConnectionFactory = getFileSystemConnectionFactory(fileSystemOptions);
         String key = fileSystemConnectionFactory.getPoolKey();
         ObjectPool<FileSystemConnection> pool = pools.get(key);
 
@@ -266,8 +264,8 @@ public class FileConnector {
         return pool;
     }
 
-    protected FileSystemConnectionFactory getFileSystemConnectionFactory(URI uri, String username, String password) throws Exception {
-        return new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort(), isPassive(), isSecure(), NumberUtils.toInt(getTimeout()));
+    protected FileSystemConnectionFactory getFileSystemConnectionFactory(FileSystemConnectionOptions fileSystemOptions) throws Exception {
+        return new FileSystemConnectionFactory(getScheme(), fileSystemOptions, fileSystemOptions.getUri().getHost(), fileSystemOptions.getUri().getPort(), isPassive(), isSecure(), NumberUtils.toInt(getTimeout()));
     }
 
     /**

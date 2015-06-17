@@ -10,7 +10,10 @@
 package com.mirth.connect.connectors.file.filesystems;
 
 import java.io.IOException;
+import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool2.PooledObject;
@@ -18,6 +21,8 @@ import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 
 import com.mirth.connect.connectors.file.FileScheme;
+import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
+import com.mirth.connect.connectors.file.SftpSchemeProperties;
 
 /**
  * A factory to create instances of FileSystemConnection based on the endpoint and connector
@@ -26,8 +31,7 @@ import com.mirth.connect.connectors.file.FileScheme;
 public class FileSystemConnectionFactory implements PooledObjectFactory<FileSystemConnection> {
     private static transient Log logger = LogFactory.getLog(FileSystemConnectionFactory.class);
     protected FileScheme scheme;
-    protected String username;
-    protected String password;
+    protected FileSystemConnectionOptions fileSystemOptions;
     protected String host;
     protected int port;
     protected boolean passive;
@@ -37,10 +41,9 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
     /**
      * Construct a FileSystemConnectionFactory from the endpoint URI and connector properties
      */
-    public FileSystemConnectionFactory(FileScheme scheme, String username, String password, String host, int port, boolean passive, boolean secure, int timeout) {
+    public FileSystemConnectionFactory(FileScheme scheme, FileSystemConnectionOptions userCredentials, String host, int port, boolean passive, boolean secure, int timeout) {
         this.scheme = scheme;
-        this.username = username;
-        this.password = password;
+        this.fileSystemOptions = userCredentials;
         this.host = host;
         this.port = port;
         this.passive = passive;
@@ -52,12 +55,51 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
      * Gets a pool key for connections on this endpoint
      */
     public String getPoolKey() {
+        String username = fileSystemOptions.getUsername();
+        String password = fileSystemOptions.getPassword();
+
         if (scheme.equals(FileScheme.FILE)) {
             return "file://";
         } else if (scheme.equals(FileScheme.FTP)) {
             return "ftp://" + username + ":" + password + "@" + host + ":" + port;
         } else if (scheme.equals(FileScheme.SFTP)) {
-            return "sftp://" + username + ":" + password + "@" + host + ":" + port;
+            StringBuilder poolKey = new StringBuilder();
+            SftpSchemeProperties sftpSchemeProperties = (SftpSchemeProperties) fileSystemOptions.getSchemeProperties();
+
+            poolKey.append("sftp://");
+            poolKey.append(username);
+
+            if (sftpSchemeProperties.isPasswordAuth()) {
+                poolKey.append(":");
+                poolKey.append(password);
+            }
+
+            if (sftpSchemeProperties.isKeyAuth()) {
+                poolKey.append(":");
+                poolKey.append(sftpSchemeProperties.getKeyFile());
+                poolKey.append(":");
+                poolKey.append(sftpSchemeProperties.getPassPhrase());
+            }
+
+            String knownHostsFile = sftpSchemeProperties.getKnownHostsFile();
+            if (StringUtils.isNotEmpty(knownHostsFile)) {
+                poolKey.append(":");
+                poolKey.append(knownHostsFile);
+            }
+
+            Map<String, String> configSettings = sftpSchemeProperties.getConfigurationSettings();
+            if (MapUtils.isNotEmpty(configSettings)) {
+                for (Map.Entry<String, String> setting : configSettings.entrySet()) {
+                    poolKey.append(":" + setting.getValue());
+                }
+            }
+
+            poolKey.append("@");
+            poolKey.append(host);
+            poolKey.append(":");
+            poolKey.append(port);
+
+            return poolKey.toString();
         } else if (scheme.equals(FileScheme.SMB)) {
             return "smb://" + username + ":" + password + "@" + host + ":" + port;
         } else if (scheme.equals(FileScheme.WEBDAV)) {
@@ -93,13 +135,13 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
         if (scheme.equals(FileScheme.FILE)) {
             return new DefaultPooledObject<FileSystemConnection>(new FileConnection());
         } else if (scheme.equals(FileScheme.FTP)) {
-            return new DefaultPooledObject<FileSystemConnection>(new FtpConnection(host, port, username, password, passive, timeout));
+            return new DefaultPooledObject<FileSystemConnection>(new FtpConnection(host, port, fileSystemOptions, passive, timeout));
         } else if (scheme.equals(FileScheme.SFTP)) {
-            return new DefaultPooledObject<FileSystemConnection>(new SftpConnection(host, port, username, password, timeout));
+            return new DefaultPooledObject<FileSystemConnection>(new SftpConnection(host, port, fileSystemOptions, timeout));
         } else if (scheme.equals(FileScheme.SMB)) {
-            return new DefaultPooledObject<FileSystemConnection>(new SmbFileConnection(host, username, password, timeout));
+            return new DefaultPooledObject<FileSystemConnection>(new SmbFileConnection(host, fileSystemOptions, timeout));
         } else if (scheme.equals(FileScheme.WEBDAV)) {
-            return new DefaultPooledObject<FileSystemConnection>(new WebDavConnection(host, secure, username, password));
+            return new DefaultPooledObject<FileSystemConnection>(new WebDavConnection(host, secure, fileSystemOptions));
         } else {
             logger.error("makeObject doesn't handle scheme " + scheme);
             throw new IOException("Unimplemented or unrecognized scheme");

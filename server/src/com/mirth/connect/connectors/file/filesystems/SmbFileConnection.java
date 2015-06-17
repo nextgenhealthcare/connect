@@ -27,6 +27,7 @@ import jcifs.smb.SmbFilenameFilter;
 import org.apache.commons.io.IOUtils;
 
 import com.mirth.connect.connectors.file.FileConnectorException;
+import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.filters.SmbFilenameWildcardFilter;
 
 /**
@@ -97,7 +98,10 @@ public class SmbFileConnection implements FileSystemConnection {
     private NtlmPasswordAuthentication auth = null;
     private SmbFile share = null;
 
-    public SmbFileConnection(String share, String domainAndUser, String password, int timeout) throws Exception {
+    public SmbFileConnection(String share, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
+        String domainAndUser = fileSystemOptions.getUsername();
+        String password = fileSystemOptions.getPassword();
+
         String[] params = Pattern.compile("[\\\\|/|@|:|;]").split(domainAndUser);
         String domain = null;
         String username = null;

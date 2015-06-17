@@ -23,6 +23,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
+import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 /**
@@ -88,11 +89,11 @@ public class FtpConnection implements FileSystemConnection {
     /** The apache commons FTP client instance */
     protected FTPClient client = null;
 
-    public FtpConnection(String host, int port, String username, String password, boolean passive, int timeout) throws Exception {
-        this(host, port, username, password, passive, timeout, new HaltableFTPClient());
+    public FtpConnection(String host, int port, FileSystemConnectionOptions fileSystemOptions, boolean passive, int timeout) throws Exception {
+        this(host, port, fileSystemOptions, passive, timeout, new HaltableFTPClient());
     }
 
-    public FtpConnection(String host, int port, String username, String password, boolean passive, int timeout, FTPClient client) throws Exception {
+    public FtpConnection(String host, int port, FileSystemConnectionOptions fileSystemOptions, boolean passive, int timeout, FTPClient client) throws Exception {
         this.client = client;
         // This sets the timeout for read operations on data sockets. It does not affect write operations.
         client.setDataTimeout(timeout);
@@ -113,7 +114,7 @@ public class FtpConnection implements FileSystemConnection {
             if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
                 throw new IOException("Ftp error: " + client.getReplyCode());
             }
-            if (!client.login(username, password)) {
+            if (!client.login(fileSystemOptions.getUsername(), fileSystemOptions.getPassword())) {
                 throw new IOException("Ftp error: " + client.getReplyCode());
             }
             if (!client.setFileType(FTP.BINARY_FILE_TYPE)) {

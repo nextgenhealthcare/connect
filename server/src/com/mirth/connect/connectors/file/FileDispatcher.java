@@ -102,6 +102,16 @@ public class FileDispatcher extends DestinationConnector {
         fileDispatcherProperties.setUsername(replacer.replaceValues(fileDispatcherProperties.getUsername(), connectorMessage));
         fileDispatcherProperties.setPassword(replacer.replaceValues(fileDispatcherProperties.getPassword(), connectorMessage));
         fileDispatcherProperties.setTemplate(replacer.replaceValues(fileDispatcherProperties.getTemplate(), connectorMessage));
+
+        SchemeProperties schemeProperties = fileDispatcherProperties.getSchemeProperties();
+        if (schemeProperties instanceof SftpSchemeProperties) {
+            SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
+
+            sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), connectorMessage));
+            sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), connectorMessage));
+            sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), connectorMessage));
+            sftpProperties.setConfigurationSettings(replacer.replaceValuesInMap(sftpProperties.getConfigurationSettings(), connectorMessage));
+        }
     }
 
     @Override
@@ -126,6 +136,7 @@ public class FileDispatcher extends DestinationConnector {
 
         FileSystemConnection fileSystemConnection = null;
         URI uri = null;
+        FileSystemConnectionOptions fileSystemOptions = null;
 
         InputStream is = null;
 
@@ -137,6 +148,7 @@ public class FileDispatcher extends DestinationConnector {
                 throw new IOException("Filename is null");
             }
 
+            fileSystemOptions = new FileSystemConnectionOptions(uri, fileDispatcherProperties.getUsername(), fileDispatcherProperties.getPassword(), fileDispatcherProperties.getSchemeProperties());
             String path = fileConnector.getPathPart(uri);
             String template = fileDispatcherProperties.getTemplate();
 
@@ -145,7 +157,7 @@ public class FileDispatcher extends DestinationConnector {
             is = new ByteArrayInputStream(bytes);
 
             ThreadUtils.checkInterruptedStatus();
-            fileSystemConnection = fileConnector.getConnection(uri, connectorMessage, fileDispatcherProperties.getUsername(), fileDispatcherProperties.getPassword());
+            fileSystemConnection = fileConnector.getConnection(fileSystemOptions);
             if (fileDispatcherProperties.isErrorOnExists() && fileSystemConnection.exists(filename, path)) {
                 throw new IOException("Destination file already exists, will not overwrite.");
             } else if (fileDispatcherProperties.isTemporary()) {
@@ -172,7 +184,7 @@ public class FileDispatcher extends DestinationConnector {
 
             if (fileSystemConnection != null) {
                 try {
-                    fileConnector.releaseConnection(uri, fileSystemConnection, connectorMessage, fileDispatcherProperties.getUsername(), fileDispatcherProperties.getPassword());
+                    fileConnector.releaseConnection(fileSystemConnection, fileSystemOptions);
                 } catch (Exception e) {
                     // TODO: Ignore?
                 }

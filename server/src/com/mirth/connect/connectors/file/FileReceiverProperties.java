@@ -30,6 +30,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     private SourceConnectorProperties sourceConnectorProperties;
 
     private FileScheme scheme;
+    private SchemeProperties schemeProperties;
     private String host;
     private String fileFilter;
     private boolean regex;
@@ -67,6 +68,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         sourceConnectorProperties = new SourceConnectorProperties();
 
         scheme = FileScheme.FILE;
+        schemeProperties = null;
         host = "";
         fileFilter = "*";
         regex = false;
@@ -102,6 +104,14 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
 
     public void setScheme(FileScheme scheme) {
         this.scheme = scheme;
+    }
+
+    public SchemeProperties getSchemeProperties() {
+        return schemeProperties;
+    }
+
+    public void setSchemeProperties(SchemeProperties schemeProperties) {
+        this.schemeProperties = schemeProperties;
     }
 
     public String getHost() {
@@ -376,7 +386,22 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_3_0(DonkeyElement element) {}
+    public void migrate3_3_0(DonkeyElement element) {
+        if (element.getChildElement("scheme").getTextContent().equalsIgnoreCase("sftp")) {
+            DonkeyElement schemeProperties = element.addChildElementIfNotExists("schemeProperties");
+            if (schemeProperties != null) {
+                schemeProperties.setAttribute("class", "com.mirth.connect.connectors.file.SftpSchemeProperties");
+
+                schemeProperties.addChildElementIfNotExists("passwordAuth", "true");
+                schemeProperties.addChildElementIfNotExists("keyAuth", "false");
+                schemeProperties.addChildElementIfNotExists("keyFile");
+                schemeProperties.addChildElementIfNotExists("passPhrase");
+                schemeProperties.addChildElementIfNotExists("hostKeyChecking", "ask");
+                schemeProperties.addChildElementIfNotExists("knownHostsFile");
+                schemeProperties.addChildElementIfNotExists("configurationSettings");
+            }
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -384,6 +409,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         purgedProperties.put("pollConnectorProperties", pollConnectorProperties.getPurgedProperties());
         purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         purgedProperties.put("scheme", scheme);
+        purgedProperties.put("schemePurgedProperties", schemeProperties.getPurgedProperties());
         purgedProperties.put("regex", regex);
         purgedProperties.put("directoryRecursion", directoryRecursion);
         purgedProperties.put("ignoreDot", ignoreDot);

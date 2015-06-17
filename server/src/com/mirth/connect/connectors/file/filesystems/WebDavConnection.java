@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 
+import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 public class WebDavConnection implements FileSystemConnection {
@@ -82,10 +83,10 @@ public class WebDavConnection implements FileSystemConnection {
     private String username = null;
     private String password = null;
 
-    public WebDavConnection(String host, boolean secure, String username, String password) throws Exception {
+    public WebDavConnection(String host, boolean secure, FileSystemConnectionOptions fileSystemOptions) throws Exception {
         this.secure = secure;
-        this.username = username;
-        this.password = password;
+        username = fileSystemOptions.getUsername();
+        password = fileSystemOptions.getPassword();
 
         HttpURL url = null;
 

@@ -26,6 +26,7 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
     private DestinationConnectorProperties destinationConnectorProperties;
 
     private FileScheme scheme;
+    private SchemeProperties schemeProperties;
     private String host;
     private String outputPattern;
     private boolean anonymous;
@@ -46,6 +47,7 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
         destinationConnectorProperties = new DestinationConnectorProperties();
 
         scheme = FileScheme.FILE;
+        schemeProperties = null;
         host = "";
         outputPattern = "";
         anonymous = true;
@@ -68,6 +70,12 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
         destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
 
         scheme = props.getScheme();
+
+        SchemeProperties properties = props.getSchemeProperties();
+        if (properties != null) {
+            schemeProperties = properties.clone();
+        }
+
         host = props.getHost();
         outputPattern = props.getOutputPattern();
         anonymous = props.isAnonymous();
@@ -91,6 +99,14 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
 
     public void setScheme(FileScheme scheme) {
         this.scheme = scheme;
+    }
+
+    public SchemeProperties getSchemeProperties() {
+        return schemeProperties;
+    }
+
+    public void setSchemeProperties(SchemeProperties schemeProperties) {
+        this.schemeProperties = schemeProperties;
     }
 
     public String getHost() {
@@ -243,6 +259,10 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
             builder.append(newLine);
         }
 
+        if (schemeProperties != null) {
+            builder.append(schemeProperties.toFormattedString());
+        }
+
         builder.append(newLine);
         builder.append("[CONTENT]");
         builder.append(newLine);
@@ -308,13 +328,29 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
     public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_3_0(DonkeyElement element) {}
+    public void migrate3_3_0(DonkeyElement element) {
+        if (element.getChildElement("scheme").getTextContent().equalsIgnoreCase("sftp")) {
+            DonkeyElement schemeProperties = element.addChildElementIfNotExists("schemeProperties");
+            if (schemeProperties != null) {
+                schemeProperties.setAttribute("class", "com.mirth.connect.connectors.file.SftpSchemeProperties");
+
+                schemeProperties.addChildElementIfNotExists("passwordAuth", "true");
+                schemeProperties.addChildElementIfNotExists("keyAuth", "false");
+                schemeProperties.addChildElementIfNotExists("keyFile");
+                schemeProperties.addChildElementIfNotExists("passPhrase");
+                schemeProperties.addChildElementIfNotExists("hostKeyChecking", "ask");
+                schemeProperties.addChildElementIfNotExists("knownHostsFile");
+                schemeProperties.addChildElementIfNotExists("configurationSettings");
+            }
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         purgedProperties.put("scheme", scheme);
+        purgedProperties.put("schemePurgedProperties", schemeProperties.getPurgedProperties());
         purgedProperties.put("timeout", PurgeUtil.getNumericValue(timeout));
         purgedProperties.put("secure", secure);
         purgedProperties.put("passive", passive);

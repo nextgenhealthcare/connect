@@ -9,12 +9,32 @@
 
 package com.mirth.connect.connectors.file;
 
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
+import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthComboBox;
+import com.mirth.connect.client.ui.components.MirthPasswordField;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
+import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.util.ConnectionTestResponse;
@@ -24,11 +44,20 @@ public class FileWriter extends ConnectorSettingsPanel {
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
 
+    private String selectedScheme;
+    private AdvancedSettingsDialog advancedSettingsDialog;
+
     public FileWriter() {
         this.parent = PlatformUI.MIRTH_FRAME;
-        initComponents();
 
-        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
+        setBackground(UIConstants.BACKGROUND_COLOR);
+        setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, fill", "[right][left]"));
+
+        initComponents();
+        initLayout();
+
+        parent.setupCharsetEncodingForConnector(charsetEncodingComboBox);
     }
 
     @Override
@@ -42,6 +71,10 @@ public class FileWriter extends ConnectorSettingsPanel {
 
         properties.setScheme(FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem()));
 
+        if (advancedSettingsDialog != null) {
+            properties.setSchemeProperties(advancedSettingsDialog.getFileSchemeProperties());
+        }
+
         if (schemeComboBox.getSelectedItem().equals(FileScheme.FILE.getDisplayName())) {
             properties.setHost(directoryField.getText().replace('\\', '/'));
         } else {
@@ -50,16 +83,16 @@ public class FileWriter extends ConnectorSettingsPanel {
 
         properties.setOutputPattern(fileNameField.getText());
 
-        properties.setAnonymous(anonymousYes.isSelected());
+        properties.setAnonymous(anonymousYesRadio.isSelected());
 
         properties.setUsername(usernameField.getText());
         properties.setPassword(new String(passwordField.getPassword()));
 
         properties.setTimeout(timeoutField.getText());
 
-        properties.setSecure(secureModeYes.isSelected());
-        properties.setPassive(passiveModeYes.isSelected());
-        properties.setValidateConnection(validateConnectionYes.isSelected());
+        properties.setSecure(secureModeYesRadio.isSelected());
+        properties.setPassive(passiveModeYesRadio.isSelected());
+        properties.setValidateConnection(validateConnectionYesRadio.isSelected());
 
         if (fileExistsAppendRadio.isSelected()) {
             properties.setOutputAppend(true);
@@ -67,7 +100,7 @@ public class FileWriter extends ConnectorSettingsPanel {
         } else if (fileExistsErrorRadio.isSelected()) {
             properties.setOutputAppend(false);
             properties.setErrorOnExists(true);
-        } else { // overwrite
+        } else {
             properties.setOutputAppend(false);
             properties.setErrorOnExists(false);
         }
@@ -75,7 +108,7 @@ public class FileWriter extends ConnectorSettingsPanel {
         properties.setTemporary(tempFileYesRadio.isSelected());
         properties.setTemplate(fileContentsTextPane.getText());
 
-        properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
+        properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingComboBox));
 
         properties.setBinary(fileTypeBinary.isSelected());
 
@@ -97,7 +130,6 @@ public class FileWriter extends ConnectorSettingsPanel {
      *            If true, fields for which the parsed values are invalid are highlighted.
      */
     public boolean setDirHostPath(FileDispatcherProperties props, boolean store, boolean highlight) {
-
         boolean valid = true;
         FileScheme scheme = props.getScheme();
         String hostPropValue = props.getHost();
@@ -146,22 +178,24 @@ public class FileWriter extends ConnectorSettingsPanel {
         logger.debug("setProperties: props=" + properties);
         FileDispatcherProperties props = (FileDispatcherProperties) properties;
 
+        selectedScheme = "";
         FileScheme scheme = props.getScheme();
-        schemeComboBox.setSelectedItem(props.getScheme().getDisplayName());
-
+        schemeComboBox.setSelectedItem(scheme.getDisplayName());
         schemeComboBoxActionPerformed(null);
+
+        initAdvancedSettingsDialog(scheme.getDisplayName(), ((FileDispatcherProperties) properties).getSchemeProperties());
 
         setDirHostPath(props, true, false);
 
         fileNameField.setText(props.getOutputPattern());
 
         if (props.isAnonymous()) {
-            anonymousYes.setSelected(true);
-            anonymousNo.setSelected(false);
+            anonymousYesRadio.setSelected(true);
+            anonymousNoRadio.setSelected(false);
             anonymousYesActionPerformed(null);
         } else {
-            anonymousYes.setSelected(false);
-            anonymousNo.setSelected(true);
+            anonymousYesRadio.setSelected(false);
+            anonymousNoRadio.setSelected(true);
             anonymousNoActionPerformed(null);
             usernameField.setText(props.getUsername());
             passwordField.setText(props.getPassword());
@@ -170,33 +204,33 @@ public class FileWriter extends ConnectorSettingsPanel {
         timeoutField.setText(props.getTimeout());
 
         if (props.isSecure()) {
-            secureModeYes.setSelected(true);
-            secureModeNo.setSelected(false);
+            secureModeYesRadio.setSelected(true);
+            secureModeNoRadio.setSelected(false);
             if (scheme.equals(FileScheme.WEBDAV)) {
                 hostLabel.setText("https://");
             }
         } else {
-            secureModeYes.setSelected(false);
-            secureModeNo.setSelected(true);
+            secureModeYesRadio.setSelected(false);
+            secureModeNoRadio.setSelected(true);
             if (scheme.equals(FileScheme.WEBDAV)) {
                 hostLabel.setText("http://");
             }
         }
 
         if (props.isPassive()) {
-            passiveModeYes.setSelected(true);
-            passiveModeNo.setSelected(false);
+            passiveModeYesRadio.setSelected(true);
+            passiveModeNoRadio.setSelected(false);
         } else {
-            passiveModeYes.setSelected(false);
-            passiveModeNo.setSelected(true);
+            passiveModeYesRadio.setSelected(false);
+            passiveModeNoRadio.setSelected(true);
         }
 
         if (props.isValidateConnection()) {
-            validateConnectionYes.setSelected(true);
-            validateConnectionNo.setSelected(false);
+            validateConnectionYesRadio.setSelected(true);
+            validateConnectionNoRadio.setSelected(false);
         } else {
-            validateConnectionYes.setSelected(false);
-            validateConnectionNo.setSelected(true);
+            validateConnectionYesRadio.setSelected(false);
+            validateConnectionNoRadio.setSelected(true);
         }
 
         if (props.isTemporary()) {
@@ -216,18 +250,30 @@ public class FileWriter extends ConnectorSettingsPanel {
             fileExistsOverwriteRadioActionPerformed(null);
         }
 
-        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharsetEncoding());
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingComboBox, props.getCharsetEncoding());
 
         fileContentsTextPane.setText(props.getTemplate());
 
         if (props.isBinary()) {
             fileTypeBinary.setSelected(true);
-            fileTypeASCII.setSelected(false);
+            fileTypeText.setSelected(false);
             fileTypeBinaryActionPerformed(null);
         } else {
             fileTypeBinary.setSelected(false);
-            fileTypeASCII.setSelected(true);
+            fileTypeText.setSelected(true);
             fileTypeASCIIActionPerformed(null);
+        }
+    }
+
+    private void setSummaryText() {
+        if (advancedSettingsDialog != null) {
+            summaryLabel.setEnabled(true);
+            summaryField.setEnabled(true);
+            summaryField.setText(advancedSettingsDialog.getSummaryText());
+        } else {
+            summaryLabel.setEnabled(false);
+            summaryField.setEnabled(false);
+            summaryField.setText("<None>");
         }
     }
 
@@ -323,458 +369,381 @@ public class FileWriter extends ConnectorSettingsPanel {
         }
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initAdvancedSettingsDialog(String scheme, SchemeProperties fileSchemeProperties) {
+        advancedSettingsDialog = null;
+        if (scheme.equals(FileScheme.SFTP.getDisplayName())) {
+            advancedSettingsDialog = new AdvancedSftpSettingsDialog();
+
+            if (fileSchemeProperties != null) {
+                advancedSettingsDialog.setFileSchemeProperties(fileSchemeProperties);
+            } else {
+                advancedSettingsDialog.setFileSchemeProperties(advancedSettingsDialog.getDefaultProperties());
+            }
+        }
+        setSummaryText();
+    }
+
     private void initComponents() {
-
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
-        buttonGroup3 = new javax.swing.ButtonGroup();
-        buttonGroup4 = new javax.swing.ButtonGroup();
-        buttonGroup5 = new javax.swing.ButtonGroup();
-        buttonGroup6 = new javax.swing.ButtonGroup();
-        buttonGroup7 = new javax.swing.ButtonGroup();
-        schemeLabel = new javax.swing.JLabel();
-        schemeComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        directoryLabel = new javax.swing.JLabel();
-        directoryField = new com.mirth.connect.client.ui.components.MirthTextField();
-        hostLabel = new javax.swing.JLabel();
-        hostField = new com.mirth.connect.client.ui.components.MirthTextField();
-        pathLabel = new javax.swing.JLabel();
-        pathField = new com.mirth.connect.client.ui.components.MirthTextField();
-        fileNameLabel = new javax.swing.JLabel();
-        fileNameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        anonymousLabel = new javax.swing.JLabel();
-        anonymousYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        anonymousNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        usernameLabel = new javax.swing.JLabel();
-        usernameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        passwordLabel = new javax.swing.JLabel();
-        passwordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
-        secureModeLabel = new javax.swing.JLabel();
-        secureModeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        secureModeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        validateConnectionLabel = new javax.swing.JLabel();
-        validateConnectionYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        validateConnectionNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        fileExistsLabel = new javax.swing.JLabel();
-        fileExistsAppendRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        fileExistsOverwriteRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        fileTypeLabel = new javax.swing.JLabel();
-        fileTypeBinary = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        fileTypeASCII = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        encodingLabel = new javax.swing.JLabel();
-        templateLabel = new javax.swing.JLabel();
-        fileContentsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(false,false);
-        testConnection = new javax.swing.JButton();
-        passiveModeLabel = new javax.swing.JLabel();
-        passiveModeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        passiveModeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        timeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
-        timeoutLabel = new javax.swing.JLabel();
-        fileExistsErrorRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        tempFileLabel = new javax.swing.JLabel();
-        tempFileYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        tempFileNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-
+        schemeLabel = new JLabel();
         schemeLabel.setText("Method:");
-
-        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp", "smb", "webdav" }));
-        schemeComboBox.setToolTipText("The basic method used to access files to be written - file (local filesystem), FTP, SFTP, Samba share, or WebDAV.");
-        schemeComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        schemeComboBox = new MirthComboBox();
+        schemeComboBox.setModel(new DefaultComboBoxModel(new String[] { "file", "ftp", "sftp",
+                "smb", "webdav" }));
+        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, SFTP, Samba share, or WebDAV");
+        schemeComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 schemeComboBoxActionPerformed(evt);
             }
         });
 
-        directoryLabel.setText("Directory:");
-
-        directoryField.setToolTipText("The directory (folder) where the generated file should be written.");
-
-        hostLabel.setText("ftp://");
-
-        hostField.setToolTipText("The name or IP address of the host (computer) on which the files will be written.");
-
-        pathLabel.setText("/");
-
-        pathField.setToolTipText("The directory (folder) to which the files will be written.");
-
-        fileNameLabel.setText("File Name:");
-
-        fileNameField.setToolTipText("The file name to give to the generated file.");
-
-        anonymousLabel.setText("Anonymous:");
-
-        anonymousYes.setBackground(new java.awt.Color(255, 255, 255));
-        anonymousYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(anonymousYes);
-        anonymousYes.setText("Yes");
-        anonymousYes.setToolTipText("Connects to the file anonymously instead of using a username and password.");
-        anonymousYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                anonymousYesActionPerformed(evt);
-            }
-        });
-
-        anonymousNo.setBackground(new java.awt.Color(255, 255, 255));
-        anonymousNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(anonymousNo);
-        anonymousNo.setSelected(true);
-        anonymousNo.setText("No");
-        anonymousNo.setToolTipText("Connects to the file using a username and password instead of anonymously.");
-        anonymousNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                anonymousNoActionPerformed(evt);
-            }
-        });
-
-        usernameLabel.setText("Username:");
-
-        usernameField.setToolTipText("The user name used to gain access to the server.");
-
-        passwordLabel.setText("Password:");
-
-        passwordField.setToolTipText("The password used to gain access to the server.");
-
-        secureModeLabel.setText("Secure Mode:");
-
-        secureModeYes.setBackground(new java.awt.Color(255, 255, 255));
-        secureModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup6.add(secureModeYes);
-        secureModeYes.setText("Yes");
-        secureModeYes.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
-        secureModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        secureModeYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                secureModeYesActionPerformed(evt);
-            }
-        });
-
-        secureModeNo.setBackground(new java.awt.Color(255, 255, 255));
-        secureModeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup6.add(secureModeNo);
-        secureModeNo.setSelected(true);
-        secureModeNo.setText("No");
-        secureModeNo.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
-        secureModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        secureModeNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                secureModeNoActionPerformed(evt);
-            }
-        });
-
-        validateConnectionLabel.setText("Validate Connection:");
-
-        validateConnectionYes.setBackground(new java.awt.Color(255, 255, 255));
-        validateConnectionYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup3.add(validateConnectionYes);
-        validateConnectionYes.setText("Yes");
-        validateConnectionYes.setToolTipText("Select Yes to test the connection to the server before each operation.");
-        validateConnectionYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        validateConnectionNo.setBackground(new java.awt.Color(255, 255, 255));
-        validateConnectionNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup3.add(validateConnectionNo);
-        validateConnectionNo.setText("No");
-        validateConnectionNo.setToolTipText("Select No to skip testing the connection to the server before each operation.");
-        validateConnectionNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        fileExistsLabel.setText("File Exists:");
-
-        fileExistsAppendRadio.setBackground(new java.awt.Color(255, 255, 255));
-        fileExistsAppendRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(fileExistsAppendRadio);
-        fileExistsAppendRadio.setText("Append");
-        fileExistsAppendRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
-        fileExistsAppendRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        fileExistsAppendRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileExistsAppendRadioActionPerformed(evt);
-            }
-        });
-
-        fileExistsOverwriteRadio.setBackground(new java.awt.Color(255, 255, 255));
-        fileExistsOverwriteRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(fileExistsOverwriteRadio);
-        fileExistsOverwriteRadio.setText("Overwrite");
-        fileExistsOverwriteRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
-        fileExistsOverwriteRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        fileExistsOverwriteRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileExistsOverwriteRadioActionPerformed(evt);
-            }
-        });
-
-        fileTypeLabel.setText("File Type:");
-
-        fileTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
-        fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup5.add(fileTypeBinary);
-        fileTypeBinary.setText("Binary");
-        fileTypeBinary.setToolTipText("<html>If Binary is selected, messages are written as binary byte streams.<br>If Text is selected, messages are written and encoded with the specified character set encoding.</html>");
-        fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        fileTypeBinary.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileTypeBinaryActionPerformed(evt);
-            }
-        });
-
-        fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
-        fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup5.add(fileTypeASCII);
-        fileTypeASCII.setSelected(true);
-        fileTypeASCII.setText("Text");
-        fileTypeASCII.setToolTipText("<html>If Binary is selected, messages are written as binary byte streams.<br>If Text is selected, messages are written and encoded with the specified character set encoding.</html>");
-        fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        fileTypeASCII.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileTypeASCIIActionPerformed(evt);
-            }
-        });
-
-        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
-        charsetEncodingCombobox.setToolTipText("<html>Select the character encoding system to use to write the files accepted by the destination connector.<br>Selecting Default uses the default character encoding for the JVM in which Mirth is running.<br>Selecting any other value selects the corresponding character encoding.</html>");
-
-        encodingLabel.setText("Encoding:");
-
-        templateLabel.setText("Template:");
-
-        fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        testConnection.setText("Test Write");
-        testConnection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        testConnectionButton = new JButton();
+        testConnectionButton.setText("Test Write");
+        testConnectionButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 testConnectionActionPerformed(evt);
             }
         });
 
-        passiveModeLabel.setText("Passive Mode:");
+        advancedSettingsButton = new JButton(new ImageIcon(Frame.class.getResource("images/wrench.png")));
+        advancedSettingsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                advancedFileSettingsActionPerformed();
+            }
+        });
 
-        passiveModeYes.setBackground(new java.awt.Color(255, 255, 255));
-        passiveModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(passiveModeYes);
-        passiveModeYes.setText("Yes");
-        passiveModeYes.setToolTipText("Select Yes to connect to the server in \"passive mode\". Passive mode sometimes allows a connection through a firewall that normal mode does not.");
-        passiveModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        summaryLabel = new JLabel("Advanced Options:");
+        summaryField = new JLabel("");
 
-        passiveModeNo.setBackground(new java.awt.Color(255, 255, 255));
-        passiveModeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(passiveModeNo);
-        passiveModeNo.setSelected(true);
-        passiveModeNo.setText("No");
-        passiveModeNo.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
-        passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        directoryLabel = new JLabel();
+        directoryLabel.setText("Directory:");
+        directoryField = new MirthTextField();
+        directoryField.setToolTipText("The directory (folder) in which the files to be read can be found.");
 
+        hostLabel = new JLabel();
+        hostLabel.setText("ftp://");
+        hostField = new MirthTextField();
+        hostField.setToolTipText("The name or IP address of the host (computer) on which the files to be read can be found.");
+        pathLabel = new JLabel();
+        pathLabel.setText("/");
+        pathField = new MirthTextField();
+        pathField.setToolTipText("The directory (folder) in which the files to be read can be found.");
+
+        fileNameLabel = new JLabel();
+        fileNameLabel.setText("File Name:");
+
+        fileNameField = new MirthTextField();
+
+        anonymousLabel = new JLabel();
+        anonymousLabel.setText("Anonymous:");
+
+        anonymousYesRadio = new MirthRadioButton();
+        anonymousYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        anonymousYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        anonymousYesRadio.setText("Yes");
+        anonymousYesRadio.setToolTipText("Connects to the file anonymously instead of using a username and password.");
+        anonymousYesRadio.setMargin(new Insets(0, 0, 0, 0));
+        anonymousYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                anonymousYesActionPerformed(evt);
+            }
+        });
+
+        anonymousNoRadio = new MirthRadioButton();
+        anonymousNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        anonymousNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        anonymousNoRadio.setSelected(true);
+        anonymousNoRadio.setText("No");
+        anonymousNoRadio.setToolTipText("Connects to the file using a username and password instead of anonymously.");
+        anonymousNoRadio.setMargin(new Insets(0, 0, 0, 0));
+        anonymousNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                anonymousNoActionPerformed(evt);
+            }
+        });
+
+        anonymousButtonGroup = new ButtonGroup();
+        anonymousButtonGroup.add(anonymousYesRadio);
+        anonymousButtonGroup.add(anonymousNoRadio);
+
+        usernameLabel = new JLabel();
+        usernameLabel.setText("Username:");
+        usernameField = new MirthTextField();
+        usernameField.setToolTipText("The user name used to gain access to the server.");
+
+        passwordLabel = new JLabel();
+        passwordLabel.setText("Password:");
+        passwordField = new MirthPasswordField();
+        passwordField.setToolTipText("The password used to gain access to the server.");
+
+        timeoutLabel = new JLabel();
+        timeoutLabel.setText("Timeout (ms):");
+        timeoutField = new MirthTextField();
         timeoutField.setToolTipText("The socket timeout (in ms) for connecting to the server.");
 
-        timeoutLabel.setText("Timeout (ms):");
+        secureModeLabel = new JLabel();
+        secureModeLabel.setText("Secure Mode:");
 
+        secureModeYesRadio = new MirthRadioButton();
+        secureModeYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        secureModeYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        secureModeYesRadio.setText("Yes");
+        secureModeYesRadio.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
+        secureModeYesRadio.setMargin(new Insets(0, 0, 0, 0));
+        secureModeYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                secureModeYesActionPerformed(evt);
+            }
+        });
+
+        secureModeNoRadio = new MirthRadioButton();
+        secureModeNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        secureModeNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        secureModeNoRadio.setSelected(true);
+        secureModeNoRadio.setText("No");
+        secureModeNoRadio.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
+        secureModeNoRadio.setMargin(new Insets(0, 0, 0, 0));
+        secureModeNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                secureModeNoActionPerformed(evt);
+            }
+        });
+
+        secureModeButtonGroup = new ButtonGroup();
+        secureModeButtonGroup.add(secureModeYesRadio);
+        secureModeButtonGroup.add(secureModeNoRadio);
+
+        passiveModeLabel = new JLabel();
+        passiveModeLabel.setText("Passive Mode:");
+
+        passiveModeYesRadio = new MirthRadioButton();
+        passiveModeYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        passiveModeYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        passiveModeYesRadio.setText("Yes");
+        passiveModeYesRadio.setToolTipText("<html>Select Yes to connect to the server in \"passive mode\".<br>Passive mode sometimes allows a connection through a firewall that normal mode does not.</html>");
+        passiveModeYesRadio.setMargin(new Insets(0, 0, 0, 0));
+
+        passiveModeNoRadio = new MirthRadioButton();
+        passiveModeNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        passiveModeNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        passiveModeNoRadio.setSelected(true);
+        passiveModeNoRadio.setText("No");
+        passiveModeNoRadio.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
+        passiveModeNoRadio.setMargin(new Insets(0, 0, 0, 0));
+
+        passiveModeButtonGroup = new ButtonGroup();
+        passiveModeButtonGroup.add(passiveModeYesRadio);
+        passiveModeButtonGroup.add(passiveModeNoRadio);
+
+        validateConnectionLabel = new JLabel();
+        validateConnectionLabel.setText("Validate Connection:");
+
+        validateConnectionYesRadio = new MirthRadioButton();
+        validateConnectionYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        validateConnectionYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        validateConnectionYesRadio.setText("Yes");
+        validateConnectionYesRadio.setToolTipText("Select Yes to test the connection to the server before each operation.");
+        validateConnectionYesRadio.setMargin(new Insets(0, 0, 0, 0));
+
+        validateConnectionNoRadio = new MirthRadioButton();
+        validateConnectionNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        validateConnectionNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        validateConnectionNoRadio.setText("No");
+        validateConnectionNoRadio.setToolTipText("Select No to skip testing the connection to the server before each operation.");
+        validateConnectionNoRadio.setMargin(new Insets(0, 0, 0, 0));
+
+        validateConnectionButtonGroup = new ButtonGroup();
+        validateConnectionButtonGroup.add(validateConnectionYesRadio);
+        validateConnectionButtonGroup.add(validateConnectionNoRadio);
+
+        fileExistsLabel = new JLabel();
+        fileExistsLabel.setText("File Exists:");
+
+        fileExistsAppendRadio = new MirthRadioButton();
+        fileExistsAppendRadio.setBackground(new java.awt.Color(255, 255, 255));
+        fileExistsAppendRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        fileExistsAppendRadio.setText("Append");
+        fileExistsAppendRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
+        fileExistsAppendRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileExistsAppendRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                fileExistsAppendRadioActionPerformed(evt);
+            }
+        });
+
+        fileExistsOverwriteRadio = new MirthRadioButton();
+        fileExistsOverwriteRadio.setBackground(new java.awt.Color(255, 255, 255));
+        fileExistsOverwriteRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        fileExistsOverwriteRadio.setText("Overwrite");
+        fileExistsOverwriteRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
+        fileExistsOverwriteRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileExistsOverwriteRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                fileExistsOverwriteRadioActionPerformed(evt);
+            }
+        });
+
+        fileExistsErrorRadio = new MirthRadioButton();
         fileExistsErrorRadio.setBackground(new java.awt.Color(255, 255, 255));
-        fileExistsErrorRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(fileExistsErrorRadio);
+        fileExistsErrorRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         fileExistsErrorRadio.setSelected(true);
         fileExistsErrorRadio.setText("Error");
         fileExistsErrorRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
         fileExistsErrorRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        fileExistsErrorRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        fileExistsErrorRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 fileExistsErrorRadioActionPerformed(evt);
             }
         });
 
+        fileExistsButtonGroup = new ButtonGroup();
+        fileExistsButtonGroup.add(fileExistsAppendRadio);
+        fileExistsButtonGroup.add(fileExistsOverwriteRadio);
+        fileExistsButtonGroup.add(fileExistsErrorRadio);
+
+        tempFileLabel = new JLabel();
         tempFileLabel.setText("Create Temp File:");
 
+        tempFileYesRadio = new MirthRadioButton();
         tempFileYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        tempFileYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup7.add(tempFileYesRadio);
+        tempFileYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tempFileYesRadio.setText("Yes");
         tempFileYesRadio.setToolTipText("<html>If 'yes' is selected, the file contents will first be written to a temp file and then renamed to the specified file name.<br>If 'no' is selected, the file contents will be written directly to the destination file.<br>Using a temp file is not an option if the specified file is being appended to.</html>");
         tempFileYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        tempFileNoRadio = new MirthRadioButton();
         tempFileNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        tempFileNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup7.add(tempFileNoRadio);
+        tempFileNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tempFileNoRadio.setSelected(true);
         tempFileNoRadio.setText("No");
         tempFileNoRadio.setToolTipText("<html>If 'yes' is selected, the file contents will first be written to a temp file and then renamed to the specified file name.<br>If 'no' is selected, the file contents will be written directly to the destination file.<br>Using a temp file is not an option if the specified file is being appended to.</html>");
         tempFileNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(tempFileLabel)
-                    .addComponent(templateLabel)
-                    .addComponent(encodingLabel)
-                    .addComponent(fileTypeLabel)
-                    .addComponent(anonymousLabel)
-                    .addComponent(fileNameLabel)
-                    .addComponent(hostLabel)
-                    .addComponent(directoryLabel)
-                    .addComponent(schemeLabel)
-                    .addComponent(secureModeLabel)
-                    .addComponent(passwordLabel)
-                    .addComponent(validateConnectionLabel)
-                    .addComponent(fileExistsLabel)
-                    .addComponent(usernameLabel)
-                    .addComponent(passiveModeLabel)
-                    .addComponent(timeoutLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(schemeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(testConnection))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pathLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(anonymousYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(secureModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(secureModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(validateConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(fileExistsAppendRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fileExistsOverwriteRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fileExistsErrorRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(tempFileYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tempFileNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(schemeLabel)
-                    .addComponent(schemeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(testConnection))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(directoryLabel)
-                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(hostLabel)
-                    .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pathLabel)
-                    .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(fileNameLabel)
-                    .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(anonymousLabel)
-                    .addComponent(anonymousYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(usernameLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passwordLabel)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(timeoutLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(secureModeLabel)
-                    .addComponent(secureModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(secureModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passiveModeLabel)
-                    .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(validateConnectionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(validateConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(fileExistsLabel)
-                    .addComponent(fileExistsAppendRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fileExistsOverwriteRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fileExistsErrorRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tempFileLabel)
-                    .addComponent(tempFileYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(tempFileNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(fileTypeLabel)
-                    .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(encodingLabel)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(templateLabel)
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-    }// </editor-fold>//GEN-END:initComponents
+        tempFileButtonGroup = new ButtonGroup();
+        tempFileButtonGroup.add(tempFileYesRadio);
+        tempFileButtonGroup.add(tempFileNoRadio);
 
-    private void anonymousNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anonymousNoActionPerformed
+        fileTypeLabel = new JLabel();
+        fileTypeLabel.setText("File Type:");
+
+        fileTypeBinary = new MirthRadioButton();
+        fileTypeBinary.setBackground(UIConstants.BACKGROUND_COLOR);
+        fileTypeBinary.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        fileTypeBinary.setText("Binary");
+        fileTypeBinary.setToolTipText("<html>Select Binary if files contain binary data; the contents will be Base64 encoded before processing.<br>Select Text if files contain text data; the contents will be encoded using the specified character set encoding.</html>");
+        fileTypeBinary.setMargin(new Insets(0, 0, 0, 0));
+        fileTypeBinary.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                fileTypeBinaryActionPerformed(evt);
+            }
+        });
+
+        fileTypeText = new MirthRadioButton();
+        fileTypeText.setBackground(UIConstants.BACKGROUND_COLOR);
+        fileTypeText.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        fileTypeText.setSelected(true);
+        fileTypeText.setText("Text");
+        fileTypeText.setToolTipText("<html>Select Binary if files contain binary data; the contents will be Base64 encoded before processing.<br>Select Text if files contain text data; the contents will be encoded using the specified character set encoding.</html>");
+        fileTypeText.setMargin(new Insets(0, 0, 0, 0));
+        fileTypeText.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                fileTypeASCIIActionPerformed(evt);
+            }
+        });
+
+        fileTypeButtonGroup = new ButtonGroup();
+        fileTypeButtonGroup.add(fileTypeBinary);
+        fileTypeButtonGroup.add(fileTypeText);
+
+        encodingLabel = new JLabel();
+        encodingLabel.setText("Encoding:");
+
+        charsetEncodingComboBox = new MirthComboBox();
+        charsetEncodingComboBox.setModel(new DefaultComboBoxModel(new String[] { "Default",
+                "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
+        charsetEncodingComboBox.setToolTipText("If File Type Text is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file.");
+
+        templateLabel = new JLabel();
+        templateLabel.setText("Template:");
+
+        fileContentsTextPane = new MirthSyntaxTextArea(false, false);
+        fileContentsTextPane.setBorder(BorderFactory.createEtchedBorder());
+    }
+
+    private void initLayout() {
+        add(schemeLabel);
+        add(schemeComboBox, "split 3");
+        add(testConnectionButton);
+        add(advancedSettingsButton, "h 22!, w 22!, wrap");
+
+        add(summaryLabel);
+        add(summaryField, "growx, wrap");
+
+        add(directoryLabel);
+        add(directoryField, "w 200!, wrap");
+
+        add(hostLabel);
+        add(hostField, "w 200!, split 3");
+        add(pathLabel, "gapleft 14");
+        add(pathField, "gapleft 14, w 200!, wrap");
+
+        add(fileNameLabel);
+        add(fileNameField, "w 200!, wrap");
+
+        add(anonymousLabel);
+        add(anonymousYesRadio, "split 2");
+        add(anonymousNoRadio, "wrap");
+
+        add(usernameLabel);
+        add(usernameField, "w 125!, wrap");
+
+        add(passwordLabel);
+        add(passwordField, "w 125!, wrap");
+
+        add(timeoutLabel);
+        add(timeoutField, "w 75!, wrap");
+
+        add(secureModeLabel);
+        add(secureModeYesRadio, "split 2");
+        add(secureModeNoRadio, "wrap");
+
+        add(passiveModeLabel);
+        add(passiveModeYesRadio, "split 2");
+        add(passiveModeNoRadio, "wrap");
+
+        add(validateConnectionLabel);
+        add(validateConnectionYesRadio, "split 2");
+        add(validateConnectionNoRadio, "wrap");
+
+        add(fileExistsLabel);
+        add(fileExistsAppendRadio, "split 3");
+        add(fileExistsOverwriteRadio);
+        add(fileExistsErrorRadio, "wrap");
+
+        add(tempFileLabel);
+        add(tempFileYesRadio, "split 2");
+        add(tempFileNoRadio, "wrap");
+
+        add(fileTypeLabel);
+        add(fileTypeBinary, "split 2");
+        add(fileTypeText, "wrap");
+
+        add(encodingLabel);
+        add(charsetEncodingComboBox, "w 125!, wrap");
+
+        add(templateLabel, "aligny top");
+        add(fileContentsTextPane, "w 425, h 105, grow, span, push");
+    }
+
+    private void anonymousNoActionPerformed(ActionEvent evt) {
         usernameLabel.setEnabled(true);
         usernameField.setEnabled(true);
 
         passwordLabel.setEnabled(true);
         passwordField.setEnabled(true);
-    }//GEN-LAST:event_anonymousNoActionPerformed
+    }
 
-    private void anonymousYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anonymousYesActionPerformed
+    private void anonymousYesActionPerformed(ActionEvent evt) {
         usernameLabel.setEnabled(false);
         usernameField.setEnabled(false);
         usernameField.setText("anonymous");
@@ -782,17 +751,17 @@ public class FileWriter extends ConnectorSettingsPanel {
         passwordLabel.setEnabled(false);
         passwordField.setEnabled(false);
         passwordField.setText("anonymous");
-    }//GEN-LAST:event_anonymousYesActionPerformed
+    }
 
     private void onSchemeChange(boolean enableHost, boolean anonymous, boolean allowAppend, FileScheme scheme) {
         // act like the appropriate Anonymous button was selected.
         if (anonymous) {
-            anonymousNo.setSelected(false);
-            anonymousYes.setSelected(true);
+            anonymousNoRadio.setSelected(false);
+            anonymousYesRadio.setSelected(true);
             anonymousYesActionPerformed(null);
         } else {
-            anonymousNo.setSelected(true);
-            anonymousYes.setSelected(false);
+            anonymousNoRadio.setSelected(true);
+            anonymousYesRadio.setSelected(false);
             anonymousNoActionPerformed(null);
         }
 
@@ -804,19 +773,20 @@ public class FileWriter extends ConnectorSettingsPanel {
         directoryField.setEnabled(!enableHost);
 
         anonymousLabel.setEnabled(false);
-        anonymousYes.setEnabled(false);
-        anonymousNo.setEnabled(false);
+        anonymousYesRadio.setEnabled(false);
+        anonymousNoRadio.setEnabled(false);
         passiveModeLabel.setEnabled(false);
-        passiveModeYes.setEnabled(false);
-        passiveModeNo.setEnabled(false);
+        passiveModeYesRadio.setEnabled(false);
+        passiveModeNoRadio.setEnabled(false);
         secureModeLabel.setEnabled(false);
-        secureModeYes.setEnabled(false);
-        secureModeNo.setEnabled(false);
+        secureModeYesRadio.setEnabled(false);
+        secureModeNoRadio.setEnabled(false);
         validateConnectionLabel.setEnabled(false);
-        validateConnectionYes.setEnabled(false);
-        validateConnectionNo.setEnabled(false);
+        validateConnectionYesRadio.setEnabled(false);
+        validateConnectionNoRadio.setEnabled(false);
         timeoutLabel.setEnabled(false);
         timeoutField.setEnabled(false);
+        advancedSettingsButton.setEnabled(false);
 
         if (allowAppend) {
             fileExistsOverwriteRadio.setEnabled(true);
@@ -835,30 +805,31 @@ public class FileWriter extends ConnectorSettingsPanel {
 
         if (scheme.equals(FileScheme.FTP)) {
             anonymousLabel.setEnabled(true);
-            anonymousYes.setEnabled(true);
-            anonymousNo.setEnabled(true);
+            anonymousYesRadio.setEnabled(true);
+            anonymousNoRadio.setEnabled(true);
             passiveModeLabel.setEnabled(true);
-            passiveModeYes.setEnabled(true);
-            passiveModeNo.setEnabled(true);
+            passiveModeYesRadio.setEnabled(true);
+            passiveModeNoRadio.setEnabled(true);
             validateConnectionLabel.setEnabled(true);
-            validateConnectionYes.setEnabled(true);
-            validateConnectionNo.setEnabled(true);
+            validateConnectionYesRadio.setEnabled(true);
+            validateConnectionNoRadio.setEnabled(true);
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
         } else if (scheme.equals(FileScheme.SFTP)) {
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
+            advancedSettingsButton.setEnabled(true);
         } else if (scheme.equals(FileScheme.WEBDAV)) {
             anonymousLabel.setEnabled(true);
-            anonymousYes.setEnabled(true);
-            anonymousNo.setEnabled(true);
+            anonymousYesRadio.setEnabled(true);
+            anonymousNoRadio.setEnabled(true);
             secureModeLabel.setEnabled(true);
-            secureModeYes.setEnabled(true);
-            secureModeNo.setEnabled(true);
+            secureModeYesRadio.setEnabled(true);
+            secureModeNoRadio.setEnabled(true);
 
             // set Passive Mode and validate connection to No.
-            passiveModeNo.setSelected(true);
-            validateConnectionNo.setSelected(true);
+            passiveModeNoRadio.setSelected(true);
+            validateConnectionNoRadio.setSelected(true);
 
         } else if (scheme.equals(FileScheme.SMB)) {
             timeoutLabel.setEnabled(true);
@@ -866,138 +837,160 @@ public class FileWriter extends ConnectorSettingsPanel {
         }
     }
 
-    private void schemeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_schemeComboBoxActionPerformed
+    private void advancedFileSettingsActionPerformed() {
+        if (advancedSettingsDialog != null) {
+            advancedSettingsDialog.setDialogVisible(true);
+            setSummaryText();
+        }
+    }
+
+    private void schemeComboBoxActionPerformed(ActionEvent evt) {
         String text = (String) schemeComboBox.getSelectedItem();
 
-        // if File is selected
-        if (text.equals(FileScheme.FILE.getDisplayName())) {
-
-            onSchemeChange(false, true, true, FileScheme.FILE);
-        } // else if FTP is selected
-        else if (text.equals(FileScheme.FTP.getDisplayName())) {
-
-            onSchemeChange(true, anonymousYes.isSelected(), true, FileScheme.FTP);
-            hostLabel.setText("ftp://");
-        } // else if SFTP is selected
-        else if (text.equals(FileScheme.SFTP.getDisplayName())) {
-
-            onSchemeChange(true, false, true, FileScheme.SFTP);
-            hostLabel.setText("sftp://");
-        } // else if SMB is selected
-        else if (text.equals(FileScheme.SMB.getDisplayName())) {
-
-            onSchemeChange(true, false, true, FileScheme.SMB);
-            hostLabel.setText("smb://");
-        } // else if WEBDAV is selected
-        else if (text.equals(FileScheme.WEBDAV.getDisplayName())) {
-
-            onSchemeChange(true, anonymousYes.isSelected(), false, FileScheme.WEBDAV);
-            if (secureModeYes.isSelected()) {
-                hostLabel.setText("https://");
-            } else {
-                hostLabel.setText("http://");
+        if (!text.equals(selectedScheme)) {
+            if (StringUtils.isNotEmpty(selectedScheme) && advancedSettingsDialog != null && !advancedSettingsDialog.isDefaultProperties()) {
+                if (JOptionPane.showConfirmDialog(parent, "Are you sure you would like to change the scheme mode and lose all of the current properties?", "Select an Option", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                    schemeComboBox.setSelectedItem(selectedScheme);
+                    return;
+                }
             }
+
+            initAdvancedSettingsDialog(text, null);
+
+            // if File is selected
+            if (text.equals(FileScheme.FILE.getDisplayName())) {
+
+                onSchemeChange(false, true, true, FileScheme.FILE);
+            } // else if FTP is selected
+            else if (text.equals(FileScheme.FTP.getDisplayName())) {
+
+                onSchemeChange(true, anonymousYesRadio.isSelected(), true, FileScheme.FTP);
+                hostLabel.setText("ftp://");
+            } // else if SFTP is selected
+            else if (text.equals(FileScheme.SFTP.getDisplayName())) {
+
+                onSchemeChange(true, false, true, FileScheme.SFTP);
+                hostLabel.setText("sftp://");
+            } // else if SMB is selected
+            else if (text.equals(FileScheme.SMB.getDisplayName())) {
+
+                onSchemeChange(true, false, true, FileScheme.SMB);
+                hostLabel.setText("smb://");
+            } // else if WEBDAV is selected
+            else if (text.equals(FileScheme.WEBDAV.getDisplayName())) {
+
+                onSchemeChange(true, anonymousYesRadio.isSelected(), false, FileScheme.WEBDAV);
+                if (secureModeYesRadio.isSelected()) {
+                    hostLabel.setText("https://");
+                } else {
+                    hostLabel.setText("http://");
+                }
+            }
+
+            decorateConnectorType();
         }
 
-        decorateConnectorType();
-    }//GEN-LAST:event_schemeComboBoxActionPerformed
+        selectedScheme = text;
+    }
 
-    private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
+    private void testConnectionActionPerformed(ActionEvent evt) {
         invokeConnectorService(FileServiceMethods.METHOD_TEST_WRITE, "Testing connection...", "Failed to invoke service: ");
-    }//GEN-LAST:event_testConnectionActionPerformed
+    }
 
-    private void secureModeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeYesActionPerformed
+    private void secureModeYesActionPerformed(ActionEvent evt) {
         // only WebDAV has access to here.
         // change host label to 'https://'
         hostLabel.setText("https://");
-    }//GEN-LAST:event_secureModeYesActionPerformed
+    }
 
-    private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeNoActionPerformed
+    private void secureModeNoActionPerformed(ActionEvent evt) {
         // only WebDAV has access to here.
         // change host label to 'http://'
         hostLabel.setText("http://");
-    }//GEN-LAST:event_secureModeNoActionPerformed
+    }
 
-    private void fileExistsAppendRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsAppendRadioActionPerformed
+    private void fileExistsAppendRadioActionPerformed(ActionEvent evt) {
         tempFileNoRadio.setSelected(true);
         tempFileLabel.setEnabled(false);
         tempFileYesRadio.setEnabled(false);
         tempFileNoRadio.setEnabled(false);
-    }//GEN-LAST:event_fileExistsAppendRadioActionPerformed
+    }
 
-    private void fileExistsOverwriteRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsOverwriteRadioActionPerformed
+    private void fileExistsOverwriteRadioActionPerformed(ActionEvent evt) {
         tempFileLabel.setEnabled(true);
         tempFileYesRadio.setEnabled(true);
         tempFileNoRadio.setEnabled(true);
-    }//GEN-LAST:event_fileExistsOverwriteRadioActionPerformed
+    }
 
-    private void fileExistsErrorRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsErrorRadioActionPerformed
+    private void fileExistsErrorRadioActionPerformed(ActionEvent evt) {
         tempFileLabel.setEnabled(true);
         tempFileYesRadio.setEnabled(true);
         tempFileNoRadio.setEnabled(true);
-    }//GEN-LAST:event_fileExistsErrorRadioActionPerformed
+    }
 
-    private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileTypeASCIIActionPerformed
+    private void fileTypeASCIIActionPerformed(ActionEvent evt) {
         encodingLabel.setEnabled(true);
-        charsetEncodingCombobox.setEnabled(true);
-    }//GEN-LAST:event_fileTypeASCIIActionPerformed
+        charsetEncodingComboBox.setEnabled(true);
+    }
 
-    private void fileTypeBinaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileTypeBinaryActionPerformed
+    private void fileTypeBinaryActionPerformed(ActionEvent evt) {
         encodingLabel.setEnabled(false);
-        charsetEncodingCombobox.setEnabled(false);
-        charsetEncodingCombobox.setSelectedIndex(0);
-    }//GEN-LAST:event_fileTypeBinaryActionPerformed
+        charsetEncodingComboBox.setEnabled(false);
+        charsetEncodingComboBox.setSelectedIndex(0);
+    }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel anonymousLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton anonymousNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton anonymousYes;
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.ButtonGroup buttonGroup4;
-    private javax.swing.ButtonGroup buttonGroup5;
-    private javax.swing.ButtonGroup buttonGroup6;
-    private javax.swing.ButtonGroup buttonGroup7;
-    private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
-    private com.mirth.connect.client.ui.components.MirthTextField directoryField;
-    private javax.swing.JLabel directoryLabel;
-    private javax.swing.JLabel encodingLabel;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
-    private com.mirth.connect.client.ui.components.MirthRadioButton fileExistsAppendRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton fileExistsErrorRadio;
-    private javax.swing.JLabel fileExistsLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton fileExistsOverwriteRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField fileNameField;
-    private javax.swing.JLabel fileNameLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton fileTypeASCII;
-    private com.mirth.connect.client.ui.components.MirthRadioButton fileTypeBinary;
-    private javax.swing.JLabel fileTypeLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField hostField;
-    private javax.swing.JLabel hostLabel;
-    private javax.swing.JLabel passiveModeLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton passiveModeNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton passiveModeYes;
-    private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
-    private javax.swing.JLabel passwordLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField pathField;
-    private javax.swing.JLabel pathLabel;
-    private com.mirth.connect.client.ui.components.MirthComboBox schemeComboBox;
-    private javax.swing.JLabel schemeLabel;
-    private javax.swing.JLabel secureModeLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton secureModeNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton secureModeYes;
-    private javax.swing.JLabel tempFileLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton tempFileNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton tempFileYesRadio;
-    private javax.swing.JLabel templateLabel;
-    private javax.swing.JButton testConnection;
-    private com.mirth.connect.client.ui.components.MirthTextField timeoutField;
-    private javax.swing.JLabel timeoutLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField usernameField;
-    private javax.swing.JLabel usernameLabel;
-    private javax.swing.JLabel validateConnectionLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton validateConnectionNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton validateConnectionYes;
-    // End of variables declaration//GEN-END:variables
+    private JLabel anonymousLabel;
+    private MirthRadioButton anonymousNoRadio;
+    private MirthRadioButton anonymousYesRadio;
+    private ButtonGroup anonymousButtonGroup;
+    private ButtonGroup passiveModeButtonGroup;
+    private ButtonGroup validateConnectionButtonGroup;
+    private ButtonGroup fileExistsButtonGroup;
+    private ButtonGroup fileTypeButtonGroup;
+    private ButtonGroup secureModeButtonGroup;
+    private ButtonGroup tempFileButtonGroup;
+    private MirthComboBox charsetEncodingComboBox;
+    private MirthTextField directoryField;
+    private JLabel directoryLabel;
+    private JLabel encodingLabel;
+    private MirthSyntaxTextArea fileContentsTextPane;
+    private MirthRadioButton fileExistsAppendRadio;
+    private MirthRadioButton fileExistsErrorRadio;
+    private JLabel fileExistsLabel;
+    private MirthRadioButton fileExistsOverwriteRadio;
+    private MirthTextField fileNameField;
+    private JLabel fileNameLabel;
+    private MirthRadioButton fileTypeText;
+    private MirthRadioButton fileTypeBinary;
+    private JLabel fileTypeLabel;
+    private MirthTextField hostField;
+    private JLabel hostLabel;
+    private JLabel passiveModeLabel;
+    private MirthRadioButton passiveModeNoRadio;
+    private MirthRadioButton passiveModeYesRadio;
+    private MirthPasswordField passwordField;
+    private JLabel passwordLabel;
+    private MirthTextField pathField;
+    private JLabel pathLabel;
+    private MirthComboBox schemeComboBox;
+    private JLabel schemeLabel;
+    private JLabel secureModeLabel;
+    private MirthRadioButton secureModeNoRadio;
+    private MirthRadioButton secureModeYesRadio;
+    private JLabel tempFileLabel;
+    private MirthRadioButton tempFileNoRadio;
+    private MirthRadioButton tempFileYesRadio;
+    private JLabel templateLabel;
+    private JButton testConnectionButton;
+    private MirthTextField timeoutField;
+    private JLabel timeoutLabel;
+    private MirthTextField usernameField;
+    private JLabel usernameLabel;
+    private JLabel validateConnectionLabel;
+    private MirthRadioButton validateConnectionNoRadio;
+    private MirthRadioButton validateConnectionYesRadio;
+
+    private JButton advancedSettingsButton;
+    private JLabel summaryLabel;
+    private JLabel summaryField;
 }

@@ -61,8 +61,7 @@ public class FileReceiver extends PollConnector {
     private String errorMoveToDirectory = null;
     private String errorMoveToFileName = null;
     private String filenamePattern = null;
-    private String username = null;
-    private String password = null;
+    private FileSystemConnectionOptions fileSystemOptions = null;
 
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -74,7 +73,6 @@ public class FileReceiver extends PollConnector {
 
     private FileReceiverProperties connectorProperties;
     private String charsetEncoding;
-    private URI uri;
 
     private long fileSizeMinimum;
     private long fileSizeMaximum;
@@ -122,12 +120,25 @@ public class FileReceiver extends PollConnector {
     @Override
     public void onStart() throws ConnectorTaskException {
         try {
-            username = replacer.replaceValues(connectorProperties.getUsername(), getChannelId());
-            password = replacer.replaceValues(connectorProperties.getPassword(), getChannelId());
-            uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), getChannelId()));
+            String channelId = getChannelId();
+            String username = replacer.replaceValues(connectorProperties.getUsername(), channelId);
+            String password = replacer.replaceValues(connectorProperties.getPassword(), channelId);
+            URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId));
 
-            FileSystemConnection con = fileConnector.getConnection(uri, null, username, password);
-            fileConnector.releaseConnection(uri, con, null, username, password);
+            SftpSchemeProperties sftpProperties  = null;
+            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties();
+            if (schemeProperties instanceof SftpSchemeProperties) {
+                sftpProperties = (SftpSchemeProperties) schemeProperties;
+
+                sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId));
+                sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId));
+                sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId));
+                sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId));
+            }
+
+            fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, sftpProperties);
+            FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
+            fileConnector.releaseConnection(con, fileSystemOptions);
         } catch (URISyntaxException e1) {
             throw new ConnectorTaskException("Error creating URI.", e1);
         } catch (Exception e) {
@@ -156,12 +167,25 @@ public class FileReceiver extends PollConnector {
     protected void poll() {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.POLLING));
         try {
-            uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), getChannelId()));
+            String channelId = getChannelId();
+            URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId));
             String readDir = fileConnector.getPathPart(uri);
 
-            username = replacer.replaceValues(connectorProperties.getUsername(), getChannelId());
-            password = replacer.replaceValues(connectorProperties.getPassword(), getChannelId());
-            filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), getChannelId());
+            String username = replacer.replaceValues(connectorProperties.getUsername(), channelId);
+            String password = replacer.replaceValues(connectorProperties.getPassword(), channelId);
+            filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), channelId);
+
+            SftpSchemeProperties sftpProperties = null;
+            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties();
+            if (schemeProperties instanceof SftpSchemeProperties) {
+                sftpProperties = (SftpSchemeProperties) schemeProperties.clone();
+
+                sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId));
+                sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId));
+                sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId));
+            }
+
+            fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, sftpProperties);
 
             if (connectorProperties.isDirectoryRecursion()) {
                 Set<String> visitedDirectories = new HashSet<String>();
@@ -296,7 +320,7 @@ public class FileReceiver extends PollConnector {
 
                     // ast: use the user-selected encoding
                     if (isProcessBatch()) {
-                        FileSystemConnection con = fileConnector.getConnection(uri, null, username, password);
+                        FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
                         Reader in = null;
                         try {
                             in = new InputStreamReader(con.readFile(file.getName(), file.getParent()), charsetEncoding);
@@ -308,7 +332,7 @@ public class FileReceiver extends PollConnector {
                                 in.close();
                             }
                             con.closeReadFile();
-                            fileConnector.releaseConnection(uri, con, null, username, password);
+                            fileConnector.releaseConnection(con, fileSystemOptions);
                         }
                     } else {
                         RawMessage rawMessage;
@@ -433,7 +457,7 @@ public class FileReceiver extends PollConnector {
 
     /** Delete a file */
     private boolean deleteFile(String name, String dir, boolean mayNotExist) throws Exception {
-        FileSystemConnection con = fileConnector.getConnection(uri, null, username, password);
+        FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
         try {
             con.delete(name, dir, mayNotExist);
             return true;
@@ -445,12 +469,12 @@ public class FileReceiver extends PollConnector {
                 return false;
             }
         } finally {
-            fileConnector.releaseConnection(uri, con, null, username, password);
+            fileConnector.releaseConnection(con, fileSystemOptions);
         }
     }
 
     private boolean renameFile(String fromName, String fromDir, String toName, String toDir) throws Exception {
-        FileSystemConnection con = fileConnector.getConnection(uri, null, username, password);
+        FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
         try {
 
             con.move(fromName, fromDir, toName, toDir);
@@ -459,13 +483,13 @@ public class FileReceiver extends PollConnector {
 
             return false;
         } finally {
-            fileConnector.releaseConnection(uri, con, null, username, password);
+            fileConnector.releaseConnection(con, fileSystemOptions);
         }
     }
 
     // Returns the contents of the file in a byte array.
     private byte[] getBytesFromFile(FileInfo file) throws Exception {
-        FileSystemConnection con = fileConnector.getConnection(uri, null, username, password);
+        FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
 
         try {
             InputStream is = null;
@@ -509,7 +533,7 @@ public class FileReceiver extends PollConnector {
                 }
             }
         } finally {
-            fileConnector.releaseConnection(uri, con, null, username, password);
+            fileConnector.releaseConnection(con, fileSystemOptions);
         }
     }
 
@@ -520,13 +544,13 @@ public class FileReceiver extends PollConnector {
      * @throws Exception
      */
     FileInfo[] listFiles(String fromDir) throws Exception {
-        FileSystemConnection con = fileConnector.getConnection(uri, null, username, password);
+        FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
 
         try {
             List<FileInfo> files = con.listFiles(fromDir, filenamePattern, connectorProperties.isRegex(), connectorProperties.isIgnoreDot());
             return files == null ? null : files.toArray(new FileInfo[files.size()]);
         } finally {
-            fileConnector.releaseConnection(uri, con, null, username, password);
+            fileConnector.releaseConnection(con, fileSystemOptions);
         }
     }
 
@@ -537,12 +561,12 @@ public class FileReceiver extends PollConnector {
      * @throws Exception
      */
     List<String> listDirectories(String fromDir) throws Exception {
-        FileSystemConnection con = fileConnector.getConnection(uri, null, username, password);
+        FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
 
         try {
             return con.listDirectories(fromDir);
         } finally {
-            fileConnector.releaseConnection(uri, con, null, username, password);
+            fileConnector.releaseConnection(con, fileSystemOptions);
         }
     }
 

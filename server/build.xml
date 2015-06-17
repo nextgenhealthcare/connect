@@ -164,6 +164,8 @@
 			<fileset dir="${lib.extensions}/file" />
 		</copy>
 		<jar destfile="${connectors.file}/file-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/file/SchemeProperties.class" />
+			<include name="com/mirth/connect/connectors/file/SftpSchemeProperties.class" />
 			<include name="com/mirth/connect/connectors/file/FileReceiverProperties.class" />
 			<include name="com/mirth/connect/connectors/file/FileDispatcherProperties.class" />
 			<include name="com/mirth/connect/connectors/file/FileScheme.class" />
@@ -173,6 +175,8 @@
 		<jar destfile="${connectors.file}/file-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/file/**" />
+				<exclude name="com/mirth/connect/connectors/file/SchemeProperties.class" />
+				<exclude name="com/mirth/connect/connectors/file/SftpSchemeProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/FileReceiverProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/FileDispatcherProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/FileScheme.class" />
@@ -613,7 +617,6 @@
 		<jar destfile="${plugins.globalmapviewer}/globalmapviewer-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/globalmapviewer/**" />
 		</jar>
-		
 
 		<!-- plugins.imageviewer -->
 		<mkdir dir="${plugins.imageviewer}" />

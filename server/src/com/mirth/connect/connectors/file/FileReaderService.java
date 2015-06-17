@@ -30,6 +30,17 @@ public class FileReaderService implements ConnectorService {
             String username = replacer.replaceValues(connectorProperties.getUsername(), channelId);
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId);
 
+            SftpSchemeProperties sftpProperties = null;
+            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties();
+            if (schemeProperties instanceof SftpSchemeProperties) {
+                sftpProperties = (SftpSchemeProperties) schemeProperties;
+
+                sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId));
+                sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId));
+                sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId));
+                sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId));
+            }
+
             String fileHost = null;
             FileScheme scheme = connectorProperties.getScheme();
             String addressHost = null;
@@ -66,7 +77,7 @@ public class FileReaderService implements ConnectorService {
                 dir = address.getPath();
             }
 
-            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, username, password, addressHost, port, passive, secure, timeout);
+            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, new FileSystemConnectionOptions(username, password, sftpProperties), addressHost, port, passive, secure, timeout);
 
             FileSystemConnection connection = null;
 

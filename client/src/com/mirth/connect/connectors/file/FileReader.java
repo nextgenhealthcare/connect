@@ -9,15 +9,38 @@
 
 package com.mirth.connect.connectors.file;
 
-import javax.swing.DefaultComboBoxModel;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.AbstractListModel;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+
+import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthCheckBox;
+import com.mirth.connect.client.ui.components.MirthComboBox;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthPasswordField;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthTextField;
+import com.mirth.connect.client.ui.components.MirthVariableList;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.util.ConnectionTestResponse;
@@ -27,10 +50,18 @@ public class FileReader extends ConnectorSettingsPanel {
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
 
+    private String selectedScheme;
+    private AdvancedSettingsDialog advancedSettingsDialog;
+
     public FileReader() {
         this.parent = PlatformUI.MIRTH_FRAME;
 
+        setBackground(UIConstants.BACKGROUND_COLOR);
+        setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0"));
+
         initComponents();
+        initLayout();
 
         afterProcessingActionComboBox.setModel(new DefaultComboBoxModel(new FileAction[] {
                 FileAction.NONE, FileAction.MOVE, FileAction.DELETE }));
@@ -38,11 +69,11 @@ public class FileReader extends ConnectorSettingsPanel {
                 FileAction.NONE, FileAction.MOVE, FileAction.DELETE }));
         errorResponseActionComboBox.setModel(new DefaultComboBoxModel(new FileAction[] {
                 FileAction.AFTER_PROCESSING, FileAction.MOVE, FileAction.DELETE }));
-        fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
+        fileAgeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         fileSizeMinimumField.setDocument(new MirthFieldConstraints(0, false, false, true));
         fileSizeMaximumField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        // ast:encoding activation
-        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
+
+        parent.setupCharsetEncodingForConnector(charsetEncodingComboBox);
     }
 
     @Override
@@ -56,6 +87,10 @@ public class FileReader extends ConnectorSettingsPanel {
 
         properties.setScheme(FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem()));
 
+        if (advancedSettingsDialog != null) {
+            properties.setSchemeProperties(advancedSettingsDialog.getFileSchemeProperties());
+        }
+
         if (schemeComboBox.getSelectedItem().equals(FileScheme.FILE.getDisplayName())) {
             properties.setHost(directoryField.getText().replace('\\', '/'));
         } else {
@@ -65,7 +100,7 @@ public class FileReader extends ConnectorSettingsPanel {
         properties.setDirectoryRecursion(directoryRecursionYesRadio.isSelected());
         properties.setIgnoreDot(ignoreDotFilesYesRadio.isSelected());
 
-        if (anonymousYes.isSelected()) {
+        if (anonymousYesRadio.isSelected()) {
             properties.setAnonymous(true);
         } else {
             properties.setAnonymous(false);
@@ -76,10 +111,6 @@ public class FileReader extends ConnectorSettingsPanel {
 
         properties.setTimeout(timeoutField.getText());
 
-        properties.setSecure(secureModeYes.isSelected());
-        properties.setPassive(passiveModeYes.isSelected());
-        properties.setValidateConnection(validateConnectionYes.isSelected());
-
         properties.setAfterProcessingAction((FileAction) afterProcessingActionComboBox.getSelectedItem());
         properties.setMoveToDirectory(moveToDirectoryField.getText().replace('\\', '/'));
         properties.setMoveToFileName(moveToFileNameField.getText());
@@ -88,23 +119,23 @@ public class FileReader extends ConnectorSettingsPanel {
         properties.setErrorMoveToDirectory(errorMoveToDirectoryField.getText().replace('\\', '/'));
         properties.setErrorMoveToFileName(errorMoveToFileNameField.getText());
 
-        properties.setCheckFileAge(checkFileAgeYes.isSelected());
-        properties.setFileAge(fileAge.getText());
+        properties.setCheckFileAge(checkFileAgeYesRadio.isSelected());
+        properties.setFileAge(fileAgeField.getText());
 
         properties.setFileSizeMinimum(fileSizeMinimumField.getText());
         properties.setFileSizeMaximum(fileSizeMaximumField.getText());
         properties.setIgnoreFileSizeMaximum(ignoreFileSizeMaximumCheckBox.isSelected());
 
-        if (((String) sortBy.getSelectedItem()).equals("Name")) {
+        if (((String) sortByComboBox.getSelectedItem()).equals("Name")) {
             properties.setSortBy(FileReceiverProperties.SORT_BY_NAME);
-        } else if (((String) sortBy.getSelectedItem()).equals("Size")) {
+        } else if (((String) sortByComboBox.getSelectedItem()).equals("Size")) {
             properties.setSortBy(FileReceiverProperties.SORT_BY_SIZE);
-        } else if (((String) sortBy.getSelectedItem()).equals("Date")) {
+        } else if (((String) sortByComboBox.getSelectedItem()).equals("Date")) {
             properties.setSortBy(FileReceiverProperties.SORT_BY_DATE);
         }
 
-        properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
-        properties.setFileFilter(fileNameFilter.getText());
+        properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingComboBox));
+        properties.setFileFilter(fileNameFilterField.getText());
         properties.setRegex(filenameFilterRegexCheckBox.isSelected());
         properties.setBinary(fileTypeBinary.isSelected());
 
@@ -175,10 +206,12 @@ public class FileReader extends ConnectorSettingsPanel {
         logger.debug("setProperties: props=" + properties);
         FileReceiverProperties props = (FileReceiverProperties) properties;
 
+        selectedScheme = "";
         FileScheme scheme = props.getScheme();
-        schemeComboBox.setSelectedItem(props.getScheme().getDisplayName());
-
+        schemeComboBox.setSelectedItem(scheme.getDisplayName());
         schemeComboBoxActionPerformed(null);
+
+        initAdvancedSettingsDialog(scheme.getDisplayName(), ((FileReceiverProperties) properties).getSchemeProperties());
 
         setDirHostPath(props, true, false);
 
@@ -195,10 +228,10 @@ public class FileReader extends ConnectorSettingsPanel {
         }
 
         if (props.isAnonymous()) {
-            anonymousYes.setSelected(true);
+            anonymousYesRadio.setSelected(true);
             anonymousYesActionPerformed(null);
         } else {
-            anonymousNo.setSelected(true);
+            anonymousNoRadio.setSelected(true);
             anonymousNoActionPerformed(null);
             usernameField.setText(props.getUsername());
             passwordField.setText(props.getPassword());
@@ -207,27 +240,27 @@ public class FileReader extends ConnectorSettingsPanel {
         timeoutField.setText(props.getTimeout());
 
         if (props.isSecure()) {
-            secureModeYes.setSelected(true);
+            secureModeYesRadio.setSelected(true);
             if (scheme.equals(FileScheme.WEBDAV)) {
                 hostLabel.setText("https://");
             }
         } else {
-            secureModeNo.setSelected(true);
+            secureModeNoRadio.setSelected(true);
             if (scheme.equals(FileScheme.WEBDAV)) {
                 hostLabel.setText("http://");
             }
         }
 
         if (props.isPassive()) {
-            passiveModeYes.setSelected(true);
+            passiveModeYesRadio.setSelected(true);
         } else {
-            passiveModeNo.setSelected(true);
+            passiveModeNoRadio.setSelected(true);
         }
 
         if (props.isValidateConnection()) {
-            validateConnectionYes.setSelected(true);
+            validateConnectionYesRadio.setSelected(true);
         } else {
-            validateConnectionNo.setSelected(true);
+            validateConnectionNoRadio.setSelected(true);
         }
 
         afterProcessingActionComboBox.setSelectedItem(props.getAfterProcessingAction());
@@ -242,14 +275,14 @@ public class FileReader extends ConnectorSettingsPanel {
         updateErrorFields();
 
         if (props.isCheckFileAge()) {
-            checkFileAgeYes.setSelected(true);
+            checkFileAgeYesRadio.setSelected(true);
             checkFileAgeYesActionPerformed(null);
         } else {
-            checkFileAgeNo.setSelected(true);
+            checkFileAgeNoRadio.setSelected(true);
             checkFileAgeNoActionPerformed(null);
         }
 
-        fileAge.setText(props.getFileAge());
+        fileAgeField.setText(props.getFileAge());
 
         fileSizeMinimumField.setText(props.getFileSizeMinimum());
         fileSizeMaximumField.setText(props.getFileSizeMaximum());
@@ -257,16 +290,16 @@ public class FileReader extends ConnectorSettingsPanel {
         ignoreFileSizeMaximumCheckBoxActionPerformed(null);
 
         if (props.getSortBy().equals(FileReceiverProperties.SORT_BY_NAME)) {
-            sortBy.setSelectedItem("Name");
+            sortByComboBox.setSelectedItem("Name");
         } else if (props.getSortBy().equals(FileReceiverProperties.SORT_BY_SIZE)) {
-            sortBy.setSelectedItem("Size");
+            sortByComboBox.setSelectedItem("Size");
         } else if (props.getSortBy().equals(FileReceiverProperties.SORT_BY_DATE)) {
-            sortBy.setSelectedItem("Date");
+            sortByComboBox.setSelectedItem("Date");
         }
 
-        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharsetEncoding());
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingComboBox, props.getCharsetEncoding());
 
-        fileNameFilter.setText(props.getFileFilter());
+        fileNameFilterField.setText(props.getFileFilter());
 
         if (props.isRegex()) {
             filenameFilterRegexCheckBox.setSelected(true);
@@ -278,8 +311,20 @@ public class FileReader extends ConnectorSettingsPanel {
             fileTypeBinary.setSelected(true);
             fileTypeBinaryActionPerformed(null);
         } else {
-            fileTypeASCII.setSelected(true);
+            fileTypeText.setSelected(true);
             fileTypeASCIIActionPerformed(null);
+        }
+    }
+
+    private void setSummaryText() {
+        if (advancedSettingsDialog != null) {
+            summaryLabel.setEnabled(true);
+            summaryField.setEnabled(true);
+            summaryField.setText(advancedSettingsDialog.getSummaryText());
+        } else {
+            summaryLabel.setEnabled(false);
+            summaryField.setEnabled(false);
+            summaryField.setText("<None>");
         }
     }
 
@@ -299,7 +344,7 @@ public class FileReader extends ConnectorSettingsPanel {
         if (props.getFileFilter().length() == 0) {
             valid = false;
             if (highlight) {
-                fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
+                fileNameFilterField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -332,7 +377,7 @@ public class FileReader extends ConnectorSettingsPanel {
             if (props.getFileAge().length() == 0) {
                 valid = false;
                 if (highlight) {
-                    fileAge.setBackground(UIConstants.INVALID_COLOR);
+                    fileAgeField.setBackground(UIConstants.INVALID_COLOR);
                 }
             }
         }
@@ -361,8 +406,8 @@ public class FileReader extends ConnectorSettingsPanel {
         directoryField.setBackground(null);
         hostField.setBackground(null);
         pathField.setBackground(null);
-        fileNameFilter.setBackground(null);
-        fileAge.setBackground(null);
+        fileNameFilterField.setBackground(null);
+        fileAgeField.setBackground(null);
         fileSizeMinimumField.setBackground(null);
         fileSizeMaximumField.setBackground(null);
         usernameField.setBackground(null);
@@ -392,668 +437,550 @@ public class FileReader extends ConnectorSettingsPanel {
         }
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initAdvancedSettingsDialog(String scheme, SchemeProperties fileSchemeProperties) {
+        advancedSettingsDialog = null;
+        if (scheme.equals(FileScheme.SFTP.getDisplayName())) {
+            advancedSettingsDialog = new AdvancedSftpSettingsDialog();
+
+            if (fileSchemeProperties != null) {
+                advancedSettingsDialog.setFileSchemeProperties(fileSchemeProperties);
+            } else {
+                advancedSettingsDialog.setFileSchemeProperties(advancedSettingsDialog.getDefaultProperties());
+            }
+        }
+        setSummaryText();
+    }
+
     private void initComponents() {
-
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
-        buttonGroup3 = new javax.swing.ButtonGroup();
-        buttonGroup6 = new javax.swing.ButtonGroup();
-        buttonGroup7 = new javax.swing.ButtonGroup();
-        buttonGroup8 = new javax.swing.ButtonGroup();
-        buttonGroup9 = new javax.swing.ButtonGroup();
-        ignoreDotFilesButtonGroup = new javax.swing.ButtonGroup();
-        directoryRecursionButtonGroup = new javax.swing.ButtonGroup();
-        schemeLabel = new javax.swing.JLabel();
-        schemeComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        directoryLabel = new javax.swing.JLabel();
-        directoryField = new com.mirth.connect.client.ui.components.MirthTextField();
-        hostLabel = new javax.swing.JLabel();
-        hostField = new com.mirth.connect.client.ui.components.MirthTextField();
-        pathLabel = new javax.swing.JLabel();
-        pathField = new com.mirth.connect.client.ui.components.MirthTextField();
-        filenameFilterLabel = new javax.swing.JLabel();
-        fileNameFilter = new com.mirth.connect.client.ui.components.MirthTextField();
-        moveToDirectoryLabel = new javax.swing.JLabel();
-        moveToFileNameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        moveToDirectoryField = new com.mirth.connect.client.ui.components.MirthTextField();
-        moveToFileNameLabel = new javax.swing.JLabel();
-        afterProcessingActionLabel = new javax.swing.JLabel();
-        checkFileAgeLabel = new javax.swing.JLabel();
-        fileAgeLabel = new javax.swing.JLabel();
-        checkFileAgeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        checkFileAgeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        fileAge = new com.mirth.connect.client.ui.components.MirthTextField();
-        sortFilesByLabel = new javax.swing.JLabel();
-        sortBy = new com.mirth.connect.client.ui.components.MirthComboBox();
-        charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        encodingLabel = new javax.swing.JLabel();
-        fileTypeASCII = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        fileTypeBinary = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        fileTypeLabel = new javax.swing.JLabel();
-        errorMoveToDirectoryLabel = new javax.swing.JLabel();
-        errorMoveToDirectoryField = new com.mirth.connect.client.ui.components.MirthTextField();
-        anonymousLabel = new javax.swing.JLabel();
-        anonymousYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        anonymousNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        usernameLabel = new javax.swing.JLabel();
-        usernameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        passwordLabel = new javax.swing.JLabel();
-        passwordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
-        validateConnectionLabel = new javax.swing.JLabel();
-        validateConnectionYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        validateConnectionNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        secureModeLabel = new javax.swing.JLabel();
-        secureModeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        secureModeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        passiveModeLabel = new javax.swing.JLabel();
-        testConnection = new javax.swing.JButton();
-        passiveModeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        passiveModeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        filenameFilterRegexCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        timeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
-        timeoutLabel = new javax.swing.JLabel();
-        ignoreDotFilesYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        ignoreDotFilesNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        ignoreDotFilesLabel = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        mirthVariableList1 = new com.mirth.connect.client.ui.components.MirthVariableList();
-        afterProcessingActionComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        moveToFileLabel1 = new javax.swing.JLabel();
-        errorReadingActionComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        errorResponseActionLabel = new javax.swing.JLabel();
-        errorResponseActionComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        errorMoveToFileNameLabel = new javax.swing.JLabel();
-        errorMoveToFileNameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        directoryRecursionLabel = new javax.swing.JLabel();
-        directoryRecursionYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        directoryRecursionNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        fileSizeLabel = new javax.swing.JLabel();
-        fileSizeMinimumField = new com.mirth.connect.client.ui.components.MirthTextField();
-        fileSizeDashLabel = new javax.swing.JLabel();
-        fileSizeMaximumField = new com.mirth.connect.client.ui.components.MirthTextField();
-        ignoreFileSizeMaximumCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-
+        schemeLabel = new JLabel();
         schemeLabel.setText("Method:");
-
-        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp", "smb", "webdav" }));
+        schemeComboBox = new MirthComboBox();
+        schemeComboBox.setModel(new DefaultComboBoxModel(new String[] { "file", "ftp", "sftp",
+                "smb", "webdav" }));
         schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, SFTP, Samba share, or WebDAV");
-        schemeComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        schemeComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 schemeComboBoxActionPerformed(evt);
             }
         });
 
-        directoryLabel.setText("Directory:");
-
-        directoryField.setToolTipText("The directory (folder) in which the files to be read can be found.");
-
-        hostLabel.setText("ftp://");
-
-        hostField.setToolTipText("The name or IP address of the host (computer) on which the files to be read can be found.");
-
-        pathLabel.setText("/");
-
-        pathField.setToolTipText("The directory (folder) in which the files to be read can be found.");
-
-        filenameFilterLabel.setText("Filename Filter Pattern:");
-
-        fileNameFilter.setToolTipText("<html>The pattern which names of files must match in order to be read.<br>Files with names that do not match the pattern will be ignored.</html>");
-
-        moveToDirectoryLabel.setText("Move-to Directory:");
-
-        moveToFileNameField.setToolTipText("<html>If successfully processed files should be renamed, enter the new name here.<br>The filename specified may include template substitutions from the list to the right.<br>If this field is left empty, successfully processed files will not be renamed.</html>");
-
-        moveToDirectoryField.setToolTipText("<html>If successfully processed files should be moved to a different directory (folder), enter that directory here.<br>The directory name specified may include template substitutions from the list to the right.<br>If this field is left empty, successfully processed files will not be moved to a different directory.</html>");
-
-        moveToFileNameLabel.setText("Move-to File Name:");
-
-        afterProcessingActionLabel.setText("After Processing Action:");
-
-        checkFileAgeLabel.setText("Check File Age:");
-
-        fileAgeLabel.setText("File Age (ms):");
-
-        checkFileAgeYes.setBackground(new java.awt.Color(255, 255, 255));
-        checkFileAgeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup6.add(checkFileAgeYes);
-        checkFileAgeYes.setText("Yes");
-        checkFileAgeYes.setToolTipText("Select Yes to skip files that are created within the specified age below.");
-        checkFileAgeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        checkFileAgeYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkFileAgeYesActionPerformed(evt);
-            }
-        });
-
-        checkFileAgeNo.setBackground(new java.awt.Color(255, 255, 255));
-        checkFileAgeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup6.add(checkFileAgeNo);
-        checkFileAgeNo.setSelected(true);
-        checkFileAgeNo.setText("No");
-        checkFileAgeNo.setToolTipText("Select No to process files regardless of age.");
-        checkFileAgeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        checkFileAgeNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkFileAgeNoActionPerformed(evt);
-            }
-        });
-
-        fileAge.setToolTipText("If Check File Age Yes is selected, only the files created that are older than the specified value in milliseconds will be processed.");
-
-        sortFilesByLabel.setText("Sort Files By:");
-
-        sortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Date", "Name", "Size" }));
-        sortBy.setToolTipText("<html>Selects the order in which files should be processed, if there are multiple files available to be processed.<br>Files can be processed by Date (oldest last modification date first), Size (smallest first) or name (a before z, etc.).</html>");
-
-        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
-        charsetEncodingCombobox.setToolTipText("If File Type Text is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file.");
-        charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                charsetEncodingComboboxActionPerformed(evt);
-            }
-        });
-
-        encodingLabel.setText("Encoding:");
-
-        fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
-        fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup7.add(fileTypeASCII);
-        fileTypeASCII.setSelected(true);
-        fileTypeASCII.setText("Text");
-        fileTypeASCII.setToolTipText("<html>Select Binary if files contain binary data; the contents will be Base64 encoded before processing.<br>Select Text if files contain text data; the contents will be encoded using the specified character set encoding.</html>");
-        fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        fileTypeASCII.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileTypeASCIIActionPerformed(evt);
-            }
-        });
-
-        fileTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
-        fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup7.add(fileTypeBinary);
-        fileTypeBinary.setText("Binary");
-        fileTypeBinary.setToolTipText("<html>Select Binary if files contain binary data; the contents will be Base64 encoded before processing.<br>Select Text if files contain text data; the contents will be encoded using the specified character set encoding.</html>");
-        fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        fileTypeBinary.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileTypeBinaryActionPerformed(evt);
-            }
-        });
-
-        fileTypeLabel.setText("File Type:");
-
-        errorMoveToDirectoryLabel.setText("Error Move-to Directory:");
-
-        errorMoveToDirectoryField.setToolTipText("<html>If files which cause processing errors should be moved to a different directory (folder), enter that directory here.<br>The directory name specified may include template substitutions from the list to the right.<br>If this field is left empty, files which cause processing errors will not be moved to a different directory.</html>");
-
-        anonymousLabel.setText("Anonymous:");
-
-        anonymousYes.setBackground(new java.awt.Color(255, 255, 255));
-        anonymousYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(anonymousYes);
-        anonymousYes.setText("Yes");
-        anonymousYes.setToolTipText("Connects to the file anonymously instead of using a username and password.");
-        anonymousYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                anonymousYesActionPerformed(evt);
-            }
-        });
-
-        anonymousNo.setBackground(new java.awt.Color(255, 255, 255));
-        anonymousNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(anonymousNo);
-        anonymousNo.setSelected(true);
-        anonymousNo.setText("No");
-        anonymousNo.setToolTipText("Connects to the file using a username and password instead of anonymously.");
-        anonymousNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                anonymousNoActionPerformed(evt);
-            }
-        });
-
-        usernameLabel.setText("Username:");
-
-        usernameField.setToolTipText("The user name used to gain access to the server.");
-
-        passwordLabel.setText("Password:");
-
-        passwordField.setToolTipText("The password used to gain access to the server.");
-
-        validateConnectionLabel.setText("Validate Connection:");
-
-        validateConnectionYes.setBackground(new java.awt.Color(255, 255, 255));
-        validateConnectionYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup3.add(validateConnectionYes);
-        validateConnectionYes.setText("Yes");
-        validateConnectionYes.setToolTipText("Select Yes to test the connection to the server before each operation.");
-        validateConnectionYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        validateConnectionNo.setBackground(new java.awt.Color(255, 255, 255));
-        validateConnectionNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup3.add(validateConnectionNo);
-        validateConnectionNo.setText("No");
-        validateConnectionNo.setToolTipText("Select No to skip testing the connection to the server before each operation.");
-        validateConnectionNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        secureModeLabel.setText("Secure Mode:");
-
-        secureModeYes.setBackground(new java.awt.Color(255, 255, 255));
-        secureModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup9.add(secureModeYes);
-        secureModeYes.setText("Yes");
-        secureModeYes.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
-        secureModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        secureModeYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                secureModeYesActionPerformed(evt);
-            }
-        });
-
-        secureModeNo.setBackground(new java.awt.Color(255, 255, 255));
-        secureModeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup9.add(secureModeNo);
-        secureModeNo.setSelected(true);
-        secureModeNo.setText("No");
-        secureModeNo.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
-        secureModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        secureModeNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                secureModeNoActionPerformed(evt);
-            }
-        });
-
-        passiveModeLabel.setText("Passive Mode:");
-
-        testConnection.setText("Test Read");
-        testConnection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        testConnectionButton = new JButton();
+        testConnectionButton.setText("Test Read");
+        testConnectionButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 testConnectionActionPerformed(evt);
             }
         });
 
-        passiveModeYes.setBackground(new java.awt.Color(255, 255, 255));
-        passiveModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(passiveModeYes);
-        passiveModeYes.setText("Yes");
-        passiveModeYes.setToolTipText("<html>Select Yes to connect to the server in \"passive mode\".<br>Passive mode sometimes allows a connection through a firewall that normal mode does not.</html>");
-        passiveModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        advancedSettingsButton = new JButton(new ImageIcon(Frame.class.getResource("images/wrench.png")));
+        advancedSettingsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                advancedFileSettingsActionPerformed();
+            }
+        });
 
-        passiveModeNo.setBackground(new java.awt.Color(255, 255, 255));
-        passiveModeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(passiveModeNo);
-        passiveModeNo.setSelected(true);
-        passiveModeNo.setText("No");
-        passiveModeNo.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
-        passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        summaryLabel = new JLabel("Advanced Options:");
+        summaryField = new JLabel("");
 
-        filenameFilterRegexCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        directoryLabel = new JLabel();
+        directoryLabel.setText("Directory:");
+        directoryField = new MirthTextField();
+        directoryField.setToolTipText("The directory (folder) in which the files to be read can be found.");
+
+        hostLabel = new JLabel();
+        hostLabel.setText("ftp://");
+        hostField = new MirthTextField();
+        hostField.setToolTipText("The name or IP address of the host (computer) on which the files to be read can be found.");
+        pathLabel = new JLabel();
+        pathLabel.setText("/");
+        pathField = new MirthTextField();
+        pathField.setToolTipText("The directory (folder) in which the files to be read can be found.");
+
+        filenameFilterLabel = new JLabel();
+        filenameFilterLabel.setText("Filename Filter Pattern:");
+        fileNameFilterField = new MirthTextField();
+        fileNameFilterField.setToolTipText("<html>The pattern which names of files must match in order to be read.<br>Files with names that do not match the pattern will be ignored.</html>");
+        filenameFilterRegexCheckBox = new MirthCheckBox();
+        filenameFilterRegexCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);
         filenameFilterRegexCheckBox.setText("Regular Expression");
         filenameFilterRegexCheckBox.setToolTipText("<html>If Regex is checked, the pattern is treated as a regular expression.<br>If Regex is not checked, it is treated as a pattern that supports wildcards and a comma separated list.</html>");
 
-        timeoutField.setToolTipText("The socket timeout (in ms) for connecting to the server.");
-
-        timeoutLabel.setText("Timeout (ms):");
-
-        ignoreDotFilesYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        ignoreDotFilesYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        ignoreDotFilesButtonGroup.add(ignoreDotFilesYesRadio);
-        ignoreDotFilesYesRadio.setText("Yes");
-        ignoreDotFilesYesRadio.setToolTipText("Select Yes to ignore all files starting with a period.");
-        ignoreDotFilesYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        ignoreDotFilesNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        ignoreDotFilesNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        ignoreDotFilesButtonGroup.add(ignoreDotFilesNoRadio);
-        ignoreDotFilesNoRadio.setText("No");
-        ignoreDotFilesNoRadio.setToolTipText("Select No to process files starting with a period.");
-        ignoreDotFilesNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        ignoreDotFilesLabel.setText("Ignore . files:");
-
-        jScrollPane1.setBorder(null);
-        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-
-        mirthVariableList1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        mirthVariableList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "originalFilename" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(mirthVariableList1);
-
-        afterProcessingActionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None", "Move", "Delete" }));
-        afterProcessingActionComboBox.setToolTipText("<html>Select Move to move and/or rename the file after successful processing.<br/>Select Delete to delete the file after successful processing.</html>");
-        afterProcessingActionComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                afterProcessingActionComboBoxActionPerformed(evt);
-            }
-        });
-
-        moveToFileLabel1.setText("Error Reading Action:");
-
-        errorReadingActionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None", "Move", "Delete" }));
-        errorReadingActionComboBox.setToolTipText("<html>Select Move to move and/or rename files that have failed to be read in.<br/>Select Delete to delete files that have failed to be read in.</html>");
-        errorReadingActionComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                errorReadingActionComboBoxActionPerformed(evt);
-            }
-        });
-
-        errorResponseActionLabel.setText("Error in Response Action:");
-
-        errorResponseActionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "After Processing Action", "Move", "Delete" }));
-        errorResponseActionComboBox.setToolTipText("<html>Select Move to move and/or rename the file if an ERROR response is returned.<br/>Select Delete to delete the file if an ERROR response is returned.<br/>If After Processing Action is selected, the After Processing Action will apply.<br/>This action is only available if Process Batch Files is disabled.</html>");
-        errorResponseActionComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                errorResponseActionComboBoxActionPerformed(evt);
-            }
-        });
-
-        errorMoveToFileNameLabel.setText("Error Move-to File Name:");
-
-        errorMoveToFileNameField.setToolTipText("<html>If files which cause processing errors should be renamed, enter the new name here.<br/>The filename specified may include template substitutions from the list to the right.<br/>If this field is left empty, files which cause processing errors will not be renamed.</html>");
-
+        directoryRecursionLabel = new JLabel();
         directoryRecursionLabel.setText("Include All Subdirectories:");
 
-        directoryRecursionYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        directoryRecursionYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        directoryRecursionButtonGroup.add(directoryRecursionYesRadio);
+        directoryRecursionYesRadio = new MirthRadioButton();
+        directoryRecursionYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        directoryRecursionYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         directoryRecursionYesRadio.setText("Yes");
         directoryRecursionYesRadio.setToolTipText("<html>Select Yes to traverse directories recursively and search for files in each one.</html>");
-        directoryRecursionYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        directoryRecursionYesRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        directoryRecursionYesRadio.setMargin(new Insets(0, 0, 0, 0));
+        directoryRecursionYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 directoryRecursionYesRadioActionPerformed(evt);
             }
         });
 
-        directoryRecursionNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        directoryRecursionNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        directoryRecursionButtonGroup.add(directoryRecursionNoRadio);
+        directoryRecursionNoRadio = new MirthRadioButton();
+        directoryRecursionNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        directoryRecursionNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         directoryRecursionNoRadio.setSelected(true);
         directoryRecursionNoRadio.setText("No");
         directoryRecursionNoRadio.setToolTipText("<html>Select No to only search for files in the selected directory/location, ignoring subdirectories.</html>");
-        directoryRecursionNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        directoryRecursionNoRadio.setMargin(new Insets(0, 0, 0, 0));
 
+        directoryRecursionButtonGroup = new ButtonGroup();
+        directoryRecursionButtonGroup.add(directoryRecursionYesRadio);
+        directoryRecursionButtonGroup.add(directoryRecursionNoRadio);
+
+        ignoreDotFilesLabel = new JLabel();
+        ignoreDotFilesLabel.setText("Ignore . files:");
+
+        ignoreDotFilesYesRadio = new MirthRadioButton();
+        ignoreDotFilesYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        ignoreDotFilesYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        ignoreDotFilesYesRadio.setText("Yes");
+        ignoreDotFilesYesRadio.setToolTipText("Select Yes to ignore all files starting with a period.");
+        ignoreDotFilesYesRadio.setMargin(new Insets(0, 0, 0, 0));
+
+        ignoreDotFilesNoRadio = new MirthRadioButton();
+        ignoreDotFilesNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        ignoreDotFilesNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        ignoreDotFilesNoRadio.setText("No");
+        ignoreDotFilesNoRadio.setToolTipText("Select No to process files starting with a period.");
+        ignoreDotFilesNoRadio.setMargin(new Insets(0, 0, 0, 0));
+
+        ignoreDotFilesButtonGroup = new ButtonGroup();
+        ignoreDotFilesButtonGroup.add(ignoreDotFilesYesRadio);
+        ignoreDotFilesButtonGroup.add(ignoreDotFilesNoRadio);
+
+        anonymousLabel = new JLabel();
+        anonymousLabel.setText("Anonymous:");
+
+        anonymousYesRadio = new MirthRadioButton();
+        anonymousYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        anonymousYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        anonymousYesRadio.setText("Yes");
+        anonymousYesRadio.setToolTipText("Connects to the file anonymously instead of using a username and password.");
+        anonymousYesRadio.setMargin(new Insets(0, 0, 0, 0));
+        anonymousYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                anonymousYesActionPerformed(evt);
+            }
+        });
+
+        anonymousNoRadio = new MirthRadioButton();
+        anonymousNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        anonymousNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        anonymousNoRadio.setSelected(true);
+        anonymousNoRadio.setText("No");
+        anonymousNoRadio.setToolTipText("Connects to the file using a username and password instead of anonymously.");
+        anonymousNoRadio.setMargin(new Insets(0, 0, 0, 0));
+        anonymousNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                anonymousNoActionPerformed(evt);
+            }
+        });
+
+        anonymousButtonGroup = new ButtonGroup();
+        anonymousButtonGroup.add(anonymousYesRadio);
+        anonymousButtonGroup.add(anonymousNoRadio);
+
+        usernameLabel = new JLabel();
+        usernameLabel.setText("Username:");
+        usernameField = new MirthTextField();
+        usernameField.setToolTipText("The user name used to gain access to the server.");
+
+        passwordLabel = new JLabel();
+        passwordLabel.setText("Password:");
+        passwordField = new MirthPasswordField();
+        passwordField.setToolTipText("The password used to gain access to the server.");
+
+        timeoutLabel = new JLabel();
+        timeoutLabel.setText("Timeout (ms):");
+        timeoutField = new MirthTextField();
+        timeoutField.setToolTipText("The socket timeout (in ms) for connecting to the server.");
+
+        secureModeLabel = new JLabel();
+        secureModeLabel.setText("Secure Mode:");
+
+        secureModeYesRadio = new MirthRadioButton();
+        secureModeYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        secureModeYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        secureModeYesRadio.setText("Yes");
+        secureModeYesRadio.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
+        secureModeYesRadio.setMargin(new Insets(0, 0, 0, 0));
+        secureModeYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                secureModeYesActionPerformed(evt);
+            }
+        });
+
+        secureModeNoRadio = new MirthRadioButton();
+        secureModeNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        secureModeNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        secureModeNoRadio.setSelected(true);
+        secureModeNoRadio.setText("No");
+        secureModeNoRadio.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
+        secureModeNoRadio.setMargin(new Insets(0, 0, 0, 0));
+        secureModeNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                secureModeNoActionPerformed(evt);
+            }
+        });
+
+        secureModeButtonGroup = new ButtonGroup();
+        secureModeButtonGroup.add(secureModeYesRadio);
+        secureModeButtonGroup.add(secureModeNoRadio);
+
+        passiveModeLabel = new JLabel();
+        passiveModeLabel.setText("Passive Mode:");
+
+        passiveModeYesRadio = new MirthRadioButton();
+        passiveModeYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        passiveModeYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        passiveModeYesRadio.setText("Yes");
+        passiveModeYesRadio.setToolTipText("<html>Select Yes to connect to the server in \"passive mode\".<br>Passive mode sometimes allows a connection through a firewall that normal mode does not.</html>");
+        passiveModeYesRadio.setMargin(new Insets(0, 0, 0, 0));
+
+        passiveModeNoRadio = new MirthRadioButton();
+        passiveModeNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        passiveModeNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        passiveModeNoRadio.setSelected(true);
+        passiveModeNoRadio.setText("No");
+        passiveModeNoRadio.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
+        passiveModeNoRadio.setMargin(new Insets(0, 0, 0, 0));
+
+        passiveModeButtonGroup = new ButtonGroup();
+        passiveModeButtonGroup.add(passiveModeYesRadio);
+        passiveModeButtonGroup.add(passiveModeNoRadio);
+
+        validateConnectionLabel = new JLabel();
+        validateConnectionLabel.setText("Validate Connection:");
+
+        validateConnectionYesRadio = new MirthRadioButton();
+        validateConnectionYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        validateConnectionYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        validateConnectionYesRadio.setText("Yes");
+        validateConnectionYesRadio.setToolTipText("Select Yes to test the connection to the server before each operation.");
+        validateConnectionYesRadio.setMargin(new Insets(0, 0, 0, 0));
+
+        validateConnectionNoRadio = new MirthRadioButton();
+        validateConnectionNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        validateConnectionNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        validateConnectionNoRadio.setText("No");
+        validateConnectionNoRadio.setToolTipText("Select No to skip testing the connection to the server before each operation.");
+        validateConnectionNoRadio.setMargin(new Insets(0, 0, 0, 0));
+
+        validateConnectionButtonGroup = new ButtonGroup();
+        validateConnectionButtonGroup.add(validateConnectionYesRadio);
+        validateConnectionButtonGroup.add(validateConnectionNoRadio);
+
+        afterProcessingActionLabel = new JLabel();
+        afterProcessingActionLabel.setText("After Processing Action:");
+
+        afterProcessingActionComboBox = new MirthComboBox();
+        afterProcessingActionComboBox.setModel(new DefaultComboBoxModel(new String[] { "None",
+                "Move", "Delete" }));
+        afterProcessingActionComboBox.setToolTipText("<html>Select Move to move and/or rename the file after successful processing.<br/>Select Delete to delete the file after successful processing.</html>");
+        afterProcessingActionComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                afterProcessingActionComboBoxActionPerformed(evt);
+            }
+        });
+
+        moveToDirectoryLabel = new JLabel();
+        moveToDirectoryLabel.setText("Move-to Directory:");
+        moveToDirectoryField = new MirthTextField();
+        moveToDirectoryField.setToolTipText("<html>If successfully processed files should be moved to a different directory (folder), enter that directory here.<br>The directory name specified may include template substitutions from the list to the right.<br>If this field is left empty, successfully processed files will not be moved to a different directory.</html>");
+
+        moveToFileNameLabel = new JLabel();
+        moveToFileNameLabel.setText("Move-to File Name:");
+        moveToFileNameField = new MirthTextField();
+        moveToFileNameField.setToolTipText("<html>If successfully processed files should be renamed, enter the new name here.<br>The filename specified may include template substitutions from the list to the right.<br>If this field is left empty, successfully processed files will not be renamed.</html>");
+
+        errorReadingActionLabel = new JLabel();
+        errorReadingActionLabel.setText("Error Reading Action:");
+
+        errorReadingActionComboBox = new MirthComboBox();
+        errorReadingActionComboBox.setModel(new DefaultComboBoxModel(new String[] { "None", "Move",
+                "Delete" }));
+        errorReadingActionComboBox.setToolTipText("<html>Select Move to move and/or rename files that have failed to be read in.<br/>Select Delete to delete files that have failed to be read in.</html>");
+        errorReadingActionComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                errorReadingActionComboBoxActionPerformed(evt);
+            }
+        });
+
+        errorResponseActionLabel = new JLabel();
+        errorResponseActionLabel.setText("Error in Response Action:");
+
+        errorResponseActionComboBox = new MirthComboBox();
+        errorResponseActionComboBox.setModel(new DefaultComboBoxModel(new String[] {
+                "After Processing Action", "Move", "Delete" }));
+        errorResponseActionComboBox.setToolTipText("<html>Select Move to move and/or rename the file if an ERROR response is returned.<br/>Select Delete to delete the file if an ERROR response is returned.<br/>If After Processing Action is selected, the After Processing Action will apply.<br/>This action is only available if Process Batch Files is disabled.</html>");
+        errorResponseActionComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                errorResponseActionComboBoxActionPerformed(evt);
+            }
+        });
+
+        errorMoveToDirectoryLabel = new JLabel();
+        errorMoveToDirectoryLabel.setText("Error Move-to Directory:");
+        errorMoveToDirectoryField = new MirthTextField();
+        errorMoveToDirectoryField.setToolTipText("<html>If files which cause processing errors should be moved to a different directory (folder), enter that directory here.<br>The directory name specified may include template substitutions from the list to the right.<br>If this field is left empty, files which cause processing errors will not be moved to a different directory.</html>");
+
+        errorMoveToFileNameLabel = new JLabel();
+        errorMoveToFileNameLabel.setText("Error Move-to File Name:");
+        errorMoveToFileNameField = new MirthTextField();
+        errorMoveToFileNameField.setToolTipText("<html>If files which cause processing errors should be renamed, enter the new name here.<br/>The filename specified may include template substitutions from the list to the right.<br/>If this field is left empty, files which cause processing errors will not be renamed.</html>");
+
+        variableListScrollPane = new JScrollPane();
+        variableListScrollPane.setBorder(null);
+        variableListScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        variableListScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
+        mirthVariableList = new MirthVariableList();
+        mirthVariableList.setBorder(BorderFactory.createEtchedBorder());
+        mirthVariableList.setModel(new AbstractListModel() {
+            String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "originalFilename" };
+
+            public int getSize() {
+                return strings.length;
+            }
+
+            public Object getElementAt(int i) {
+                return strings[i];
+            }
+        });
+        variableListScrollPane.setViewportView(mirthVariableList);
+
+        checkFileAgeLabel = new JLabel();
+        checkFileAgeLabel.setText("Check File Age:");
+
+        checkFileAgeYesRadio = new MirthRadioButton();
+        checkFileAgeYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        checkFileAgeYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        checkFileAgeYesRadio.setText("Yes");
+        checkFileAgeYesRadio.setToolTipText("Select Yes to skip files that are created within the specified age below.");
+        checkFileAgeYesRadio.setMargin(new Insets(0, 0, 0, 0));
+        checkFileAgeYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                checkFileAgeYesActionPerformed(evt);
+            }
+        });
+
+        checkFileAgeNoRadio = new MirthRadioButton();
+        checkFileAgeNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        checkFileAgeNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        checkFileAgeNoRadio.setSelected(true);
+        checkFileAgeNoRadio.setText("No");
+        checkFileAgeNoRadio.setToolTipText("Select No to process files regardless of age.");
+        checkFileAgeNoRadio.setMargin(new Insets(0, 0, 0, 0));
+        checkFileAgeNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                checkFileAgeNoActionPerformed(evt);
+            }
+        });
+
+        checkFileAgeButtonGroup = new ButtonGroup();
+        checkFileAgeButtonGroup.add(checkFileAgeYesRadio);
+        checkFileAgeButtonGroup.add(checkFileAgeNoRadio);
+
+        fileAgeLabel = new JLabel();
+        fileAgeLabel.setText("File Age (ms):");
+        fileAgeField = new MirthTextField();
+        fileAgeField.setToolTipText("If Check File Age Yes is selected, only the files created that are older than the specified value in milliseconds will be processed.");
+
+        fileSizeLabel = new JLabel();
         fileSizeLabel.setText("File Size (bytes):");
-
+        fileSizeMinimumField = new MirthTextField();
         fileSizeMinimumField.setToolTipText("<html>The minimum size (in bytes) of files to be accepted.</html>");
-
+        fileSizeDashLabel = new JLabel();
         fileSizeDashLabel.setText("-");
-
+        fileSizeMaximumField = new MirthTextField();
         fileSizeMaximumField.setToolTipText("<html>The maximum size (in bytes) of files to be accepted.<br/>This option has no effect if Ignore Maximum is checked.</html>");
-
-        ignoreFileSizeMaximumCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        ignoreFileSizeMaximumCheckBox = new MirthCheckBox();
+        ignoreFileSizeMaximumCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);
         ignoreFileSizeMaximumCheckBox.setText("Ignore Maximum");
         ignoreFileSizeMaximumCheckBox.setToolTipText("<html>If checked, only the minimum file size will be checked against incoming files.</html>");
-        ignoreFileSizeMaximumCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        ignoreFileSizeMaximumCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 ignoreFileSizeMaximumCheckBoxActionPerformed(evt);
             }
         });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(hostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(schemeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(directoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(filenameFilterLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(directoryRecursionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(ignoreDotFilesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(anonymousLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(timeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(secureModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passiveModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(validateConnectionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(afterProcessingActionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(moveToDirectoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(moveToFileNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(moveToFileLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(errorResponseActionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(errorMoveToDirectoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(errorMoveToFileNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(checkFileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fileSizeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sortFilesByLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fileTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(encodingLabel, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(fileNameFilter, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(filenameFilterRegexCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pathLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(schemeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(testConnection))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(directoryRecursionYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(directoryRecursionNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(ignoreDotFilesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ignoreDotFilesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(anonymousYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(secureModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(secureModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(validateConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(afterProcessingActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(moveToDirectoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(moveToFileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(errorReadingActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(errorResponseActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(errorMoveToDirectoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(errorMoveToFileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(checkFileAgeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(fileSizeMinimumField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fileSizeDashLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fileSizeMaximumField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ignoreFileSizeMaximumCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(62, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(schemeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(schemeLabel)
-                    .addComponent(testConnection))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(directoryLabel)
-                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(hostLabel)
-                    .addComponent(pathLabel)
-                    .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(filenameFilterLabel)
-                    .addComponent(fileNameFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(filenameFilterRegexCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(directoryRecursionLabel)
-                    .addComponent(directoryRecursionYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(directoryRecursionNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ignoreDotFilesLabel)
-                    .addComponent(ignoreDotFilesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ignoreDotFilesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(anonymousLabel)
-                    .addComponent(anonymousYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameLabel)
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passwordLabel)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(timeoutLabel)
-                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(secureModeLabel)
-                    .addComponent(secureModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(secureModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passiveModeLabel)
-                    .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(validateConnectionLabel)
-                    .addComponent(validateConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(afterProcessingActionLabel)
-                    .addComponent(afterProcessingActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(moveToDirectoryLabel)
-                            .addComponent(moveToDirectoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(moveToFileNameLabel)
-                            .addComponent(moveToFileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(moveToFileLabel1)
-                            .addComponent(errorReadingActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(errorResponseActionLabel)
-                            .addComponent(errorResponseActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(errorMoveToDirectoryLabel)
-                            .addComponent(errorMoveToDirectoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(errorMoveToFileNameLabel)
-                            .addComponent(errorMoveToFileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(checkFileAgeLabel)
-                            .addComponent(checkFileAgeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(fileAgeLabel)
-                            .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(fileSizeLabel)
-                    .addComponent(fileSizeMinimumField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fileSizeDashLabel)
-                    .addComponent(fileSizeMaximumField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ignoreFileSizeMaximumCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sortFilesByLabel)
-                    .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(fileTypeLabel)
-                    .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(encodingLabel)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-    }// </editor-fold>//GEN-END:initComponents
+        sortFilesByLabel = new JLabel();
+        sortFilesByLabel.setText("Sort Files By:");
+        sortByComboBox = new MirthComboBox();
+        sortByComboBox.setModel(new DefaultComboBoxModel(new String[] { "Date", "Name", "Size" }));
+        sortByComboBox.setToolTipText("<html>Selects the order in which files should be processed, if there are multiple files available to be processed.<br>Files can be processed by Date (oldest last modification date first), Size (smallest first) or name (a before z, etc.).</html>");
 
-    private void anonymousNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anonymousNoActionPerformed
+        fileTypeLabel = new JLabel();
+        fileTypeLabel.setText("File Type:");
 
+        fileTypeBinary = new MirthRadioButton();
+        fileTypeBinary.setBackground(UIConstants.BACKGROUND_COLOR);
+        fileTypeBinary.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        fileTypeBinary.setText("Binary");
+        fileTypeBinary.setToolTipText("<html>Select Binary if files contain binary data; the contents will be Base64 encoded before processing.<br>Select Text if files contain text data; the contents will be encoded using the specified character set encoding.</html>");
+        fileTypeBinary.setMargin(new Insets(0, 0, 0, 0));
+        fileTypeBinary.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                fileTypeBinaryActionPerformed(evt);
+            }
+        });
+
+        fileTypeText = new MirthRadioButton();
+        fileTypeText.setBackground(UIConstants.BACKGROUND_COLOR);
+        fileTypeText.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        fileTypeText.setSelected(true);
+        fileTypeText.setText("Text");
+        fileTypeText.setToolTipText("<html>Select Binary if files contain binary data; the contents will be Base64 encoded before processing.<br>Select Text if files contain text data; the contents will be encoded using the specified character set encoding.</html>");
+        fileTypeText.setMargin(new Insets(0, 0, 0, 0));
+        fileTypeText.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                fileTypeASCIIActionPerformed(evt);
+            }
+        });
+
+        fileTypeButtonGroup = new ButtonGroup();
+        fileTypeButtonGroup.add(fileTypeBinary);
+        fileTypeButtonGroup.add(fileTypeText);
+
+        encodingLabel = new JLabel();
+        encodingLabel.setText("Encoding:");
+
+        charsetEncodingComboBox = new MirthComboBox();
+        charsetEncodingComboBox.setModel(new DefaultComboBoxModel(new String[] { "Default",
+                "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
+        charsetEncodingComboBox.setToolTipText("If File Type Text is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file.");
+    }
+
+    private void initLayout() {
+        JPanel topPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 13 0 0", "[right]12[left]"));
+        topPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        topPanel.add(schemeLabel);
+        topPanel.add(schemeComboBox, "split 3");
+        topPanel.add(testConnectionButton);
+        topPanel.add(advancedSettingsButton, "h 22!, w 22!, wrap");
+
+        topPanel.add(summaryLabel);
+        topPanel.add(summaryField, "growx, wrap");
+
+        topPanel.add(directoryLabel);
+        topPanel.add(directoryField, "w 200!, wrap");
+
+        topPanel.add(hostLabel);
+        topPanel.add(hostField, "w 200!, split 3");
+        topPanel.add(pathLabel, "gapleft 14");
+        topPanel.add(pathField, "gapleft 14, w 200!, wrap");
+
+        topPanel.add(filenameFilterLabel);
+        topPanel.add(fileNameFilterField, "w 200!, split 2");
+        topPanel.add(filenameFilterRegexCheckBox, "gapleft 8, wrap");
+
+        topPanel.add(directoryRecursionLabel);
+        topPanel.add(directoryRecursionYesRadio, "split 2");
+        topPanel.add(directoryRecursionNoRadio, "wrap");
+
+        topPanel.add(ignoreDotFilesLabel);
+        topPanel.add(ignoreDotFilesYesRadio, "split 2");
+        topPanel.add(ignoreDotFilesNoRadio, "wrap");
+
+        topPanel.add(anonymousLabel);
+        topPanel.add(anonymousYesRadio, "split 2");
+        topPanel.add(anonymousNoRadio, "wrap");
+
+        topPanel.add(usernameLabel);
+        topPanel.add(usernameField, "w 125!, wrap");
+
+        topPanel.add(passwordLabel);
+        topPanel.add(passwordField, "w 125!, wrap");
+
+        topPanel.add(timeoutLabel);
+        topPanel.add(timeoutField, "w 75!, wrap");
+
+        topPanel.add(secureModeLabel);
+        topPanel.add(secureModeYesRadio, "split 2");
+        topPanel.add(secureModeNoRadio, "wrap");
+
+        topPanel.add(passiveModeLabel);
+        topPanel.add(passiveModeYesRadio, "split 2");
+        topPanel.add(passiveModeNoRadio, "wrap");
+
+        topPanel.add(validateConnectionLabel);
+        topPanel.add(validateConnectionYesRadio, "split 2");
+        topPanel.add(validateConnectionNoRadio, "wrap");
+
+        topPanel.add(afterProcessingActionLabel);
+        topPanel.add(afterProcessingActionComboBox, "w 55!, wrap");
+        add(topPanel, "wrap");
+
+        JPanel splitPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 18 0 0", "[right]12[left]"));
+        splitPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        splitPanel.add(moveToDirectoryLabel);
+        splitPanel.add(moveToDirectoryField, "w 250!, wrap");
+
+        splitPanel.add(moveToFileNameLabel);
+        splitPanel.add(moveToFileNameField, "w 250!, wrap");
+
+        splitPanel.add(errorReadingActionLabel);
+        splitPanel.add(errorReadingActionComboBox, "w 55!, wrap");
+
+        splitPanel.add(errorResponseActionLabel);
+        splitPanel.add(errorResponseActionComboBox, "w 140!, wrap");
+
+        splitPanel.add(errorMoveToDirectoryLabel);
+        splitPanel.add(errorMoveToDirectoryField, "w 250!, wrap");
+
+        splitPanel.add(errorMoveToFileNameLabel);
+        splitPanel.add(errorMoveToFileNameField, "w 250!, wrap");
+
+        add(splitPanel, "split 2");
+        add(variableListScrollPane, "aligny top, growy, wrap");
+
+        JPanel bottomPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 60 0 0", "[right]12[left]"));
+        bottomPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        bottomPanel.add(checkFileAgeLabel);
+        bottomPanel.add(checkFileAgeYesRadio, "split 2");
+        bottomPanel.add(checkFileAgeNoRadio, "wrap");
+
+        bottomPanel.add(checkFileAgeLabel);
+        bottomPanel.add(checkFileAgeYesRadio, "split 2");
+        bottomPanel.add(checkFileAgeNoRadio, "wrap");
+
+        bottomPanel.add(fileAgeLabel);
+        bottomPanel.add(fileAgeField, "w 75!, wrap");
+
+        bottomPanel.add(fileSizeLabel);
+        bottomPanel.add(fileSizeMinimumField, "w 75!, split 4");
+        bottomPanel.add(fileSizeDashLabel);
+        bottomPanel.add(fileSizeMaximumField, "w 75!");
+        bottomPanel.add(ignoreFileSizeMaximumCheckBox, "wrap");
+
+        bottomPanel.add(sortFilesByLabel);
+        bottomPanel.add(sortByComboBox, "w 75!, wrap");
+
+        bottomPanel.add(fileTypeLabel);
+        bottomPanel.add(fileTypeBinary, "split 2");
+        bottomPanel.add(fileTypeText, "wrap");
+
+        bottomPanel.add(encodingLabel);
+        bottomPanel.add(charsetEncodingComboBox, "w 125!");
+
+        add(bottomPanel);
+    }
+
+    private void anonymousNoActionPerformed(ActionEvent evt) {
         usernameLabel.setEnabled(true);
         usernameField.setEnabled(true);
 
         passwordLabel.setEnabled(true);
         passwordField.setEnabled(true);
+    }
 
-    }//GEN-LAST:event_anonymousNoActionPerformed
-
-    private void anonymousYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anonymousYesActionPerformed
-
+    private void anonymousYesActionPerformed(ActionEvent evt) {
         usernameLabel.setEnabled(false);
         usernameField.setEnabled(false);
         usernameField.setText("anonymous");
@@ -1061,18 +988,17 @@ public class FileReader extends ConnectorSettingsPanel {
         passwordLabel.setEnabled(false);
         passwordField.setEnabled(false);
         passwordField.setText("anonymous");
-
-    }//GEN-LAST:event_anonymousYesActionPerformed
+    }
 
     private void onSchemeChange(boolean enableHost, boolean anonymous, FileScheme scheme) {
         // act like the appropriate Anonymous button was selected.
         if (anonymous) {
-            anonymousNo.setSelected(false);
-            anonymousYes.setSelected(true);
+            anonymousNoRadio.setSelected(false);
+            anonymousYesRadio.setSelected(true);
             anonymousYesActionPerformed(null);
         } else {
-            anonymousNo.setSelected(true);
-            anonymousYes.setSelected(false);
+            anonymousNoRadio.setSelected(true);
+            anonymousYesRadio.setSelected(false);
             anonymousNoActionPerformed(null);
         }
 
@@ -1085,145 +1011,154 @@ public class FileReader extends ConnectorSettingsPanel {
 
         // reset the other fields.
         anonymousLabel.setEnabled(false);
-        anonymousYes.setEnabled(false);
-        anonymousNo.setEnabled(false);
+        anonymousYesRadio.setEnabled(false);
+        anonymousNoRadio.setEnabled(false);
         passiveModeLabel.setEnabled(false);
-        passiveModeYes.setEnabled(false);
-        passiveModeNo.setEnabled(false);
+        passiveModeYesRadio.setEnabled(false);
+        passiveModeNoRadio.setEnabled(false);
         validateConnectionLabel.setEnabled(false);
-        validateConnectionYes.setEnabled(false);
-        validateConnectionNo.setEnabled(false);
+        validateConnectionYesRadio.setEnabled(false);
+        validateConnectionNoRadio.setEnabled(false);
         secureModeLabel.setEnabled(false);
-        secureModeYes.setEnabled(false);
-        secureModeNo.setEnabled(false);
+        secureModeYesRadio.setEnabled(false);
+        secureModeNoRadio.setEnabled(false);
         timeoutLabel.setEnabled(false);
         timeoutField.setEnabled(false);
+        advancedSettingsButton.setEnabled(false);
 
         if (scheme.equals(FileScheme.FTP)) {
             anonymousLabel.setEnabled(true);
-            anonymousYes.setEnabled(true);
-            anonymousNo.setEnabled(true);
+            anonymousYesRadio.setEnabled(true);
+            anonymousNoRadio.setEnabled(true);
             passiveModeLabel.setEnabled(true);
-            passiveModeYes.setEnabled(true);
-            passiveModeNo.setEnabled(true);
+            passiveModeYesRadio.setEnabled(true);
+            passiveModeNoRadio.setEnabled(true);
             validateConnectionLabel.setEnabled(true);
-            validateConnectionYes.setEnabled(true);
-            validateConnectionNo.setEnabled(true);
+            validateConnectionYesRadio.setEnabled(true);
+            validateConnectionNoRadio.setEnabled(true);
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
         } else if (scheme.equals(FileScheme.SFTP)) {
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
+            advancedSettingsButton.setEnabled(true);
         } else if (scheme.equals(FileScheme.WEBDAV)) {
             anonymousLabel.setEnabled(true);
-            anonymousYes.setEnabled(true);
-            anonymousNo.setEnabled(true);
+            anonymousYesRadio.setEnabled(true);
+            anonymousNoRadio.setEnabled(true);
             secureModeLabel.setEnabled(true);
-            secureModeYes.setEnabled(true);
-            secureModeNo.setEnabled(true);
+            secureModeYesRadio.setEnabled(true);
+            secureModeNoRadio.setEnabled(true);
 
             // set Passive Mode and validate connection to No.
-            passiveModeNo.setSelected(true);
-            validateConnectionNo.setSelected(true);
+            passiveModeNoRadio.setSelected(true);
         } else if (scheme.equals(FileScheme.SMB)) {
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
         }
     }
 
-    private void schemeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_schemeComboBoxActionPerformed
+    private void advancedFileSettingsActionPerformed() {
+        if (advancedSettingsDialog != null) {
+            advancedSettingsDialog.setDialogVisible(true);
+            setSummaryText();
+        }
+    }
 
+    private void schemeComboBoxActionPerformed(ActionEvent evt) {
         String text = (String) schemeComboBox.getSelectedItem();
 
-        // if File is selected
-        if (text.equals(FileScheme.FILE.getDisplayName())) {
-
-            onSchemeChange(false, true, FileScheme.FILE);
-            hostField.setText("");
-        } // else if FTP is selected
-        else if (text.equals(FileScheme.FTP.getDisplayName())) {
-
-            onSchemeChange(true, anonymousYes.isSelected(), FileScheme.FTP);
-            hostLabel.setText("ftp://");
-        } // else if SFTP is selected
-        else if (text.equals(FileScheme.SFTP.getDisplayName())) {
-
-            onSchemeChange(true, false, FileScheme.SFTP);
-            hostLabel.setText("sftp://");
-        } // else if SMB is selected
-        else if (text.equals(FileScheme.SMB.getDisplayName())) {
-
-            onSchemeChange(true, false, FileScheme.SMB);
-            hostLabel.setText("smb://");
-        } // else if WEBDAV is selected
-        else if (text.equals(FileScheme.WEBDAV.getDisplayName())) {
-
-            onSchemeChange(true, anonymousYes.isSelected(), FileScheme.WEBDAV);
-            if (secureModeYes.isSelected()) {
-                hostLabel.setText("https://");
-            } else {
-                hostLabel.setText("http://");
+        if (!text.equals(selectedScheme)) {
+            if (StringUtils.isNotEmpty(selectedScheme) && advancedSettingsDialog != null && !advancedSettingsDialog.isDefaultProperties()) {
+                if (JOptionPane.showConfirmDialog(parent, "Are you sure you would like to change the scheme mode and lose all of the current properties?", "Select an Option", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                    schemeComboBox.setSelectedItem(selectedScheme);
+                    return;
+                }
             }
+
+            initAdvancedSettingsDialog(text, null);
+
+            // if File is selected
+            if (text.equals(FileScheme.FILE.getDisplayName())) {
+                onSchemeChange(false, true, FileScheme.FILE);
+                hostField.setText("");
+            } // else if FTP is selected
+            else if (text.equals(FileScheme.FTP.getDisplayName())) {
+                onSchemeChange(true, anonymousYesRadio.isSelected(), FileScheme.FTP);
+                hostLabel.setText("ftp://");
+            } // else if SFTP is selected
+            else if (text.equals(FileScheme.SFTP.getDisplayName())) {
+                onSchemeChange(true, false, FileScheme.SFTP);
+                hostLabel.setText("sftp://");
+            } // else if SMB is selected
+            else if (text.equals(FileScheme.SMB.getDisplayName())) {
+                onSchemeChange(true, false, FileScheme.SMB);
+                hostLabel.setText("smb://");
+            } // else if WEBDAV is selected
+            else if (text.equals(FileScheme.WEBDAV.getDisplayName())) {
+                onSchemeChange(true, anonymousYesRadio.isSelected(), FileScheme.WEBDAV);
+                hostLabel.setText("https://");
+            }
+
+            decorateConnectorType();
         }
 
-        decorateConnectorType();
-    }//GEN-LAST:event_schemeComboBoxActionPerformed
+        selectedScheme = text;
+    }
 
-    private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_fileTypeASCIIActionPerformed
-    {//GEN-HEADEREND:event_fileTypeASCIIActionPerformed
+    private void fileTypeASCIIActionPerformed(ActionEvent evt) {
         encodingLabel.setEnabled(true);
-        charsetEncodingCombobox.setEnabled(true);
-    }//GEN-LAST:event_fileTypeASCIIActionPerformed
+        charsetEncodingComboBox.setEnabled(true);
+    }
 
-    private void fileTypeBinaryActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_fileTypeBinaryActionPerformed
-    {//GEN-HEADEREND:event_fileTypeBinaryActionPerformed
+    private void fileTypeBinaryActionPerformed(ActionEvent evt) {
         encodingLabel.setEnabled(false);
-        charsetEncodingCombobox.setEnabled(false);
-        charsetEncodingCombobox.setSelectedIndex(0);
-    }//GEN-LAST:event_fileTypeBinaryActionPerformed
+        charsetEncodingComboBox.setEnabled(false);
+        charsetEncodingComboBox.setSelectedIndex(0);
+    }
 
-    private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
+    private void testConnectionActionPerformed(ActionEvent evt) {
         invokeConnectorService(FileServiceMethods.METHOD_TEST_READ, "Testing connection...", "Failed to invoke service: ");
-    }//GEN-LAST:event_testConnectionActionPerformed
+    }
 
-    private void secureModeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeYesActionPerformed
+    private void secureModeYesActionPerformed(ActionEvent evt) {
         // only WebDAV has access to here.
         // change host label to 'https://'
         hostLabel.setText("https://");
-    }//GEN-LAST:event_secureModeYesActionPerformed
+    }
 
-    private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeNoActionPerformed
+    private void secureModeNoActionPerformed(ActionEvent evt) {
         // only WebDAV has access to here.
         // change host label to 'http://'
         hostLabel.setText("http://");
-    }//GEN-LAST:event_secureModeNoActionPerformed
+    }
 
-    private void afterProcessingActionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_afterProcessingActionComboBoxActionPerformed
+    private void afterProcessingActionComboBoxActionPerformed(ActionEvent evt) {
         boolean enabled = (FileAction) afterProcessingActionComboBox.getSelectedItem() == FileAction.MOVE;
         moveToDirectoryLabel.setEnabled(enabled);
         moveToDirectoryField.setEnabled(enabled);
         moveToFileNameLabel.setEnabled(enabled);
         moveToFileNameField.setEnabled(enabled);
-    }//GEN-LAST:event_afterProcessingActionComboBoxActionPerformed
+    }
 
-    private void errorReadingActionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_errorReadingActionComboBoxActionPerformed
+    private void errorReadingActionComboBoxActionPerformed(ActionEvent evt) {
         updateErrorFields();
-    }//GEN-LAST:event_errorReadingActionComboBoxActionPerformed
+    }
 
-    private void errorResponseActionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_errorResponseActionComboBoxActionPerformed
+    private void errorResponseActionComboBoxActionPerformed(ActionEvent evt) {
         updateErrorFields();
-    }//GEN-LAST:event_errorResponseActionComboBoxActionPerformed
+    }
 
-    private void directoryRecursionYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_directoryRecursionYesRadioActionPerformed
+    private void directoryRecursionYesRadioActionPerformed(ActionEvent evt) {
         if (!parent.alertOption(parent, "<html>Including all subdirectories recursively is not recommended, especially if you are<br/>moving or deleting files.&nbsp;&nbsp;Are you sure you want to enable directory recursion?</html>")) {
             directoryRecursionNoRadio.setSelected(true);
         }
-    }//GEN-LAST:event_directoryRecursionYesRadioActionPerformed
+    }
 
-    private void ignoreFileSizeMaximumCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ignoreFileSizeMaximumCheckBoxActionPerformed
+    private void ignoreFileSizeMaximumCheckBoxActionPerformed(ActionEvent evt) {
         fileSizeDashLabel.setEnabled(!ignoreFileSizeMaximumCheckBox.isSelected());
         fileSizeMaximumField.setEnabled(!ignoreFileSizeMaximumCheckBox.isSelected());
-    }//GEN-LAST:event_ignoreFileSizeMaximumCheckBoxActionPerformed
+    }
 
     private void updateErrorFields() {
         FileAction readAction = (FileAction) errorReadingActionComboBox.getSelectedItem();
@@ -1235,105 +1170,98 @@ public class FileReader extends ConnectorSettingsPanel {
         errorMoveToFileNameField.setEnabled(enabled);
     }
 
-    private void processBatchFilesNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_processBatchFilesNoActionPerformed
-    {// GEN-HEADEREND:event_processBatchFilesNoActionPerformed
-        errorResponseActionComboBox.setEnabled(true);
-        errorResponseActionLabel.setEnabled(true);
-    }// GEN-LAST:event_processBatchFilesNoActionPerformed
-
-    private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
-    }// GEN-LAST:event_charsetEncodingComboboxActionPerformed
-
-    private void checkFileAgeNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_checkFileAgeNoActionPerformed
-    {// GEN-HEADEREND:event_checkFileAgeNoActionPerformed
+    private void checkFileAgeNoActionPerformed(ActionEvent evt) {
         fileAgeLabel.setEnabled(false);
-        fileAge.setEnabled(false);
-    }// GEN-LAST:event_checkFileAgeNoActionPerformed
+        fileAgeField.setEnabled(false);
+    }
 
-    private void checkFileAgeYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_checkFileAgeYesActionPerformed
-    {// GEN-HEADEREND:event_checkFileAgeYesActionPerformed
+    private void checkFileAgeYesActionPerformed(ActionEvent evt) {
         fileAgeLabel.setEnabled(true);
-        fileAge.setEnabled(true);
-    }// GEN-LAST:event_checkFileAgeYesActionPerformed
+        fileAgeField.setEnabled(true);
+    }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.mirth.connect.client.ui.components.MirthComboBox afterProcessingActionComboBox;
-    private javax.swing.JLabel afterProcessingActionLabel;
-    private javax.swing.JLabel anonymousLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton anonymousNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton anonymousYes;
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.ButtonGroup buttonGroup6;
-    private javax.swing.ButtonGroup buttonGroup7;
-    private javax.swing.ButtonGroup buttonGroup8;
-    private javax.swing.ButtonGroup buttonGroup9;
-    private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
-    private javax.swing.JLabel checkFileAgeLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton checkFileAgeNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton checkFileAgeYes;
-    private com.mirth.connect.client.ui.components.MirthTextField directoryField;
-    private javax.swing.JLabel directoryLabel;
-    private javax.swing.ButtonGroup directoryRecursionButtonGroup;
-    private javax.swing.JLabel directoryRecursionLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton directoryRecursionNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton directoryRecursionYesRadio;
-    private javax.swing.JLabel encodingLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField errorMoveToDirectoryField;
-    private javax.swing.JLabel errorMoveToDirectoryLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField errorMoveToFileNameField;
-    private javax.swing.JLabel errorMoveToFileNameLabel;
-    private com.mirth.connect.client.ui.components.MirthComboBox errorReadingActionComboBox;
-    private com.mirth.connect.client.ui.components.MirthComboBox errorResponseActionComboBox;
-    private javax.swing.JLabel errorResponseActionLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField fileAge;
-    private javax.swing.JLabel fileAgeLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField fileNameFilter;
-    private javax.swing.JLabel fileSizeDashLabel;
-    private javax.swing.JLabel fileSizeLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField fileSizeMaximumField;
-    private com.mirth.connect.client.ui.components.MirthTextField fileSizeMinimumField;
-    private com.mirth.connect.client.ui.components.MirthRadioButton fileTypeASCII;
-    private com.mirth.connect.client.ui.components.MirthRadioButton fileTypeBinary;
-    private javax.swing.JLabel fileTypeLabel;
-    private javax.swing.JLabel filenameFilterLabel;
-    private com.mirth.connect.client.ui.components.MirthCheckBox filenameFilterRegexCheckBox;
-    private com.mirth.connect.client.ui.components.MirthTextField hostField;
-    private javax.swing.JLabel hostLabel;
-    private javax.swing.ButtonGroup ignoreDotFilesButtonGroup;
-    private javax.swing.JLabel ignoreDotFilesLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton ignoreDotFilesNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton ignoreDotFilesYesRadio;
-    private com.mirth.connect.client.ui.components.MirthCheckBox ignoreFileSizeMaximumCheckBox;
-    private javax.swing.JScrollPane jScrollPane1;
-    private com.mirth.connect.client.ui.components.MirthVariableList mirthVariableList1;
-    private com.mirth.connect.client.ui.components.MirthTextField moveToDirectoryField;
-    private javax.swing.JLabel moveToDirectoryLabel;
-    private javax.swing.JLabel moveToFileLabel1;
-    private com.mirth.connect.client.ui.components.MirthTextField moveToFileNameField;
-    private javax.swing.JLabel moveToFileNameLabel;
-    private javax.swing.JLabel passiveModeLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton passiveModeNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton passiveModeYes;
-    private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
-    private javax.swing.JLabel passwordLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField pathField;
-    private javax.swing.JLabel pathLabel;
-    private com.mirth.connect.client.ui.components.MirthComboBox schemeComboBox;
-    private javax.swing.JLabel schemeLabel;
-    private javax.swing.JLabel secureModeLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton secureModeNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton secureModeYes;
-    private com.mirth.connect.client.ui.components.MirthComboBox sortBy;
-    private javax.swing.JLabel sortFilesByLabel;
-    private javax.swing.JButton testConnection;
-    private com.mirth.connect.client.ui.components.MirthTextField timeoutField;
-    private javax.swing.JLabel timeoutLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField usernameField;
-    private javax.swing.JLabel usernameLabel;
-    private javax.swing.JLabel validateConnectionLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton validateConnectionNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton validateConnectionYes;
-    // End of variables declaration//GEN-END:variables
+    private MirthComboBox afterProcessingActionComboBox;
+    private JLabel afterProcessingActionLabel;
+    private JLabel anonymousLabel;
+    private MirthRadioButton anonymousNoRadio;
+    private MirthRadioButton anonymousYesRadio;
+    private ButtonGroup anonymousButtonGroup;
+    private ButtonGroup checkFileAgeButtonGroup;
+    private ButtonGroup fileTypeButtonGroup;
+    private ButtonGroup secureModeButtonGroup;
+    private MirthComboBox charsetEncodingComboBox;
+    private JLabel checkFileAgeLabel;
+    private MirthRadioButton checkFileAgeNoRadio;
+    private MirthRadioButton checkFileAgeYesRadio;
+    private MirthTextField directoryField;
+    private JLabel directoryLabel;
+    private ButtonGroup directoryRecursionButtonGroup;
+    private JLabel directoryRecursionLabel;
+    private MirthRadioButton directoryRecursionNoRadio;
+    private MirthRadioButton directoryRecursionYesRadio;
+    private JLabel encodingLabel;
+    private MirthTextField errorMoveToDirectoryField;
+    private JLabel errorMoveToDirectoryLabel;
+    private MirthTextField errorMoveToFileNameField;
+    private JLabel errorMoveToFileNameLabel;
+    private MirthComboBox errorReadingActionComboBox;
+    private MirthComboBox errorResponseActionComboBox;
+    private JLabel errorResponseActionLabel;
+    private MirthTextField fileAgeField;
+    private JLabel fileAgeLabel;
+    private MirthTextField fileNameFilterField;
+    private JLabel fileSizeDashLabel;
+    private JLabel fileSizeLabel;
+    private MirthTextField fileSizeMaximumField;
+    private MirthTextField fileSizeMinimumField;
+    private MirthRadioButton fileTypeText;
+    private MirthRadioButton fileTypeBinary;
+    private JLabel fileTypeLabel;
+    private JLabel filenameFilterLabel;
+    private MirthCheckBox filenameFilterRegexCheckBox;
+    private MirthTextField hostField;
+    private JLabel hostLabel;
+    private ButtonGroup ignoreDotFilesButtonGroup;
+    private JLabel ignoreDotFilesLabel;
+    private MirthRadioButton ignoreDotFilesNoRadio;
+    private MirthRadioButton ignoreDotFilesYesRadio;
+    private MirthCheckBox ignoreFileSizeMaximumCheckBox;
+    private JScrollPane variableListScrollPane;
+    private MirthVariableList mirthVariableList;
+    private MirthTextField moveToDirectoryField;
+    private JLabel moveToDirectoryLabel;
+    private JLabel errorReadingActionLabel;
+    private MirthTextField moveToFileNameField;
+    private JLabel moveToFileNameLabel;
+    private MirthPasswordField passwordField;
+    private JLabel passwordLabel;
+    private MirthTextField pathField;
+    private JLabel pathLabel;
+    private MirthComboBox schemeComboBox;
+    private JLabel schemeLabel;
+    private MirthComboBox sortByComboBox;
+    private JLabel sortFilesByLabel;
+    private JButton testConnectionButton;
+    private MirthTextField timeoutField;
+    private JLabel timeoutLabel;
+    private MirthTextField usernameField;
+    private JLabel usernameLabel;
+
+    private JButton advancedSettingsButton;
+    private JLabel summaryLabel;
+    private JLabel summaryField;
+
+    private JLabel passiveModeLabel;
+    private MirthRadioButton passiveModeNoRadio;
+    private MirthRadioButton passiveModeYesRadio;
+    private ButtonGroup passiveModeButtonGroup;
+
+    private JLabel validateConnectionLabel;
+    private MirthRadioButton validateConnectionNoRadio;
+    private MirthRadioButton validateConnectionYesRadio;
+    private ButtonGroup validateConnectionButtonGroup;
+
+    private JLabel secureModeLabel;
+    private MirthRadioButton secureModeNoRadio;
+    private MirthRadioButton secureModeYesRadio;
 }
