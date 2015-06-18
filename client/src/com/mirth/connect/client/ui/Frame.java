@@ -54,6 +54,7 @@ import java.util.regex.Pattern;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -1072,7 +1073,7 @@ public class Frame extends JXFrame {
     public int addTask(String callbackMethod, String displayName, String toolTip, String shortcutKey, ImageIcon icon, JXTaskPane pane, JPopupMenu menu) {
         return addTask(callbackMethod, displayName, toolTip, shortcutKey, icon, pane, menu, this);
     }
-    
+
     /**
      * Initializes the bound method call for the task pane actions and adds them to the
      * taskpane/popupmenu.
@@ -1092,7 +1093,7 @@ public class Frame extends JXFrame {
         if (menu != null) {
             menu.add(boundAction);
         }
-        
+
         return (pane.getContentPane().getComponentCount() - 1);
     }
 
@@ -1122,6 +1123,40 @@ public class Frame extends JXFrame {
         } else {
             return false;
         }
+    }
+
+    public enum ConflictOption {
+        YES, YES_APPLY_ALL, NO, NO_APPLY_ALL;
+    }
+
+    /**
+     * Alerts the user with a conflict resolution dialog
+     */
+    public ConflictOption alertConflict(Component parentComponent, String message, int count) {
+        final JCheckBox conflictCheckbox = new JCheckBox("Do this for the next " + String.valueOf(count) + " conflicts");
+        conflictCheckbox.setSelected(false);
+
+        Object[] params = { message, conflictCheckbox };
+
+        int jOption = JOptionPane.showConfirmDialog(getVisibleComponent(parentComponent), params, "Select an Option", JOptionPane.YES_NO_OPTION);
+        boolean isSelected = conflictCheckbox.isSelected();
+
+        ConflictOption conflictOption = null;
+        if (jOption == JOptionPane.YES_OPTION) {
+            if (isSelected) {
+                conflictOption = ConflictOption.YES_APPLY_ALL;
+            } else {
+                conflictOption = ConflictOption.YES;
+            }
+        } else {
+            if (isSelected || jOption == -1) {
+                conflictOption = ConflictOption.NO_APPLY_ALL;
+            } else {
+                conflictOption = ConflictOption.NO;
+            }
+        }
+
+        return conflictOption;
     }
 
     /**
@@ -3034,7 +3069,7 @@ public class Frame extends JXFrame {
                 return;
             }
         } else {
-            if(!alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you want to deploy this channel?")) {
+            if (!alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you want to deploy this channel?")) {
                 return;
             }
         }
@@ -3491,29 +3526,57 @@ public class Frame extends JXFrame {
         int returnVal = exportFileChooser.showSaveDialog(this);
         File exportFile = null;
         File exportDirectory = null;
+        String exportPath = "/";
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
+
+            int exportCollisionCount = 0;
+            exportDirectory = exportFileChooser.getSelectedFile();
+            exportPath = exportDirectory.getAbsolutePath();
+
+            for (Channel channel : channelList) {
+                exportFile = new File(exportPath + "/" + channel.getName() + ".xml");
+
+                if (exportFile.exists()) {
+                    exportCollisionCount++;
+                }
+            }
+
             try {
                 int exportCount = 0;
-                exportDirectory = exportFileChooser.getSelectedFile();
 
-                for (Channel channel : channelList) {
-                    ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                    String channelXML = serializer.serialize(channel);
-
-                    exportFile = new File(exportDirectory.getAbsolutePath() + "/" + channel.getName() + ".xml");
+                boolean overwriteAll = false;
+                boolean skipAll = false;
+                for (int i = 0, size = channelList.size(); i < size && !skipAll; i++) {
+                    Channel channel = channelList.get(i);
+                    exportFile = new File(exportPath + "/" + channel.getName() + ".xml");
 
                     if (exportFile.exists()) {
-                        if (!alertOption(this, "The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?")) {
-                            continue;
-                        }
-                    }
+                        if (!overwriteAll) {
+                            ConflictOption conflictStatus = alertConflict(PlatformUI.MIRTH_FRAME, "<html>The file " + channel.getName() + ".xml already exists.<br>Would you like to overwrite it?</html>", exportCollisionCount);
 
-                    FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
-                    exportCount++;
+                            if (conflictStatus == ConflictOption.YES_APPLY_ALL) {
+                                overwriteAll = true;
+                            } else if (conflictStatus == ConflictOption.NO) {
+                                exportCollisionCount--;
+                                continue;
+                            } else if (conflictStatus == ConflictOption.NO_APPLY_ALL) {
+                                skipAll = true;
+                                continue;
+                            }
+                        }
+
+                        String channelXML = ObjectXMLSerializer.getInstance().serialize(channel);
+                        FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
+                        exportCount++;
+                        exportCollisionCount--;
+                    }
                 }
-                alertInformation(this, exportCount + " files were written successfully to " + exportDirectory.getPath() + ".");
+
+                if (exportCount > 0) {
+                    alertInformation(this, exportCount + " files were written successfully to " + exportPath + ".");
+                }
             } catch (IOException ex) {
                 alertError(this, "File could not be written.");
             }
