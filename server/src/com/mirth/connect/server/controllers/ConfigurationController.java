@@ -291,4 +291,6 @@ public abstract class ConfigurationController extends Controller {
     public abstract String getResources();
 
     public abstract void setResources(String resources);
+
+    public abstract Object sendTestEmail(Properties properties) throws Exception;
 }

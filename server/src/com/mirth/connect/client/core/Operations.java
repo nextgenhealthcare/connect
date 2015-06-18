@@ -75,6 +75,7 @@ public class Operations {
     public static final Operation CONFIGURATION_STATUS_GET = new Operation("getStatus", "Get status", true);
     public static final Operation CONFIGURATION_MAP_GET = new Operation("getConfigurationMap", "Get configuration map", true);
     public static final Operation CONFIGURATION_MAP_SET = new Operation("setConfigurationMap", "Set configuration map", true);
+    public static final Operation CONFIGURATION_SERVER_SEND_EMAIL = new Operation("sendTestEmail", "Send Test Email", false);
 
     // Engine
     public static final Operation CHANNEL_DEPLOY = new Operation("deployChannels", "Deploy channels", true);
@@ -200,6 +201,7 @@ public class Operations {
         operationMap.put(CONFIGURATION_STATUS_GET.getName(), CONFIGURATION_STATUS_GET);
         operationMap.put(CONFIGURATION_MAP_GET.getName(), CONFIGURATION_MAP_GET);
         operationMap.put(CONFIGURATION_MAP_SET.getName(), CONFIGURATION_MAP_SET);
+        operationMap.put(CONFIGURATION_SERVER_SEND_EMAIL.getName(), CONFIGURATION_SERVER_SEND_EMAIL);
         operationMap.put(CHANNEL_DEPLOY.getName(), CHANNEL_DEPLOY);
         operationMap.put(CHANNEL_REDEPLOY.getName(), CHANNEL_REDEPLOY);
         operationMap.put(CHANNEL_UNDEPLOY.getName(), CHANNEL_UNDEPLOY);

@@ -600,7 +600,19 @@ public class Client {
         serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
-    /**
+   /**
+     * Sends a test email.
+     * 
+     * @param settings
+     * @throws ClientException
+     */
+    public synchronized Object sendTestEmail(Properties properties) throws ClientException {
+        logger.debug("updating server settings");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_SERVER_SEND_EMAIL.getName()), new BasicNameValuePair("data", serializer.serialize(properties)) };
+        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), Object.class);
+    }
+
+   /**
      * Returns an UpdateSettings object with all update settings.
      * 
      * @return

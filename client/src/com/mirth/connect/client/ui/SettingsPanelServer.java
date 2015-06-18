@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import javax.mail.internet.InternetAddress;
 import javax.swing.ImageIcon;
@@ -35,6 +36,7 @@ import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.DefaultMetaData;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 public class SettingsPanelServer extends AbstractSettingsPanel {
 
@@ -98,7 +100,9 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         final UpdateSettings updateSettings = getUpdateSettings();
 
         // Integer queueBufferSize will be null if it was invalid
+        queueBufferSizeField.setBackground(null);
         if (serverSettings.getQueueBufferSize() == null) {
+            queueBufferSizeField.setBackground(UIConstants.INVALID_COLOR);
             getFrame().alertWarning(this, "Please enter a valid queue buffer size.");
             return false;
         }
@@ -242,6 +246,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         } else {
             passwordField.setText("");
         }
+        resetInvalidSettings();
     }
 
     public void setUpdateSettings(UpdateSettings updateSettings) {
@@ -471,6 +476,16 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         }
     }
 
+    private void resetInvalidSettings() {
+        queueBufferSizeField.setBackground(null);
+        smtpHostField.setBackground(null);
+        smtpPortField.setBackground(null);
+        smtpTimeoutField.setBackground(null);
+        defaultFromAddressField.setBackground(null);
+        usernameField.setBackground(null);
+        passwordField.setBackground(null);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -504,6 +519,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         secureConnectionSSLRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         smtpTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         smtpTimeoutLabel = new javax.swing.JLabel();
+        testEmailButton = new javax.swing.JButton();
         generalPanel = new javax.swing.JPanel();
         provideUsageStatsLabel = new javax.swing.JLabel();
         provideUsageStatsYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -603,6 +619,13 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         smtpTimeoutLabel.setText("Send Timeout (ms):");
 
+        testEmailButton.setText("Send Test Email");
+        testEmailButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                testEmailButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout emailPanelLayout = new javax.swing.GroupLayout(emailPanel);
         emailPanel.setLayout(emailPanelLayout);
         emailPanelLayout.setHorizontalGroup(
@@ -621,7 +644,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(smtpTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(emailPanelLayout.createSequentialGroup()
+                        .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(testEmailButton))
                     .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(defaultFromAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(emailPanelLayout.createSequentialGroup()
@@ -646,7 +672,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             .addGroup(emailPanelLayout.createSequentialGroup()
                 .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(smtpHostLabel))
+                    .addComponent(smtpHostLabel)
+                    .addComponent(testEmailButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -877,6 +904,103 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         passwordLabel.setEnabled(true);
     }//GEN-LAST:event_requireAuthenticationYesRadioActionPerformed
 
+    private void testEmailButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testEmailButtonActionPerformed
+        resetInvalidSettings();
+        ServerSettings serverSettings = getServerSettings();
+        StringBuilder invalidFields = new StringBuilder();
+
+        if (StringUtils.isBlank(serverSettings.getSmtpHost())) {
+            smtpHostField.setBackground(UIConstants.INVALID_COLOR);
+            invalidFields.append("\"SMTP Host\" is required\n");
+        }
+
+        if (StringUtils.isBlank(serverSettings.getSmtpPort())) {
+            smtpPortField.setBackground(UIConstants.INVALID_COLOR);
+            invalidFields.append("\"SMTP Port\" is required\n");
+        }
+
+        if (StringUtils.isBlank(serverSettings.getSmtpTimeout())) {
+            smtpTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            invalidFields.append("\"Send Timeout\" is required\n");
+        }
+
+        if (StringUtils.isBlank(serverSettings.getSmtpFrom())) {
+            defaultFromAddressField.setBackground(UIConstants.INVALID_COLOR);
+            invalidFields.append("\"Default From Address\" is required\n");
+        }
+
+        if (serverSettings.getSmtpAuth()) {
+            if (StringUtils.isBlank(serverSettings.getSmtpUsername())) {
+                usernameField.setBackground(UIConstants.INVALID_COLOR);
+                invalidFields.append("\"Username\" is required\n");
+            }
+
+            if (StringUtils.isBlank(serverSettings.getSmtpPassword())) {
+                passwordField.setBackground(UIConstants.INVALID_COLOR);
+                invalidFields.append("\"Password\" is required\n");
+            }
+        }
+
+        String errors = invalidFields.toString();
+        if (StringUtils.isNotBlank(errors)) {
+            PlatformUI.MIRTH_FRAME.alertCustomError(PlatformUI.MIRTH_FRAME, errors, "Please fix the following errors before sending a test email:");
+            return;
+        }
+
+        String sendToEmail = (String) JOptionPane.showInputDialog(PlatformUI.MIRTH_FRAME, "Send test email to:", "Send Test Email", JOptionPane.INFORMATION_MESSAGE, null, null, serverSettings.getSmtpFrom());
+
+        if (StringUtils.isNotBlank(sendToEmail)) {
+            try {
+                new InternetAddress(sendToEmail).validate();
+            } catch (Exception error) {
+                PlatformUI.MIRTH_FRAME.alertWarning(PlatformUI.MIRTH_FRAME, "The Send To Address is invalid: " + error.getMessage());
+                return;
+            }
+
+            final Properties properties = new Properties();
+            properties.put("port", serverSettings.getSmtpPort());
+            properties.put("encryption", serverSettings.getSmtpSecure());
+            properties.put("host", serverSettings.getSmtpHost());
+            properties.put("timeout", serverSettings.getSmtpTimeout());
+            properties.put("authentication", String.valueOf(serverSettings.getSmtpAuth()));
+            properties.put("username", serverSettings.getSmtpUsername());
+            properties.put("password", serverSettings.getSmtpPassword());
+            properties.put("toAddress", sendToEmail);
+            properties.put("fromAddress", serverSettings.getSmtpFrom());
+
+            final String workingId = PlatformUI.MIRTH_FRAME.startWorking("Sending test email...");
+
+            SwingWorker worker = new SwingWorker<Void, Void>() {
+
+                public Void doInBackground() {
+
+                    try {
+                        ConnectionTestResponse response = (ConnectionTestResponse) PlatformUI.MIRTH_FRAME.mirthClient.sendTestEmail(properties);
+
+                        if (response == null) {
+                            PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Failed to send email.");
+                        } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                            PlatformUI.MIRTH_FRAME.alertInformation(PlatformUI.MIRTH_FRAME, response.getMessage());
+                        } else {
+                            PlatformUI.MIRTH_FRAME.alertWarning(PlatformUI.MIRTH_FRAME, response.getMessage());
+                        }
+
+                        return null;
+                    } catch (Exception e) {
+                        PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        return null;
+                    }
+                }
+
+                public void done() {
+                    PlatformUI.MIRTH_FRAME.stopWorking(workingId);
+                }
+            };
+
+            worker.execute();
+        }
+    }//GEN-LAST:event_testEmailButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel channelPanel;
     private javax.swing.ButtonGroup clearGlobalMapButtonGroup;
@@ -917,6 +1041,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private javax.swing.JLabel smtpPortLabel;
     private com.mirth.connect.client.ui.components.MirthTextField smtpTimeoutField;
     private javax.swing.JLabel smtpTimeoutLabel;
+    private javax.swing.JButton testEmailButton;
     private com.mirth.connect.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables

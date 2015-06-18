@@ -54,6 +54,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.SimpleEmail;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -100,6 +103,7 @@ import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.ConfigurationProperty;
+import com.mirth.connect.util.ConnectionTestResponse;
 import com.mirth.connect.util.MigrationUtil;
 import com.mirth.connect.util.MirthSSLUtil;
 
@@ -1098,6 +1102,71 @@ public class DefaultConfigurationController extends ConfigurationController {
             configurationMapProperties.save(new File(configurationFile));
         } catch (Exception e) {
             throw new ControllerException(e);
+        }
+    }
+
+    @Override
+    public Object sendTestEmail(Properties properties) throws Exception {
+        String portString = properties.getProperty("port");
+        String encryption = properties.getProperty("encryption");
+        String host = properties.getProperty("host");
+        String timeoutString = properties.getProperty("timeout");
+        Boolean authentication = Boolean.parseBoolean(properties.getProperty("authentication"));
+        String username = properties.getProperty("username");
+        String password = properties.getProperty("password");
+        String to = properties.getProperty("toAddress");
+        String from = properties.getProperty("fromAddress");
+
+        int port = -1;
+        try {
+            port = Integer.parseInt(portString);
+        } catch (NumberFormatException e) {
+            return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Invalid port: \"" + portString + "\"");
+        }
+
+        Email email = new SimpleEmail();
+        email.setDebug(true);
+        email.setHostName(host);
+        email.setSmtpPort(port);
+
+        try {
+            int timeout = Integer.parseInt(timeoutString);
+            email.setSocketTimeout(timeout);
+            email.setSocketConnectionTimeout(timeout);
+        } catch (NumberFormatException e) {
+            // Don't set if the value is invalid
+        }
+
+        if ("SSL".equalsIgnoreCase(encryption)) {
+            email.setSSLOnConnect(true);
+            email.setSslSmtpPort(portString);
+        } else if ("TLS".equalsIgnoreCase(encryption)) {
+            email.setStartTLSEnabled(true);
+        }
+
+        if (authentication) {
+            email.setAuthentication(username, password);
+        }
+
+        // These have to be set after the authenticator, so that a new mail session isn't created
+        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+        email.getMailSession().getProperties().setProperty("mail.smtp.ssl.protocols", StringUtils.join(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols()), ' '));
+        email.getMailSession().getProperties().setProperty("mail.smtp.ssl.ciphersuites", StringUtils.join(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()), ' '));
+
+        email.setSubject("Mirth Connect Test Email");
+
+        try {
+            for (String toAddress : StringUtils.split(to, ",")) {
+                email.addTo(toAddress);
+            }
+
+            email.setFrom(from);
+            email.setMsg("Receipt of this email confirms that mail originating from this Mirth Connect Server is capable of reaching its intended destination.\n\nSMTP Configuration:\n- Host: " + host + "\n- Port: " + port);
+
+            email.send();
+            return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Sucessfully sent test email to: " + to);
+        } catch (EmailException e) {
+            return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, e.getMessage());
         }
     }
 }

@@ -9,17 +9,11 @@
 
 package com.mirth.connect.connectors.smtp;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.mail.Email;
-import org.apache.commons.mail.EmailException;
-import org.apache.commons.mail.SimpleEmail;
+import java.util.Properties;
 
 import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.server.controllers.ConfigurationController;
-import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.ConnectionTestResponse;
-import com.mirth.connect.util.MirthSSLUtil;
 
 public class SmtpSenderService implements ConnectorService {
 
@@ -29,70 +23,19 @@ public class SmtpSenderService implements ConnectorService {
     public Object invoke(String channelId, String method, Object object, String sessionId) throws Exception {
         if (method.equals("sendTestEmail")) {
             SmtpDispatcherProperties props = (SmtpDispatcherProperties) object;
+            Properties properties = new Properties();
 
-            String host = replacer.replaceValues(props.getSmtpHost(), channelId);
-            String portString = replacer.replaceValues(props.getSmtpPort(), channelId);
+            properties.put("port", replacer.replaceValues(props.getSmtpPort(), channelId));
+            properties.put("encryption", props.getEncryption());
+            properties.put("host", replacer.replaceValues(props.getSmtpHost(), channelId));
+            properties.put("timeout", props.getTimeout());
+            properties.put("authentication", String.valueOf(props.isAuthentication()));
+            properties.put("username", replacer.replaceValues(props.getUsername(), channelId));
+            properties.put("password", replacer.replaceValues(props.getPassword(), channelId));
+            properties.put("toAddress", replacer.replaceValues(props.getTo(), channelId));
+            properties.put("fromAddress", replacer.replaceValues(props.getFrom(), channelId));
 
-            int port = -1;
-            try {
-                port = Integer.parseInt(portString);
-            } catch (NumberFormatException e) {
-                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Invalid port: \"" + portString + "\"");
-            }
-
-            String secure = props.getEncryption();
-
-            boolean authentication = props.isAuthentication();
-
-            String username = replacer.replaceValues(props.getUsername(), channelId);
-            String password = replacer.replaceValues(props.getPassword(), channelId);
-            String to = replacer.replaceValues(props.getTo(), channelId);
-            String from = replacer.replaceValues(props.getFrom(), channelId);
-
-            Email email = new SimpleEmail();
-            email.setDebug(true);
-            email.setHostName(host);
-            email.setSmtpPort(port);
-
-            try {
-                int timeout = Integer.parseInt(props.getTimeout());
-                email.setSocketTimeout(timeout);
-                email.setSocketConnectionTimeout(timeout);
-            } catch (NumberFormatException e) {
-                // Don't set if the value is invalid
-            }
-
-            if ("SSL".equalsIgnoreCase(secure)) {
-                email.setSSLOnConnect(true);
-                email.setSslSmtpPort(portString);
-            } else if ("TLS".equalsIgnoreCase(secure)) {
-                email.setStartTLSEnabled(true);
-            }
-
-            if (authentication) {
-                email.setAuthentication(username, password);
-            }
-
-            // These have to be set after the authenticator, so that a new mail session isn't created
-            ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-            email.getMailSession().getProperties().setProperty("mail.smtp.ssl.protocols", StringUtils.join(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols()), ' '));
-            email.getMailSession().getProperties().setProperty("mail.smtp.ssl.ciphersuites", StringUtils.join(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()), ' '));
-
-            email.setSubject("Mirth Connect Test Email");
-
-            try {
-                for (String toAddress : StringUtils.split(to, ",")) {
-                    email.addTo(toAddress);
-                }
-
-                email.setFrom(from);
-                email.setMsg("Receipt of this email confirms that mail originating from this Mirth Connect Server is capable of reaching its intended destination.\n\nSMTP Configuration:\n- Host: " + host + "\n- Port: " + port);
-
-                email.send();
-                return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Sucessfully sent test email to: " + to);
-            } catch (EmailException e) {
-                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, e.getMessage());
-            }
+            return ConfigurationController.getInstance().sendTestEmail(properties);
         }
 
         return null;

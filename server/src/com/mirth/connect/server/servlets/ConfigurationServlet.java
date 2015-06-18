@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -253,6 +254,15 @@ public class ConfigurationServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         contextFactoryController.reloadResource(resourceId);
+                    }
+                } else if (operation.equals(Operations.CONFIGURATION_SERVER_SEND_EMAIL)) {
+                    String settings = request.getParameter("data");
+                    parameterMap.put("settings", settings);
+
+                    if (isUserAuthorized(request, parameterMap)) {
+                        serializer.serialize(configurationController.sendTestEmail(serializer.deserialize(settings, Properties.class)), out);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 }
             }
