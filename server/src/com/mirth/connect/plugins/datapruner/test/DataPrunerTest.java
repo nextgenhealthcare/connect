@@ -51,6 +51,7 @@ public class DataPrunerTest {
     private final static int TEST_POWER = 7;
     private final static int PERFORMANCE_TEST_POWER = 10;
     private final static String TEST_CHANNEL_ID = "prunerTestChannel";
+    private final static String TEST_CHANNEL_NAME = "testChannelName";
     private final static String TEST_SERVER_ID = "testServerId";
     private final static String TEST_MESSAGE_CONTENT = TestUtils.TEST_HL7_MESSAGE;
 
@@ -96,7 +97,7 @@ public class DataPrunerTest {
     }
 
     private void runPrunerTests(boolean messagesPrunable, boolean contentPrunable) throws Exception {
-        prepareTestMessages(TEST_CHANNEL_ID, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
+        prepareTestMessages(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
         new DataPruner().pruneChannel(TEST_CHANNEL_ID,TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
@@ -115,7 +116,7 @@ public class DataPrunerTest {
 
                 logger.info("Running pruner w/ archiver test, block size: " + blockSize + ", prune messages: " + messagesPrunable + ", prune content: " + contentPrunable);
 
-                prepareTestMessages(TEST_CHANNEL_ID, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
+                prepareTestMessages(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
                 pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, pruner.getArchiverOptions().getRootFolder(), true);
                 assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
                 assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
@@ -130,7 +131,7 @@ public class DataPrunerTest {
 
     @Test
     public void testPruneNone() throws Exception {
-        prepareTestMessages(TEST_CHANNEL_ID, false, false, true, Status.SENT, TEST_POWER);
+        prepareTestMessages(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, false, false, true, Status.SENT, TEST_POWER);
         DataPruner pruner = new DataPruner();
         pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
@@ -139,7 +140,7 @@ public class DataPrunerTest {
 
     @Test
     public final void testPruneSkipIncomplete() throws Exception {
-        prepareTestMessages(TEST_CHANNEL_ID, true, true, false, Status.SENT, TEST_POWER);
+        prepareTestMessages(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, true, true, false, Status.SENT, TEST_POWER);
         DataPruner pruner = new DataPruner();
         pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
@@ -148,7 +149,7 @@ public class DataPrunerTest {
 
     @Test
     public final void testPruneIncomplete() throws Exception {
-        prepareTestMessages(TEST_CHANNEL_ID, true, true, false, Status.SENT, TEST_POWER);
+        prepareTestMessages(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, true, true, false, Status.SENT, TEST_POWER);
         DataPruner pruner = new DataPruner();
         pruner.setSkipIncomplete(false);
         pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
@@ -158,7 +159,7 @@ public class DataPrunerTest {
 
     @Test
     public final void testPruneQueued() throws Exception {
-        prepareTestMessages(TEST_CHANNEL_ID, true, true, true, Status.QUEUED, TEST_POWER);
+        prepareTestMessages(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, true, true, true, Status.QUEUED, TEST_POWER);
         DataPruner pruner = new DataPruner();
         pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
@@ -167,7 +168,7 @@ public class DataPrunerTest {
 
     @Test
     public final void testPruneError() throws Exception {
-        prepareTestMessages(TEST_CHANNEL_ID, true, true, true, Status.ERROR, TEST_POWER);
+        prepareTestMessages(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, true, true, true, Status.ERROR, TEST_POWER);
         DataPruner pruner = new DataPruner();
         pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
@@ -177,7 +178,7 @@ public class DataPrunerTest {
     @Test
     @Ignore
     public final void testPerformance() throws Exception {
-        prepareTestMessages(TEST_CHANNEL_ID, true, true, true, Status.SENT, PERFORMANCE_TEST_POWER);
+        prepareTestMessages(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, true, true, true, Status.SENT, PERFORMANCE_TEST_POWER);
         DataPruner pruner = new DataPruner();
 
         long startTime = System.currentTimeMillis();
@@ -239,7 +240,7 @@ public class DataPrunerTest {
         logger.info("Test completed");
     }
 
-    private static void prepareTestMessages(String channelId, boolean messagesPrunable, Boolean contentPrunable, boolean processed, Status destinationStatus, int power) throws Exception {
+    private static void prepareTestMessages(String channelId, String channelName, boolean messagesPrunable, Boolean contentPrunable, boolean processed, Status destinationStatus, int power) throws Exception {
         logger.debug("Preparing " + ((int) Math.pow(2, power)) + " test messages");
         Calendar dateThreshold;
 
@@ -264,10 +265,10 @@ public class DataPrunerTest {
         message.setReceivedDate(receivedDate);
         message.setProcessed(processed);
 
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, TEST_SERVER_ID, message.getReceivedDate(), Status.RECEIVED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, channelName, message.getMessageId(), 0, TEST_SERVER_ID, message.getReceivedDate(), Status.RECEIVED);
         message.getConnectorMessages().put(0, sourceMessage);
 
-        ConnectorMessage destinationMessage = new ConnectorMessage(channelId, message.getMessageId(), 1, TEST_SERVER_ID, message.getReceivedDate(), destinationStatus);
+        ConnectorMessage destinationMessage = new ConnectorMessage(channelId, channelName, message.getMessageId(), 1, TEST_SERVER_ID, message.getReceivedDate(), destinationStatus);
         message.getConnectorMessages().put(1, destinationMessage);
 
         if (contentPrunable != null) {

@@ -80,6 +80,7 @@ public class JavaScriptTokenMarker extends CTokenMarker {
             javaScriptKeywords.add("alerts", Token.KEYWORD3);
             javaScriptKeywords.add("router", Token.KEYWORD3);
             javaScriptKeywords.add("channelId", Token.KEYWORD1);
+            javaScriptKeywords.add("channelName", Token.KEYWORD1);
             javaScriptKeywords.add("replacer", Token.KEYWORD3);
             javaScriptKeywords.add("FileUtil", Token.KEYWORD3);
             javaScriptKeywords.add("DateUtil", Token.KEYWORD3);

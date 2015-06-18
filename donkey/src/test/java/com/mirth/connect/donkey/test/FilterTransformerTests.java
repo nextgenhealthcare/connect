@@ -43,6 +43,7 @@ import com.mirth.connect.donkey.test.util.TestUtils;
 public class FilterTransformerTests {
     private static int TEST_SIZE = 10;
     private static String channelId = TestUtils.DEFAULT_CHANNEL_ID;
+    private static String channelName = TestUtils.DEFAULT_CHANNEL_ID;
     private static String serverId = TestUtils.DEFAULT_SERVER_ID;
     private static String testMessage = TestUtils.TEST_HL7_MESSAGE;
 
@@ -133,7 +134,7 @@ public class FilterTransformerTests {
         filterTransformerExecutor = new FilterTransformerExecutor(new FailingTestDataType(), new TestDataType());
         filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer());
         for (int i = 1; i <= TEST_SIZE; i++) {
-            connectorMessage = new ConnectorMessage(channelId, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
+            connectorMessage = new ConnectorMessage(channelId, channelName, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
             connectorMessage.setRaw(new MessageContent(channelId, 1, 1, ContentType.RAW, testMessage, "HL7V2", false));
 
             try {
@@ -157,7 +158,7 @@ public class FilterTransformerTests {
             }
         });
         for (int i = 1; i <= TEST_SIZE; i++) {
-            connectorMessage = new ConnectorMessage(channelId, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
+            connectorMessage = new ConnectorMessage(channelId, channelName, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
             connectorMessage.setRaw(new MessageContent(channelId, 1, 1, ContentType.RAW, testMessage, "HL7V2", false));
 
             try {
@@ -182,7 +183,7 @@ public class FilterTransformerTests {
             }
         });
         for (int i = 1; i <= TEST_SIZE; i++) {
-            connectorMessage = new ConnectorMessage(channelId, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
+            connectorMessage = new ConnectorMessage(channelId, channelName, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
             connectorMessage.setRaw(new MessageContent(channelId, 1, 1, ContentType.RAW, testMessage, "HL7V2", false));
 
             try {
@@ -201,7 +202,7 @@ public class FilterTransformerTests {
         filterTransformerExecutor = new FilterTransformerExecutor(new TestDataType(), new FailingTestDataType());
         filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer());
         for (int i = 1; i <= TEST_SIZE; i++) {
-            connectorMessage = new ConnectorMessage(channelId, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
+            connectorMessage = new ConnectorMessage(channelId, channelName, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
             connectorMessage.setRaw(new MessageContent(channelId, 1, 1, ContentType.RAW, testMessage, "HL7V2", false));
 
             try {
@@ -220,7 +221,7 @@ public class FilterTransformerTests {
         filterTransformerExecutor = new FilterTransformerExecutor(new TestDataType(), new TestDataType());
         filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer());
         for (int i = 1; i <= TEST_SIZE; i++) {
-            connectorMessage = new ConnectorMessage(channelId, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
+            connectorMessage = new ConnectorMessage(channelId, channelName, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
             connectorMessage.setRaw(new MessageContent(channelId, 1, 1, ContentType.RAW, testMessage, "HL7V2", false));
             filterTransformerExecutor.processConnectorMessage(connectorMessage);
 
@@ -237,7 +238,7 @@ public class FilterTransformerTests {
         filterTransformerExecutor = new FilterTransformerExecutor(new TestDataType(), new TestDataType());
         filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer());
         for (int i = 1; i <= TEST_SIZE; i++) {
-            connectorMessage = new ConnectorMessage(channelId, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
+            connectorMessage = new ConnectorMessage(channelId, channelName, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
             connectorMessage.setRaw(new MessageContent(channelId, 1, 1, ContentType.RAW, "", "HL7V2", false));
             connectorMessage.setProcessedRaw(new MessageContent(channelId, 1, 1, ContentType.PROCESSED_RAW, testMessage, "HL7V2", false));
             filterTransformerExecutor.processConnectorMessage(connectorMessage);
@@ -274,7 +275,7 @@ public class FilterTransformerTests {
          */
         filterTransformerExecutor = new FilterTransformerExecutor(new TestDataType(), new TestDataType());
         for (int i = 1; i <= TEST_SIZE; i++) {
-            connectorMessage = new ConnectorMessage(channelId, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
+            connectorMessage = new ConnectorMessage(channelId, channelName, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
             connectorMessage.setRaw(new MessageContent(channelId, 1, 1, ContentType.RAW, testMessage, "HL7V2", false));
             filterTransformerExecutor.processConnectorMessage(connectorMessage);
 
@@ -290,7 +291,7 @@ public class FilterTransformerTests {
          */
         filterTransformerExecutor = new FilterTransformerExecutor(new TestDataType(), new TestDataType());
         for (int i = 1; i <= TEST_SIZE; i++) {
-            connectorMessage = new ConnectorMessage(channelId, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
+            connectorMessage = new ConnectorMessage(channelId, channelName, 1, 1, serverId, Calendar.getInstance(), Status.RECEIVED);
             connectorMessage.setRaw(new MessageContent(channelId, 1, 1, ContentType.RAW, "", "HL7V2", false));
             connectorMessage.setProcessedRaw(new MessageContent(channelId, 1, 1, ContentType.PROCESSED_RAW, testMessage, "HL7V2", false));
             filterTransformerExecutor.processConnectorMessage(connectorMessage);

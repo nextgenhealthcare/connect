@@ -1210,7 +1210,7 @@ public class DonkeyEngineController implements EngineController {
                 clearGlobalChannelMap(channelModel);
 
                 try {
-                    scriptController.executeChannelDeployScript(contextFactory, channelId);
+                    scriptController.executeChannelDeployScript(contextFactory, channelId, channel.getName());
                 } catch (Exception e) {
                     Throwable t = e;
                     if (e instanceof JavaScriptExecutorException) {
@@ -1342,7 +1342,7 @@ public class DonkeyEngineController implements EngineController {
                             channel.setContextFactoryId(contextFactory.getId());
                         }
 
-                        scriptController.executeChannelUndeployScript(contextFactory, channelId);
+                        scriptController.executeChannelUndeployScript(contextFactory, channelId, channel.getName());
                     } catch (Exception e) {
                         Throwable t = e;
                         if (e instanceof JavaScriptExecutorException) {

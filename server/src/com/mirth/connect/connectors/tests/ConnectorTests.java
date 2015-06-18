@@ -69,7 +69,7 @@ public class ConnectorTests {
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
         for (int i = 0; i < TEST_SIZE; i++) {
-            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(TestUtils.TEST_HL7_MESSAGE), channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
+            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(TestUtils.TEST_HL7_MESSAGE), channel.getChannelId(), channel.getName(), channel.getServerId(), dao).getConnectorMessages().get(0);
             dao.commit();
 
             Message message = channel.process(sourceMessage, true);

@@ -48,6 +48,7 @@ import com.mirth.connect.donkey.test.util.TestUtils;
 public class QueueTests {
     private static int TEST_SIZE = 10;
     private static String channelId = TestUtils.DEFAULT_CHANNEL_ID;
+    private static String channelName = TestUtils.DEFAULT_CHANNEL_ID;
     private static String serverId = TestUtils.DEFAULT_SERVER_ID;
     private static String testMessage = TestUtils.TEST_HL7_MESSAGE;
     private static DonkeyDaoFactory daoFactory;
@@ -98,7 +99,7 @@ public class QueueTests {
         int initialBufferSize = queue.getBufferSize();
 
         for (int i = 0; i < testSize; i++) {
-            ConnectorMessage connectorMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId, daoFactory).getConnectorMessages().get(0);
+            ConnectorMessage connectorMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, channelName, serverId, daoFactory).getConnectorMessages().get(0);
             queue.add(connectorMessage);
         }
 
@@ -156,7 +157,7 @@ public class QueueTests {
 
         // Place messages in the channel's source queue while the channel is stopped
         for (int i = 1; i <= TEST_SIZE; i++) {
-            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
             channel.queue(sourceMessage);
         }
 
@@ -173,7 +174,7 @@ public class QueueTests {
 
         // Place messages in the channel's source queue while the channel is started
         for (int i = 1; i <= TEST_SIZE; i++) {
-            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
             channel.queue(sourceMessage);
         }
 
@@ -239,7 +240,7 @@ public class QueueTests {
          */
         System.out.println("Saving a message to the database without calling the queue method...");
         RawMessage rawMessage = new RawMessage(testMessage, null, null);
-        sourceMessage = TestUtils.createAndStoreNewMessage(rawMessage, channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+        sourceMessage = TestUtils.createAndStoreNewMessage(rawMessage, channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
         messageIds.add(sourceMessage.getMessageId());
 
         // Asynchronously queue up another message normally
@@ -358,7 +359,7 @@ public class QueueTests {
              */
             System.out.println("Saving a message to the database without calling the queue method...");
             RawMessage rawMessage = new RawMessage(testMessage, null, null);
-            sourceMessage = TestUtils.createAndStoreNewMessage(rawMessage, channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+            sourceMessage = TestUtils.createAndStoreNewMessage(rawMessage, channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
             messageIds.add(sourceMessage.getMessageId());
 
             // Asynchronously queue up another message normally
@@ -508,8 +509,8 @@ public class QueueTests {
         // Place messages directly into the destination connector's queue
         for (int i = 1; i <= TEST_SIZE; i++) {
             synchronized (destinationConnector.getQueue()) {
-                Message message = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId, daoFactory);
-                ConnectorMessage destinationMessage = TestUtils.createAndStoreDestinationConnectorMessage(daoFactory, channelId, serverId, message.getMessageId(), destinationConnector.getMetaDataId(), testMessage, Status.QUEUED);
+                Message message = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, channelName, serverId, daoFactory);
+                ConnectorMessage destinationMessage = TestUtils.createAndStoreDestinationConnectorMessage(daoFactory, channelId, channelName, serverId, message.getMessageId(), destinationConnector.getMetaDataId(), testMessage, Status.QUEUED);
                 destinationConnector.getQueue().add(destinationMessage);
             }
         }

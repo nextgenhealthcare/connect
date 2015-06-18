@@ -167,9 +167,10 @@ public class JavaScriptScopeUtil {
     }
 
     // Channel Builder
-    private static void addChannel(Scriptable scope, String channelId) {
+    private static void addChannel(Scriptable scope, String channelId, String channelName) {
         add("alerts", scope, new AlertSender(channelId));
         add("channelId", scope, channelId);
+        add("channelName", scope, channelName);
         add("globalChannelMap", scope, GlobalChannelVariableStoreFactory.getInstance().get(channelId));
     }
 
@@ -204,14 +205,14 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
-    private static Scriptable getBasicScope(Context context, Object logger, String channelId) {
+    private static Scriptable getBasicScope(Context context, Object logger, String channelId, String channelName) {
         Scriptable scope = getBasicScope(context, logger);
-        addChannel(scope, channelId);
+        addChannel(scope, channelId, channelName);
         return scope;
     }
 
     private static Scriptable getBasicScope(Context context, Object logger, ImmutableConnectorMessage message) {
-        return getBasicScope(context, logger, message.getChannelId());
+        return getBasicScope(context, logger, message.getChannelId(), message.getChannelName());
     }
 
     /*
@@ -222,8 +223,8 @@ public class JavaScriptScopeUtil {
      * Since this method calls getContext(), anything calling it should wrap this method in a
      * try-finally with Context.exit() in the finally block.
      */
-    public static Scriptable getAttachmentScope(ContextFactory contextFactory, Object logger, String channelId, String message, List<Attachment> attachments) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+    public static Scriptable getAttachmentScope(ContextFactory contextFactory, Object logger, String channelId, String channelName, String message, List<Attachment> attachments) {
+        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId, channelName);
         addRawMessage(scope, message);
         add("mirth_attachments", scope, attachments);
         return scope;
@@ -234,7 +235,7 @@ public class JavaScriptScopeUtil {
      * try-finally with Context.exit() in the finally block.
      */
     public static Scriptable getPreprocessorScope(ContextFactory contextFactory, Object logger, String channelId, String message, ImmutableConnectorMessage connectorMessage) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId, connectorMessage.getChannelName());
         addRawMessage(scope, message);
         addConnectorMessage(scope, connectorMessage);
 
@@ -246,7 +247,7 @@ public class JavaScriptScopeUtil {
      * try-finally with Context.exit() in the finally block.
      */
     public static Scriptable getPostprocessorScope(ContextFactory contextFactory, Object logger, String channelId, Message message) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId, message.getMergedConnectorMessage().getChannelName());
         addStatusValues(scope);
         addMessage(scope, message);
         return scope;
@@ -257,7 +258,7 @@ public class JavaScriptScopeUtil {
      * try-finally with Context.exit() in the finally block.
      */
     public static Scriptable getPostprocessorScope(ContextFactory contextFactory, Object logger, String channelId, Message message, Response response) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId, message.getMergedConnectorMessage().getChannelName());
         addMessage(scope, message);
         addStatusValues(scope);
         add("response", scope, response);
@@ -293,8 +294,8 @@ public class JavaScriptScopeUtil {
      * Since this method calls getContext(), anything calling it should wrap this method in a
      * try-finally with Context.exit() in the finally block.
      */
-    public static Scriptable getDeployScope(ContextFactory contextFactory, Object logger, String channelId) {
-        return getBasicScope(getContext(contextFactory), logger, channelId);
+    public static Scriptable getDeployScope(ContextFactory contextFactory, Object logger, String channelId, String channelName) {
+        return getBasicScope(getContext(contextFactory), logger, channelId, channelName);
     }
 
     /**
@@ -309,8 +310,8 @@ public class JavaScriptScopeUtil {
      * Since this method calls getContext(), anything calling it should wrap this method in a
      * try-finally with Context.exit() in the finally block.
      */
-    public static Scriptable getUndeployScope(ContextFactory contextFactory, Object logger, String channelId) {
-        return getBasicScope(getContext(contextFactory), logger, channelId);
+    public static Scriptable getUndeployScope(ContextFactory contextFactory, Object logger, String channelId, String channelName) {
+        return getBasicScope(getContext(contextFactory), logger, channelId, channelName);
     }
 
     /**
@@ -325,8 +326,8 @@ public class JavaScriptScopeUtil {
      * Since this method calls getContext(), anything calling it should wrap this method in a
      * try-finally with Context.exit() in the finally block.
      */
-    public static Scriptable getMessageReceiverScope(ContextFactory contextFactory, Object logger, String channelId) {
-        return getBasicScope(getContext(contextFactory), logger, channelId);
+    public static Scriptable getMessageReceiverScope(ContextFactory contextFactory, Object logger, String channelId, String channelName) {
+        return getBasicScope(getContext(contextFactory), logger, channelId, channelName);
     }
 
     /**
@@ -334,7 +335,7 @@ public class JavaScriptScopeUtil {
      * try-finally with Context.exit() in the finally block.
      */
     public static Scriptable getMessageReceiverScope(ContextFactory contextFactory, Object logger, String channelId, ImmutableConnectorMessage message) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId, message.getChannelName());
         addConnectorMessage(scope, message);
         return scope;
     }
@@ -344,7 +345,7 @@ public class JavaScriptScopeUtil {
      * try-finally with Context.exit() in the finally block.
      */
     public static Scriptable getMessageDispatcherScope(ContextFactory contextFactory, Object logger, String channelId, ImmutableConnectorMessage message) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId, message.getChannelName());
         addConnectorMessage(scope, message);
         addStatusValues(scope);
         return scope;
@@ -354,15 +355,16 @@ public class JavaScriptScopeUtil {
      * Since this method calls getContext(), anything calling it should wrap this method in a
      * try-finally with Context.exit() in the finally block.
      */
-    public static Scriptable getBatchProcessorScope(ContextFactory contextFactory, Object logger, String channelId, Map<String, Object> scopeObjects) {
+    public static Scriptable getBatchProcessorScope(ContextFactory contextFactory, Object logger, String channelId, String channelName, Map<String, Object> scopeObjects) {
         Scriptable scope = getBasicScope(getContext(contextFactory), logger);
 
         for (Entry<String, Object> entry : scopeObjects.entrySet()) {
             add(entry.getKey(), scope, entry.getValue());
         }
 
-        if (channelId != null)
-            addChannel(scope, channelId);
+        if (channelId != null) {
+            addChannel(scope, channelId, channelName);
+        }
 
         return scope;
     }

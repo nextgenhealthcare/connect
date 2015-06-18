@@ -363,14 +363,14 @@ public class TestUtils {
         return StringUtils.rightPad(testName, 50) + ((int) (testSize / seconds)) + " messages/second";
     }
 
-    public static Message createMessage(RawMessage rawMessage, String channelId, String serverId, long messageId) {
+    public static Message createMessage(RawMessage rawMessage, String channelId, String channelName, String serverId, long messageId) {
         Message message = new Message();
         message.setMessageId(messageId);
         message.setChannelId(channelId);
         message.setServerId(serverId);
         message.setReceivedDate(Calendar.getInstance());
 
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, channelName, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, false));
 
         if (rawMessage.getSourceMap() != null) {
@@ -382,8 +382,8 @@ public class TestUtils {
         return message;
     }
 
-    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
-        Message message = createMessage(rawMessage, channelId, serverId, dao.getNextMessageId(channelId));
+    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String channelName, String serverId, DonkeyDao dao) {
+        Message message = createMessage(rawMessage, channelId, channelName, serverId, dao.getNextMessageId(channelId));
         ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
 
         dao.insertMessage(message);
@@ -495,8 +495,8 @@ public class TestUtils {
         }
     }
 
-    public static void createTestMessagesFast(String channelId, int power) throws Exception {
-        createTestMessagesFast(channelId, TestUtils.createMessage(new RawMessage(TestUtils.TEST_HL7_MESSAGE), channelId, "testserver", 1), power);
+    public static void createTestMessagesFast(String channelId, String channelName, int power) throws Exception {
+        createTestMessagesFast(channelId, TestUtils.createMessage(new RawMessage(TestUtils.TEST_HL7_MESSAGE), channelId, channelName, "testserver", 1), power);
     }
 
     public static void createTestMessagesFast(String channelId, Message templateMessage, int power) throws Exception {

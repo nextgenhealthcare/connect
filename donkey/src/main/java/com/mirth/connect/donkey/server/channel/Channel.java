@@ -1291,7 +1291,7 @@ public class Channel implements Runnable {
             dao.insertMessage(message);
         }
 
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, messageId, 0, serverId, receivedDate, Status.RECEIVED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, name, messageId, 0, serverId, receivedDate, Status.RECEIVED);
         sourceMessage.setConnectorName(sourceConnector.getSourceName());
         sourceMessage.setChainId(0);
         sourceMessage.setOrderId(0);
@@ -1602,7 +1602,7 @@ public class Channel implements Runnable {
                     MessageContent raw = new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, sourceEncoded.getContent(), destinationConnector.getInboundDataType().getType(), sourceEncoded.isEncrypted());
 
                     // create the message and set the raw content
-                    ConnectorMessage message = new ConnectorMessage(channelId, messageId, metaDataId, sourceMessage.getServerId(), Calendar.getInstance(), Status.RECEIVED);
+                    ConnectorMessage message = new ConnectorMessage(channelId, name, messageId, metaDataId, sourceMessage.getServerId(), Calendar.getInstance(), Status.RECEIVED);
                     message.setConnectorName(destinationConnector.getDestinationName());
                     message.setChainId(chain.getChainId());
                     message.setOrderId(destinationConnector.getOrderId());

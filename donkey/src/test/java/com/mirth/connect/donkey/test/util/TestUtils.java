@@ -1206,11 +1206,11 @@ public class TestUtils {
         return stringBuilder.toString();
     }
 
-    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId) {
-        return createAndStoreNewMessage(rawMessage, channelId, serverId, getDaoFactory());
+    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String channelName, String serverId) {
+        return createAndStoreNewMessage(rawMessage, channelId, channelName, serverId, getDaoFactory());
     }
 
-    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDaoFactory daoFactory) {
+    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String channelName, String serverId, DonkeyDaoFactory daoFactory) {
         DonkeyDao dao = null;
         Message message = null;
 
@@ -1223,7 +1223,7 @@ public class TestUtils {
             message.setServerId(serverId);
             message.setReceivedDate(Calendar.getInstance());
 
-            ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
+            ConnectorMessage sourceMessage = new ConnectorMessage(channelId, channelName, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
             sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, false));
 
             if (rawMessage.getSourceMap() != null) {
@@ -1243,8 +1243,8 @@ public class TestUtils {
         return message;
     }
 
-    public static ConnectorMessage createAndStoreDestinationConnectorMessage(DonkeyDaoFactory daoFactory, String channelId, String serverId, long messageId, int metaDataId, String rawContent, Status status) {
-        ConnectorMessage connectorMessage = new ConnectorMessage(channelId, messageId, metaDataId, serverId, Calendar.getInstance(), status);
+    public static ConnectorMessage createAndStoreDestinationConnectorMessage(DonkeyDaoFactory daoFactory, String channelId, String channelName, String serverId, long messageId, int metaDataId, String rawContent, Status status) {
+        ConnectorMessage connectorMessage = new ConnectorMessage(channelId, channelName, messageId, metaDataId, serverId, Calendar.getInstance(), status);
         connectorMessage.setRaw(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, rawContent, null, false));
 
         DonkeyDao dao = null;
@@ -1526,7 +1526,7 @@ public class TestUtils {
         }
     }
 
-    public static Message createTestProcessedMessage(String channelId, String serverId, long messageId, String content) {
+    public static Message createTestProcessedMessage(String channelId, String channelName, String serverId, long messageId, String content) {
         Calendar receivedDate = Calendar.getInstance();
 
         Message message = new Message();
@@ -1536,10 +1536,10 @@ public class TestUtils {
         message.setReceivedDate(receivedDate);
         message.setProcessed(true);
 
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.TRANSFORMED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, channelName, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.TRANSFORMED);
         message.getConnectorMessages().put(0, sourceMessage);
 
-        ConnectorMessage destinationMessage = new ConnectorMessage(channelId, message.getMessageId(), 1, serverId, message.getReceivedDate(), Status.SENT);
+        ConnectorMessage destinationMessage = new ConnectorMessage(channelId, channelName, message.getMessageId(), 1, serverId, message.getReceivedDate(), Status.SENT);
         message.getConnectorMessages().put(1, destinationMessage);
 
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null, false));

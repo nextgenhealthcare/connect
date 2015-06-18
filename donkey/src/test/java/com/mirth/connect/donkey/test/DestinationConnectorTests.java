@@ -463,7 +463,7 @@ public class DestinationConnectorTests {
             Thread thread = new Thread() {
                 @Override
                 public void run() {
-                    ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId()).getConnectorMessages().get(0);
+                    ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId()).getConnectorMessages().get(0);
                     tempClass.messageId = sourceMessage.getMessageId();
 
                     try {

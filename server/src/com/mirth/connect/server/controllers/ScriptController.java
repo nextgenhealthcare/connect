@@ -103,11 +103,11 @@ public abstract class ScriptController extends Controller {
 
     public abstract void executeGlobalDeployScript() throws Exception;
 
-    public abstract void executeChannelDeployScript(MirthContextFactory contextFactory, String channelId) throws Exception;
+    public abstract void executeChannelDeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception;
 
     // Undeploy Script Execution
 
     public abstract void executeGlobalUndeployScript() throws Exception;
 
-    public abstract void executeChannelUndeployScript(MirthContextFactory contextFactory, String channelId) throws Exception;
+    public abstract void executeChannelUndeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception;
 }

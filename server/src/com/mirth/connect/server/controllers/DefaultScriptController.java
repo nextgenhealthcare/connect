@@ -144,8 +144,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeChannelDeployScript(MirthContextFactory contextFactory, String channelId) throws Exception {
-        JavaScriptUtil.executeChannelDeployScript(contextFactory, getScriptId(DEPLOY_SCRIPT_KEY, channelId), DEPLOY_SCRIPT_KEY, channelId);
+    public void executeChannelDeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception {
+        JavaScriptUtil.executeChannelDeployScript(contextFactory, getScriptId(DEPLOY_SCRIPT_KEY, channelId), DEPLOY_SCRIPT_KEY, channelId, channelName);
     }
 
     @Override
@@ -154,8 +154,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeChannelUndeployScript(MirthContextFactory contextFactory, String channelId) throws Exception {
-        JavaScriptUtil.executeChannelUndeployScript(contextFactory, getScriptId(UNDEPLOY_SCRIPT_KEY, channelId), UNDEPLOY_SCRIPT_KEY, channelId);
+    public void executeChannelUndeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception {
+        JavaScriptUtil.executeChannelUndeployScript(contextFactory, getScriptId(UNDEPLOY_SCRIPT_KEY, channelId), UNDEPLOY_SCRIPT_KEY, channelId, channelName);
     }
 
     @Override

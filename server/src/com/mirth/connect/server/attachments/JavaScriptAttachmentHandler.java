@@ -53,7 +53,7 @@ public class JavaScriptAttachmentHandler extends MirthAttachmentHandler {
                 contextFactoryId = contextFactory.getId();
             }
             
-            newMessage = JavaScriptUtil.executeAttachmentScript(contextFactory, message, channel.getChannelId(), attachments);
+            newMessage = JavaScriptUtil.executeAttachmentScript(contextFactory, message, channel.getChannelId(), channel.getName(), attachments);
         } catch (Throwable t) {
             if (t instanceof JavaScriptExecutorException) {
                 t = t.getCause();

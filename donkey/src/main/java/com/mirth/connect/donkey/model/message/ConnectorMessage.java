@@ -22,6 +22,7 @@ public class ConnectorMessage implements Serializable {
     private long messageId;
     private int metaDataId;
     private String channelId;
+    private String channelName;
     private String connectorName;
     private String serverId;
     private Calendar receivedDate;
@@ -54,8 +55,9 @@ public class ConnectorMessage implements Serializable {
 
     public ConnectorMessage() {}
 
-    public ConnectorMessage(String channelId, long messageId, int metaDataId, String serverId, Calendar receivedDate, Status status) {
+    public ConnectorMessage(String channelId, String channelName, long messageId, int metaDataId, String serverId, Calendar receivedDate, Status status) {
         this.channelId = channelId;
+        this.channelName = channelName;
         this.messageId = messageId;
         this.metaDataId = metaDataId;
         this.serverId = serverId;
@@ -77,6 +79,14 @@ public class ConnectorMessage implements Serializable {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    }
+
+    public String getChannelName() {
+        return channelName;
+    }
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 
     public String getConnectorName() {

@@ -190,7 +190,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
 
                 // now that we're finished processing the current message, we can create the next message in the chain
                 if (nextMetaDataId != null && !stopChain) {
-                    nextMessage = new ConnectorMessage(message.getChannelId(), message.getMessageId(), nextMetaDataId, message.getServerId(), Calendar.getInstance(), Status.RECEIVED);
+                    nextMessage = new ConnectorMessage(message.getChannelId(), message.getChannelName(), message.getMessageId(), nextMetaDataId, message.getServerId(), Calendar.getInstance(), Status.RECEIVED);
 
                     DestinationConnector nextDestinationConnector = destinationConnectors.get(nextMetaDataId);
                     nextMessage.setConnectorName(nextDestinationConnector.getDestinationName());

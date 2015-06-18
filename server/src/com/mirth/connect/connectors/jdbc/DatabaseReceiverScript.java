@@ -162,7 +162,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         @Override
         public Object call() throws Exception {
             try {
-                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId());
+                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId(), connector.getChannel().getName());
                 return JavaScriptUtil.executeScript(this, selectScriptId, scope, connector.getChannelId(), "Source");
             } finally {
                 Context.exit();
@@ -186,7 +186,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
                 Scriptable scope = null;
 
                 if (mergedConnectorMessage == null) {
-                    scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId());
+                    scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId(), connector.getChannel().getName());
                 } else {
                     scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(mergedConnectorMessage, true, connector.getDestinationIdMap()));
                 }

@@ -64,6 +64,7 @@ import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 public class DonkeyDaoTests {
     private static int TEST_SIZE = 10;
     private static String channelId = TestUtils.DEFAULT_CHANNEL_ID;
+    private static String channelName = TestUtils.DEFAULT_CHANNEL_ID;
     private static String serverId = TestUtils.DEFAULT_SERVER_ID;
     private static String testMessage = TestUtils.TEST_HL7_MESSAGE;
     private static DonkeyDaoFactory daoFactory;
@@ -195,8 +196,8 @@ public class DonkeyDaoTests {
         ResultSet result = null;
 
         try {
-            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId, daoFactory).getConnectorMessages().get(0);
-            ConnectorMessage connectorMessage = new ConnectorMessage(channelId, sourceMessage.getMessageId(), 1, serverId, Calendar.getInstance(), Status.RECEIVED);
+            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, channelName, serverId, daoFactory).getConnectorMessages().get(0);
+            ConnectorMessage connectorMessage = new ConnectorMessage(channelId, channelName, sourceMessage.getMessageId(), 1, serverId, Calendar.getInstance(), Status.RECEIVED);
 
             connectorMessage.setConnectorMap(connectorMap);
             connectorMessage.setChannelMap(channelMap);
@@ -296,7 +297,7 @@ public class DonkeyDaoTests {
             logger.info("Testing DonkeyDao.insertMessageContent...");
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 TestUtils.assertMessageContentExists(sourceMessage.getRaw());
                 
                 for (ContentType contentType : ContentType.getMessageTypes()) {
@@ -344,7 +345,7 @@ public class DonkeyDaoTests {
         try {
             logger.info("Testing DonkeyDao.insertMessageAttachment...");
 
-            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
 
             for (int i = 1; i <= TEST_SIZE; i++) {
                 Attachment attachment = new Attachment("attachment" + i, testMessage.getBytes(), "text/plain");
@@ -409,13 +410,13 @@ public class DonkeyDaoTests {
 
         try {
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
 
                 sourceMessage.setMetaDataMap(sourceMap);
                 dao.insertMetaData(sourceMessage, channel.getMetaDataColumns());
                 dao.commit();
 
-                ConnectorMessage destinationMessage = TestUtils.createAndStoreDestinationConnectorMessage(daoFactory, channel.getChannelId(), channel.getServerId(), sourceMessage.getMessageId(), 1, testMessage, Status.RECEIVED);
+                ConnectorMessage destinationMessage = TestUtils.createAndStoreDestinationConnectorMessage(daoFactory, channel.getChannelId(), channel.getName(), channel.getServerId(), sourceMessage.getMessageId(), 1, testMessage, Status.RECEIVED);
                 destinationMessage.setMetaDataMap(destinationMap);
                 dao.insertMetaData(destinationMessage, channel.getMetaDataColumns());
                 dao.commit();
@@ -450,7 +451,7 @@ public class DonkeyDaoTests {
             logger.info("Testing DonkeyDao.storeMessageContent...");
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
 
                 for (ContentType contentType : ContentType.getMessageTypes()) {
                     MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null, false);
@@ -495,7 +496,7 @@ public class DonkeyDaoTests {
 
             for (int i = 1; i <= TEST_SIZE; i++) {
                 DonkeyDao dao = null;
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
 
                 sourceMessage.setStatus(Status.ERROR);
                 
@@ -592,7 +593,7 @@ public class DonkeyDaoTests {
             logger.info("Testing DonkeyDao.updateMaps...");
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
 
                 sourceMessage.setConnectorMap(connectorMap);
                 sourceMessage.setChannelMap(channelMap);
@@ -669,7 +670,7 @@ public class DonkeyDaoTests {
             logger.info("Testing DonkeyDao.updateResponseMap...");
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
 
                 sourceMessage.setResponseMap(responseMap);
                 dao.updateResponseMap(sourceMessage);
@@ -705,7 +706,7 @@ public class DonkeyDaoTests {
             logger.info("Testing DonkeyDao.markAsProcessed...");
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
 
                 // Assert that the message is initially not processed
                 assertFalse(TestUtils.isMessageProcessed(channel.getChannelId(), sourceMessage.getMessageId()));
@@ -770,7 +771,7 @@ public class DonkeyDaoTests {
 
         // Process a bunch of messages through the channel
         for (int i = 1; i <= TEST_SIZE; i++) {
-            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
 
             // Bypass the source connector so we can retrieve the Message object
             Message message = channel.process(sourceMessage, true);
@@ -868,7 +869,7 @@ public class DonkeyDaoTests {
             logger.info("Testing DonkeyDao.deleteConnectorMessages...");
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                Message message = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory);
+                Message message = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory);
                 channel.process(message.getConnectorMessages().get(0), true);
 
                 for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
@@ -1578,7 +1579,7 @@ public class DonkeyDaoTests {
 
             // Test selecting connector messages by message ID
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 Message processedMessage = channel.process(sourceMessage, true);
 
                 // Assert that each connector message is equal
@@ -1600,7 +1601,7 @@ public class DonkeyDaoTests {
             sourceMessages = new ArrayList<ConnectorMessage>();
             
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 sourceMessages.add(sourceMessage);
             }
             
@@ -1621,7 +1622,7 @@ public class DonkeyDaoTests {
             destinationMessages = new ArrayList<ConnectorMessage>();
             
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 Message processedMessage = channel.process(sourceMessage, true);
                 sourceMessages.add(processedMessage.getConnectorMessages().get(0));
                 destinationMessages.add(processedMessage.getConnectorMessages().get(1));
@@ -1645,7 +1646,7 @@ public class DonkeyDaoTests {
             sourceMessages = new ArrayList<ConnectorMessage>();
             
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 sourceMessages.add(sourceMessage);
             }
             
@@ -1670,7 +1671,7 @@ public class DonkeyDaoTests {
             destinationMessages = new ArrayList<ConnectorMessage>();
             
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 Message processedMessage = channel.process(sourceMessage, true);
                 sourceMessages.add(processedMessage.getConnectorMessages().get(0));
                 destinationMessages.add(processedMessage.getConnectorMessages().get(1));
@@ -1775,7 +1776,7 @@ public class DonkeyDaoTests {
             channel.start(null);
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 Message processedMessage = channel.process(sourceMessage, false);
                 
                 // Since the message is never marked as finished, the response map is never updated in the DB.

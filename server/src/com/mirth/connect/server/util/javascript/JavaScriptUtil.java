@@ -82,7 +82,7 @@ public class JavaScriptUtil {
         }
     }
 
-    public static String executeAttachmentScript(MirthContextFactory contextFactory, final String message, final String channelId, final List<Attachment> attachments) throws InterruptedException, JavaScriptExecutorException {
+    public static String executeAttachmentScript(MirthContextFactory contextFactory, final String message, final String channelId, final String channelName, final List<Attachment> attachments) throws InterruptedException, JavaScriptExecutorException {
         String processedMessage = message;
         Object result = null;
 
@@ -92,7 +92,7 @@ public class JavaScriptUtil {
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(ScriptController.ATTACHMENT_SCRIPT_KEY.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getAttachmentScope(getContextFactory(), scriptLogger, channelId, message, attachments);
+                        Scriptable scope = JavaScriptScopeUtil.getAttachmentScope(getContextFactory(), scriptLogger, channelId, channelName, message, attachments);
                         return JavaScriptUtil.executeScript(this, ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId), scope, null, null);
                     } finally {
                         Context.exit();
@@ -347,14 +347,14 @@ public class JavaScriptUtil {
      * @throws InterruptedException
      * @throws JavaScriptExecutorException
      */
-    public static void executeChannelDeployScript(MirthContextFactory contextFactory, final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
+    public static void executeChannelDeployScript(MirthContextFactory contextFactory, final String scriptId, final String scriptType, final String channelId, final String channelName) throws InterruptedException, JavaScriptExecutorException {
         try {
             execute(new JavaScriptTask<Object>(contextFactory) {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger, channelId);
+                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger, channelId, channelName);
                         JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
                         return null;
                     } finally {
@@ -377,14 +377,14 @@ public class JavaScriptUtil {
      * @throws InterruptedException
      * @throws JavaScriptExecutorException
      */
-    public static void executeChannelUndeployScript(MirthContextFactory contextFactory, final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
+    public static void executeChannelUndeployScript(MirthContextFactory contextFactory, final String scriptId, final String scriptType, final String channelId, final String channelName) throws InterruptedException, JavaScriptExecutorException {
         try {
             execute(new JavaScriptTask<Object>(contextFactory) {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger, channelId);
+                        Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger, channelId, channelName);
                         JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
                         return null;
                     } finally {

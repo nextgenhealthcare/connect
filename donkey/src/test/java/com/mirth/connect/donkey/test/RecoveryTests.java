@@ -57,6 +57,7 @@ import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 public class RecoveryTests {
     private static int TEST_SIZE = 10;
     private static String channelId = TestUtils.DEFAULT_CHANNEL_ID;
+    private static String channelName = TestUtils.DEFAULT_CHANNEL_ID;
     private static String serverId = TestUtils.DEFAULT_SERVER_ID;
     private static RawMessage testMessage = new RawMessage(TestUtils.TEST_HL7_MESSAGE);
     private static ActionTimer daoTimer = new ActionTimer();
@@ -97,7 +98,7 @@ public class RecoveryTests {
         
         // Add a bunch of RECEIVED source connector messages
         for (int i = 0; i < testSize; i++) {
-            messageIds.add(TestUtils.createAndStoreNewMessage(testMessage, channelId, serverId, daoFactory).getMessageId());
+            messageIds.add(TestUtils.createAndStoreNewMessage(testMessage, channelId, channelName, serverId, daoFactory).getMessageId());
         }
 
         channel.deploy();
@@ -128,7 +129,7 @@ public class RecoveryTests {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
 
         for (int i = 0; i < testSize; i++) {
-            ConnectorMessage message = TestUtils.createAndStoreNewMessage(testMessage, channelId, serverId, daoFactory).getConnectorMessages().get(0);
+            ConnectorMessage message = TestUtils.createAndStoreNewMessage(testMessage, channelId, channelName, serverId, daoFactory).getConnectorMessages().get(0);
             long messageId = message.getMessageId();
             message.setEncoded(message.getRaw());
             message.getEncoded().setContentType(ContentType.ENCODED);
@@ -189,7 +190,7 @@ public class RecoveryTests {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
         
         for (int i = 0; i < testSize; i++) {
-            ConnectorMessage message = TestUtils.createAndStoreNewMessage(testMessage, channelId, serverId, daoFactory).getConnectorMessages().get(0);
+            ConnectorMessage message = TestUtils.createAndStoreNewMessage(testMessage, channelId, channelName, serverId, daoFactory).getConnectorMessages().get(0);
             long messageId = message.getMessageId();
             message.setEncoded(message.getRaw());
             message.getEncoded().setContentType(ContentType.ENCODED);
@@ -272,7 +273,7 @@ public class RecoveryTests {
             channel.start(null);
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(testMessage, channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(testMessage, channel.getChannelId(), channel.getName(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 Message finalMessage = channel.process(sourceMessage, false);
                 messageIds.add(finalMessage.getMessageId());
             }
@@ -307,7 +308,7 @@ public class RecoveryTests {
     private void createDestinationMessage(DonkeyDao dao, ConnectorMessage sourceMessage, int metaDataId, Status status) {
         final String responseContent = (new XStreamSerializer()).serialize(new Response(Status.SENT, "test response"));
 
-        ConnectorMessage destinationMessage = new ConnectorMessage(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, sourceMessage.getServerId(), Calendar.getInstance(), status);
+        ConnectorMessage destinationMessage = new ConnectorMessage(sourceMessage.getChannelId(), channelName, sourceMessage.getMessageId(), metaDataId, sourceMessage.getServerId(), Calendar.getInstance(), status);
         destinationMessage.setChannelMap(sourceMessage.getChannelMap());
         dao.insertConnectorMessage(destinationMessage, true, true);
 

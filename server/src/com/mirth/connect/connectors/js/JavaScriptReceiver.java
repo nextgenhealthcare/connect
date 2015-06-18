@@ -155,7 +155,7 @@ public class JavaScriptReceiver extends PollConnector {
         @Override
         public Object call() throws Exception {
             try {
-                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), Logger.getLogger("js-connector"), getChannelId());
+                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), Logger.getLogger("js-connector"), getChannelId(), getChannel().getName());
                 return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), "Source");
             } finally {
                 Context.exit();

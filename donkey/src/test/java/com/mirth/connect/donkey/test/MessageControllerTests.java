@@ -90,7 +90,7 @@ public class MessageControllerTests {
             logger.info("Testing MessageController.createNewMessage...");
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage, null, channelMap), channel.getChannelId(), channel.getServerId()).getConnectorMessages().get(0);
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage, null, channelMap), channel.getChannelId(), channel.getName(), channel.getServerId()).getConnectorMessages().get(0);
 
                 // Assert that the raw content was set
                 assertTrue(sourceMessage.getRaw().getContent().equals(testMessage));
@@ -148,7 +148,7 @@ public class MessageControllerTests {
             message.setServerId(serverId);
             message.setReceivedDate(Calendar.getInstance());
             
-            sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
+            sourceMessage = new ConnectorMessage(channelId, channel.getName(), message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
             sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null, false));
             message.getConnectorMessages().put(0, sourceMessage);
             

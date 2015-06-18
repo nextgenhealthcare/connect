@@ -58,6 +58,7 @@ public class ChannelTests {
     final public static int TEST_SIZE = 50;
 
     private static String channelId = TestUtils.DEFAULT_CHANNEL_ID;
+    private static String channelName = TestUtils.DEFAULT_CHANNEL_ID;
     private static String serverId = TestUtils.DEFAULT_SERVER_ID;
     private static String testMessage = TestUtils.TEST_HL7_MESSAGE;
 
@@ -488,7 +489,7 @@ public class ChannelTests {
         channel.deploy();
         channel.start(null);
 
-        ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId).getConnectorMessages().get(0);
+        ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, channelName, serverId).getConnectorMessages().get(0);
 
         Message message = null;
 

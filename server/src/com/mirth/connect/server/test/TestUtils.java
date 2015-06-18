@@ -91,10 +91,10 @@ public class TestUtils {
     }
 
     public static Message createTestProcessedMessage() {
-        return createTestProcessedMessage("testchannelid", "testserverid", 1, com.mirth.connect.server.controllers.tests.TestUtils.TEST_HL7_MESSAGE);
+        return createTestProcessedMessage("testchannelid", "testchannelname", "testserverid", 1, com.mirth.connect.server.controllers.tests.TestUtils.TEST_HL7_MESSAGE);
     }
 
-    public static Message createTestProcessedMessage(String channelId, String serverId, long messageId, String content) {
+    public static Message createTestProcessedMessage(String channelId, String channelName, String serverId, long messageId, String content) {
         Calendar receivedDate = Calendar.getInstance();
 
         Message message = new Message();
@@ -104,10 +104,10 @@ public class TestUtils {
         message.setReceivedDate(receivedDate);
         message.setProcessed(true);
 
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.TRANSFORMED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, channelName, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.TRANSFORMED);
         message.getConnectorMessages().put(0, sourceMessage);
 
-        ConnectorMessage destinationMessage = new ConnectorMessage(channelId, message.getMessageId(), 1, serverId, message.getReceivedDate(), Status.SENT);
+        ConnectorMessage destinationMessage = new ConnectorMessage(channelId, channelName, message.getMessageId(), 1, serverId, message.getReceivedDate(), Status.SENT);
         message.getConnectorMessages().put(1, destinationMessage);
 
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null, false));
@@ -150,7 +150,7 @@ public class TestUtils {
             long messageId = messageIdSequence++;
 
             if (getSourceConnector().isRespondAfterProcessing()) {
-                return new DummyDispatchResult(messageId, TestUtils.createTestProcessedMessage(getChannelId(), getServerId(), messageId, rawMessage.getRawData()), null, true, true);
+                return new DummyDispatchResult(messageId, TestUtils.createTestProcessedMessage(getChannelId(), getName(), getServerId(), messageId, rawMessage.getRawData()), null, true, true);
             }
 
             return new DummyDispatchResult(messageId, null, null, false, false);

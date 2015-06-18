@@ -169,7 +169,7 @@ public class ExceptionTests {
             channel.deploy();
             channel.start(null);
 
-            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId()).getConnectorMessages().get(0);
+            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getName(), channel.getServerId()).getConnectorMessages().get(0);
 
             // Assert that an error in the preprocessor will update the message status to ERROR
             channel.setPreProcessor(new TestPreProcessor() {
