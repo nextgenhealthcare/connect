@@ -75,6 +75,24 @@ public class ChannelUtil {
     }
 
     /**
+     * Get the name for a channel.
+     * 
+     * @param channelId
+     *            The channel id of the channel.
+     * @return The channel name of the specified channel.
+     */
+    public static String getChannelName(String channelId) {
+        String channelName = null;
+
+        Channel channel = channelController.getChannelById(channelId);
+        if (channel != null) {
+            channelName = channel.getName();
+        }
+
+        return channelName;
+    }
+
+    /**
      * Get all deployed channel Ids.
      * 
      * @return A list of all deployed channel Ids.
