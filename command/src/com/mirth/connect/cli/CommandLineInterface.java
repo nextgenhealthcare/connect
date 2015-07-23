@@ -918,7 +918,7 @@ public class CommandLineInterface {
                 contentType = ContentType.RESPONSE_TRANSFORMED;
             } else if (StringUtils.equals(modeArg, "processedresponse")) {
                 contentType = ContentType.PROCESSED_RESPONSE;
-            } else if(StringUtils.equals(modeArg, "xml-attach")){
+            } else if (StringUtils.equals(modeArg, "xml-attach")) {
                 includeAttachments = true;
             }
         }
@@ -1239,7 +1239,7 @@ public class CommandLineInterface {
             if (!(channel instanceof InvalidChannel)) {
                 String oldName = channel.getName();
                 channel.setName(arguments[3].getText());
-                if (checkChannelName(channel.getName(), channel.getId())) {
+                if (checkChannelName(channel.getName())) {
                     client.updateChannel(channel, true);
                     out.println("Channel '" + oldName + "' renamed to '" + channel.getName() + "'");
                 }
@@ -1270,19 +1270,19 @@ public class CommandLineInterface {
     /**
      * Checks to see if the passed in channel id already exists
      */
-    public boolean checkChannelId(String id) throws ClientException {
+    public Channel getChannelById(String id) throws ClientException {
         for (Channel channel : client.getChannels(null)) {
             if (channel.getId().equalsIgnoreCase(id)) {
-                return false;
+                return channel;
             }
         }
-        return true;
+        return null;
     }
 
     /**
      * Checks to see if the passed in channel name already exists and is formatted correctly
      */
-    public boolean checkChannelName(String name, String id) throws ClientException {
+    public boolean checkChannelName(String name) throws ClientException {
         if (StringUtils.isEmpty(name)) {
             out.println("Channel name cannot be empty.");
             return false;
@@ -1299,13 +1299,21 @@ public class CommandLineInterface {
             return false;
         }
 
+        if (getChannelByName(name) != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private Channel getChannelByName(String name) throws ClientException {
         for (Channel channel : client.getChannels(null)) {
-            if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id)) {
+            if (channel.getName().equalsIgnoreCase(name)) {
                 out.println("Channel \"" + name + "\" already exists.");
-                return false;
+                return channel;
             }
         }
-        return true;
+        return null;
     }
 
     private List<Channel> getMatchingChannels(Token key) throws ClientException {
@@ -1504,33 +1512,30 @@ public class CommandLineInterface {
         }
 
         String channelName = importChannel.getName();
+        String channelId = importChannel.getId();
         String tempId = client.getGuid();
+        importChannel.setRevision(0);
 
-        // Check to see that the channel name doesn't already exist.
-        if (!checkChannelName(channelName, tempId)) {
+        Channel idChannelMatch = getChannelById(channelId);
+        Channel nameChannelMatch = getChannelByName(channelName);
+
+        // Check if channel id already exists
+        if (idChannelMatch != null) { 
             if (!force) {
-                importChannel.setRevision(0);
-                importChannel.setName(tempId);
                 importChannel.setId(tempId);
             } else {
-                for (Channel channel : client.getChannels(null)) {
-                    if (channel.getName().equalsIgnoreCase(channelName)) {
-                        // If overwriting, use the old revision number and id
-                        importChannel.setRevision(channel.getRevision());
-                        importChannel.setId(channel.getId());
-                    }
-                }
+                importChannel.setRevision(idChannelMatch.getRevision());
             }
-        } else {
-            // Start the revision number over for a new channel
-            importChannel.setRevision(0);
-
-            // If the channel name didn't already exist, make sure
-            // the id doesn't exist either.
-            if (!checkChannelId(importChannel.getId())) {
-                importChannel.setId(tempId);
+        }
+        
+        // Check if channel name already exists
+        if (nameChannelMatch != null) { 
+            if (!force) {
+                importChannel.setName(tempId);
+            } else {
+                importChannel.setRevision(nameChannelMatch.getRevision());
+                importChannel.setId(nameChannelMatch.getId());
             }
-
         }
 
         client.updateChannel(importChannel, true);
