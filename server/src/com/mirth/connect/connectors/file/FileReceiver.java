@@ -254,13 +254,13 @@ public class FileReceiver extends PollConnector {
         if (sortAttribute.equals(FileReceiverProperties.SORT_BY_DATE)) {
             Arrays.sort(files, new Comparator<FileInfo>() {
                 public int compare(FileInfo file1, FileInfo file2) {
-                    return Float.compare(file1.getLastModified(), file2.getLastModified());
+                    return Long.compare(file1.getLastModified(), file2.getLastModified());
                 }
             });
         } else if (sortAttribute.equals(FileReceiverProperties.SORT_BY_SIZE)) {
             Arrays.sort(files, new Comparator<FileInfo>() {
                 public int compare(FileInfo file1, FileInfo file2) {
-                    return Float.compare(file1.getSize(), file2.getSize());
+                    return Long.compare(file1.getSize(), file2.getSize());
                 }
             });
         } else {
