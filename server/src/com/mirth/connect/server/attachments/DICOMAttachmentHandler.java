@@ -14,6 +14,7 @@ import org.dcm4che2.data.DicomElement;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -33,24 +34,23 @@ public class DICOMAttachmentHandler extends MirthAttachmentHandler {
     }
 
     @Override
-    public void initialize(String message, Channel channel) throws AttachmentException {
-        // Taking a string is much more inefficient than taking in a byte array. 
-        // If the user manually sends a message, it will arrive as a base64 encoded string, so we must support Strings for DICOM still.
-        // However, DICOM messages that use this initializer should be relatively small in size.
+    public void initialize(RawMessage message, Channel channel) throws AttachmentException {
         index = 0;
         try {
-            dicomObject = DICOMConverter.byteArrayToDicomObject(StringUtils.getBytesUsAscii(message), true);
-            dicomElement = dicomObject.remove(Tag.PixelData);
-        } catch (Throwable t) {
-            throw new AttachmentException(t);
-        }
-    }
+            byte[] messageBytes = null;
+            boolean decode = false;
 
-    @Override
-    public void initialize(byte[] bytes, Channel channel) throws AttachmentException {
-        index = 0;
-        try {
-            dicomObject = DICOMConverter.byteArrayToDicomObject(bytes, false);
+            if (message.isBinary()) {
+                messageBytes = message.getRawBytes();
+            } else {
+                // Taking a string is much more inefficient than taking in a byte array. 
+                // If the user manually sends a message, it will arrive as a base64 encoded string, so we must support Strings for DICOM still.
+                // However, DICOM messages that use this initializer should be relatively small in size.
+                messageBytes = StringUtils.getBytesUsAscii(message.getRawData());
+                decode = true;
+            }
+
+            dicomObject = DICOMConverter.byteArrayToDicomObject(messageBytes, decode);
             dicomElement = dicomObject.remove(Tag.PixelData);
         } catch (Throwable t) {
             throw new AttachmentException(t);

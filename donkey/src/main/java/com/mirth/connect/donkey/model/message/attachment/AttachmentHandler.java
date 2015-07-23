@@ -12,12 +12,11 @@ package com.mirth.connect.donkey.model.message.attachment;
 import java.io.Serializable;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.channel.Channel;
 
 public interface AttachmentHandler extends Serializable {
-    public void initialize(String message, Channel channel) throws AttachmentException;
-
-    public void initialize(byte[] bytes, Channel channel) throws AttachmentException;
+    public void initialize(RawMessage message, Channel channel) throws AttachmentException;
 
     public Attachment nextAttachment() throws AttachmentException;
 

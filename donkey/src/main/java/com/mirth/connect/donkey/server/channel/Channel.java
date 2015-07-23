@@ -1337,11 +1337,7 @@ public class Channel implements Runnable {
             ThreadUtils.checkInterruptedStatus();
 
             try {
-                if (rawMessage.isBinary()) {
-                    attachmentHandler.initialize(rawMessage.getRawBytes(), this);
-                } else {
-                    attachmentHandler.initialize(rawMessage.getRawData(), this);
-                }
+                attachmentHandler.initialize(rawMessage, this);
 
                 // Free up the memory of the raw message since it is no longer being used
                 rawMessage.clearMessage();

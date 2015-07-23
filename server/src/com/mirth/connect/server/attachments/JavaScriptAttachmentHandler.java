@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -43,7 +44,11 @@ public class JavaScriptAttachmentHandler extends MirthAttachmentHandler {
     }
 
     @Override
-    public void initialize(String message, Channel channel) throws AttachmentException {
+    public void initialize(RawMessage message, Channel channel) throws AttachmentException {
+        if (message.isBinary()) {
+            throw new AttachmentException("Binary data not supported for Javascript attachment handler");
+        }
+
         index = 0;
         attachments = new ArrayList<com.mirth.connect.server.userutil.Attachment>();
         try {
@@ -52,7 +57,7 @@ public class JavaScriptAttachmentHandler extends MirthAttachmentHandler {
                 JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
                 contextFactoryId = contextFactory.getId();
             }
-            
+
             newMessage = JavaScriptUtil.executeAttachmentScript(contextFactory, message, channel.getChannelId(), channel.getName(), attachments);
         } catch (Throwable t) {
             if (t instanceof JavaScriptExecutorException) {
@@ -63,11 +68,6 @@ public class JavaScriptAttachmentHandler extends MirthAttachmentHandler {
         }
     }
 
-    @Override
-    public void initialize(byte[] bytes, Channel channel) throws AttachmentException {
-        throw new AttachmentException("Binary data not supported for Javascript attachment handler");
-    }
-    
     @Override
     public Attachment nextAttachment() {
         if (index < attachments.size()) {
@@ -94,7 +94,7 @@ public class JavaScriptAttachmentHandler extends MirthAttachmentHandler {
 
         if (attachmentScript != null) {
             scriptId = ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channel.getChannelId());
-            
+
             try {
                 Set<String> scriptOptions = new HashSet<String>();
                 scriptOptions.add("useAttachmentList");

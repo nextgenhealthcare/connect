@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -43,25 +44,24 @@ public class RegexAttachmentHandler extends MirthAttachmentHandler {
     }
 
     @Override
-    public void initialize(String message, Channel channel) throws AttachmentException {
+    public void initialize(RawMessage message, Channel channel) throws AttachmentException {
+        if (message.isBinary()) {
+            throw new AttachmentException("Binary data not supported for Regex attachment handler");
+        }
+
         try {
-            this.message = message;
+            this.message = message.getRawData();
             newMessage = new StringBuilder();
             offset = 0;
 
             if (pattern != null) {
-                matcher = pattern.matcher(message);
+                matcher = pattern.matcher(message.getRawData());
                 //TODO Validate number of groups that the user can provide
                 group = matcher.groupCount();
             }
         } catch (Throwable t) {
             throw new AttachmentException(t);
         }
-    }
-
-    @Override
-    public void initialize(byte[] bytes, Channel channel) throws AttachmentException {
-        throw new AttachmentException("Binary data not supported for Regex attachment handler");
     }
 
     @Override

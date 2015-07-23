@@ -31,6 +31,7 @@ import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.Channel;
@@ -82,8 +83,8 @@ public class JavaScriptUtil {
         }
     }
 
-    public static String executeAttachmentScript(MirthContextFactory contextFactory, final String message, final String channelId, final String channelName, final List<Attachment> attachments) throws InterruptedException, JavaScriptExecutorException {
-        String processedMessage = message;
+    public static String executeAttachmentScript(MirthContextFactory contextFactory, final RawMessage message, final String channelId, final String channelName, final List<Attachment> attachments) throws InterruptedException, JavaScriptExecutorException {
+        String processedMessage = message.getRawData();
         Object result = null;
 
         try {

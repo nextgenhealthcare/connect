@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.util.javascript;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,6 +27,7 @@ import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.userutil.AlertSender;
 import com.mirth.connect.server.userutil.Attachment;
@@ -223,9 +225,10 @@ public class JavaScriptScopeUtil {
      * Since this method calls getContext(), anything calling it should wrap this method in a
      * try-finally with Context.exit() in the finally block.
      */
-    public static Scriptable getAttachmentScope(ContextFactory contextFactory, Object logger, String channelId, String channelName, String message, List<Attachment> attachments) {
+    public static Scriptable getAttachmentScope(ContextFactory contextFactory, Object logger, String channelId, String channelName, RawMessage message, List<Attachment> attachments) {
         Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId, channelName);
-        addRawMessage(scope, message);
+        addRawMessage(scope, message.getRawData());
+        add("sourceMap", scope, new SourceMap(Collections.unmodifiableMap(message.getSourceMap())));
         add("mirth_attachments", scope, attachments);
         return scope;
     }
