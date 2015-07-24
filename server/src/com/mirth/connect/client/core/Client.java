@@ -319,7 +319,7 @@ public class Client {
     }
 
     /**
-     * Sets an exension as enabled or disabled.
+     * Sets an extension as enabled or disabled.
      * 
      * @return
      * @throws ClientException
@@ -364,6 +364,18 @@ public class Client {
         logger.debug("invoking connector service " + method + " on " + connectorName);
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("name", connectorName), new BasicNameValuePair("method", method), new BasicNameValuePair("object", serializer.serialize(object)) };
         return serializer.deserialize(serverConnection.executePostMethod(EXTENSION_SERVLET, params), Object.class);
+    }
+
+    /**
+     * Invoke a method on a connector, asynchronously,  and pass back the Object returned
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public Object invokeConnectorServiceAsync(String channelId, String connectorName, String method, Object object) throws ClientException {
+        logger.debug("invoking connector service " + method + " on " + connectorName);
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("name", connectorName), new BasicNameValuePair("method", method), new BasicNameValuePair("object", serializer.serialize(object)) };
+        return serializer.deserialize(serverConnection.executePostMethodAsync(EXTENSION_SERVLET, params), Object.class);
     }
 
     /**
