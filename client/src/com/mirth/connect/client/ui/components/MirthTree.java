@@ -275,7 +275,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
      * @return
      */
     public static int getIndexOfNode(TreeNode node) {
-        String nodeName = node.toString().replaceAll(" \\(.*\\)", "");  // Get the node name without the vocab
+        String nodeName = node.toString().replaceAll(" \\(.*\\)", ""); // Get the node name without the vocab
         TreeNode parent = node.getParent();
 
         // The parent will be null for the root node
@@ -288,12 +288,16 @@ public class MirthTree extends JXTree implements DropTargetListener {
             // are multiple children with the same name.
             while (children.hasMoreElements()) {
                 TreeNode child = (TreeNode) children.nextElement();
-                if (nodeName.equals(child.toString().replaceAll(" \\(.*\\)", ""))) {
-                    if (child != node) {
-                        indexCounter++;
-                    } else {
-                        foundIndex = indexCounter;
-                        indexCounter++;
+
+                // Ignore the draggable nodes that have no children
+                if (child.getChildCount() > 0) {
+                    if (nodeName.equals(child.toString().replaceAll(" \\(.*\\)", ""))) {
+                        if (child != node) {
+                            indexCounter++;
+                        } else {
+                            foundIndex = indexCounter;
+                            indexCounter++;
+                        }
                     }
                 }
             }
