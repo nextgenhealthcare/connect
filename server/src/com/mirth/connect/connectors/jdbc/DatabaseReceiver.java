@@ -45,6 +45,7 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.util.CharsetUtils;
 
 public class DatabaseReceiver extends PollConnector {
 
@@ -247,8 +248,10 @@ public class DatabaseReceiver extends PollConnector {
             return null;
         }
 
+        String charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
+
         if (object instanceof byte[]) {
-            return new String((byte[]) object);
+            return new String((byte[]) object, charsetEncoding);
         }
 
         if (object instanceof Clob) {
@@ -257,7 +260,7 @@ public class DatabaseReceiver extends PollConnector {
 
         if (object instanceof Blob) {
             Blob blob = (Blob) object;
-            return new String(blob.getBytes(1, (int) blob.length()));
+            return new String(blob.getBytes(1, (int) blob.length()), charsetEncoding);
         }
 
         return object.toString();

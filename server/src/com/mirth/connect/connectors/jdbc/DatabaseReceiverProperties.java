@@ -20,6 +20,7 @@ import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
+import com.mirth.connect.util.CharsetUtils;
 
 public class DatabaseReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, SourceConnectorPropertiesInterface {
     public static final String NAME = "Database Reader";
@@ -43,6 +44,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
     private String retryCount;
     private String retryInterval;
     private String fetchSize;
+    private String encoding;
 
     public DatabaseReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
@@ -60,6 +62,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
         retryCount = "3";
         retryInterval = "10000";
         fetchSize = "1000";
+        encoding = CharsetUtils.DEFAULT_ENCODING;
     }
 
     @Override
@@ -186,6 +189,14 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
         this.fetchSize = fetchSize;
     }
 
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
     @Override
     public SourceConnectorProperties getSourceConnectorProperties() {
         return sourceConnectorProperties;
@@ -216,7 +227,9 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
     public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_3_0(DonkeyElement element) {}
+    public void migrate3_3_0(DonkeyElement element) {
+        element.addChildElementIfNotExists("encoding", CharsetUtils.DEFAULT_ENCODING);
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -233,6 +246,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
         purgedProperties.put("retryCount", PurgeUtil.getNumericValue(retryCount));
         purgedProperties.put("retryInterval", PurgeUtil.getNumericValue(retryInterval));
         purgedProperties.put("fetchSize", PurgeUtil.getNumericValue(fetchSize));
+        purgedProperties.put("encoding", encoding);
         return purgedProperties;
     }
 }

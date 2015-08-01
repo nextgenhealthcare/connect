@@ -92,6 +92,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         selectTextPane.getDocument().addDocumentListener(documentListener);
         updateTextPane.getDocument().addDocumentListener(documentListener);
+
+        parent.setupCharsetEncodingForConnector(encodingCombobox);
     }
 
     @Override
@@ -129,6 +131,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         } else {
             properties.setUpdateMode(DatabaseReceiverProperties.UPDATE_NEVER);
         }
+
+        properties.setEncoding(parent.getSelectedEncodingForConnector(encodingCombobox));
 
         return properties;
     }
@@ -171,6 +175,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         fetchSizeField.setText(props.getFetchSize());
         retryCountField.setText(props.getRetryCount());
         retryIntervalField.setText(props.getRetryInterval());
+
+        parent.setPreviousSelectedEncodingForConnector(encodingCombobox, props.getEncoding());
 
         if (props.isUseScript()) {
             useScriptYes.setSelected(true);
@@ -438,6 +444,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         retryCountField = new com.mirth.connect.client.ui.components.MirthTextField();
         retryIntervalLabel = new javax.swing.JLabel();
         retryIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
+        contentEncodingLabel = new javax.swing.JLabel();
+        encodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -639,10 +647,13 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         retryIntervalLabel.setText("Retry Interval (ms):");
 
         retryIntervalField.setToolTipText("<html>The amount of time that should elapse between retry attempts.</html>");
+
+        contentEncodingLabel = new javax.swing.JLabel("Encoding:");
+        encodingCombobox.setToolTipText("<html>Select the character set exncoding used by the message sender,<br/>or Select Default to use the default character set encoding for the JVM running Mirth.</html>");
     }
 
     private void initLayout() {
-        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "6[]13[grow]", "[][][][][][][][][][][sgy][][sgy]"));
+        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "6[]13[grow]", "[][][][][][][][][][][][][sgy][][sgy]"));
 
         add(driverLabel, "right");
         add(databaseDriverCombobox, "split");
@@ -668,7 +679,9 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         add(retryCountField, "w 121!");
         add(retryIntervalLabel, "newline, right");
         add(retryIntervalField, "w 121!");
-        add(generateLabel, "sx, split 3, right");
+        add(contentEncodingLabel, "newline, right");
+        add(encodingCombobox, "split 1, left");
+        add(generateLabel, "split 3, sx, right");
         add(generateConnection, "w 67!");
         add(generateSelect, "w 67!");
         add(selectLabel, "newline, top, right");
@@ -972,4 +985,6 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthRadioButton useScriptNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton useScriptYes;
     private javax.swing.JLabel usernameLabel;
+    private javax.swing.JLabel contentEncodingLabel;
+    private com.mirth.connect.client.ui.components.MirthComboBox encodingCombobox;
 }
