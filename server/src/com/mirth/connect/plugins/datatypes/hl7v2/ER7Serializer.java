@@ -54,7 +54,7 @@ public class ER7Serializer implements IMessageSerializer {
 
     private static Pattern ampersandPattern = Pattern.compile("&amp;");
     private static Pattern prettyPattern1 = Pattern.compile("\\s*<([^/][^>]*)>");
-    private static Pattern prettyPattern2 = Pattern.compile("<(/[^>]*)>\\s*");
+    private static Pattern prettyPattern2 = Pattern.compile("<([^>]*/|/[^>]*)>\\s*");
 
     public ER7Serializer(SerializerProperties properties) {
         serializationProperties = (HL7v2SerializationProperties) properties.getSerializationProperties();

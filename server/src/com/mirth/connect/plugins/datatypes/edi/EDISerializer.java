@@ -39,7 +39,8 @@ public class EDISerializer implements IMessageSerializer {
     private String serializationElementDelimiter = null;
     private String serializationSubelementDelimiter = null;
 
-    private static Pattern prettyPattern = Pattern.compile("</([^>]*)>\\s+<");
+    private static Pattern prettyPattern1 = Pattern.compile("\\s*<([^/][^>]*)>");
+    private static Pattern prettyPattern2 = Pattern.compile("<([^>]*/|/[^>]*)>\\s*");
 
     public EDISerializer(SerializerProperties properties) {
         serializationProperties = (EDISerializationProperties) properties.getSerializationProperties();
@@ -76,7 +77,7 @@ public class EDISerializer implements IMessageSerializer {
         xr.setErrorHandler(handler);
         try {
             //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
-            xr.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("</$1><"))));
+            xr.parse(new InputSource(new StringReader(prettyPattern2.matcher(prettyPattern1.matcher(source).replaceAll("<$1>")).replaceAll("<$1>"))));
         } catch (Exception e) {
             throw new MessageSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to EDI", e));
         }
