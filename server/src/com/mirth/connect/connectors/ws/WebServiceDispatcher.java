@@ -15,6 +15,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.ConnectException;
+import java.net.NoRouteToHostException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -502,8 +503,12 @@ public class WebServiceDispatcher extends DestinationConnector {
                         // Replace the endpoint with the redirected URL
                         dispatch.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, location);
                     } else {
-                        // Leave the response status as QUEUED for ConnectException, otherwise ERROR
-                        if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
+                        // Leave the response status as QUEUED for NoRouteToHostException and ConnectException, otherwise ERROR
+                        if (e instanceof NoRouteToHostException || ((e.getCause() != null) && (e.getCause() instanceof NoRouteToHostException))) {
+                            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("HTTP transport error", e);
+                            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "HTTP transport error", e);
+                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "HTTP transport error.", e));
+                        } else if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
                             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Connection refused.", e);
                             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Connection refused.", e));
                         } else {
