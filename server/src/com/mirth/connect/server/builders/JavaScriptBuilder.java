@@ -46,6 +46,9 @@ public class JavaScriptBuilder {
 
         // add #trim() function to JavaScript String prototype
         script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
+        
+        // Override toString on Arrays to return the JSON representation
+        script.append("Array.prototype.toString = function() { return JSON.stringify(this); };");
 
         for (MetaData metaData : extensionController.getConnectorMetaData().values()) {
             if (CollectionUtils.isNotEmpty(metaData.getUserutilPackages())) {

@@ -332,7 +332,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
         }
 
         LinkedList<String> nodeQ = new LinkedList<String>();
-        while (node != null) {
+        while (node != null && node.getParent() != null) {
             if (serializationType.equals(SerializationType.JSON) && node.isArrayElement()) {
                 nodeQ.add(String.valueOf(node.getParent().getIndex(node) - 1));
             } else {
@@ -347,10 +347,6 @@ public class MirthTree extends JXTree implements DropTargetListener {
             }
 
             node = (MirthTreeNode) node.getParent();
-        }
-
-        if (!nodeQ.isEmpty()) {
-            nodeQ.removeLast();
         }
 
         while (!nodeQ.isEmpty()) {
