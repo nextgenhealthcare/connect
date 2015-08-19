@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -192,6 +193,10 @@ public abstract class SourceConnector extends Connector {
     }
 
     public void dispatchBatchMessage(BatchRawMessage batchRawMessage, ResponseHandler responseHandler) throws BatchMessageException {
+        dispatchBatchMessage(batchRawMessage, responseHandler, null);
+    }
+
+    public void dispatchBatchMessage(BatchRawMessage batchRawMessage, ResponseHandler responseHandler, Collection<Integer> destinationMetaDataIds) throws BatchMessageException {
         // Prevent new batches from starting if the connector is stopping
         if (getCurrentState() == DeployedState.STOPPING) {
             return;
@@ -239,7 +244,7 @@ public abstract class SourceConnector extends Connector {
                     }
 
                     // Create a new RawMessage to be dispatched
-                    RawMessage rawMessage = new RawMessage(message, null, sourceMap);
+                    RawMessage rawMessage = new RawMessage(message, destinationMetaDataIds, sourceMap);
 
                     DispatchResult dispatchResult = null;
                     try {

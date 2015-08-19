@@ -508,7 +508,7 @@ public class DonkeyEngineController implements EngineController {
                 BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(rawMessage.getRawData()), rawMessage.getSourceMap());
 
                 ResponseHandler responseHandler = new SimpleResponseHandler();
-                sourceConnector.dispatchBatchMessage(batchRawMessage, responseHandler);
+                sourceConnector.dispatchBatchMessage(batchRawMessage, responseHandler, rawMessage.getDestinationMetaDataIds());
 
                 return responseHandler.getResultForResponse();
             }
