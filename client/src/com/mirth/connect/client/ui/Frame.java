@@ -3566,12 +3566,12 @@ public class Frame extends JXFrame {
                                 continue;
                             }
                         }
-
-                        String channelXML = ObjectXMLSerializer.getInstance().serialize(channel);
-                        FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
-                        exportCount++;
                         exportCollisionCount--;
                     }
+
+                    String channelXML = ObjectXMLSerializer.getInstance().serialize(channel);
+                    FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
+                    exportCount++;
                 }
 
                 if (exportCount > 0) {
