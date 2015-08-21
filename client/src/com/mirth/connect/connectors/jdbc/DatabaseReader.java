@@ -649,7 +649,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         retryIntervalField.setToolTipText("<html>The amount of time that should elapse between retry attempts.</html>");
 
         contentEncodingLabel = new javax.swing.JLabel("Encoding:");
-        encodingCombobox.setToolTipText("<html>Select the character set exncoding used by the message sender,<br/>or Select Default to use the default character set encoding for the JVM running Mirth.</html>");
+        encodingCombobox.setToolTipText("<html>Select the character set encoding used by the message sender,<br/>or Select Default to use the default character set encoding for the JVM running Mirth.</html>");
     }
 
     private void initLayout() {
