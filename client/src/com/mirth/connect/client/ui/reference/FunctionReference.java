@@ -11,34 +11,29 @@ package com.mirth.connect.client.ui.reference;
 
 import java.util.List;
 
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.CodeTemplateFunctionDefinition;
+import com.mirth.connect.util.CodeTemplateUtil;
+
 public class FunctionReference extends Reference {
 
     private String className;
-    private String functionName;
-    private Parameters parameters;
-    private String returnType;
-    private String returnDescription;
+    private CodeTemplateFunctionDefinition functionDefinition;
     private List<String> beforeDotTextList;
 
-    public FunctionReference(int scope, String category, String className, String name, String description, String replacementCode, String functionName) {
-        this(scope, category, className, name, description, replacementCode, functionName, null);
+    public FunctionReference(String category, CodeTemplate codeTemplate) {
+        this(codeTemplate.getContextSet(), category, null, codeTemplate.getName(), codeTemplate.getDescription(), CodeTemplateUtil.stripDocumentation(codeTemplate.getCode()), codeTemplate.getFunctionDefinition());
     }
 
-    public FunctionReference(int scope, String category, String className, String name, String description, String replacementCode, String functionName, Parameters parameters) {
-        this(scope, category, className, name, description, replacementCode, functionName, parameters, null, null);
+    public FunctionReference(CodeTemplateContextSet contextSet, String category, String className, String name, String description, String replacementCode, CodeTemplateFunctionDefinition functionDefinition) {
+        this(contextSet, category, className, name, description, replacementCode, functionDefinition, null);
     }
 
-    public FunctionReference(int scope, String category, String className, String name, String description, String replacementCode, String functionName, Parameters parameters, String returnType, String returnDescription) {
-        this(scope, category, className, name, description, replacementCode, functionName, parameters, returnType, returnDescription, null);
-    }
-
-    public FunctionReference(int scope, String category, String className, String name, String description, String replacementCode, String functionName, Parameters parameters, String returnType, String returnDescription, List<String> beforeDotTextList) {
-        super(Type.FUNCTION, scope, category, name, description, replacementCode);
+    public FunctionReference(CodeTemplateContextSet contextSet, String category, String className, String name, String description, String replacementCode, CodeTemplateFunctionDefinition functionDefinition, List<String> beforeDotTextList) {
+        super(Type.FUNCTION, contextSet, category, name, description, replacementCode);
         this.className = className;
-        this.functionName = functionName;
-        this.parameters = parameters;
-        this.returnType = returnType;
-        this.returnDescription = returnDescription;
+        this.functionDefinition = functionDefinition;
         this.beforeDotTextList = beforeDotTextList;
     }
 
@@ -50,36 +45,12 @@ public class FunctionReference extends Reference {
         this.className = className;
     }
 
-    public String getFunctionName() {
-        return functionName;
+    public CodeTemplateFunctionDefinition getFunctionDefinition() {
+        return functionDefinition;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
-    }
-
-    public Parameters getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(Parameters parameters) {
-        this.parameters = parameters;
-    }
-
-    public String getReturnType() {
-        return returnType;
-    }
-
-    public void setReturnType(String returnType) {
-        this.returnType = returnType;
-    }
-
-    public String getReturnDescription() {
-        return returnDescription;
-    }
-
-    public void setReturnDescription(String returnDescription) {
-        this.returnDescription = returnDescription;
+    public void setFunctionDefinition(CodeTemplateFunctionDefinition functionDefinition) {
+        this.functionDefinition = functionDefinition;
     }
 
     public List<String> getBeforeDotTextList() {

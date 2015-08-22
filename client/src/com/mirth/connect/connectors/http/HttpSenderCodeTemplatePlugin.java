@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.CodeTemplate.CodeTemplateType;
+import com.mirth.connect.model.CodeTemplateContextSet;
 import com.mirth.connect.plugins.CodeTemplatePlugin;
 
 public class HttpSenderCodeTemplatePlugin extends CodeTemplatePlugin {
@@ -30,8 +30,8 @@ public class HttpSenderCodeTemplatePlugin extends CodeTemplatePlugin {
         Map<String, List<CodeTemplate>> referenceItems = new HashMap<String, List<CodeTemplate>>();
 
         List<CodeTemplate> httpSenderFunctionsList = new ArrayList<CodeTemplate>();
-        httpSenderFunctionsList.add(new CodeTemplate("Get HTTP Response Status Line", "Retrieves the status line (e.g. \"HTTP/1.1 200 OK\") from an HTTP response, for use in the response transformer.", "$('responseStatusLine')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        httpSenderFunctionsList.add(new CodeTemplate("Get HTTP Response Header", "Retrieves a header value from an HTTP response, for use in the response transformer.", "$('responseHeaders').get('Header-Name')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        httpSenderFunctionsList.add(new CodeTemplate("Get HTTP Response Status Line", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getConnectorContextSet(), "$('responseStatusLine')", "Retrieves the status line (e.g. \"HTTP/1.1 200 OK\") from an HTTP response, for use in the response transformer."));
+        httpSenderFunctionsList.add(new CodeTemplate("Get HTTP Response Header", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getConnectorContextSet(), "$('responseHeaders').get('Header-Name')", "Retrieves a header value from an HTTP response, for use in the response transformer."));
         referenceItems.put("HTTP Sender Functions", httpSenderFunctionsList);
 
         return referenceItems;

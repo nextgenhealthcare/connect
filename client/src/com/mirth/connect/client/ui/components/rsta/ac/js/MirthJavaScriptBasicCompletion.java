@@ -21,33 +21,36 @@ import com.mirth.connect.client.ui.reference.ClassReference;
 import com.mirth.connect.client.ui.reference.CodeReference;
 import com.mirth.connect.client.ui.reference.Reference;
 import com.mirth.connect.client.ui.reference.VariableReference;
+import com.mirth.connect.model.CodeTemplateContextSet;
 
 public class MirthJavaScriptBasicCompletion extends JavascriptBasicCompletion implements MirthCompletion {
 
     protected String id;
+    protected CodeTemplateContextSet contextSet;
     protected String summary;
     protected String inputText;
     protected String iconName;
 
     public MirthJavaScriptBasicCompletion(CompletionProvider provider, VariableReference reference) {
-        this(provider, reference.getId(), reference.getReplacementCode(), reference.getReplacementCode(), reference.getName(), reference.getSummary(), reference.getIconName());
+        this(provider, reference.getId(), reference.getContextSet(), reference.getReplacementCode(), reference.getReplacementCode(), reference.getName(), reference.getSummary(), reference.getIconName());
     }
 
     public MirthJavaScriptBasicCompletion(CompletionProvider provider, CodeReference reference) {
-        this(provider, reference.getId(), reference.getName(), reference.getReplacementCode(), null, reference.getSummary(), reference.getIconName());
+        this(provider, reference.getId(), reference.getContextSet(), reference.getName(), reference.getReplacementCode(), null, reference.getSummary(), reference.getIconName());
     }
 
     public MirthJavaScriptBasicCompletion(CompletionProvider provider, ClassReference reference) {
-        this(provider, reference.getId(), reference.getName(), reference.getName(), null, reference.getSummary(), reference.getIconName());
+        this(provider, reference.getId(), reference.getContextSet(), reference.getName(), reference.getName(), null, reference.getSummary(), reference.getIconName());
     }
 
     public MirthJavaScriptBasicCompletion(CompletionProvider provider, ClassReference reference, String alias) {
-        this(provider, reference.getId(), alias, alias, reference.getName(), reference.getSummary(), reference.getIconName());
+        this(provider, reference.getId(), reference.getContextSet(), alias, alias, reference.getName(), reference.getSummary(), reference.getIconName());
     }
 
-    private MirthJavaScriptBasicCompletion(CompletionProvider provider, String id, String inputText, String replacementText, String shortDesc, String summary, String iconName) {
+    private MirthJavaScriptBasicCompletion(CompletionProvider provider, String id, CodeTemplateContextSet contextSet, String inputText, String replacementText, String shortDesc, String summary, String iconName) {
         super(provider, replacementText, shortDesc, summary);
         this.id = id;
+        this.contextSet = contextSet;
         this.summary = summary;
         this.inputText = inputText;
         this.iconName = iconName;
@@ -56,6 +59,11 @@ public class MirthJavaScriptBasicCompletion extends JavascriptBasicCompletion im
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public CodeTemplateContextSet getContextSet() {
+        return contextSet;
     }
 
     @Override

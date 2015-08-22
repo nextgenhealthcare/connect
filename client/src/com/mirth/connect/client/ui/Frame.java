@@ -100,9 +100,10 @@ import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
+import com.mirth.connect.client.ui.codetemplate.CodeTemplateImportDialog;
+import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
 import com.mirth.connect.client.ui.components.rsta.ac.js.MirthJavaScriptLanguageSupport;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
-import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -113,7 +114,9 @@ import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.CodeTemplateLibrarySaveResult;
+import com.mirth.connect.model.CodeTemplateLibrarySaveResult.CodeTemplateUpdateResult;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
@@ -160,7 +163,6 @@ public class Frame extends JXFrame {
     public List<DashboardStatus> status = null;
     public Map<String, ChannelStatus> channelStatuses = null;
     public List<User> users = null;
-    public List<CodeTemplate> codeTemplates = null;
     public ActionManager manager = ActionManager.getInstance();
     public JPanel contentPanel;
     public BorderLayout borderLayout1 = new BorderLayout();
@@ -193,8 +195,6 @@ public class Frame extends JXFrame {
     public JPopupMenu alertPopupMenu;
     public JXTaskPane alertEditTasks;
     public JPopupMenu alertEditPopupMenu;
-    public JXTaskPane codeTemplateTasks;
-    public JPopupMenu codeTemplatePopupMenu;
     public JXTaskPane globalScriptsTasks;
     public JPopupMenu globalScriptsPopupMenu;
     public JXTaskPane extensionsTasks;
@@ -391,7 +391,7 @@ public class Frame extends JXFrame {
         loadExtensionMetaData();
         // Re-initialize the controller every time the frame is setup
         AuthorizationControllerFactory.getAuthorizationController().initialize();
-        refreshCodeTemplates();
+        codeTemplatePanel = new CodeTemplatePanel(this);
         initializeExtensions();
 
         // Load the data type/display name maps now that the extensions have been loaded.
@@ -471,6 +471,9 @@ public class Frame extends JXFrame {
         }
         login.setStatus("Loading message browser...");
         messageBrowser = new MessageBrowser();
+
+        // Refresh code templates after extensions have been loaded
+        codeTemplatePanel.doRefreshCodeTemplates();
 
         // DEBUGGING THE UIDefaults:
 
@@ -689,7 +692,6 @@ public class Frame extends JXFrame {
         createAlertPane();
         createAlertEditPane();
         createGlobalScriptsPane();
-        createCodeTemplatePane();
         createExtensionsPane();
         createOtherPane();
     }
@@ -730,11 +732,6 @@ public class Frame extends JXFrame {
         // User Pane
         setVisibleTasks(userTasks, userPopupMenu, 0, 1, true);
         setVisibleTasks(userTasks, userPopupMenu, 2, -1, false);
-
-        // Code Template Pane
-        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 0, 1, false);
-        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 2, 4, true);
-        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 5, 6, false);
 
         // Global Scripts Pane
         setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 0, 0, false);
@@ -973,29 +970,6 @@ public class Frame extends JXFrame {
 
         setNonFocusable(userTasks);
         taskPaneContainer.add(userTasks);
-    }
-
-    /**
-     * Creates the codeTemplate task pane.
-     */
-    private void createCodeTemplatePane() {
-        // Create CodeTemplate Edit Tasks Pane
-        codeTemplateTasks = new JXTaskPane();
-        codeTemplatePopupMenu = new JPopupMenu();
-        codeTemplateTasks.setTitle("Code Template Tasks");
-        codeTemplateTasks.setName(TaskConstants.CODE_TEMPLATE_KEY);
-        codeTemplateTasks.setFocusable(false);
-
-        addTask(TaskConstants.CODE_TEMPLATE_REFRESH, "Refresh", "Refresh the list of code templates.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask(TaskConstants.CODE_TEMPLATE_SAVE, "Save CodeTemplates", "Save all changes made to all code templates.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask(TaskConstants.CODE_TEMPLATE_NEW, "New CodeTemplate", "Create a new code template.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/add.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask(TaskConstants.CODE_TEMPLATE_IMPORT, "Import Code Templates", "Import list of code templates from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask(TaskConstants.CODE_TEMPLATE_EXPORT, "Export Code Templates", "Export the list of code templates to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask(TaskConstants.CODE_TEMPLATE_DELETE, "Delete CodeTemplate", "Delete the currently selected code template.", "L", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/delete.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask(TaskConstants.CODE_TEMPLATE_VALIDATE, "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/accept.png")), codeTemplateTasks, codeTemplatePopupMenu);
-
-        setNonFocusable(codeTemplateTasks);
-        taskPaneContainer.add(codeTemplateTasks);
     }
 
     /**
@@ -1452,15 +1426,7 @@ public class Frame extends JXFrame {
                 return false;
             }
         } else if (currentContentPage == codeTemplatePanel && isSaveEnabled()) {
-            codeTemplatePanel.stopCodeTemplateEditing();
-
-            int option = JOptionPane.showConfirmDialog(this, "Would you like to save the code templates?");
-
-            if (option == JOptionPane.YES_OPTION) {
-                if (!saveCodeTemplates()) {
-                    return false;
-                }
-            } else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
+            if (!codeTemplatePanel.confirmLeave()) {
                 return false;
             }
         }
@@ -1779,8 +1745,8 @@ public class Frame extends JXFrame {
             setVisibleTasks(alertEditTasks, alertEditPopupMenu, 0, 0, enabled);
         } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
             setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 0, 0, enabled);
-        } else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel) {
-            setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 1, 1, enabled);
+        } else if (currentContentPage == codeTemplatePanel) {
+            codeTemplatePanel.setSaveEnabled(enabled);
         }
     }
 
@@ -1802,8 +1768,8 @@ public class Frame extends JXFrame {
             enabled = alertEditTasks.getContentPane().getComponent(0).isVisible();
         } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
             enabled = globalScriptsTasks.getContentPane().getComponent(0).isVisible();
-        } else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel) {
-            enabled = codeTemplateTasks.getContentPane().getComponent(1).isVisible();
+        } else if (currentContentPage == codeTemplatePanel) {
+            enabled = codeTemplatePanel.isSaveEnabled();
         }
 
         return enabled;
@@ -2170,34 +2136,7 @@ public class Frame extends JXFrame {
     }
 
     public void doEditCodeTemplates() {
-
-        if (codeTemplatePanel == null) {
-            codeTemplatePanel = new CodeTemplatePanel();
-        }
-
-        final String workingId = startWorking("Loading code templates...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                refreshCodeTemplates();
-                return null;
-            }
-
-            public void done() {
-                codeTemplatePanel.updateCodeTemplateTable();
-                setBold(viewPane, UIConstants.ERROR_CONSTANT);
-                setPanelName("Code Templates");
-                setCurrentContentPage(codeTemplatePanel);
-                codeTemplatePanel.setDefaultCodeTemplate();
-                setFocus(codeTemplateTasks);
-                setSaveEnabled(false);
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
-
+        codeTemplatePanel.switchPanel();
     }
 
     public void doValidateCurrentGlobalScript() {
@@ -2365,7 +2304,7 @@ public class Frame extends JXFrame {
 
         for (ChannelStatus channelStatus : channelStatuses.values()) {
             Channel channel = channelStatus.getChannel();
-            channelHeaders.put(channel.getId(), new ChannelHeader(channel.getRevision(), channelStatus.getDeployedDate()));
+            channelHeaders.put(channel.getId(), new ChannelHeader(channel.getRevision(), channelStatus.getDeployedDate(), channelStatus.isCodeTemplatesChanged()));
         }
 
         return channelHeaders;
@@ -2403,9 +2342,14 @@ public class Frame extends JXFrame {
                 if (channelSummary.isUndeployed()) {
                     channelStatus.setDeployedDate(null);
                     channelStatus.setDeployedRevisionDelta(null);
-                } else if (channelSummary.getChannelStatus().getDeployedDate() != null) {
-                    channelStatus.setDeployedDate(channelSummary.getChannelStatus().getDeployedDate());
-                    channelStatus.setDeployedRevisionDelta(channelSummary.getChannelStatus().getDeployedRevisionDelta());
+                    channelStatus.setCodeTemplatesChanged(false);
+                } else {
+                    if (channelSummary.getChannelStatus().getDeployedDate() != null) {
+                        channelStatus.setDeployedDate(channelSummary.getChannelStatus().getDeployedDate());
+                        channelStatus.setDeployedRevisionDelta(channelSummary.getChannelStatus().getDeployedRevisionDelta());
+                    }
+
+                    channelStatus.setCodeTemplatesChanged(channelSummary.getChannelStatus().isCodeTemplatesChanged());
                 }
 
                 channelStatus.setLocalChannelId(channelSummary.getChannelStatus().getLocalChannelId());
@@ -3190,8 +3134,8 @@ public class Frame extends JXFrame {
             return alertEditTasks.getContentPane().getComponent(0).isVisible();
         } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
             return globalScriptsTasks.getContentPane().getComponent(0).isVisible();
-        } else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel) {
-            return codeTemplateTasks.getContentPane().getComponent(1).isVisible();
+        } else if (currentContentPage == codeTemplatePanel) {
+            return codeTemplatePanel.changesHaveBeenMade();
         } else {
             return false;
         }
@@ -3390,7 +3334,7 @@ public class Frame extends JXFrame {
                     } while (!checkChannelName(channelName, tempId));
 
                     importChannel.setName(channelName);
-                    importChannel.setId(tempId);
+                    setIdAndUpdateLibraries(importChannel, tempId);
                 } else {
                     overwrite = true;
 
@@ -3399,7 +3343,7 @@ public class Frame extends JXFrame {
                         if (channel.getName().equalsIgnoreCase(channelName)) {
                             // If overwriting, use the old revision number and id
                             importChannel.setRevision(channel.getRevision());
-                            importChannel.setId(channel.getId());
+                            setIdAndUpdateLibraries(importChannel, channel.getId());
                         }
                     }
                 }
@@ -3410,7 +3354,7 @@ public class Frame extends JXFrame {
                 // If the channel name didn't already exist, make sure
                 // the id doesn't exist either.
                 if (!checkChannelId(importChannel.getId())) {
-                    importChannel.setId(tempId);
+                    setIdAndUpdateLibraries(importChannel, tempId);
                 }
 
             }
@@ -3419,6 +3363,52 @@ public class Frame extends JXFrame {
             updateChannelTags(false);
         } catch (ClientException e) {
             alertThrowable(this, e);
+        }
+
+        // Import code templates / libraries if applicable
+        removeInvalidItems(importChannel.getCodeTemplateLibraries(), CodeTemplateLibrary.class);
+        if (!(importChannel instanceof InvalidChannel) && !importChannel.getCodeTemplateLibraries().isEmpty()) {
+            boolean importLibraries;
+            String importChannelCodeTemplateLibraries = Preferences.userNodeForPackage(Mirth.class).get("importChannelCodeTemplateLibraries", null);
+
+            if (importChannelCodeTemplateLibraries == null) {
+                JCheckBox alwaysChooseCheckBox = new JCheckBox("Always choose this option by default in the future (may be changed in the Administrator settings)");
+                Object[] params = new Object[] {
+                        "Channel \"" + importChannel.getName() + "\" has code template libraries included with it. Would you like to import them?",
+                        alwaysChooseCheckBox };
+                int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+                if (result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
+                    importLibraries = result == JOptionPane.YES_OPTION;
+                    if (alwaysChooseCheckBox.isSelected()) {
+                        Preferences.userNodeForPackage(Mirth.class).putBoolean("exportChannelCodeTemplateLibraries", importLibraries);
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                importLibraries = Boolean.parseBoolean(importChannelCodeTemplateLibraries);
+            }
+
+            if (importLibraries) {
+                CodeTemplateImportDialog dialog = new CodeTemplateImportDialog(this, importChannel.getCodeTemplateLibraries(), true);
+
+                if (dialog.wasSaved()) {
+                    CodeTemplateLibrarySaveResult updateSummary = codeTemplatePanel.attemptUpdate(dialog.getUpdatedLibraries(), dialog.getUpdatedCodeTemplates(), new HashMap<String, CodeTemplate>(), true, null, null);
+
+                    if (updateSummary == null || updateSummary.isOverrideNeeded() || !updateSummary.isLibrariesSuccess()) {
+                        return;
+                    } else {
+                        for (CodeTemplateUpdateResult result : updateSummary.getCodeTemplateResults().values()) {
+                            if (!result.isSuccess()) {
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+
+            importChannel.getCodeTemplateLibraries().clear();
         }
 
         /*
@@ -3473,6 +3463,14 @@ public class Frame extends JXFrame {
         }
     }
 
+    private void setIdAndUpdateLibraries(Channel channel, String newChannelId) {
+        for (CodeTemplateLibrary library : channel.getCodeTemplateLibraries()) {
+            library.getEnabledChannelIds().remove(channel.getId());
+            library.getEnabledChannelIds().add(newChannelId);
+        }
+        channel.setId(newChannelId);
+    }
+
     public boolean doExportChannel() {
         if (changesHaveBeenMade()) {
             if (alertOption(this, "This channel has been modified. You must save the channel changes before you can export. Would you like to save them now?")) {
@@ -3498,10 +3496,71 @@ public class Frame extends JXFrame {
             channel = selectedChannels.get(0);
         }
 
+        // Add code template libraries if necessary
+        if (channelHasLinkedCodeTemplates(channel)) {
+            boolean addLibraries = true;
+            String exportChannelCodeTemplateLibraries = Preferences.userNodeForPackage(Mirth.class).get("exportChannelCodeTemplateLibraries", null);
+
+            if (exportChannelCodeTemplateLibraries == null) {
+                ExportChannelLibrariesDialog dialog = new ExportChannelLibrariesDialog(channel);
+                if (dialog.getResult() == JOptionPane.NO_OPTION) {
+                    addLibraries = false;
+                } else if (dialog.getResult() != JOptionPane.YES_OPTION) {
+                    return false;
+                }
+            } else {
+                addLibraries = Boolean.parseBoolean(exportChannelCodeTemplateLibraries);
+            }
+
+            if (addLibraries) {
+                addCodeTemplateLibrariesToChannel(channel);
+            }
+        }
+
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String channelXML = serializer.serialize(channel);
+        // Reset the libraries on the cached channel
+        channel.getCodeTemplateLibraries().clear();
 
         return exportFile(channelXML, channel.getName(), "XML", "Channel");
+    }
+
+    private boolean channelHasLinkedCodeTemplates(Channel channel) {
+        return channelHasLinkedCodeTemplates(Collections.singletonList(channel));
+    }
+
+    private boolean channelHasLinkedCodeTemplates(List<Channel> channels) {
+        for (Channel channel : channels) {
+            for (CodeTemplateLibrary library : codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+                if (library.getEnabledChannelIds().contains(channel.getId()) || (library.isIncludeNewChannels() && !library.getDisabledChannelIds().contains(channel.getId()))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void addCodeTemplateLibrariesToChannel(Channel channel) {
+        List<CodeTemplateLibrary> channelLibraries = new ArrayList<CodeTemplateLibrary>();
+
+        for (CodeTemplateLibrary library : codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+            if (library.getEnabledChannelIds().contains(channel.getId()) || (library.isIncludeNewChannels() && !library.getDisabledChannelIds().contains(channel.getId()))) {
+                library = new CodeTemplateLibrary(library);
+
+                List<CodeTemplate> codeTemplates = new ArrayList<CodeTemplate>();
+                for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                    codeTemplate = codeTemplatePanel.getCachedCodeTemplates().get(codeTemplate.getId());
+                    if (codeTemplate != null) {
+                        codeTemplates.add(codeTemplate);
+                    }
+                }
+
+                library.setCodeTemplates(codeTemplates);
+                channelLibraries.add(library);
+            }
+        }
+
+        channel.setCodeTemplateLibraries(channelLibraries);
     }
 
     public void doExportAll() {
@@ -3515,6 +3574,36 @@ public class Frame extends JXFrame {
     }
 
     private void exportChannels(List<Channel> channelList) {
+        if (channelHasLinkedCodeTemplates(channelList)) {
+            boolean addLibraries;
+            String exportChannelCodeTemplateLibraries = Preferences.userNodeForPackage(Mirth.class).get("exportChannelCodeTemplateLibraries", null);
+
+            if (exportChannelCodeTemplateLibraries == null) {
+                JCheckBox alwaysChooseCheckBox = new JCheckBox("Always choose this option by default in the future (may be changed in the Administrator settings)");
+                Object[] params = new Object[] {
+                        "<html>One or more channels has code template libraries linked to them.<br/>Do you wish to include these libraries in each respective channel export?</html>",
+                        alwaysChooseCheckBox };
+                int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+                if (result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
+                    addLibraries = result == JOptionPane.YES_OPTION;
+                    if (alwaysChooseCheckBox.isSelected()) {
+                        Preferences.userNodeForPackage(Mirth.class).putBoolean("exportChannelCodeTemplateLibraries", addLibraries);
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                addLibraries = Boolean.parseBoolean(exportChannelCodeTemplateLibraries);
+            }
+
+            if (addLibraries) {
+                for (Channel channel : channelList) {
+                    addCodeTemplateLibrariesToChannel(channel);
+                }
+            }
+        }
+
         JFileChooser exportFileChooser = new JFileChooser();
         exportFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -3580,6 +3669,11 @@ public class Frame extends JXFrame {
             } catch (IOException ex) {
                 alertError(this, "File could not be written.");
             }
+        }
+
+        // Reset the libraries on the cached channels
+        for (Channel channel : channelList) {
+            channel.getCodeTemplateLibraries().clear();
         }
     }
 
@@ -4608,182 +4702,6 @@ public class Frame extends JXFrame {
         return true;
     }
 
-    public void doRefreshCodeTemplates() {
-        final String workingId = startWorking("Loading code templates...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                refreshCodeTemplates();
-                return null;
-            }
-
-            public void done() {
-                codeTemplatePanel.updateCodeTemplateTable();
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
-    }
-
-    public void refreshCodeTemplates() {
-        try {
-            codeTemplates = mirthClient.getCodeTemplate(null);
-        } catch (ClientException e) {
-            // If the user is unauthorized and it's the first time (startup, when
-            // codeTemplates is null), then initialize the code templates.
-            if (e.getCause() instanceof UnauthorizedException && codeTemplates == null) {
-                codeTemplates = new ArrayList<CodeTemplate>();
-            } else {
-                alertThrowable(this, e);
-            }
-        }
-
-        ReferenceListFactory.getInstance().updateUserCodeTemplates();
-    }
-
-    public void doSaveCodeTemplates() {
-        final String workingId = startWorking("Saving codeTemplates...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                saveCodeTemplates();
-                return null;
-            }
-
-            public void done() {
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
-    }
-
-    public boolean saveCodeTemplates() {
-        try {
-            codeTemplatePanel.saveCodeTemplate();
-
-            for (CodeTemplate template : codeTemplates) {
-                if (template.getType() == CodeSnippetType.FUNCTION) {
-                    if (!codeTemplatePanel.validateCodeTemplate(template.getCode(), false, template.getName())) {
-                        return false;
-                    }
-                }
-            }
-            mirthClient.updateCodeTemplates(codeTemplates);
-            ReferenceListFactory.getInstance().updateUserCodeTemplates();
-            setSaveEnabled(false);
-        } catch (ClientException e) {
-            alertThrowable(this, e);
-            return false;
-        }
-        return true;
-    }
-
-    public void doDeleteCodeTemplate() {
-        codeTemplatePanel.deleteCodeTemplate();
-    }
-
-    public void doValidateCodeTemplate() {
-        codeTemplatePanel.validateCodeTemplate();
-    }
-
-    public void doNewCodeTemplate() {
-        codeTemplatePanel.addCodeTemplate();
-    }
-
-    public void doExportCodeTemplates() {
-        if (changesHaveBeenMade()) {
-            if (alertOption(this, "Would you like to save the changes made to the code templates?")) {
-                saveCodeTemplates();
-            } else {
-                return;
-            }
-        }
-
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        String codeTemplateXML = serializer.serialize(codeTemplates);
-
-        exportFile(codeTemplateXML, null, "XML", "Code templates export");
-    }
-
-    public void doImportCodeTemplates() {
-        String content = browseForFileString("XML");
-
-        if (content != null) {
-            try {
-                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                boolean append = false;
-
-                List<CodeTemplate> newCodeTemplates = serializer.deserializeList(content, CodeTemplate.class);
-
-                removeInvalidItems(newCodeTemplates, CodeTemplate.class);
-
-                if (newCodeTemplates.size() > 0) {
-                    if (codeTemplates != null && codeTemplates.size() > 0) {
-                        if (alertOption(this, "Would you like to append these code templates to the existing code templates?")) {
-                            append = true;
-                        }
-                    }
-
-                    if (append) {
-                        for (CodeTemplate newCodeTemplate : newCodeTemplates) {
-                            newCodeTemplate.setId(UUID.randomUUID().toString());
-
-                            // make sure the name doesn't already exist
-                            for (CodeTemplate codeTemplate : codeTemplates) {
-                                // If the name already exists, generate a new unique name
-                                if (codeTemplate.getName().equalsIgnoreCase(newCodeTemplate.getName())) {
-                                    String newCodeTemplateName = "Template ";
-
-                                    boolean uniqueName = false;
-                                    int i = 0;
-                                    while (!uniqueName) {
-                                        i++;
-                                        uniqueName = true;
-                                        for (CodeTemplate codeTemplateLookup : codeTemplates) {
-                                            if (codeTemplateLookup.getName().equalsIgnoreCase(newCodeTemplateName + i)) {
-                                                uniqueName = false;
-                                            }
-                                        }
-                                    }
-
-                                    newCodeTemplate.setName(newCodeTemplateName + i);
-                                }
-                            }
-
-                            codeTemplates.add(newCodeTemplate);
-                        }
-                    } else {
-                        codeTemplates = newCodeTemplates;
-                    }
-
-                    alertInformation(this, "All code templates imported successfully.");
-
-                    setSaveEnabled(true);
-
-                    // If appending, just deselect the rows, which saves 
-                    // the state of the last selected row.
-                    // If replacing, set isDeletingAlert so the state is 
-                    // not saved while the alert is being removed.
-                    if (append) {
-                        codeTemplatePanel.deselectCodeTemplateRows();
-                    } else {
-                        codeTemplatePanel.isDeleting = true;
-                        codeTemplatePanel.deselectCodeTemplateRows();
-                        codeTemplatePanel.isDeleting = false;
-                    }
-
-                    codeTemplatePanel.updateCodeTemplateTable();
-                }
-            } catch (Exception e) {
-                alertThrowable(this, e, "Invalid code template file: " + e.getMessage());
-            }
-        }
-    }
-
     ///// Start Extension Tasks /////
     public void doRefreshExtensions() {
         final String workingId = startWorking("Loading extension settings...");
@@ -4963,7 +4881,7 @@ public class Frame extends JXFrame {
             } else if (currentContentPage == globalScriptsPanel) {
                 doSaveGlobalScripts();
             } else if (currentContentPage == codeTemplatePanel) {
-                doSaveCodeTemplates();
+                codeTemplatePanel.doContextSensitiveSave();
             } else if (currentContentPage == settingsPane) {
                 settingsPane.getCurrentSettingsPanel().doSave();
             } else if (currentContentPage == alertEditPanel) {
@@ -5116,7 +5034,7 @@ public class Frame extends JXFrame {
     /**
      * Removes items from the list that are not of the expected class.
      */
-    private void removeInvalidItems(List<?> list, Class<?> expectedClass) {
+    public void removeInvalidItems(List<?> list, Class<?> expectedClass) {
         int originalSize = list.size();
 
         for (int i = 0; i < list.size(); i++) {

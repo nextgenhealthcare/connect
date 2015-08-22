@@ -31,8 +31,7 @@ public class XsltStepPanel extends BasePanel {
 
         sourceVariableField.getDocument().addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent arg0) {
-            }
+            public void changedUpdate(DocumentEvent arg0) {}
 
             public void insertUpdate(DocumentEvent arg0) {
                 updateTable();
@@ -47,8 +46,7 @@ public class XsltStepPanel extends BasePanel {
 
         resultVariableField.getDocument().addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent arg0) {
-            }
+            public void changedUpdate(DocumentEvent arg0) {}
 
             public void insertUpdate(DocumentEvent arg0) {
                 parent.modified = true;
@@ -125,7 +123,7 @@ public class XsltStepPanel extends BasePanel {
         jLabel4 = new javax.swing.JLabel();
         sourceVariableField = new javax.swing.JTextField();
         resultVariableField = new javax.swing.JTextField();
-        xsltTemplateTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(false,false);
+        xsltTemplateTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
 
         setBackground(new java.awt.Color(255, 255, 255));
 

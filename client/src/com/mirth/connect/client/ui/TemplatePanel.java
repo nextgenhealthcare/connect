@@ -219,11 +219,11 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         // Change the message tab display when the outbound template is modified
         if (!inbound) {
             if (StringUtils.isBlank(pasteBox.getText())) {
-                if (!parent.tabTemplatePanel.tabPanel.getTitleAt(2).equals(MESSAGE_TEMPLATES)) {
-                    parent.tabTemplatePanel.tabPanel.setTitleAt(2, MESSAGE_TEMPLATES);
+                if (!parent.tabTemplatePanel.tabbedPane.getTitleAt(2).equals(MESSAGE_TEMPLATES)) {
+                    parent.tabTemplatePanel.tabbedPane.setTitleAt(2, MESSAGE_TEMPLATES);
                 }
-            } else if (!parent.tabTemplatePanel.tabPanel.getTitleAt(2).equals(MESSAGE_TEMPLATES_BOLD)) {
-                parent.tabTemplatePanel.tabPanel.setTitleAt(2, MESSAGE_TEMPLATES_BOLD);
+            } else if (!parent.tabTemplatePanel.tabbedPane.getTitleAt(2).equals(MESSAGE_TEMPLATES_BOLD)) {
+                parent.tabTemplatePanel.tabbedPane.setTitleAt(2, MESSAGE_TEMPLATES_BOLD);
             }
         }
     }
@@ -448,6 +448,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         setDocType(currentDataType);
         updateText();
     }//GEN-LAST:event_dataTypeComboBoxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox dataTypeComboBox;
     private javax.swing.JLabel jLabel5;

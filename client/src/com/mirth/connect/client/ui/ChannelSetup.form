@@ -149,7 +149,7 @@
                           <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="summaryNameLabel" min="-2" max="-2" attributes="0"/>
                               <Component id="summaryPatternLabel1" min="-2" max="-2" attributes="0"/>
-                              <Component id="librariesLabel" min="-2" max="-2" attributes="0"/>
+                              <Component id="dependenciesLabel" min="-2" max="-2" attributes="0"/>
                               <Component id="initialStateLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                               <Component id="attachmentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                           </Group>
@@ -159,7 +159,7 @@
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Component id="changeDataTypesButton" alignment="0" min="-2" pref="108" max="-2" attributes="0"/>
                                       <Component id="summaryNameField" alignment="0" min="-2" pref="185" max="-2" attributes="0"/>
-                                      <Component id="setLibrariesButton" min="-2" pref="108" max="-2" attributes="0"/>
+                                      <Component id="setDependenciesButton" min="-2" pref="108" max="-2" attributes="0"/>
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="attachmentComboBox" min="-2" pref="108" max="-2" attributes="1"/>
                                           <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -215,8 +215,8 @@
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="librariesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="setLibrariesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="dependenciesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="setDependenciesButton" alignment="3" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
@@ -402,17 +402,17 @@
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="librariesLabel">
+                <Component class="javax.swing.JLabel" name="dependenciesLabel">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Libraries:"/>
+                    <Property name="text" type="java.lang.String" value="Dependencies:"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JButton" name="setLibrariesButton">
+                <Component class="javax.swing.JButton" name="setDependenciesButton">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Set Libraries"/>
+                    <Property name="text" type="java.lang.String" value="Set Dependencies"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="setLibrariesButtonActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="setDependenciesButtonActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>

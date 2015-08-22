@@ -116,7 +116,7 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.CHANNEL_ATTACHMENT, true);"/>
           </AuxValues>
         </Component>
         <Component class="javax.swing.JButton" name="okButton">
@@ -130,7 +130,7 @@
         </Component>
         <Component class="com.mirth.connect.client.ui.FunctionList" name="functionList1">
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.FunctionList(ContextType.CHANNEL_CONTEXT.getContext())"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.FunctionList(ContextType.CHANNEL_ATTACHMENT)"/>
           </AuxValues>
         </Component>
         <Component class="javax.swing.JSeparator" name="jSeparator1">

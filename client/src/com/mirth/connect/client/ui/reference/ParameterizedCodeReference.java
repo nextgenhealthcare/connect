@@ -12,13 +12,15 @@ package com.mirth.connect.client.ui.reference;
 import org.apache.commons.lang3.StringUtils;
 import org.fife.rsta.ac.js.IconFactory;
 
+import com.mirth.connect.model.CodeTemplateContextSet;
+
 public class ParameterizedCodeReference extends CodeReference {
 
     private String definitionString;
     private String template;
 
-    public ParameterizedCodeReference(int scope, String category, String name, String description, String template) {
-        super(scope, category, name, description, template.replaceAll("\\$\\{([^\\}]+)\\}", "$1"));
+    public ParameterizedCodeReference(CodeTemplateContextSet contextSet, String category, String name, String description, String template) {
+        super(contextSet, category, name, description, template.replaceAll("\\$\\{([^\\}]+)\\}", "$1"));
         this.definitionString = name.toLowerCase().replace(' ', '-');
         this.template = template.replaceAll("\\$(?!\\{)", "\\$\\$");
         setIconName(IconFactory.TEMPLATE_ICON);

@@ -31,11 +31,11 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
-import com.mirth.connect.donkey.model.message.Response;
-import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.MessageSerializer;
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.plugins.datatypes.xml.XMLSerializer;
 import com.mirth.connect.server.Mirth;
@@ -111,7 +111,7 @@ public class TestPreProcessor {
         script.append("result = Math.sqrt(i);");
         script.append("} return '" + testResult + "';");
 
-        JavaScriptUtil.compileAndAddScript(contextFactoryController.getGlobalContextFactory(), ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString(), ContextType.CHANNEL_CONTEXT);
+        JavaScriptUtil.compileAndAddScript(CHANNEL_ID, contextFactoryController.getGlobalContextFactory(), ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString(), ContextType.CHANNEL_PREPROCESSOR);
 
         ScriptRunner scriptRunner = new ScriptRunner() {
             @Override
@@ -141,7 +141,7 @@ public class TestPreProcessor {
         script.append("result = Math.sqrt(i);");
         script.append("} return false;");
 
-        JavaScriptUtil.compileAndAddScript(contextFactoryController.getGlobalContextFactory(), scriptId, script.toString(), ContextType.MESSAGE_CONTEXT);
+        JavaScriptUtil.compileAndAddScript(CHANNEL_ID, contextFactoryController.getGlobalContextFactory(), scriptId, script.toString(), ContextType.SOURCE_FILTER_TRANSFORMER);
 
         ScriptRunner scriptRunner = new ScriptRunner() {
             @Override
@@ -171,7 +171,7 @@ public class TestPreProcessor {
         script.append("result = Math.sqrt(i);");
         script.append("} return 'test';");
 
-        JavaScriptUtil.compileAndAddScript(contextFactoryController.getGlobalContextFactory(), ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString(), ContextType.CHANNEL_CONTEXT);
+        JavaScriptUtil.compileAndAddScript(CHANNEL_ID, contextFactoryController.getGlobalContextFactory(), ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString(), ContextType.CHANNEL_POSTPROCESSOR);
 
         ScriptRunner scriptRunner = new ScriptRunner() {
             @Override

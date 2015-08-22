@@ -17,7 +17,7 @@ import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -59,7 +59,7 @@ public class DelimitedBatchAdaptorFactory extends BatchAdaptorFactory {
             try {
                 MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
                 setContextFactoryId(contextFactory.getId());
-                JavaScriptUtil.compileAndAddScript(contextFactory, batchScriptId, batchScript.toString(), ContextType.CHANNEL_CONTEXT);
+                JavaScriptUtil.compileAndAddScript(sourceConnector.getChannelId(), contextFactory, batchScriptId, batchScript.toString(), ContextType.CHANNEL_BATCH);
             } catch (Exception e) {
                 throw new DeployException("Error compiling " + sourceConnector.getConnectorProperties().getName() + " script " + batchScriptId + ".", e);
             }

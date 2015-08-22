@@ -13,10 +13,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -46,6 +44,7 @@ import com.mirth.connect.server.util.SqlConfig;
 public class DefaultChannelController extends ChannelController {
     private Logger logger = Logger.getLogger(this.getClass());
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 
     private ChannelCache channelCache = new ChannelCache();
     private DeployedChannelCache deployedChannelCache = new DeployedChannelCache();
@@ -73,7 +72,7 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public List<Channel> getChannels(Set<String> channelIds) {
-        Map<String, Channel> channelMap = channelCache.getAllChannels();
+        Map<String, Channel> channelMap = channelCache.getAllItems();
 
         List<Channel> channels = new ArrayList<Channel>();
 
@@ -94,12 +93,12 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public Channel getChannelById(String channelId) {
-        return channelCache.getCachedChannelById(channelId);
+        return channelCache.getCachedItemById(channelId);
     }
 
     @Override
     public Channel getChannelByName(String channelName) {
-        return channelCache.getCachedChannelByName(channelName);
+        return channelCache.getCachedItemByName(channelName);
     }
 
     @Override
@@ -109,12 +108,12 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public Set<String> getChannelIds() {
-        return channelCache.getCachedChannelIds();
+        return channelCache.getCachedIds();
     }
 
     @Override
     public Set<String> getChannelNames() {
-        return channelCache.getCachedChannelNames();
+        return channelCache.getCachedNames();
     }
 
     @Override
@@ -132,7 +131,7 @@ public class DefaultChannelController extends ChannelController {
             if (donkey == null) {
                 donkey = Donkey.getInstance();
             }
-            
+
             DonkeyDao dao = donkey.getDaoFactory().getDao();
 
             try {
@@ -183,6 +182,11 @@ public class DefaultChannelController extends ChannelController {
                             summary.getChannelStatus().setDeployedDate(deployedChannelInfo.getDeployedDate());
                             addSummary = true;
                         }
+
+                        summary.getChannelStatus().setCodeTemplatesChanged(!codeTemplateController.getCodeTemplateRevisionsForChannel(cachedChannelId).equals(deployedChannelInfo.getCodeTemplateRevisions()));
+                        if (summary.getChannelStatus().isCodeTemplatesChanged() != header.isCodeTemplatesChanged()) {
+                            addSummary = true;
+                        }
                     }
                 } else {
                     // If a channel with the ID is never found on the server, add it as deleted
@@ -209,6 +213,10 @@ public class DefaultChannelController extends ChannelController {
                     if (serverChannelDeployed) {
                         summary.getChannelStatus().setDeployedRevisionDelta(serverChannels.get(serverChannelId).getRevision() - deployedChannelInfo.getDeployedRevision());
                         summary.getChannelStatus().setDeployedDate(deployedChannelInfo.getDeployedDate());
+
+                        if (!codeTemplateController.getCodeTemplateRevisionsForChannel(serverChannelId).equals(deployedChannelInfo.getCodeTemplateRevisions())) {
+                            summary.getChannelStatus().setCodeTemplatesChanged(true);
+                        }
                     }
 
                     channelSummaries.add(summary);
@@ -267,6 +275,9 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
+        // Never include code template libraries in the channel stored in the database
+        channel.getCodeTemplateLibraries().clear();
+
         /*
          * Methods that update the channel must be synchronized to ensure the channel cache and
          * database never contain different versions of a channel.
@@ -506,97 +517,16 @@ public class DefaultChannelController extends ChannelController {
      * The Channel cache holds all channels currently stored in the database. Every method first
      * should call refreshCache() to update any outdated, missing, or removed channels in the cache
      * before performing its function. No two threads should refresh the cache simultaneously.
-     * 
      */
-    private class ChannelCache {
-        // channel cache
-        private Map<String, Channel> channelCacheById = new ConcurrentHashMap<String, Channel>();
-        private Map<String, Channel> channelCacheByName = new ConcurrentHashMap<String, Channel>();
+    private class ChannelCache extends Cache<Channel> {
 
-        private synchronized void refreshCache() {
-            try {
-                // Get the current revisions of channels in the database
-                Map<String, Integer> databaseChannelRevisions = getChannelRevisions();
-
-                // Remove any channels from the cache that no longer exist in the database
-                for (String channelId : channelCacheById.keySet()) {
-                    if (!databaseChannelRevisions.containsKey(channelId)) {
-
-                        // Remove channel from cache
-                        String channelName = channelCacheById.get(channelId).getName();
-                        channelCacheById.remove(channelId);
-                        channelCacheByName.remove(channelName);
-                    }
-                }
-
-                // Put any new or updated channels in the database in the cache
-                for (Entry<String, Integer> channelRevision : databaseChannelRevisions.entrySet()) {
-                    String channelId = channelRevision.getKey();
-
-                    if (!channelCacheById.containsKey(channelId) || channelRevision.getValue() > channelCacheById.get(channelId).getRevision()) {
-                        Channel channel = null;
-
-                        try {
-                            channel = SqlConfig.getSqlSessionManager().selectOne("Channel.getChannel", channelId);
-                        } catch (Exception e) {
-                            logger.error("Failed to load channel " + channelId + " from the database", e);
-                        }
-
-                        if (channel != null) {
-                            Channel oldChannel = channelCacheById.get(channelId);
-
-                            channelCacheById.put(channel.getId(), channel);
-                            channelCacheByName.put(channel.getName(), channel);
-
-                            /*
-                             * If the channel being put in the cache already existed and it has a
-                             * new name, make sure to remove the entry with its old name from the
-                             * channelCacheByName map.
-                             */
-                            if (oldChannel != null && !oldChannel.getName().equals(channel.getName())) {
-                                channelCacheByName.remove(oldChannel.getName());
-                            }
-                        } else {
-                            /*
-                             * The channel was either removed from the database after the initial
-                             * revision query or an error occurred while attempting to retrieve it,
-                             * remove it from the cache if it already existed.
-                             */
-                            if (channelCacheById.containsKey(channelId)) {
-                                // Remove channel from cache
-                                String channelName = channelCacheById.get(channelId).getName();
-                                channelCacheById.remove(channelId);
-                                channelCacheByName.remove(channelName);
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Error refreshing channel cache", e);
-            }
-        }
-
-        private Map<String, Channel> getAllChannels() {
-            refreshCache();
-
-            return new ConcurrentHashMap<String, Channel>(channelCacheById);
-        }
-
-        private Channel getCachedChannelById(String channelId) {
-            refreshCache();
-
-            return channelCacheById.get(channelId);
-        }
-
-        private Channel getCachedChannelByName(String channelName) {
-            refreshCache();
-
-            return channelCacheByName.get(channelName);
+        public ChannelCache() {
+            super("Channel", "Channel.getChannelRevision", "Channel.getChannel");
         }
 
         private String getCachedDestinationName(String channelId, int metaDataId) {
             refreshCache();
-            Channel channel = channelCacheById.get(channelId);
+            Channel channel = cacheById.get(channelId);
 
             if (channel != null) {
                 for (Connector connector : channel.getDestinationConnectors()) {
@@ -607,18 +537,6 @@ public class DefaultChannelController extends ChannelController {
             }
 
             return null;
-        }
-
-        private Set<String> getCachedChannelIds() {
-            refreshCache();
-
-            return new LinkedHashSet<String>(channelCacheById.keySet());
-        }
-
-        private Set<String> getCachedChannelNames() {
-            refreshCache();
-
-            return new LinkedHashSet<String>(channelCacheByName.keySet());
         }
     }
 
@@ -639,14 +557,22 @@ public class DefaultChannelController extends ChannelController {
         private Lock writeLock = readWriteLock.writeLock();
 
         private void putDeployedChannelInCache(Channel channel) {
+            Map<String, Integer> codeTemplateRevisions = null;
+            try {
+                codeTemplateRevisions = codeTemplateController.getCodeTemplateRevisionsForChannel(channel.getId());
+            } catch (ControllerException e) {
+                // Just exclude the code template info, rather than preventing the channel from deploying
+            }
+
             try {
                 writeLock.lock();
 
-                Channel oldDeployedChannel = channelCache.getCachedChannelById(channel.getId());
+                Channel oldDeployedChannel = channelCache.getCachedItemById(channel.getId());
 
                 DeployedChannelInfo deployedChannelInfo = new DeployedChannelInfo();
                 deployedChannelInfo.setDeployedDate(Calendar.getInstance());
                 deployedChannelInfo.setDeployedRevision(channel.getRevision());
+                deployedChannelInfo.setCodeTemplateRevisions(codeTemplateRevisions);
                 deployedChannelInfoCache.put(channel.getId(), deployedChannelInfo);
 
                 deployedChannelCacheById.put(channel.getId(), channel);

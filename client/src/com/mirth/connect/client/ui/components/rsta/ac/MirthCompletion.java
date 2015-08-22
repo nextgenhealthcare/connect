@@ -11,9 +11,13 @@ package com.mirth.connect.client.ui.components.rsta.ac;
 
 import org.fife.ui.autocomplete.Completion;
 
+import com.mirth.connect.model.CodeTemplateContextSet;
+
 public interface MirthCompletion extends Completion {
 
     public String getId();
+
+    public CodeTemplateContextSet getContextSet();
 
     public boolean equals(Object obj);
 }

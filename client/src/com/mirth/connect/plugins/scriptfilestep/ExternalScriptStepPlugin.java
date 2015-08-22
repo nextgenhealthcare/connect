@@ -15,6 +15,7 @@ import java.util.Map;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.ExternalScriptPanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class ExternalScriptStepPlugin extends TransformerStepPlugin {
@@ -61,7 +62,7 @@ public class ExternalScriptStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public void setData(Map<Object, Object> data) {
+    public void setData(Mode mode, Map<Object, Object> data) {
         panel.setData(data);
     }
 
@@ -91,16 +92,13 @@ public class ExternalScriptStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public void start() {
-    }
+    public void start() {}
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
     public String getPluginPointName() {

@@ -12,6 +12,7 @@ package com.mirth.connect.plugins;
 import java.util.Map;
 
 import com.mirth.connect.client.ui.editors.BasePanel;
+import com.mirth.connect.model.Connector.Mode;
 
 public abstract class MirthEditorPanePlugin extends ClientPlugin {
 
@@ -31,7 +32,7 @@ public abstract class MirthEditorPanePlugin extends ClientPlugin {
 
     public abstract Map<Object, Object> getData(int row);
 
-    public abstract void setData(Map<Object, Object> data);
+    public abstract void setData(Mode mode, Map<Object, Object> data);
 
     public abstract String getGeneratedScript(Map<Object, Object> data);
 

@@ -24,7 +24,7 @@ import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -56,7 +56,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         try {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
             contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(contextFactory, scriptId, connectorProperties.getQuery(), ContextType.MESSAGE_CONTEXT, null, null);
+            JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, connectorProperties.getQuery(), ContextType.DESTINATION_DISPATCHER, null, null);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling script " + scriptId + ".", e);
         }

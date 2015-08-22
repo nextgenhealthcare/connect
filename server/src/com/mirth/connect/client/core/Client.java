@@ -39,6 +39,9 @@ import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.CodeTemplateSummary;
+import com.mirth.connect.model.CodeTemplateLibrarySaveResult;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
@@ -540,40 +543,75 @@ public class Client {
     }
 
     /**
-     * Returns a List of all code templates.
+     * Returns a List of all code template libraries.
      * 
-     * @return
      * @throws ClientException
      */
-    public List<CodeTemplate> getCodeTemplate(CodeTemplate codeTemplate) throws ClientException {
-        logger.debug("getting code template: " + codeTemplate);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_GET.getName()), new BasicNameValuePair("codeTemplate", serializer.serialize(codeTemplate)) };
+    public List<CodeTemplateLibrary> getCodeTemplateLibraries(Set<String> libraryIds, boolean includeUnassigned, boolean includeCodeTemplates) throws ClientException {
+        logger.debug("Getting code template libraries");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_LIBRARY_GET.getName()), new BasicNameValuePair("libraryIds", serializer.serialize(libraryIds)), new BasicNameValuePair("includeUnassigned", new Boolean(includeUnassigned).toString()), new BasicNameValuePair("includeCodeTemplates", new Boolean(includeCodeTemplates).toString()) };
+        return serializer.deserializeList(serverConnection.executePostMethod(TEMPLATE_SERVLET, params), CodeTemplateLibrary.class);
+    }
+
+    /**
+     * Updates all code template libraries.
+     * 
+     * @throws ClientException
+     */
+    public synchronized boolean updateCodeTemplateLibraries(List<CodeTemplateLibrary> libraries, boolean override) throws ClientException {
+        logger.debug("Updating code template libraries: " + libraries);
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_LIBRARY_UPDATE.getName()), new BasicNameValuePair("libraries", serializer.serialize(libraries)), new BasicNameValuePair("override", new Boolean(override).toString()) };
+        return Boolean.valueOf(serverConnection.executePostMethod(TEMPLATE_SERVLET, params)).booleanValue();
+    }
+
+    /**
+     * Returns a List of all code templates.
+     * 
+     * @throws ClientException
+     */
+    public List<CodeTemplate> getCodeTemplates(Set<String> codeTemplateIds) throws ClientException {
+        logger.debug("Getting code templates");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_GET.getName()), new BasicNameValuePair("codeTemplateIds", serializer.serialize(codeTemplateIds)) };
         return serializer.deserializeList(serverConnection.executePostMethod(TEMPLATE_SERVLET, params), CodeTemplate.class);
     }
 
+    public List<CodeTemplateSummary> getCodeTemplateSummary(Map<String, Integer> clientRevisions) throws ClientException {
+        logger.debug("Getting code template summary");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_GET_SUMMARY.getName()), new BasicNameValuePair("clientRevisions", serializer.serialize(clientRevisions)) };
+        return serializer.deserializeList(serverConnection.executePostMethodAsync(TEMPLATE_SERVLET, params), CodeTemplateSummary.class);
+    }
+
     /**
-     * Updates a list of code templates.
+     * Updates a single code template.
      * 
-     * @param code
-     *            template
      * @throws ClientException
      */
-    public synchronized void updateCodeTemplates(List<CodeTemplate> codeTemplates) throws ClientException {
-        logger.debug("updating code templates: " + codeTemplates);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_UPDATE.getName()), new BasicNameValuePair("codeTemplates", serializer.serialize(codeTemplates)) };
+    public synchronized boolean updateCodeTemplate(CodeTemplate codeTemplate, boolean override) throws ClientException {
+        logger.debug("Updating code template: " + codeTemplate);
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_UPDATE.getName()), new BasicNameValuePair("codeTemplate", serializer.serialize(codeTemplate)), new BasicNameValuePair("override", new Boolean(override).toString()) };
+        return Boolean.valueOf(serverConnection.executePostMethod(TEMPLATE_SERVLET, params)).booleanValue();
+    }
+
+    /**
+     * Removes a single code template library.
+     * 
+     * @throws ClientException
+     */
+    public synchronized void removeCodeTemplate(CodeTemplate codeTemplate) throws ClientException {
+        logger.debug("Removing code template: " + codeTemplate);
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_REMOVE.getName()), new BasicNameValuePair("codeTemplate", serializer.serialize(codeTemplate)) };
         serverConnection.executePostMethod(TEMPLATE_SERVLET, params);
     }
 
     /**
-     * Removes the specified code template.
+     * Updates all libraries and updates/removes selected code templates in one request.
      * 
-     * @param codeTemplate
      * @throws ClientException
      */
-    public synchronized void removeCodeTemplate(CodeTemplate codeTemplate) throws ClientException {
-        logger.debug("removing code template: " + codeTemplate);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_REMOVE.getName()), new BasicNameValuePair("codeTemplate", serializer.serialize(codeTemplate)) };
-        serverConnection.executePostMethod(TEMPLATE_SERVLET, params);
+    public synchronized CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, List<CodeTemplate> updatedCodeTemplates, List<CodeTemplate> removedCodeTemplates, boolean override) throws ClientException {
+        logger.debug("Updating code templates and libraries: libraries=" + libraries + ", updatedCodeTemplates=" + updatedCodeTemplates + ", removedCodeTemplates=" + removedCodeTemplates + ", override=" + override);
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_UPDATE_ALL.getName()), new BasicNameValuePair("libraries", serializer.serialize(libraries)), new BasicNameValuePair("updatedCodeTemplates", serializer.serialize(updatedCodeTemplates)), new BasicNameValuePair("removedCodeTemplates", serializer.serialize(removedCodeTemplates)), new BasicNameValuePair("override", new Boolean(override).toString()) };
+        return serializer.deserialize(serverConnection.executePostMethod(TEMPLATE_SERVLET, params), CodeTemplateLibrarySaveResult.class);
     }
 
     /**

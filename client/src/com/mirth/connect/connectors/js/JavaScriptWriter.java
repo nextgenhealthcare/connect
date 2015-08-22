@@ -20,6 +20,7 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.ContextType;
 
 public class JavaScriptWriter extends ConnectorSettingsPanel {
 
@@ -135,7 +136,7 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
     private void initComponents() {
 
         jsLabel = new javax.swing.JLabel();
-        javaScriptTextScrollPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane();
+        javaScriptTextScrollPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.DESTINATION_DISPATCHER);
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));

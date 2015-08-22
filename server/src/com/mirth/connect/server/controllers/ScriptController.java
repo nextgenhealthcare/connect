@@ -12,6 +12,7 @@ package com.mirth.connect.server.controllers;
 import java.util.Map;
 
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public abstract class ScriptController extends Controller {
@@ -58,6 +59,27 @@ public abstract class ScriptController extends Controller {
 
     public static boolean isScriptGlobal(String scriptId) {
         return getGroupId(scriptId).equals(GLOBAL_GROUP_ID);
+    }
+
+    public static ContextType getContextType(String scriptId) {
+        boolean global = isScriptGlobal(scriptId);
+        String scriptKey = getScriptKey(scriptId);
+
+        if (scriptKey.equals(ATTACHMENT_SCRIPT_KEY)) {
+            return ContextType.CHANNEL_ATTACHMENT;
+        } else if (scriptKey.equals(BATCH_SCRIPT_KEY)) {
+            return ContextType.CHANNEL_BATCH;
+        } else if (scriptKey.equalsIgnoreCase(DEPLOY_SCRIPT_KEY)) {
+            return global ? ContextType.GLOBAL_DEPLOY : ContextType.CHANNEL_DEPLOY;
+        } else if (scriptKey.equalsIgnoreCase(UNDEPLOY_SCRIPT_KEY)) {
+            return global ? ContextType.GLOBAL_UNDEPLOY : ContextType.CHANNEL_UNDEPLOY;
+        } else if (scriptKey.equalsIgnoreCase(PREPROCESSOR_SCRIPT_KEY)) {
+            return global ? ContextType.GLOBAL_PREPROCESSOR : ContextType.CHANNEL_PREPROCESSOR;
+        } else if (scriptKey.equalsIgnoreCase(POSTPROCESSOR_SCRIPT_KEY)) {
+            return global ? ContextType.GLOBAL_POSTPROCESSOR : ContextType.CHANNEL_POSTPROCESSOR;
+        }
+
+        return null;
     }
 
     public static ScriptController getInstance() {

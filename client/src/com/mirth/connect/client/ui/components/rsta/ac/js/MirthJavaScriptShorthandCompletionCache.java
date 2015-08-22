@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.text.JTextComponent;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +27,7 @@ import org.fife.rsta.ac.js.JavaScriptShorthandCompletionCache;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 
+import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 import com.mirth.connect.client.ui.components.rsta.ac.MirthCompletion;
 import com.mirth.connect.client.ui.components.rsta.ac.MirthCompletionCacheInterface;
 import com.mirth.connect.client.ui.reference.ClassReference;
@@ -35,6 +38,7 @@ import com.mirth.connect.client.ui.reference.ParameterizedCodeReference;
 import com.mirth.connect.client.ui.reference.Reference;
 import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.client.ui.reference.VariableReference;
+import com.mirth.connect.model.ContextType;
 
 public class MirthJavaScriptShorthandCompletionCache extends JavaScriptShorthandCompletionCache implements MirthCompletionCacheInterface {
 
@@ -53,44 +57,59 @@ public class MirthJavaScriptShorthandCompletionCache extends JavaScriptShorthand
     }
 
     @Override
-    public List<Completion> getClassCompletions(String partialText) {
-        return getCompletions(classCompletionMap, partialText);
+    public List<Completion> getClassCompletions(JTextComponent comp, String partialText) {
+        return getCompletions(comp, classCompletionMap, partialText);
     }
 
     @Override
-    public List<Completion> getConstructorCompletions(String partialText) {
-        return getCompletions(constructorCompletionMap, partialText);
+    public List<Completion> getConstructorCompletions(JTextComponent comp, String partialText) {
+        return getCompletions(comp, constructorCompletionMap, partialText);
     }
 
     @Override
-    public List<Completion> getFunctionCompletions(String variableOrClassName, String partialText) {
+    public List<Completion> getFunctionCompletions(JTextComponent comp, String variableOrClassName, String partialText) {
         PartialHashMap<Completion> map = functionCompletionMap.get(variableOrClassName);
         if (MapUtils.isNotEmpty(map)) {
-            return getCompletions(map, partialText);
+            return getCompletions(comp, map, partialText);
         }
         return Collections.emptyList();
     }
 
     @Override
-    public List<Completion> getGlobalFunctionCompletions(String partialText) {
-        return getCompletions(globalFunctionCompletionMap, partialText);
+    public List<Completion> getGlobalFunctionCompletions(JTextComponent comp, String partialText) {
+        return getCompletions(comp, globalFunctionCompletionMap, partialText);
     }
 
     @Override
-    public List<Completion> getVariableCompletions(String partialText) {
-        return getCompletions(variableCompletionMap, partialText);
+    public List<Completion> getVariableCompletions(JTextComponent comp, String partialText) {
+        return getCompletions(comp, variableCompletionMap, partialText);
     }
 
     @Override
-    public List<Completion> getCodeCompletions(String partialText) {
-        return getCompletions(codeCompletionMap, partialText);
+    public List<Completion> getCodeCompletions(JTextComponent comp, String partialText) {
+        return getCompletions(comp, codeCompletionMap, partialText);
     }
 
-    private List<Completion> getCompletions(PartialHashMap<Completion> map, String partialText) {
+    private List<Completion> getCompletions(JTextComponent comp, PartialHashMap<Completion> map, String partialText) {
         List<Completion> completions = map.getPartial(partialText);
         if (completions == null) {
             completions = Collections.emptyList();
         }
+
+        ContextType contextType = null;
+        if (comp instanceof MirthRSyntaxTextArea) {
+            contextType = ((MirthRSyntaxTextArea) comp).getContextType();
+        }
+
+        if (contextType != null) {
+            for (Iterator<Completion> it = completions.iterator(); it.hasNext();) {
+                Completion completion = it.next();
+                if (completion instanceof MirthCompletion && !((MirthCompletion) completion).getContextSet().contains(contextType)) {
+                    it.remove();
+                }
+            }
+        }
+
         return completions;
     }
 
@@ -123,25 +142,27 @@ public class MirthJavaScriptShorthandCompletionCache extends JavaScriptShorthand
                     break;
                 case FUNCTION:
                     FunctionReference functionReference = (FunctionReference) reference;
-                    String name = functionReference.getFunctionName();
-                    String className = functionReference.getClassName();
-                    List<String> beforeDotTextList = functionReference.getBeforeDotTextList();
+                    if (functionReference.getFunctionDefinition() != null) {
+                        String name = functionReference.getFunctionDefinition().getName();
+                        String className = functionReference.getClassName();
+                        List<String> beforeDotTextList = functionReference.getBeforeDotTextList();
 
-                    PartialHashMap<Completion> map = functionCompletionMap.get(className);
-                    if (map != null) {
-                        map.removeValue(name, functionReference);
-                    }
+                        PartialHashMap<Completion> map = functionCompletionMap.get(className);
+                        if (map != null) {
+                            map.removeValue(name, functionReference);
+                        }
 
-                    if (CollectionUtils.isNotEmpty(beforeDotTextList)) {
-                        for (String beforeDotText : beforeDotTextList) {
-                            map = functionCompletionMap.get(beforeDotText);
-                            if (map != null) {
-                                map.removeValue(name, functionReference);
+                        if (CollectionUtils.isNotEmpty(beforeDotTextList)) {
+                            for (String beforeDotText : beforeDotTextList) {
+                                map = functionCompletionMap.get(beforeDotText);
+                                if (map != null) {
+                                    map.removeValue(name, functionReference);
+                                }
                             }
                         }
-                    }
 
-                    globalFunctionCompletionMap.removeValue(name, functionReference);
+                        globalFunctionCompletionMap.removeValue(name, functionReference);
+                    }
                     break;
                 case VARIABLE:
                     variableCompletionMap.removeValue(reference.getName(), reference);
@@ -178,46 +199,48 @@ public class MirthJavaScriptShorthandCompletionCache extends JavaScriptShorthand
 
                 case FUNCTION:
                     FunctionReference functionReference = (FunctionReference) reference;
-                    completion = new MirthJavaScriptFunctionCompletion(getTemplateProvider(), functionReference);
+                    if (functionReference.getFunctionDefinition() != null) {
+                        completion = new MirthJavaScriptFunctionCompletion(getTemplateProvider(), functionReference);
 
-                    if (CollectionUtils.isNotEmpty(functionReference.getBeforeDotTextList())) {
-                        for (String beforeDotText : functionReference.getBeforeDotTextList()) {
-                            if (StringUtils.isBlank(beforeDotText)) {
-                                addShorthandCompletion(completion);
-                            } else {
-                                PartialHashMap<Completion> map = functionCompletionMap.get(beforeDotText);
-                                if (map == null) {
-                                    map = new PartialHashMap<Completion>();
-                                    functionCompletionMap.put(beforeDotText, map);
+                        if (CollectionUtils.isNotEmpty(functionReference.getBeforeDotTextList())) {
+                            for (String beforeDotText : functionReference.getBeforeDotTextList()) {
+                                if (StringUtils.isBlank(beforeDotText)) {
+                                    addShorthandCompletion(completion);
+                                } else {
+                                    PartialHashMap<Completion> map = functionCompletionMap.get(beforeDotText);
+                                    if (map == null) {
+                                        map = new PartialHashMap<Completion>();
+                                        functionCompletionMap.put(beforeDotText, map);
+                                    }
+
+                                    map.put(functionReference.getFunctionDefinition().getName(), completion);
                                 }
-
-                                map.put(functionReference.getFunctionName(), completion);
                             }
-                        }
-                    } else if (!(functionReference instanceof ConstructorReference) && functionReference.getClassName() == null) {
-                        addShorthandCompletion(completion);
-                        globalFunctionCompletionMap.put(functionReference.getFunctionName(), completion);
-                    }
-
-                    if (functionReference.getClassName() != null) {
-                        PartialHashMap<Completion> map = functionCompletionMap.get(functionReference.getClassName());
-                        if (map == null) {
-                            map = new PartialHashMap<Completion>();
-                            functionCompletionMap.put(functionReference.getClassName(), map);
+                        } else if (!(functionReference instanceof ConstructorReference) && functionReference.getClassName() == null) {
+                            addShorthandCompletion(completion);
+                            globalFunctionCompletionMap.put(functionReference.getFunctionDefinition().getName(), completion);
                         }
 
-                        map.put(functionReference.getFunctionName(), completion);
-                    }
+                        if (functionReference.getClassName() != null) {
+                            PartialHashMap<Completion> map = functionCompletionMap.get(functionReference.getClassName());
+                            if (map == null) {
+                                map = new PartialHashMap<Completion>();
+                                functionCompletionMap.put(functionReference.getClassName(), map);
+                            }
 
-                    if (functionReference instanceof ConstructorReference) {
-                        ConstructorReference constructorReference = (ConstructorReference) functionReference;
-                        List<Completion> list = constructorCompletionMap.get(constructorReference.getClassName());
-                        if (list == null) {
-                            list = new ArrayList<Completion>();
-                            constructorCompletionMap.put(constructorReference.getClassName(), list);
+                            map.put(functionReference.getFunctionDefinition().getName(), completion);
                         }
 
-                        list.add(completion);
+                        if (functionReference instanceof ConstructorReference) {
+                            ConstructorReference constructorReference = (ConstructorReference) functionReference;
+                            List<Completion> list = constructorCompletionMap.get(constructorReference.getClassName());
+                            if (list == null) {
+                                list = new ArrayList<Completion>();
+                                constructorCompletionMap.put(constructorReference.getClassName(), list);
+                            }
+
+                            list.add(completion);
+                        }
                     }
                     break;
 

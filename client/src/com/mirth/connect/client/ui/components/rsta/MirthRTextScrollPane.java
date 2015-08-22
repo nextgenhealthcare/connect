@@ -17,30 +17,26 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 
 public class MirthRTextScrollPane extends RTextScrollPane implements SyntaxConstants {
 
     private MirthRSyntaxTextArea textArea;
 
-    public MirthRTextScrollPane() {
-        this(true);
+    public MirthRTextScrollPane(ContextType contextType) {
+        this(contextType, true);
     }
 
-    public MirthRTextScrollPane(boolean lineNumbers) {
-        this(lineNumbers, ContextType.GLOBAL_CONTEXT.getContext());
+    public MirthRTextScrollPane(ContextType contextType, boolean lineNumbers) {
+        this(contextType, lineNumbers, SYNTAX_STYLE_JAVASCRIPT);
     }
 
-    public MirthRTextScrollPane(boolean lineNumbers, int context) {
-        this(lineNumbers, context, SYNTAX_STYLE_JAVASCRIPT);
+    public MirthRTextScrollPane(ContextType contextType, boolean lineNumbers, String styleKey) {
+        this(contextType, lineNumbers, styleKey, true);
     }
 
-    public MirthRTextScrollPane(boolean lineNumbers, int context, String styleKey) {
-        this(lineNumbers, context, styleKey, true);
-    }
-
-    public MirthRTextScrollPane(boolean lineNumbers, int context, String styleKey, boolean autoCompleteEnabled) {
-        textArea = new MirthRSyntaxTextArea(styleKey, context, autoCompleteEnabled);
+    public MirthRTextScrollPane(ContextType contextType, boolean lineNumbers, String styleKey, boolean autoCompleteEnabled) {
+        textArea = new MirthRSyntaxTextArea(contextType, styleKey, autoCompleteEnabled);
         setViewportView(textArea);
         setFoldIndicatorEnabled(true);
         setLineNumbersEnabled(lineNumbers);
@@ -49,6 +45,10 @@ public class MirthRTextScrollPane extends RTextScrollPane implements SyntaxConst
 
     public MirthRSyntaxTextArea getTextArea() {
         return textArea;
+    }
+
+    public void setContextType(ContextType contextType) {
+        textArea.setContextType(contextType);
     }
 
     public String getText() {
@@ -61,6 +61,10 @@ public class MirthRTextScrollPane extends RTextScrollPane implements SyntaxConst
 
     public void setText(String text) {
         textArea.setText(text);
+    }
+
+    public void setText(String text, boolean discardEdits) {
+        textArea.setText(text, discardEdits);
     }
 
     public void setSelectedText(String text) {

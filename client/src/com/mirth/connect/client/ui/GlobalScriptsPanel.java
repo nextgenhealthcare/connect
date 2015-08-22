@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.model.CodeTemplate.ContextType;
 
 public class GlobalScriptsPanel extends javax.swing.JPanel {
 
@@ -87,7 +86,7 @@ public class GlobalScriptsPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        scriptPanel = new ScriptPanel(ContextType.GLOBAL_CHANNEL_CONTEXT.getContext());
+        scriptPanel = new ScriptPanel(true);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

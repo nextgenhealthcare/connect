@@ -20,7 +20,7 @@ public class PurgedDocument {
     private Map<String, Integer> globalScripts;
     private List<Map<String, Object>> channels;
     private int invalidChannels;
-    private List<Map<String, Object>> codeTemplates;
+    private List<Map<String, Object>> codeTemplateLibraries;
     private List<Map<String, Object>> alerts;
     private List<Map<String, Object>> plugins;
     private List<Map<String, Object>> pluginMetaData;
@@ -109,12 +109,12 @@ public class PurgedDocument {
         this.channels = channels;
     }
 
-    public List<Map<String, Object>> getCodeTemplates() {
-        return codeTemplates;
+    public List<Map<String, Object>> getCodeTemplateLibraries() {
+        return codeTemplateLibraries;
     }
 
-    public void setCodeTemplates(List<Map<String, Object>> codeTemplates) {
-        this.codeTemplates = codeTemplates;
+    public void setCodeTemplateLibraries(List<Map<String, Object>> codeTemplateLibraries) {
+        this.codeTemplateLibraries = codeTemplateLibraries;
     }
 
     public List<Map<String, Object>> getPlugins() {

@@ -35,7 +35,7 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
@@ -158,7 +158,7 @@ public class JavaScriptUtil {
                 // Pull the channel context factory out first since we're going to overwrite it
                 MirthContextFactory contextFactory = task.getContextFactory();
                 MirthContextFactory globalScriptContextFactory = getGlobalScriptContextFactory();
-                
+
                 try {
                     Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(globalScriptContextFactory, scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true, destinationIdMap));
                     task.setContextFactory(globalScriptContextFactory);
@@ -266,7 +266,7 @@ public class JavaScriptUtil {
         try {
             if (compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) != null) {
                 MirthContextFactory globalScriptContextFactory = getGlobalScriptContextFactory();
-                
+
                 try {
                     Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(globalScriptContextFactory, scriptLogger, message.getChannelId(), message, (channelResponse == null) ? null : new com.mirth.connect.userutil.Response(channelResponse));
                     task.setContextFactory(globalScriptContextFactory);
@@ -460,14 +460,14 @@ public class JavaScriptUtil {
             throw (JavaScriptExecutorException) e;
         }
     }
-    
+
     private static MirthContextFactory getGlobalScriptContextFactory() throws Exception {
         MirthContextFactory contextFactory = contextFactoryController.getGlobalScriptContextFactory();
-        
+
         if (!contextFactory.getId().equals(globalScriptContextFactoryId)) {
             synchronized (JavaScriptUtil.class) {
                 contextFactory = contextFactoryController.getGlobalScriptContextFactory();
-                
+
                 if (!contextFactory.getId().equals(globalScriptContextFactoryId)) {
                     ControllerFactory.getFactory().createScriptController().compileGlobalScripts(contextFactory);
                     globalScriptContextFactoryId = contextFactory.getId();
@@ -557,17 +557,17 @@ public class JavaScriptUtil {
             String postprocessorScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getId());
 
             if (channel.isEnabled()) {
-                compileAndAddScript(contextFactory, deployScriptId, channel.getDeployScript(), ContextType.CHANNEL_CONTEXT);
-                compileAndAddScript(contextFactory, undeployScriptId, channel.getUndeployScript(), ContextType.CHANNEL_CONTEXT);
+                compileAndAddScript(channel.getId(), contextFactory, deployScriptId, channel.getDeployScript(), ContextType.CHANNEL_DEPLOY);
+                compileAndAddScript(channel.getId(), contextFactory, undeployScriptId, channel.getUndeployScript(), ContextType.CHANNEL_UNDEPLOY);
 
                 // Only compile and run preprocessor if it's not the default
-                if (!compileAndAddScript(contextFactory, preprocessorScriptId, channel.getPreprocessingScript(), ContextType.CHANNEL_CONTEXT)) {
+                if (!compileAndAddScript(channel.getId(), contextFactory, preprocessorScriptId, channel.getPreprocessingScript(), ContextType.CHANNEL_PREPROCESSOR)) {
                     logger.debug("removing " + preprocessorScriptId);
                     removeScriptFromCache(preprocessorScriptId);
                 }
 
                 // Only compile and run post processor if it's not the default
-                if (!compileAndAddScript(contextFactory, postprocessorScriptId, channel.getPostprocessingScript(), ContextType.CHANNEL_CONTEXT)) {
+                if (!compileAndAddScript(channel.getId(), contextFactory, postprocessorScriptId, channel.getPostprocessingScript(), ContextType.CHANNEL_POSTPROCESSOR)) {
                     logger.debug("removing " + postprocessorScriptId);
                     removeScriptFromCache(postprocessorScriptId);
                 }
@@ -580,7 +580,7 @@ public class JavaScriptUtil {
             throw new ScriptCompileException("Failed to compile scripts for channel " + channel.getId() + ".", e);
         }
     }
-    
+
     public static void recompileChannelScript(MirthContextFactory contextFactory, String channelId, String scriptKey) throws ScriptCompileException {
         try {
             recompileGeneratedScript(contextFactory, ScriptController.getScriptId(scriptKey, channelId));
@@ -596,7 +596,7 @@ public class JavaScriptUtil {
 
             try {
                 // In 2.x templates with the Channel context were allowed in the global postprocessor, so for now we're keeping that the same.
-                if (!compileAndAddScript(contextFactory, key, value, key.equals(ScriptController.POSTPROCESSOR_SCRIPT_KEY) ? ContextType.CHANNEL_CONTEXT : ContextType.GLOBAL_CHANNEL_CONTEXT)) {
+                if (!compileAndAddScript(null, contextFactory, key, value, ScriptController.getContextType(key))) {
                     logger.debug("removing global " + key.toLowerCase());
                     removeScriptFromCache(key);
                 }
@@ -611,15 +611,15 @@ public class JavaScriptUtil {
      * Encapsulates a JavaScript script into the doScript() function, compiles it, and adds it to
      * the compiled script cache.
      */
-    public static boolean compileAndAddScript(MirthContextFactory contextFactory, String scriptId, String script, ContextType contextType) throws Exception {
-        return compileAndAddScript(contextFactory, scriptId, script, contextType, null);
+    public static boolean compileAndAddScript(String channelId, MirthContextFactory contextFactory, String scriptId, String script, ContextType contextType) throws Exception {
+        return compileAndAddScript(channelId, contextFactory, scriptId, script, contextType, null);
     }
 
-    public static boolean compileAndAddScript(MirthContextFactory contextFactory, String scriptId, String script, ContextType contextType, Set<String> scriptOptions) throws Exception {
-        return compileAndAddScript(contextFactory, scriptId, script, contextType, scriptOptions, JavaScriptBuilder.generateDefaultKeyScript(ScriptController.getScriptKey(scriptId), ScriptController.isScriptGlobal(scriptId)));
+    public static boolean compileAndAddScript(String channelId, MirthContextFactory contextFactory, String scriptId, String script, ContextType contextType, Set<String> scriptOptions) throws Exception {
+        return compileAndAddScript(channelId, contextFactory, scriptId, script, contextType, scriptOptions, JavaScriptBuilder.generateDefaultKeyScript(ScriptController.getScriptKey(scriptId), ScriptController.isScriptGlobal(scriptId)));
     }
 
-    public static boolean compileAndAddScript(MirthContextFactory contextFactory, String scriptId, String script, ContextType contextType, Set<String> scriptOptions, String defaultScript) throws Exception {
+    public static boolean compileAndAddScript(String channelId, MirthContextFactory contextFactory, String scriptId, String script, ContextType contextType, Set<String> scriptOptions, String defaultScript) throws Exception {
         // Note: If the defaultScript is NULL, this means that the script should
         // always be inserted without being compared.
 
@@ -627,17 +627,17 @@ public class JavaScriptUtil {
         String generatedScript = null;
 
         Context context = JavaScriptScopeUtil.getContext(contextFactory);
-        
+
         try {
             logger.debug("compiling script " + scriptId);
-            generatedScript = JavaScriptBuilder.generateScript(script, scriptOptions, contextType);
+            generatedScript = JavaScriptBuilder.generateScript(channelId, script, scriptOptions, contextType);
             Script compiledScript = compileScript(context, generatedScript, scriptId);
             String decompiledScript = context.decompileScript(compiledScript, 0);
 
             String decompiledDefaultScript = null;
 
             if (defaultScript != null) {
-                String generatedDefaultScript = JavaScriptBuilder.generateScript(defaultScript, scriptOptions, contextType);
+                String generatedDefaultScript = JavaScriptBuilder.generateScript(channelId, defaultScript, scriptOptions, contextType);
                 Script compiledDefaultScript = compileScript(context, generatedDefaultScript, scriptId);
                 decompiledDefaultScript = context.decompileScript(compiledDefaultScript, 0);
             }
@@ -663,20 +663,20 @@ public class JavaScriptUtil {
 
         return scriptInserted;
     }
-    
+
     public static boolean recompileGeneratedScript(MirthContextFactory contextFactory, String scriptId) throws Exception {
         boolean scriptInserted = false;
-        
+
         if (scriptId != null) {
             String generatedScript = compiledScriptCache.getSourceScript(scriptId);
-            
+
             if (generatedScript != null) {
                 Context context = JavaScriptScopeUtil.getContext(contextFactory);
-                
+
                 try {
                     logger.debug("compiling script " + scriptId);
                     Script compiledScript = compileScript(context, generatedScript, scriptId);
-        
+
                     logger.debug("adding script " + scriptId);
                     compiledScriptCache.putCompiledScript(scriptId, compiledScript, generatedScript);
                     scriptInserted = true;

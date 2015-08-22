@@ -20,10 +20,11 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.Connector;
 import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
+import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -68,7 +69,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
                 scriptId = ServerUUIDGenerator.getUUID();
                 MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
                 contextFactoryId = contextFactory.getId();
-                JavaScriptUtil.compileAndAddScript(contextFactory, scriptId, script, ContextType.MESSAGE_CONTEXT, null, null);
+                JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, script, connector instanceof SourceConnector ? ContextType.SOURCE_FILTER_TRANSFORMER : ContextType.DESTINATION_FILTER_TRANSFORMER, null, null);
             }
         } catch (Exception e) {
             if (e instanceof RhinoException) {

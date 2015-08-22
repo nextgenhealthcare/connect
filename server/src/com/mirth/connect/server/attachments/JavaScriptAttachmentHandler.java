@@ -21,7 +21,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
@@ -100,7 +100,7 @@ public class JavaScriptAttachmentHandler extends MirthAttachmentHandler {
                 scriptOptions.add("useAttachmentList");
                 MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
                 contextFactoryId = contextFactory.getId();
-                JavaScriptUtil.compileAndAddScript(contextFactory, scriptId, attachmentScript, ContextType.CHANNEL_CONTEXT, scriptOptions);
+                JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, attachmentScript, ContextType.CHANNEL_ATTACHMENT, scriptOptions);
             } catch (Exception e) {
                 logger.error("Error compiling attachment handler script " + scriptId + ".", e);
             }

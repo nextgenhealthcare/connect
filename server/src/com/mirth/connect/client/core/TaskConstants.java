@@ -102,7 +102,7 @@ public class TaskConstants {
     public static final String CHANNEL_EDIT_EXPORT_CONNECTOR = "doExportConnector";
     public static final String CHANNEL_EDIT_EXPORT = "doExportChannel";
     public static final String CHANNEL_EDIT_VALIDATE_SCRIPT = "doValidateChannelScripts";
-    public static final String CHANNEL_EDIT_DEPLOY ="doDeployFromChannelView";
+    public static final String CHANNEL_EDIT_DEPLOY = "doDeployFromChannelView";
 
     // Dashboard Tasks
     public static final String DASHBOARD_REFRESH = "doRefreshStatuses";
@@ -147,9 +147,14 @@ public class TaskConstants {
     public static final String CODE_TEMPLATE_REFRESH = "doRefreshCodeTemplates";
     public static final String CODE_TEMPLATE_SAVE = "doSaveCodeTemplates";
     public static final String CODE_TEMPLATE_NEW = "doNewCodeTemplate";
+    public static final String CODE_TEMPLATE_LIBRARY_NEW = "doNewLibrary";
     public static final String CODE_TEMPLATE_IMPORT = "doImportCodeTemplates";
-    public static final String CODE_TEMPLATE_EXPORT = "doExportCodeTemplates";
+    public static final String CODE_TEMPLATE_LIBRARY_IMPORT = "doImportLibraries";
+    public static final String CODE_TEMPLATE_EXPORT = "doExportCodeTemplate";
+    public static final String CODE_TEMPLATE_LIBRARY_EXPORT = "doExportLibrary";
+    public static final String CODE_TEMPLATE_LIBRARY_EXPORT_ALL = "doExportAllLibraries";
     public static final String CODE_TEMPLATE_DELETE = "doDeleteCodeTemplate";
+    public static final String CODE_TEMPLATE_LIBRARY_DELETE = "doDeleteLibrary";
     public static final String CODE_TEMPLATE_VALIDATE = "doValidateCodeTemplate";
 
     // Global Script Tasks

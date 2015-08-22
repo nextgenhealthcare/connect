@@ -22,6 +22,7 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.RuleBuilderPanel;
 import com.mirth.connect.client.ui.editors.filter.FilterPane;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.plugins.FilterRulePlugin;
 
 public class RuleBuilderPlugin extends FilterRulePlugin {
@@ -55,7 +56,7 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
     }
 
     @Override
-    public void setData(Map<Object, Object> data) {
+    public void setData(Mode mode, Map<Object, Object> data) {
         panel.setData(data);
     }
 

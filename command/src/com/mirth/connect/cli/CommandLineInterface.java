@@ -63,6 +63,9 @@ import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.CodeTemplateLibrarySaveResult;
+import com.mirth.connect.model.CodeTemplateLibrarySaveResult.CodeTemplateUpdateResult;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.LoginStatus;
@@ -289,9 +292,17 @@ public class CommandLineInterface {
                 } else if (arg1 == Token.EXPORTSCRIPTS) {
                     commandExportScripts(arguments);
                 } else if (arg1 == Token.IMPORTCODETEMPLATES) {
-                    commandImportCodeTemplates(arguments);
+                    // Deprecated, remove in 3.4
+                    error("The importcodetemplates command is deprecated. Please use \"codetemplate [library] import path [force]\" instead.", null);
+                    if (!hasInvalidNumberOfArguments(arguments, 2)) {
+                        commandImportCodeTemplates(arguments[1].getText(), true);
+                    }
                 } else if (arg1 == Token.EXPORTCODETEMPLATES) {
-                    commandExportCodeTemplates(arguments);
+                    // Deprecated, remove in 3.4
+                    error("The exportcodetemplates command is deprecated. Please use \"codetemplate [library] export id|name|* path\" instead.", null);
+                    if (!hasInvalidNumberOfArguments(arguments, 2)) {
+                        commandExportCodeTemplates("*", arguments[1].getText());
+                    }
                 } else if (arg1 == Token.IMPORTMESSAGES) {
                     commandImportMessages(arguments);
                 } else if (arg1 == Token.EXPORTMESSAGES) {
@@ -346,6 +357,71 @@ public class CommandLineInterface {
                         commandChannelUndeploy(arguments);
                     } else {
                         error("unknown channel command " + comm, null);
+                    }
+                } else if (arg1 == Token.CODE_TEMPLATE) {
+                    String syntax = "Syntax is: codetemplate library list [includecodetemplates], codetemplate list, codetemplate [library] import path [force], codetemplate [library] export id|name|* path, or codetemplate [library] remove id|name|*";
+                    if (arguments.length < 2) {
+                        error("Invalid number of arguments. " + syntax, null);
+                        return;
+                    }
+
+                    Token arg2 = arguments[1];
+
+                    if (arg2 == Token.LIBRARY) {
+                        if (arguments.length < 3) {
+                            error("Invalid number of arguments. " + syntax, null);
+                            return;
+                        }
+
+                        Token arg3 = arguments[2];
+
+                        if (arg3 == Token.LIST) {
+                            commandListCodeTemplateLibraries(arguments.length > 3 && StringUtils.equalsIgnoreCase(arguments[3].getText(), "includecodetemplates"));
+                        } else if (arg3 == Token.IMPORT) {
+                            if (arguments.length < 4) {
+                                error("Invalid number of arguments. " + syntax, null);
+                                return;
+                            }
+                            commandImportCodeTemplateLibraries(arguments[3].getText(), arguments.length > 4 && StringUtils.equalsIgnoreCase(arguments[4].getText(), "force"));
+                        } else if (arg3 == Token.EXPORT) {
+                            if (arguments.length < 5) {
+                                error("Invalid number of arguments. " + syntax, null);
+                                return;
+                            }
+                            commandExportCodeTemplateLibraries(arguments[3].getText(), arguments[4].getText());
+                        } else if (arg3 == Token.REMOVE) {
+                            if (arguments.length < 4) {
+                                error("Invalid number of arguments. " + syntax, null);
+                                return;
+                            }
+                            commandRemoveCodeTemplateLibraries(arguments[3].getText());
+                        } else {
+                            error("Unknown code template library command " + arg3 + ". " + syntax, null);
+                            return;
+                        }
+                    } else if (arg2 == Token.LIST) {
+                        commandListCodeTemplates();
+                    } else if (arg2 == Token.IMPORT) {
+                        if (arguments.length < 3) {
+                            error("Invalid number of arguments. " + syntax, null);
+                            return;
+                        }
+                        commandImportCodeTemplates(arguments[2].getText(), arguments.length > 3 && StringUtils.equalsIgnoreCase(arguments[3].getText(), "force"));
+                    } else if (arg2 == Token.EXPORT) {
+                        if (arguments.length < 4) {
+                            error("Invalid number of arguments. " + syntax, null);
+                            return;
+                        }
+                        commandExportCodeTemplates(arguments[2].getText(), arguments[3].getText());
+                    } else if (arg2 == Token.REMOVE) {
+                        if (arguments.length < 3) {
+                            error("Invalid number of arguments. " + syntax, null);
+                            return;
+                        }
+                        commandRemoveCodeTemplates(arguments[2].getText());
+                    } else {
+                        error("Unknown code template command " + arg2 + ". " + syntax, null);
+                        return;
                     }
                 } else if (arg1 == Token.CLEARALLMESSAGES) {
                     commandClearAllMessages(arguments);
@@ -466,8 +542,11 @@ public class CommandLineInterface {
         out.println("exportalert id|\"name\"|* \"path\"\n\tExports the specified alert to <path>\n");
         out.println("importscripts \"path\"\n\tImports global script specified by <path>\n");
         out.println("exportscripts \"path\"\n\tExports global script to <path>\n");
-        out.println("importcodetemplates \"path\"\n\tImports code templates specified by <path>\n");
-        out.println("exportcodetemplates \"path\"\n\tExports code templates to <path>\n");
+        out.println("codetemplate library list [includecodetemplates]\n\tLists all code template libraries. Optional 'includecodetemplates' additionally lists the code templates within each library.\n");
+        out.println("codetemplate list\n\tLists all code templates.\n");
+        out.println("codetemplate [library] import path [force]\n\tImports code templates or libraries (with the 'library' option).\n");
+        out.println("codetemplate [library] export id|name|* path\n\tExports all matched code templates or libraries (with the 'library' option) to <path>.\n");
+        out.println("codetemplate [library] remove id|name|*\n\tRemoves all matched code templates or libraries (with the 'library' option).\n");
         out.println("importmessages \"path\" id\n\tImports messages specified by <path> into the channel specified by <id>\n");
         out.println("exportmessages \"path/file-pattern\" id [xml|xml-attach|raw|processedraw|transformed|encoded|response] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
         out.println("importmap \"path\"\n\tImports configuration map specified by <path>\n");
@@ -799,48 +878,330 @@ public class CommandLineInterface {
         out.println("Scripts Import Complete");
     }
 
-    private void commandExportCodeTemplates(Token[] arguments) throws ClientException {
-        if (hasInvalidNumberOfArguments(arguments, 1)) {
-            return;
+    private void commandListCodeTemplateLibraries(boolean includeCodeTemplates) throws ClientException {
+        List<CodeTemplateLibrary> libraries = client.getCodeTemplateLibraries(null, true, includeCodeTemplates);
+
+        int maxLibraryNameLength = 4;
+        for (CodeTemplateLibrary library : libraries) {
+            if (library.getName().length() > maxLibraryNameLength) {
+                maxLibraryNameLength = library.getName().length();
+            }
         }
 
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        String path = arguments[1].getText();
-
-        try {
-            List<CodeTemplate> codeTemplates = client.getCodeTemplate(null);
-            File fXml = new File(path);
-            out.println("Exporting code templates");
-            String codeTemplatesXml = serializer.serialize(codeTemplates);
-            FileUtils.writeStringToFile(fXml, codeTemplatesXml);
-        } catch (IOException e) {
-            error("unable to write file " + path + ": " + e, e);
+        int maxCodeTemplateNameLength = 4;
+        if (includeCodeTemplates) {
+            for (CodeTemplateLibrary library : libraries) {
+                for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                    if (codeTemplate.getName().length() > maxCodeTemplateNameLength) {
+                        maxCodeTemplateNameLength = codeTemplate.getName().length();
+                    }
+                }
+            }
         }
 
-        out.println("Code Templates Export Complete.");
+        boolean showLibraryHeader = true;
+        for (CodeTemplateLibrary library : libraries) {
+            if (showLibraryHeader) {
+                out.printf("%-" + maxLibraryNameLength + "s  %-36s  %-8s  %s\n", "Name", "Id", "Revision", "Last Modified");
+                out.printf("%-" + maxLibraryNameLength + "s  %-36s  %-8s  %s\n", StringUtils.repeat('-', maxLibraryNameLength), StringUtils.repeat('-', 36), StringUtils.repeat('-', 8), StringUtils.repeat('-', 19));
+                showLibraryHeader = false;
+            }
+
+            if (library.getId().equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID)) {
+                out.printf("%-" + maxLibraryNameLength + "s  %-36s  %-8s  %s\n", library.getName(), library.getId(), "N/A", "N/A");
+            } else {
+                out.printf("%-" + maxLibraryNameLength + "s  %-36s  %-8d  %tF %<tT\n", library.getName(), library.getId(), library.getRevision(), library.getLastModified());
+            }
+
+            if (includeCodeTemplates && library.getCodeTemplates().size() > 0) {
+                out.println();
+                listCodeTemplates(library.getCodeTemplates(), true, maxCodeTemplateNameLength);
+                out.println();
+                showLibraryHeader = true;
+            }
+        }
     }
 
-    private void commandImportCodeTemplates(Token[] arguments) throws ClientException {
-        if (hasInvalidNumberOfArguments(arguments, 1)) {
+    private void commandImportCodeTemplateLibraries(String path, boolean force) throws ClientException {
+        try {
+            List<CodeTemplateLibrary> libraries = ObjectXMLSerializer.getInstance().deserializeList(FileUtils.readFileToString(new File(path)), CodeTemplateLibrary.class);
+            removeInvalidItems(libraries, CodeTemplateLibrary.class);
+
+            if (libraries.isEmpty()) {
+                out.println("No code template libraries found in file \"" + path + "\".");
+                return;
+            }
+
+            Map<String, CodeTemplateLibrary> libraryMap = new HashMap<String, CodeTemplateLibrary>();
+            for (CodeTemplateLibrary library : client.getCodeTemplateLibraries(null, false, false)) {
+                libraryMap.put(library.getId(), library);
+            }
+
+            Map<String, CodeTemplate> codeTemplateMap = new HashMap<String, CodeTemplate>();
+
+            for (CodeTemplateLibrary library : libraries) {
+                library = new CodeTemplateLibrary(library);
+
+                CodeTemplateLibrary matchingLibrary = libraryMap.get(library.getId());
+                if (matchingLibrary != null) {
+                    library.getEnabledChannelIds().addAll(matchingLibrary.getEnabledChannelIds());
+                    library.getDisabledChannelIds().addAll(matchingLibrary.getDisabledChannelIds());
+                    library.getDisabledChannelIds().removeAll(library.getEnabledChannelIds());
+
+                    for (CodeTemplate serverCodeTemplate : matchingLibrary.getCodeTemplates()) {
+                        boolean found = false;
+                        for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                            if (serverCodeTemplate.getId().equals(codeTemplate.getId())) {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found) {
+                            library.getCodeTemplates().add(serverCodeTemplate);
+                        }
+                    }
+                }
+
+                for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                    if (codeTemplate.getName() != null) {
+                        codeTemplateMap.put(codeTemplate.getId(), codeTemplate);
+                    }
+                }
+
+                libraryMap.put(library.getId(), library);
+            }
+
+            CodeTemplateLibrarySaveResult updateSummary = client.updateLibrariesAndTemplates(new ArrayList<CodeTemplateLibrary>(libraryMap.values()), new ArrayList<CodeTemplate>(codeTemplateMap.values()), new ArrayList<CodeTemplate>(), force);
+
+            if (!updateSummary.isOverrideNeeded()) {
+                if (updateSummary.isLibrariesSuccess()) {
+                    out.println(libraries.size() + " code template libraries imported successfully.");
+
+                    List<CodeTemplate> failedCodeTemplates = new ArrayList<CodeTemplate>();
+                    Throwable firstCause = null;
+
+                    for (Entry<String, CodeTemplateUpdateResult> entry : updateSummary.getCodeTemplateResults().entrySet()) {
+                        if (!entry.getValue().isSuccess()) {
+                            failedCodeTemplates.add(codeTemplateMap.get(entry.getKey()));
+                            if (firstCause == null) {
+                                firstCause = entry.getValue().getCause();
+                            }
+                        }
+                    }
+
+                    if (!failedCodeTemplates.isEmpty()) {
+                        out.println("The following code templates failed to be imported:\n");
+                        listCodeTemplates(failedCodeTemplates, true);
+                    }
+
+                    if (firstCause != null) {
+                        throw new ClientException(firstCause);
+                    }
+                } else {
+                    error("Failed to import code template libraries.", updateSummary.getLibrariesCause());
+                }
+            } else {
+                error("One or more code templates or libraries is outdated (use the \"force\" option to import them anyway).", null);
+            }
+        } catch (IOException e) {
+            error("Failed to read file: " + path, e);
+        } catch (SerializerException e) {
+            error("Invalid code template file: " + path, e);
+        }
+    }
+
+    private void commandExportCodeTemplateLibraries(String searchText, String path) throws ClientException {
+        List<CodeTemplateLibrary> libraries = client.getCodeTemplateLibraries(null, true, true);
+        List<CodeTemplateLibrary> exportLibraries = new ArrayList<CodeTemplateLibrary>();
+
+        for (CodeTemplateLibrary library : libraries) {
+            if (library.getId().equals(searchText)) {
+                exportLibraries.clear();
+                exportLibraries.add(library);
+                break;
+            }
+
+            if ((searchText.equals("*") || StringUtils.containsIgnoreCase(library.getName(), searchText)) && (!library.getId().equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID) || !library.getCodeTemplates().isEmpty())) {
+                exportLibraries.add(library);
+            }
+        }
+
+        if (exportLibraries.isEmpty() || (exportLibraries.size() == 1 && exportLibraries.get(0).getId().equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID) && exportLibraries.get(0).getCodeTemplates().isEmpty())) {
+            out.println("No code template libraries (besides the empty " + CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID + " library) found for search criteria \"" + searchText + "\".");
             return;
         }
 
-        String path = arguments[1].getText();
-        File fXml = new File(path);
-
         try {
-            List<CodeTemplate> codeTemplates = ObjectXMLSerializer.getInstance().deserializeList(FileUtils.readFileToString(fXml), CodeTemplate.class);
-            removeInvalidItems(codeTemplates, CodeTemplate.class);
-            client.updateCodeTemplates(codeTemplates);
+            FileUtils.writeStringToFile(new File(path), ObjectXMLSerializer.getInstance().serialize(exportLibraries));
+            out.println("Successfully exported " + exportLibraries.size() + " code template librar" + (exportLibraries.size() == 1 ? "y" : "ies") + ".");
+        } catch (IOException e) {
+            error("Error exporting code template libraries to file: " + path, e);
+        }
+    }
 
-            if (codeTemplates.size() > 0) {
-                out.println("Code Templates Import Complete");
+    private void commandRemoveCodeTemplateLibraries(String searchText) throws ClientException {
+        List<CodeTemplateLibrary> libraries = client.getCodeTemplateLibraries(null, false, false);
+        List<CodeTemplateLibrary> matchedLibraries = new ArrayList<CodeTemplateLibrary>();
+
+        for (CodeTemplateLibrary library : libraries) {
+            if (library.getId().equals(searchText)) {
+                matchedLibraries.clear();
+                matchedLibraries.add(library);
+                break;
+            }
+
+            if (searchText.equals("*") || StringUtils.containsIgnoreCase(library.getName(), searchText)) {
+                matchedLibraries.add(library);
+            }
+        }
+
+        if (matchedLibraries.isEmpty()) {
+            out.println("No code template libraries found for search criteria \"" + searchText + "\".");
+            return;
+        }
+
+        List<CodeTemplateLibrary> updatedLibraries = new ArrayList<CodeTemplateLibrary>();
+        for (CodeTemplateLibrary library : libraries) {
+            if (!matchedLibraries.contains(library)) {
+                updatedLibraries.add(library);
+            }
+        }
+
+        client.updateCodeTemplateLibraries(updatedLibraries, true);
+        out.println("Successfully removed " + matchedLibraries.size() + " code template librar" + (matchedLibraries.size() == 1 ? "y" : "ies") + ".");
+    }
+
+    private void commandListCodeTemplates() throws ClientException {
+        listCodeTemplates(client.getCodeTemplates(null), false);
+    }
+
+    private void listCodeTemplates(List<CodeTemplate> codeTemplates, boolean indent) {
+        listCodeTemplates(codeTemplates, indent, 4);
+    }
+
+    private void listCodeTemplates(List<CodeTemplate> codeTemplates, boolean indent, int maxNameLength) {
+        for (CodeTemplate codeTemplate : codeTemplates) {
+            if (codeTemplate.getName().length() > maxNameLength) {
+                maxNameLength = codeTemplate.getName().length();
+            }
+        }
+
+        out.printf((indent ? '\t' : "") + "%-" + maxNameLength + "s  %-36s  %-24s  %-8s  %s\n", "Name", "Id", "Type", "Revision", "Last Modified");
+        out.printf((indent ? '\t' : "") + "%-" + maxNameLength + "s  %-36s  %-24s  %-8s  %s\n", StringUtils.repeat('-', maxNameLength), StringUtils.repeat('-', 36), StringUtils.repeat('-', 24), StringUtils.repeat('-', 8), StringUtils.repeat('-', 19));
+        for (CodeTemplate codeTemplate : codeTemplates) {
+            out.printf((indent ? '\t' : "") + "%-" + maxNameLength + "s  %-36s  %-24s  %-8d  %tF %<tT\n", codeTemplate.getName(), codeTemplate.getId(), codeTemplate.getType(), codeTemplate.getRevision(), codeTemplate.getLastModified());
+        }
+    }
+
+    private void commandImportCodeTemplates(String path, boolean force) throws ClientException {
+        try {
+            List<CodeTemplate> codeTemplates = ObjectXMLSerializer.getInstance().deserializeList(FileUtils.readFileToString(new File(path)), CodeTemplate.class);
+            removeInvalidItems(codeTemplates, CodeTemplate.class);
+
+            if (codeTemplates.isEmpty()) {
+                out.println("No code templates found in file \"" + path + "\".");
+                return;
+            }
+
+            List<CodeTemplate> outdatedCodeTemplates = new ArrayList<CodeTemplate>();
+            List<CodeTemplate> failedCodeTemplates = new ArrayList<CodeTemplate>();
+            ClientException firstCause = null;
+
+            for (Iterator<CodeTemplate> it = codeTemplates.iterator(); it.hasNext();) {
+                CodeTemplate codeTemplate = it.next();
+
+                try {
+                    if (!client.updateCodeTemplate(codeTemplate, force)) {
+                        outdatedCodeTemplates.add(codeTemplate);
+                        it.remove();
+                    }
+                } catch (ClientException e) {
+                    failedCodeTemplates.add(codeTemplate);
+                    it.remove();
+                    if (firstCause == null) {
+                        firstCause = e;
+                    }
+                }
+            }
+
+            out.println(codeTemplates.size() + " code template" + (codeTemplates.size() == 1 ? "" : "s") + " imported successfully.");
+
+            if (!outdatedCodeTemplates.isEmpty()) {
+                out.println("The following code template" + (outdatedCodeTemplates.size() == 1 ? " is" : "s are") + " outdated (use the \"force\" option to import them anyway):\n");
+                listCodeTemplates(outdatedCodeTemplates, true);
+            }
+
+            if (!failedCodeTemplates.isEmpty()) {
+                out.println("The following code template" + (failedCodeTemplates.size() == 1 ? "" : "s") + " failed to be imported:\n");
+                listCodeTemplates(failedCodeTemplates, true);
+            }
+
+            if (firstCause != null) {
+                throw firstCause;
             }
         } catch (IOException e) {
-            error("cannot read " + path, e);
+            error("Failed to read file: " + path, e);
         } catch (SerializerException e) {
-            error("invalid file: " + path, e);
+            error("Invalid code template file: " + path, e);
         }
+    }
+
+    private void commandExportCodeTemplates(String searchText, String path) throws ClientException {
+        List<CodeTemplate> codeTemplates = client.getCodeTemplates(null);
+        List<CodeTemplate> exportCodeTemplates = new ArrayList<CodeTemplate>();
+
+        for (CodeTemplate codeTemplate : codeTemplates) {
+            if (codeTemplate.getId().equals(searchText)) {
+                exportCodeTemplates.clear();
+                exportCodeTemplates.add(codeTemplate);
+                break;
+            }
+
+            if (searchText.equals("*") || StringUtils.containsIgnoreCase(codeTemplate.getName(), searchText)) {
+                exportCodeTemplates.add(codeTemplate);
+            }
+        }
+
+        if (exportCodeTemplates.isEmpty()) {
+            out.println("No code templates found for search criteria \"" + searchText + "\".");
+            return;
+        }
+
+        try {
+            FileUtils.writeStringToFile(new File(path), ObjectXMLSerializer.getInstance().serialize(exportCodeTemplates));
+            out.println("Successfully exported " + exportCodeTemplates.size() + " code template" + (exportCodeTemplates.size() == 1 ? "" : "s") + ".");
+        } catch (IOException e) {
+            error("Error exporting code templates to file: " + path, e);
+        }
+    }
+
+    private void commandRemoveCodeTemplates(String searchText) throws ClientException {
+        List<CodeTemplate> codeTemplates = client.getCodeTemplates(null);
+        List<CodeTemplate> removeCodeTemplates = new ArrayList<CodeTemplate>();
+
+        for (CodeTemplate codeTemplate : codeTemplates) {
+            if (codeTemplate.getId().equals(searchText)) {
+                removeCodeTemplates.clear();
+                removeCodeTemplates.add(codeTemplate);
+                break;
+            }
+
+            if (searchText.equals("*") || StringUtils.containsIgnoreCase(codeTemplate.getName(), searchText)) {
+                removeCodeTemplates.add(codeTemplate);
+            }
+        }
+
+        if (removeCodeTemplates.isEmpty()) {
+            out.println("No code templates found for search criteria \"" + searchText + "\".");
+            return;
+        }
+
+        for (CodeTemplate codeTemplate : removeCodeTemplates) {
+            out.println("Removing code template \"" + codeTemplate.getName() + "\"...");
+            client.removeCodeTemplate(codeTemplate);
+        }
+        out.println("Successfully removed " + removeCodeTemplates.size() + " code template" + (removeCodeTemplates.size() == 1 ? "" : "s") + ".");
     }
 
     private void commandImportMessages(Token[] arguments) {
@@ -1520,16 +1881,16 @@ public class CommandLineInterface {
         Channel nameChannelMatch = getChannelByName(channelName);
 
         // Check if channel id already exists
-        if (idChannelMatch != null) { 
+        if (idChannelMatch != null) {
             if (!force) {
                 importChannel.setId(tempId);
             } else {
                 importChannel.setRevision(idChannelMatch.getRevision());
             }
         }
-        
+
         // Check if channel name already exists
-        if (nameChannelMatch != null) { 
+        if (nameChannelMatch != null) {
             if (!force) {
                 importChannel.setName(tempId);
             } else {

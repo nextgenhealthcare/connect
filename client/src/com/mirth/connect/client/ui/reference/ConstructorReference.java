@@ -9,20 +9,15 @@
 
 package com.mirth.connect.client.ui.reference;
 
+import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.CodeTemplateFunctionDefinition;
+
 public class ConstructorReference extends FunctionReference {
 
     private String className;
 
-    public ConstructorReference(int scope, String category, String className, String name, String description, String replacementCode, String functionName) {
-        this(scope, category, className, name, description, replacementCode, functionName, null);
-    }
-
-    public ConstructorReference(int scope, String category, String className, String name, String description, String replacementCode, String functionName, Parameters parameters) {
-        this(scope, category, className, name, description, replacementCode, functionName, parameters, null, null);
-    }
-
-    public ConstructorReference(int scope, String category, String className, String name, String description, String replacementCode, String functionName, Parameters parameters, String returnType, String returnDescription) {
-        super(scope, category, name, name, description, replacementCode, functionName, parameters, returnType, returnDescription);
+    public ConstructorReference(CodeTemplateContextSet contextSet, String category, String className, String name, String description, String replacementCode, CodeTemplateFunctionDefinition functionDefinition) {
+        super(contextSet, category, name, name, description, replacementCode, functionDefinition);
         this.className = className;
     }
 

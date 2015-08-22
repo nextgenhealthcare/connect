@@ -15,7 +15,8 @@ import org.apache.commons.lang.StringUtils;
 
 import com.mirth.connect.client.ui.components.rsta.ac.MirthCompletion;
 import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.CodeTemplate.CodeTemplateType;
+import com.mirth.connect.model.CodeTemplateContextSet;
 
 public abstract class Reference {
 
@@ -25,7 +26,7 @@ public abstract class Reference {
 
     private String id;
     private Type type;
-    private int scope;
+    private CodeTemplateContextSet contextSet;
     private String category;
     private String name;
     private String description;
@@ -34,18 +35,18 @@ public abstract class Reference {
     private String iconName;
     private boolean deprecated;
 
-    public Reference(Type type, int scope, String category) {
-        this(type, scope, category, null);
+    public Reference(Type type, CodeTemplateContextSet contextSet, String category) {
+        this(type, contextSet, category, null);
     }
 
-    public Reference(Type type, int scope, String category, String name) {
-        this(type, scope, category, name, null, null);
+    public Reference(Type type, CodeTemplateContextSet contextSet, String category, String name) {
+        this(type, contextSet, category, name, null, null);
     }
 
-    public Reference(Type type, int scope, String category, String name, String description, String replacementCode) {
+    public Reference(Type type, CodeTemplateContextSet contextSet, String category, String name, String description, String replacementCode) {
         this.id = UUID.randomUUID().toString();
         this.type = type;
-        this.scope = scope;
+        this.contextSet = contextSet;
         this.category = category;
         this.name = name;
         this.description = description;
@@ -68,12 +69,12 @@ public abstract class Reference {
         this.type = type;
     }
 
-    public int getScope() {
-        return scope;
+    public CodeTemplateContextSet getContextSet() {
+        return contextSet;
     }
 
-    public void setScope(int scope) {
-        this.scope = scope;
+    public void setContextSet(CodeTemplateContextSet contextSet) {
+        this.contextSet = contextSet;
     }
 
     public String getCategory() {
@@ -137,7 +138,7 @@ public abstract class Reference {
     }
 
     public CodeTemplate toCodeTemplate() {
-        return new CodeTemplate(name, description, replacementCode, getCodeSnippetType(type), scope);
+        return new CodeTemplate(name, getCodeTemplateType(type), contextSet, replacementCode);
     }
 
     @Override
@@ -150,16 +151,7 @@ public abstract class Reference {
         return false;
     }
 
-    private CodeSnippetType getCodeSnippetType(Type type) {
-        switch (type) {
-            case FUNCTION:
-                return CodeSnippetType.FUNCTION;
-            case CODE:
-                return CodeSnippetType.CODE;
-            case VARIABLE:
-                return CodeSnippetType.VARIABLE;
-            default:
-                return null;
-        }
+    private CodeTemplateType getCodeTemplateType(Type type) {
+        return type == Type.FUNCTION ? CodeTemplateType.FUNCTION : CodeTemplateType.DRAG_AND_DROP_CODE;
     }
 }

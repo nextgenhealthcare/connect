@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.CodeTemplate.CodeTemplateType;
+import com.mirth.connect.model.CodeTemplateContextSet;
 import com.mirth.connect.plugins.CodeTemplatePlugin;
 
 public class HttpListenerCodeTemplatePlugin extends CodeTemplatePlugin {
@@ -30,11 +30,11 @@ public class HttpListenerCodeTemplatePlugin extends CodeTemplatePlugin {
         Map<String, List<CodeTemplate>> referenceItems = new HashMap<String, List<CodeTemplate>>();
 
         List<CodeTemplate> httpListenerFunctionsList = new ArrayList<CodeTemplate>();
-        httpListenerFunctionsList.add(new CodeTemplate("Get HTTP Request Method", "Retrieves the method (e.g. GET, POST) from an incoming HTTP request.", "sourceMap.get('method')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        httpListenerFunctionsList.add(new CodeTemplate("Get HTTP Request Context Path", "Retrieves the context path from an incoming HTTP request.", "sourceMap.get('contextPath')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        httpListenerFunctionsList.add(new CodeTemplate("Get HTTP Request Header", "Retrieves a header value from an incoming HTTP request.", "sourceMap.get('headers').get('Header-Name')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        httpListenerFunctionsList.add(new CodeTemplate("Get HTTP Request Parameter", "Retrieves a query/form parameter from an incoming HTTP request. If multiple values exist for the parameter, an array will be returned.", "sourceMap.get('parameters').get('parameterName')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        httpListenerFunctionsList.add(new CodeTemplate("Convert HTTP Payload to XML", "Serializes an HTTP request body into XML. Multipart requests will also automatically be parsed into separate XML nodes. The body may be passed in as a string or input stream.", "HTTPUtil.httpBodyToXml(httpBody, contentType)", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+        httpListenerFunctionsList.add(new CodeTemplate("Get HTTP Request Method", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getConnectorContextSet(), "sourceMap.get('method')", "Retrieves the method (e.g. GET, POST) from an incoming HTTP request."));
+        httpListenerFunctionsList.add(new CodeTemplate("Get HTTP Request Context Path", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getConnectorContextSet(), "sourceMap.get('contextPath')", "Retrieves the context path from an incoming HTTP request."));
+        httpListenerFunctionsList.add(new CodeTemplate("Get HTTP Request Header", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getConnectorContextSet(), "sourceMap.get('headers').get('Header-Name')", "Retrieves a header value from an incoming HTTP request."));
+        httpListenerFunctionsList.add(new CodeTemplate("Get HTTP Request Parameter", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getConnectorContextSet(), "sourceMap.get('parameters').get('parameterName')", "Retrieves a query/form parameter from an incoming HTTP request. If multiple values exist for the parameter, an array will be returned."));
+        httpListenerFunctionsList.add(new CodeTemplate("Convert HTTP Payload to XML", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getGlobalContextSet(), "HTTPUtil.httpBodyToXml(httpBody, contentType)", "Serializes an HTTP request body into XML. Multipart requests will also automatically be parsed into separate XML nodes. The body may be passed in as a string or input stream."));
         referenceItems.put("HTTP Listener Functions", httpListenerFunctionsList);
 
         return referenceItems;

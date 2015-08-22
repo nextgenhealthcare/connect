@@ -24,24 +24,27 @@ import org.fife.ui.autocomplete.ParameterizedCompletion;
 
 import com.mirth.connect.client.ui.reference.FunctionReference;
 import com.mirth.connect.client.ui.reference.Reference;
+import com.mirth.connect.model.CodeTemplateContextSet;
 import com.mirth.connect.util.MirthXmlUtil;
 
 public abstract class MirthFunctionCompletion extends FunctionCompletion implements MirthCompletion {
 
     protected String id;
+    protected CodeTemplateContextSet contextSet;
     protected List<Parameter> parameters;
     protected String iconName;
     protected boolean deprecated;
 
     public MirthFunctionCompletion(CompletionProvider provider, FunctionReference reference) {
-        super(provider, reference.getFunctionName(), MirthXmlUtil.encode(StringUtils.defaultString(reference.getReturnType())));
+        super(provider, reference.getFunctionDefinition().getName(), MirthXmlUtil.encode(StringUtils.defaultString(reference.getFunctionDefinition().getReturnType())));
         this.id = reference.getId();
+        this.contextSet = reference.getContextSet();
         setShortDescription(reference.getDescription());
-        setReturnValueDescription(reference.getReturnDescription());
+        setReturnValueDescription(reference.getFunctionDefinition().getReturnDescription());
 
         List<Parameter> list = new ArrayList<Parameter>();
-        if (CollectionUtils.isNotEmpty(reference.getParameters())) {
-            for (com.mirth.connect.client.ui.reference.Parameters.Parameter param : reference.getParameters()) {
+        if (CollectionUtils.isNotEmpty(reference.getFunctionDefinition().getParameters())) {
+            for (com.mirth.connect.model.Parameter param : reference.getFunctionDefinition().getParameters()) {
                 Parameter parameter = new Parameter(param.getType(), param.getName());
                 parameter.setDescription(param.getDescription());
                 list.add(parameter);
@@ -56,6 +59,11 @@ public abstract class MirthFunctionCompletion extends FunctionCompletion impleme
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public CodeTemplateContextSet getContextSet() {
+        return contextSet;
     }
 
     public List<Parameter> getParams() {

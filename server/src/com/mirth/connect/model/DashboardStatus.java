@@ -25,8 +25,8 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
- * A DashboardStatus represents the status of a deployed channel, destination
- * chain or source/destination connector
+ * A DashboardStatus represents the status of a deployed channel, destination chain or
+ * source/destination connector
  * 
  */
 @XStreamAlias("dashboardStatus")
@@ -40,6 +40,7 @@ public class DashboardStatus implements Serializable {
     private DeployedState state;
     private Integer deployedRevisionDelta;
     private Calendar deployedDate;
+    private Boolean codeTemplatesChanged;
     private Map<Status, Long> statistics;
     private Map<Status, Long> lifetimeStatistics;
     private List<DashboardStatus> childStatuses = new ArrayList<DashboardStatus>();
@@ -90,6 +91,14 @@ public class DashboardStatus implements Serializable {
         return this.deployedRevisionDelta;
     }
 
+    public Boolean getCodeTemplatesChanged() {
+        return codeTemplatesChanged;
+    }
+
+    public void setCodeTemplatesChanged(Boolean codeTemplatesChanged) {
+        this.codeTemplatesChanged = codeTemplatesChanged;
+    }
+
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
@@ -131,14 +140,14 @@ public class DashboardStatus implements Serializable {
     }
 
     public Long getQueued() {
-		return queued;
-	}
+        return queued;
+    }
 
-	public void setQueued(Long queued) {
-		this.queued = queued;
-	}
+    public void setQueued(Long queued) {
+        this.queued = queued;
+    }
 
-	public boolean isWaitForPrevious() {
+    public boolean isWaitForPrevious() {
         return waitForPrevious;
     }
 

@@ -35,6 +35,7 @@ import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.model.ContextType;
 
 public class JavaScriptEditorDialog extends MirthDialog implements DropTargetListener {
 
@@ -155,7 +156,7 @@ public class JavaScriptEditorDialog extends MirthDialog implements DropTargetLis
         jPanel1 = new javax.swing.JPanel();
         cancelButton = new javax.swing.JButton();
         validateScriptButton = new javax.swing.JButton();
-        scriptContent = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);
+        scriptContent = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.CHANNEL_BATCH, true);
         openFileButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
 
@@ -278,6 +279,7 @@ public class JavaScriptEditorDialog extends MirthDialog implements DropTargetLis
         savedScript = scriptContent.getText();
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JPanel jPanel1;

@@ -18,7 +18,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -49,7 +49,7 @@ public class JavaScriptPreprocessor implements PreProcessor {
         try {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
             contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(contextFactory, scriptId, preProcessingScript, ContextType.CHANNEL_CONTEXT);
+            JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, preProcessingScript, ContextType.CHANNEL_PREPROCESSOR);
             task = new JavaScriptPreProcessorTask(contextFactory);
         } catch (Exception e) {
             logger.error("Error compiling preprocessor script " + scriptId + ".", e);

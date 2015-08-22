@@ -11,6 +11,7 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.Map;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -19,20 +20,29 @@ public class DeployedChannelInfo implements Serializable {
 
     private int deployedRevision;
     private Calendar deployedDate;
+    private Map<String, Integer> codeTemplateRevisions;
+
+    public Calendar getDeployedDate() {
+        return this.deployedDate;
+    }
 
     public void setDeployedDate(Calendar deployedDate) {
         this.deployedDate = deployedDate;
     }
 
-    public Calendar getDeployedDate() {
-        return this.deployedDate;
+    public int getDeployedRevision() {
+        return this.deployedRevision;
     }
 
     public void setDeployedRevision(int deployedRevision) {
         this.deployedRevision = deployedRevision;
     }
 
-    public int getDeployedRevision() {
-        return this.deployedRevision;
+    public Map<String, Integer> getCodeTemplateRevisions() {
+        return codeTemplateRevisions;
+    }
+
+    public void setCodeTemplateRevisions(Map<String, Integer> codeTemplateRevisions) {
+        this.codeTemplateRevisions = codeTemplateRevisions;
     }
 }

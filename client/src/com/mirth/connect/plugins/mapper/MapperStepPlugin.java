@@ -22,6 +22,7 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.MapperPanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class MapperStepPlugin extends TransformerStepPlugin {
@@ -81,7 +82,7 @@ public class MapperStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public void setData(Map<Object, Object> data) {
+    public void setData(Mode mode, Map<Object, Object> data) {
         panel.setData(data);
     }
 
@@ -131,7 +132,7 @@ public class MapperStepPlugin extends TransformerStepPlugin {
         script.append("validate( mapping , " + defaultValue + ", " + regexArray + "));");
         return script.toString();
     }
-    
+
     @Override
     public String getGeneratedScript(Map<Object, Object> data) {
         return getScript(data);

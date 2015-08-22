@@ -26,7 +26,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.MessageSerializer;
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.plugins.datatypes.xml.XMLSerializer;
 import com.mirth.connect.server.Mirth;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -69,7 +69,7 @@ public class TestFilterTransformer {
         script.append("if ((new Date().getTime() - start) > " + SCRIPT_SLEEP_MILLIS + ") break;");
         script.append("} return false;");
 
-        JavaScriptUtil.compileAndAddScript(contextFactoryController.getGlobalContextFactory(), TEST_SCRIPT_ID, script.toString(), ContextType.MESSAGE_CONTEXT);
+        JavaScriptUtil.compileAndAddScript(CHANNEL_ID, contextFactoryController.getGlobalContextFactory(), TEST_SCRIPT_ID, script.toString(), ContextType.SOURCE_FILTER_TRANSFORMER);
 
         script = new StringBuilder();
         script.append("var result;");
@@ -77,7 +77,7 @@ public class TestFilterTransformer {
         script.append("result = Math.sqrt(i);");
         script.append("} return false;");
 
-        JavaScriptUtil.compileAndAddScript(contextFactoryController.getGlobalContextFactory(), PERFORMANCE_SCRIPT_ID, script.toString(), ContextType.MESSAGE_CONTEXT);
+        JavaScriptUtil.compileAndAddScript(CHANNEL_ID, contextFactoryController.getGlobalContextFactory(), PERFORMANCE_SCRIPT_ID, script.toString(), ContextType.SOURCE_FILTER_TRANSFORMER);
 
         initJavaScriptFilterTransformer();
     }

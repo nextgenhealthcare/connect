@@ -24,6 +24,7 @@ import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.ContextType;
 
 public class JavaScriptReader extends ConnectorSettingsPanel {
 
@@ -122,7 +123,7 @@ public class JavaScriptReader extends ConnectorSettingsPanel {
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
         jsLabel = new JLabel("JavaScript:");
-        javascriptTextPane = new MirthRTextScrollPane(true);
+        javascriptTextPane = new MirthRTextScrollPane(ContextType.SOURCE_RECEIVER, true);
         javascriptTextPane.setBorder(BorderFactory.createEtchedBorder());
     }
 

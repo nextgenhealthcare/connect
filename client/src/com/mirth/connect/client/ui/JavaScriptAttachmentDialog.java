@@ -20,7 +20,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 
 public class JavaScriptAttachmentDialog extends MirthDialog {
 
@@ -74,9 +74,9 @@ public class JavaScriptAttachmentDialog extends MirthDialog {
         jPanel1 = new javax.swing.JPanel();
         cancelButton = new javax.swing.JButton();
         validateScriptButton = new javax.swing.JButton();
-        scriptContent = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);
+        scriptContent = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.CHANNEL_ATTACHMENT, true);
         okButton = new javax.swing.JButton();
-        functionList1 = new com.mirth.connect.client.ui.FunctionList(ContextType.CHANNEL_CONTEXT.getContext());
+        functionList1 = new com.mirth.connect.client.ui.FunctionList(ContextType.CHANNEL_ATTACHMENT);
         jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -192,6 +192,7 @@ public class JavaScriptAttachmentDialog extends MirthDialog {
         }
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private com.mirth.connect.client.ui.FunctionList functionList1;

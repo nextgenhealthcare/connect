@@ -81,7 +81,6 @@ import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
@@ -172,8 +171,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         parent.setCurrentContentPage((JPanel) this);
         parent.setFocus(new JXTaskPane[] { viewTasks, transformerTasks }, false, true);
 
-        tabTemplatePanel.setDefaultComponent();
-
         tabTemplatePanel.setTransformerView();
 
         // select the first row if there is one
@@ -196,6 +193,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         } else if (connector.getMode() == Connector.Mode.DESTINATION) {
             tabTemplatePanel.setDestinationView(isResponse);
         }
+
+        tabTemplatePanel.setDefaultComponent();
 
         tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(transformer.getInboundDataType()));
         tabTemplatePanel.setOutgoingDataType(((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(transformer.getOutboundDataType())));
@@ -336,7 +335,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         stepPanel = new BasePanel();
         blankPanel = new BasePanel();
 
-        scriptTextArea = new MirthRTextScrollPane(true, ContextType.MESSAGE_CONTEXT.getContext(), SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, false);
+        scriptTextArea = new MirthRTextScrollPane(null, true, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, false);
         scriptTextArea.setBackground(new Color(204, 204, 204));
         scriptTextArea.setBorder(BorderFactory.createEtchedBorder());
         scriptTextArea.getTextArea().setEditable(false);
@@ -776,7 +775,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         TransformerStepPlugin plugin;
         try {
             plugin = getPlugin(type);
-            plugin.setData(data);
+            plugin.setData(connector.getMode(), data);
         } catch (Exception e) {
             parent.alertThrowable(this, e);
         }
@@ -813,7 +812,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             plugin = getPlugin(step.getType());
             String stepName = step.getName();
             if (stepName == null || stepName.equals("")) {
-                plugin.setData((Map<Object, Object>) step.getData());
+                plugin.setData(connector.getMode(), (Map<Object, Object>) step.getData());
                 stepName = plugin.getStepName();
             }
             tableData[STEP_NAME_COL] = stepName;
@@ -888,7 +887,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             step.setData(data);
 
             if (plugin.isProvideOwnStepName()) {
-                plugin.setData(data);
+                plugin.setData(connector.getMode(), data);
                 step.setName(plugin.getStepName());
                 plugin.clearData();
             }

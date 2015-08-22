@@ -89,7 +89,7 @@ import com.mirth.connect.client.ui.components.rsta.actions.ToggleCommentAction;
 import com.mirth.connect.client.ui.components.rsta.actions.UndoAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ViewUserAPIAction;
 import com.mirth.connect.client.ui.components.rsta.actions.WrapLinesAction;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 
 public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextInterface {
 
@@ -101,6 +101,7 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
     private static RSTAPreferences rstaPreferences;
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle(MirthRSyntaxTextArea.class.getName());
 
+    private ContextType contextType;
     private boolean saveEnabled = true;
     private String cachedStyleKey;
     private Action[] actions;
@@ -148,19 +149,21 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
     }
 
     public MirthRSyntaxTextArea() {
-        this(SYNTAX_STYLE_JAVASCRIPT);
+        this(null);
     }
 
-    public MirthRSyntaxTextArea(String styleKey) {
-        this(styleKey, ContextType.GLOBAL_CONTEXT.getContext());
+    public MirthRSyntaxTextArea(ContextType contextType) {
+        this(contextType, SYNTAX_STYLE_JAVASCRIPT);
     }
 
-    public MirthRSyntaxTextArea(String styleKey, int context) {
-        this(styleKey, context, true);
+    public MirthRSyntaxTextArea(ContextType contextType, String styleKey) {
+        this(contextType, styleKey, true);
     }
 
-    public MirthRSyntaxTextArea(String styleKey, int context, boolean autoCompleteEnabled) {
+    public MirthRSyntaxTextArea(ContextType contextType, String styleKey, boolean autoCompleteEnabled) {
         super(new MirthRSyntaxDocument(styleKey));
+        this.contextType = contextType;
+
         setBackground(UIConstants.BACKGROUND_COLOR);
         setSyntaxEditingStyle(styleKey);
         setCodeFoldingEnabled(true);
@@ -324,6 +327,14 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
         return resourceBundle;
     }
 
+    public ContextType getContextType() {
+        return contextType;
+    }
+
+    public void setContextType(ContextType contextType) {
+        this.contextType = contextType;
+    }
+
     public boolean isSaveEnabled() {
         return saveEnabled;
     }
@@ -359,10 +370,16 @@ public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextIn
 
     @Override
     public void setText(String text) {
+        setText(text, true);
+    }
+
+    public void setText(String text, boolean discardEdits) {
         boolean visible = PlatformUI.MIRTH_FRAME.changesHaveBeenMade();
         super.setText(text);
         setCaretPosition(0);
-        discardAllEdits();
+        if (discardEdits) {
+            discardAllEdits();
+        }
 
         if (visible) {
             PlatformUI.MIRTH_FRAME.setSaveEnabled(true);

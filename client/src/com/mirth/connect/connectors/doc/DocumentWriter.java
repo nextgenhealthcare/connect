@@ -29,7 +29,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
     }
-    
+
     private void updateFileEnabled(boolean enable) {
         fileNameField.setEnabled(enable);
         jLabel2.setEnabled(enable);
@@ -61,7 +61,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         String writeToOption = "FILE";
         if (attachmentRadioButton.isSelected()) {
             writeToOption = "ATTACHMENT";
-        } else if(bothRadioButton.isSelected()) {
+        } else if (bothRadioButton.isSelected()) {
             writeToOption = "BOTH";
         }
 
@@ -100,7 +100,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
 
             updateFileEnabled(!writeToOptions.equalsIgnoreCase("ATTACHMENT"));
         }
-        
+
         if (props.getDocumentType().equals(DocumentDispatcherProperties.DOCUMENT_TYPE_PDF)) {
             pdf.setSelected(true);
             pdfActionPerformed(null);
@@ -186,7 +186,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         encryptedLabel = new javax.swing.JLabel();
         passwordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
         passwordLabel = new javax.swing.JLabel();
-        fileContentsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(false,false);
+        fileContentsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         jLabel5 = new javax.swing.JLabel();
         pdf = new com.mirth.connect.client.ui.components.MirthRadioButton();
         rtf = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -462,6 +462,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         passwordLabel.setEnabled(true);
         passwordField.setEnabled(true);
     }// GEN-LAST:event_passwordYesActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthRadioButton attachmentRadioButton;
     private com.mirth.connect.client.ui.components.MirthRadioButton bothRadioButton;

@@ -16,8 +16,8 @@ import java.util.Map;
 
 import com.mirth.connect.client.ui.reference.Category;
 import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.CodeTemplate.CodeTemplateType;
+import com.mirth.connect.model.CodeTemplateContextSet;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
@@ -46,14 +46,14 @@ public abstract class DataTypeCodeTemplatePlugin extends CodeTemplatePlugin {
         List<CodeTemplate> conversionTemplates = new ArrayList<CodeTemplate>();
         String pluginName = getDataTypeDelegate().getName();
 
-        conversionTemplates.add(new CodeTemplate("Convert " + getDisplayName() + " to XML (default parameters)", "Converts an encoded " + getDisplayName() + " string to XML with the default serializer parameters.", "SerializerFactory.getSerializer('" + pluginName + "').toXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+        conversionTemplates.add(new CodeTemplate("Convert " + getDisplayName() + " to XML (default parameters)", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getGlobalContextSet(), "SerializerFactory.getSerializer('" + pluginName + "').toXML(message);", "Converts an encoded " + getDisplayName() + " string to XML with the default serializer parameters."));
         if (!isDefaultOnly()) {
-            conversionTemplates.add(new CodeTemplate("Convert " + getDisplayName() + " to XML (custom parameters)", "Converts an encoded " + getDisplayName() + " string to XML with custom serializer parameters. " + getMapKeysToolTipText(), "var serializationProperties = SerializerFactory.getDefaultSerializationProperties('" + pluginName + "');\nSerializerFactory.getSerializer('" + pluginName + "', serializationProperties, null).toXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+            conversionTemplates.add(new CodeTemplate("Convert " + getDisplayName() + " to XML (custom parameters)", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getGlobalContextSet(), "var serializationProperties = SerializerFactory.getDefaultSerializationProperties('" + pluginName + "');\nSerializerFactory.getSerializer('" + pluginName + "', serializationProperties, null).toXML(message);", "Converts an encoded " + getDisplayName() + " string to XML with custom serializer parameters. " + getMapKeysToolTipText()));
         }
 
-        conversionTemplates.add(new CodeTemplate("Convert XML to " + getDisplayName() + " (default parameters)", "Converts an XML string to " + getDisplayName() + " with the default serializer parameters.", "SerializerFactory.getSerializer('" + pluginName + "').fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+        conversionTemplates.add(new CodeTemplate("Convert XML to " + getDisplayName() + " (default parameters)", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getGlobalContextSet(), "SerializerFactory.getSerializer('" + pluginName + "').fromXML(message);", "Converts an XML string to " + getDisplayName() + " with the default serializer parameters."));
         if (!isDefaultOnly() && getDataTypeDelegate().getDefaultProperties().getDeserializationProperties() != null) {
-            conversionTemplates.add(new CodeTemplate("Convert XML to " + getDisplayName() + " (custom parameters)", "Converts an XML string to " + getDisplayName() + " with custom serializer parameters. " + getMapKeysToolTipText(), "var deserializationProperties = SerializerFactory.getDefaultDeserializationProperties('" + pluginName + "');\nSerializerFactory.getSerializer('" + pluginName + "', null, deserializationProperties).fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+            conversionTemplates.add(new CodeTemplate("Convert XML to " + getDisplayName() + " (custom parameters)", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getGlobalContextSet(), "var deserializationProperties = SerializerFactory.getDefaultDeserializationProperties('" + pluginName + "');\nSerializerFactory.getSerializer('" + pluginName + "', null, deserializationProperties).fromXML(message);", "Converts an XML string to " + getDisplayName() + " with custom serializer parameters. " + getMapKeysToolTipText()));
         }
 
         referenceItems.put(Category.CONVERSION.toString(), conversionTemplates);

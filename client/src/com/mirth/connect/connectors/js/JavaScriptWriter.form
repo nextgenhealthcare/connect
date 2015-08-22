@@ -57,6 +57,10 @@
       </Properties>
     </Component>
     <Container class="com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane" name="javaScriptTextScrollPane">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.DESTINATION_DISPATCHER)"/>
+      </AuxValues>
+
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
     </Container>
   </SubComponents>

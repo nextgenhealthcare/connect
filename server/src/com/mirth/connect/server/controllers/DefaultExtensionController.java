@@ -61,6 +61,7 @@ import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.AuthorizationPlugin;
 import com.mirth.connect.plugins.ChannelPlugin;
+import com.mirth.connect.plugins.CodeTemplateServerPlugin;
 import com.mirth.connect.plugins.ConnectorServicePlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ResourcePlugin;
@@ -81,6 +82,7 @@ public class DefaultExtensionController extends ExtensionController {
     private List<ServerPlugin> serverPlugins = new ArrayList<ServerPlugin>();
     private Map<String, ServicePlugin> servicePlugins = new LinkedHashMap<String, ServicePlugin>();
     private Map<String, ChannelPlugin> channelPlugins = new LinkedHashMap<String, ChannelPlugin>();
+    private Map<String, CodeTemplateServerPlugin> codeTemplateServerPlugins = new LinkedHashMap<String, CodeTemplateServerPlugin>();
     private Map<String, DataTypeServerPlugin> dataTypePlugins = new LinkedHashMap<String, DataTypeServerPlugin>();
     private Map<String, ConnectorServicePlugin> connectorServicePlugins = new LinkedHashMap<String, ConnectorServicePlugin>();
     private Map<String, ResourcePlugin> resourcePlugins = new LinkedHashMap<String, ResourcePlugin>();
@@ -262,6 +264,13 @@ public class DefaultExtensionController extends ExtensionController {
                         logger.debug("sucessfully loaded server channel plugin: " + serverPlugin.getPluginPointName());
                     }
 
+                    if (serverPlugin instanceof CodeTemplateServerPlugin) {
+                        CodeTemplateServerPlugin codeTemplateServerPlugin = (CodeTemplateServerPlugin) serverPlugin;
+                        codeTemplateServerPlugins.put(codeTemplateServerPlugin.getPluginPointName(), codeTemplateServerPlugin);
+                        serverPlugins.add(codeTemplateServerPlugin);
+                        logger.debug("sucessfully loaded server code template plugin: " + serverPlugin.getPluginPointName());
+                    }
+
                     if (serverPlugin instanceof DataTypeServerPlugin) {
                         DataTypeServerPlugin dataTypePlugin = (DataTypeServerPlugin) serverPlugin;
                         dataTypePlugins.put(dataTypePlugin.getPluginPointName(), dataTypePlugin);
@@ -312,6 +321,11 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public Map<String, ChannelPlugin> getChannelPlugins() {
         return channelPlugins;
+    }
+
+    @Override
+    public Map<String, CodeTemplateServerPlugin> getCodeTemplateServerPlugins() {
+        return codeTemplateServerPlugins;
     }
 
     @Override

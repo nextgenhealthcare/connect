@@ -21,7 +21,6 @@ public enum Category {
     MAP("Map Functions"),
     CHANNEL("Channel Functions"),
     POSTPROCESSOR("Postprocessor Functions"),
-    USER_VARAIBLES("User Defined Variables"),
     USER_CODE("User Defined Code"),
     USER_FUNCTIONS("User Defined Functions");
     // @formatter:on

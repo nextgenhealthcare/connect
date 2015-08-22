@@ -32,7 +32,7 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -59,7 +59,7 @@ public class JavaScriptReceiver extends PollConnector {
         try {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
             contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(contextFactory, scriptId, connectorProperties.getScript(), ContextType.MESSAGE_CONTEXT, null, null);
+            JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, scriptId, connectorProperties.getScript(), ContextType.SOURCE_RECEIVER, null, null);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
         }

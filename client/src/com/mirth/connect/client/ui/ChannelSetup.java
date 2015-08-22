@@ -73,7 +73,6 @@ import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
-import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.Filter;
@@ -1774,8 +1773,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         attachmentWarningLabel = new javax.swing.JLabel();
         attachmentStoreCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         channelIdField = new javax.swing.JTextField();
-        librariesLabel = new javax.swing.JLabel();
-        setLibrariesButton = new javax.swing.JButton();
+        dependenciesLabel = new javax.swing.JLabel();
+        setDependenciesButton = new javax.swing.JButton();
         messageStoragePanel = new javax.swing.JPanel();
         storageModeLabel = new javax.swing.JLabel();
         contentLabel = new javax.swing.JLabel();
@@ -1830,7 +1829,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         destinationTablePane = new javax.swing.JScrollPane();
         destinationTable = new com.mirth.connect.client.ui.components.MirthTable();
         waitForPreviousCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        scripts = new ScriptPanel(ContextType.CHANNEL_CONTEXT.getContext());
+        scripts = new ScriptPanel(false);
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
@@ -1927,12 +1926,12 @@ public class ChannelSetup extends javax.swing.JPanel {
         channelIdField.setText("Id: ");
         channelIdField.setBorder(null);
 
-        librariesLabel.setText("Libraries:");
+        dependenciesLabel.setText("Dependencies:");
 
-        setLibrariesButton.setText("Set Libraries");
-        setLibrariesButton.addActionListener(new java.awt.event.ActionListener() {
+        setDependenciesButton.setText("Set Dependencies");
+        setDependenciesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                setLibrariesButtonActionPerformed(evt);
+                setDependenciesButtonActionPerformed(evt);
             }
         });
 
@@ -1945,7 +1944,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(summaryNameLabel)
                     .addComponent(summaryPatternLabel1)
-                    .addComponent(librariesLabel)
+                    .addComponent(dependenciesLabel)
                     .addComponent(initialStateLabel)
                     .addComponent(attachmentLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1954,7 +1953,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(changeDataTypesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(summaryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(setLibrariesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(setDependenciesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
                                 .addComponent(attachmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1996,8 +1995,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                             .addComponent(changeDataTypesButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(librariesLabel)
-                            .addComponent(setLibrariesButton)))
+                            .addComponent(dependenciesLabel)
+                            .addComponent(setDependenciesButton)))
                     .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
                         .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -3072,8 +3071,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         attachmentWarningLabel.setVisible(evt.getStateChange() != ItemEvent.SELECTED && attachmentComboBox.getSelectedItem() != AttachmentHandlerType.NONE);
     }//GEN-LAST:event_attachmentStoreCheckBoxItemStateChanged
 
-    private void setLibrariesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setLibrariesButtonActionPerformed
-        LibraryResourcesDialog dialog = new LibraryResourcesDialog(currentChannel);
+    private void setDependenciesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setDependenciesButtonActionPerformed
+        ChannelDependenciesDialog dialog = new ChannelDependenciesDialog(currentChannel);
         if (dialog.wasSaved()) {
             resourceIds = dialog.getSelectedResourceIds();
             currentChannel.getProperties().setResourceIds(resourceIds.get(null));
@@ -3083,7 +3082,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
             parent.setSaveEnabled(true);
         }
-    }//GEN-LAST:event_setLibrariesButtonActionPerformed
+    }//GEN-LAST:event_setDependenciesButtonActionPerformed
 
     public void generateMultipleDestinationPage() {
         // Get the selected destination connector and set it.
@@ -3394,7 +3393,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lastModified;
-    private javax.swing.JLabel librariesLabel;
+    private javax.swing.JLabel dependenciesLabel;
     private javax.swing.JPanel messagePruningPanel;
     private javax.swing.JPanel messageStoragePanel;
     private javax.swing.JProgressBar messageStorageProgressBar;
@@ -3414,7 +3413,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private com.mirth.connect.client.ui.components.MirthCheckBox removeContentCheckbox;
     private javax.swing.JButton revertMetaDataButton;
     private com.mirth.connect.client.ui.ScriptPanel scripts;
-    private javax.swing.JButton setLibrariesButton;
+    private javax.swing.JButton setDependenciesButton;
     private javax.swing.JPanel source;
     private javax.swing.JScrollPane sourceConnectorPane;
     private com.mirth.connect.client.ui.panels.connectors.ConnectorPanel sourceConnectorPanel;

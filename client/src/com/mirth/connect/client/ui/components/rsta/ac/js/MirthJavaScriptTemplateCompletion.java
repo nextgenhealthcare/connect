@@ -15,23 +15,27 @@ import org.fife.ui.autocomplete.CompletionProvider;
 import com.mirth.connect.client.ui.components.rsta.ac.MirthCompletion;
 import com.mirth.connect.client.ui.reference.ParameterizedCodeReference;
 import com.mirth.connect.client.ui.reference.Reference;
+import com.mirth.connect.model.CodeTemplateContextSet;
 
 public class MirthJavaScriptTemplateCompletion extends JavaScriptTemplateCompletion implements MirthCompletion {
 
     protected String id;
+    protected CodeTemplateContextSet contextSet;
 
     public MirthJavaScriptTemplateCompletion(CompletionProvider provider, ParameterizedCodeReference reference) {
-        this(provider, reference.getId(), reference.getName(), reference.getDefinitionString(), reference.getTemplate(), reference.getDescription(), reference.getSummary());
-    }
-
-    private MirthJavaScriptTemplateCompletion(CompletionProvider provider, String id, String inputText, String definitionString, String template, String shortDesc, String summary) {
-        super(provider, inputText, definitionString, template, shortDesc, summary);
-        this.id = id;
+        super(provider, reference.getName(), reference.getDefinitionString(), reference.getTemplate(), reference.getDescription(), reference.getSummary());
+        id = reference.getId();
+        contextSet = reference.getContextSet();
     }
 
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public CodeTemplateContextSet getContextSet() {
+        return contextSet;
     }
 
     @Override

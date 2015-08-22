@@ -81,7 +81,6 @@ import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
@@ -179,7 +178,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             setRowData(s, s.getSequenceNumber(), false);
         }
 
-        tabTemplatePanel.setDefaultComponent();
         tabTemplatePanel.setFilterView();
 
         int rowCount = filterTableModel.getRowCount();
@@ -209,6 +207,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                 tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
             }
         }
+
+        tabTemplatePanel.setDefaultComponent();
 
         tabTemplatePanel.setIncomingDataProperties(transformer.getInboundProperties());
 
@@ -329,7 +329,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         rulePanel = new BasePanel();
         blankPanel = new BasePanel();
 
-        scriptTextArea = new MirthRTextScrollPane(true, ContextType.MESSAGE_CONTEXT.getContext(), SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, false);
+        scriptTextArea = new MirthRTextScrollPane(null, true, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, false);
         scriptTextArea.setBackground(new Color(204, 204, 204));
         scriptTextArea.setBorder(BorderFactory.createEtchedBorder());
         scriptTextArea.getTextArea().setEditable(false);
@@ -758,7 +758,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         FilterRulePlugin plugin;
         try {
             plugin = getPlugin(type);
-            plugin.setData(data);
+            plugin.setData(connector.getMode(), data);
         } catch (Exception e) {
             parent.alertThrowable(this, e);
         }
@@ -776,7 +776,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             plugin = getPlugin(rule.getType());
             String ruleName = rule.getName();
             if (ruleName == null || ruleName.equals("") || plugin.isProvideOwnStepName()) {
-                plugin.setData((Map<Object, Object>) rule.getData());
+                plugin.setData(connector.getMode(), (Map<Object, Object>) rule.getData());
                 ruleName = plugin.getStepName();
             }
             tableData[RULE_NAME_COL] = ruleName;
@@ -860,7 +860,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             rule.setData(data);
 
             if (plugin.isProvideOwnStepName()) {
-                plugin.setData(data);
+                plugin.setData(connector.getMode(), data);
                 rule.setName(plugin.getStepName());
                 plugin.clearData();
             }

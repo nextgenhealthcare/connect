@@ -287,11 +287,11 @@ public class HttpSender extends ConnectorSettingsPanel {
         return new HttpDispatcherProperties();
     }
 
-	public void setParameters(Map<String, List<String>> properties) {
-		int size = 0;
-		for (List<String> property : properties.values()) {
-			size += property.size();
-		}
+    public void setParameters(Map<String, List<String>> properties) {
+        int size = 0;
+        for (List<String> property : properties.values()) {
+            size += property.size();
+        }
 
         Object[][] tableData = new Object[size][2];
 
@@ -383,28 +383,28 @@ public class HttpSender extends ConnectorSettingsPanel {
         queryParametersPane.setViewportView(queryParametersTable);
     }
 
-	public void setHeaders(Map<String, List<String>> properties) {
-		int size = 0;
-		for (List<String> property : properties.values()) {
-			size += property.size();
-		}
+    public void setHeaders(Map<String, List<String>> properties) {
+        int size = 0;
+        for (List<String> property : properties.values()) {
+            size += property.size();
+        }
 
         Object[][] tableData = new Object[size][2];
 
-		headersTable = new MirthTable();
+        headersTable = new MirthTable();
 
-		int j = 0;
-		Iterator i = properties.entrySet().iterator();
-		while (i.hasNext()) {
-			Map.Entry entry = (Map.Entry) i.next();
-			for (String keyValue : (List<String>) entry.getValue()) {
-				tableData[j][NAME_COLUMN] = (String) entry.getKey();
-				tableData[j][VALUE_COLUMN] = keyValue;
-				j++;
-			}
-		}
+        int j = 0;
+        Iterator i = properties.entrySet().iterator();
+        while (i.hasNext()) {
+            Map.Entry entry = (Map.Entry) i.next();
+            for (String keyValue : (List<String>) entry.getValue()) {
+                tableData[j][NAME_COLUMN] = (String) entry.getKey();
+                tableData[j][VALUE_COLUMN] = keyValue;
+                j++;
+            }
+        }
 
-		headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
                 NAME_COLUMN_NAME, VALUE_COLUMN_NAME }) {
 
             boolean[] canEdit = new boolean[] { true, true };
@@ -488,7 +488,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         }
 
         headersPane.setViewportView(headersTable);
-	}
+    }
 
     private Map<String, List<String>> getProperties(JTable table) {
         Map<String, List<String>> properties = new LinkedHashMap<String, List<String>>();
@@ -809,7 +809,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         multipartLabel = new javax.swing.JLabel();
         multipartYesButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         multipartNoButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        contentTextArea = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
+        contentTextArea = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true);
         contentLabel = new javax.swing.JLabel();
         contentTypeField = new com.mirth.connect.client.ui.components.MirthTextField();
         contentTypeLabel = new javax.swing.JLabel();

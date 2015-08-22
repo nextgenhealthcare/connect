@@ -10,11 +10,8 @@
 package com.mirth.connect.client.ui.components;
 
 import java.awt.event.MouseEvent;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -32,12 +29,7 @@ import com.mirth.connect.client.ui.actions.PasteAction;
 import com.mirth.connect.client.ui.actions.RedoAction;
 import com.mirth.connect.client.ui.actions.SelectAllAction;
 import com.mirth.connect.client.ui.actions.ShowLineEndingsAction;
-import com.mirth.connect.client.ui.actions.SnippetAction;
 import com.mirth.connect.client.ui.actions.UndoAction;
-import com.mirth.connect.client.ui.actions.ViewUserApiAction;
-import com.mirth.connect.client.ui.reference.ReferenceListFactory;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.ContextType;
 
 /**
  * Mirth's implementation of the JTextArea. Adds enabling of the save button in parent. Also adds a
@@ -55,20 +47,15 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     private RedoAction redoAction;
     private FindAndReplaceAction findReplaceAction;
     private ShowLineEndingsAction showLineEndingsAction;
-    private JMenu varlist;
-    private JMenu funclist;
-    private ViewUserApiAction viewUserApiAction;
     private boolean saveDisabled;
-    protected boolean showSnippets;
 
     public MirthSyntaxTextArea() {
-        initialize(false, false, ContextType.GLOBAL_CONTEXT.getContext());
+        this(false);
     }
 
-    private void initialize(boolean lineNumbers, final boolean showSnippets, final int context) {
+    public MirthSyntaxTextArea(boolean lineNumbers) {
         this.parent = PlatformUI.MIRTH_FRAME;
         this.setFocusable(true);
-        this.showSnippets = showSnippets;
         this.setCaretVisible(false);
         this.setShowLineEndings(false);
         // This needs to be saveDisabled instead of saveEnabled because JEditTextArea actually calls setDocument before this gets initialized
@@ -98,36 +85,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         popup.add(findReplaceAction);
         popup.add(new JCheckBoxMenuItem(showLineEndingsAction));
 
-        if (showSnippets) {
-            varlist = new JMenu("Built-in Variables");
-            funclist = new JMenu("Built-in Functions");
-            ReferenceListFactory factory = ReferenceListFactory.getInstance();
-            List<CodeTemplate> jshelpers = factory.getCodeTemplates(null, context);
-            Iterator<CodeTemplate> it = jshelpers.iterator();
-
-            while (it.hasNext()) {
-                CodeTemplate item = it.next();
-                switch (item.getType()) {
-                    case FUNCTION:
-                        funclist.add(new SnippetAction(this, item.getName(), item.getCode()));
-                        break;
-                    case VARIABLE:
-                        varlist.add(new SnippetAction(this, item.getName(), item.getCode()));
-                        break;
-                    case CODE:
-                        funclist.add(new SnippetAction(this, item.getName(), item.getCode()));
-                        break;
-                }
-            }
-            popup.addSeparator();
-            popup.add(varlist);
-            popup.add(funclist);
-            popup.addSeparator();
-
-            viewUserApiAction = new ViewUserApiAction(this);
-            popup.add(viewUserApiAction);
-        }
-
         this.popupHandler = new PopUpHandler() {
 
             public void showPopupMenu(JPopupMenu menu, MouseEvent evt) {
@@ -145,24 +102,9 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
                 } else {
                     ((JCheckBoxMenuItem) menu.getComponent(11)).setState(false);
                 }
-                if (showSnippets) {
-                    menu.getComponent(12).setEnabled(varlist.isEnabled());
-                    menu.getComponent(13).setEnabled(funclist.isEnabled());
-                    menu.getComponent(14).setEnabled(viewUserApiAction.isEnabled());
-                }
                 menu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
         };
-    }
-
-    public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets) {
-        super(lineNumbers);
-        initialize(lineNumbers, showSnippets, ContextType.GLOBAL_CONTEXT.getContext());
-    }
-
-    public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets, final int context) {
-        super(lineNumbers);
-        initialize(lineNumbers, showSnippets, context);
     }
 
     /*

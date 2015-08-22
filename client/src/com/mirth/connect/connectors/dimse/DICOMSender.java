@@ -241,7 +241,7 @@ public class DICOMSender extends ConnectorSettingsPanel {
         jLabel2 = new javax.swing.JLabel();
         listenerPortField = new com.mirth.connect.client.ui.components.MirthTextField();
         listenerAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
-        fileContentsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(false,false);
+        fileContentsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         jLabel3 = new javax.swing.JLabel();
         accepttoField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel4 = new javax.swing.JLabel();
@@ -1017,6 +1017,7 @@ public class DICOMSender extends ConnectorSettingsPanel {
     private void ackOnNewConnectionYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionYesActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionYesActionPerformed
     }// GEN-LAST:event_ackOnNewConnection   YesActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthTextField accepttoField;
     private com.mirth.connect.client.ui.components.MirthTextField applicationEntityField;

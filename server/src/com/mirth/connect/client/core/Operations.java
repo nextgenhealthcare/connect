@@ -50,9 +50,13 @@ public class Operations {
     public static final Operation CHANNEL_GET_STATUS_ALL = new Operation("getChannelStatusListAll", "Get channel status list for all channels", false);
 
     // Code Templates
-    public static final Operation CODE_TEMPLATE_GET = new Operation("getCodeTemplate", "Get code template", true);
-    public static final Operation CODE_TEMPLATE_UPDATE = new Operation("updateCodeTemplates", "Update code template", true);
-    public static final Operation CODE_TEMPLATE_REMOVE = new Operation("removeCodeTemplate", "Remove code template", true);
+    public static final Operation CODE_TEMPLATE_LIBRARY_GET = new Operation("getCodeTemplateLibraries", "Get code template libraries", true);
+    public static final Operation CODE_TEMPLATE_LIBRARY_UPDATE = new Operation("updateCodeTemplateLibraries", "Update code template libraries", true);
+    public static final Operation CODE_TEMPLATE_GET = new Operation("getCodeTemplates", "Get code templates", true);
+    public static final Operation CODE_TEMPLATE_GET_SUMMARY = new Operation("getCodeTemplateSummary", "Get code template summary", false);
+    public static final Operation CODE_TEMPLATE_UPDATE = new Operation("updateCodeTemplates", "Update code templates", true);
+    public static final Operation CODE_TEMPLATE_REMOVE = new Operation("removeCodeTemplates", "Remove code templates", true);
+    public static final Operation CODE_TEMPLATE_UPDATE_ALL = new Operation("updateCodeTemplatesAndLibraries", "Update code templates and libraries", true);
 
     // Configuration
     public static final Operation GLOBAL_SCRIPT_GET = new Operation("getGlobalScripts", "Get global scripts", true);
@@ -178,9 +182,13 @@ public class Operations {
         operationMap.put(CHANNEL_GET_STATUS_INITIAL.getName(), CHANNEL_GET_STATUS_INITIAL);
         operationMap.put(CHANNEL_GET_STATUS.getName(), CHANNEL_GET_STATUS);
         operationMap.put(CHANNEL_GET_STATUS_ALL.getName(), CHANNEL_GET_STATUS_ALL);
+        operationMap.put(CODE_TEMPLATE_LIBRARY_GET.getName(), CODE_TEMPLATE_LIBRARY_GET);
+        operationMap.put(CODE_TEMPLATE_LIBRARY_UPDATE.getName(), CODE_TEMPLATE_LIBRARY_UPDATE);
         operationMap.put(CODE_TEMPLATE_GET.getName(), CODE_TEMPLATE_GET);
+        operationMap.put(CODE_TEMPLATE_GET_SUMMARY.getName(), CODE_TEMPLATE_GET_SUMMARY);
         operationMap.put(CODE_TEMPLATE_UPDATE.getName(), CODE_TEMPLATE_UPDATE);
         operationMap.put(CODE_TEMPLATE_REMOVE.getName(), CODE_TEMPLATE_REMOVE);
+        operationMap.put(CODE_TEMPLATE_UPDATE_ALL.getName(), CODE_TEMPLATE_UPDATE_ALL);
         operationMap.put(GLOBAL_SCRIPT_GET.getName(), GLOBAL_SCRIPT_GET);
         operationMap.put(GLOBAL_SCRIPT_SET.getName(), GLOBAL_SCRIPT_SET);
         operationMap.put(CONFIGURATION_CHARSET_ENCODINGS_GET.getName(), CONFIGURATION_CHARSET_ENCODINGS_GET);

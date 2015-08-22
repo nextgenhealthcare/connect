@@ -10,7 +10,6 @@
 package com.mirth.connect.client.ui;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -27,11 +26,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractCellEditor;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
@@ -67,22 +64,15 @@ import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.plugins.LibraryClientPlugin;
 
-public class LibraryResourcesDialog extends MirthDialog implements ListSelectionListener, TreeSelectionListener {
+public class LibraryResourcesPanel extends JPanel implements ListSelectionListener, TreeSelectionListener {
 
     private static final int SELECTED_COLUMN = 0;
     private static final int PROPERTIES_COLUMN = 1;
     private static final int TYPE_COLUMN = 2;
 
-    private boolean saved;
     private Map<Integer, Set<String>> selectedResourceIds;
-    private MirthTreeTable treeTable;
-    private MirthTable resourceTable;
-    private JButton okButton;
-    private JButton cancelButton;
 
-    public LibraryResourcesDialog(Channel channel) {
-        super(PlatformUI.MIRTH_FRAME, true);
-
+    public LibraryResourcesPanel(final ChannelDependenciesDialog parent, Channel channel) {
         selectedResourceIds = new HashMap<Integer, Set<String>>();
 
         Set<String> channelResourceIds = channel.getProperties().getResourceIds();
@@ -106,13 +96,8 @@ public class LibraryResourcesDialog extends MirthDialog implements ListSelection
         }
 
         initComponents(channel);
-        setPreferredSize(new Dimension(450, 444));
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setTitle("Library Resources");
-        pack();
-        setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
+        initLayout();
 
-        okButton.setEnabled(false);
         final String workingId = PlatformUI.MIRTH_FRAME.startWorking("Loading library resources...");
 
         SwingWorker<List<LibraryProperties>, Void> worker = new SwingWorker<List<LibraryProperties>, Void>() {
@@ -151,7 +136,7 @@ public class LibraryResourcesDialog extends MirthDialog implements ListSelection
 
                     treeTable.getSelectionModel().setSelectionInterval(0, 0);
                     treeTable.getTreeSelectionModel().setSelectionPath(treeTable.getPathForRow(0));
-                    okButton.setEnabled(true);
+                    parent.resourcesReady();
                 } catch (Throwable t) {
                     if (t instanceof ExecutionException) {
                         t = t.getCause();
@@ -164,12 +149,6 @@ public class LibraryResourcesDialog extends MirthDialog implements ListSelection
         };
 
         worker.execute();
-
-        setVisible(true);
-    }
-
-    public boolean wasSaved() {
-        return saved;
     }
 
     public Map<Integer, Set<String>> getSelectedResourceIds() {
@@ -177,9 +156,7 @@ public class LibraryResourcesDialog extends MirthDialog implements ListSelection
     }
 
     private void initComponents(Channel channel) {
-        setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill", "", "[][]8[]8[]"));
         setBackground(UIConstants.BACKGROUND_COLOR);
-        getContentPane().setBackground(getBackground());
 
         AbstractMutableTreeTableNode channelNode = new DefaultMutableTreeTableNode(new ConnectorEntry("Channel", -1, null));
 
@@ -247,7 +224,7 @@ public class LibraryResourcesDialog extends MirthDialog implements ListSelection
         treeTable.setLeafIcon(null);
         treeTable.getColumnExt(0).setToolTipText(toolTipText);
 
-        add(new JScrollPane(treeTable), "grow, h 60%");
+        treeTableScrollPane = new JScrollPane(treeTable);
 
         resourceTable = new MirthTable();
         resourceTable.setModel(new RefreshTableModel(new Object[] { "", "Name", "Type" }, 0) {
@@ -277,32 +254,13 @@ public class LibraryResourcesDialog extends MirthDialog implements ListSelection
         resourceTable.getColumnModel().getColumn(TYPE_COLUMN).setMinWidth(75);
         resourceTable.getColumnModel().getColumn(TYPE_COLUMN).setMaxWidth(200);
 
-        add(new JScrollPane(resourceTable), "newline, grow, h 40%");
+        resourceTableScrollPane = new JScrollPane(resourceTable);
+    }
 
-        add(new JSeparator(), "newline, grow");
-
-        JPanel buttonPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3"));
-        buttonPanel.setBackground(getBackground());
-
-        okButton = new JButton("OK");
-        okButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                okButtonActionPerformed();
-            }
-        });
-        buttonPanel.add(okButton, "w 48!");
-
-        cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                cancelButtonActionPerformed();
-            }
-        });
-        buttonPanel.add(cancelButton, "w 48!");
-
-        add(buttonPanel, "newline, right");
+    private void initLayout() {
+        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
+        add(treeTableScrollPane, "grow, h 60%");
+        add(resourceTableScrollPane, "newline, grow, h 40%");
     }
 
     @Override
@@ -345,15 +303,6 @@ public class LibraryResourcesDialog extends MirthDialog implements ListSelection
                 resourceTable.getModel().setValueAt(selectedResourceIds.get(entry.metaDataId).contains(properties.getId()), row, SELECTED_COLUMN);
             }
         }
-    }
-
-    private void okButtonActionPerformed() {
-        saved = true;
-        dispose();
-    }
-
-    private void cancelButtonActionPerformed() {
-        dispose();
     }
 
     private class ConnectorEntry {
@@ -538,4 +487,9 @@ public class LibraryResourcesDialog extends MirthDialog implements ListSelection
             cancelCellEditing();
         }
     }
+
+    private MirthTreeTable treeTable;
+    private JScrollPane treeTableScrollPane;
+    private MirthTable resourceTable;
+    private JScrollPane resourceTableScrollPane;
 }

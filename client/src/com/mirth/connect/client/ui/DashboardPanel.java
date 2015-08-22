@@ -579,6 +579,14 @@ public class DashboardPanel extends javax.swing.JPanel {
                     if (value != null && value.intValue() > 0) {
                         return true;
                     }
+
+                    TreePath path = statusTable.getPathForRow(adapter.row);
+                    if (path != null) {
+                        DashboardStatus status = ((DashboardTableNode) path.getLastPathComponent()).getStatus();
+                        if (status.getCodeTemplatesChanged() != null && status.getCodeTemplatesChanged()) {
+                            return true;
+                        }
+                    }
                 }
                 return false;
             }
@@ -700,7 +708,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         if (loadPanelPlugin) {
             loadPanelPlugin(getCurrentTabPlugin());
-            
+
             for (DashboardPanelPlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
                 loadPanelPlugin(plugin);
             }

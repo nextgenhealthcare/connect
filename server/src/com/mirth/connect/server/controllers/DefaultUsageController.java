@@ -21,7 +21,7 @@ import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.PluginMetaData;
@@ -134,12 +134,12 @@ public class DefaultUsageController extends UsageController {
 
     private void getCodeTemplateData(PurgedDocument purgedDocument) throws ControllerException {
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
-        List<Map<String, Object>> purgedCodeTemplates = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> purgedLibraries = new ArrayList<Map<String, Object>>();
 
-        for (CodeTemplate codeTemplate : codeTemplateController.getCodeTemplate(null)) {
-            purgedCodeTemplates.add(codeTemplate.getPurgedProperties());
+        for (CodeTemplateLibrary library : codeTemplateController.getLibraries(null, true, true)) {
+            purgedLibraries.add(library.getPurgedProperties());
         }
-        purgedDocument.setCodeTemplates(purgedCodeTemplates);
+        purgedDocument.setCodeTemplateLibraries(purgedLibraries);
     }
 
     private void getScriptData(PurgedDocument purgedDocument) throws ControllerException {

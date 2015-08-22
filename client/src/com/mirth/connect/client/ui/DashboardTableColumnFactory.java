@@ -71,7 +71,7 @@ public class DashboardTableColumnFactory extends ColumnFactory {
                 column.setComparator(new NumberCellComparator());
                 column.setMaxWidth(50);
                 column.setMinWidth(50);
-                column.setToolTipText("<html><body>The number of times this channel was saved since it was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision<br>This value will be highlighted if it is greater than 0.</body></html>");
+                column.setToolTipText("<html><body>The number of times this channel was saved since it was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision<br>This value will be highlighted if it is greater than 0,<br/><b>or</b> if any code templates linked to this channel have changed.</body></html>");
                 break;
 
             case 3:

@@ -10,75 +10,98 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.text.WordUtils;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
+import com.mirth.connect.donkey.util.xstream.SerializerException;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.util.CodeTemplateUtil;
+import com.mirth.connect.util.CodeTemplateUtil.CodeTemplateDocumentation;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("codeTemplate")
-public class CodeTemplate implements Serializable, Migratable, Purgable {
-    public enum CodeSnippetType {
-        CODE("Code"), VARIABLE("Variable"), FUNCTION("Function");
+public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheable<CodeTemplate> {
+
+    private static final String DEFAULT_CODE = "/**\n\tModify the description here. Modify the function name and parameters as needed. One function per\n\ttemplate is recommended; create a new code template for each new function.\n\n\t@param {String} arg1 - arg1 description\n\t@return {String} return description\n*/\nfunction new_function1(arg1) {\n\t// TODO: Enter code here\n}";
+
+    public enum CodeTemplateType {
+        FUNCTION("Function"), DRAG_AND_DROP_CODE("Drag-and-Drop Code Block"), COMPILED_CODE(
+                "Compiled Code Block");
 
         private String value;
 
-        CodeSnippetType(String value) {
+        private CodeTemplateType(String value) {
             this.value = value;
         }
 
-        public String getValue() {
+        @Override
+        public String toString() {
             return value;
-        }
-    }
-
-    public enum ContextType {
-        GLOBAL_CONTEXT("Global", 0), GLOBAL_CHANNEL_CONTEXT("Global Channel", 1), CHANNEL_CONTEXT(
-                "Channel", 2), MESSAGE_CONTEXT("Message", 3);
-
-        private String value;
-        private int context;
-
-        ContextType(String value, int context) {
-            this.value = value;
-            this.context = context;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public int getContext() {
-            return context;
         }
     }
 
     private String id;
     private String name;
-    private String tooltip;
+    private Integer revision;
+    private Calendar lastModified;
+    private CodeTemplateType type;
+    private CodeTemplateContextSet contextSet;
     private String code;
-    private CodeSnippetType type;
-    private int scope;
 
-    public CodeTemplate() {
+    private transient String description;
+    private transient CodeTemplateFunctionDefinition functionDefinition;
 
+    public CodeTemplate(String id) {
+        this.id = id;
     }
 
-    public CodeTemplate(String name, String tooltip, String code, CodeSnippetType type, int scope) {
-        this.id = UUID.randomUUID().toString();
+    public CodeTemplate(String name, CodeTemplateType type, CodeTemplateContextSet contextSet, String code, String description) {
+        this(name, type, contextSet, addComment(code, description));
+    }
+
+    public CodeTemplate(String name, CodeTemplateType type, CodeTemplateContextSet contextSet, String code) {
+        this(UUID.randomUUID().toString());
         this.name = name;
-        this.tooltip = tooltip;
-        this.code = code;
         this.type = type;
-        this.scope = scope;
+        this.contextSet = contextSet;
+        setCode(code);
     }
 
+    public CodeTemplate(CodeTemplate codeTemplate) {
+        id = codeTemplate.getId();
+        name = codeTemplate.getName();
+        revision = codeTemplate.getRevision();
+        lastModified = codeTemplate.getLastModified();
+        type = codeTemplate.getType();
+        if (codeTemplate.getContextSet() != null) {
+            contextSet = new CodeTemplateContextSet(codeTemplate.getContextSet());
+        }
+        setCode(codeTemplate.getCode());
+    }
+
+    public static CodeTemplate getDefaultCodeTemplate(String name) {
+        return new CodeTemplate(name, CodeTemplateType.FUNCTION, CodeTemplateContextSet.getConnectorContextSet(), DEFAULT_CODE);
+    }
+
+    private static String addComment(String code, String description) {
+        if (StringUtils.isNotBlank(description)) {
+            return new StringBuilder("/**\n\t").append(WordUtils.wrap(description, 80, "\n\t", false)).append("\n*/\n").append(code).toString();
+        }
+        return code;
+    }
+
+    @Override
     public String getId() {
         return id;
     }
@@ -87,14 +110,7 @@ public class CodeTemplate implements Serializable, Migratable, Purgable {
         this.id = id;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
+    @Override
     public String getName() {
         return name;
     }
@@ -103,55 +119,83 @@ public class CodeTemplate implements Serializable, Migratable, Purgable {
         this.name = name;
     }
 
-    public String getTooltip() {
-        return tooltip;
+    @Override
+    public Integer getRevision() {
+        return revision;
     }
 
-    public void setTooltip(String tooltip) {
-        this.tooltip = tooltip;
+    public void setRevision(Integer revision) {
+        this.revision = revision;
     }
 
-    public CodeSnippetType getType() {
+    public Calendar getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Calendar lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    public CodeTemplateType getType() {
         return type;
     }
 
-    public void setType(CodeSnippetType type) {
+    public void setType(CodeTemplateType type) {
         this.type = type;
     }
 
-    public int getScope() {
-        return scope;
+    public boolean isAddToScripts() {
+        return type == CodeTemplateType.FUNCTION || type == CodeTemplateType.COMPILED_CODE;
     }
 
-    public void setScope(int scope) {
-        this.scope = scope;
+    public CodeTemplateContextSet getContextSet() {
+        return contextSet;
     }
 
-    public boolean equals(Object that) {
-        if (this == that) {
-            return true;
+    public void setContextSet(CodeTemplateContextSet contextSet) {
+        this.contextSet = contextSet;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+        updateDocumentation();
+    }
+
+    @Override
+    public CodeTemplate cloneIfNeeded() {
+        return new CodeTemplate(this);
+    }
+
+    public String getDescription() {
+        if (description == null) {
+            updateDocumentation();
+        }
+        return description;
+    }
+
+    public CodeTemplateFunctionDefinition getFunctionDefinition() {
+        if (functionDefinition == null) {
+            updateDocumentation();
+        }
+        return functionDefinition;
+    }
+
+    private void updateDocumentation() {
+        String description = null;
+        CodeTemplateFunctionDefinition functionDefinition = null;
+
+        if (StringUtils.isNotBlank(code)) {
+            CodeTemplateDocumentation documentation = CodeTemplateUtil.getDocumentation(code);
+            description = documentation.getDescription();
+            functionDefinition = documentation.getFunctionDefinition();
         }
 
-        if (!(that instanceof CodeTemplate)) {
-            return false;
-        }
-
-        CodeTemplate codeTemplate = (CodeTemplate) that;
-
-        return ObjectUtils.equals(this.getId(), codeTemplate.getId()) && ObjectUtils.equals(this.getName(), codeTemplate.getName()) && ObjectUtils.equals(this.getTooltip(), codeTemplate.getTooltip()) && ObjectUtils.equals(this.getScope(), codeTemplate.getScope()) && ObjectUtils.equals(this.getType(), codeTemplate.getType()) && ObjectUtils.equals(this.getCode(), codeTemplate.getCode());
-    }
-
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(this.getClass().getName() + "[");
-        builder.append("id=" + getId() + ", ");
-        builder.append("tooltip=" + getTooltip() + ", ");
-        builder.append("scope=" + getScope() + ", ");
-        builder.append("type=" + getType() + ", ");
-        builder.append("code=" + getCode() + ", ");
-        builder.append("name=" + getName());
-        builder.append("]");
-        return builder.toString();
+        this.description = description;
+        this.functionDefinition = functionDefinition;
     }
 
     @Override
@@ -167,17 +211,97 @@ public class CodeTemplate implements Serializable, Migratable, Purgable {
     public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_3_0(DonkeyElement element) {}
+    public void migrate3_3_0(DonkeyElement element) {
+        element.addChildElement("revision", "1");
+
+        try {
+            element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(Calendar.getInstance())).setNodeName("lastModified");
+        } catch (DonkeyElementException e) {
+            throw new SerializerException("Failed to migrate code template last modified date.", e);
+        }
+
+        String type = element.getChildElement("type").getTextContent();
+        if (type.equals("CODE") || type.equals("VARIABLE")) {
+            element.getChildElement("type").setTextContent("DRAG_AND_DROP_CODE");
+        }
+
+        DonkeyElement codeElement = element.getChildElement("code");
+        String code = StringUtils.trim(codeElement.getTextContent());
+        String toolTip = StringUtils.trim(element.removeChild("tooltip").getTextContent());
+
+        if (StringUtils.isNotBlank(toolTip)) {
+            if (code.startsWith("/**")) {
+                // Code already has a documentation block, so put the tooltip inside it
+                int index = StringUtils.indexOfAnyBut(code.substring(1), '*') + 1;
+                StringBuilder builder = new StringBuilder(code.substring(0, index)).append("\n\t").append(WordUtils.wrap(toolTip, 100, "\n\t", false)).append('\n');
+                String remaining = code.substring(index);
+                if (StringUtils.indexOfAnyBut(remaining.trim(), '*', '/') == 0) {
+                    builder.append("\n\t");
+                }
+                code = builder.append(remaining).toString();
+            } else {
+                // Add a new documentation block
+                code = new StringBuilder("/**\n\t").append(WordUtils.wrap(toolTip, 100, "\n\t", false)).append("\n*/\n").append(code).toString();
+            }
+
+            codeElement.setTextContent(code);
+        }
+
+        DonkeyElement contextSet = element.addChildElement("contextSet").addChildElement("delegate");
+
+        switch (Integer.parseInt(element.removeChild("scope").getTextContent())) {
+            case 0:
+            case 1:
+                contextSet.addChildElement("contextType", "GLOBAL_DEPLOY");
+                contextSet.addChildElement("contextType", "GLOBAL_UNDEPLOY");
+                contextSet.addChildElement("contextType", "GLOBAL_PREPROCESSOR");
+            case 2:
+                contextSet.addChildElement("contextType", "GLOBAL_POSTPROCESSOR");
+                contextSet.addChildElement("contextType", "CHANNEL_DEPLOY");
+                contextSet.addChildElement("contextType", "CHANNEL_UNDEPLOY");
+                contextSet.addChildElement("contextType", "CHANNEL_PREPROCESSOR");
+                contextSet.addChildElement("contextType", "CHANNEL_POSTPROCESSOR");
+                contextSet.addChildElement("contextType", "CHANNEL_ATTACHMENT");
+                contextSet.addChildElement("contextType", "CHANNEL_BATCH");
+            case 3:
+                contextSet.addChildElement("contextType", "SOURCE_RECEIVER");
+                contextSet.addChildElement("contextType", "SOURCE_FILTER_TRANSFORMER");
+                contextSet.addChildElement("contextType", "DESTINATION_FILTER_TRANSFORMER");
+                contextSet.addChildElement("contextType", "DESTINATION_DISPATCHER");
+                contextSet.addChildElement("contextType", "DESTINATION_RESPONSE_TRANSFORMER");
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("id", id);
         purgedProperties.put("nameChars", PurgeUtil.countChars(name));
-        purgedProperties.put("tooltipChars", PurgeUtil.countChars(tooltip));
-        purgedProperties.put("codeLines", PurgeUtil.countLines(code));
+        purgedProperties.put("lastModified", lastModified);
         purgedProperties.put("type", type);
-        purgedProperties.put("scope", scope);
+        purgedProperties.put("contextSet", contextSet);
+        purgedProperties.put("codeLines", PurgeUtil.countLines(code));
+        CodeTemplateFunctionDefinition functionDefinition = getFunctionDefinition();
+        purgedProperties.put("parameterCount", functionDefinition != null ? functionDefinition.getParameters().size() : 0);
         return purgedProperties;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj, false, null, "DEFAULT_CODE");
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getName()).append(']');
+        builder.append("id=").append(id).append(", ");
+        builder.append("name=").append(name).append(", ");
+        builder.append("revision=").append(revision).append(", ");
+        builder.append("lastModified=").append(lastModified).append(", ");
+        builder.append("type=").append(type).append(", ");
+        builder.append("contextSet=").append(contextSet).append(", ");
+        builder.append("code=").append(code).append(']');
+        return builder.toString();
     }
 }

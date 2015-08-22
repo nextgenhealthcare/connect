@@ -40,7 +40,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true,this.context)"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(null, true)"/>
       </AuxValues>
     </Component>
   </SubComponents>

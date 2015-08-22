@@ -28,8 +28,11 @@ import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.CodeTemplateLibrarySaveResult;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DeployedChannelInfo;
@@ -80,8 +83,11 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         ChannelStatus.class,
         ChannelSummary.class,
         CodeTemplate.class,
+        CodeTemplateLibrary.class,
+        CodeTemplateLibrarySaveResult.class,
         Connector.class,
         ConnectorMetaData.class,
+        ContextType.class,
         ResourcePropertiesList.class,
         DashboardStatus.class,
         DashboardChannelInfo.class,

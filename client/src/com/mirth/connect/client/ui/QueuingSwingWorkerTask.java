@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public abstract class QueuingSwingWorkerTask<T, V> {
 
@@ -23,6 +24,13 @@ public abstract class QueuingSwingWorkerTask<T, V> {
     }
 
     protected abstract T doInBackground() throws Exception;
+
+    protected final T get() throws InterruptedException, ExecutionException {
+        if (worker != null) {
+            return worker.get();
+        }
+        return null;
+    }
 
     /*
      * This needs to be called from doInBackground, but the publish method cannot be directly called

@@ -11,7 +11,9 @@ package com.mirth.connect.server.builders;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -20,8 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.Rule;
@@ -29,14 +31,17 @@ import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
+import com.mirth.connect.server.controllers.CodeTemplateController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.util.CodeTemplateUtil;
 
 public class JavaScriptBuilder {
     private static Logger logger = Logger.getLogger(JavaScriptBuilder.class);
     private static ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private static CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 
     /*
      * Generates the global JavaScript contained in all new scopes created
@@ -46,7 +51,7 @@ public class JavaScriptBuilder {
 
         // add #trim() function to JavaScript String prototype
         script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
-        
+
         // Override toString on Arrays to return the JSON representation
         script.append("Array.prototype.toString = function() { return JSON.stringify(this); };");
 
@@ -89,12 +94,12 @@ public class JavaScriptBuilder {
      * Generation functions for general scripts
      */
 
-    public static String generateScript(String script, Set<String> scriptOptions, ContextType contextType) {
+    public static String generateScript(String channelId, String script, Set<String> scriptOptions, ContextType contextType) {
         StringBuilder builder = new StringBuilder();
 
         appendMapFunctions(builder);
         appendAttachmentFunctions(builder, scriptOptions);
-        appendCodeTemplates(builder, contextType);
+        appendCodeTemplates(builder, channelId, contextType);
         appendMiscFunctions(builder);
 
         builder.append("function doScript() {\n" + script + " \n}\n");
@@ -439,18 +444,32 @@ public class JavaScriptBuilder {
         }
     }
 
-    private static void appendCodeTemplates(StringBuilder builder, ContextType contextType) {
+    private static void appendCodeTemplates(StringBuilder builder, String channelId, ContextType contextType) {
         try {
-            for (CodeTemplate template : ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null)) {
-                if (template.getType() == CodeSnippetType.FUNCTION) {
-                    if (contextType.getContext() >= template.getScope()) {
-                        builder.append(template.getCode());
-                        builder.append('\n');
+            Map<String, CodeTemplate> codeTemplateMap = new HashMap<String, CodeTemplate>();
+            for (CodeTemplate template : codeTemplateController.getCodeTemplates(null)) {
+                codeTemplateMap.put(template.getId(), template);
+            }
+
+            for (CodeTemplateLibrary library : codeTemplateController.getLibraries(null, false, false)) {
+                for (CodeTemplate template : library.getCodeTemplates()) {
+                    // Ignore code templates that have already been handled
+                    // Only add the code template if the library is enabled for this channel, or if it's not explicitly disabled and new channels are being included 
+                    if (codeTemplateMap.containsKey(template.getId()) && (channelId == null || library.getEnabledChannelIds().contains(channelId) || (!library.getDisabledChannelIds().contains(channelId) && library.isIncludeNewChannels()))) {
+                        CodeTemplate serverCodeTemplate = codeTemplateMap.get(template.getId());
+
+                        if (serverCodeTemplate.isAddToScripts() && serverCodeTemplate.getContextSet().contains(contextType)) {
+                            builder.append(CodeTemplateUtil.stripDocumentation(serverCodeTemplate.getCode()));
+                            builder.append('\n');
+                        }
                     }
+
+                    // This code template has been handled, remove it from the map
+                    codeTemplateMap.remove(template.getId());
                 }
             }
         } catch (ControllerException e) {
-            logger.error("Could not get user functions.", e);
+            logger.error("Could not append code templates.", e);
         }
     }
 }

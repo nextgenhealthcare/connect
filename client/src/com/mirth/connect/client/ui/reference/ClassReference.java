@@ -13,12 +13,14 @@ import java.util.List;
 
 import org.fife.rsta.ac.js.IconFactory;
 
+import com.mirth.connect.model.CodeTemplateContextSet;
+
 public class ClassReference extends Reference {
 
     private List<String> aliases;
 
-    public ClassReference(int scope, String category, String className, List<String> aliases, String summary) {
-        super(Type.CLASS, scope, category, className);
+    public ClassReference(CodeTemplateContextSet contextSet, String category, String className, List<String> aliases, String summary) {
+        super(Type.CLASS, contextSet, category, className);
         this.aliases = aliases;
         setSummary(summary);
         setIconName(IconFactory.DEFAULT_CLASS_ICON);

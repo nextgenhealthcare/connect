@@ -22,7 +22,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -57,7 +57,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         try {
             contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
             contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(contextFactory, selectScriptId, connectorProperties.getSelect(), ContextType.MESSAGE_CONTEXT, null, null);
+            JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, selectScriptId, connectorProperties.getSelect(), ContextType.SOURCE_RECEIVER, null, null);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling select script " + selectScriptId + ".", e);
         }
@@ -66,7 +66,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
             updateScriptId = UUID.randomUUID().toString();
 
             try {
-                JavaScriptUtil.compileAndAddScript(contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.MESSAGE_CONTEXT, null, null);
+                JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.SOURCE_RECEIVER, null, null);
             } catch (Exception e) {
                 throw new ConnectorTaskException("Error compiling update script " + updateScriptId + ".", e);
             }

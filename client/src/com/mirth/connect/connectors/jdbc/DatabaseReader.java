@@ -41,6 +41,7 @@ import com.mirth.connect.client.ui.util.SQLParserUtil;
 import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.converters.DocumentSerializer;
 
@@ -419,8 +420,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         runUpdateLabel = new javax.swing.JLabel();
         dbVarScrollPane = new javax.swing.JScrollPane();
         dbVarList = new com.mirth.connect.client.ui.components.MirthVariableList();
-        selectTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);
-        updateTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);
+        selectTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.SOURCE_RECEIVER, true);
+        updateTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.SOURCE_RECEIVER, true);
         useScriptLabel = new javax.swing.JLabel();
         useScriptYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         useScriptNo = new com.mirth.connect.client.ui.components.MirthRadioButton();

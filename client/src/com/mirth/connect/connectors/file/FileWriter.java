@@ -666,7 +666,7 @@ public class FileWriter extends ConnectorSettingsPanel {
         templateLabel = new JLabel();
         templateLabel.setText("Template:");
 
-        fileContentsTextPane = new MirthSyntaxTextArea(false, false);
+        fileContentsTextPane = new MirthSyntaxTextArea();
         fileContentsTextPane.setBorder(BorderFactory.createEtchedBorder());
     }
 

@@ -11,23 +11,25 @@ package com.mirth.connect.client.ui.components.rsta.ac;
 
 import java.util.List;
 
+import javax.swing.text.JTextComponent;
+
 import org.fife.ui.autocomplete.Completion;
 
 import com.mirth.connect.client.ui.reference.Reference;
 
 public interface MirthCompletionCacheInterface {
 
-    public List<Completion> getClassCompletions(String partialText);
+    public List<Completion> getClassCompletions(JTextComponent comp, String partialText);
 
-    public List<Completion> getConstructorCompletions(String partialText);
+    public List<Completion> getConstructorCompletions(JTextComponent comp, String partialText);
 
-    public List<Completion> getFunctionCompletions(String variableOrClassName, String partialText);
+    public List<Completion> getFunctionCompletions(JTextComponent comp, String variableOrClassName, String partialText);
 
-    public List<Completion> getGlobalFunctionCompletions(String partialText);
+    public List<Completion> getGlobalFunctionCompletions(JTextComponent comp, String partialText);
 
-    public List<Completion> getVariableCompletions(String partialText);
+    public List<Completion> getVariableCompletions(JTextComponent comp, String partialText);
 
-    public List<Completion> getCodeCompletions(String partialText);
+    public List<Completion> getCodeCompletions(JTextComponent comp, String partialText);
 
     public void removeReferences(List<Reference> references);
 

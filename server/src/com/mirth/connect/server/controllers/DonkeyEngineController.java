@@ -95,6 +95,7 @@ import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
+import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ServerEventContext;
@@ -156,6 +157,7 @@ public class DonkeyEngineController implements EngineController {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
     private int queueBufferSize = Constants.DEFAULT_QUEUE_BUFFER_SIZE;
     private Map<String, ExecutorService> engineExecutors = new ConcurrentHashMap<String, ExecutorService>();
     private Set<Channel> deployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
@@ -415,6 +417,14 @@ public class DonkeyEngineController implements EngineController {
                 if (channelRevisions != null && channelRevisions.containsKey(channelId)) {
                     channelRevision = channelRevisions.get(channelId);
                     status.setDeployedRevisionDelta(channelRevision - channelModel.getRevision());
+
+                    try {
+                        DeployedChannelInfo deployedChannelInfo = channelController.getDeployedChannelInfoById(channelId);
+                        if (deployedChannelInfo != null && deployedChannelInfo.getCodeTemplateRevisions() != null && !deployedChannelInfo.getCodeTemplateRevisions().equals(codeTemplateController.getCodeTemplateRevisionsForChannel(channelId))) {
+                            status.setCodeTemplatesChanged(true);
+                        }
+                    } catch (ControllerException e) {
+                    }
                 }
 
                 status.setStatistics(stats.getConnectorStats(channelId, null));

@@ -20,7 +20,8 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.ScriptPanel;
 import com.mirth.connect.client.ui.editors.filter.FilterPane;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.plugins.FilterRulePlugin;
 
 public class JavascriptRulePlugin extends FilterRulePlugin {
@@ -33,7 +34,7 @@ public class JavascriptRulePlugin extends FilterRulePlugin {
 
     @Override
     public void initialize(FilterPane pane) {
-        panel = new ScriptPanel(pane, new JavaScriptTokenMarker(), ContextType.MESSAGE_CONTEXT.getContext());
+        panel = new ScriptPanel(pane, new JavaScriptTokenMarker());
     }
 
     @Override
@@ -56,8 +57,9 @@ public class JavascriptRulePlugin extends FilterRulePlugin {
     }
 
     @Override
-    public void setData(Map<Object, Object> data) {
+    public void setData(Mode mode, Map<Object, Object> data) {
         panel.setData(data);
+        panel.setContextType(mode == Mode.SOURCE ? ContextType.SOURCE_FILTER_TRANSFORMER : ContextType.DESTINATION_FILTER_TRANSFORMER);
     }
 
     @Override
@@ -99,16 +101,13 @@ public class JavascriptRulePlugin extends FilterRulePlugin {
     }
 
     @Override
-    public void start() {
-    }
+    public void start() {}
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
     public String getPluginPointName() {

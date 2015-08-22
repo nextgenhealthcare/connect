@@ -744,7 +744,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         operationComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         jLabel1 = new javax.swing.JLabel();
         serviceLabel = new javax.swing.JLabel();
-        soapEnvelope = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
+        soapEnvelope = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true);
         portLabel = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         generateEnvelope = new javax.swing.JButton();

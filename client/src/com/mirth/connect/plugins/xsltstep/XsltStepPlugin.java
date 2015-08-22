@@ -20,6 +20,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.XsltStepPanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class XsltStepPlugin extends TransformerStepPlugin {
@@ -76,7 +77,7 @@ public class XsltStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public void setData(Map<Object, Object> data) {
+    public void setData(Mode mode, Map<Object, Object> data) {
         panel.setData(data);
     }
 

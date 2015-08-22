@@ -56,7 +56,7 @@ public class VariableReferenceTable extends ReferenceTable {
         while (listItemIterator.hasNext()) {
             CodeTemplate listItem = listItemIterator.next();
             names[i] = listItem.getName();
-            tooltips[i] = listItem.getTooltip();
+            tooltips[i] = listItem.getDescription();
             i++;
         }
         makeTable(headerName, names, tooltips);

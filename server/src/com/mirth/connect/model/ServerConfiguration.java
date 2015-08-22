@@ -10,9 +10,11 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
@@ -29,7 +31,7 @@ public class ServerConfiguration implements Serializable, Migratable {
     private List<Channel> channels = null;
     private List<User> users = null;
     private List<AlertModel> alerts = null;
-    private List<CodeTemplate> codeTemplates = null;
+    private List<CodeTemplateLibrary> codeTemplateLibraries = null;
     private ServerSettings serverSettings = null;
     private UpdateSettings updateSettings = null;
     private Map<String, String> globalScripts = null;
@@ -84,12 +86,12 @@ public class ServerConfiguration implements Serializable, Migratable {
         this.date = date;
     }
 
-    public List<CodeTemplate> getCodeTemplates() {
-        return this.codeTemplates;
+    public List<CodeTemplateLibrary> getCodeTemplateLibraries() {
+        return codeTemplateLibraries;
     }
 
-    public void setCodeTemplates(List<CodeTemplate> codeTemplates) {
-        this.codeTemplates = codeTemplates;
+    public void setCodeTemplateLibraries(List<CodeTemplateLibrary> codeTemplateLibraries) {
+        this.codeTemplateLibraries = codeTemplateLibraries;
     }
 
     public Map<String, String> getGlobalScripts() {
@@ -156,5 +158,26 @@ public class ServerConfiguration implements Serializable, Migratable {
     }
 
     @Override
-    public void migrate3_3_0(DonkeyElement element) {}
+    public void migrate3_3_0(DonkeyElement element) {
+        DonkeyElement librariesElement = element.addChildElement("codeTemplateLibraries");
+        DonkeyElement libraryElement = librariesElement.addChildElement("codeTemplateLibrary");
+        libraryElement.setAttribute("version", "3.3.0");
+        libraryElement.addChildElement("id", UUID.randomUUID().toString());
+        libraryElement.addChildElement("name", "Library 1");
+        libraryElement.addChildElement("revision", "1");
+        try {
+            libraryElement.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(Calendar.getInstance())).setNodeName("lastModified");
+        } catch (DonkeyElementException e) {
+            throw new SerializerException("Failed to migrate code template library last modified date.", e);
+        }
+        libraryElement.addChildElement("description", "This library was added upon migration to version 3.3.0. It includes all pre-existing\ncode templates, and is set to be included on all pre-existing and new channels.\n\nYou should create your own new libraries and assign code templates to them as you\nsee fit. You should also link libraries to specific channels, so that you're not\nnecessarily including all code templates on all channels all the time.");
+        libraryElement.addChildElement("includeNewChannels", "true");
+        libraryElement.addChildElement("enabledChannelIds");
+        libraryElement.addChildElement("disabledChannelIds");
+        try {
+            libraryElement.addChildElementFromXml(element.removeChild("codeTemplates").toXml());
+        } catch (DonkeyElementException e) {
+            throw new SerializerException("Failed to migrate code templates.", e);
+        }
+    }
 }

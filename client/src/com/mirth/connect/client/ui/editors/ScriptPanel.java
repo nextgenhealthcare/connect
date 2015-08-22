@@ -18,15 +18,15 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang3.StringUtils;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 
+import com.mirth.connect.model.ContextType;
+
 public class ScriptPanel extends BasePanel {
 
     protected MirthEditorPane parent;
-    protected int context;
 
-    public ScriptPanel(MirthEditorPane p, TokenMarker tokenMarker, int context) {
+    public ScriptPanel(MirthEditorPane p, TokenMarker tokenMarker) {
         super();
         parent = p;
-        this.context = context;
         initComponents();
         scriptTextPane.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -47,12 +47,14 @@ public class ScriptPanel extends BasePanel {
         return StringUtils.isNotEmpty(scriptTextPane.getText());
     }
 
+    @Override
     public Map<Object, Object> getData() {
         Map<Object, Object> m = new LinkedHashMap<Object, Object>();
         m.put("Script", scriptTextPane.getText().trim());
         return m;
     }
 
+    @Override
     public void setData(Map<Object, Object> m) {
         boolean modified = parent.modified;
 
@@ -69,6 +71,10 @@ public class ScriptPanel extends BasePanel {
         return scriptTextPane.getText();
     }
 
+    public void setContextType(ContextType contextType) {
+        scriptTextPane.setContextType(contextType);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -78,7 +84,7 @@ public class ScriptPanel extends BasePanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        scriptTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true,this.context);
+        scriptTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(null, true);
 
         setBackground(new java.awt.Color(255, 255, 255));
 

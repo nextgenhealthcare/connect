@@ -121,6 +121,24 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                 textSearchWarningNoRadio.setSelected(true);
             }
 
+            String importChannelCodeTemplateLibraries = userPreferences.get("importChannelCodeTemplateLibraries", null);
+            if (importChannelCodeTemplateLibraries == null) {
+                importChannelLibrariesAskRadio.setSelected(true);
+            } else if (Boolean.parseBoolean(importChannelCodeTemplateLibraries)) {
+                importChannelLibrariesYesRadio.setSelected(true);
+            } else {
+                importChannelLibrariesNoRadio.setSelected(true);
+            }
+
+            String exportChannelCodeTemplateLibraries = userPreferences.get("exportChannelCodeTemplateLibraries", null);
+            if (exportChannelCodeTemplateLibraries == null) {
+                exportChannelLibrariesAskRadio.setSelected(true);
+            } else if (Boolean.parseBoolean(exportChannelCodeTemplateLibraries)) {
+                exportChannelLibrariesYesRadio.setSelected(true);
+            } else {
+                exportChannelLibrariesNoRadio.setSelected(true);
+            }
+
             final String workingId = getFrame().startWorking("Loading " + getTabName() + " settings...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -195,6 +213,18 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             userPreferences.putInt("eventBrowserPageSize", eventBrowserPageSize);
             userPreferences.putBoolean("messageBrowserFormat", formatYesRadio.isSelected());
             userPreferences.putBoolean("textSearchWarning", textSearchWarningYesRadio.isSelected());
+
+            if (importChannelLibrariesAskRadio.isSelected()) {
+                userPreferences.remove("importChannelCodeTemplateLibraries");
+            } else {
+                userPreferences.putBoolean("importChannelCodeTemplateLibraries", importChannelLibrariesYesRadio.isSelected());
+            }
+
+            if (exportChannelLibrariesAskRadio.isSelected()) {
+                userPreferences.remove("exportChannelCodeTemplateLibraries");
+            } else {
+                userPreferences.putBoolean("exportChannelCodeTemplateLibraries", exportChannelLibrariesYesRadio.isSelected());
+            }
         }
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " settings...");
 
@@ -330,6 +360,44 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         textSearchWarningNoRadio.setToolTipText(toolTipText);
         textSearchWarningButtonGroup.add(textSearchWarningNoRadio);
 
+        importChannelLibrariesLabel = new JLabel("Import code template libraries with channels:");
+        importChannelLibrariesButtonGroup = new ButtonGroup();
+
+        toolTipText = "<html>When attempting to import channels that have code template<br/>libraries linked to them, select Yes to always include them,<br/>No to never include them, or Ask to prompt the user each time.</html>";
+        importChannelLibrariesYesRadio = new MirthRadioButton("Yes");
+        importChannelLibrariesYesRadio.setBackground(systemSettingsPanel.getBackground());
+        importChannelLibrariesYesRadio.setToolTipText(toolTipText);
+        importChannelLibrariesButtonGroup.add(importChannelLibrariesYesRadio);
+
+        importChannelLibrariesNoRadio = new MirthRadioButton("No");
+        importChannelLibrariesNoRadio.setBackground(systemSettingsPanel.getBackground());
+        importChannelLibrariesNoRadio.setToolTipText(toolTipText);
+        importChannelLibrariesButtonGroup.add(importChannelLibrariesNoRadio);
+
+        importChannelLibrariesAskRadio = new MirthRadioButton("Ask");
+        importChannelLibrariesAskRadio.setBackground(systemSettingsPanel.getBackground());
+        importChannelLibrariesAskRadio.setToolTipText(toolTipText);
+        importChannelLibrariesButtonGroup.add(importChannelLibrariesAskRadio);
+
+        exportChannelLibrariesLabel = new JLabel("Export code template libraries with channels:");
+        exportChannelLibrariesButtonGroup = new ButtonGroup();
+
+        toolTipText = "<html>When attempting to export channels that have code template<br/>libraries linked to them, select Yes to always include them,<br/>No to never include them, or Ask to prompt the user each time.</html>";
+        exportChannelLibrariesYesRadio = new MirthRadioButton("Yes");
+        exportChannelLibrariesYesRadio.setBackground(systemSettingsPanel.getBackground());
+        exportChannelLibrariesYesRadio.setToolTipText(toolTipText);
+        exportChannelLibrariesButtonGroup.add(exportChannelLibrariesYesRadio);
+
+        exportChannelLibrariesNoRadio = new MirthRadioButton("No");
+        exportChannelLibrariesNoRadio.setBackground(systemSettingsPanel.getBackground());
+        exportChannelLibrariesNoRadio.setToolTipText(toolTipText);
+        exportChannelLibrariesButtonGroup.add(exportChannelLibrariesNoRadio);
+
+        exportChannelLibrariesAskRadio = new MirthRadioButton("Ask");
+        exportChannelLibrariesAskRadio.setBackground(systemSettingsPanel.getBackground());
+        exportChannelLibrariesAskRadio.setToolTipText(toolTipText);
+        exportChannelLibrariesButtonGroup.add(exportChannelLibrariesAskRadio);
+
         userSettingsPanel = new JPanel();
         userSettingsPanel.setBackground(getBackground());
         userSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "User Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
@@ -457,6 +525,14 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         systemSettingsPanel.add(textSearchWarningLabel, "newline, right");
         systemSettingsPanel.add(textSearchWarningYesRadio, "split");
         systemSettingsPanel.add(textSearchWarningNoRadio);
+        systemSettingsPanel.add(importChannelLibrariesLabel, "newline, right");
+        systemSettingsPanel.add(importChannelLibrariesYesRadio, "split");
+        systemSettingsPanel.add(importChannelLibrariesNoRadio);
+        systemSettingsPanel.add(importChannelLibrariesAskRadio);
+        systemSettingsPanel.add(exportChannelLibrariesLabel, "newline, right");
+        systemSettingsPanel.add(exportChannelLibrariesYesRadio, "split");
+        systemSettingsPanel.add(exportChannelLibrariesNoRadio);
+        systemSettingsPanel.add(exportChannelLibrariesAskRadio);
         add(systemSettingsPanel, "grow");
 
         userSettingsPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "12[]13[][grow]", ""));
@@ -555,6 +631,16 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     private ButtonGroup textSearchWarningButtonGroup;
     private JRadioButton textSearchWarningYesRadio;
     private JRadioButton textSearchWarningNoRadio;
+    private JLabel importChannelLibrariesLabel;
+    private ButtonGroup importChannelLibrariesButtonGroup;
+    private JRadioButton importChannelLibrariesYesRadio;
+    private JRadioButton importChannelLibrariesNoRadio;
+    private JRadioButton importChannelLibrariesAskRadio;
+    private JLabel exportChannelLibrariesLabel;
+    private ButtonGroup exportChannelLibrariesButtonGroup;
+    private JRadioButton exportChannelLibrariesYesRadio;
+    private JRadioButton exportChannelLibrariesNoRadio;
+    private JRadioButton exportChannelLibrariesAskRadio;
     private JPanel userSettingsPanel;
     private JLabel checkForNotificationsLabel;
     private ButtonGroup notificationButtonGroup;

@@ -187,7 +187,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.DESTINATION_DISPATCHER, true);"/>
       </AuxValues>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJavaScriptYes">

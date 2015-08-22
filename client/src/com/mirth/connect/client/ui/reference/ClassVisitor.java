@@ -37,7 +37,9 @@ import org.fife.rsta.ac.js.IconFactory;
 
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.CodeTemplateFunctionDefinition;
+import com.mirth.connect.model.Parameters;
 
 public class ClassVisitor extends VoidVisitorAdapter<Object> {
 
@@ -184,7 +186,7 @@ public class ClassVisitor extends VoidVisitorAdapter<Object> {
 
         String summary = builder.toString();
 
-        references.add(new ClassReference(ContextType.GLOBAL_CONTEXT.getContext(), null, className, inputTextList, summary));
+        references.add(new ClassReference(CodeTemplateContextSet.getGlobalContextSet(), null, className, inputTextList, summary));
 
         if (n.getMembers() != null) {
             for (BodyDeclaration member : n.getMembers()) {
@@ -255,7 +257,7 @@ public class ClassVisitor extends VoidVisitorAdapter<Object> {
             }
         }
 
-        com.mirth.connect.client.ui.reference.Parameters params = new com.mirth.connect.client.ui.reference.Parameters();
+        Parameters params = new Parameters();
         if (CollectionUtils.isNotEmpty(parameters)) {
             for (Parameter parameter : parameters) {
                 String parameterName = parameter.getId().getName();
@@ -265,9 +267,9 @@ public class ClassVisitor extends VoidVisitorAdapter<Object> {
 
         Reference reference;
         if (constructor) {
-            reference = new ConstructorReference(ContextType.GLOBAL_CONTEXT.getContext(), null, name, name, comment, null, name, params, type, returnComment);
+            reference = new ConstructorReference(CodeTemplateContextSet.getGlobalContextSet(), null, name, name, comment, null, new CodeTemplateFunctionDefinition(name, params, type, returnComment));
         } else {
-            reference = new FunctionReference(ContextType.GLOBAL_CONTEXT.getContext(), null, className, name, comment, null, name, params, type, returnComment, inputTextList);
+            reference = new FunctionReference(CodeTemplateContextSet.getGlobalContextSet(), null, className, name, comment, null, new CodeTemplateFunctionDefinition(name, params, type, returnComment), inputTextList);
         }
 
         if (StringUtils.isNotBlank(deprecatedComment)) {

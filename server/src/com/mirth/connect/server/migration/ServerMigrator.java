@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.MigrationException;
@@ -76,6 +77,7 @@ public class ServerMigrator extends Migrator {
     public void migrateSerializedData() {
         migrateSerializedData("SELECT ID, CHANNEL FROM CHANNEL", "UPDATE CHANNEL SET CHANNEL = ? WHERE ID = ?", Channel.class);
         migrateSerializedData("SELECT ID, ALERT FROM ALERT", "UPDATE ALERT SET ALERT = ? WHERE ID = ?", AlertModel.class);
+        migrateSerializedData("SELECT ID, LIBRARY FROM CODE_TEMPLATE_LIBRARY", "UPDATE CODE_TEMPLATE_LIBRARY SET LIBRARY = ? WHERE ID = ?", CodeTemplateLibrary.class);
         migrateSerializedData("SELECT ID, CODE_TEMPLATE FROM CODE_TEMPLATE", "UPDATE CODE_TEMPLATE SET CODE_TEMPLATE = ? WHERE ID = ?", CodeTemplate.class);
     }
 
@@ -196,7 +198,7 @@ public class ServerMigrator extends Migrator {
             case V3_2_0: return new Migrate3_2_0();
             case V3_2_1: return null;
             case V3_2_2: return new Migrate3_2_2();
-            case V3_3_0: return null;
+            case V3_3_0: return new Migrate3_3_0();
         } // @formatter:on
 
         return null;

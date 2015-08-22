@@ -198,9 +198,8 @@ public class ChannelPanel extends javax.swing.JPanel {
         channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMaxWidth(50);
         channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMinWidth(50);
         channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
-        channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setToolTipText("<html><body>The number of times the channel was saved since this channel was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision</body></html>");
         channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setResizable(false);
-        channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setToolTipText("<html><body>The number of times this channel was saved since it was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision<br>This value will be highlighted if it is greater than 0.</body></html>");
+        channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setToolTipText("<html><body>The number of times this channel was saved since it was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision<br>This value will be highlighted if it is greater than 0,<br/><b>or</b> if any code templates linked to this channel have changed.</body></html>");
 
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMinWidth(95);
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMaxWidth(95);
@@ -429,6 +428,14 @@ public class ChannelPanel extends javax.swing.JPanel {
                 if (adapter.column == channelTable.convertColumnIndexToView(channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).getModelIndex())) {
                     if (channelTable.getValueAt(adapter.row, adapter.column) != null && ((Integer) channelTable.getValueAt(adapter.row, adapter.column)).intValue() > 0) {
                         return true;
+                    }
+
+                    if (parent.channelStatuses != null) {
+                        String channelId = (String) channelTable.getModel().getValueAt(adapter.row, ID_COLUMN_NUMBER);
+                        ChannelStatus status = parent.channelStatuses.get(channelId);
+                        if (status != null && status.isCodeTemplatesChanged()) {
+                            return true;
+                        }
                     }
                 }
                 return false;

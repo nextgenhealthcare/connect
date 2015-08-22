@@ -77,22 +77,22 @@ public class MirthSourceCompletionProvider extends SourceCompletionProvider {
                 String partialText = text.substring(dot + 1).trim();
 
                 if (StringUtils.isNotBlank(identifier)) {
-                    set.addAll(completionCache.getFunctionCompletions(identifier, partialText));
+                    set.addAll(completionCache.getFunctionCompletions(comp, identifier, partialText));
                 }
             } else if (text.equals("new") || text.startsWith("new ")) {
                 String partialText = text.substring(3).trim();
-                set.addAll(completionCache.getConstructorCompletions(partialText));
+                set.addAll(completionCache.getConstructorCompletions(comp, partialText));
             } else {
-                set.addAll(completionCache.getVariableCompletions(text));
-                set.addAll(completionCache.getClassCompletions(text));
-                set.addAll(completionCache.getGlobalFunctionCompletions(text));
-                set.addAll(completionCache.getCodeCompletions(text));
+                set.addAll(completionCache.getVariableCompletions(comp, text));
+                set.addAll(completionCache.getClassCompletions(comp, text));
+                set.addAll(completionCache.getGlobalFunctionCompletions(comp, text));
+                set.addAll(completionCache.getCodeCompletions(comp, text));
             }
         } else {
-            set.addAll(completionCache.getVariableCompletions(""));
-            set.addAll(completionCache.getClassCompletions(""));
-            set.addAll(completionCache.getGlobalFunctionCompletions(""));
-            set.addAll(completionCache.getCodeCompletions(""));
+            set.addAll(completionCache.getVariableCompletions(comp, ""));
+            set.addAll(completionCache.getClassCompletions(comp, ""));
+            set.addAll(completionCache.getGlobalFunctionCompletions(comp, ""));
+            set.addAll(completionCache.getCodeCompletions(comp, ""));
         }
 
         return new ArrayList<Completion>(set);
@@ -152,7 +152,7 @@ public class MirthSourceCompletionProvider extends SourceCompletionProvider {
             }
 
             lastCompletionsAtText = text;
-            lastParameterizedCompletionsAt = completionCache.getClassCompletions(text);
+            lastParameterizedCompletionsAt = completionCache.getClassCompletions(tc, text);
 
             if (CollectionUtils.isNotEmpty(lastParameterizedCompletionsAt)) {
                 completions.addAll(lastParameterizedCompletionsAt);

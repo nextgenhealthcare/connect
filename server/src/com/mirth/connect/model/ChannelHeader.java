@@ -19,10 +19,12 @@ public class ChannelHeader implements Serializable {
 
     private int revision;
     private Calendar deployedDate;
+    private boolean codeTemplatesChanged;
 
-    public ChannelHeader(int revision, Calendar deployedDate) {
+    public ChannelHeader(int revision, Calendar deployedDate, boolean codeTemplatesChanged) {
         this.revision = revision;
         this.deployedDate = deployedDate;
+        this.codeTemplatesChanged = codeTemplatesChanged;
     }
 
     public int getRevision() {
@@ -39,5 +41,13 @@ public class ChannelHeader implements Serializable {
 
     public void setDeployedDate(Calendar deployedDate) {
         this.deployedDate = deployedDate;
+    }
+
+    public boolean isCodeTemplatesChanged() {
+        return codeTemplatesChanged;
+    }
+
+    public void setCodeTemplatesChanged(boolean codeTemplatesChanged) {
+        this.codeTemplatesChanged = codeTemplatesChanged;
     }
 }

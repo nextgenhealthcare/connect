@@ -32,7 +32,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 
 @XStreamAlias("channel")
-public class Channel implements Serializable, Auditable, Migratable, Purgable {
+public class Channel implements Serializable, Auditable, Migratable, Purgable, Cacheable<Channel> {
     private String id;
     private Integer nextMetaDataId;
     private String name;
@@ -47,14 +47,17 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
     private String deployScript;
     private String undeployScript;
     private ChannelProperties properties;
+    private List<CodeTemplateLibrary> codeTemplateLibraries;
 
     public Channel() {
         enabled = true;
         destinationConnectors = new ArrayList<Connector>();
         properties = new ChannelProperties();
         nextMetaDataId = 1;
+        codeTemplateLibraries = new ArrayList<CodeTemplateLibrary>();
     }
 
+    @Override
     public String getId() {
         return this.id;
     }
@@ -71,7 +74,8 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
         this.nextMetaDataId = nextMetaDataId;
     }
 
-    public int getRevision() {
+    @Override
+    public Integer getRevision() {
         return this.revision;
     }
 
@@ -95,6 +99,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
         this.enabled = enabled;
     }
 
+    @Override
     public String getName() {
         return this.name;
     }
@@ -175,6 +180,19 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
         return properties;
     }
 
+    public List<CodeTemplateLibrary> getCodeTemplateLibraries() {
+        return codeTemplateLibraries;
+    }
+
+    public void setCodeTemplateLibraries(List<CodeTemplateLibrary> codeTemplateLibraries) {
+        this.codeTemplateLibraries = codeTemplateLibraries;
+    }
+
+    @Override
+    public Channel cloneIfNeeded() {
+        return this;
+    }
+
     public boolean equals(Object that) {
         if (this == that) {
             return true;
@@ -186,7 +204,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
 
         Channel channel = (Channel) that;
 
-        return ObjectUtils.equals(this.getId(), channel.getId()) && ObjectUtils.equals(this.getName(), channel.getName()) && ObjectUtils.equals(this.getDescription(), channel.getDescription()) && ObjectUtils.equals(this.isEnabled(), channel.isEnabled()) && ObjectUtils.equals(this.getLastModified(), channel.getLastModified()) && ObjectUtils.equals(this.getRevision(), channel.getRevision()) && ObjectUtils.equals(this.getSourceConnector(), channel.getSourceConnector()) && ObjectUtils.equals(this.getDestinationConnectors(), channel.getDestinationConnectors()) && ObjectUtils.equals(this.getUndeployScript(), channel.getUndeployScript()) && ObjectUtils.equals(this.getDeployScript(), channel.getDeployScript()) && ObjectUtils.equals(this.getPostprocessingScript(), channel.getPostprocessingScript()) && ObjectUtils.equals(this.getPreprocessingScript(), channel.getPreprocessingScript());
+        return ObjectUtils.equals(this.getId(), channel.getId()) && ObjectUtils.equals(this.getName(), channel.getName()) && ObjectUtils.equals(this.getDescription(), channel.getDescription()) && ObjectUtils.equals(this.isEnabled(), channel.isEnabled()) && ObjectUtils.equals(this.getLastModified(), channel.getLastModified()) && ObjectUtils.equals(this.getRevision(), channel.getRevision()) && ObjectUtils.equals(this.getSourceConnector(), channel.getSourceConnector()) && ObjectUtils.equals(this.getDestinationConnectors(), channel.getDestinationConnectors()) && ObjectUtils.equals(this.getUndeployScript(), channel.getUndeployScript()) && ObjectUtils.equals(this.getDeployScript(), channel.getDeployScript()) && ObjectUtils.equals(this.getPostprocessingScript(), channel.getPostprocessingScript()) && ObjectUtils.equals(this.getPreprocessingScript(), channel.getPreprocessingScript()) && ObjectUtils.equals(this.getCodeTemplateLibraries(), channel.getCodeTemplateLibraries());
     }
 
     public String toString() {
@@ -216,7 +234,9 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
     public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_3_0(DonkeyElement element) {}
+    public void migrate3_3_0(DonkeyElement element) {
+        element.addChildElement("codeTemplateLibraries");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -243,6 +263,13 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
         purgedProperties.put("undeployScriptLines", PurgeUtil.countLines(undeployScript));
         purgedProperties.put("properties", properties.getPurgedProperties());
         purgedProperties.put("messageStatistics", PurgeUtil.getMessageStatistics(id, null));
+
+        List<Map<String, Object>> purgedCodeTemplateLibraries = new ArrayList<Map<String, Object>>();
+        for (CodeTemplateLibrary codeTemplateLibrary : codeTemplateLibraries) {
+            purgedCodeTemplateLibraries.add(codeTemplateLibrary.getPurgedProperties());
+        }
+        purgedProperties.put("codeTemplateLibraries", purgedCodeTemplateLibraries);
+
         return purgedProperties;
     }
 }

@@ -21,26 +21,17 @@ import com.mirth.connect.client.ui.panels.reference.ReferenceListPanel;
 import com.mirth.connect.client.ui.reference.Category;
 import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.ContextType;
 
 public class FunctionList extends javax.swing.JPanel {
 
     private LinkedHashMap<String, JPanel> panels;
-    private int context;
+    private ContextType contextType;
     private boolean enableFilter;
 
-    public FunctionList() {
-        initComponents();
-        this.enableFilter = true;
-    }
-
     /** Creates new form FunctionList */
-    public FunctionList(int context) {
-        this.enableFilter = true;
-        this.context = context;
-        initComponents();
-        panels = new LinkedHashMap<String, JPanel>();
-        setup();
-        enableFilter(enableFilter);
+    public FunctionList(ContextType contextType) {
+        this(contextType, true);
     }
 
     /**
@@ -50,9 +41,13 @@ public class FunctionList extends javax.swing.JPanel {
      * @param enableFilter
      *            TRUE the panel should be initialized with the filter component
      */
-    public FunctionList(int context, boolean enableFilter) {
-        this(context);
+    public FunctionList(ContextType contextType, boolean enableFilter) {
+        this.contextType = contextType;
         this.enableFilter = enableFilter;
+
+        initComponents();
+        panels = new LinkedHashMap<String, JPanel>();
+        setup();
         enableFilter(enableFilter);
     }
 
@@ -70,12 +65,12 @@ public class FunctionList extends javax.swing.JPanel {
         filterField.setEnabled(enable);
     }
 
-    public void setup() {
+    private void setup() {
         ReferenceListFactory factory = ReferenceListFactory.getInstance();
-        addPanel(new ReferenceListPanel("All", factory.getCodeTemplates(null, context)), "All");
+        addPanel(new ReferenceListPanel("All", factory.getCodeTemplates(null, contextType)), "All");
 
         for (String category : factory.getCodeTemplateMap().keySet()) {
-            List<CodeTemplate> items = factory.getCodeTemplates(category, context);
+            List<CodeTemplate> items = factory.getCodeTemplates(category, contextType);
             if (CollectionUtils.isNotEmpty(items)) {
                 addPanel(new ReferenceListPanel(category.toString(), items), category.toString());
             }
@@ -88,23 +83,16 @@ public class FunctionList extends javax.swing.JPanel {
 
     public void updateUserTemplates() {
         ReferenceListFactory factory = ReferenceListFactory.getInstance();
-        addPanel(new ReferenceListPanel("All", factory.getCodeTemplates(null, context)), "All");
+        addPanel(new ReferenceListPanel("All", factory.getCodeTemplates(null, contextType)), "All");
 
-        List<CodeTemplate> variableListItems = factory.getCodeTemplates(Category.USER_VARAIBLES.toString(), context);
-        if (CollectionUtils.isNotEmpty(variableListItems)) {
-            addPanel(new ReferenceListPanel(Category.USER_VARAIBLES.toString(), variableListItems), Category.USER_VARAIBLES.toString());
-        } else if (panels.get(Category.USER_VARAIBLES.toString()) != null) {
-            panels.remove(Category.USER_VARAIBLES.toString());
-        }
-
-        List<CodeTemplate> codeListItems = factory.getCodeTemplates(Category.USER_CODE.toString(), context);
+        List<CodeTemplate> codeListItems = factory.getCodeTemplates(Category.USER_CODE.toString(), contextType);
         if (codeListItems.size() > 0) {
             addPanel(new ReferenceListPanel(Category.USER_CODE.toString(), codeListItems), Category.USER_CODE.toString());
         } else if (panels.get(Category.USER_CODE.toString()) != null) {
             panels.remove(Category.USER_CODE.toString());
         }
 
-        List<CodeTemplate> functionListItems = factory.getCodeTemplates(Category.USER_FUNCTIONS.toString(), context);
+        List<CodeTemplate> functionListItems = factory.getCodeTemplates(Category.USER_FUNCTIONS.toString(), contextType);
         if (functionListItems.size() > 0) {
             addPanel(new ReferenceListPanel(Category.USER_FUNCTIONS.toString(), functionListItems), Category.USER_FUNCTIONS.toString());
         } else if (panels.get(Category.USER_FUNCTIONS.toString()) != null) {
@@ -240,6 +228,7 @@ public class FunctionList extends javax.swing.JPanel {
         updateUserTemplates();
         variableScrollPane.setViewportView((panels.get(variableReferenceDropDown.getSelectedItem())));
     }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel categoryLabel;
     private javax.swing.JTextField filterField;

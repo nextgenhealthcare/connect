@@ -27,6 +27,7 @@ import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.DriverInfo;
 
 public class DatabaseWriter extends ConnectorSettingsPanel {
@@ -228,7 +229,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         databaseURLField = new com.mirth.connect.client.ui.components.MirthTextField();
         databaseUsernameField = new com.mirth.connect.client.ui.components.MirthTextField();
         databasePasswordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
-        databaseSQLTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(true);
+        databaseSQLTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.DESTINATION_DISPATCHER, true);
         useJavaScriptYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         useJavaScriptNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel6 = new javax.swing.JLabel();
@@ -502,6 +503,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         generateConnection.setEnabled(false);
         parent.channelEditPanel.destinationVariableList.setTransferMode(TransferMode.VELOCITY);
     }// GEN-LAST:event_useJavaScriptNoActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private com.mirth.connect.client.ui.components.MirthComboBox databaseDriverCombobox;

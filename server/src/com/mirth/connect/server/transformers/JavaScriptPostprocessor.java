@@ -19,7 +19,7 @@ import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -36,25 +36,25 @@ public class JavaScriptPostprocessor implements PostProcessor {
     private Logger logger = Logger.getLogger(getClass());
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
-    
+
     private Channel channel;
     private String scriptId;
     private String contextFactoryId;
     private JavaScriptPostProcessorTask task;
-    
+
     public JavaScriptPostprocessor(Channel channel, String postProcessingScript) throws JavaScriptInitializationException {
         this.channel = channel;
-        
+
         scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getChannelId());
 
         try {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
             contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(contextFactory, scriptId, postProcessingScript, ContextType.CHANNEL_CONTEXT);
+            JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, postProcessingScript, ContextType.CHANNEL_POSTPROCESSOR);
             task = new JavaScriptPostProcessorTask(contextFactory);
         } catch (Exception e) {
             logger.error("Error compiling postprocessor script " + scriptId + ".", e);
-            
+
             if (e instanceof RhinoException) {
                 e = new MirthJavascriptTransformerException((RhinoException) e, channel.getChannelId(), null, 0, ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), null);
             }
@@ -73,7 +73,7 @@ public class JavaScriptPostprocessor implements PostProcessor {
                 contextFactoryId = contextFactory.getId();
                 task.setContextFactory(contextFactory);
             }
-            
+
             task.setMessage(message);
             return JavaScriptUtil.executeJavaScriptPostProcessorTask(task, message.getChannelId());
         } catch (InterruptedException e) {
@@ -92,7 +92,7 @@ public class JavaScriptPostprocessor implements PostProcessor {
     private class JavaScriptPostProcessorTask extends JavaScriptTask<Object> {
 
         private Message message;
-        
+
         public JavaScriptPostProcessorTask(MirthContextFactory contextFactory) {
             super(contextFactory);
         }

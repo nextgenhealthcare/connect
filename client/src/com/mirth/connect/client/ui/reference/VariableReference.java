@@ -11,10 +11,12 @@ package com.mirth.connect.client.ui.reference;
 
 import org.fife.rsta.ac.js.IconFactory;
 
+import com.mirth.connect.model.CodeTemplateContextSet;
+
 public class VariableReference extends Reference {
 
-    public VariableReference(int scope, String category, String name, String description, String replacementCode) {
-        super(Type.VARIABLE, scope, category, name, description, replacementCode);
+    public VariableReference(CodeTemplateContextSet contextSet, String category, String name, String description, String replacementCode) {
+        super(Type.VARIABLE, contextSet, category, name, description, replacementCode);
         setIconName(IconFactory.GLOBAL_VARIABLE_ICON);
     }
 }

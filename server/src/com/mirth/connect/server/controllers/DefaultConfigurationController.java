@@ -79,6 +79,8 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
@@ -493,7 +495,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         ServerConfiguration serverConfiguration = new ServerConfiguration();
         serverConfiguration.setChannels(channelController.getChannels(null));
         serverConfiguration.setAlerts(alertController.getAlerts());
-        serverConfiguration.setCodeTemplates(codeTemplateController.getCodeTemplate(null));
+        serverConfiguration.setCodeTemplateLibraries(codeTemplateController.getLibraries(null, true, true));
         serverConfiguration.setServerSettings(getServerSettings());
         serverConfiguration.setUpdateSettings(getUpdateSettings());
         serverConfiguration.setGlobalScripts(scriptController.getGlobalScripts());
@@ -565,9 +567,47 @@ public class DefaultConfigurationController extends ConfigurationController {
                 }
             }
 
-            if (serverConfiguration.getCodeTemplates() != null) {
-                codeTemplateController.removeCodeTemplate(null);
-                codeTemplateController.updateCodeTemplates(serverConfiguration.getCodeTemplates());
+            if (serverConfiguration.getCodeTemplateLibraries() != null) {
+                List<CodeTemplateLibrary> clonedLibraries = new ArrayList<CodeTemplateLibrary>();
+                for (CodeTemplateLibrary library : serverConfiguration.getCodeTemplateLibraries()) {
+                    clonedLibraries.add(new CodeTemplateLibrary(library));
+                }
+                
+                // Update all libraries from the server configuration
+                codeTemplateController.updateLibraries(clonedLibraries, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
+
+                // Remove code templates that don't exist in the new configuration
+                for (CodeTemplate codeTemplate : codeTemplateController.getCodeTemplates(null)) {
+                    boolean found = false;
+
+                    for (CodeTemplateLibrary newLibrary : serverConfiguration.getCodeTemplateLibraries()) {
+                        if (newLibrary.getCodeTemplates() != null) {
+                            for (CodeTemplate newCodeTemplate : newLibrary.getCodeTemplates()) {
+                                if (newCodeTemplate.getId().equals(codeTemplate.getId())) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (found) {
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        codeTemplateController.removeCodeTemplate(codeTemplate, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+                    }
+                }
+
+                // Update all code templates from the server configuration
+                for (CodeTemplateLibrary library : serverConfiguration.getCodeTemplateLibraries()) {
+                    if (library.getCodeTemplates() != null) {
+                        for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                            codeTemplateController.updateCodeTemplate(codeTemplate, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
+                        }
+                    }
+                }
             }
 
             if (serverConfiguration.getServerSettings() != null) {

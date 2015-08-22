@@ -2,30 +2,91 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "conf/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="CodeTemplate">
-	<resultMap id="code-template" type="map">
+	<resultMap id="library-serialized-data" type="map">
+		<result property="id" column="ID" javaType="String" />
+		<result property="library" column="LIBRARY" javaType="Integer" />
+	</resultMap>
+	
+	<resultMap id="code-template-serialized-data" type="map">
 		<result property="id" column="ID" javaType="String" />
 		<result property="codeTemplate" column="CODE_TEMPLATE" javaType="String" />
 	</resultMap>
+	
+	<resultMap id="revision-data" type="map">
+		<result property="id" column="ID" javaType="String" />
+		<result property="revision" column="REVISION" javaType="Integer" />
+	</resultMap>
+	
+	<select id='getLibrary' parameterType='String' resultType="com.mirth.connect.model.CodeTemplateLibrary">
+		SELECT LIBRARY
+		FROM CODE_TEMPLATE_LIBRARY
+		<where>
+			<if test='value != null'>ID = #{value}</if>
+		</where>
+	</select>
+	
+	<select id="getSerializedLibraryData" resultMap="library-serialized-data">
+		SELECT ID, LIBRARY
+		FROM CODE_TEMPLATE_LIBRARY
+	</select>
+	
+	<select id='getLibraryRevision' resultMap='revision-data'>
+		SELECT ID, REVISION
+		FROM CODE_TEMPLATE_LIBRARY
+	</select>
+	
+	<insert id='insertLibrary' parameterType='map'>
+		INSERT INTO
+		CODE_TEMPLATE_LIBRARY (ID, NAME, REVISION, LIBRARY)
+		VALUES (#{id}, #{name}, #{revision}, #{library})
+	</insert>
+	
+	<update id="updateLibrary" parameterType="map">
+		UPDATE CODE_TEMPLATE_LIBRARY
+		SET NAME = #{name},
+		REVISION = #{revision},
+		LIBRARY = #{library}
+		WHERE ID = #{id}
+	</update>
+	
+	<delete id='deleteLibrary' parameterType='String'>
+		DELETE FROM CODE_TEMPLATE_LIBRARY
+		<where>
+			<if test='value != null'>ID=#{value}</if>
+		</where>
+	</delete>
 
-	<select id="getCodeTemplate" parameterType="String" resultMap="code-template">
-		SELECT ID, CODE_TEMPLATE
+	<select id='getCodeTemplate' parameterType='String' resultType="com.mirth.connect.model.CodeTemplate">
+		SELECT CODE_TEMPLATE
 		FROM CODE_TEMPLATE
 		<where>
 			<if test='value != null'>ID = #{value}</if>
 		</where>
 	</select>
 	
-	<update id="updateCodeTemplate" parameterType="map">
-		UPDATE CODE_TEMPLATE
-		SET CODE_TEMPLATE = #{codeTemplate}
-		WHERE ID = #{id}
-	</update>
+	<select id="getSerializedCodeTemplateData" resultMap="code-template-serialized-data">
+		SELECT ID, CODE_TEMPLATE
+		FROM CODE_TEMPLATE
+	</select>
+	
+	<select id='getCodeTemplateRevision' resultMap='revision-data'>
+		SELECT ID, REVISION
+		FROM CODE_TEMPLATE
+	</select>
 	
 	<insert id='insertCodeTemplate' parameterType='map'>
 		INSERT INTO
-		CODE_TEMPLATE (ID, CODE_TEMPLATE)
-		VALUES (#{id}, #{codeTemplate})
+		CODE_TEMPLATE (ID, NAME, REVISION, CODE_TEMPLATE)
+		VALUES (#{id}, #{name}, #{revision}, #{codeTemplate})
 	</insert>
+	
+	<update id="updateCodeTemplate" parameterType="map">
+		UPDATE CODE_TEMPLATE
+		SET NAME = #{name},
+		REVISION = #{revision},
+		CODE_TEMPLATE = #{codeTemplate}
+		WHERE ID = #{id}
+	</update>
 	
 	<delete id='deleteCodeTemplate' parameterType='String'>
 		DELETE FROM CODE_TEMPLATE

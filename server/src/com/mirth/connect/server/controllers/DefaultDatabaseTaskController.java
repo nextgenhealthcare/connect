@@ -50,6 +50,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
     private static final String TASK_REMOVE_OLD_CHANNEL = "removeOldChannelTable";
     private static final String TASK_REMOVE_OLD_MESSAGE = "removeOldMessageTable";
     private static final String TASK_REMOVE_OLD_ATTACHMENT = "removeOldAttachmentTable";
+    private static final String TASK_REMOVE_OLD_CODE_TEMPLATE = "removeOldCodeTemplateTable";
     private static final String TASK_ADD_D_MM_INDEX3 = "addMetadataIndex3";
 
     private static DatabaseTaskController instance = null;
@@ -103,6 +104,13 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
             if (DatabaseUtil.tableExists(connection, "OLD_ATTACHMENT")) {
                 String confirmationMessage = "<html>This will remove all attachments that existed prior to upgrading to 3.x.<br/>Are you sure you wish to continue?</html>";
                 DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_ATTACHMENT, "Remove Old 2.x Attachment Table", "Remove the OLD_ATTACHMENT table which was renamed as part of the upgrade from 2.x to 3.x.", confirmationMessage);
+                logger.debug("Adding database task: " + task.getName());
+                tasks.put(task.getId(), task);
+            }
+
+            if (DatabaseUtil.tableExists(connection, "OLD_CODE_TEMPLATE")) {
+                String confirmationMessage = "<html>This will remove all code templates that existed prior to upgrading to 3.3.<br/>Are you sure you wish to continue?</html>";
+                DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_CODE_TEMPLATE, "Remove Old Pre-3.3 Code Template Table", "Remove the OLD_CODE_TEMPLATE table which was renamed as part of the upgrade to 3.3.", confirmationMessage);
                 logger.debug("Adding database task: " + task.getName());
                 tasks.put(task.getId(), task);
             }
@@ -172,6 +180,9 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
                 } else if (task.getId().equals(TASK_REMOVE_OLD_ATTACHMENT)) {
                     executeUpdate("DROP TABLE OLD_ATTACHMENT");
                     return "Table OLD_ATTACHMENT successfully dropped.";
+                } else if (task.getId().equals(TASK_REMOVE_OLD_CODE_TEMPLATE)) {
+                    executeUpdate("DROP TABLE OLD_CODE_TEMPLATE");
+                    return "Table OLD_CODE_TEMPLATE successfully dropped.";
                 } else if (task.getId().equals(TASK_ADD_D_MM_INDEX3)) {
                     DonkeyDaoFactory daoFactory = Donkey.getInstance().getDaoFactory();
 
