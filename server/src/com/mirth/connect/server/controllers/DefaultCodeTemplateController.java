@@ -18,9 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
@@ -379,6 +382,27 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
                     logger.error(errorMessage);
                     throw new ControllerException(errorMessage);
                 }
+            }
+
+            // Check on the server side to ensure that the code template doesn't have syntax errors
+            String validationMessage = null;
+            Throwable validationCause = null;
+            try {
+                Context.enter().compileString("function rhinoWrapper() {" + codeTemplate.getCode() + "\n}", UUID.randomUUID().toString(), 1, null);
+            } catch (EvaluatorException e) {
+                validationMessage = "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
+                validationCause = e;
+            } catch (Exception e) {
+                validationMessage = "Unknown error occurred during validation.";
+                validationCause = e;
+            } finally {
+                Context.exit();
+            }
+
+            if (validationMessage != null) {
+                String errorMessage = "Unable to save code template \"" + codeTemplate.getName() + "\": " + validationMessage;
+                logger.error(errorMessage, validationCause);
+                throw new ControllerException(errorMessage, validationCause);
             }
 
             codeTemplate.setLastModified(Calendar.getInstance());
