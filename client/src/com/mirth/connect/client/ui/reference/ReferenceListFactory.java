@@ -55,6 +55,11 @@ public class ReferenceListFactory {
     private static final CodeTemplateContextSet CONTEXT_GLOBAL = CodeTemplateContextSet.getGlobalContextSet();
     private static final CodeTemplateContextSet CONTEXT_CHANNEL = CodeTemplateContextSet.getChannelContextSet();
     private static final CodeTemplateContextSet CONTEXT_CONNECTOR = CodeTemplateContextSet.getConnectorContextSet();
+    private static final CodeTemplateContextSet CONTEXT_FILTER_TRANSFORMER = new CodeTemplateContextSet(ContextType.SOURCE_FILTER_TRANSFORMER, ContextType.DESTINATION_FILTER_TRANSFORMER);
+    private static final CodeTemplateContextSet CONTEXT_RESPONSE_TRANSFORMER = new CodeTemplateContextSet(ContextType.DESTINATION_RESPONSE_TRANSFORMER);
+    private static final CodeTemplateContextSet CONTEXT_ATTACHMENT = CodeTemplateContextSet.getConnectorContextSet().addContext(ContextType.GLOBAL_PREPROCESSOR, ContextType.GLOBAL_POSTPROCESSOR, ContextType.CHANNEL_PREPROCESSOR, ContextType.CHANNEL_POSTPROCESSOR, ContextType.CHANNEL_ATTACHMENT);
+    private static final CodeTemplateContextSet CONTEXT_BATCH = new CodeTemplateContextSet(ContextType.CHANNEL_BATCH);
+    private static final CodeTemplateContextSet CONTEXT_POSTPROCESSOR = new CodeTemplateContextSet(ContextType.GLOBAL_POSTPROCESSOR, ContextType.CHANNEL_POSTPROCESSOR);
 
     private static ReferenceListFactory instance = null;
 
@@ -307,8 +312,8 @@ public class ReferenceListFactory {
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.DATABASE.toString(), "Initialize Driver", "Initialize the specified JDBC driver. (Same as calling Class.forName)", "DatabaseConnectionFactory.initializeDriver('${driver}');"));
 
         // Message references
-        addReference(new CodeReference(CONTEXT_CONNECTOR, Category.MESSAGE.toString(), "Incoming Message", "The original message received.", "connectorMessage.getRawData()"));
-        addReference(new CodeReference(CONTEXT_CONNECTOR, Category.MESSAGE.toString(), "Incoming Message", "In a filter/transformer script, this represents the inbound data, serialized to an E4X XML object. If the inbound data type is Raw, this will instead be a string.", "msg"));
+        addReference(new CodeReference(CONTEXT_CONNECTOR, Category.MESSAGE.toString(), "Incoming Message (Raw)", "The original message received.", "connectorMessage.getRawData()"));
+        addReference(new CodeReference(CONTEXT_FILTER_TRANSFORMER, Category.MESSAGE.toString(), "Incoming Message (Transformed)", "In a filter/transformer script, this represents the inbound data, serialized to an E4X XML object. If the inbound data type is Raw, this will instead be a string. If the inbound data type is JSON, this will be a JavaScript object.", "msg"));
         addReference(new CodeReference(CONTEXT_CONNECTOR, Category.MESSAGE.toString(), "Message Source", "The message source (sending facility)", "$('" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "')"));
         addReference(new CodeReference(CONTEXT_CONNECTOR, Category.MESSAGE.toString(), "Message Type", "The message type", "$('" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "')"));
         addReference(new CodeReference(CONTEXT_CONNECTOR, Category.MESSAGE.toString(), "Message Version", "The message version", "$('" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "')"));
@@ -331,15 +336,15 @@ public class ReferenceListFactory {
         addReference(new ParameterizedCodeReference(CONTEXT_CONNECTOR, Category.MESSAGE.toString(), "Validate Input and Replace", "Validates an input value and returns a default value instead if empty, after performing a string replacement with the provided array.", "var ${replacements} = [\n\t[ '${regularExpression}', '${replacement}' ]\n];\nvar ${output} = validate(${input}, ${defaultValue}, ${replacements});"));
 
         // Response references
-        addReference(new CodeReference(CONTEXT_CONNECTOR, Category.RESPONSE.toString(), "Set Response Status to SENT", "Indicates message was successfully SENT.", "responseStatus = SENT;"));
-        addReference(new CodeReference(CONTEXT_CONNECTOR, Category.RESPONSE.toString(), "Set Response Status to QUEUED", "Indicates message should be QUEUED. If queuing is disabled, the message status will be set to ERROR.", "responseStatus = QUEUED;"));
-        addReference(new CodeReference(CONTEXT_CONNECTOR, Category.RESPONSE.toString(), "Set Response Status to ERROR", "Indicates message should have its status set to ERROR.", "responseStatus = ERROR;"));
-        addReference(new ParameterizedCodeReference(CONTEXT_CONNECTOR, Category.RESPONSE.toString(), "Set Response Status Message", "Sets the status message of the response.", "responseStatusMessage = '${}';"));
-        addReference(new ParameterizedCodeReference(CONTEXT_CONNECTOR, Category.RESPONSE.toString(), "Set Response Error Message", "Sets the error message of the response.", "responseErrorMessage = '${}';"));
+        addReference(new CodeReference(CONTEXT_RESPONSE_TRANSFORMER, Category.RESPONSE.toString(), "Set Response Status to SENT", "Indicates message was successfully SENT.", "responseStatus = SENT;"));
+        addReference(new CodeReference(CONTEXT_RESPONSE_TRANSFORMER, Category.RESPONSE.toString(), "Set Response Status to QUEUED", "Indicates message should be QUEUED. If queuing is disabled, the message status will be set to ERROR.", "responseStatus = QUEUED;"));
+        addReference(new CodeReference(CONTEXT_RESPONSE_TRANSFORMER, Category.RESPONSE.toString(), "Set Response Status to ERROR", "Indicates message should have its status set to ERROR.", "responseStatus = ERROR;"));
+        addReference(new ParameterizedCodeReference(CONTEXT_RESPONSE_TRANSFORMER, Category.RESPONSE.toString(), "Set Response Status Message", "Sets the status message of the response.", "responseStatusMessage = '${}';"));
+        addReference(new ParameterizedCodeReference(CONTEXT_RESPONSE_TRANSFORMER, Category.RESPONSE.toString(), "Set Response Error Message", "Sets the error message of the response.", "responseErrorMessage = '${}';"));
 
         // Channel references
         addReference(new VariableReference(CONTEXT_CHANNEL, Category.CHANNEL.toString(), "Channel ID", "The message channel id", "channelId"));
-        addReference(new ParameterizedCodeReference(CONTEXT_CHANNEL, Category.CHANNEL.toString(), "Channel Name", "The message channel name", "var ${channelName} = ChannelUtil.getDeployedChannelName(${channelId});"));
+        addReference(new ParameterizedCodeReference(CONTEXT_CHANNEL, Category.CHANNEL.toString(), "Channel Name", "The message channel name", "channelName"));
 
         // Map references
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.MAP.toString(), "Lookup Value in All Maps", "Returns the value of the key if it exists in any map.", "$('${key}')"));
@@ -378,8 +383,8 @@ public class ReferenceListFactory {
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Convert DICOM to Encoded Image as a byte array", "Converts and returns and image as a byte array from an uncompressed DICOM image (imagetype: either TIF,JPEG, BMP, PNG, or RAW). If the slice index is left out, it will default to 1.", "DICOMUtil.convertDICOMToByteArray('${imagetype}', connectorMessage, ${sliceIndex})"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Get DICOM image slice count", "Returns the number of image slices within the uncompressed DICOM image", "DICOMUtil.getSliceCount(connectorMessage)"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Get DICOM message", "Gets the full DICOM messages with image data", "DICOMUtil.getDICOMMessage(connectorMessage)"));
-        addReference(new FunctionReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), null, "Add Attachment", "Add attachment (String or byte[]) to message", "function addAttachment(data, type)", new CodeTemplateFunctionDefinition("addAttachment", new Parameters("data", "Object", "The data to insert as an attachment. May be a string or byte array.").add("type", "String", "The MIME type of the attachment."), "Attachment", "The inserted Attachment object.")));
-        addReference(new FunctionReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), null, "Get Attachments", "Get List of Attachments associated with this message.  This will get all attachments that have been added in the source and destination(s).", "function getAttachments()", new CodeTemplateFunctionDefinition("getAttachments", new Parameters(), "List<Attachment>", "A list of Attachment objects associated with this message.")));
+        addReference(new FunctionReference(CONTEXT_ATTACHMENT, Category.UTILITY.toString(), null, "Add Attachment", "Add attachment (String or byte[]) to message", "function addAttachment(data, type)", new CodeTemplateFunctionDefinition("addAttachment", new Parameters("data", "Object", "The data to insert as an attachment. May be a string or byte array.").add("type", "String", "The MIME type of the attachment."), "Attachment", "The inserted Attachment object.")));
+        addReference(new FunctionReference(CONTEXT_ATTACHMENT, Category.UTILITY.toString(), null, "Get Attachments", "Get List of Attachments associated with this message.  This will get all attachments that have been added in the source and destination(s).", "function getAttachments()", new CodeTemplateFunctionDefinition("getAttachments", new Parameters(), "List<Attachment>", "A list of Attachment objects associated with this message.")));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Strip Namespaces", "Remove namespaces from an XML string", "var ${newMessage} = ${message}.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Parse HTTP Headers", "Takes the string of an HTTP Response and returns it represented as a map for easy access.", "var ${headers} = HTTPUtil.parseHeaders(${header});"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Remove Illegal XML Characters", "Removes illegal XML characters like control characters that cause a parsing error in e4x (\\x00-\\x1F besides TAB, LF, and CR)", "var ${newMessage} = ${message}.replace(/[\\x00-\\x08]|[\\x0B-\\x0C]|[\\x0E-\\x1F]/g, '');\n"));
@@ -391,19 +396,19 @@ public class ReferenceListFactory {
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.DATE.toString(), "Get Current Date", "Returns the current date/time in specified format", "var ${dateString} = DateUtil.getCurrentDate(${pattern});"));
 
         // Postprocessor references
-        addReference(new VariableReference(CONTEXT_GLOBAL, Category.POSTPROCESSOR.toString(), "Completed Message Object", "The final message object, which contains all processed source and destination connector messages.", "message"));
-        addReference(new CodeReference(CONTEXT_GLOBAL, Category.POSTPROCESSOR.toString(), "Get Merged Connector Message", "Returns a connector message that has a channel map and response map which are merged from all connector messages.\nThis also includes the raw and processed raw content from the source connector.", "message.getMergedConnectorMessage()"));
-        addReference(new CodeReference(CONTEXT_GLOBAL, Category.POSTPROCESSOR.toString(), "Get Source Connector Message", "Returns the source connector message contained in the final message object.", "message.getConnectorMessages().get(0)"));
-        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.POSTPROCESSOR.toString(), "Get Destination Connector Message", "Returns a specific destination connector message contained in the final message object.", "message.getConnectorMessages().get(${metaDataId})"));
+        addReference(new VariableReference(CONTEXT_POSTPROCESSOR, Category.POSTPROCESSOR.toString(), "Completed Message Object", "The final message object, which contains all processed source and destination connector messages.", "message"));
+        addReference(new CodeReference(CONTEXT_POSTPROCESSOR, Category.POSTPROCESSOR.toString(), "Get Merged Connector Message", "Returns a connector message that has a channel map and response map which are merged from all connector messages.\nThis also includes the raw and processed raw content from the source connector.", "message.getMergedConnectorMessage()"));
+        addReference(new CodeReference(CONTEXT_POSTPROCESSOR, Category.POSTPROCESSOR.toString(), "Get Source Connector Message", "Returns the source connector message contained in the final message object.", "message.getConnectorMessages().get(0)"));
+        addReference(new ParameterizedCodeReference(CONTEXT_POSTPROCESSOR, Category.POSTPROCESSOR.toString(), "Get Destination Connector Message", "Returns a specific destination connector message contained in the final message object.", "message.getConnectorMessages().get(${metaDataId})"));
     }
 
     private void addMiscellaneousReferences() {
         addReference(new VariableReference(CONTEXT_CONNECTOR, null, "Connector Message", "The current connector's ImmutableConnectorMessage object.", "connectorMessage"));
-        addReference(new VariableReference(CONTEXT_CONNECTOR, null, "Outbound Message", "In a filter/transformer script, this represents the outbound template, serialized to an E4X XML object. If the outbound data type is Raw, this will instead be a string.", "tmp"));
-        addReference(new VariableReference(CONTEXT_CONNECTOR, null, "Response Object", "In a response transformer script, this is the ImmutableResponse object associated with the response data.", "response"));
-        addReference(new VariableReference(CONTEXT_CONNECTOR, null, "Response Status", "In a response transformer script, this is the status which will be used to set the status of the corresponding connector message.", "responseStatus"));
-        addReference(new VariableReference(CONTEXT_CONNECTOR, null, "Response Error Message", "In a response transformer script, this is the error message which will be used to set the error content of the corresponding connector message.", "responseErrorMessage"));
-        addReference(new VariableReference(CONTEXT_CONNECTOR, null, "Response Status Message", "In a response transformer script, this is a brief message explaning the reason for the current status.", "responseStatusMessage"));
+        addReference(new VariableReference(CONTEXT_FILTER_TRANSFORMER, null, "Outbound Message (Transformed)", "In a filter/transformer script, this represents the outbound template, serialized to an E4X XML object. If the outbound data type is Raw, this will instead be a string. If the outbound data type is JSON, this will be a JavaScript object.", "tmp"));
+        addReference(new VariableReference(CONTEXT_RESPONSE_TRANSFORMER, null, "Response Object", "In a response transformer script, this is the ImmutableResponse object associated with the response data.", "response"));
+        addReference(new VariableReference(CONTEXT_RESPONSE_TRANSFORMER, null, "Response Status", "In a response transformer script, this is the status which will be used to set the status of the corresponding connector message.", "responseStatus"));
+        addReference(new VariableReference(CONTEXT_RESPONSE_TRANSFORMER, null, "Response Error Message", "In a response transformer script, this is the error message which will be used to set the error content of the corresponding connector message.", "responseErrorMessage"));
+        addReference(new VariableReference(CONTEXT_RESPONSE_TRANSFORMER, null, "Response Status Message", "In a response transformer script, this is a brief message explaning the reason for the current status.", "responseStatusMessage"));
         addReference(new VariableReference(CONTEXT_CONNECTOR, null, "Connector Map", "The variable map associated with the current connector. Values placed in this map will not persist to other connectors.", "connectorMap"));
         addReference(new VariableReference(CONTEXT_CHANNEL, null, "Channel Map", "The variable map associated with the current message. Values placed in this map will be accessible to downstream connectors and the postprocessor, but will not be accessible to subsequent messages.", "channelMap"));
         addReference(new VariableReference(CONTEXT_CHANNEL, null, "Source Map", "The read-only variable map associated with the current message. Values are placed in this map at the beginning of the message lifecycle (e.g. \"originalFilename\").", "sourceMap"));
@@ -415,7 +420,7 @@ public class ReferenceListFactory {
         addReference(new VariableReference(CONTEXT_CONNECTOR, null, "AlertSender", "An instance of AlertSender that can be used to trigger User Defined Transformer events which can be captured by alerts.", "alerts"));
         addReference(new VariableReference(CONTEXT_GLOBAL, null, "VMRouter", "An instance of VMRouter that can be used to dispatch messages to other channels.", "router"));
         addReference(new VariableReference(CONTEXT_CONNECTOR, null, "TemplateValueReplacer", "An instance of TemplateValueReplacer that can be used to perform Velocity template replacement.", "replacer"));
-        addReference(new VariableReference(CONTEXT_CHANNEL, null, "Batch Reader", "In a JavaScript batch script, this BufferedReader object is used to read the incoming data stream.", "reader"));
+        addReference(new VariableReference(CONTEXT_BATCH, null, "Batch Reader", "In a JavaScript batch script, this BufferedReader object is used to read the incoming data stream.", "reader"));
 
         addReference(new FunctionReference(CONTEXT_GLOBAL, null, null, "Get Map Value", "Returns the value of the key if it exists in any map.", null, new CodeTemplateFunctionDefinition("$", new Parameters("key", "String", "The key of the entry to retrieve."), "Object", "The value, or null if no value exists.")));
         addReference(new FunctionReference(CONTEXT_GLOBAL, null, null, "Get Configuration Map Value", "Get a value from the configuration map.", null, new CodeTemplateFunctionDefinition("$cfg", new Parameters("key", "String", "The key of the entry to retrieve."), "Object", "The value contained in the map, or null if no value exists.")));
