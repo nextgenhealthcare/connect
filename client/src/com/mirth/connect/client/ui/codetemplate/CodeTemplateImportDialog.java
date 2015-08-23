@@ -470,10 +470,14 @@ public class CodeTemplateImportDialog extends MirthDialog {
                     boolean warnings = false;
                     for (Enumeration<? extends TreeTableNode> libraryNodes = ((TreeTableNode) importTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
                         for (Enumeration<? extends TreeTableNode> codeTemplateNodes = ((ImportLibraryTreeTableNode) libraryNodes.nextElement()).children(); codeTemplateNodes.hasMoreElements();) {
-                            CodeTemplateConflicts conflicts = ((ImportCodeTemplateTreeTableNode) codeTemplateNodes.nextElement()).getConflicts();
-                            if (conflicts.isConflictByDifferentLibrary() || conflicts.isUnassignedWarning()) {
-                                warnings = true;
-                                break;
+                            ImportCodeTemplateTreeTableNode codeTemplateNode = (ImportCodeTemplateTreeTableNode) codeTemplateNodes.nextElement();
+
+                            if ((boolean) codeTemplateNode.getValueAt(IMPORT_SELECTED_COLUMN)) {
+                                CodeTemplateConflicts conflicts = codeTemplateNode.getConflicts();
+                                if (conflicts.isConflictByDifferentLibrary() || conflicts.isUnassignedWarning()) {
+                                    warnings = true;
+                                    break;
+                                }
                             }
                         }
 

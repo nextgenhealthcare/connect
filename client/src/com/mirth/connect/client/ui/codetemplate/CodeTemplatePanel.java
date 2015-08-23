@@ -60,6 +60,7 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
+import javax.swing.text.BadLocationException;
 import javax.swing.tree.TreePath;
 
 import net.miginfocom.swing.MigLayout;
@@ -152,6 +153,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     private AtomicBoolean libraryComboBoxAdjusting = new AtomicBoolean(false);
     private AtomicBoolean saveAdjusting = new AtomicBoolean(false);
     private AtomicBoolean updateCurrentNode = new AtomicBoolean(true);
+    private CodeTemplateTreeTableModel fullModel;
     private int currentSelectedRow = -1;
 
     private List<Pair<Component, Component>> singleLibraryTaskComponents = new ArrayList<Pair<Component, Component>>();
@@ -214,6 +216,14 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
     private void setTaskVisibility(int task, boolean visible) {
         parent.setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, task, task, visible);
+    }
+
+    MirthTreeTable getTreeTable() {
+        return templateTreeTable;
+    }
+
+    CodeTemplateTreeTableModel getFullModel() {
+        return fullModel;
     }
 
     @Override
@@ -490,11 +500,22 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             addLibraryNode(root, library);
         }
 
+        fullModel.setRoot(root);
+        fullModel.sort();
+        if (StringUtils.isNotBlank(templateFilterField.getText())) {
+            root = getFilteredRootNode(root);
+        }
         model.setRoot(root);
         model.sort();
 
+        return selectPathFromNodeId(selectedNode, root);
+    }
+
+    private TreePath selectPathFromNodeId(TreeTableNode selectedNode, UnassignedLibraryTreeTableNode root) {
         TreePath selectedPath = null;
         if (selectedNode != null) {
+            CodeTemplateTreeTableModel model = (CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel();
+
             for (Enumeration<? extends MutableTreeTableNode> libraries = root.children(); libraries.hasMoreElements();) {
                 CodeTemplateLibraryTreeTableNode libraryNode = (CodeTemplateLibraryTreeTableNode) libraries.nextElement();
 
@@ -537,6 +558,37 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         return libraryNode;
     }
 
+    private UnassignedLibraryTreeTableNode getFilteredRootNode(UnassignedLibraryTreeTableNode root) {
+        UnassignedLibraryTreeTableNode newRoot = new UnassignedLibraryTreeTableNode();
+        String filter = StringUtils.trim(templateFilterField.getText());
+
+        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = root.children(); libraryNodes.hasMoreElements();) {
+            CodeTemplateLibraryTreeTableNode libraryNode = (CodeTemplateLibraryTreeTableNode) libraryNodes.nextElement();
+
+            CodeTemplateLibraryTreeTableNode newLibraryNode;
+            if (libraryNode instanceof UnassignedLibraryTreeTableNode) {
+                newLibraryNode = new UnassignedLibraryTreeTableNode();
+            } else {
+                newLibraryNode = new CodeTemplateLibraryTreeTableNode(libraryNode.getLibrary());
+            }
+
+            for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = libraryNode.children(); codeTemplateNodes.hasMoreElements();) {
+                CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) codeTemplateNodes.nextElement();
+
+                if (StringUtils.containsIgnoreCase((String) codeTemplateNode.getValueAt(TEMPLATE_NAME_COLUMN), filter)) {
+                    CodeTemplateTreeTableNode newCodeTemplateNode = new CodeTemplateTreeTableNode(codeTemplateNode.getCodeTemplate());
+                    newLibraryNode.add(newCodeTemplateNode);
+                }
+            }
+
+            if (libraryNode instanceof UnassignedLibraryTreeTableNode || newLibraryNode.getChildCount() > 0 || StringUtils.containsIgnoreCase((String) libraryNode.getValueAt(TEMPLATE_NAME_COLUMN), filter)) {
+                newRoot.add(newLibraryNode);
+            }
+        }
+
+        return newRoot;
+    }
+
     public void doSaveCodeTemplates() {
         doSaveCodeTemplates(true);
     }
@@ -554,7 +606,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         // Add all cached code templates to the remove map first
         Map<String, CodeTemplate> removedCodeTemplates = new LinkedHashMap<String, CodeTemplate>(codeTemplates);
 
-        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((MutableTreeTableNode) templateTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
+        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((AbstractSortableTreeTableNode) fullModel.getRoot()).children(); libraryNodes.hasMoreElements();) {
             CodeTemplateLibraryTreeTableNode libraryNode = (CodeTemplateLibraryTreeTableNode) libraryNodes.nextElement();
 
             CodeTemplateLibrary library = libraryNode.getLibrary();
@@ -744,6 +796,12 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
                     // Update the actual table model
                     CodeTemplateTreeTableModel model = (CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel();
+
+                    fullModel.setRoot(root);
+                    fullModel.sort();
+                    if (StringUtils.isNotBlank(templateFilterField.getText())) {
+                        root = getFilteredRootNode(root);
+                    }
                     model.setRoot(root);
                     model.sort();
 
@@ -905,7 +963,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     }
 
     private CodeTemplateTreeTableNode getCodeTemplateNodeById(String codeTemplateId) {
-        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((MutableTreeTableNode) templateTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
+        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((AbstractSortableTreeTableNode) fullModel.getRoot()).children(); libraryNodes.hasMoreElements();) {
             for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = libraryNodes.nextElement().children(); codeTemplateNodes.hasMoreElements();) {
                 CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) codeTemplateNodes.nextElement();
                 if (codeTemplateNode.getCodeTemplateId().equals(codeTemplateId)) {
@@ -916,8 +974,29 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         return null;
     }
 
+    private AbstractSortableTreeTableNode findFullNode(AbstractSortableTreeTableNode node) {
+        String id = (String) node.getValueAt(TEMPLATE_ID_COLUMN);
+
+        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((AbstractSortableTreeTableNode) fullModel.getRoot()).children(); libraryNodes.hasMoreElements();) {
+            CodeTemplateLibraryTreeTableNode libraryNode = (CodeTemplateLibraryTreeTableNode) libraryNodes.nextElement();
+            if (id.equals(libraryNode.getValueAt(TEMPLATE_ID_COLUMN))) {
+                return libraryNode;
+            }
+
+            for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = libraryNode.children(); codeTemplateNodes.hasMoreElements();) {
+                CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) codeTemplateNodes.nextElement();
+                if (id.equals(codeTemplateNode.getValueAt(TEMPLATE_ID_COLUMN))) {
+                    return codeTemplateNode;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public void doNewCodeTemplate() {
         stopTableEditing();
+        updateCurrentNode();
         setSaveEnabled(true);
         AbstractSortableTreeTableNode parentNode;
 
@@ -943,14 +1022,18 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         CodeTemplateTreeTableModel model = (CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel();
         model.insertNodeInto(codeTemplateNode, parentNode);
 
+        if (model.getRoot() != fullModel.getRoot()) {
+            fullModel.insertNodeInto(new CodeTemplateTreeTableNode(codeTemplate), findFullNode(parentNode));
+        }
+
         TreePath selectedPath = new TreePath(model.getPathToRoot(codeTemplateNode));
         selectTemplatePath(selectedPath);
     }
 
     public void doNewLibrary() {
         stopTableEditing();
+        updateCurrentNode();
         setSaveEnabled(true);
-        AbstractSortableTreeTableNode root = (AbstractSortableTreeTableNode) templateTreeTable.getTreeTableModel().getRoot();
 
         String name;
         int index = 1;
@@ -963,7 +1046,11 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         CodeTemplateLibraryTreeTableNode libraryNode = new CodeTemplateLibraryTreeTableNode(library);
 
         CodeTemplateTreeTableModel model = (CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel();
-        model.insertNodeInto(libraryNode, root);
+        model.insertNodeInto(libraryNode, (AbstractSortableTreeTableNode) model.getRoot());
+
+        if (model.getRoot() != fullModel.getRoot()) {
+            fullModel.insertNodeInto(new CodeTemplateLibraryTreeTableNode(library), (AbstractSortableTreeTableNode) fullModel.getRoot());
+        }
 
         final TreePath selectedPath = new TreePath(model.getPathToRoot(libraryNode));
         selectTemplatePath(selectedPath);
@@ -979,7 +1066,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     }
 
     private boolean checkLibraryName(String name) {
-        for (Enumeration<? extends MutableTreeTableNode> libraries = ((MutableTreeTableNode) templateTreeTable.getTreeTableModel().getRoot()).children(); libraries.hasMoreElements();) {
+        for (Enumeration<? extends MutableTreeTableNode> libraries = ((AbstractSortableTreeTableNode) fullModel.getRoot()).children(); libraries.hasMoreElements();) {
             if (((CodeTemplateLibraryTreeTableNode) libraries.nextElement()).getLibrary().getName().equals(name)) {
                 return false;
             }
@@ -989,7 +1076,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     }
 
     private boolean checkCodeTemplateName(String name) {
-        for (Enumeration<? extends MutableTreeTableNode> libraries = ((MutableTreeTableNode) templateTreeTable.getTreeTableModel().getRoot()).children(); libraries.hasMoreElements();) {
+        for (Enumeration<? extends MutableTreeTableNode> libraries = ((AbstractSortableTreeTableNode) fullModel.getRoot()).children(); libraries.hasMoreElements();) {
             for (Enumeration<? extends MutableTreeTableNode> codeTemplates = libraries.nextElement().children(); codeTemplates.hasMoreElements();) {
                 if (((CodeTemplateTreeTableNode) codeTemplates.nextElement()).getCodeTemplate().getName().equals(name)) {
                     return false;
@@ -1123,7 +1210,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         }
 
         List<CodeTemplateLibrary> libraries = new ArrayList<CodeTemplateLibrary>();
-        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((MutableTreeTableNode) templateTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
+        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((AbstractSortableTreeTableNode) fullModel.getRoot()).children(); libraryNodes.hasMoreElements();) {
             libraries.add(getLibraryWithTemplates((CodeTemplateLibraryTreeTableNode) libraryNodes.nextElement()));
         }
 
@@ -1140,7 +1227,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         CodeTemplateLibrary library = new CodeTemplateLibrary(libraryNode.getLibrary());
 
         List<CodeTemplate> codeTemplates = new ArrayList<CodeTemplate>();
-        for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = libraryNode.children(); codeTemplateNodes.hasMoreElements();) {
+        for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = findFullNode(libraryNode).children(); codeTemplateNodes.hasMoreElements();) {
             codeTemplates.add(new CodeTemplate(((CodeTemplateTreeTableNode) codeTemplateNodes.nextElement()).getCodeTemplate()));
         }
         library.setCodeTemplates(codeTemplates);
@@ -1178,10 +1265,21 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                 for (MutableTreeTableNode codeTemplateNode : Collections.list(selectedNode.children())) {
                     model.removeNodeFromParent(codeTemplateNode);
                     model.insertNodeInto(codeTemplateNode, unassignedNode);
+
+                    if (model.getRoot() != fullModel.getRoot()) {
+                        AbstractSortableTreeTableNode fullCodeTemplateNode = findFullNode((AbstractSortableTreeTableNode) codeTemplateNode);
+                        fullModel.removeNodeFromParent(fullCodeTemplateNode);
+                        fullModel.insertNodeInto(fullCodeTemplateNode, findFullNode(unassignedNode));
+                    }
                 }
             }
 
-            model.removeNodeFromParent((MutableTreeTableNode) selectedPath.getLastPathComponent());
+            selectedNode = (MutableTreeTableNode) selectedPath.getLastPathComponent();
+            model.removeNodeFromParent(selectedNode);
+
+            if (model.getRoot() != fullModel.getRoot()) {
+                fullModel.removeNodeFromParent(findFullNode((AbstractSortableTreeTableNode) selectedNode));
+            }
 
             if (selectedNodeIndex < parent.getChildCount()) {
                 newSelectedNode = (MutableTreeTableNode) parent.getChildAt(selectedNodeIndex);
@@ -1192,8 +1290,15 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             }
 
             if (newSelectedNode != null) {
-                TreePath newSelectedPath = new TreePath(((CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel()).getPathToRoot(newSelectedNode));
+                final TreePath newSelectedPath = new TreePath(((CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel()).getPathToRoot(newSelectedNode));
                 selectTemplatePath(newSelectedPath);
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        selectTemplatePath(newSelectedPath);
+                    }
+                });
             }
         }
     }
@@ -1258,8 +1363,6 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             }
         };
 
-        templateCellEditor.setTreeTable(templateTreeTable);
-
         DefaultTreeTableModel model = new CodeTemplateTreeTableModel();
         model.setColumnIdentifiers(Arrays.asList(new String[] { "Name", "Id", "Type",
                 "Description", "Revision", "Last Modified" }));
@@ -1269,6 +1372,16 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         unassignedNode.setSortable(false);
         rootNode.add(unassignedNode);
         model.setRoot(rootNode);
+
+        fullModel = new CodeTemplateTreeTableModel();
+        fullModel.setColumnIdentifiers(Arrays.asList(new String[] { "Name", "Id", "Type",
+                "Description", "Revision", "Last Modified" }));
+
+        UnassignedLibraryTreeTableNode fullRootNode = new UnassignedLibraryTreeTableNode();
+        UnassignedLibraryTreeTableNode fullUnassignedNode = new UnassignedLibraryTreeTableNode();
+        unassignedNode.setSortable(false);
+        fullRootNode.add(fullUnassignedNode);
+        fullModel.setRoot(fullRootNode);
 
         templateTreeTable.setColumnFactory(new CodeTemplateTableColumnFactory());
         templateTreeTable.setTreeTableModel(model);
@@ -1394,7 +1507,40 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         templateTreeTableScrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x6E6E6E)));
 
         templateFilterLabel = new JLabel("Filter:");
+
         templateFilterField = new JTextField();
+        templateFilterField.setToolTipText("Filters (by name) the code templates and libraries that show up in the table above.");
+
+        templateFilterField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void removeUpdate(DocumentEvent evt) {
+                filterChanged(evt);
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent evt) {
+                filterChanged(evt);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent evt) {
+                filterChanged(evt);
+            }
+
+            private void filterChanged(DocumentEvent evt) {
+                try {
+                    updateTemplateFilter(evt.getDocument().getText(0, evt.getLength()));
+                } catch (BadLocationException e) {
+                }
+            }
+        });
+
+        templateFilterField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent evt) {
+                updateTemplateFilter(templateFilterField.getText());
+            }
+        });
 
         blankPanel = new JPanel();
 
@@ -1737,11 +1883,10 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     }
 
     private void initLayout() {
-        // topPanel.setLayout(new MigLayout("insets 0 0 5 0, novisualpadding, hidemode 3, fill"));
-        topPanel.setLayout(new MigLayout("insets 0 0 0 0, novisualpadding, hidemode 3, fill"));
+        topPanel.setLayout(new MigLayout("insets 0 0 5 0, novisualpadding, hidemode 3, fill"));
         topPanel.add(templateTreeTableScrollPane, "grow, push");
-        // topPanel.add(templateFilterLabel, "newline, right, split");
-        // topPanel.add(templateFilterField, "right, w :300, gapafter 5");
+        topPanel.add(templateFilterLabel, "newline, right, split");
+        topPanel.add(templateFilterField, "right, w :300, gapafter 5");
         splitPane.setTopComponent(topPanel);
         splitPane.setBottomComponent(blankPanel);
 
@@ -1869,49 +2014,67 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
                 if (selectedNode instanceof CodeTemplateLibraryTreeTableNode) {
                     CodeTemplateLibraryTreeTableNode libraryNode = (CodeTemplateLibraryTreeTableNode) selectedNode;
-                    libraryNode.setValueAt(libraryDescriptionScrollPane.getText(), TEMPLATE_DESCRIPTION_COLUMN);
+                    updateLibraryNode(libraryNode);
 
-                    Set<String> enabledChannelIds = new HashSet<String>();
-                    Set<String> disabledChannelIds = new HashSet<String>();
-
-                    for (int row = 0; row < libraryChannelsTable.getRowCount(); row++) {
-                        ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
-                        String channelId = (String) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_ID_COLUMN);
-
-                        if (channelId.equals(NEW_CHANNELS)) {
-                            libraryNode.getLibrary().setIncludeNewChannels(channelInfo.isEnabled());
-                        } else if (channelInfo.isEnabled()) {
-                            enabledChannelIds.add(channelId);
-                        } else {
-                            disabledChannelIds.add(channelId);
-                        }
+                    if (templateTreeTable.getTreeTableModel().getRoot() != fullModel.getRoot()) {
+                        updateLibraryNode((CodeTemplateLibraryTreeTableNode) findFullNode(libraryNode));
                     }
-
-                    libraryNode.getLibrary().setEnabledChannelIds(enabledChannelIds);
-                    libraryNode.getLibrary().setDisabledChannelIds(disabledChannelIds);
                 } else {
                     CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) selectedNode;
-                    codeTemplateNode.setValueAt(templateTypeComboBox.getSelectedItem(), TEMPLATE_TYPE_COLUMN);
-                    codeTemplateNode.getCodeTemplate().setCode(templateCodeTextArea.getText());
+                    updateCodeTemplateNode(codeTemplateNode);
 
-                    CodeTemplateContextSet contextSet = new CodeTemplateContextSet();
-                    for (Enumeration<? extends MutableTreeTableNode> groups = ((MutableTreeTableNode) templateContextTreeTable.getTreeTableModel().getRoot()).children(); groups.hasMoreElements();) {
-                        MutableTreeTableNode group = groups.nextElement();
-                        for (Enumeration<? extends MutableTreeTableNode> children = group.children(); children.hasMoreElements();) {
-                            Pair<Integer, ContextType> pair = (Pair<Integer, ContextType>) children.nextElement().getUserObject();
-                            if (pair.getLeft() == MirthTriStateCheckBox.CHECKED) {
-                                try {
-                                    contextSet.add(pair.getRight());
-                                } catch (ClassCastException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
+                    if (templateTreeTable.getTreeTableModel().getRoot() != fullModel.getRoot()) {
+                        CodeTemplateTreeTableNode fullCodeTemplateNode = (CodeTemplateTreeTableNode) findFullNode(codeTemplateNode);
+                        fullCodeTemplateNode.setValueAt(codeTemplateNode.getValueAt(TEMPLATE_NAME_COLUMN), TEMPLATE_NAME_COLUMN);
+                        updateCodeTemplateNode(fullCodeTemplateNode);
                     }
-                    codeTemplateNode.getCodeTemplate().setContextSet(contextSet);
                 }
             }
         }
+    }
+
+    private void updateLibraryNode(CodeTemplateLibraryTreeTableNode libraryNode) {
+        libraryNode.setValueAt(libraryDescriptionScrollPane.getText(), TEMPLATE_DESCRIPTION_COLUMN);
+
+        Set<String> enabledChannelIds = new HashSet<String>();
+        Set<String> disabledChannelIds = new HashSet<String>();
+
+        for (int row = 0; row < libraryChannelsTable.getRowCount(); row++) {
+            ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
+            String channelId = (String) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_ID_COLUMN);
+
+            if (channelId.equals(NEW_CHANNELS)) {
+                libraryNode.getLibrary().setIncludeNewChannels(channelInfo.isEnabled());
+            } else if (channelInfo.isEnabled()) {
+                enabledChannelIds.add(channelId);
+            } else {
+                disabledChannelIds.add(channelId);
+            }
+        }
+
+        libraryNode.getLibrary().setEnabledChannelIds(enabledChannelIds);
+        libraryNode.getLibrary().setDisabledChannelIds(disabledChannelIds);
+    }
+
+    private void updateCodeTemplateNode(CodeTemplateTreeTableNode codeTemplateNode) {
+        codeTemplateNode.setValueAt(templateTypeComboBox.getSelectedItem(), TEMPLATE_TYPE_COLUMN);
+        codeTemplateNode.getCodeTemplate().setCode(templateCodeTextArea.getText());
+
+        CodeTemplateContextSet contextSet = new CodeTemplateContextSet();
+        for (Enumeration<? extends MutableTreeTableNode> groups = ((MutableTreeTableNode) templateContextTreeTable.getTreeTableModel().getRoot()).children(); groups.hasMoreElements();) {
+            MutableTreeTableNode group = groups.nextElement();
+            for (Enumeration<? extends MutableTreeTableNode> children = group.children(); children.hasMoreElements();) {
+                Pair<Integer, ContextType> pair = (Pair<Integer, ContextType>) children.nextElement().getUserObject();
+                if (pair.getLeft() == MirthTriStateCheckBox.CHECKED) {
+                    try {
+                        contextSet.add(pair.getRight());
+                    } catch (ClassCastException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        codeTemplateNode.getCodeTemplate().setContextSet(contextSet);
     }
 
     private void setCodeTemplateProperties(CodeTemplateTreeTableNode codeTemplateNode) {
@@ -2021,11 +2184,11 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             setTaskInvisible(TASK_CODE_TEMPLATE_LIBRARY_DELETE);
         }
 
-        setTaskVisibility(TASK_CODE_TEMPLATE_LIBRARY_EXPORT_ALL, ((MutableTreeTableNode) templateTreeTable.getTreeTableModel().getRoot()).getChildCount() > 1);
+        setTaskVisibility(TASK_CODE_TEMPLATE_LIBRARY_EXPORT_ALL, ((MutableTreeTableNode) fullModel.getRoot()).getChildCount() > 1);
     }
 
     void updateLibrariesComboBox() {
-        MutableTreeTableNode root = (MutableTreeTableNode) templateTreeTable.getTreeTableModel().getRoot();
+        MutableTreeTableNode root = (MutableTreeTableNode) fullModel.getRoot();
         List<String> libraryNames = new ArrayList<String>();
         for (Enumeration<? extends MutableTreeTableNode> libraries = root.children(); libraries.hasMoreElements();) {
             libraryNames.add(((CodeTemplateLibraryTreeTableNode) libraries.nextElement()).getLibrary().getName());
@@ -2051,6 +2214,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                     CodeTemplateLibraryTreeTableNode currentParent = (CodeTemplateLibraryTreeTableNode) codeTemplateNode.getParent();
 
                     String libraryName = (String) templateLibraryComboBox.getSelectedItem();
+
                     CodeTemplateLibraryTreeTableNode libraryNode = null;
                     for (Enumeration<? extends MutableTreeTableNode> libraries = ((MutableTreeTableNode) model.getRoot()).children(); libraries.hasMoreElements();) {
                         CodeTemplateLibraryTreeTableNode library = (CodeTemplateLibraryTreeTableNode) libraries.nextElement();
@@ -2060,11 +2224,31 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                         }
                     }
 
-                    if (libraryNode != null && !currentParent.getLibraryId().equals(libraryNode.getLibraryId())) {
+                    CodeTemplateLibraryTreeTableNode fullLibraryNode = null;
+                    for (Enumeration<? extends MutableTreeTableNode> libraries = ((MutableTreeTableNode) fullModel.getRoot()).children(); libraries.hasMoreElements();) {
+                        CodeTemplateLibraryTreeTableNode library = (CodeTemplateLibraryTreeTableNode) libraries.nextElement();
+                        if (library.getLibrary().getName().equals(libraryName)) {
+                            fullLibraryNode = library;
+                            break;
+                        }
+                    }
+
+                    if (!currentParent.getLibraryId().equals(fullLibraryNode.getLibraryId())) {
                         updateCurrentNode();
                         model.removeNodeFromParent(codeTemplateNode);
-                        model.insertNodeInto(codeTemplateNode, libraryNode);
-                        selectTemplatePath(new TreePath(model.getPathToRoot(codeTemplateNode)));
+
+                        if (libraryNode != null) {
+                            model.insertNodeInto(codeTemplateNode, libraryNode);
+                            selectTemplatePath(new TreePath(model.getPathToRoot(codeTemplateNode)));
+                        } else {
+                            selectTemplatePath(new TreePath(model.getPathToRoot(model.getRoot())));
+                        }
+
+                        if (model.getRoot() != fullModel.getRoot()) {
+                            AbstractSortableTreeTableNode fullCodeTemplateNode = findFullNode(codeTemplateNode);
+                            fullModel.removeNodeFromParent(fullCodeTemplateNode);
+                            fullModel.insertNodeInto(fullCodeTemplateNode, fullLibraryNode);
+                        }
                     }
                 }
             }
@@ -2085,6 +2269,25 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         }
     }
 
+    private void updateTemplateFilter(String filter) {
+        stopTableEditing();
+        updateCurrentNode();
+
+        CodeTemplateTreeTableModel model = (CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel();
+        UnassignedLibraryTreeTableNode root = (UnassignedLibraryTreeTableNode) fullModel.getRoot();
+
+        if (StringUtils.isNotBlank(filter)) {
+            root = getFilteredRootNode(root);
+        }
+
+        model.setRoot(root);
+        model.sort();
+
+        templateTreeTable.expandAll();
+        templateTreeTable.clearSelection();
+        switchSplitPaneComponent(blankPanel);
+    }
+
     private void printTreeTable() {
         if (logger.isDebugEnabled()) {
             StringBuilder builder = new StringBuilder();
@@ -2092,6 +2295,14 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                 printTreeTable(children.nextElement(), builder, 0);
             }
             logger.debug(builder.toString());
+
+            if (templateTreeTable.getTreeTableModel().getRoot() != fullModel.getRoot()) {
+                builder = new StringBuilder();
+                for (Enumeration<? extends MutableTreeTableNode> children = ((MutableTreeTableNode) fullModel.getRoot()).children(); children.hasMoreElements();) {
+                    printTreeTable(children.nextElement(), builder, 0);
+                }
+                logger.debug(builder.toString());
+            }
         }
     }
 

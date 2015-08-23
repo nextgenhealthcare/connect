@@ -34,7 +34,6 @@ import com.mirth.connect.client.ui.components.MirthTreeTable;
 public class CodeTemplateTreeTableCellEditor extends DefaultCellEditor {
 
     private CodeTemplatePanel parent;
-    private MirthTreeTable treeTable;
     private OffsetPanel panel;
     private JTextField field;
 
@@ -45,10 +44,6 @@ public class CodeTemplateTreeTableCellEditor extends DefaultCellEditor {
         field = (JTextField) editorComponent;
         field.setDocument(new MirthFieldConstraints(0, false, true, true));
         panel.add(field, "grow, push");
-    }
-
-    public void setTreeTable(MirthTreeTable treeTable) {
-        this.treeTable = treeTable;
     }
 
     @Override
@@ -68,10 +63,10 @@ public class CodeTemplateTreeTableCellEditor extends DefaultCellEditor {
     @Override
     public boolean stopCellEditing() {
         String value = (String) getCellEditorValue();
-        boolean valid = StringUtils.isNotBlank(value);
+        boolean valid = StringUtils.isNotBlank(value) && value.length() <= 255;
 
         if (valid) {
-            for (Enumeration<? extends MutableTreeTableNode> libraries = ((MutableTreeTableNode) treeTable.getTreeTableModel().getRoot()).children(); libraries.hasMoreElements();) {
+            for (Enumeration<? extends MutableTreeTableNode> libraries = ((MutableTreeTableNode) parent.getFullModel().getRoot()).children(); libraries.hasMoreElements();) {
                 CodeTemplateLibraryTreeTableNode libraryNode = (CodeTemplateLibraryTreeTableNode) libraries.nextElement();
                 if (libraryNode.getLibrary().getName().equals(value)) {
                     valid = false;
@@ -95,7 +90,7 @@ public class CodeTemplateTreeTableCellEditor extends DefaultCellEditor {
         if (valid) {
             parent.setSaveEnabled(true);
 
-            TreePath selectedPath = treeTable.getTreeSelectionModel().getSelectionPath();
+            TreePath selectedPath = parent.getTreeTable().getTreeSelectionModel().getSelectionPath();
             if (selectedPath != null && selectedPath.getLastPathComponent() instanceof CodeTemplateLibraryTreeTableNode) {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
