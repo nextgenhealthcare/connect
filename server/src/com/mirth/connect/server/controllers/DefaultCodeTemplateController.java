@@ -43,6 +43,8 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
     private Logger logger = Logger.getLogger(getClass());
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private Cache<CodeTemplateLibrary> libraryCache = new Cache<CodeTemplateLibrary>("Code Template Library", "CodeTemplate.getLibraryRevision", "CodeTemplate.getLibrary");
     private Cache<CodeTemplate> codeTemplateCache = new Cache<CodeTemplate>("Code Template", "CodeTemplate.getCodeTemplateRevision", "CodeTemplate.getCodeTemplate");
 
@@ -427,6 +429,9 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
                 codeTemplateServerPlugin.save(codeTemplate, context);
             }
 
+            // Re-compile the global scripts
+            scriptController.compileGlobalScripts(contextFactoryController.getGlobalScriptContextFactory());
+
             return true;
         } catch (Exception e) {
             if (e instanceof ControllerException) {
@@ -455,6 +460,9 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             for (CodeTemplateServerPlugin codeTemplateServerPlugin : extensionController.getCodeTemplateServerPlugins().values()) {
                 codeTemplateServerPlugin.remove(codeTemplate, context);
             }
+
+            // Re-compile the global scripts
+            scriptController.compileGlobalScripts(contextFactoryController.getGlobalScriptContextFactory());
         } catch (Exception e) {
             throw new ControllerException(e);
         }

@@ -456,20 +456,29 @@ public class JavaScriptBuilder {
                     // Ignore code templates that have already been handled
                     // Only add the code template if the library is enabled for this channel, or if it's not explicitly disabled and new channels are being included 
                     if (codeTemplateMap.containsKey(template.getId()) && (channelId == null || library.getEnabledChannelIds().contains(channelId) || (!library.getDisabledChannelIds().contains(channelId) && library.isIncludeNewChannels()))) {
-                        CodeTemplate serverCodeTemplate = codeTemplateMap.get(template.getId());
-
-                        if (serverCodeTemplate.isAddToScripts() && serverCodeTemplate.getContextSet().contains(contextType)) {
-                            builder.append(CodeTemplateUtil.stripDocumentation(serverCodeTemplate.getCode()));
-                            builder.append('\n');
-                        }
+                        appendCodeTemplate(builder, codeTemplateMap.get(template.getId()), contextType);
                     }
 
                     // This code template has been handled, remove it from the map
                     codeTemplateMap.remove(template.getId());
                 }
             }
+
+            // Include unassigned code templates only for global scripts
+            if (channelId == null) {
+                for (CodeTemplate codeTemplate : codeTemplateMap.values()) {
+                    appendCodeTemplate(builder, codeTemplate, contextType);
+                }
+            }
         } catch (ControllerException e) {
             logger.error("Could not append code templates.", e);
+        }
+    }
+
+    private static void appendCodeTemplate(StringBuilder builder, CodeTemplate codeTemplate, ContextType contextType) {
+        if (codeTemplate.isAddToScripts() && codeTemplate.getContextSet().contains(contextType)) {
+            builder.append(CodeTemplateUtil.stripDocumentation(codeTemplate.getCode()));
+            builder.append('\n');
         }
     }
 }
