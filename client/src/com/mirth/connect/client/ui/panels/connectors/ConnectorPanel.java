@@ -317,6 +317,10 @@ public class ConnectorPanel extends JPanel {
         sourceSettingsPanel.updateQueueWarning(messageStorageMode);
     }
 
+    public void updateNextFireTime() {
+        pollingSettingsPanel.updateNextFireTime();
+    }
+
     public void decorateConnectorType() {
         ConnectorTypeDecoration connectorTypeDecoration = currentPanel.getConnectorTypeDecoration();
 

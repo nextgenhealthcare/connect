@@ -17,8 +17,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.PollingType;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
@@ -75,7 +75,7 @@ public class ConnectorTests {
         channel.setPostProcessor(new TestPostProcessor());
 
         ConnectorProperties connectorProperties = new TestPollConnectorProperties();
-        ((PollConnectorPropertiesInterface) connectorProperties).getPollConnectorProperties().setPollingType(PollConnectorProperties.POLLING_TYPE_INTERVAL);
+        ((PollConnectorPropertiesInterface) connectorProperties).getPollConnectorProperties().setPollingType(PollingType.INTERVAL);
         ((PollConnectorPropertiesInterface) connectorProperties).getPollConnectorProperties().setPollingFrequency(pollingFrequency);
 
         SourceConnector sourceConnector = new TestPollConnector();

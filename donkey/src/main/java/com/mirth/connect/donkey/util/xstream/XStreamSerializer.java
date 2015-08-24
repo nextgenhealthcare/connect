@@ -13,6 +13,7 @@ import java.io.StringReader;
 
 import org.xmlpull.mxp1.MXParser;
 
+import com.mirth.connect.donkey.model.channel.CronProperty;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
@@ -35,6 +36,7 @@ public class XStreamSerializer implements Serializer {
         DeployedStateEventType.class,
         ConnectionStatusEventType.class,
         ConnectorMessage.class,
+        CronProperty.class,
         ErrorEventType.class,
         Message.class,
         MessageEventType.class,

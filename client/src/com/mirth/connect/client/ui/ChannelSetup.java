@@ -168,6 +168,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                  */
                 if (selectedTab == SOURCE_TAB_INDEX && sourceConnectorPanel.getConnectorSettingsPanel() != null) {
                     sourceConnectorPanel.getConnectorSettingsPanel().setVisible(true);
+                    sourceConnectorPanel.updateNextFireTime();
                 } else if (selectedTab == DESTINATIONS_TAB_INDEX && destinationConnectorPanel.getConnectorSettingsPanel() != null) {
                     destinationConnectorPanel.getConnectorSettingsPanel().setVisible(true);
                 }

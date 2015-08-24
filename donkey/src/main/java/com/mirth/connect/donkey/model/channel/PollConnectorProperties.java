@@ -10,7 +10,9 @@
 package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -20,27 +22,60 @@ import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 
 public class PollConnectorProperties implements Serializable, Migratable, Purgable {
-    public static final String POLLING_TYPE_INTERVAL = "interval";
-    public static final String POLLING_TYPE_TIME = "time";
+    private PollingType pollingType;
+    private boolean pollOnStart;
 
-    private String pollingType;
-    private int pollingHour;
-    private int pollingMinute;
     private int pollingFrequency;
 
+    private int pollingHour;
+    private int pollingMinute;
+
+    private List<CronProperty> cronJobs;
+
+    private PollConnectorPropertiesAdvanced pollConnectorPropertiesAdvanced;
+
     public PollConnectorProperties() {
-        pollingType = POLLING_TYPE_INTERVAL;
+        pollingType = PollingType.INTERVAL;
+        pollOnStart = false;
+        pollingFrequency = 5000;
         pollingHour = 0;
         pollingMinute = 0;
-        pollingFrequency = 5000;
+        cronJobs = new ArrayList<CronProperty>();
+
+        pollConnectorPropertiesAdvanced = new PollConnectorPropertiesAdvanced();
     }
 
-    public String getPollingType() {
+    public PollConnectorProperties(PollConnectorProperties properties) {
+        pollingType = properties.getPollingType();
+        pollOnStart = properties.isPollOnStart();
+        pollingFrequency = properties.getPollingFrequency();
+        pollingHour = properties.getPollingHour();
+        pollingMinute = properties.getPollingMinute();
+
+        List<CronProperty> cron = new ArrayList<CronProperty>();
+        for (CronProperty property : properties.getCronJobs()) {
+            cron.add(new CronProperty(property.getDescription(), property.getExpression()));
+        }
+
+        cronJobs = cron;
+
+        pollConnectorPropertiesAdvanced = properties.getPollConnectorPropertiesAdvanced().clone();
+    }
+
+    public PollingType getPollingType() {
         return pollingType;
     }
 
-    public void setPollingType(String pollingType) {
+    public void setPollingType(PollingType pollingType) {
         this.pollingType = pollingType;
+    }
+
+    public void setPollOnStart(boolean pollOnStart) {
+        this.pollOnStart = pollOnStart;
+    }
+
+    public boolean isPollOnStart() {
+        return pollOnStart;
     }
 
     public int getPollingHour() {
@@ -67,9 +102,30 @@ public class PollConnectorProperties implements Serializable, Migratable, Purgab
         this.pollingFrequency = pollingFrequency;
     }
 
+    public List<CronProperty> getCronJobs() {
+        return cronJobs;
+    }
+
+    public void setCronJobs(List<CronProperty> cronJobs) {
+        this.cronJobs = cronJobs;
+    }
+
+    public PollConnectorPropertiesAdvanced getPollConnectorPropertiesAdvanced() {
+        return pollConnectorPropertiesAdvanced;
+    }
+
+    public void setPollConnectorPropertiesAdvanced(PollConnectorPropertiesAdvanced pollConnectorPropertiesAdvanced) {
+        this.pollConnectorPropertiesAdvanced = pollConnectorPropertiesAdvanced;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    @Override
+    public PollConnectorProperties clone() {
+        return new PollConnectorProperties(this);
     }
 
     @Override
@@ -85,15 +141,44 @@ public class PollConnectorProperties implements Serializable, Migratable, Purgab
     public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_3_0(DonkeyElement element) {}
+    public void migrate3_3_0(DonkeyElement element) {
+        DonkeyElement pollingType = element.getChildElement("pollingType");
+        pollingType.setTextContent(pollingType.getTextContent().equals("interval") ? "INTERVAL" : "TIME");
+        element.addChildElementIfNotExists("pollOnStart", pollingType.getTextContent().equals("interval") ? "true" : "false");
+
+        element.addChildElementIfNotExists("cronJobs");
+
+        DonkeyElement advancedProperties = element.addChildElementIfNotExists("pollConnectorPropertiesAdvanced");
+        if (advancedProperties != null) {
+            advancedProperties.addChildElementIfNotExists("isWeekly", "true");
+
+            DonkeyElement activeDays = advancedProperties.addChildElementIfNotExists("inactiveDays");
+            if (activeDays != null) {
+                for (int counter = 0; counter < 8; ++counter) {
+                    activeDays.addChildElement("boolean", "false");
+                }
+            }
+
+            advancedProperties.addChildElementIfNotExists("dayOfMonth", "1");
+            advancedProperties.addChildElementIfNotExists("allDay", "true");
+            advancedProperties.addChildElementIfNotExists("startingHour", "8");
+            advancedProperties.addChildElementIfNotExists("startingMinute", "0");
+            advancedProperties.addChildElementIfNotExists("endingHour", "17");
+            advancedProperties.addChildElementIfNotExists("endingMinute", "0");
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("pollingType", pollingType);
+        purgedProperties.put("pollOnStart", pollOnStart);
+        purgedProperties.put("pollingFrequency", pollingFrequency);
         purgedProperties.put("pollingHour", pollingHour);
         purgedProperties.put("pollingMinute", pollingMinute);
-        purgedProperties.put("pollingFrequency", pollingFrequency);
+        purgedProperties.put("cronJobsCount", cronJobs.size());
+        purgedProperties.put("advancedPurgedProperties", pollConnectorPropertiesAdvanced.getPurgedProperties());
+
         return purgedProperties;
     }
 }
