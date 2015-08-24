@@ -343,7 +343,9 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         for (CodeTemplateLibrary library : getLibraries(null, false, true)) {
             if (library.getEnabledChannelIds().contains(channelId) || (library.isIncludeNewChannels() && !library.getDisabledChannelIds().contains(channelId))) {
                 for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
-                    revisions.put(codeTemplate.getId(), codeTemplate.getRevision());
+                    if (codeTemplate.isAddToScripts()) {
+                        revisions.put(codeTemplate.getId(), codeTemplate.getRevision());
+                    }
                 }
             }
         }
