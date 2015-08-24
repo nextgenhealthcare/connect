@@ -35,7 +35,9 @@ public abstract class Migrator {
 
     public abstract void migrateSerializedData() throws MigrationException;
 
-    public Connection getConnection() {
+    public Connection getConnection() throws SQLException {
+        // MIRTH-3764: Some migrators disable auto-commit, so we make sure to always enable it before returning the connection.
+        connection.setAutoCommit(true);
         return connection;
     }
 

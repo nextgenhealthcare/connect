@@ -47,7 +47,13 @@ public class ServerMigrator extends Migrator {
 
     @Override
     public void migrate() throws MigrationException {
-        Connection connection = getConnection();
+        Connection connection;
+        try {
+            connection = getConnection();
+        } catch (SQLException e) {
+            throw new MigrationException(e);
+        }
+
         initDatabase(connection);
         Version startingVersion = getCurrentVersion();
 
@@ -283,12 +289,13 @@ public class ServerMigrator extends Migrator {
      */
     private void migrateSerializedData(String selectSql, String updateSql, Class<?> expectedClass) {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        Connection connection = getConnection();
+        Connection connection = null;
         Statement selectStatement = null;
         PreparedStatement updateStatement = null;
         ResultSet resultSet = null;
 
         try {
+            connection = getConnection();
             selectStatement = connection.createStatement();
             resultSet = selectStatement.executeQuery(selectSql);
 

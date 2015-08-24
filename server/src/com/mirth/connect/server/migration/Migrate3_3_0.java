@@ -43,15 +43,13 @@ public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
         PreparedStatement preparedStatement = null;
         ResultSet results = null;
 
-        /*
-         * MIRTH-1667: Derby fails if autoCommit is set to true and there are a large number of
-         * results. The following error occurs: "ERROR 40XD0: Container has been closed"
-         */
-        Connection connection = getConnection();
-        Boolean autoCommit = null;
-
         try {
-            autoCommit = connection.getAutoCommit();
+            Connection connection = getConnection();
+
+            /*
+             * MIRTH-1667: Derby fails if autoCommit is set to true and there are a large number of
+             * results. The following error occurs: "ERROR 40XD0: Container has been closed"
+             */
             connection.setAutoCommit(false);
 
             List<String> codeTemplateIds = new ArrayList<String>();
@@ -136,12 +134,6 @@ public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
         } finally {
             DbUtils.closeQuietly(results);
             DbUtils.closeQuietly(preparedStatement);
-            if (autoCommit != null) {
-                try {
-                    connection.setAutoCommit(autoCommit);
-                } catch (SQLException e) {
-                }
-            }
         }
     }
 
