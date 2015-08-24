@@ -797,6 +797,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                     // Update the actual table model
                     CodeTemplateTreeTableModel model = (CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel();
 
+                    updateCurrentNode.set(false);
                     fullModel.setRoot(root);
                     fullModel.sort();
                     if (StringUtils.isNotBlank(templateFilterField.getText())) {
@@ -860,6 +861,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                                 selectTemplatePath(finalPath);
                             }
                             saveAdjusting.set(false);
+                            updateCurrentNode.set(true);
                         }
                     });
                 } else {
