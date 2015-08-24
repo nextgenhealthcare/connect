@@ -74,8 +74,9 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
         for (CodeTemplateLibrary library : libraryMap.values()) {
             if (libraryIds == null || libraryIds.contains(library.getId())) {
-                if (includeCodeTemplates) {
-                    addCodeTemplatesToLibrary(library, codeTemplateMap);
+                addCodeTemplatesToLibrary(library, codeTemplateMap);
+                if (!includeCodeTemplates) {
+                    library.replaceCodeTemplatesWithIds();
                 }
 
                 libraries.add(library);
@@ -101,6 +102,10 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             for (CodeTemplate codeTemplate : codeTemplateMap.values()) {
                 unassignedLibrary.getCodeTemplates().add(codeTemplate);
             }
+            unassignedLibrary.sortCodeTemplates();
+            if (!includeCodeTemplates) {
+                unassignedLibrary.replaceCodeTemplatesWithIds();
+            }
             libraries.add(0, unassignedLibrary);
         }
 
@@ -119,6 +124,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         }
 
         library.setCodeTemplates(codeTemplates);
+        library.sortCodeTemplates();
     }
 
     @Override
@@ -144,15 +150,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
                 continue;
             }
 
-            List<CodeTemplate> codeTemplates = new ArrayList<CodeTemplate>();
-
             for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
-                /*
-                 * Code templates are stored separately in the database. Only the code template ID
-                 * is needed when storing the library.
-                 */
-                codeTemplates.add(new CodeTemplate(codeTemplate.getId()));
-
                 // Make sure this library's code templates aren't contained in any other library
                 if (codeTemplateMap.put(codeTemplate.getId(), library.getId()) != null) {
                     String errorMessage = "Code Template \"" + codeTemplate.getName() + "\" belongs to more than one library.";
@@ -161,7 +159,11 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
                 }
             }
 
-            library.setCodeTemplates(codeTemplates);
+            /*
+             * Code templates are stored separately in the database. Only the code template ID is
+             * needed when storing the library.
+             */
+            library.replaceCodeTemplatesWithIds();
 
             // Make sure there isn't another library with the same name
             if (!libraryNames.add(library.getName())) {

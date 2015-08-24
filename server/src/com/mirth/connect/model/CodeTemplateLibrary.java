@@ -12,6 +12,8 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -149,6 +151,35 @@ public class CodeTemplateLibrary implements Serializable, Migratable, Purgable, 
 
     public void setCodeTemplates(List<CodeTemplate> codeTemplates) {
         this.codeTemplates = codeTemplates;
+    }
+
+    public void sortCodeTemplates() {
+        if (CollectionUtils.isNotEmpty(codeTemplates)) {
+            Collections.sort(codeTemplates, new Comparator<CodeTemplate>() {
+                @Override
+                public int compare(CodeTemplate o1, CodeTemplate o2) {
+                    if (o1.getName() == null && o2.getName() != null) {
+                        return -1;
+                    } else if (o1.getName() != null && o2.getName() == null) {
+                        return 1;
+                    } else if (o1.getName() == null && o2.getName() == null) {
+                        return 0;
+                    } else {
+                        return o1.getName().compareToIgnoreCase(o2.getName());
+                    }
+                }
+            });
+        }
+    }
+
+    public void replaceCodeTemplatesWithIds() {
+        if (CollectionUtils.isNotEmpty(codeTemplates)) {
+            List<CodeTemplate> list = new ArrayList<CodeTemplate>();
+            for (CodeTemplate codeTemplate : codeTemplates) {
+                list.add(new CodeTemplate(codeTemplate.getId()));
+            }
+            codeTemplates = list;
+        }
     }
 
     @Override
