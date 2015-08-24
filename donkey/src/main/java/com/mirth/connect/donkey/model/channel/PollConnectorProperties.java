@@ -144,7 +144,7 @@ public class PollConnectorProperties implements Serializable, Migratable, Purgab
     public void migrate3_3_0(DonkeyElement element) {
         DonkeyElement pollingType = element.getChildElement("pollingType");
         pollingType.setTextContent(pollingType.getTextContent().equals("interval") ? "INTERVAL" : "TIME");
-        element.addChildElementIfNotExists("pollOnStart", pollingType.getTextContent().equals("interval") ? "true" : "false");
+        element.addChildElementIfNotExists("pollOnStart", pollingType.getTextContent().equals("INTERVAL") ? "true" : "false");
 
         element.addChildElementIfNotExists("cronJobs");
 
