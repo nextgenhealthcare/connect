@@ -2034,47 +2034,51 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     }
 
     private void updateLibraryNode(CodeTemplateLibraryTreeTableNode libraryNode) {
-        libraryNode.setValueAt(libraryDescriptionScrollPane.getText(), TEMPLATE_DESCRIPTION_COLUMN);
+        if (libraryNode != null) {
+            libraryNode.setValueAt(libraryDescriptionScrollPane.getText(), TEMPLATE_DESCRIPTION_COLUMN);
 
-        Set<String> enabledChannelIds = new HashSet<String>();
-        Set<String> disabledChannelIds = new HashSet<String>();
+            Set<String> enabledChannelIds = new HashSet<String>();
+            Set<String> disabledChannelIds = new HashSet<String>();
 
-        for (int row = 0; row < libraryChannelsTable.getRowCount(); row++) {
-            ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
-            String channelId = (String) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_ID_COLUMN);
+            for (int row = 0; row < libraryChannelsTable.getRowCount(); row++) {
+                ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
+                String channelId = (String) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_ID_COLUMN);
 
-            if (channelId.equals(NEW_CHANNELS)) {
-                libraryNode.getLibrary().setIncludeNewChannels(channelInfo.isEnabled());
-            } else if (channelInfo.isEnabled()) {
-                enabledChannelIds.add(channelId);
-            } else {
-                disabledChannelIds.add(channelId);
+                if (channelId.equals(NEW_CHANNELS)) {
+                    libraryNode.getLibrary().setIncludeNewChannels(channelInfo.isEnabled());
+                } else if (channelInfo.isEnabled()) {
+                    enabledChannelIds.add(channelId);
+                } else {
+                    disabledChannelIds.add(channelId);
+                }
             }
-        }
 
-        libraryNode.getLibrary().setEnabledChannelIds(enabledChannelIds);
-        libraryNode.getLibrary().setDisabledChannelIds(disabledChannelIds);
+            libraryNode.getLibrary().setEnabledChannelIds(enabledChannelIds);
+            libraryNode.getLibrary().setDisabledChannelIds(disabledChannelIds);
+        }
     }
 
     private void updateCodeTemplateNode(CodeTemplateTreeTableNode codeTemplateNode) {
-        codeTemplateNode.setValueAt(templateTypeComboBox.getSelectedItem(), TEMPLATE_TYPE_COLUMN);
-        codeTemplateNode.getCodeTemplate().setCode(templateCodeTextArea.getText());
+        if (codeTemplateNode != null) {
+            codeTemplateNode.setValueAt(templateTypeComboBox.getSelectedItem(), TEMPLATE_TYPE_COLUMN);
+            codeTemplateNode.getCodeTemplate().setCode(templateCodeTextArea.getText());
 
-        CodeTemplateContextSet contextSet = new CodeTemplateContextSet();
-        for (Enumeration<? extends MutableTreeTableNode> groups = ((MutableTreeTableNode) templateContextTreeTable.getTreeTableModel().getRoot()).children(); groups.hasMoreElements();) {
-            MutableTreeTableNode group = groups.nextElement();
-            for (Enumeration<? extends MutableTreeTableNode> children = group.children(); children.hasMoreElements();) {
-                Pair<Integer, ContextType> pair = (Pair<Integer, ContextType>) children.nextElement().getUserObject();
-                if (pair.getLeft() == MirthTriStateCheckBox.CHECKED) {
-                    try {
-                        contextSet.add(pair.getRight());
-                    } catch (ClassCastException e) {
-                        e.printStackTrace();
+            CodeTemplateContextSet contextSet = new CodeTemplateContextSet();
+            for (Enumeration<? extends MutableTreeTableNode> groups = ((MutableTreeTableNode) templateContextTreeTable.getTreeTableModel().getRoot()).children(); groups.hasMoreElements();) {
+                MutableTreeTableNode group = groups.nextElement();
+                for (Enumeration<? extends MutableTreeTableNode> children = group.children(); children.hasMoreElements();) {
+                    Pair<Integer, ContextType> pair = (Pair<Integer, ContextType>) children.nextElement().getUserObject();
+                    if (pair.getLeft() == MirthTriStateCheckBox.CHECKED) {
+                        try {
+                            contextSet.add(pair.getRight());
+                        } catch (ClassCastException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
+            codeTemplateNode.getCodeTemplate().setContextSet(contextSet);
         }
-        codeTemplateNode.getCodeTemplate().setContextSet(contextSet);
     }
 
     private void setCodeTemplateProperties(CodeTemplateTreeTableNode codeTemplateNode) {
