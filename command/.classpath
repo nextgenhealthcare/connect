@@ -84,5 +84,6 @@
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-151.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-151.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-151.jar"/>
+	<classpathentry kind="lib" path="lib/rhino-1.7.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
