@@ -127,7 +127,15 @@ public class NativeObject extends IdScriptableObject implements Map
             return ScriptRuntime.toObject(cx, scope, args[0]);
           }
 
-          case Id_toLocaleString: // For now just alias toString
+          case Id_toLocaleString: {
+            Object toString = ScriptableObject.getProperty(thisObj, "toString");
+            if(!(toString instanceof Callable)) {
+                throw ScriptRuntime.notFunctionError(toString);
+            }
+            Callable fun = (Callable)toString;
+            return fun.call(cx, scope, thisObj, ScriptRuntime.emptyArgs);
+          }
+
           case Id_toString: {
             if (cx.hasFeature(Context.FEATURE_TO_STRING_AS_SOURCE)) {
                 String s = ScriptRuntime.defaultObjectToSource(cx, scope,
@@ -150,41 +158,35 @@ public class NativeObject extends IdScriptableObject implements Map
 
           case Id_hasOwnProperty: {
             boolean result;
-            if (args.length == 0) {
-                result = false;
+            Object arg = args.length < 1 ? Undefined.instance : args[0];
+            String s = ScriptRuntime.toStringIdOrIndex(cx, arg);
+            if (s == null) {
+                int index = ScriptRuntime.lastIndexResult(cx);
+                result = thisObj.has(index, thisObj);
             } else {
-                String s = ScriptRuntime.toStringIdOrIndex(cx, args[0]);
-                if (s == null) {
-                    int index = ScriptRuntime.lastIndexResult(cx);
-                    result = thisObj.has(index, thisObj);
-                } else {
-                    result = thisObj.has(s, thisObj);
-                }
+                result = thisObj.has(s, thisObj);
             }
             return ScriptRuntime.wrapBoolean(result);
           }
 
           case Id_propertyIsEnumerable: {
             boolean result;
-            if (args.length == 0) {
-                result = false;
+            Object arg = args.length < 1 ? Undefined.instance : args[0];
+            String s = ScriptRuntime.toStringIdOrIndex(cx, arg);
+            if (s == null) {
+                int index = ScriptRuntime.lastIndexResult(cx);
+                result = thisObj.has(index, thisObj);
+                if (result && thisObj instanceof ScriptableObject) {
+                    ScriptableObject so = (ScriptableObject)thisObj;
+                    int attrs = so.getAttributes(index);
+                    result = ((attrs & ScriptableObject.DONTENUM) == 0);
+                }
             } else {
-                String s = ScriptRuntime.toStringIdOrIndex(cx, args[0]);
-                if (s == null) {
-                    int index = ScriptRuntime.lastIndexResult(cx);
-                    result = thisObj.has(index, thisObj);
-                    if (result && thisObj instanceof ScriptableObject) {
-                        ScriptableObject so = (ScriptableObject)thisObj;
-                        int attrs = so.getAttributes(index);
-                        result = ((attrs & ScriptableObject.DONTENUM) == 0);
-                    }
-                } else {
-                    result = thisObj.has(s, thisObj);
-                    if (result && thisObj instanceof ScriptableObject) {
-                        ScriptableObject so = (ScriptableObject)thisObj;
-                        int attrs = so.getAttributes(s);
-                        result = ((attrs & ScriptableObject.DONTENUM) == 0);
-                    }
+                result = thisObj.has(s, thisObj);
+                if (result && thisObj instanceof ScriptableObject) {
+                    ScriptableObject so = (ScriptableObject)thisObj;
+                    int attrs = so.getAttributes(s);
+                    result = ((attrs & ScriptableObject.DONTENUM) == 0);
                 }
             }
             return ScriptRuntime.wrapBoolean(result);
@@ -335,14 +337,14 @@ public class NativeObject extends IdScriptableObject implements Map
                 Scriptable props = Context.toObject(propsObj, getParentScope());
                 obj.defineOwnProperties(cx, ensureScriptableObject(props));
                 return obj;
-        }
+              }
           case ConstructorId_create:
               {
                 Object arg = args.length < 1 ? Undefined.instance : args[0];
                 Scriptable obj = (arg == null) ? null : ensureScriptable(arg);
 
                 ScriptableObject newObject = new NativeObject();
-                newObject.setParentScope(this.getParentScope());
+                newObject.setParentScope(getParentScope());
                 newObject.setPrototype(obj);
 
                 if (args.length > 1 && args[1] != Undefined.instance) {
@@ -352,7 +354,6 @@ public class NativeObject extends IdScriptableObject implements Map
 
                 return newObject;
               }
-
           case ConstructorId_isSealed:
               {
                 Object arg = args.length < 1 ? Undefined.instance : args[0];
@@ -510,20 +511,23 @@ public class NativeObject extends IdScriptableObject implements Map
                             throw new UnsupportedOperationException();
                         }
 
+                        @Override
                         public boolean equals(Object other) {
                             if (!(other instanceof Map.Entry)) {
                                 return false;
                             }
-                            Map.Entry e = (Map.Entry) other;
+                            Map.Entry<?, ?> e = (Map.Entry<?, ?>) other;
                             return (ekey == null ? e.getKey() == null : ekey.equals(e.getKey()))
                                 && (value == null ? e.getValue() == null : value.equals(e.getValue()));
                         }
 
+                        @Override
                         public int hashCode() {
                             return (ekey == null ? 0 : ekey.hashCode()) ^
                                    (value == null ? 0 : value.hashCode());
                         }
 
+                        @Override
                         public String toString() {
                             return ekey + "=" + value;
                         }
