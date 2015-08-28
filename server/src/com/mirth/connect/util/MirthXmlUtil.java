@@ -16,6 +16,7 @@ import java.util.Hashtable;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -29,8 +30,8 @@ import org.apache.log4j.Logger;
 
 public class MirthXmlUtil {
 
-    private static Transformer normalizerTransformer = null;
-    private static Transformer serializerTransformer = null;
+    private static Templates normalizerTemplates = null;
+    private static TransformerFactory serializerTransformerFactory = null;
 
     private static final Hashtable<String, String> decoder = new Hashtable<String, String>(300);
     private static final Hashtable<String, String> decoderXml = new Hashtable<String, String>(10);
@@ -47,11 +48,10 @@ public class MirthXmlUtil {
         try {
             // Space Normalization Transformer
             TransformerFactory normalizerTransformerFactory = TransformerFactory.newInstance();
-            normalizerTransformer = normalizerTransformerFactory.newTransformer(new StreamSource(new StringReader(prettyPrintingXslt)));
-            normalizerTransformer.setOutputProperty(OutputKeys.INDENT, "no");
+            normalizerTemplates = normalizerTransformerFactory.newTemplates(new StreamSource(new StringReader(prettyPrintingXslt)));
 
             // Pretty Printer transformer
-            TransformerFactory serializerTransformerFactory = TransformerFactory.newInstance();
+            serializerTransformerFactory = TransformerFactory.newInstance();
 
             // When Saxon-B is on the classpath setting this attribute throws an
             // IllegalArgumentException.
@@ -60,6 +60,18 @@ public class MirthXmlUtil {
             } catch (IllegalArgumentException ex) {
                 logger.warn("Could not set serializer attribute: indent-number", ex);
             }
+        } catch (TransformerConfigurationException e) {
+            logger.error("Error setting pretty printer transformer.", e);
+        }
+    }
+
+    public static String prettyPrint(String input) {
+        Transformer normalizerTransformer = null;
+        Transformer serializerTransformer = null;
+
+        try {
+            normalizerTransformer = normalizerTemplates.newTransformer();
+            normalizerTransformer.setOutputProperty(OutputKeys.INDENT, "no");
 
             serializerTransformer = serializerTransformerFactory.newTransformer();
 
@@ -73,9 +85,7 @@ public class MirthXmlUtil {
         } catch (TransformerConfigurationException e) {
             logger.error("Error setting pretty printer transformer.", e);
         }
-    }
 
-    public static String prettyPrint(String input) {
         if ((normalizerTransformer != null) && (serializerTransformer != null)) {
             try {
                 Source source = new StreamSource(new StringReader(input));

@@ -38,6 +38,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
@@ -61,6 +64,7 @@ import javax.swing.text.DateFormatter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.Logger;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
@@ -156,6 +160,9 @@ public class MessageBrowser extends javax.swing.JPanel {
     private Set<String> defaultVisibleColumns;
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
+    private Logger logger = Logger.getLogger(this.getClass());
+    private ExecutorService executor;
+    private List<Future<Void>> prettyPrintWorkers = new ArrayList<Future<Void>>();
 
     /**
      * Constructs the new message browser and sets up its default information/layout
@@ -189,6 +196,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         makeMessageTable();
         //Initialize the mappings table
         makeMappingsTable();
+        
+        executor = Executors.newFixedThreadPool(5);
     }
 
     public void initComponentsManual() {
@@ -953,36 +962,23 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
     }
 
-    private void setCorrectDocument(MirthSyntaxTextArea textPane, String message, String dataType) {
+    private void setCorrectDocument(final MirthSyntaxTextArea textPane, final String message, String dataType) {
+        // First load the plain message (without pretty printing)
         SyntaxDocument newDoc = new SyntaxDocument();
-
+        boolean isXml = false;
+        boolean isJson = false;
+        
         if (StringUtils.isNotEmpty(message)) {
             String trimmedMessage = message.trim();
             char firstChar = trimmedMessage.charAt(0);
-            boolean isXml = trimmedMessage.length() > 0 && firstChar == '<';
-            boolean isJson = trimmedMessage.length() > 0 && (firstChar == '{' || firstChar == '[');
-
+            isXml = trimmedMessage.length() > 0 && firstChar == '<';
+            isJson = trimmedMessage.length() > 0 && (firstChar == '{' || firstChar == '[');
+            
+            // Set token markers
             if (isXml) {
                 newDoc.setTokenMarker(new XMLTokenMarker());
-                if (formatMessageCheckBox.isSelected()) {
-                    try {
-                        message = MirthXmlUtil.prettyPrint(message);
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
-                }
             } else if (isJson) {
                 newDoc.setTokenMarker(new JSONTokenMarker());
-                if (formatMessageCheckBox.isSelected()) {
-                    try {
-                        ObjectMapper mapper = new ObjectMapper();
-                        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-                        JsonNode json = mapper.readTree(message);
-                        message = mapper.writeValueAsString(json);
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
-                }
             } else if (dataType != null) {
                 newDoc.setTokenMarker(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getTokenMarker());
             }
@@ -995,6 +991,53 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
 
         textPane.setCaretPosition(0);
+        
+        // Pretty print (if enabled) on a separate thread since it's prone to take a while for certain DTDs
+        if (formatMessageCheckBox.isSelected() && (isXml || isJson)) {
+            final boolean formatXml = isXml;
+            final boolean formatJson = isJson;
+            
+            final String workingId = parent.startWorking("Pretty printing...");
+            
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                String prettifiedMessage = null;
+                
+                @Override
+                public Void doInBackground() {
+                    if (StringUtils.isNotEmpty(message)) {
+                        if (formatXml) {
+                            prettifiedMessage = MirthXmlUtil.prettyPrint(message);
+                        } else if (formatJson) {
+                            try {
+                                ObjectMapper mapper = new ObjectMapper();
+                                mapper.enable(SerializationFeature.INDENT_OUTPUT);
+                                JsonNode json = mapper.readTree(message);
+                                prettifiedMessage = mapper.writeValueAsString(json);
+                            } catch (Exception e) {
+                                logger.error("Error pretty printing json.", e);
+                            }
+                        }
+                    }
+                    
+                    return null;
+                }
+            
+                @Override
+                public void done() {
+                    if (!isCancelled()) {
+                        if (prettifiedMessage != null && StringUtils.isNotEmpty(prettifiedMessage)) {
+                            textPane.setText(prettifiedMessage);
+                            textPane.setCaretPosition(0);
+                        }
+                    }
+                    
+                    parent.stopWorking(workingId);
+                }
+            };
+            
+            prettyPrintWorkers.add(worker);
+            executor.submit(worker);
+        }
     }
 
     private void initColumnData() {
@@ -1598,6 +1641,12 @@ public class MessageBrowser extends javax.swing.JPanel {
             int row = getSelectedMessageIndex();
 
             if (row >= 0) {
+                // Cancel all pretty printing tasks
+                for (Future<Void> worker : prettyPrintWorkers) {
+                    worker.cancel(true);
+                }
+                prettyPrintWorkers.clear();
+                
                 parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
                 parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, -1, isChannelDeployed);
 
@@ -1695,29 +1744,29 @@ public class MessageBrowser extends javax.swing.JPanel {
         dataType = (rawMessage == null) ? null : rawMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(RawMessageRadioButton);
+            setCorrectDocument(RawMessageTextPane, content, dataType);
         }
-        setCorrectDocument(RawMessageTextPane, content, dataType);
 
         content = (processedRawMessage == null) ? null : processedRawMessage.getContent();
         dataType = (processedRawMessage == null) ? null : processedRawMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ProcessedRawMessageRadioButton);
+            setCorrectDocument(ProcessedRawMessageTextPane, content, dataType);
         }
-        setCorrectDocument(ProcessedRawMessageTextPane, content, dataType);
 
         content = (transformedMessage == null) ? null : transformedMessage.getContent();
         dataType = (transformedMessage == null) ? null : transformedMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(TransformedMessageRadioButton);
+            setCorrectDocument(TransformedMessageTextPane, content, dataType);
         }
-        setCorrectDocument(TransformedMessageTextPane, content, dataType);
 
         content = (encodedMessage == null) ? null : encodedMessage.getContent();
         dataType = (encodedMessage == null) ? null : encodedMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(EncodedMessageRadioButton);
+            setCorrectDocument(EncodedMessageTextPane, content, dataType);
         }
-        setCorrectDocument(EncodedMessageTextPane, content, dataType);
 
         content = null;
         if (sentMessage != null) {
@@ -1732,8 +1781,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         dataType = (sentMessage == null) ? null : sentMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(SentMessageRadioButton);
+            setCorrectDocument(SentMessageTextPane, content, dataType);
         }
-        setCorrectDocument(SentMessageTextPane, content, dataType);
 
         content = null;
         if (responseMessage != null) {
@@ -1751,15 +1800,15 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         if (content != null) {
             MessagesRadioPane.add(ResponseRadioButton);
+            setCorrectDocument(ResponseTextArea, content, dataType);
         }
-        setCorrectDocument(ResponseTextArea, content, dataType);
 
         content = (responseTransformedMessage == null) ? null : responseTransformedMessage.getContent();
         dataType = (responseTransformedMessage == null) ? null : responseTransformedMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ResponseTransformedRadioButton);
+            setCorrectDocument(ResponseTransformedTextPane, content, dataType);
         }
-        setCorrectDocument(ResponseTransformedTextPane, content, dataType);
 
         content = null;
         if (processedResponseMessage != null) {
@@ -1782,8 +1831,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         dataType = (processedResponseMessage == null) ? null : processedResponseMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ProcessedResponseRadioButton);
+            setCorrectDocument(ProcessedResponseTextArea, content, dataType);
         }
-        setCorrectDocument(ProcessedResponseTextArea, content, dataType);
     }
 
     /**
@@ -1873,8 +1922,8 @@ public class MessageBrowser extends javax.swing.JPanel {
             if (firstVisiblePane == null) {
                 firstVisiblePane = ProcessingErrorRadioButton.getText();
             }
+            setCorrectDocument(ProcessingErrorTextPane, processingError, null);
         }
-        setCorrectDocument(ProcessingErrorTextPane, processingError, null);
 
         if (postProcessorError != null) {
             ErrorsRadioPane.add(PostprocessorErrorRadioButton);
@@ -1882,8 +1931,8 @@ public class MessageBrowser extends javax.swing.JPanel {
             if (firstVisiblePane == null) {
                 firstVisiblePane = PostprocessorErrorRadioButton.getText();
             }
+            setCorrectDocument(PostprocessorErrorTextPane, postProcessorError, null);
         }
-        setCorrectDocument(PostprocessorErrorTextPane, postProcessorError, null);
 
         if (responseError != null) {
             ErrorsRadioPane.add(ResponseErrorRadioButton);
@@ -1891,8 +1940,8 @@ public class MessageBrowser extends javax.swing.JPanel {
             if (firstVisiblePane == null) {
                 firstVisiblePane = ResponseErrorRadioButton.getText();
             }
+            setCorrectDocument(ResponseErrorTextPane, responseError, null);
         }
-        setCorrectDocument(ResponseErrorTextPane, responseError, null);
 
         String paneToSelect;
         // Set the default pane if the last user selected one is not added.
