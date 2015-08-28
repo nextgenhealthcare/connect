@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import jcifs.smb.NtlmPasswordAuthentication;
@@ -25,6 +26,7 @@ import jcifs.smb.SmbFileOutputStream;
 import jcifs.smb.SmbFilenameFilter;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.file.FileConnectorException;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
@@ -95,6 +97,7 @@ public class SmbFileConnection implements FileSystemConnection {
         }
     }
 
+    private Logger logger = Logger.getLogger(getClass());
     private NtlmPasswordAuthentication auth = null;
     private SmbFile share = null;
 
@@ -116,7 +119,6 @@ public class SmbFileConnection implements FileSystemConnection {
         if ((username != null) && (password != null)) {
             auth = new NtlmPasswordAuthentication(domain, username, password);
         }
-
         this.share = new SmbFile("smb://" + share, auth);
         this.share.setConnectTimeout(timeout);
     }
@@ -210,10 +212,33 @@ public class SmbFileConnection implements FileSystemConnection {
 
     @Override
     public boolean canWrite(String writeDir) {
+        OutputStream os = null;
+        SmbFile dst = null;
+
+        // MIRTH-1113: No longer using jcif's canWrite() method since it's pretty much useless.
+        // It only checks the "read only" file attribute instead of a file's ACL. 
+        // The only way to tell if you can write to a file is to actually try and open 
+        // it for writing with new SmbFileOutputStream.
         try {
-            return getSmbFile(share, getPath(writeDir, null)).canWrite();
+            dst = getSmbFile(share, getPath(writeDir, UUID.randomUUID().toString()));
+            os = new SmbFileOutputStream(dst, false);
+
+            return true;
         } catch (Exception e) {
             return false;
+        } finally {
+            if (os != null) {
+                IOUtils.closeQuietly(os);
+            }
+
+            try {
+                // Delete the temp file.
+                if (dst.exists()) {
+                    dst.delete();
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to delete test write file.", e);
+            }
         }
     }
 
