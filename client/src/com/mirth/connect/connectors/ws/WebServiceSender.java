@@ -64,6 +64,7 @@ import com.mirth.connect.connectors.http.SSLWarningPanel;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.DefinitionPortMap;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class WebServiceSender extends ConnectorSettingsPanel {
@@ -290,9 +291,9 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     @Override
     public ConnectorTypeDecoration getConnectorTypeDecoration() {
         if (isUsingHttps(wsdlUrlField.getText()) || isUsingHttps(soapActionField.getText())) {
-            return new ConnectorTypeDecoration("(SSL Not Configured)", ICON_LOCK_X, SSL_TOOL_TIP, sslWarningPanel, COLOR_SSL_NOT_CONFIGURED);
+            return new ConnectorTypeDecoration(Mode.DESTINATION, "(SSL Not Configured)", ICON_LOCK_X, SSL_TOOL_TIP, sslWarningPanel, COLOR_SSL_NOT_CONFIGURED);
         } else {
-            return new ConnectorTypeDecoration();
+            return new ConnectorTypeDecoration(Mode.DESTINATION);
         }
     }
 

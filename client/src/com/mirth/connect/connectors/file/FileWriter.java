@@ -37,6 +37,7 @@ import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class FileWriter extends ConnectorSettingsPanel {
@@ -344,7 +345,7 @@ public class FileWriter extends ConnectorSettingsPanel {
 
     @Override
     public ConnectorTypeDecoration getConnectorTypeDecoration() {
-        return new ConnectorTypeDecoration();
+        return new ConnectorTypeDecoration(Mode.DESTINATION);
     }
 
     @Override

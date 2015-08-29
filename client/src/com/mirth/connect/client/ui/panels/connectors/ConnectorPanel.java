@@ -164,6 +164,10 @@ public class ConnectorPanel extends JPanel {
             destinationSettingsPanel.setProperties((DestinationConnectorPropertiesInterface) properties);
         }
 
+        // Set the connector properties beforehand in case plugin properties need to reference them
+        getConnectorSettingsPanel().resetInvalidProperties();
+        getConnectorSettingsPanel().setProperties(properties);
+
         Set<String> addedPluginProperties = new HashSet<String>();
 
         // Set all properties existing in the model
@@ -191,9 +195,6 @@ public class ConnectorPanel extends JPanel {
                 connectorPluginPropertiesPanel.setProperties(connectorPluginPropertiesPanel.getDefaults(), mode, properties.getName());
             }
         }
-
-        getConnectorSettingsPanel().resetInvalidProperties();
-        getConnectorSettingsPanel().setProperties(properties);
     }
 
     public boolean checkProperties(ConnectorProperties properties, boolean highlight) {

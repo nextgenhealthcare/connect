@@ -46,6 +46,7 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class HttpSender extends ConnectorSettingsPanel {
@@ -633,9 +634,9 @@ public class HttpSender extends ConnectorSettingsPanel {
         }
 
         if (usingHttps) {
-            return new ConnectorTypeDecoration("(SSL Not Configured)", ICON_LOCK_X, SSL_TOOL_TIP, sslWarningPanel, COLOR_SSL_NOT_CONFIGURED);
+            return new ConnectorTypeDecoration(Mode.DESTINATION, "(SSL Not Configured)", ICON_LOCK_X, SSL_TOOL_TIP, sslWarningPanel, COLOR_SSL_NOT_CONFIGURED);
         } else {
-            return new ConnectorTypeDecoration();
+            return new ConnectorTypeDecoration(Mode.DESTINATION);
         }
     }
 
