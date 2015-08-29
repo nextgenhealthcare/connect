@@ -35,6 +35,7 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/tcp/TcpDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/vm/VmReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/vm/VmDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/Binding"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceConnectorServiceMethods"/>

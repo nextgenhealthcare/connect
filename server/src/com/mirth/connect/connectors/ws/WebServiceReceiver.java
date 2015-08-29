@@ -137,7 +137,7 @@ public class WebServiceReceiver extends SourceConnector {
             acceptMessageWebService = new DefaultAcceptMessage(this);
         }
 
-        webServiceEndpoint = Endpoint.create(acceptMessageWebService);
+        webServiceEndpoint = Endpoint.create(connectorProperties.getSoapBinding().getValue(), acceptMessageWebService);
         Binding binding = webServiceEndpoint.getBinding();
         List<Handler> handlerChain = new LinkedList<Handler>();
         handlerChain.add(new LoggingSOAPHandler(this));

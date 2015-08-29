@@ -30,6 +30,7 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
     private String serviceName;
     private List<String> usernames;
     private List<String> passwords;
+    private Binding soapBinding;
 
     public WebServiceReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("8081");
@@ -39,6 +40,7 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
         this.serviceName = "Mirth";
         this.usernames = new ArrayList<String>();
         this.passwords = new ArrayList<String>();
+        this.soapBinding = Binding.DEFAULT;
     }
 
     public String getClassName() {
@@ -71,6 +73,14 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
 
     public void setPasswords(List<String> passwords) {
         this.passwords = passwords;
+    }
+
+    public Binding getSoapBinding() {
+        return soapBinding;
+    }
+
+    public void setSoapBinding(Binding soapBinding) {
+        this.soapBinding = soapBinding;
     }
 
     @Override
@@ -123,12 +133,15 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
     public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_3_0(DonkeyElement element) {}
+    public void migrate3_3_0(DonkeyElement element) {
+        element.addChildElementIfNotExists("soapBinding", "DEFAULT");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
+        purgedProperties.put("soapBinding", soapBinding);
         return purgedProperties;
     }
 }
