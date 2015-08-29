@@ -67,7 +67,7 @@ public class CodeTemplateUtil {
             CodeTemplateFunctionDefinition functionDefinition = documentation.getFunctionDefinition();
 
             if (StringUtils.isBlank(description)) {
-                description = "Modify the description here. Modify the function name and parameters as needed.\nOne function per template is recommended; create a new code template for each new function.";
+                description = "Modify the description here. Modify the function name and parameters as needed. One function per template is recommended; create a new code template for each new function.";
             }
 
             StringBuilder builder = new StringBuilder("/**");
