@@ -3305,6 +3305,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         // If the connector is a source, then set it, change the dropdown, and set the incoming dataType.
         if ((channelView.getSelectedIndex() == SOURCE_TAB_INDEX) && (connector.getMode().equals(Mode.SOURCE))) {
             currentChannel.setSourceConnector(connector);
+            // Update the cached resource ID map
+            resourceIds.put(connector.getMetaDataId(), ((SourceConnectorPropertiesInterface) connector.getProperties()).getSourceConnectorProperties().getResourceIds());
             sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
 
             updateAttachmentHandler(connector.getTransformer().getInboundDataType());
@@ -3319,6 +3321,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                 }
             }
             currentChannel.addDestination(connector);
+            // After adding the destination to the channel, make sure to update the cached resource ID map too
+            resourceIds.put(connector.getMetaDataId(), ((DestinationConnectorPropertiesInterface) connector.getProperties()).getDestinationConnectorProperties().getResourceIds());
             makeDestinationTable(false);
         } // If the mode and tab don't match, display an error message and return.
         else {
