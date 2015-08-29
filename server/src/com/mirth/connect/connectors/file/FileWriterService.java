@@ -22,23 +22,23 @@ import com.mirth.connect.util.ConnectionTestResponse;
 public class FileWriterService implements ConnectorService {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
+    public Object invoke(String channelId, String channelName, String method, Object object, String sessionsId) throws Exception {
         if (method.equals(FileServiceMethods.METHOD_TEST_WRITE)) {
             FileDispatcherProperties connectorProperties = (FileDispatcherProperties) object;
 
-            String host = replacer.replaceValues(connectorProperties.getHost(), channelId);
-            String username = replacer.replaceValues(connectorProperties.getUsername(), channelId);
-            String password = replacer.replaceValues(connectorProperties.getPassword(), channelId);
+            String host = replacer.replaceValues(connectorProperties.getHost(), channelId, channelName);
+            String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
+            String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
 
             SftpSchemeProperties sftpProperties = null;
             SchemeProperties schemeProperties = connectorProperties.getSchemeProperties();
             if (schemeProperties instanceof SftpSchemeProperties) {
                 sftpProperties = (SftpSchemeProperties) schemeProperties;
 
-                sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId));
-                sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId));
-                sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId));
-                sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId));
+                sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId, channelName));
+                sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId, channelName));
+                sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId, channelName));
+                sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId, channelName));
             }
 
             String fileHost = null;

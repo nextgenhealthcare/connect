@@ -743,7 +743,7 @@ public class FileReader extends ConnectorSettingsPanel {
         mirthVariableList = new MirthVariableList();
         mirthVariableList.setBorder(BorderFactory.createEtchedBorder());
         mirthVariableList.setModel(new AbstractListModel() {
-            String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "originalFilename" };
+            String[] strings = { "channelName", "channelId", "DATE", "COUNT", "UUID", "SYSTIME", "originalFilename" };
 
             public int getSize() {
                 return strings.length;

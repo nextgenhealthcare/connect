@@ -44,6 +44,13 @@ public class ValueReplacerConnectorMessage {
     }
 
     /**
+     * Returns the name of the channel associated with this connector message.
+     */
+    public String getChannelName() {
+        return connectorMessage.getChannelName();
+    }
+
+    /**
      * Returns the name of the connector associated with this connector message.
      */
     public String getConnectorName() {

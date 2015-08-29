@@ -710,7 +710,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
             public Void doInBackground() {
 
                 try {
-                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "testConnection", getProperties());
+                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), parent.channelEditPanel.currentChannel.getName(), getConnectorName(), "testConnection", getProperties());
 
                     if (response == null) {
                         throw new ClientException("Failed to invoke service.");

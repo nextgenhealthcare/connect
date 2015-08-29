@@ -169,7 +169,7 @@ public abstract class ExtensionController extends Controller {
      * @return the result of invoking the connector service
      * @throws Exception
      */
-    public abstract Object invokeConnectorService(String channelId, String name, String method, Object object, String sessionId) throws Exception;
+    public abstract Object invokeConnectorService(String channelId, String channelName, String name, String method, Object object, String sessionId) throws Exception;
 
     // ************************************************************
     // Extension installation and unistallation

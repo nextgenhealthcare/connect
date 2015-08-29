@@ -78,11 +78,11 @@ public class WebServiceConnectorService implements ConnectorService {
         SoapUI.setSoapUICore(new EmbeddedSoapUICore());
     }
 
-    public Object invoke(String channelId, String method, Object object, String sessionId) throws Exception {
+    public Object invoke(String channelId, String channelName, String method, Object object, String sessionId) throws Exception {
         WebServiceDispatcherProperties props = (WebServiceDispatcherProperties) object;
-        String wsdlUrl = replacer.replaceValues(props.getWsdlUrl(), channelId);
-        String username = replacer.replaceValues(props.getUsername(), channelId);
-        String password = replacer.replaceValues(props.getPassword(), channelId);
+        String wsdlUrl = replacer.replaceValues(props.getWsdlUrl(), channelId, channelName);
+        String username = replacer.replaceValues(props.getUsername(), channelId, channelName);
+        String password = replacer.replaceValues(props.getPassword(), channelId, channelName);
         wsdlUrl = getURIWithCredentials(new URI(wsdlUrl), username, password).toURL().toString();
 
         if (method.equals(CACHE_WSDL_FROM_URL)) {
@@ -96,18 +96,18 @@ public class WebServiceConnectorService implements ConnectorService {
             }
             return definition;
         } else if (method.equals(GENERATE_ENVELOPE)) {
-            return buildEnvelope(getCachedWsdlInterface(wsdlUrl, props, channelId), props.getOperation());
+            return buildEnvelope(getCachedWsdlInterface(wsdlUrl, props, channelId, channelName), props.getOperation());
         } else if (method.equals(GET_SOAP_ACTION)) {
-            WsdlInterface wsdlInterface = getCachedWsdlInterface(wsdlUrl, props, channelId);
+            WsdlInterface wsdlInterface = getCachedWsdlInterface(wsdlUrl, props, channelId, channelName);
             return wsdlInterface.getOperationByName(props.getOperation()).getAction();
         }
 
         return null;
     }
 
-    private WsdlInterface getCachedWsdlInterface(String wsdlUrl, WebServiceDispatcherProperties props, String channelId) throws Exception {
-        String service = replacer.replaceValues(props.getService(), channelId);
-        String port = replacer.replaceValues(props.getPort(), channelId);
+    private WsdlInterface getCachedWsdlInterface(String wsdlUrl, WebServiceDispatcherProperties props, String channelId, String channelName) throws Exception {
+        String service = replacer.replaceValues(props.getService(), channelId, channelName);
+        String port = replacer.replaceValues(props.getPort(), channelId, channelName);
 
         Map<String, Map<String, WsdlInterface>> serviceMap = wsdlInterfaceCache.get(wsdlUrl);
         if (serviceMap == null) {

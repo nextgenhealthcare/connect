@@ -85,7 +85,7 @@ public class JdbcUtils {
      *            An attachment handler to use for re-attaching attachment data in the parameter values
      * @return
      */
-    public static Object[] getParameters(List<String> paramNames, String channelId, ConnectorMessage connectorMessage, Map<String, Object> map, AttachmentHandler attachmentHandler) {
+    public static Object[] getParameters(List<String> paramNames, String channelId, String channelName, ConnectorMessage connectorMessage, Map<String, Object> map, AttachmentHandler attachmentHandler) {
         Object[] params = new Object[paramNames.size()];
         TemplateValueReplacer replacer = new TemplateValueReplacer();
         int i = 0;
@@ -99,7 +99,7 @@ public class JdbcUtils {
             } else if (connectorMessage != null) {
                 value = replacer.replaceValues(paramName, connectorMessage);
             } else {
-                value = replacer.replaceValues(paramName, channelId);
+                value = replacer.replaceValues(paramName, channelId, channelName);
             }
 
             if (attachmentHandler != null && MirthAttachmentHandler.hasAttachmentKeys(value.toString())) {

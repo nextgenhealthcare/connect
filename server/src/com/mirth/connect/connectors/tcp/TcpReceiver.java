@@ -890,8 +890,10 @@ public class TcpReceiver extends SourceConnector {
     }
 
     private void connectResponseSocket(StateAwareSocket responseSocket, StreamHandler streamHandler) throws IOException {
-        int responsePort = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getResponsePort(), getChannelId()));
-        SocketUtil.connectSocket(responseSocket, replacer.replaceValues(connectorProperties.getResponseAddress(), getChannelId()), responsePort, timeout);
+        String channelId = getChannelId();
+        String channelName = getChannel().getName();
+        int responsePort = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getResponsePort(), channelId, channelName));
+        SocketUtil.connectSocket(responseSocket, replacer.replaceValues(connectorProperties.getResponseAddress(), channelId, channelName), responsePort, timeout);
         initSocket(responseSocket);
         BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), bufferSize);
         streamHandler.setOutputStream(bos);
@@ -1014,19 +1016,19 @@ public class TcpReceiver extends SourceConnector {
     }
 
     private String getLocalAddress() {
-        return TcpUtil.getFixedHost(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId()));
+        return TcpUtil.getFixedHost(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId(), getChannel().getName()));
     }
 
     private int getLocalPort() {
-        return NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
+        return NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId(), getChannel().getName()));
     }
 
     private String getRemoteAddress() {
-        return TcpUtil.getFixedHost(replacer.replaceValues(connectorProperties.getRemoteAddress(), getChannelId()));
+        return TcpUtil.getFixedHost(replacer.replaceValues(connectorProperties.getRemoteAddress(), getChannelId(), getChannel().getName()));
     }
 
     private int getRemotePort() {
-        return NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRemotePort(), getChannelId()));
+        return NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRemotePort(), getChannelId(), getChannel().getName()));
     }
 
     /*

@@ -395,7 +395,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
             public Void doInBackground() {
 
                 try {
-                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "testWrite", getProperties());
+                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), parent.channelEditPanel.currentChannel.getName(), getConnectorName(), "testWrite", getProperties());
 
                     if (response == null) {
                         throw new ClientException("Failed to invoke service.");

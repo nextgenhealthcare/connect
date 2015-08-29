@@ -63,12 +63,13 @@ public class JmsReceiver extends SourceConnector {
 
         TemplateValueReplacer replacer = new TemplateValueReplacer();
         String channelId = getChannelId();
-        String destinationName = replacer.replaceValues(connectorProperties.getDestinationName(), channelId);
+        String channelName = getChannel().getName();
+        String destinationName = replacer.replaceValues(connectorProperties.getDestinationName(), channelId, channelName);
 
         try {
             MessageConsumer consumer;
             Destination destination = jmsClient.getDestination(destinationName);
-            String selector = replacer.replaceValues(connectorProperties.getSelector(), channelId);
+            String selector = replacer.replaceValues(connectorProperties.getSelector(), channelId, channelName);
 
             if (connectorProperties.isTopic() && connectorProperties.isDurableTopic()) {
                 consumer = jmsClient.getSession().createDurableSubscriber((Topic) destination, connectorProperties.getClientId(), selector, true);

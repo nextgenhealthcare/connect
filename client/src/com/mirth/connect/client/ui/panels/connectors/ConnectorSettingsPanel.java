@@ -158,7 +158,7 @@ public abstract class ConnectorSettingsPanel extends JPanel {
         SwingWorker<?, ?> worker = new SwingWorker<Object, Void>() {
             @Override
             public Object doInBackground() throws ClientException {
-                return PlatformUI.MIRTH_FRAME.mirthClient.invokeConnectorService(PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getId(), getConnectorName(), method, connectorProperties);
+                return PlatformUI.MIRTH_FRAME.mirthClient.invokeConnectorService(PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getId(), PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getName(), getConnectorName(), method, connectorProperties);
             }
 
             @Override

@@ -542,7 +542,7 @@ public class DatabaseMetadataDialog extends MirthDialog {
             public Void doInBackground() {
                 try {
                     // method "getInformationSchema" will return Set<Table>
-                    metaData = (Set<Table>) parent.mirthClient.invokeConnectorServiceAsync(parent.channelEditPanel.currentChannel.getId(), "Database Reader", "getInformationSchema", databaseConnectionInfo);
+                    metaData = (Set<Table>) parent.mirthClient.invokeConnectorServiceAsync(parent.channelEditPanel.currentChannel.getId(), parent.channelEditPanel.currentChannel.getName(), "Database Reader", "getInformationSchema", databaseConnectionInfo);
                 } catch (ClientException e) {
                     // Handle in the done method
                 }

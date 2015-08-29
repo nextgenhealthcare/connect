@@ -89,8 +89,10 @@ public class WebServiceReceiver extends SourceConnector {
 
     @Override
     public void onStart() throws ConnectorTaskException {
-        String host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId());
-        int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
+        String channelId = getChannelId();
+        String channelName = getChannel().getName();
+        String host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), channelId, channelName);
+        int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), channelId, channelName));
 
         logger.debug("starting Web Service HTTP server on port: " + port);
 
@@ -111,7 +113,7 @@ public class WebServiceReceiver extends SourceConnector {
 
         try {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
-            Class<?> clazz = Class.forName(replacer.replaceValues(connectorProperties.getClassName(), getChannelId()), true, contextFactory.getApplicationClassLoader());
+            Class<?> clazz = Class.forName(replacer.replaceValues(connectorProperties.getClassName(), channelId, channelName), true, contextFactory.getApplicationClassLoader());
 
             if (clazz.getSuperclass().equals(AcceptMessage.class)) {
                 Constructor<?>[] constructors = clazz.getDeclaredConstructors();
@@ -143,14 +145,14 @@ public class WebServiceReceiver extends SourceConnector {
         handlerChain.add(new LoggingSOAPHandler(this));
         binding.setHandlerChain(handlerChain);
 
-        String serviceName = replacer.replaceValues(connectorProperties.getServiceName(), getChannelId());
+        String serviceName = replacer.replaceValues(connectorProperties.getServiceName(), channelId, channelName);
         HttpContext context = server.createContext("/services/" + serviceName);
 
         if (CollectionUtils.isNotEmpty(connectorProperties.getUsernames())) {
             final List<String> usernames = new ArrayList<String>(connectorProperties.getUsernames());
             final List<String> passwords = new ArrayList<String>(connectorProperties.getPasswords());
-            replacer.replaceValuesInList(usernames, getChannelId());
-            replacer.replaceValuesInList(passwords, getChannelId());
+            replacer.replaceValuesInList(usernames, channelId, channelName);
+            replacer.replaceValuesInList(passwords, channelId, channelName);
 
             context.setAuthenticator(new BasicAuthenticator("/services/" + serviceName) {
                 @Override
@@ -163,6 +165,7 @@ public class WebServiceReceiver extends SourceConnector {
                 }
             });
         }
+        
 
         webServiceEndpoint.publish(context);
 

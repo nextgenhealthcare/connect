@@ -1023,7 +1023,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
             public Void doInBackground() {
 
                 try {
-                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "sendTestEmail", getProperties());
+                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), parent.channelEditPanel.currentChannel.getName(), getConnectorName(), "sendTestEmail", getProperties());
 
                     if (response == null) {
                         parent.alertError(parent, "Failed to send email.");

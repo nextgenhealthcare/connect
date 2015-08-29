@@ -15,7 +15,7 @@ public abstract class ConnectorServicePlugin implements ServerPlugin {
 
     public abstract String getTransportName();
 
-    public abstract Object invoke(ConnectorService service, String channelId, String method, Object object, String sessionId) throws Exception;
+    public abstract Object invoke(ConnectorService service, String channelId, String channelName, String method, Object object, String sessionId) throws Exception;
 
     @Override
     public void start() {}

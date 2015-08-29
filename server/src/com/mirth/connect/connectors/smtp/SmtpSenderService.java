@@ -20,20 +20,20 @@ public class SmtpSenderService implements ConnectorService {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     @Override
-    public Object invoke(String channelId, String method, Object object, String sessionId) throws Exception {
+    public Object invoke(String channelId, String channelName, String method, Object object, String sessionId) throws Exception {
         if (method.equals("sendTestEmail")) {
             SmtpDispatcherProperties props = (SmtpDispatcherProperties) object;
             Properties properties = new Properties();
 
-            properties.put("port", replacer.replaceValues(props.getSmtpPort(), channelId));
+            properties.put("port", replacer.replaceValues(props.getSmtpPort(), channelId, channelName));
             properties.put("encryption", props.getEncryption());
-            properties.put("host", replacer.replaceValues(props.getSmtpHost(), channelId));
+            properties.put("host", replacer.replaceValues(props.getSmtpHost(), channelId, channelName));
             properties.put("timeout", props.getTimeout());
             properties.put("authentication", String.valueOf(props.isAuthentication()));
-            properties.put("username", replacer.replaceValues(props.getUsername(), channelId));
-            properties.put("password", replacer.replaceValues(props.getPassword(), channelId));
-            properties.put("toAddress", replacer.replaceValues(props.getTo(), channelId));
-            properties.put("fromAddress", replacer.replaceValues(props.getFrom(), channelId));
+            properties.put("username", replacer.replaceValues(props.getUsername(), channelId, channelName));
+            properties.put("password", replacer.replaceValues(props.getPassword(), channelId, channelName));
+            properties.put("toAddress", replacer.replaceValues(props.getTo(), channelId, channelName));
+            properties.put("fromAddress", replacer.replaceValues(props.getFrom(), channelId, channelName));
 
             return ConfigurationController.getInstance().sendTestEmail(properties);
         }

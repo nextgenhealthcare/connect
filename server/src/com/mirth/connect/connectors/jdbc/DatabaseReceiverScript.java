@@ -93,8 +93,10 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     public Object poll() throws DatabaseReceiverException, InterruptedException {
         Object finalResult = null;
         int attempts = 0;
-        int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0);
-        int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), connector.getChannelId()), 0);
+        String channelId = connector.getChannelId();
+        String channelName = connector.getChannel().getName();
+        int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), channelId, channelName), 0);
+        int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), channelId, channelName), 0);
         boolean done = false;
 
         while (!done && !connector.isTerminated()) {

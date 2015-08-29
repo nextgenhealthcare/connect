@@ -134,12 +134,13 @@ public class ExtensionServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CONNECTOR_SERVICE_INVOKE)) {
                     String channelId = request.getParameter("channelId");
+                    String channelName = request.getParameter("channelName");
                     String name = request.getParameter("name");
                     String method = request.getParameter("method");
                     Object object = serializer.deserialize(request.getParameter("object"), Object.class);
                     String sessionId = request.getSession().getId();
                     response.setContentType(APPLICATION_XML);
-                    serializer.serialize(extensionController.invokeConnectorService(channelId, name, method, object, sessionId), out);
+                    serializer.serialize(extensionController.invokeConnectorService(channelId, channelName, name, method, object, sessionId), out);
                 } else if (operation.equals(Operations.EXTENSION_UNINSTALL)) {
                     String packageName = request.getParameter("packageName");
                     parameterMap.put("packageName", packageName);

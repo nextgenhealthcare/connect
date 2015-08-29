@@ -73,6 +73,7 @@ public class VariableListHandler extends TransferHandler {
         // these are used in DataPrunerPanel
         staticVelocityReferences.put("Server ID", "${message.serverId}");
         staticVelocityReferences.put("Channel ID", "${message.channelId}");
+        staticVelocityReferences.put("Channel Name", "${message.channelName}");
         staticVelocityReferences.put("Formatted Message Date", "${date.format('yyyy-MM-dd',$message.getConnectorMessages().get(0).getReceivedDate())}");
         staticVelocityReferences.put("Formatted Current Date", "${date.get('yyyy-MM-dd')}");
 

@@ -18,18 +18,18 @@ import com.mirth.connect.server.util.TemplateValueReplacer;
 public class TcpSenderService implements ConnectorService {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
+    public Object invoke(String channelId, String channelName, String method, Object object, String sessionsId) throws Exception {
         if (method.equals("testConnection")) {
             TcpDispatcherProperties connectorProperties = (TcpDispatcherProperties) object;
-            String host = replacer.replaceValues(connectorProperties.getRemoteAddress(), channelId);
-            int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRemotePort(), channelId));
-            int timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getResponseTimeout(), channelId));
+            String host = replacer.replaceValues(connectorProperties.getRemoteAddress(), channelId, channelName);
+            int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRemotePort(), channelId, channelName));
+            int timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getResponseTimeout(), channelId, channelName));
 
             if (!connectorProperties.isOverrideLocalBinding()) {
                 return ConnectorUtil.testConnection(host, port, timeout);
             } else {
-                String localAddr = replacer.replaceValues(connectorProperties.getLocalAddress(), channelId);
-                int localPort = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getLocalPort(), channelId));
+                String localAddr = replacer.replaceValues(connectorProperties.getLocalAddress(), channelId, channelName);
+                int localPort = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getLocalPort(), channelId, channelName));
                 return ConnectorUtil.testConnection(host, port, timeout, localAddr, localPort);
             }
         }

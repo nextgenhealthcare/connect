@@ -39,7 +39,7 @@ public class DatabaseConnectorService implements ConnectorService {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
 
-    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
+    public Object invoke(String channelId, String channelName, String method, Object object, String sessionsId) throws Exception {
         if (method.equals("getInformationSchema")) {
             // method 'getInformationSchema' will return Set<Table>
 
@@ -48,9 +48,9 @@ public class DatabaseConnectorService implements ConnectorService {
             try {
                 DatabaseConnectionInfo databaseConnectionInfo = (DatabaseConnectionInfo) object;
                 String driver = databaseConnectionInfo.getDriver();
-                String address = replacer.replaceValues(databaseConnectionInfo.getUrl(), channelId);
-                String user = replacer.replaceValues(databaseConnectionInfo.getUsername(), channelId);
-                String password = replacer.replaceValues(databaseConnectionInfo.getPassword(), channelId);
+                String address = replacer.replaceValues(databaseConnectionInfo.getUrl(), channelId, channelName);
+                String user = replacer.replaceValues(databaseConnectionInfo.getUsername(), channelId, channelName);
+                String password = replacer.replaceValues(databaseConnectionInfo.getPassword(), channelId, channelName);
 
                 // Although these properties are not persisted, they used by the JdbcConnectorService
                 String tableNamePatternExp = databaseConnectionInfo.getTableNamePatternExpression();

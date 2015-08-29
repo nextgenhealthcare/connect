@@ -121,19 +121,20 @@ public class FileReceiver extends PollConnector {
     public void onStart() throws ConnectorTaskException {
         try {
             String channelId = getChannelId();
-            String username = replacer.replaceValues(connectorProperties.getUsername(), channelId);
-            String password = replacer.replaceValues(connectorProperties.getPassword(), channelId);
-            URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId));
+            String channelName = getChannel().getName();
+            String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
+            String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
+            URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId, channelName));
 
             SftpSchemeProperties sftpProperties  = null;
             SchemeProperties schemeProperties = connectorProperties.getSchemeProperties();
             if (schemeProperties instanceof SftpSchemeProperties) {
                 sftpProperties = (SftpSchemeProperties) schemeProperties;
 
-                sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId));
-                sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId));
-                sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId));
-                sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId));
+                sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId, channelName));
+                sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId, channelName));
+                sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId, channelName));
+                sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId, channelName));
             }
 
             fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, sftpProperties);
@@ -168,21 +169,22 @@ public class FileReceiver extends PollConnector {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.POLLING));
         try {
             String channelId = getChannelId();
-            URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId));
+            String channelName = getChannel().getName();
+            URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId, channelName));
             String readDir = fileConnector.getPathPart(uri);
 
-            String username = replacer.replaceValues(connectorProperties.getUsername(), channelId);
-            String password = replacer.replaceValues(connectorProperties.getPassword(), channelId);
-            filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), channelId);
+            String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
+            String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
+            filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), channelId, channelName);
 
             SftpSchemeProperties sftpProperties = null;
             SchemeProperties schemeProperties = connectorProperties.getSchemeProperties();
             if (schemeProperties instanceof SftpSchemeProperties) {
                 sftpProperties = (SftpSchemeProperties) schemeProperties.clone();
 
-                sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId));
-                sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId));
-                sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId));
+                sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId, channelName));
+                sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId, channelName));
+                sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId, channelName));
             }
 
             fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, sftpProperties);

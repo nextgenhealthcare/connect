@@ -415,16 +415,16 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     @Override
-    public Object invokeConnectorService(String channelId, String name, String method, Object object, String sessionId) throws Exception {
+    public Object invokeConnectorService(String channelId, String channelName, String name, String method, Object object, String sessionId) throws Exception {
         ConnectorMetaData connectorMetaData = getConnectorMetaData().get(name);
 
         if (StringUtils.isNotBlank(connectorMetaData.getServiceClassName())) {
             ConnectorService connectorService = (ConnectorService) Class.forName(connectorMetaData.getServiceClassName()).newInstance();
 
             if (connectorServicePlugins.containsKey(name)) {
-                return connectorServicePlugins.get(name).invoke(connectorService, channelId, method, object, sessionId);
+                return connectorServicePlugins.get(name).invoke(connectorService, channelId, channelName, method, object, sessionId);
             } else {
-                return connectorService.invoke(channelId, method, object, sessionId);
+                return connectorService.invoke(channelId, channelName, method, object, sessionId);
             }
         }
 

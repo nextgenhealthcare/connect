@@ -252,6 +252,8 @@ public class ValueReplacer {
      */
     protected void loadContextFromConnectorMessage(VelocityContext context, ConnectorMessage connectorMessage) {
         context.put("message", new ValueReplacerConnectorMessage(new ImmutableConnectorMessage(connectorMessage)));
+        context.put("channelName", connectorMessage.getChannelName());
+        context.put("channelId", connectorMessage.getChannelId());
 
         // Load maps
         loadContextFromMap(context, connectorMessage.getSourceMap());

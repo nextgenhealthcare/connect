@@ -19,10 +19,10 @@ public class HttpConnectorService implements ConnectorService {
     private static final int TIMEOUT = 5000;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
+    public Object invoke(String channelId, String channelName, String method, Object object, String sessionsId) throws Exception {
         if (method.equals("testConnection")) {
             HttpDispatcherProperties props = (HttpDispatcherProperties) object;
-            URL url = new URL(replacer.replaceValues(props.getHost(), channelId));
+            URL url = new URL(replacer.replaceValues(props.getHost(), channelId, channelName));
             int port = url.getPort();
             // If no port was provided, default to port 80.
             return ConnectorUtil.testConnection(url.getHost(), (port == -1) ? 80 : port, TIMEOUT);

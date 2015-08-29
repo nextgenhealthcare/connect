@@ -72,7 +72,7 @@ public class JmsClient implements ExceptionListener {
         this.connector = connector;
         this.connectorProperties = connectorProperties;
         this.connectorName = connectorName;
-        this.intervalMillis = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getReconnectIntervalMillis(), connector.getChannelId()));
+        this.intervalMillis = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getReconnectIntervalMillis(), connector.getChannelId(), connector.getChannel().getName()));
 
         if (connectorProperties instanceof SourceConnectorPropertiesInterface) {
             resourceIds = ((SourceConnectorPropertiesInterface) connectorProperties).getSourceConnectorProperties().getResourceIds();
@@ -83,6 +83,7 @@ public class JmsClient implements ExceptionListener {
 
     private ConnectionFactory lookupConnectionFactoryWithJndi() throws Exception {
         String channelId = connector.getChannelId();
+        String channelName = connector.getChannel().getName();
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 
@@ -91,13 +92,13 @@ public class JmsClient implements ExceptionListener {
             Thread.currentThread().setContextClassLoader(contextFactory.getApplicationClassLoader());
 
             Hashtable<String, Object> env = new Hashtable<String, Object>();
-            env.put(Context.PROVIDER_URL, replacer.replaceValues(connectorProperties.getJndiProviderUrl(), channelId));
-            env.put(Context.INITIAL_CONTEXT_FACTORY, replacer.replaceValues(connectorProperties.getJndiInitialContextFactory(), channelId));
-            env.put(Context.SECURITY_PRINCIPAL, replacer.replaceValues(connectorProperties.getUsername(), channelId));
-            env.put(Context.SECURITY_CREDENTIALS, replacer.replaceValues(connectorProperties.getPassword(), channelId));
+            env.put(Context.PROVIDER_URL, replacer.replaceValues(connectorProperties.getJndiProviderUrl(), channelId, channelName));
+            env.put(Context.INITIAL_CONTEXT_FACTORY, replacer.replaceValues(connectorProperties.getJndiInitialContextFactory(), channelId, channelName));
+            env.put(Context.SECURITY_PRINCIPAL, replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName));
+            env.put(Context.SECURITY_CREDENTIALS, replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName));
 
             initialContext = new InitialContext(env);
-            String connectionFactoryName = replacer.replaceValues(connectorProperties.getJndiConnectionFactoryName(), channelId);
+            String connectionFactoryName = replacer.replaceValues(connectorProperties.getJndiConnectionFactoryName(), channelId, channelName);
             return (ConnectionFactory) initialContext.lookup(connectionFactoryName);
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
@@ -109,7 +110,8 @@ public class JmsClient implements ExceptionListener {
      */
     public void start() throws ConnectorTaskException {
         final String channelId = connector.getChannelId();
-        Map<String, String> connectionProperties = replacer.replaceValues(connectorProperties.getConnectionProperties(), channelId);
+        String channelName = connector.getChannel().getName();
+        Map<String, String> connectionProperties = replacer.replaceValues(connectorProperties.getConnectionProperties(), channelId, channelName);
         ConnectionFactory connectionFactory = null;
 
         if (connectorProperties.isUseJndi()) {
@@ -119,7 +121,7 @@ public class JmsClient implements ExceptionListener {
                 throw new ConnectorTaskException("Failed to obtain the connection factory via JNDI", e);
             }
         } else {
-            String className = replacer.replaceValues(connectorProperties.getConnectionFactoryClass(), channelId);
+            String className = replacer.replaceValues(connectorProperties.getConnectionFactoryClass(), channelId, channelName);
 
             try {
                 MirthContextFactory contextFactory = contextFactoryController.getContextFactory(resourceIds);
@@ -133,8 +135,8 @@ public class JmsClient implements ExceptionListener {
 
         try {
             logger.debug("Creating JMS connection and session");
-            connection = connectionFactory.createConnection(replacer.replaceValues(connectorProperties.getUsername(), channelId), replacer.replaceValues(connectorProperties.getPassword(), channelId));
-            String clientId = replacer.replaceValues(connectorProperties.getClientId(), channelId);
+            connection = connectionFactory.createConnection(replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName), replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName));
+            String clientId = replacer.replaceValues(connectorProperties.getClientId(), channelId, channelName);
 
             if (!clientId.isEmpty()) {
                 connection.setClientID(clientId);

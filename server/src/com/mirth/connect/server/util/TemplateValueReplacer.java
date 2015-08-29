@@ -28,9 +28,11 @@ public class TemplateValueReplacer extends ValueReplacer {
      * 
      * @return The replaced template
      */
-    public String replaceValues(String template, String channelId) {
+    public String replaceValues(String template, String channelId, String channelName) {
         if (hasReplaceableValues(template)) {
             VelocityContext context = getDefaultContext();
+            context.put("channelId", channelId);
+            context.put("channelName", channelName);
             loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables());
             return evaluate(context, template);
         } else {
@@ -41,11 +43,11 @@ public class TemplateValueReplacer extends ValueReplacer {
     /**
      * Replaces variables in a map
      */
-    public Map<String, String> replaceValues(Map<String, String> template, String channelId) {
+    public Map<String, String> replaceValues(Map<String, String> template, String channelId, String channelName) {
         Map<String, String> replacedTemplate = new HashMap<String, String>();
 
         for (Entry<String, String> entry : template.entrySet()) {
-            replacedTemplate.put(entry.getKey(), replaceValues(entry.getValue(), channelId));
+            replacedTemplate.put(entry.getKey(), replaceValues(entry.getValue(), channelId, channelName));
         }
 
         return replacedTemplate;
@@ -74,9 +76,9 @@ public class TemplateValueReplacer extends ValueReplacer {
      * 
      * @return void
      */
-    public void replaceValuesInList(List<String> list, String channelId) {
+    public void replaceValuesInList(List<String> list, String channelId, String channelName) {
         for (int i = 0; i <= list.size() - 1; i++) {
-            list.set(i, replaceValues(list.get(i), channelId));
+            list.set(i, replaceValues(list.get(i), channelId, channelName));
         }
     }
 

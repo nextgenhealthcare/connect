@@ -85,8 +85,10 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
 
     private void initConnection() throws ConnectorTaskException {
         int attempts = 0;
-        int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0);
-        int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), connector.getChannelId()), 0);
+        String channelId = connector.getChannelId();
+        String channelName = connector.getChannel().getName();
+        int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), channelId, channelName), 0);
+        int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), channelId, channelName), 0);
         boolean done = false;
 
         while (!done) {
@@ -145,8 +147,10 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     public Object poll() throws DatabaseReceiverException, InterruptedException {
         ResultSet resultSet = null;
         int attempts = 0;
-        int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0);
-        int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), connector.getChannelId()), 0);
+        String channelId = connector.getChannelId();
+        String channelName = connector.getChannel().getName();
+        int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), channelId, channelName), 0);
+        int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), channelId, channelName), 0);
         boolean done = false;
 
         while (!done && !connector.isTerminated()) {
@@ -173,7 +177,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                  * TemplateValueReplacer to to look up values from a default context based on the
                  * given channel id
                  */
-                for (Object param : JdbcUtils.getParameters(selectParams, connector.getChannelId(), null, null, null)) {
+                for (Object param : JdbcUtils.getParameters(selectParams, connector.getChannelId(), connector.getChannel().getName(), null, null, null)) {
                     selectStatement.setObject(objectIndex++, param);
                 }
 
@@ -218,7 +222,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     public void runPostProcess(Map<String, Object> resultMap, ConnectorMessage mergedConnectorMessage) throws DatabaseReceiverException, InterruptedException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_EACH) {
             try {
-                runUpdateStatement(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId())), resultMap, mergedConnectorMessage);
+                runUpdateStatement(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId(), connector.getChannel().getName())), resultMap, mergedConnectorMessage);
             } catch (SQLException e) {
                 throw new DatabaseReceiverException(e);
             }
@@ -230,7 +234,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_ONCE) {
             try {
                 initUpdateConnection();
-                runUpdateStatement(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId())), null, null);
+                runUpdateStatement(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId(), connector.getChannel().getName())), null, null);
             } catch (SQLException e) {
                 throw new DatabaseReceiverException(e);
             }
@@ -252,7 +256,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
              * TemplateValueReplacer to look up values from the given resultMap or merged
              * ConnectorMessage
              */
-            for (Object param : JdbcUtils.getParameters(updateParams, connector.getChannelId(), mergedConnectorMessage, resultMap, null)) {
+            for (Object param : JdbcUtils.getParameters(updateParams, connector.getChannelId(), connector.getChannel().getName(), mergedConnectorMessage, resultMap, null)) {
                 updateStatement.setObject(i++, param);
             }
 
@@ -280,9 +284,11 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private void initSelectConnection() throws SQLException {
         closeSelectConnection();
 
-        String url = replacer.replaceValues(connectorProperties.getUrl(), connector.getChannelId());
-        String username = replacer.replaceValues(connectorProperties.getUsername(), connector.getChannelId());
-        String password = replacer.replaceValues(connectorProperties.getPassword(), connector.getChannelId());
+        String channelId = connector.getChannelId();
+        String channelName = connector.getChannel().getName();
+        String url = replacer.replaceValues(connectorProperties.getUrl(), channelId, channelName);
+        String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
+        String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
 
         selectConnection = DriverManager.getConnection(url, username, password);
         selectConnection.setAutoCommit(true);
@@ -297,7 +303,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         selectStatement = selectConnection.prepareStatement(JdbcUtils.extractParameters(connectorProperties.getSelect(), selectParams));
 
         if (!connectorProperties.isCacheResults()) {
-            selectStatement.setFetchSize(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getFetchSize(), connector.getChannelId())));
+            selectStatement.setFetchSize(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getFetchSize(), channelId, channelName)));
         }
     }
 
@@ -316,9 +322,11 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private void initUpdateConnection() throws SQLException {
         closeUpdateConnection();
 
-        String url = replacer.replaceValues(connectorProperties.getUrl(), connector.getChannelId());
-        String username = replacer.replaceValues(connectorProperties.getUsername(), connector.getChannelId());
-        String password = replacer.replaceValues(connectorProperties.getPassword(), connector.getChannelId());
+        String channelId = connector.getChannelId();
+        String channelName = connector.getChannel().getName();
+        String url = replacer.replaceValues(connectorProperties.getUrl(), channelId, channelName);
+        String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
+        String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
 
         updateConnection = DriverManager.getConnection(url, username, password);
         updateConnection.setAutoCommit(true);

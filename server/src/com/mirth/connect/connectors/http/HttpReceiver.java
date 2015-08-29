@@ -127,7 +127,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             throw new ConnectorTaskException(e);
         }
 
-        String replacedBinaryMimeTypes = replacer.replaceValues(connectorProperties.getBinaryMimeTypes(), getChannelId());
+        String replacedBinaryMimeTypes = replacer.replaceValues(connectorProperties.getBinaryMimeTypes(), getChannelId(), getChannel().getName());
         if (connectorProperties.isBinaryMimeTypesRegex()) {
             try {
                 binaryMimeTypesRegex = Pattern.compile(replacedBinaryMimeTypes);
@@ -146,12 +146,14 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
     @Override
     public void onStart() throws ConnectorTaskException {
-        host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId());
-        port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
-        timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getTimeout(), getChannelId()), 0);
+        String channelId = getChannelId();
+        String channelName = getChannel().getName();
+        host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), channelId, channelName);
+        port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), channelId, channelName));
+        timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getTimeout(), channelId, channelName), 0);
 
         // Initialize contextPath to "" or its value after replacements
-        String contextPath = (connectorProperties.getContextPath() == null ? "" : replacer.replaceValues(connectorProperties.getContextPath(), getChannelId())).trim();
+        String contextPath = (connectorProperties.getContextPath() == null ? "" : replacer.replaceValues(connectorProperties.getContextPath(), channelId, channelName)).trim();
 
         /*
          * Empty string and "/" are both valid and equal functionally. However if there is a
@@ -177,7 +179,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
                 // Add each static resource to a map first to allow sorting and deduplication
                 for (HttpStaticResource staticResource : connectorProperties.getStaticResources()) {
-                    String resourceContextPath = replacer.replaceValues(staticResource.getContextPath(), getChannelId());
+                    String resourceContextPath = replacer.replaceValues(staticResource.getContextPath(), channelId, channelName);
                     Map<String, List<String>> queryParameters = new HashMap<String, List<String>>();
 
                     // If query parameters were specified, extract them here
@@ -665,7 +667,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             mergedConnectorMessage = dispatchResult.getProcessedMessage().getMergedConnectorMessage();
         }
 
-        return (mergedConnectorMessage == null ? replacer.replaceValues(template, getChannelId()) : replacer.replaceValues(template, mergedConnectorMessage));
+        return (mergedConnectorMessage == null ? replacer.replaceValues(template, getChannelId(), getChannel().getName()) : replacer.replaceValues(template, mergedConnectorMessage));
     }
 
     @Override

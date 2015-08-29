@@ -717,7 +717,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
     }//GEN-LAST:event_deleteTemplateButtonActionPerformed
 
     private Object invokeRemoteMethod(String method, Object arg) throws Exception {
-        return parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), connectorName, method, arg);
+        return parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), parent.channelEditPanel.currentChannel.getName(), connectorName, method, arg);
     }
 
     private boolean confirmDialog(String message) {

@@ -363,9 +363,9 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public Object invokeConnectorService(String channelId, String connectorName, String method, Object object) throws ClientException {
+    public Object invokeConnectorService(String channelId, String channelName, String connectorName, String method, Object object) throws ClientException {
         logger.debug("invoking connector service " + method + " on " + connectorName);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("name", connectorName), new BasicNameValuePair("method", method), new BasicNameValuePair("object", serializer.serialize(object)) };
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("channelName", channelName), new BasicNameValuePair("name", connectorName), new BasicNameValuePair("method", method), new BasicNameValuePair("object", serializer.serialize(object)) };
         return serializer.deserialize(serverConnection.executePostMethod(EXTENSION_SERVLET, params), Object.class);
     }
 
@@ -375,9 +375,9 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public Object invokeConnectorServiceAsync(String channelId, String connectorName, String method, Object object) throws ClientException {
+    public Object invokeConnectorServiceAsync(String channelId, String channelName, String connectorName, String method, Object object) throws ClientException {
         logger.debug("invoking connector service " + method + " on " + connectorName);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("name", connectorName), new BasicNameValuePair("method", method), new BasicNameValuePair("object", serializer.serialize(object)) };
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("channelName", channelName), new BasicNameValuePair("name", connectorName), new BasicNameValuePair("method", method), new BasicNameValuePair("object", serializer.serialize(object)) };
         return serializer.deserialize(serverConnection.executePostMethodAsync(EXTENSION_SERVLET, params), Object.class);
     }
 

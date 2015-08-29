@@ -18,10 +18,10 @@ import com.mirth.connect.util.ConnectionTestResponse;
 public class DocumentWriterService implements ConnectorService {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
+    public Object invoke(String channelId, String channelName, String method, Object object, String sessionsId) throws Exception {
         if (method.equals("testWrite")) {
             DocumentDispatcherProperties props = (DocumentDispatcherProperties) object;
-            String directory = replacer.replaceValues(props.getHost(), channelId);
+            String directory = replacer.replaceValues(props.getHost(), channelId, channelName);
 
             try {
                 File writeDirectory = new File(directory);
