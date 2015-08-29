@@ -879,7 +879,7 @@ public class CommandLineInterface {
     }
 
     private void commandListCodeTemplateLibraries(boolean includeCodeTemplates) throws ClientException {
-        List<CodeTemplateLibrary> libraries = client.getCodeTemplateLibraries(null, true, includeCodeTemplates);
+        List<CodeTemplateLibrary> libraries = client.getCodeTemplateLibraries(null, includeCodeTemplates);
 
         int maxLibraryNameLength = 4;
         for (CodeTemplateLibrary library : libraries) {
@@ -907,11 +907,7 @@ public class CommandLineInterface {
                 showLibraryHeader = false;
             }
 
-            if (library.getId().equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID)) {
-                out.printf("%-" + maxLibraryNameLength + "s  %-36s  %-8s  %s\n", library.getName(), library.getId(), "N/A", "N/A");
-            } else {
-                out.printf("%-" + maxLibraryNameLength + "s  %-36s  %-8d  %tF %<tT\n", library.getName(), library.getId(), library.getRevision(), library.getLastModified());
-            }
+            out.printf("%-" + maxLibraryNameLength + "s  %-36s  %-8d  %tF %<tT\n", library.getName(), library.getId(), library.getRevision(), library.getLastModified());
 
             if (includeCodeTemplates && library.getCodeTemplates().size() > 0) {
                 out.println();
@@ -933,7 +929,7 @@ public class CommandLineInterface {
             }
 
             Map<String, CodeTemplateLibrary> libraryMap = new HashMap<String, CodeTemplateLibrary>();
-            for (CodeTemplateLibrary library : client.getCodeTemplateLibraries(null, false, false)) {
+            for (CodeTemplateLibrary library : client.getCodeTemplateLibraries(null, false)) {
                 libraryMap.put(library.getId(), library);
             }
 
@@ -1012,7 +1008,7 @@ public class CommandLineInterface {
     }
 
     private void commandExportCodeTemplateLibraries(String searchText, String path) throws ClientException {
-        List<CodeTemplateLibrary> libraries = client.getCodeTemplateLibraries(null, true, true);
+        List<CodeTemplateLibrary> libraries = client.getCodeTemplateLibraries(null, true);
         List<CodeTemplateLibrary> exportLibraries = new ArrayList<CodeTemplateLibrary>();
 
         for (CodeTemplateLibrary library : libraries) {
@@ -1022,13 +1018,13 @@ public class CommandLineInterface {
                 break;
             }
 
-            if ((searchText.equals("*") || StringUtils.containsIgnoreCase(library.getName(), searchText)) && (!library.getId().equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID) || !library.getCodeTemplates().isEmpty())) {
+            if ((searchText.equals("*") || StringUtils.containsIgnoreCase(library.getName(), searchText))) {
                 exportLibraries.add(library);
             }
         }
 
-        if (exportLibraries.isEmpty() || (exportLibraries.size() == 1 && exportLibraries.get(0).getId().equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID) && exportLibraries.get(0).getCodeTemplates().isEmpty())) {
-            out.println("No code template libraries (besides the empty " + CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID + " library) found for search criteria \"" + searchText + "\".");
+        if (exportLibraries.isEmpty()) {
+            out.println("No code template libraries found for search criteria \"" + searchText + "\".");
             return;
         }
 
@@ -1041,7 +1037,7 @@ public class CommandLineInterface {
     }
 
     private void commandRemoveCodeTemplateLibraries(String searchText) throws ClientException {
-        List<CodeTemplateLibrary> libraries = client.getCodeTemplateLibraries(null, false, false);
+        List<CodeTemplateLibrary> libraries = client.getCodeTemplateLibraries(null, false);
         List<CodeTemplateLibrary> matchedLibraries = new ArrayList<CodeTemplateLibrary>();
 
         for (CodeTemplateLibrary library : libraries) {

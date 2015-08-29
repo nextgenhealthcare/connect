@@ -547,9 +547,9 @@ public class Client {
      * 
      * @throws ClientException
      */
-    public List<CodeTemplateLibrary> getCodeTemplateLibraries(Set<String> libraryIds, boolean includeUnassigned, boolean includeCodeTemplates) throws ClientException {
+    public List<CodeTemplateLibrary> getCodeTemplateLibraries(Set<String> libraryIds, boolean includeCodeTemplates) throws ClientException {
         logger.debug("Getting code template libraries");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_LIBRARY_GET.getName()), new BasicNameValuePair("libraryIds", serializer.serialize(libraryIds)), new BasicNameValuePair("includeUnassigned", new Boolean(includeUnassigned).toString()), new BasicNameValuePair("includeCodeTemplates", new Boolean(includeCodeTemplates).toString()) };
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_LIBRARY_GET.getName()), new BasicNameValuePair("libraryIds", serializer.serialize(libraryIds)), new BasicNameValuePair("includeCodeTemplates", new Boolean(includeCodeTemplates).toString()) };
         return serializer.deserializeList(serverConnection.executePostMethod(TEMPLATE_SERVLET, params), CodeTemplateLibrary.class);
     }
 

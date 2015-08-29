@@ -56,17 +56,15 @@ public class CodeTemplateServlet extends MirthServlet {
 
                 if (operation.equals(Operations.CODE_TEMPLATE_LIBRARY_GET)) {
                     Set<String> libraryIds = serializer.deserialize(request.getParameter("libraryIds"), Set.class);
-                    boolean includeUnassigned = Boolean.valueOf(request.getParameter("includeUnassigned")).booleanValue();
                     boolean includeCodeTemplates = Boolean.valueOf(request.getParameter("includeCodeTemplates")).booleanValue();
                     parameterMap.put("libraryIds", libraryIds);
-                    parameterMap.put("includeUnassigned", includeUnassigned);
                     parameterMap.put("includeCodeTemplates", includeCodeTemplates);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(APPLICATION_XML);
-                        serializer.serialize(codeTemplateController.getLibraries(libraryIds, includeUnassigned, includeCodeTemplates), out);
+                        serializer.serialize(codeTemplateController.getLibraries(libraryIds, includeCodeTemplates), out);
                     }
                 } else if (operation.equals(Operations.CODE_TEMPLATE_LIBRARY_UPDATE)) {
                     List<CodeTemplateLibrary> libraries = serializer.deserializeList(request.getParameter("libraries"), CodeTemplateLibrary.class);

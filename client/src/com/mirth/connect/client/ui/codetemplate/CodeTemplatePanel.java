@@ -149,7 +149,6 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     private boolean firstLoad = true;
     private Map<String, CodeTemplateLibrary> codeTemplateLibraries = new LinkedHashMap<String, CodeTemplateLibrary>();
     private Map<String, CodeTemplate> codeTemplates = new LinkedHashMap<String, CodeTemplate>();
-    private List<String> unassignedCodeTemplateIds = new ArrayList<String>();
     private AtomicBoolean libraryComboBoxAdjusting = new AtomicBoolean(false);
     private AtomicBoolean saveAdjusting = new AtomicBoolean(false);
     private AtomicBoolean updateCurrentNode = new AtomicBoolean(true);
@@ -329,10 +328,6 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         return codeTemplates;
     }
 
-    public List<String> getUnassignedCodeTemplateIds() {
-        return unassignedCodeTemplateIds;
-    }
-
     public String getCurrentSelectedId() {
         int selectedRow = templateTreeTable.getSelectedRow();
         if (selectedRow >= 0) {
@@ -366,7 +361,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             @Override
             public Void doInBackground() throws ClientException {
                 codeTemplateSummaries = parent.mirthClient.getCodeTemplateSummary(codeTemplateRevisions);
-                codeTemplateLibraries = parent.mirthClient.getCodeTemplateLibraries(null, false, false);
+                codeTemplateLibraries = parent.mirthClient.getCodeTemplateLibraries(null, false);
                 return null;
             }
 
@@ -387,7 +382,6 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
                     Set<String> assignedCodeTemplateIds = new HashSet<String>();
                     List<String> libraryNames = new ArrayList<String>();
-                    libraryNames.add(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID);
 
                     CodeTemplatePanel.this.codeTemplateLibraries.clear();
                     for (CodeTemplateLibrary library : codeTemplateLibraries) {
@@ -398,13 +392,6 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                         }
 
                         libraryNames.add(library.getName());
-                    }
-
-                    unassignedCodeTemplateIds.clear();
-                    for (CodeTemplate codeTemplate : codeTemplates.values()) {
-                        if (!assignedCodeTemplateIds.contains(codeTemplate.getId())) {
-                            unassignedCodeTemplateIds.add(codeTemplate.getId());
-                        }
                     }
 
                     ReferenceListFactory.getInstance().updateUserCodeTemplates();
@@ -487,14 +474,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
     private TreePath updateCodeTemplateTable(TreeTableNode selectedNode) {
         CodeTemplateTreeTableModel model = (CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel();
-        UnassignedLibraryTreeTableNode root = new UnassignedLibraryTreeTableNode();
-
-        UnassignedLibraryTreeTableNode unassignedLibraryNode = new UnassignedLibraryTreeTableNode();
-        for (String codeTemplateId : unassignedCodeTemplateIds) {
-            unassignedLibraryNode.add(new CodeTemplateTreeTableNode(codeTemplates.get(codeTemplateId)));
-        }
-        unassignedLibraryNode.setSortable(false);
-        root.add(unassignedLibraryNode);
+        CodeTemplateRootTreeTableNode root = new CodeTemplateRootTreeTableNode();
 
         for (CodeTemplateLibrary library : codeTemplateLibraries.values()) {
             addLibraryNode(root, library);
@@ -511,7 +491,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         return selectPathFromNodeId(selectedNode, root);
     }
 
-    private TreePath selectPathFromNodeId(TreeTableNode selectedNode, UnassignedLibraryTreeTableNode root) {
+    private TreePath selectPathFromNodeId(TreeTableNode selectedNode, CodeTemplateRootTreeTableNode root) {
         TreePath selectedPath = null;
         if (selectedNode != null) {
             CodeTemplateTreeTableModel model = (CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel();
@@ -558,19 +538,14 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         return libraryNode;
     }
 
-    private UnassignedLibraryTreeTableNode getFilteredRootNode(UnassignedLibraryTreeTableNode root) {
-        UnassignedLibraryTreeTableNode newRoot = new UnassignedLibraryTreeTableNode();
+    private CodeTemplateRootTreeTableNode getFilteredRootNode(CodeTemplateRootTreeTableNode root) {
+        CodeTemplateRootTreeTableNode newRoot = new CodeTemplateRootTreeTableNode();
         String filter = StringUtils.trim(templateFilterField.getText());
 
         for (Enumeration<? extends MutableTreeTableNode> libraryNodes = root.children(); libraryNodes.hasMoreElements();) {
             CodeTemplateLibraryTreeTableNode libraryNode = (CodeTemplateLibraryTreeTableNode) libraryNodes.nextElement();
 
-            CodeTemplateLibraryTreeTableNode newLibraryNode;
-            if (libraryNode instanceof UnassignedLibraryTreeTableNode) {
-                newLibraryNode = new UnassignedLibraryTreeTableNode();
-            } else {
-                newLibraryNode = new CodeTemplateLibraryTreeTableNode(libraryNode.getLibrary());
-            }
+            CodeTemplateLibraryTreeTableNode newLibraryNode = new CodeTemplateLibraryTreeTableNode(libraryNode.getLibrary());
 
             for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = libraryNode.children(); codeTemplateNodes.hasMoreElements();) {
                 CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) codeTemplateNodes.nextElement();
@@ -581,7 +556,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                 }
             }
 
-            if (libraryNode instanceof UnassignedLibraryTreeTableNode || newLibraryNode.getChildCount() > 0 || StringUtils.containsIgnoreCase((String) libraryNode.getValueAt(TEMPLATE_NAME_COLUMN), filter)) {
+            if (newLibraryNode.getChildCount() > 0 || StringUtils.containsIgnoreCase((String) libraryNode.getValueAt(TEMPLATE_NAME_COLUMN), filter)) {
                 newRoot.add(newLibraryNode);
             }
         }
@@ -624,15 +599,11 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                 // Always remove the entry from the remove map
                 removedCodeTemplates.remove(codeTemplate.getId());
 
-                if (!(libraryNode instanceof UnassignedLibraryTreeTableNode)) {
-                    libraryTemplates.add(new CodeTemplate(codeTemplate.getId()));
-                }
+                libraryTemplates.add(new CodeTemplate(codeTemplate.getId()));
             }
 
-            if (!(libraryNode instanceof UnassignedLibraryTreeTableNode)) {
-                library.setCodeTemplates(libraryTemplates);
-                codeTemplateLibraries.put(library.getId(), library);
-            }
+            library.setCodeTemplates(libraryTemplates);
+            codeTemplateLibraries.put(library.getId(), library);
         }
 
         int selectedRow = templateTreeTable.getSelectedRow();
@@ -690,7 +661,6 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                 if (updateSummary.isLibrariesSuccess()) {
                     Set<String> assignedCodeTemplateIds = new HashSet<String>();
                     List<String> libraryNames = new ArrayList<String>();
-                    libraryNames.add(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID);
 
                     // Replace the cached libraries
                     codeTemplateLibraries.clear();
@@ -736,37 +706,8 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                         }
                     }
 
-                    unassignedCodeTemplateIds.clear();
-                    for (CodeTemplate codeTemplate : codeTemplates.values()) {
-                        if (!assignedCodeTemplateIds.contains(codeTemplate.getId())) {
-                            unassignedCodeTemplateIds.add(codeTemplate.getId());
-                        }
-                    }
-
                     // Create a new table model
-                    UnassignedLibraryTreeTableNode root = new UnassignedLibraryTreeTableNode();
-
-                    // Create the unassigned node
-                    UnassignedLibraryTreeTableNode unassignedLibraryNode = new UnassignedLibraryTreeTableNode();
-                    for (String codeTemplateId : unassignedCodeTemplateIds) {
-                        if (successfulIds.contains(codeTemplateId)) {
-                            // If the update was successful, add the new code template. If the remove was successful, don't add anything.
-                            if (updatedCodeTemplates.containsKey(codeTemplateId)) {
-                                CodeTemplateTreeTableNode newCodeTemplateNode = new CodeTemplateTreeTableNode(codeTemplates.get(codeTemplateId));
-                                unassignedLibraryNode.add(newCodeTemplateNode);
-                            }
-                        } else {
-                            // The update or removal wasn't successful, so add the old template
-                            CodeTemplateTreeTableNode codeTemplateNode = getCodeTemplateNodeById(codeTemplateId);
-                            if (codeTemplateNode != null) {
-                                CodeTemplateTreeTableNode newCodeTemplateNode = new CodeTemplateTreeTableNode(codeTemplateNode.getCodeTemplate());
-                                unassignedLibraryNode.add(newCodeTemplateNode);
-                            }
-                        }
-
-                    }
-                    unassignedLibraryNode.setSortable(false);
-                    root.add(unassignedLibraryNode);
+                    CodeTemplateRootTreeTableNode root = new CodeTemplateRootTreeTableNode();
 
                     // Create each library node
                     for (CodeTemplateLibrary library : codeTemplateLibraries.values()) {
@@ -953,17 +894,6 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         }
     }
 
-    private UnassignedLibraryTreeTableNode getUnassignedNode() {
-        for (Enumeration<? extends MutableTreeTableNode> libraries = ((MutableTreeTableNode) templateTreeTable.getTreeTableModel().getRoot()).children(); libraries.hasMoreElements();) {
-            TreeTableNode libraryNode = libraries.nextElement();
-            if (libraryNode instanceof UnassignedLibraryTreeTableNode) {
-                return (UnassignedLibraryTreeTableNode) libraryNode;
-            }
-        }
-
-        return null;
-    }
-
     private CodeTemplateTreeTableNode getCodeTemplateNodeById(String codeTemplateId) {
         for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((AbstractSortableTreeTableNode) fullModel.getRoot()).children(); libraryNodes.hasMoreElements();) {
             for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = libraryNodes.nextElement().children(); codeTemplateNodes.hasMoreElements();) {
@@ -1009,7 +939,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                 parentNode = (AbstractSortableTreeTableNode) parentNode.getParent();
             }
         } else {
-            parentNode = getUnassignedNode();
+            return;
         }
 
         String name;
@@ -1097,6 +1027,11 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             return;
         }
 
+        if (codeTemplateLibraries.size() == 0) {
+            parent.alertError(parent, "Cannot import code templates without an existing library.");
+            return;
+        }
+
         String content = parent.browseForFileString("XML");
         if (content == null) {
             return;
@@ -1116,9 +1051,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             return;
         }
 
-        CodeTemplateLibrary unassignedLibrary = CodeTemplateLibrary.getUnassignedLibrary();
+        CodeTemplateLibrary unassignedLibrary = new CodeTemplateLibrary();
         unassignedLibrary.setCodeTemplates(importCodeTemplates);
-        showImportDialog(Collections.singletonList(unassignedLibrary));
+        showImportDialog(Collections.singletonList(unassignedLibrary), true);
     }
 
     public void doImportLibraries() {
@@ -1148,11 +1083,11 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             return;
         }
 
-        showImportDialog(importLibraries);
+        showImportDialog(importLibraries, false);
     }
 
-    private void showImportDialog(List<CodeTemplateLibrary> importLibraries) {
-        CodeTemplateImportDialog dialog = new CodeTemplateImportDialog(parent, importLibraries);
+    private void showImportDialog(List<CodeTemplateLibrary> importLibraries, boolean unassignedCodeTemplates) {
+        CodeTemplateImportDialog dialog = new CodeTemplateImportDialog(parent, importLibraries, unassignedCodeTemplates);
 
         if (dialog.wasSaved()) {
             int selectedRow = templateTreeTable.getSelectedRow();
@@ -1259,19 +1194,16 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             MutableTreeTableNode newSelectedNode = null;
 
             if (!codeTemplate && selectedNode.getChildCount() > 0) {
-                if (!this.parent.alertOkCancel(this.parent, "The selected library contains " + selectedNode.getChildCount() + " code templates. If you delete the library, the code templates will automatically be unassigned. Are you sure you wish to continue?")) {
+                if (!this.parent.alertOkCancel(this.parent, "The selected library contains " + selectedNode.getChildCount() + " code templates. If you delete the library, the code templates will be deleted as well. Are you sure you wish to continue?")) {
                     return;
                 }
-                UnassignedLibraryTreeTableNode unassignedNode = getUnassignedNode();
 
                 for (MutableTreeTableNode codeTemplateNode : Collections.list(selectedNode.children())) {
                     model.removeNodeFromParent(codeTemplateNode);
-                    model.insertNodeInto(codeTemplateNode, unassignedNode);
 
                     if (model.getRoot() != fullModel.getRoot()) {
                         AbstractSortableTreeTableNode fullCodeTemplateNode = findFullNode((AbstractSortableTreeTableNode) codeTemplateNode);
                         fullModel.removeNodeFromParent(fullCodeTemplateNode);
-                        fullModel.insertNodeInto(fullCodeTemplateNode, findFullNode(unassignedNode));
                     }
                 }
             }
@@ -1352,7 +1284,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                 "Name", "Description", "Revision", "Last Modified" }))) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 0 && !CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID.equals(getModel().getValueAt(row, column));
+                return column == TEMPLATE_NAME_COLUMN;
             }
 
             @Override
@@ -1369,20 +1301,14 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         model.setColumnIdentifiers(Arrays.asList(new String[] { "Name", "Id", "Type",
                 "Description", "Revision", "Last Modified" }));
 
-        UnassignedLibraryTreeTableNode rootNode = new UnassignedLibraryTreeTableNode();
-        UnassignedLibraryTreeTableNode unassignedNode = new UnassignedLibraryTreeTableNode();
-        unassignedNode.setSortable(false);
-        rootNode.add(unassignedNode);
+        CodeTemplateRootTreeTableNode rootNode = new CodeTemplateRootTreeTableNode();
         model.setRoot(rootNode);
 
         fullModel = new CodeTemplateTreeTableModel();
         fullModel.setColumnIdentifiers(Arrays.asList(new String[] { "Name", "Id", "Type",
                 "Description", "Revision", "Last Modified" }));
 
-        UnassignedLibraryTreeTableNode fullRootNode = new UnassignedLibraryTreeTableNode();
-        UnassignedLibraryTreeTableNode fullUnassignedNode = new UnassignedLibraryTreeTableNode();
-        unassignedNode.setSortable(false);
-        fullRootNode.add(fullUnassignedNode);
+        CodeTemplateRootTreeTableNode fullRootNode = new CodeTemplateRootTreeTableNode();
         fullModel.setRoot(fullRootNode);
 
         templateTreeTable.setColumnFactory(new CodeTemplateTableColumnFactory());
@@ -1877,7 +1803,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         String toolTipText = "<html>Select the channels to include this library in. If " + NEW_CHANNELS + "<br/>is selected, any new channels that are created or imported will<br/>automatically have the code templates within this library included.</html>";
         libraryChannelsTable.getTableHeader().setToolTipText(toolTipText);
         libraryChannelsTable.setToolTipText(toolTipText);
-        templateLibraryComboBox.setToolTipText("<html>The parent library that this code template belongs to. If " + CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID + "<br/>is selected, the code template will not be included in any channels.</html>");
+        templateLibraryComboBox.setToolTipText("<html>The parent library that this code template belongs to.</html>");
         templateTypeComboBox.setToolTipText("<html>The type of code template to create.<br/><b>&nbsp;&nbsp;&nbsp;&nbsp;- " + CodeTemplateType.FUNCTION + ":</b> The template will be compiled in with scripts, and the drag-and-drop will include the function signature.<br/><b>&nbsp;&nbsp;&nbsp;&nbsp;- " + CodeTemplateType.DRAG_AND_DROP_CODE + ":</b> The template will not be compiled in with scripts, and the drag-and-drop will<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include the entire code block verbatim (except for the initial documentation block).<br/><b>&nbsp;&nbsp;&nbsp;&nbsp;- " + CodeTemplateType.COMPILED_CODE + ":</b> The template will be compiled in with scripts, but drag-and-drop will not be available at all.</html>");
         toolTipText = "Select which scripts should have access to this code template.";
         templateContextTreeTable.setToolTipText(toolTipText);
@@ -1980,17 +1906,6 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         libraryDescriptionScrollPane.setText(library.getDescription());
 
         setLibraryChannels(library.isIncludeNewChannels(), library.getEnabledChannelIds(), library.getDisabledChannelIds());
-
-        boolean unassigned = libraryNode instanceof UnassignedLibraryTreeTableNode;
-
-        libraryDescriptionScrollPane.getTextArea().setEditable(!unassigned);
-        libraryDescriptionScrollPane.getTextArea().setHighlightCurrentLine(!unassigned);
-        libraryDescriptionScrollPane.setBackground(unassigned ? new Color(204, 204, 204) : libraryLeftPanel.getBackground());
-        libraryChannelsSelectAllLabel.setEnabled(!unassigned);
-        libraryChannelsDeselectAllLabel.setEnabled(!unassigned);
-        libraryChannelsFilterLabel.setEnabled(!unassigned);
-        libraryChannelsFilterField.setEnabled(!unassigned);
-        libraryChannelsTable.setEnabled(!unassigned);
     }
 
     private void setLibraryChannels(boolean includeNewChannels, Set<String> enabledChannelIds, Set<String> disabledChannelIds) {
@@ -2151,13 +2066,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             TreeTableNode selectedNode = (TreeTableNode) templateTreeTable.getPathForRow(selectedRow).getLastPathComponent();
             setTaskVisible(TASK_CODE_TEMPLATE_NEW);
 
-            if (selectedNode instanceof UnassignedLibraryTreeTableNode) {
-                setTaskInvisible(TASK_CODE_TEMPLATE_EXPORT);
-                setTaskInvisible(TASK_CODE_TEMPLATE_DELETE);
-                setTaskInvisible(TASK_CODE_TEMPLATE_VALIDATE);
-                setTaskInvisible(TASK_CODE_TEMPLATE_LIBRARY_EXPORT);
-                setTaskInvisible(TASK_CODE_TEMPLATE_LIBRARY_DELETE);
-            } else if (selectedNode instanceof CodeTemplateLibraryTreeTableNode) {
+            if (selectedNode instanceof CodeTemplateLibraryTreeTableNode) {
                 setTaskVisible(TASK_CODE_TEMPLATE_LIBRARY_EXPORT);
                 setTaskVisible(TASK_CODE_TEMPLATE_LIBRARY_DELETE);
 
@@ -2183,11 +2092,18 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                 }
             }
         } else {
+            setTaskInvisible(TASK_CODE_TEMPLATE_NEW);
             setTaskInvisible(TASK_CODE_TEMPLATE_EXPORT);
             setTaskInvisible(TASK_CODE_TEMPLATE_DELETE);
             setTaskInvisible(TASK_CODE_TEMPLATE_VALIDATE);
             setTaskInvisible(TASK_CODE_TEMPLATE_LIBRARY_EXPORT);
             setTaskInvisible(TASK_CODE_TEMPLATE_LIBRARY_DELETE);
+        }
+
+        if (fullModel.getRoot().getChildCount() > 0) {
+            setTaskVisible(TASK_CODE_TEMPLATE_IMPORT);
+        } else {
+            setTaskInvisible(TASK_CODE_TEMPLATE_IMPORT);
         }
 
         setTaskVisibility(TASK_CODE_TEMPLATE_LIBRARY_EXPORT_ALL, ((MutableTreeTableNode) fullModel.getRoot()).getChildCount() > 1);
@@ -2280,7 +2196,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         updateCurrentNode();
 
         CodeTemplateTreeTableModel model = (CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel();
-        UnassignedLibraryTreeTableNode root = (UnassignedLibraryTreeTableNode) fullModel.getRoot();
+        CodeTemplateRootTreeTableNode root = (CodeTemplateRootTreeTableNode) fullModel.getRoot();
 
         if (StringUtils.isNotBlank(filter)) {
             root = getFilteredRootNode(root);

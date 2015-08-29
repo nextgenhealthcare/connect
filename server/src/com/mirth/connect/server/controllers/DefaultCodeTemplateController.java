@@ -46,7 +46,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private Cache<CodeTemplateLibrary> libraryCache = new Cache<CodeTemplateLibrary>("Code Template Library", "CodeTemplate.getLibraryRevision", "CodeTemplate.getLibrary");
-    private Cache<CodeTemplate> codeTemplateCache = new Cache<CodeTemplate>("Code Template", "CodeTemplate.getCodeTemplateRevision", "CodeTemplate.getCodeTemplate");
+    private Cache<CodeTemplate> codeTemplateCache = new Cache<CodeTemplate>("Code Template", "CodeTemplate.getCodeTemplateRevision", "CodeTemplate.getCodeTemplate", false);
 
     private DefaultCodeTemplateController() {}
 
@@ -65,7 +65,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
     }
 
     @Override
-    public List<CodeTemplateLibrary> getLibraries(Set<String> libraryIds, boolean includeUnassigned, boolean includeCodeTemplates) throws ControllerException {
+    public List<CodeTemplateLibrary> getLibraries(Set<String> libraryIds, boolean includeCodeTemplates) throws ControllerException {
         logger.debug("Getting code template libraries, libraryIds=" + String.valueOf(libraryIds));
 
         Map<String, CodeTemplateLibrary> libraryMap = libraryCache.getAllItems();
@@ -95,18 +95,6 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             for (String libraryId : libraryIds) {
                 logger.warn("Cannot find code template library, it may have been removed: " + libraryId);
             }
-        }
-
-        if (includeUnassigned) {
-            CodeTemplateLibrary unassignedLibrary = CodeTemplateLibrary.getUnassignedLibrary();
-            for (CodeTemplate codeTemplate : codeTemplateMap.values()) {
-                unassignedLibrary.getCodeTemplates().add(codeTemplate);
-            }
-            unassignedLibrary.sortCodeTemplates();
-            if (!includeCodeTemplates) {
-                unassignedLibrary.replaceCodeTemplatesWithIds();
-            }
-            libraries.add(0, unassignedLibrary);
         }
 
         return libraries;
@@ -146,10 +134,6 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         Set<String> unchangedLibraryIds = new HashSet<String>();
 
         for (CodeTemplateLibrary library : libraries) {
-            if (library.getId().equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID)) {
-                continue;
-            }
-
             for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
                 // Make sure this library's code templates aren't contained in any other library
                 if (codeTemplateMap.put(codeTemplate.getId(), library.getId()) != null) {
@@ -334,15 +318,10 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
     }
 
     @Override
-    public CodeTemplate getCodeTemplateByName(String codeTemplateName) throws ControllerException {
-        return codeTemplateCache.getCachedItemByName(codeTemplateName);
-    }
-
-    @Override
     public Map<String, Integer> getCodeTemplateRevisionsForChannel(String channelId) throws ControllerException {
         Map<String, Integer> revisions = new HashMap<String, Integer>();
 
-        for (CodeTemplateLibrary library : getLibraries(null, false, true)) {
+        for (CodeTemplateLibrary library : getLibraries(null, true)) {
             if (library.getEnabledChannelIds().contains(channelId) || (library.isIncludeNewChannels() && !library.getDisabledChannelIds().contains(channelId))) {
                 for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
                     if (codeTemplate.isAddToScripts()) {
@@ -380,10 +359,19 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         }
 
         try {
-            CodeTemplate matchingNameCodeTemplate = getCodeTemplateByName(codeTemplate.getName());
+            for (CodeTemplateLibrary library : getLibraries(null, true)) {
+                Set<String> codeTemplateNames = new HashSet<String>();
+                boolean found = false;
 
-            if (matchingNameCodeTemplate != null) {
-                if (!codeTemplate.getId().equals(matchingNameCodeTemplate.getId())) {
+                for (CodeTemplate template : library.getCodeTemplates()) {
+                    if (template.getId().equals(codeTemplate.getId())) {
+                        found = true;
+                    } else {
+                        codeTemplateNames.add(template.getName());
+                    }
+                }
+
+                if (found && codeTemplateNames.contains(codeTemplate.getName())) {
                     String errorMessage = "There is already a code template with the name " + codeTemplate.getName();
                     logger.error(errorMessage);
                     throw new ControllerException(errorMessage);

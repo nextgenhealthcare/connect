@@ -18,7 +18,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -69,18 +68,8 @@ public class CodeTemplateLibrariesPanel extends JPanel {
                     libraryMap.put(library.getId(), new CodeTemplateLibrary(library));
                 }
                 Map<String, CodeTemplate> codeTemplateMap = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates();
-                List<String> unassignedCodeTemplateIds = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getUnassignedCodeTemplateIds();
 
                 DefaultMutableTreeTableNode rootNode = new DefaultMutableTreeTableNode();
-                DefaultMutableTreeTableNode unassignedNode = new DefaultMutableTreeTableNode(new ImmutableTriple<String, String, Boolean>(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID, CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID, false));
-
-                for (String codeTemplateId : unassignedCodeTemplateIds) {
-                    CodeTemplate codeTemplate = codeTemplateMap.get(codeTemplateId);
-                    if (codeTemplate != null) {
-                        unassignedNode.add(new DefaultMutableTreeTableNode(new ImmutableTriple<String, String, Boolean>(codeTemplateId, codeTemplate.getName(), false)));
-                    }
-                }
-                rootNode.add(unassignedNode);
 
                 for (CodeTemplateLibrary library : libraryMap.values()) {
                     boolean enabled = library.getEnabledChannelIds().contains(channelId) || (library.isIncludeNewChannels() && !library.getDisabledChannelIds().contains(channelId));
@@ -152,8 +141,6 @@ public class CodeTemplateLibrariesPanel extends JPanel {
 
         DefaultTreeTableModel model = new SortableTreeTableModel();
         DefaultMutableTreeTableNode rootNode = new DefaultMutableTreeTableNode();
-        DefaultMutableTreeTableNode unassignedNode = new DefaultMutableTreeTableNode(new ImmutableTriple<String, String, Boolean>(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID, CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID, false));
-        rootNode.add(unassignedNode);
         model.setRoot(rootNode);
 
         libraryTreeTable.setTreeTableModel(model);
@@ -249,23 +236,21 @@ public class CodeTemplateLibrariesPanel extends JPanel {
                 Triple<String, String, Boolean> triple = (Triple<String, String, Boolean>) ((MutableTreeTableNode) selectedPath.getLastPathComponent()).getUserObject();
                 String libraryId = triple.getLeft();
 
-                if (!libraryId.equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID)) {
-                    libraryTreeTable.getTreeTableModel().setValueAt(new ImmutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), enabled), selectedNode, 0);
+                libraryTreeTable.getTreeTableModel().setValueAt(new ImmutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), enabled), selectedNode, 0);
 
-                    for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = selectedNode.children(); codeTemplateNodes.hasMoreElements();) {
-                        MutableTreeTableNode codeTemplateNode = codeTemplateNodes.nextElement();
-                        triple = (Triple<String, String, Boolean>) codeTemplateNode.getUserObject();
-                        libraryTreeTable.getTreeTableModel().setValueAt(new ImmutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), enabled), codeTemplateNode, 0);
-                    }
+                for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = selectedNode.children(); codeTemplateNodes.hasMoreElements();) {
+                    MutableTreeTableNode codeTemplateNode = codeTemplateNodes.nextElement();
+                    triple = (Triple<String, String, Boolean>) codeTemplateNode.getUserObject();
+                    libraryTreeTable.getTreeTableModel().setValueAt(new ImmutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), enabled), codeTemplateNode, 0);
+                }
 
-                    CodeTemplateLibrary library = libraryMap.get(libraryId);
-                    if (enabled) {
-                        library.getDisabledChannelIds().remove(channelId);
-                        library.getEnabledChannelIds().add(channelId);
-                    } else {
-                        library.getDisabledChannelIds().add(channelId);
-                        library.getEnabledChannelIds().remove(channelId);
-                    }
+                CodeTemplateLibrary library = libraryMap.get(libraryId);
+                if (enabled) {
+                    library.getDisabledChannelIds().remove(channelId);
+                    library.getEnabledChannelIds().add(channelId);
+                } else {
+                    library.getDisabledChannelIds().add(channelId);
+                    library.getEnabledChannelIds().remove(channelId);
                 }
             }
         }

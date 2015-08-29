@@ -25,7 +25,7 @@ public abstract class CodeTemplateController extends Controller {
         return ControllerFactory.getFactory().createCodeTemplateController();
     }
 
-    public abstract List<CodeTemplateLibrary> getLibraries(Set<String> libraryIds, boolean includeUnassigned, boolean includeCodeTemplates) throws ControllerException;
+    public abstract List<CodeTemplateLibrary> getLibraries(Set<String> libraryIds, boolean includeCodeTemplates) throws ControllerException;
 
     public abstract CodeTemplateLibrary getLibraryById(String libraryId) throws ControllerException;
 
@@ -38,8 +38,6 @@ public abstract class CodeTemplateController extends Controller {
     public abstract List<CodeTemplateSummary> getCodeTemplateSummary(Map<String, Integer> clientRevisions) throws ControllerException;
 
     public abstract CodeTemplate getCodeTemplateById(String codeTemplateId) throws ControllerException;
-
-    public abstract CodeTemplate getCodeTemplateByName(String name) throws ControllerException;
 
     public abstract Map<String, Integer> getCodeTemplateRevisionsForChannel(String channelId) throws ControllerException;
 

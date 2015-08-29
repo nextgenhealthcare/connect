@@ -451,34 +451,24 @@ public class JavaScriptBuilder {
                 codeTemplateMap.put(template.getId(), template);
             }
 
-            for (CodeTemplateLibrary library : codeTemplateController.getLibraries(null, false, false)) {
+            for (CodeTemplateLibrary library : codeTemplateController.getLibraries(null, false)) {
                 for (CodeTemplate template : library.getCodeTemplates()) {
                     // Ignore code templates that have already been handled
                     // Only add the code template if the library is enabled for this channel, or if it's not explicitly disabled and new channels are being included 
                     if (codeTemplateMap.containsKey(template.getId()) && (channelId == null || library.getEnabledChannelIds().contains(channelId) || (!library.getDisabledChannelIds().contains(channelId) && library.isIncludeNewChannels()))) {
-                        appendCodeTemplate(builder, codeTemplateMap.get(template.getId()), contextType);
+                        CodeTemplate serverCodeTemplate = codeTemplateMap.get(template.getId());
+                        if (serverCodeTemplate.isAddToScripts() && serverCodeTemplate.getContextSet().contains(contextType)) {
+                            builder.append(CodeTemplateUtil.stripDocumentation(serverCodeTemplate.getCode()));
+                            builder.append('\n');
+                        }
                     }
 
                     // This code template has been handled, remove it from the map
                     codeTemplateMap.remove(template.getId());
                 }
             }
-
-            // Include unassigned code templates only for global scripts
-            if (channelId == null) {
-                for (CodeTemplate codeTemplate : codeTemplateMap.values()) {
-                    appendCodeTemplate(builder, codeTemplate, contextType);
-                }
-            }
         } catch (ControllerException e) {
             logger.error("Could not append code templates.", e);
-        }
-    }
-
-    private static void appendCodeTemplate(StringBuilder builder, CodeTemplate codeTemplate, ContextType contextType) {
-        if (codeTemplate.isAddToScripts() && codeTemplate.getContextSet().contains(contextType)) {
-            builder.append(CodeTemplateUtil.stripDocumentation(codeTemplate.getCode()));
-            builder.append('\n');
         }
     }
 }

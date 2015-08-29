@@ -9,14 +9,17 @@
 
 package com.mirth.connect.client.ui.codetemplate;
 
-import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
 
-public class UnassignedLibraryTreeTableNode extends CodeTemplateLibraryTreeTableNode {
+public class CodeTemplateRootTreeTableNode extends AbstractSortableTreeTableNode {
 
-    public UnassignedLibraryTreeTableNode() {
-        super(CodeTemplateLibrary.getUnassignedLibrary());
+    @Override
+    public int getColumnCount() {
+        return CodeTemplatePanel.TEMPLATE_NUM_COLUMNS;
     }
 
     @Override
-    public void setValueAt(Object value, int i) {}
+    public Object getValueAt(int i) {
+        return null;
+    }
 }

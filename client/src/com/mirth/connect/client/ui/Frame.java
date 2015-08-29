@@ -3391,7 +3391,7 @@ public class Frame extends JXFrame {
             }
 
             if (importLibraries) {
-                CodeTemplateImportDialog dialog = new CodeTemplateImportDialog(this, importChannel.getCodeTemplateLibraries(), true);
+                CodeTemplateImportDialog dialog = new CodeTemplateImportDialog(this, importChannel.getCodeTemplateLibraries(), false, true);
 
                 if (dialog.wasSaved()) {
                     CodeTemplateLibrarySaveResult updateSummary = codeTemplatePanel.attemptUpdate(dialog.getUpdatedLibraries(), dialog.getUpdatedCodeTemplates(), new HashMap<String, CodeTemplate>(), true, null, null);

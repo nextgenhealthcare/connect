@@ -136,7 +136,7 @@ public class DefaultUsageController extends UsageController {
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
         List<Map<String, Object>> purgedLibraries = new ArrayList<Map<String, Object>>();
 
-        for (CodeTemplateLibrary library : codeTemplateController.getLibraries(null, true, true)) {
+        for (CodeTemplateLibrary library : codeTemplateController.getLibraries(null, true)) {
             purgedLibraries.add(library.getPurgedProperties());
         }
         purgedDocument.setCodeTemplateLibraries(purgedLibraries);

@@ -495,7 +495,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         ServerConfiguration serverConfiguration = new ServerConfiguration();
         serverConfiguration.setChannels(channelController.getChannels(null));
         serverConfiguration.setAlerts(alertController.getAlerts());
-        serverConfiguration.setCodeTemplateLibraries(codeTemplateController.getLibraries(null, true, true));
+        serverConfiguration.setCodeTemplateLibraries(codeTemplateController.getLibraries(null, true));
         serverConfiguration.setServerSettings(getServerSettings());
         serverConfiguration.setUpdateSettings(getUpdateSettings());
         serverConfiguration.setGlobalScripts(scriptController.getGlobalScripts());
@@ -572,7 +572,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 for (CodeTemplateLibrary library : serverConfiguration.getCodeTemplateLibraries()) {
                     clonedLibraries.add(new CodeTemplateLibrary(library));
                 }
-                
+
                 // Update all libraries from the server configuration
                 codeTemplateController.updateLibraries(clonedLibraries, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
 

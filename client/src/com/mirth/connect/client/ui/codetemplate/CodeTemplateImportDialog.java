@@ -34,13 +34,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
-import javax.swing.ImageIcon;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -52,6 +56,8 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeExpansionEvent;
@@ -66,9 +72,6 @@ import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.JXTreeTable;
-import org.jdesktop.swingx.decorator.ColorHighlighter;
-import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.treetable.AbstractMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
@@ -89,27 +92,27 @@ public class CodeTemplateImportDialog extends MirthDialog {
     private static final int IMPORT_SELECTED_COLUMN = 0;
     private static final int IMPORT_NAME_COLUMN = 1;
     private static final int IMPORT_OVERWRITE_COLUMN = 2;
-    private static final int IMPORT_WARNINGS_COLUMN = 3;
-    private static final int IMPORT_ERRORS_COLUMN = 4;
-    private static final int IMPORT_ID_COLUMN = 5;
+    private static final int IMPORT_CONFLICTS_COLUMN = 3;
+    private static final int IMPORT_ID_COLUMN = 4;
 
     private List<CodeTemplateLibrary> importLibraries;
     private Map<String, CodeTemplateLibrary> importLibraryMap;
     private Map<String, CodeTemplate> importCodeTemplateMap;
-    private ImportTreeTableNode importUnassignedNode;
 
+    private boolean unassignedCodeTemplates;
     private boolean showCancelAlert;
     private boolean saved;
     private Map<String, CodeTemplateLibrary> updatedLibraries;
     private Map<String, CodeTemplate> updatedCodeTemplates;
 
-    public CodeTemplateImportDialog(Frame owner, List<CodeTemplateLibrary> importLibraries) {
-        this(owner, importLibraries, false);
+    public CodeTemplateImportDialog(Frame owner, List<CodeTemplateLibrary> importLibraries, boolean unassignedCodeTemplates) {
+        this(owner, importLibraries, unassignedCodeTemplates, false);
     }
 
-    public CodeTemplateImportDialog(Frame owner, List<CodeTemplateLibrary> importLibraries, boolean showCancelAlert) {
+    public CodeTemplateImportDialog(Frame owner, List<CodeTemplateLibrary> importLibraries, boolean unassignedCodeTemplates, boolean showCancelAlert) {
         super(owner, "Import Code Templates / Libraries", true);
         this.importLibraries = importLibraries;
+        this.unassignedCodeTemplates = unassignedCodeTemplates;
         this.showCancelAlert = showCancelAlert;
 
         importLibraryMap = new HashMap<String, CodeTemplateLibrary>();
@@ -215,7 +218,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                             if (libraryNode.getConflicts().getMatchingLibrary() != null) {
                                 importTreeTable.getModel().setValueAt(true, row, IMPORT_OVERWRITE_COLUMN);
                             }
-                        } else {
+                        } else if (node instanceof ImportCodeTemplateTreeTableNode) {
                             ImportCodeTemplateTreeTableNode codeTemplateNode = (ImportCodeTemplateTreeTableNode) node;
                             if (codeTemplateNode.getConflicts().getMatchingCodeTemplate() != null) {
                                 importTreeTable.getModel().setValueAt(true, row, IMPORT_OVERWRITE_COLUMN);
@@ -240,7 +243,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                             if (libraryNode.getConflicts().getMatchingLibrary() != null) {
                                 importTreeTable.getModel().setValueAt(false, row, IMPORT_OVERWRITE_COLUMN);
                             }
-                        } else {
+                        } else if (node instanceof ImportCodeTemplateTreeTableNode) {
                             ImportCodeTemplateTreeTableNode codeTemplateNode = (ImportCodeTemplateTreeTableNode) node;
                             if (codeTemplateNode.getConflicts().getMatchingCodeTemplate() != null) {
                                 importTreeTable.getModel().setValueAt(false, row, IMPORT_OVERWRITE_COLUMN);
@@ -256,7 +259,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
         importTreeTable = new JXTreeTable() {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return (column == IMPORT_OVERWRITE_COLUMN || column == IMPORT_SELECTED_COLUMN || column == IMPORT_NAME_COLUMN) && !CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID.equals(getModel().getValueAt(row, IMPORT_ID_COLUMN));
+                return (column == IMPORT_OVERWRITE_COLUMN || column == IMPORT_SELECTED_COLUMN || column == IMPORT_NAME_COLUMN);
             }
 
             @Override
@@ -269,42 +272,49 @@ public class CodeTemplateImportDialog extends MirthDialog {
             }
         };
 
+        importTreeTable.setLargeModel(true);
         DefaultTreeTableModel model = new ImportTreeTableModel();
         model.setColumnIdentifiers(Arrays.asList(new String[] { "", "Name", "Overwrite",
-                "Warnings", "Errors", "Id" }));
+                "Conflicts", "Id" }));
 
         DefaultMutableTreeTableNode rootNode = new DefaultMutableTreeTableNode();
-        importUnassignedNode = new ImportLibraryTreeTableNode(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID, CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID);
-        rootNode.add(importUnassignedNode);
 
-        Set<String> addedLibraryIds = new HashSet<String>();
         Set<String> addedCodeTemplateIds = new HashSet<String>();
 
-        for (CodeTemplateLibrary library : importLibraries) {
-            if (!addedLibraryIds.contains(library.getId())) {
-                ImportTreeTableNode libraryNode;
-                if (library.getId().equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID)) {
-                    libraryNode = importUnassignedNode;
-                } else {
-                    libraryNode = new ImportLibraryTreeTableNode(library.getName(), library.getId());
-                    importLibraryMap.put(library.getId(), library);
-                }
+        if (unassignedCodeTemplates) {
+            CodeTemplateLibrary firstCachedLibrary = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values().iterator().next();
+            ImportTreeTableNode libraryNode = new ImportUnassignedLibraryTreeTableNode(firstCachedLibrary.getName(), firstCachedLibrary.getId());
+            CodeTemplateLibrary library = importLibraries.get(0);
 
-                for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
-                    if (!addedCodeTemplateIds.contains(codeTemplate.getId())) {
-                        libraryNode.add(new ImportCodeTemplateTreeTableNode(codeTemplate.getName(), codeTemplate.getId()));
-                        addedCodeTemplateIds.add(codeTemplate.getId());
-                        importCodeTemplateMap.put(codeTemplate.getId(), codeTemplate);
-                    }
+            for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                if (!addedCodeTemplateIds.contains(codeTemplate.getId())) {
+                    libraryNode.add(new ImportCodeTemplateTreeTableNode(codeTemplate.getName(), codeTemplate.getId()));
+                    addedCodeTemplateIds.add(codeTemplate.getId());
+                    importCodeTemplateMap.put(codeTemplate.getId(), codeTemplate);
                 }
-
-                rootNode.add(libraryNode);
-                addedLibraryIds.add(library.getId());
             }
-        }
 
-        if (importUnassignedNode.getChildCount() == 0) {
-            importUnassignedNode.removeFromParent();
+            rootNode.add(libraryNode);
+        } else {
+            Set<String> addedLibraryIds = new HashSet<String>();
+
+            for (CodeTemplateLibrary library : importLibraries) {
+                if (!addedLibraryIds.contains(library.getId())) {
+                    ImportTreeTableNode libraryNode = new ImportLibraryTreeTableNode(library.getName(), library.getId());
+                    importLibraryMap.put(library.getId(), library);
+
+                    for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                        if (!addedCodeTemplateIds.contains(codeTemplate.getId())) {
+                            libraryNode.add(new ImportCodeTemplateTreeTableNode(codeTemplate.getName(), codeTemplate.getId()));
+                            addedCodeTemplateIds.add(codeTemplate.getId());
+                            importCodeTemplateMap.put(codeTemplate.getId(), codeTemplate);
+                        }
+                    }
+
+                    rootNode.add(libraryNode);
+                    addedLibraryIds.add(library.getId());
+                }
+            }
         }
 
         model.setRoot(rootNode);
@@ -332,31 +342,6 @@ public class CodeTemplateImportDialog extends MirthDialog {
             importTreeTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
 
-        HighlightPredicate highlighterPredicate = new HighlightPredicate() {
-            public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-                if (adapter.column == IMPORT_NAME_COLUMN) {
-                    TreePath path = importTreeTable.getPathForRow(adapter.row);
-                    if (path != null) {
-                        ImportTreeTableNode node = (ImportTreeTableNode) path.getLastPathComponent();
-
-                        if ((boolean) node.getValueAt(IMPORT_SELECTED_COLUMN)) {
-                            if (node instanceof ImportLibraryTreeTableNode) {
-                                ImportLibraryTreeTableNode libraryNode = (ImportLibraryTreeTableNode) node;
-                                return libraryNode.getConflicts().isConflictByName();
-                            } else {
-                                ImportCodeTemplateTreeTableNode codeTemplateNode = (ImportCodeTemplateTreeTableNode) node;
-                                return codeTemplateNode.getConflicts().isConflictByName();
-                            }
-                        }
-                    }
-                }
-
-                return false;
-            }
-        };
-
-        importTreeTable.addHighlighter(new ColorHighlighter(highlighterPredicate, UIConstants.INVALID_COLOR, Color.BLACK, UIConstants.INVALID_COLOR, Color.BLACK));
-
         importTreeTable.addTreeWillExpandListener(new TreeWillExpandListener() {
             @Override
             public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {}
@@ -372,17 +357,29 @@ public class CodeTemplateImportDialog extends MirthDialog {
         importTreeTable.getModel().addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent evt) {
-                if (evt.getColumn() != IMPORT_WARNINGS_COLUMN && evt.getColumn() != IMPORT_ERRORS_COLUMN) {
+                if (evt.getColumn() != IMPORT_CONFLICTS_COLUMN) {
                     for (int row = evt.getFirstRow(); row <= evt.getLastRow() && row < importTreeTable.getRowCount(); row++) {
                         TreePath path = importTreeTable.getPathForRow(row);
                         if (path != null) {
                             ImportTreeTableNode node = (ImportTreeTableNode) path.getLastPathComponent();
 
                             if (path.getPathCount() == 2) {
-                                ImportLibraryTreeTableNode libraryNode = (ImportLibraryTreeTableNode) node;
-                                libraryNode.setConflicts(getLibraryConflicts(node));
+                                if (node instanceof ImportUnassignedLibraryTreeTableNode) {
+                                    String libraryName = (String) node.getValueAt(IMPORT_NAME_COLUMN);
+                                    String libraryId = null;
+                                    for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+                                        if (library.getName().equals(libraryName)) {
+                                            libraryId = library.getId();
+                                            break;
+                                        }
+                                    }
+                                    node.setValueAt(libraryId, IMPORT_ID_COLUMN);
+                                } else if (node instanceof ImportLibraryTreeTableNode) {
+                                    ImportLibraryTreeTableNode libraryNode = (ImportLibraryTreeTableNode) node;
+                                    libraryNode.setConflicts(getLibraryConflicts(node));
+                                }
 
-                                for (Enumeration<? extends TreeTableNode> codeTemplateNodes = libraryNode.children(); codeTemplateNodes.hasMoreElements();) {
+                                for (Enumeration<? extends TreeTableNode> codeTemplateNodes = node.children(); codeTemplateNodes.hasMoreElements();) {
                                     ImportCodeTemplateTreeTableNode codeTemplateNode = (ImportCodeTemplateTreeTableNode) codeTemplateNodes.nextElement();
                                     codeTemplateNode.setConflicts(getCodeTemplateConflicts(codeTemplateNode));
                                 }
@@ -423,16 +420,11 @@ public class CodeTemplateImportDialog extends MirthDialog {
         importTreeTable.getColumnModel().getColumn(IMPORT_OVERWRITE_COLUMN).setCellRenderer(new OverwriteCellRenderer());
         importTreeTable.getColumnModel().getColumn(IMPORT_OVERWRITE_COLUMN).setCellEditor(new OverwriteCellEditor());
 
-        importTreeTable.getColumnModel().getColumn(IMPORT_WARNINGS_COLUMN).setMinWidth(60);
-        importTreeTable.getColumnModel().getColumn(IMPORT_WARNINGS_COLUMN).setMaxWidth(60);
-        importTreeTable.getColumnModel().getColumn(IMPORT_WARNINGS_COLUMN).setCellRenderer(new IconCellRenderer(UIConstants.ICON_WARNING));
-
-        importTreeTable.getColumnModel().getColumn(IMPORT_ERRORS_COLUMN).setMinWidth(60);
-        importTreeTable.getColumnModel().getColumn(IMPORT_ERRORS_COLUMN).setMaxWidth(60);
-        importTreeTable.getColumnModel().getColumn(IMPORT_ERRORS_COLUMN).setCellRenderer(new IconCellRenderer(UIConstants.ICON_ERROR));
+        importTreeTable.getColumnModel().getColumn(IMPORT_CONFLICTS_COLUMN).setMinWidth(60);
+        importTreeTable.getColumnModel().getColumn(IMPORT_CONFLICTS_COLUMN).setMaxWidth(60);
+        importTreeTable.getColumnModel().getColumn(IMPORT_CONFLICTS_COLUMN).setCellRenderer(new IconCellRenderer());
 
         importTreeTable.getColumnModel().removeColumn(importTreeTable.getColumnModel().getColumn(IMPORT_ID_COLUMN));
-        importTreeTable.getColumnModel().removeColumn(importTreeTable.getColumnModel().getColumn(IMPORT_ERRORS_COLUMN));
 
         importTreeTableScrollPane = new JScrollPane(importTreeTable);
         importTreeTableScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(0x6E6E6E)));
@@ -469,12 +461,12 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 try {
                     boolean warnings = false;
                     for (Enumeration<? extends TreeTableNode> libraryNodes = ((TreeTableNode) importTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
-                        for (Enumeration<? extends TreeTableNode> codeTemplateNodes = ((ImportLibraryTreeTableNode) libraryNodes.nextElement()).children(); codeTemplateNodes.hasMoreElements();) {
+                        for (Enumeration<? extends TreeTableNode> codeTemplateNodes = libraryNodes.nextElement().children(); codeTemplateNodes.hasMoreElements();) {
                             ImportCodeTemplateTreeTableNode codeTemplateNode = (ImportCodeTemplateTreeTableNode) codeTemplateNodes.nextElement();
 
                             if ((boolean) codeTemplateNode.getValueAt(IMPORT_SELECTED_COLUMN)) {
                                 CodeTemplateConflicts conflicts = codeTemplateNode.getConflicts();
-                                if (conflicts.isConflictByDifferentLibrary() || conflicts.isUnassignedWarning()) {
+                                if (conflicts.isConflictByDifferentLibrary()) {
                                     warnings = true;
                                     break;
                                 }
@@ -553,6 +545,10 @@ public class CodeTemplateImportDialog extends MirthDialog {
         add(buttonPanel, "newline, right");
     }
 
+    private enum ConflictValue {
+        NONE, WARNING, ERROR;
+    }
+
     private class ImportTreeTableModel extends DefaultTreeTableModel {
 
         @Override
@@ -567,8 +563,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 case IMPORT_SELECTED_COLUMN: return Boolean.class;
                 case IMPORT_NAME_COLUMN: return String.class;
                 case IMPORT_OVERWRITE_COLUMN: return Boolean.class;
-                case IMPORT_WARNINGS_COLUMN: return Boolean.class;
-                case IMPORT_ERRORS_COLUMN: return Boolean.class;
+                case IMPORT_CONFLICTS_COLUMN: return ConflictValue.class;
                 case IMPORT_ID_COLUMN: return String.class;
                 default: return String.class;
             }
@@ -583,19 +578,17 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
     private abstract class ImportTreeTableNode extends AbstractMutableTreeTableNode {
 
-        private boolean selectionValue;
+        protected boolean selectionValue;
         private String name;
         private Boolean overwrite;
-        private boolean warnings;
-        private boolean errors;
+        private ConflictValue conflictValue;
         private String id;
 
         public ImportTreeTableNode(String name, String id) {
             this.selectionValue = true;
             this.name = name;
             this.overwrite = null;
-            this.warnings = false;
-            this.errors = false;
+            this.conflictValue = ConflictValue.NONE;
             this.id = id;
         }
 
@@ -611,8 +604,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 case IMPORT_SELECTED_COLUMN: return selectionValue;
                 case IMPORT_NAME_COLUMN: return name;
                 case IMPORT_OVERWRITE_COLUMN: return overwrite;
-                case IMPORT_WARNINGS_COLUMN: return warnings;
-                case IMPORT_ERRORS_COLUMN: return errors;
+                case IMPORT_CONFLICTS_COLUMN: return conflictValue;
                 case IMPORT_ID_COLUMN: return id;
                 default: return null;
             }
@@ -631,11 +623,8 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 case IMPORT_OVERWRITE_COLUMN:
                     overwrite = (Boolean) value;
                     break;
-                case IMPORT_WARNINGS_COLUMN:
-                    warnings = (boolean) value;
-                    break;
-                case IMPORT_ERRORS_COLUMN:
-                    errors = (boolean) value;
+                case IMPORT_CONFLICTS_COLUMN:
+                    conflictValue = (ConflictValue) value;
                     break;
                 case IMPORT_ID_COLUMN:
                     id = (String) value;
@@ -658,8 +647,17 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
         public void setConflicts(CodeTemplateConflicts conflicts) {
             this.conflicts = conflicts;
-            setValueAt((boolean) getValueAt(IMPORT_SELECTED_COLUMN) && conflicts.isConflictByName(), IMPORT_ERRORS_COLUMN);
-            setValueAt((boolean) getValueAt(IMPORT_SELECTED_COLUMN) && (conflicts.isConflictByDifferentLibrary() || conflicts.isUnassignedWarning()), IMPORT_WARNINGS_COLUMN);
+            if (selectionValue) {
+                if (conflicts.isConflictByName() || conflicts.isUnassignedConflict()) {
+                    setValueAt(ConflictValue.ERROR, IMPORT_CONFLICTS_COLUMN);
+                } else if (conflicts.isConflictByDifferentLibrary()) {
+                    setValueAt(ConflictValue.WARNING, IMPORT_CONFLICTS_COLUMN);
+                } else {
+                    setValueAt(ConflictValue.NONE, IMPORT_CONFLICTS_COLUMN);
+                }
+            } else {
+                setValueAt(ConflictValue.NONE, IMPORT_CONFLICTS_COLUMN);
+            }
         }
     }
 
@@ -677,7 +675,26 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
         public void setConflicts(LibraryConflicts conflicts) {
             this.conflicts = conflicts;
-            setValueAt((boolean) getValueAt(IMPORT_SELECTED_COLUMN) && conflicts.isConflictByName(), IMPORT_ERRORS_COLUMN);
+
+            if (selectionValue && conflicts.isConflictByName()) {
+                setValueAt(ConflictValue.ERROR, IMPORT_CONFLICTS_COLUMN);
+            } else {
+                setValueAt(ConflictValue.NONE, IMPORT_CONFLICTS_COLUMN);
+            }
+        }
+    }
+
+    private class ImportUnassignedLibraryTreeTableNode extends ImportTreeTableNode {
+
+        public ImportUnassignedLibraryTreeTableNode(String name, String id) {
+            super(name, id);
+        }
+
+        @Override
+        public void setValueAt(Object value, int i) {
+            if (i != IMPORT_SELECTED_COLUMN) {
+                super.setValueAt(value, i);
+            }
         }
     }
 
@@ -705,7 +722,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
             TreePath path = importTreeTable.getPathForRow(row);
             if (path != null) {
                 ImportTreeTableNode node = (ImportTreeTableNode) path.getLastPathComponent();
-                if (node.getValueAt(IMPORT_ID_COLUMN).equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID)) {
+                if (node instanceof ImportUnassignedLibraryTreeTableNode) {
                     visible = false;
                 }
             }
@@ -738,7 +755,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
             TreePath path = importTreeTable.getPathForRow(row);
             if (path != null) {
                 ImportTreeTableNode node = (ImportTreeTableNode) path.getLastPathComponent();
-                if (node.getValueAt(IMPORT_ID_COLUMN).equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID)) {
+                if (node instanceof ImportUnassignedLibraryTreeTableNode) {
                     visible = false;
                 }
             }
@@ -748,11 +765,30 @@ public class CodeTemplateImportDialog extends MirthDialog {
         }
     }
 
-    private class NameCellRenderer extends JLabel implements TreeCellRenderer {
+    private class NameCellRenderer extends JPanel implements TreeCellRenderer {
+
+        private JLabel label;
+        private JComboBox<String> comboBox;
+
+        public NameCellRenderer() {
+            setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
+            label = new JLabel();
+            label.setVisible(false);
+            add(label);
+
+            comboBox = new JComboBox<String>();
+            List<String> libraryNames = new ArrayList<String>();
+            for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+                libraryNames.add(library.getName());
+            }
+            comboBox.setModel(new DefaultComboBoxModel<String>(libraryNames.toArray(new String[libraryNames.size()])));
+
+            comboBox.setVisible(false);
+            add(comboBox);
+        }
 
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            setEnabled(true);
             if (selected) {
                 setBackground(importTreeTable.getSelectionBackground());
             } else {
@@ -761,10 +797,39 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
             if (value != null && value instanceof ImportTreeTableNode) {
                 ImportTreeTableNode node = (ImportTreeTableNode) value;
-                setText((String) node.getValueAt(IMPORT_NAME_COLUMN));
 
-                if (!(boolean) node.getValueAt(IMPORT_SELECTED_COLUMN)) {
-                    setEnabled(false);
+                if (node instanceof ImportUnassignedLibraryTreeTableNode) {
+                    label.setVisible(false);
+                    comboBox.setVisible(true);
+
+                    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4515838
+                    // Workaround to remove the border around the comboBox
+                    for (int i = 0; i < comboBox.getComponentCount(); i++) {
+                        if (comboBox.getComponent(i) instanceof AbstractButton) {
+                            ((AbstractButton) comboBox.getComponent(i)).setBorderPainted(false);
+                        }
+                    }
+
+                    comboBox.setBackground(getBackground());
+
+                    for (int i = 0; i < comboBox.getComponentCount(); i++) {
+                        if (comboBox.getComponent(i) instanceof AbstractButton) {
+                            comboBox.getComponent(i).setBackground(comboBox.getBackground());
+                        }
+                    }
+
+                    comboBox.setSelectedItem(node.getValueAt(IMPORT_NAME_COLUMN));
+                } else {
+                    label.setVisible(true);
+                    comboBox.setVisible(false);
+
+                    label.setEnabled(true);
+                    label.setBackground(getBackground());
+                    label.setText((String) node.getValueAt(IMPORT_NAME_COLUMN));
+
+                    if (!(boolean) node.getValueAt(IMPORT_SELECTED_COLUMN)) {
+                        label.setEnabled(false);
+                    }
                 }
             }
 
@@ -777,13 +842,37 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
         private OffsetPanel panel;
         private JTextField field;
+        private JComboBox<String> comboBox;
 
         public NameCellEditor() {
             super(new JTextField());
             panel = new OffsetPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
             field = (JTextField) editorComponent;
+            field.setBackground(UIConstants.BACKGROUND_COLOR);
             field.setDocument(new MirthFieldConstraints(0, false, true, true));
+            field.setVisible(false);
             panel.add(field, "grow, push");
+
+            comboBox = new JComboBox<String>();
+            List<String> libraryNames = new ArrayList<String>();
+            for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+                libraryNames.add(library.getName());
+            }
+            comboBox.setModel(new DefaultComboBoxModel<String>(libraryNames.toArray(new String[libraryNames.size()])));
+
+            comboBox.setMaximumRowCount(20);
+            comboBox.setRenderer(new DataTypeListCellRenderer());
+
+            // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4515838
+            // Workaround to remove the border around the comboBox
+            for (int i = 0; i < comboBox.getComponentCount(); i++) {
+                if (comboBox.getComponent(i) instanceof AbstractButton) {
+                    ((AbstractButton) comboBox.getComponent(i)).setBorderPainted(false);
+                }
+            }
+
+            comboBox.setVisible(false);
+            panel.add(comboBox);
         }
 
         @Override
@@ -791,15 +880,56 @@ public class CodeTemplateImportDialog extends MirthDialog {
             JXTreeTable treeTable = (JXTreeTable) table;
             JTree tree = (JTree) treeTable.getCellRenderer(0, treeTable.getHierarchicalColumn());
             panel.setOffset(tree.getRowBounds(row).x);
-            field.setText((String) value);
+            panel.setBackground(table.getSelectionBackground());
+
+            ImportTreeTableNode node = (ImportTreeTableNode) treeTable.getPathForRow(row).getLastPathComponent();
+
+            if (node instanceof ImportUnassignedLibraryTreeTableNode) {
+                field.setVisible(false);
+                comboBox.setVisible(true);
+
+                comboBox.setBackground(panel.getBackground());
+
+                for (int i = 0; i < comboBox.getComponentCount(); i++) {
+                    if (comboBox.getComponent(i) instanceof AbstractButton) {
+                        comboBox.getComponent(i).setBackground(comboBox.getBackground());
+                    }
+                }
+
+                comboBox.setSelectedItem(value);
+
+                comboBox.addPopupMenuListener(new PopupMenuListener() {
+                    @Override
+                    public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {}
+
+                    @Override
+                    public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
+                        fireEditingStopped();
+                    }
+
+                    @Override
+                    public void popupMenuCanceled(PopupMenuEvent evt) {
+                        fireEditingCanceled();
+                    }
+                });
+            } else {
+                field.setVisible(true);
+                comboBox.setVisible(false);
+
+                field.setText((String) value);
+            }
+
             return panel;
         }
 
         @Override
         public boolean isCellEditable(EventObject evt) {
             int selectedRow = importTreeTable.getSelectedRow();
-            if (selectedRow >= 0 && !(boolean) importTreeTable.getModel().getValueAt(selectedRow, IMPORT_SELECTED_COLUMN)) {
-                return false;
+            if (selectedRow >= 0) {
+                TreePath selectedPath = importTreeTable.getPathForRow(selectedRow);
+                if (selectedPath != null && !(selectedPath.getLastPathComponent() instanceof ImportUnassignedLibraryTreeTableNode) && !(boolean) importTreeTable.getModel().getValueAt(selectedRow, IMPORT_SELECTED_COLUMN)) {
+                    return false;
+                }
             }
 
             return evt != null && evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2;
@@ -807,7 +937,11 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
         @Override
         public Object getCellEditorValue() {
-            return StringUtils.trim((String) super.getCellEditorValue());
+            if (field.isVisible()) {
+                return StringUtils.trim((String) super.getCellEditorValue());
+            } else {
+                return (String) comboBox.getSelectedItem();
+            }
         }
 
         @Override
@@ -865,6 +999,24 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 super.setBounds(x + offset, y, width - offset, height);
             }
         }
+
+        private class DataTypeListCellRenderer extends DefaultListCellRenderer {
+
+            public DataTypeListCellRenderer() {}
+
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+                if (index >= 0) {
+                    if (!isSelected) {
+                        component.setBackground(UIConstants.BACKGROUND_COLOR);
+                    }
+                }
+
+                return component;
+            }
+        }
     }
 
     private class OverwriteCellRenderer extends JPanel implements TableCellRenderer {
@@ -900,7 +1052,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                     if (conflicts.getMatchingLibrary() != null) {
                         visible = true;
                     }
-                } else {
+                } else if (node instanceof ImportCodeTemplateTreeTableNode) {
                     ImportCodeTemplateTreeTableNode codeTemplateNode = (ImportCodeTemplateTreeTableNode) node;
                     CodeTemplateConflicts conflicts = codeTemplateNode.getConflicts();
                     if (conflicts.getMatchingCodeTemplate() != null) {
@@ -951,7 +1103,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                     if (conflicts.getMatchingLibrary() != null) {
                         visible = true;
                     }
-                } else {
+                } else if (node instanceof ImportCodeTemplateTreeTableNode) {
                     ImportCodeTemplateTreeTableNode codeTemplateNode = (ImportCodeTemplateTreeTableNode) node;
                     CodeTemplateConflicts conflicts = codeTemplateNode.getConflicts();
                     if (conflicts.getMatchingCodeTemplate() != null) {
@@ -969,9 +1121,9 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
         private JLabel label;
 
-        public IconCellRenderer(ImageIcon icon) {
+        public IconCellRenderer() {
             super(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
-            label = new JLabel(icon);
+            label = new JLabel();
             add(label, "center");
         }
 
@@ -983,7 +1135,13 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 setBackground(row % 2 == 0 ? UIConstants.HIGHLIGHTER_COLOR : UIConstants.BACKGROUND_COLOR);
             }
             label.setBackground(getBackground());
-            label.setVisible(value != null && (boolean) value);
+            if (value != null) {
+                ConflictValue conflictValue = (ConflictValue) value;
+                label.setVisible(conflictValue != ConflictValue.NONE);
+                label.setIcon(conflictValue == ConflictValue.ERROR ? UIConstants.ICON_ERROR : UIConstants.ICON_WARNING);
+            } else {
+                label.setVisible(false);
+            }
             return this;
         }
 
@@ -991,16 +1149,16 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
     private class EffectiveNames {
         private Map<String, String> libraryNameMap;
-        private Map<String, String> codeTemplateNameMap;
+        private Map<String, Map<String, String>> codeTemplateNameMap;
 
         /*
          * The new names maps reflect entities that either have no matching cached entry, or that do
          * have a matching cached entry but are not being overwritten.
          */
         private Map<String, String> newLibraryNames;
-        private Map<String, String> newCodeTemplateNames;
+        private Map<String, Map<String, String>> newCodeTemplateNames;
 
-        public EffectiveNames(Map<String, String> libraryNameMap, Map<String, String> codeTemplateNameMap, Map<String, String> newLibraryNames, Map<String, String> newCodeTemplateNames) {
+        public EffectiveNames(Map<String, String> libraryNameMap, Map<String, Map<String, String>> codeTemplateNameMap, Map<String, String> newLibraryNames, Map<String, Map<String, String>> newCodeTemplateNames) {
             this.libraryNameMap = libraryNameMap;
             this.codeTemplateNameMap = codeTemplateNameMap;
             this.newLibraryNames = newLibraryNames;
@@ -1011,7 +1169,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
             return libraryNameMap;
         }
 
-        public Map<String, String> getCodeTemplateNameMap() {
+        public Map<String, Map<String, String>> getCodeTemplateNameMap() {
             return codeTemplateNameMap;
         }
 
@@ -1019,23 +1177,26 @@ public class CodeTemplateImportDialog extends MirthDialog {
             return newLibraryNames;
         }
 
-        public Map<String, String> getNewCodeTemplateNames() {
+        public Map<String, Map<String, String>> getNewCodeTemplateNames() {
             return newCodeTemplateNames;
         }
     }
 
     private EffectiveNames getEffectiveNames() {
         Map<String, String> libraryNameMap = new HashMap<String, String>();
-        Map<String, String> codeTemplateNameMap = new HashMap<String, String>();
+        Map<String, Map<String, String>> codeTemplateNameMap = new HashMap<String, Map<String, String>>();
         Map<String, String> newLibraryNames = new HashMap<String, String>();
-        Map<String, String> newCodeTemplateNames = new HashMap<String, String>();
+        Map<String, Map<String, String>> newCodeTemplateNames = new HashMap<String, Map<String, String>>();
 
         for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
             libraryNameMap.put(library.getId(), library.getName().toLowerCase());
-        }
 
-        for (CodeTemplate codeTemplate : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates().values()) {
-            codeTemplateNameMap.put(codeTemplate.getId(), codeTemplate.getName().toLowerCase());
+            Map<String, String> codeTemplateMap = new HashMap<String, String>();
+            for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                codeTemplate = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates().get(codeTemplate.getId());
+                codeTemplateMap.put(codeTemplate.getId(), codeTemplate.getName().toLowerCase());
+            }
+            codeTemplateNameMap.put(library.getId(), codeTemplateMap);
         }
 
         for (Enumeration<? extends TreeTableNode> libraryNodes = ((TreeTableNode) importTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
@@ -1045,13 +1206,14 @@ public class CodeTemplateImportDialog extends MirthDialog {
             boolean librarySelected = (boolean) libraryNode.getValueAt(IMPORT_SELECTED_COLUMN);
             Boolean libraryOverwrite = (Boolean) libraryNode.getValueAt(IMPORT_OVERWRITE_COLUMN);
 
-            if (librarySelected) {
+            if (libraryNode instanceof ImportLibraryTreeTableNode && librarySelected) {
                 CodeTemplateLibrary matchingLibrary = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().get(libraryId);
 
                 if (matchingLibrary != null && libraryOverwrite != null && libraryOverwrite) {
                     libraryNameMap.put(libraryId, libraryName.toLowerCase());
                 } else {
                     newLibraryNames.put(libraryId, libraryName.toLowerCase());
+                    newCodeTemplateNames.put(libraryId, new HashMap<String, String>());
                 }
             }
 
@@ -1066,9 +1228,19 @@ public class CodeTemplateImportDialog extends MirthDialog {
                     CodeTemplate matchingCodeTemplate = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates().get(codeTemplateId);
 
                     if (matchingCodeTemplate != null && codeTemplateOverwrite != null && codeTemplateOverwrite) {
-                        codeTemplateNameMap.put(codeTemplateId, codeTemplateName.toLowerCase());
+                        Map<String, String> codeTemplateMap = codeTemplateNameMap.get(libraryId);
+                        if (codeTemplateMap == null) {
+                            codeTemplateMap = new HashMap<String, String>();
+                            codeTemplateNameMap.put(libraryId, codeTemplateMap);
+                        }
+                        codeTemplateMap.put(codeTemplateId, codeTemplateName.toLowerCase());
                     } else {
-                        newCodeTemplateNames.put(codeTemplateId, codeTemplateName.toLowerCase());
+                        Map<String, String> codeTemplateMap = newCodeTemplateNames.get(libraryId);
+                        if (codeTemplateMap == null) {
+                            codeTemplateMap = new HashMap<String, String>();
+                            newCodeTemplateNames.put(libraryId, codeTemplateMap);
+                        }
+                        codeTemplateMap.put(codeTemplateId, codeTemplateName.toLowerCase());
                     }
                 }
             }
@@ -1108,10 +1280,6 @@ public class CodeTemplateImportDialog extends MirthDialog {
             }
         }
 
-        if (effectiveNames.getCodeTemplateNameMap().values().contains(libraryName) || effectiveNames.getNewCodeTemplateNames().values().contains(libraryName)) {
-            conflicts.setConflictByName(true);
-        }
-
         return conflicts;
     }
 
@@ -1126,6 +1294,10 @@ public class CodeTemplateImportDialog extends MirthDialog {
         CodeTemplate matchingCodeTemplate = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates().get(codeTemplateId);
         conflicts.setMatchingCodeTemplate(matchingCodeTemplate);
 
+        ImportTreeTableNode libraryNode = (ImportTreeTableNode) codeTemplateNode.getParent();
+        String libraryId = (String) libraryNode.getValueAt(IMPORT_ID_COLUMN);
+        boolean librarySelected = (boolean) libraryNode.getValueAt(IMPORT_SELECTED_COLUMN);
+
         // Determine if it conflicts by name
         EffectiveNames effectiveNames = getEffectiveNames();
 
@@ -1133,26 +1305,22 @@ public class CodeTemplateImportDialog extends MirthDialog {
          * Always conflict when it's the same name but a different ID. If the same name and same ID,
          * only conflict if there's a matching cached template and it's not being overwritten.
          */
-        for (Entry<String, String> entry : effectiveNames.getCodeTemplateNameMap().entrySet()) {
-            if (entry.getValue().equals(codeTemplateName) && (!entry.getKey().equals(codeTemplateId) || matchingCodeTemplate != null && !overwrite)) {
-                conflicts.setConflictByName(true);
+        if (effectiveNames.getCodeTemplateNameMap().containsKey(libraryId)) {
+            for (Entry<String, String> entry : effectiveNames.getCodeTemplateNameMap().get(libraryId).entrySet()) {
+                if (entry.getValue().equals(codeTemplateName) && (!entry.getKey().equals(codeTemplateId) || matchingCodeTemplate != null && !overwrite)) {
+                    conflicts.setConflictByName(true);
+                }
             }
         }
 
         // If the name is found in the new code template names map, it's only a conflict if it's a different ID
-        for (Entry<String, String> entry : effectiveNames.getNewCodeTemplateNames().entrySet()) {
-            if (entry.getValue().equals(codeTemplateName) && !entry.getKey().equals(codeTemplateId)) {
-                conflicts.setConflictByName(true);
+        if (effectiveNames.getNewCodeTemplateNames().containsKey(libraryId)) {
+            for (Entry<String, String> entry : effectiveNames.getNewCodeTemplateNames().get(libraryId).entrySet()) {
+                if (entry.getValue().equals(codeTemplateName) && !entry.getKey().equals(codeTemplateId)) {
+                    conflicts.setConflictByName(true);
+                }
             }
         }
-
-        if (effectiveNames.getLibraryNameMap().values().contains(codeTemplateName) || effectiveNames.getNewLibraryNames().values().contains(codeTemplateName)) {
-            conflicts.setConflictByName(true);
-        }
-
-        ImportTreeTableNode libraryNode = (ImportTreeTableNode) codeTemplateNode.getParent();
-        String libraryId = (String) libraryNode.getValueAt(IMPORT_ID_COLUMN);
-        boolean librarySelected = (boolean) libraryNode.getValueAt(IMPORT_SELECTED_COLUMN);
 
         // Find the cached library that should contain this code template, if applicable
         CodeTemplateLibrary matchingLibrary = null;
@@ -1168,6 +1336,11 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 break;
             }
         }
+
+        if (matchingLibrary == null) {
+            matchingLibrary = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().get(libraryId);
+        }
+
         conflicts.setMatchingLibrary(matchingLibrary);
 
         if (librarySelected) {
@@ -1178,12 +1351,8 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 }
             }
         } else {
-            /*
-             * If the parent library node isn't selected, and there's no matching library, then the
-             * code template will be unassigned when imported.
-             */
-            if (matchingLibrary == null && !libraryId.equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID)) {
-                conflicts.setUnassignedWarning(true);
+            if (matchingLibrary == null) {
+                conflicts.setUnassignedConflict(true);
             }
         }
 
@@ -1216,7 +1385,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
         private CodeTemplateLibrary matchingLibrary;
         private boolean conflictByName;
         private boolean conflictByDifferentLibrary;
-        private boolean unassignedWarning;
+        private boolean unassignedConflict;
 
         public CodeTemplate getMatchingCodeTemplate() {
             return matchingCodeTemplate;
@@ -1250,12 +1419,12 @@ public class CodeTemplateImportDialog extends MirthDialog {
             this.conflictByDifferentLibrary = conflictByDifferentLibrary;
         }
 
-        public boolean isUnassignedWarning() {
-            return unassignedWarning;
+        public boolean isUnassignedConflict() {
+            return unassignedConflict;
         }
 
-        public void setUnassignedWarning(boolean unassignedWarning) {
-            this.unassignedWarning = unassignedWarning;
+        public void setUnassignedConflict(boolean unassignedConflict) {
+            this.unassignedConflict = unassignedConflict;
         }
     }
 
@@ -1265,13 +1434,12 @@ public class CodeTemplateImportDialog extends MirthDialog {
             boolean noneSelected = true;
 
             for (Enumeration<? extends TreeTableNode> libraryNodes = ((TreeTableNode) importTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
-                ImportLibraryTreeTableNode libraryNode = (ImportLibraryTreeTableNode) libraryNodes.nextElement();
-                if ((boolean) libraryNode.getValueAt(IMPORT_SELECTED_COLUMN)) {
-                    if (!libraryNode.getValueAt(IMPORT_ID_COLUMN).equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID)) {
-                        noneSelected = false;
-                    }
+                ImportTreeTableNode libraryNode = (ImportTreeTableNode) libraryNodes.nextElement();
 
-                    if (libraryNode.getConflicts().isConflictByName()) {
+                if (libraryNode instanceof ImportLibraryTreeTableNode && (boolean) libraryNode.getValueAt(IMPORT_SELECTED_COLUMN)) {
+                    noneSelected = false;
+
+                    if (((ImportLibraryTreeTableNode) libraryNode).getConflicts().isConflictByName()) {
                         enabled = false;
                         break;
                     }
@@ -1282,7 +1450,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                     if ((boolean) codeTemplateNode.getValueAt(IMPORT_SELECTED_COLUMN)) {
                         noneSelected = false;
 
-                        if (codeTemplateNode.getConflicts().isConflictByName()) {
+                        if (codeTemplateNode.getConflicts().isConflictByName() || codeTemplateNode.getConflicts().isUnassignedConflict()) {
                             enabled = false;
                             break;
                         }
@@ -1327,11 +1495,11 @@ public class CodeTemplateImportDialog extends MirthDialog {
                                 StringBuilder text = new StringBuilder();
 
                                 if (libraryNode.getConflicts().getMatchingLibrary() != null && StringUtils.equalsIgnoreCase(libraryNode.getConflicts().getMatchingLibrary().getName(), name) && !overwrite) {
-                                    text.append("The selected library already exists but is not being overwritten. Either enter a new name by double-clicking on the highlighted column, or overwrite the existing library.");
+                                    text.append("The selected library already exists. Edit its name, or select overwrite.");
                                 } else {
-                                    text.append("Another library or code template (with a different ID) is already using the name \"");
+                                    text.append("Another library (with a different ID) is already using the name \"");
                                     text.append(name);
-                                    text.append("\". Please enter a new name by double-clicking on the highlighted column.");
+                                    text.append("\". Please enter a new name.");
                                 }
 
                                 errorsTextArea.setText(text.toString());
@@ -1344,19 +1512,28 @@ public class CodeTemplateImportDialog extends MirthDialog {
                                 StringBuilder text = new StringBuilder();
 
                                 if (codeTemplateNode.getConflicts().getMatchingCodeTemplate() != null && StringUtils.equalsIgnoreCase(codeTemplateNode.getConflicts().getMatchingCodeTemplate().getName(), name) && !overwrite) {
-                                    text.append("The selected code template already exists but is not being overwritten. Either enter a new name by double-clicking on the highlighted column, or overwrite the existing code template.");
+                                    text.append("The selected code template already exists. Edit its name, or select overwrite.");
                                 } else {
-                                    text.append("Another library or code template (with a different ID) is already using the name \"");
+                                    text.append("Another code template (with a different ID) is already using the name \"");
                                     text.append(name);
-                                    text.append("\". Please enter a new name by double-clicking on the highlighted column.");
+                                    text.append("\". Please enter a new name.");
                                 }
+
+                                errorsTextArea.setText(text.toString());
+                            } else if (codeTemplateNode.getConflicts().isUnassignedConflict()) {
+                                errorsPanel.setVisible(true);
+                                ImportTreeTableNode tableLibraryNode = (ImportTreeTableNode) codeTemplateNode.getParent();
+
+                                StringBuilder text = new StringBuilder("The parent library \"");
+                                text.append((String) tableLibraryNode.getValueAt(IMPORT_NAME_COLUMN));
+                                text.append("\" does not currently exist, so it must be imported in order to import the selected code template.");
 
                                 errorsTextArea.setText(text.toString());
                             }
 
                             if (codeTemplateNode.getConflicts().isConflictByDifferentLibrary()) {
                                 warningsPanel.setVisible(true);
-                                ImportLibraryTreeTableNode tableLibraryNode = (ImportLibraryTreeTableNode) codeTemplateNode.getParent();
+                                ImportTreeTableNode tableLibraryNode = (ImportTreeTableNode) codeTemplateNode.getParent();
 
                                 StringBuilder text = new StringBuilder("The selected code template already exists in the library \"");
                                 text.append(codeTemplateNode.getConflicts().getMatchingLibrary().getName());
@@ -1365,9 +1542,6 @@ public class CodeTemplateImportDialog extends MirthDialog {
                                 text.append("\".");
 
                                 warningsTextArea.setText(text.toString());
-                            } else if (codeTemplateNode.getConflicts().isUnassignedWarning()) {
-                                warningsPanel.setVisible(true);
-                                warningsTextArea.setText("The selected code template will be imported, but its parent library, which doesn't already exist, is not selected. The code template will be unassigned by default.");
                             }
                         }
                     }
@@ -1383,7 +1557,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
                         if ((boolean) node.getValueAt(IMPORT_SELECTED_COLUMN) && (node instanceof ImportLibraryTreeTableNode && ((ImportLibraryTreeTableNode) node).getConflicts().isConflictByName() || node instanceof ImportCodeTemplateTreeTableNode && ((ImportCodeTemplateTreeTableNode) node).getConflicts().isConflictByName())) {
                             errorsPanel.setVisible(true);
-                            errorsTextArea.setText("One or more libraries / code templates have name conflicts. Please either enter new names for them by double-clicking on the highlighted columns, or if they match an existing entry, you may also choose to overwrite them.");
+                            errorsTextArea.setText("One or more libraries / code templates have name conflicts. Edit their names, or select overwrite.");
                             break;
                         }
                     }
@@ -1401,7 +1575,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
         }
 
         for (Enumeration<? extends TreeTableNode> libraryNodes = ((TreeTableNode) importTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
-            ImportLibraryTreeTableNode libraryNode = (ImportLibraryTreeTableNode) libraryNodes.nextElement();
+            ImportTreeTableNode libraryNode = (ImportTreeTableNode) libraryNodes.nextElement();
             String libraryId = (String) libraryNode.getValueAt(IMPORT_ID_COLUMN);
             String libraryName = ((String) libraryNode.getValueAt(IMPORT_NAME_COLUMN));
             boolean librarySelected = (boolean) libraryNode.getValueAt(IMPORT_SELECTED_COLUMN);
@@ -1418,15 +1592,17 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 }
             }
 
-            if (librarySelected && !libraryId.equals(CodeTemplateLibrary.UNASSIGNED_LIBRARY_ID)) {
+            if (librarySelected && !unassignedCodeTemplates) {
                 library = new CodeTemplateLibrary(importLibraryMap.get(libraryId));
                 library.setName(libraryName);
 
-                if (libraryNode.getConflicts().getMatchingLibrary() != null) {
+                CodeTemplateLibrary matchingLibrary = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().get(libraryId);
+
+                if (matchingLibrary != null) {
                     if (libraryOverwrite) {
                         // Merge the enabled/disabled channel IDs since we're overwriting
-                        library.getEnabledChannelIds().addAll(libraryNode.getConflicts().getMatchingLibrary().getEnabledChannelIds());
-                        library.getDisabledChannelIds().addAll(libraryNode.getConflicts().getMatchingLibrary().getDisabledChannelIds());
+                        library.getEnabledChannelIds().addAll(matchingLibrary.getEnabledChannelIds());
+                        library.getDisabledChannelIds().addAll(matchingLibrary.getDisabledChannelIds());
                         library.getDisabledChannelIds().removeAll(library.getEnabledChannelIds());
                     } else {
                         // Reset the ID and revision since it's a new library

@@ -9,6 +9,9 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -34,23 +37,49 @@ public class Cache<V extends Cacheable<V>> {
     private String cacheName;
     private String selectRevisionsQueryId;
     private String selectQueryId;
+    private boolean nameUnique;
 
     protected Map<String, V> cacheById = new ConcurrentHashMap<String, V>();
-    protected Map<String, V> cacheByName = new ConcurrentHashMap<String, V>();
+    protected Map<String, V> cacheByName;
 
     public Cache(String cacheName, String selectRevisionsQueryId, String selectQueryId) {
+        this(cacheName, selectRevisionsQueryId, selectQueryId, true);
+    }
+
+    public Cache(String cacheName, String selectRevisionsQueryId, String selectQueryId, boolean nameUnique) {
         this.cacheName = cacheName;
         this.selectRevisionsQueryId = selectRevisionsQueryId;
         this.selectQueryId = selectQueryId;
+        this.nameUnique = nameUnique;
+
+        if (nameUnique) {
+            cacheByName = new ConcurrentHashMap<String, V>();
+        }
     }
 
     public Map<String, V> getAllItems() {
         refreshCache();
 
         Map<String, V> map = new LinkedHashMap<String, V>();
-        for (V item : new TreeMap<String, V>(cacheByName).values()) {
-            map.put(item.getId(), item.cloneIfNeeded());
+
+        if (nameUnique) {
+            for (V item : new TreeMap<String, V>(cacheByName).values()) {
+                map.put(item.getId(), item.cloneIfNeeded());
+            }
+        } else {
+            List<V> list = new ArrayList<V>(cacheById.values());
+            Collections.sort(list, new Comparator<V>() {
+                @Override
+                public int compare(V o1, V o2) {
+                    return o1.getName().compareToIgnoreCase(o2.getName());
+                }
+            });
+
+            for (V item : list) {
+                map.put(item.getId(), item);
+            }
         }
+
         return map;
     }
 
@@ -61,9 +90,12 @@ public class Cache<V extends Cacheable<V>> {
     }
 
     public V getCachedItemByName(String name) {
-        refreshCache();
-
-        return cloneIfNeeded(cacheByName.get(name));
+        if (nameUnique) {
+            refreshCache();
+            return cloneIfNeeded(cacheByName.get(name));
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 
     public Set<String> getCachedIds() {
@@ -73,9 +105,12 @@ public class Cache<V extends Cacheable<V>> {
     }
 
     public Set<String> getCachedNames() {
-        refreshCache();
-
-        return new LinkedHashSet<String>(cacheByName.keySet());
+        if (nameUnique) {
+            refreshCache();
+            return new LinkedHashSet<String>(cacheByName.keySet());
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 
     protected synchronized void refreshCache() {
@@ -88,7 +123,9 @@ public class Cache<V extends Cacheable<V>> {
                 if (!databaseRevisions.containsKey(id)) {
                     // Remove from cache
                     V item = cacheById.remove(id);
-                    cacheByName.remove(item.getName());
+                    if (nameUnique) {
+                        cacheByName.remove(item.getName());
+                    }
                 }
             }
 
@@ -104,13 +141,16 @@ public class Cache<V extends Cacheable<V>> {
                         V oldItem = cacheById.get(id);
 
                         cacheById.put(id, item);
-                        cacheByName.put(name, item);
 
-                        // If the name changed, remove the old name from the cache
-                        if (oldItem != null) {
-                            String oldName = oldItem.getName();
-                            if (!oldName.equals(name)) {
-                                cacheByName.remove(oldName);
+                        if (nameUnique) {
+                            cacheByName.put(name, item);
+
+                            // If the name changed, remove the old name from the cache
+                            if (oldItem != null) {
+                                String oldName = oldItem.getName();
+                                if (!oldName.equals(name)) {
+                                    cacheByName.remove(oldName);
+                                }
                             }
                         }
                     } else {
@@ -121,7 +161,9 @@ public class Cache<V extends Cacheable<V>> {
                          */
                         if (cacheById.containsKey(id)) {
                             V oldItem = cacheById.remove(id);
-                            cacheByName.remove(oldItem.getName());
+                            if (nameUnique) {
+                                cacheByName.remove(oldItem.getName());
+                            }
                         }
                     }
                 }

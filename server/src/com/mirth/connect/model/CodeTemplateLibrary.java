@@ -33,9 +33,6 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("codeTemplateLibrary")
 public class CodeTemplateLibrary implements Serializable, Migratable, Purgable, Cacheable<CodeTemplateLibrary> {
 
-    public static final String UNASSIGNED_LIBRARY_ID = "[Unassigned]";
-    public static final String UNASSIGNED_LIBRARY_DESCRIPTION = "Code templates that have no assigned library will be grouped here.\nThis library cannot be linked to any channels.";
-
     private String id;
     private String name;
     private Integer revision;
@@ -68,14 +65,6 @@ public class CodeTemplateLibrary implements Serializable, Migratable, Purgable, 
                 codeTemplates.add(new CodeTemplate(codeTemplate));
             }
         }
-    }
-
-    public static CodeTemplateLibrary getUnassignedLibrary() {
-        CodeTemplateLibrary library = new CodeTemplateLibrary();
-        library.setId(UNASSIGNED_LIBRARY_ID);
-        library.setName(UNASSIGNED_LIBRARY_ID);
-        library.setDescription(UNASSIGNED_LIBRARY_DESCRIPTION);
-        return library;
     }
 
     @Override
