@@ -11,6 +11,8 @@ package com.mirth.connect.client.ui.components;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -18,7 +20,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +41,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -53,9 +59,11 @@ import com.mirth.connect.client.ui.SortableHeaderCellRenderer;
 import com.mirth.connect.client.ui.SortableTreeTable;
 import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
+import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MirthTreeTable extends SortableTreeTable {
+    private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
     private Map<String, Set<String>> customHiddenColumnMap;
     private String channelId;
 
@@ -70,6 +78,8 @@ public class MirthTreeTable extends SortableTreeTable {
 
     private MouseAdapter treeTableSortAdapter;
     private MouseAdapter rightClickMouseAdapter;
+
+    private TransferHandler transferHandler;
 
     public MirthTreeTable() {
         this(null, null);
@@ -107,7 +117,6 @@ public class MirthTreeTable extends SortableTreeTable {
             }
         }
 
-        setDragEnabled(true);
         addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
@@ -214,6 +223,51 @@ public class MirthTreeTable extends SortableTreeTable {
         }
 
         setColumnControlVisible(enable);
+    }
+
+    public void setMirthTransferHandlerEnabled(boolean enable) {
+        setDragEnabled(enable);
+
+        if (transferHandler == null) {
+            transferHandler = new TransferHandler() {
+                @Override
+                public int getSourceActions(JComponent c) {
+                    return COPY_OR_MOVE;
+                }
+
+                @Override
+                protected Transferable createTransferable(JComponent c) {
+                    int row = getSelectedRow();
+
+                    List columnValuesList = new ArrayList<Object>();
+                    for (TableColumn column : getColumns()) {
+                        Object value = getValueAt(row, convertColumnIndexToView(column.getModelIndex()));
+                        if (value != null) {
+                            if (value instanceof Calendar) {
+                                Calendar calendar = (GregorianCalendar) value;
+                                SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+                                dateFormat.setCalendar(calendar);
+                                value = (String) dateFormat.format(calendar.getTime());
+                            } else if (value instanceof Long) {
+                                value = String.valueOf(value);
+                            } else if (value instanceof Status) {
+                                value = Status.fromChar(((Status) value).getStatusCode());
+                            } else {
+                                value = String.valueOf(value);
+                            }
+                        } else {
+                            value = "-";
+                        }
+
+                        columnValuesList.add(value);
+                    }
+
+                    return new StringSelection(StringUtils.join(columnValuesList, " "));
+                }
+            };
+
+            setTransferHandler(transferHandler);
+        }
     }
 
     private JPopupMenu getColumnMenu() {

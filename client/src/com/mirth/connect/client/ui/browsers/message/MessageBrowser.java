@@ -1071,8 +1071,7 @@ public class MessageBrowser extends javax.swing.JPanel {
      * point.
      */
     private void makeMessageTable() {
-        messageTreeTable.setDragEnabled(false);
-        //messageTreeTable.setFocusable(false);
+        messageTreeTable.setDragEnabled(true);
         messageTreeTable.setSortable(false);
         messageTreeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         messageTreeTable.setColumnFactory(new MessageBrowserTableColumnFactory());
@@ -1084,6 +1083,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTreeTable.setShowGrid(true, true);
         messageTreeTable.setHorizontalScrollEnabled(true);
         messageTreeTable.setPreferredScrollableViewportSize(messageTreeTable.getPreferredSize());
+        messageTreeTable.setMirthTransferHandlerEnabled(true);
+
 
         tableModel = new MessageBrowserTableModel(columnMap.size());
         // Add a blank column to the column initially, otherwise it return an exception on load
