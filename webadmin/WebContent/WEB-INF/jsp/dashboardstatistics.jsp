@@ -37,9 +37,11 @@
             </thead>
             <tbody>
                 <c:forEach items="${actionBean.dashboardStatusList}" var="dashboardStatus" varStatus="status">
+                    <c:set var="deployedStatus" value="${fn:toLowerCase(dashboardStatus.state)}" />
+
                     <tr id="node-${status.index}">
                         <td class="parent">${dashboardStatus.name}</td>
-                        <td>${dashboardStatus.state}</td>
+                        <td style="text-transform: capitalize">${deployedStatus}</td>
                         <td>${dashboardStatus.statistics[RECEIVED]}</td>
                         <td>${dashboardStatus.statistics[FILTERED]}</td>
                         <td>${dashboardStatus.queued}</td>
@@ -52,8 +54,10 @@
                         <c:set var="trimName" value="${fn:replace(childName,' ','-')}" />
 
                         <tr id="${trimName}-${status.index}" class="child-of-node-${status.index} expand-child">
+                        	<c:set var="deployedStatus" value="${fn:toLowerCase(childStatus.state)}" />
+
                             <td class="child">${childStatus.name}</td>
-                            <td>${childStatus.state}</td>
+                            <td style="text-transform: capitalize">${deployedStatus}</td>
                             <td>${childStatus.statistics[RECEIVED]}</td>
                             <td>${childStatus.statistics[FILTERED]}</td>
                             <td>${childStatus.queued}</td>
@@ -100,7 +104,8 @@
 
                         checkAndUpdateError(node);
 
-                        row.children().eq(1).text(node.status);
+                        var status = node.status;
+                        row.children().eq(1).text(status.charAt(0).toUpperCase() + status.slice(1).toLowerCase());
                         row.children().eq(2).text(node.received);
                         row.children().eq(3).text(node.filtered);
                         row.children().eq(4).text(node.queued);
