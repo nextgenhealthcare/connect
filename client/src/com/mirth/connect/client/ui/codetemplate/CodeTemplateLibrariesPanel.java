@@ -11,29 +11,41 @@ package com.mirth.connect.client.ui.codetemplate;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
-import javax.swing.JButton;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableCellEditor;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -50,6 +62,8 @@ import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.util.CodeTemplateUtil;
+import com.mirth.connect.util.MirthXmlUtil;
 
 public class CodeTemplateLibrariesPanel extends JPanel {
 
@@ -87,6 +101,25 @@ public class CodeTemplateLibrariesPanel extends JPanel {
 
                 ((DefaultTreeTableModel) libraryTreeTable.getTreeTableModel()).setRoot(rootNode);
                 libraryTreeTable.expandAll();
+
+                libraryTreeTable.getModel().addTableModelListener(new TableModelListener() {
+                    @Override
+                    public void tableChanged(TableModelEvent evt) {
+                        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((DefaultMutableTreeTableNode) libraryTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
+                            Triple<String, String, Boolean> triple = (Triple<String, String, Boolean>) libraryNodes.nextElement().getUserObject();
+
+                            CodeTemplateLibrary library = libraryMap.get(triple.getLeft());
+                            if (triple.getRight()) {
+                                library.getDisabledChannelIds().remove(channelId);
+                                library.getEnabledChannelIds().add(channelId);
+                            } else {
+                                library.getDisabledChannelIds().add(channelId);
+                                library.getEnabledChannelIds().remove(channelId);
+                            }
+                        }
+                    }
+                });
+
                 parent.codeTemplateLibrariesReady();
             }
         });
@@ -98,24 +131,6 @@ public class CodeTemplateLibrariesPanel extends JPanel {
 
     private void initComponents(Channel channel) {
         setBackground(UIConstants.BACKGROUND_COLOR);
-
-        enableButton = new JButton("Enable");
-        enableButton.setEnabled(false);
-        enableButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                setLibraryEnabled(true);
-            }
-        });
-
-        disableButton = new JButton("Disable");
-        disableButton.setEnabled(false);
-        disableButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                setLibraryEnabled(false);
-            }
-        });
 
         expandAllLabel = new JLabel("<html><u>Expand All</u></html>");
         expandAllLabel.setForeground(Color.BLUE);
@@ -137,12 +152,24 @@ public class CodeTemplateLibrariesPanel extends JPanel {
             }
         });
 
-        libraryTreeTable = new MirthTreeTable();
+        final TableCellEditor libraryCellEditor = new LibraryTreeCellEditor();
+
+        libraryTreeTable = new MirthTreeTable() {
+            @Override
+            public TableCellEditor getCellEditor(int row, int column) {
+                if (isHierarchical(column)) {
+                    return libraryCellEditor;
+                } else {
+                    return super.getCellEditor(row, column);
+                }
+            }
+        };
 
         DefaultTreeTableModel model = new SortableTreeTableModel();
         DefaultMutableTreeTableNode rootNode = new DefaultMutableTreeTableNode();
         model.setRoot(rootNode);
 
+        libraryTreeTable.setLargeModel(true);
         libraryTreeTable.setTreeTableModel(model);
         libraryTreeTable.setOpenIcon(null);
         libraryTreeTable.setClosedIcon(null);
@@ -151,11 +178,11 @@ public class CodeTemplateLibrariesPanel extends JPanel {
         libraryTreeTable.setDoubleBuffered(true);
         libraryTreeTable.setDragEnabled(false);
         libraryTreeTable.setRowSelectionAllowed(true);
-        libraryTreeTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        libraryTreeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         libraryTreeTable.setRowHeight(UIConstants.ROW_HEIGHT);
         libraryTreeTable.setFocusable(true);
         libraryTreeTable.setOpaque(true);
-        libraryTreeTable.setEditable(false);
+        libraryTreeTable.setEditable(true);
         libraryTreeTable.setSortable(false);
         libraryTreeTable.setAutoCreateColumnsFromModel(false);
         libraryTreeTable.setShowGrid(true, true);
@@ -164,6 +191,8 @@ public class CodeTemplateLibrariesPanel extends JPanel {
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             libraryTreeTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
+
+        libraryTreeTable.setTreeCellRenderer(new LibraryTreeCellRenderer());
 
         libraryTreeTable.addMouseListener(new MouseAdapter() {
             @Override
@@ -187,80 +216,186 @@ public class CodeTemplateLibrariesPanel extends JPanel {
             @Override
             public void valueChanged(ListSelectionEvent evt) {
                 if (!evt.getValueIsAdjusting()) {
-                    enableButton.setEnabled(libraryTreeTable.getSelectedRowCount() > 0);
-                    disableButton.setEnabled(libraryTreeTable.getSelectedRowCount() > 0);
+                    boolean visible = false;
+                    int selectedRow = libraryTreeTable.getSelectedRow();
+
+                    if (selectedRow >= 0) {
+                        TreePath selectedPath = libraryTreeTable.getPathForRow(selectedRow);
+                        if (selectedPath != null) {
+                            visible = true;
+                            Triple<String, String, Boolean> triple = (Triple<String, String, Boolean>) ((MutableTreeTableNode) selectedPath.getLastPathComponent()).getUserObject();
+                            String description = "";
+
+                            if (selectedPath.getPathCount() == 2) {
+                                description = libraryMap.get(triple.getLeft()).getDescription();
+                            } else if (selectedPath.getPathCount() == 3) {
+                                description = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates().get(triple.getLeft()).getDescription();
+                            }
+
+                            if (StringUtils.isBlank(description) || StringUtils.equals(description, CodeTemplateUtil.getDocumentation(CodeTemplate.DEFAULT_CODE).getDescription())) {
+                                descriptionTextPane.setText("<html><body class=\"code-template-libraries-panel\"><i>No description.</i></body></html>");
+                            } else {
+                                descriptionTextPane.setText("<html><body class=\"code-template-libraries-panel\">" + MirthXmlUtil.encode(description) + "</body></html>");
+                            }
+                        }
+                    }
+
+                    descriptionScrollPane.setVisible(visible);
+                    updateUI();
                 }
             }
         });
 
-        libraryTreeTable.setTreeCellRenderer(new LibraryTreeCellRenderer());
-
         libraryTreeTableScrollPane = new JScrollPane(libraryTreeTable);
+
+        descriptionTextPane = new JTextPane();
+        descriptionTextPane.setContentType("text/html");
+        HTMLEditorKit editorKit = new HTMLEditorKit();
+        StyleSheet styleSheet = editorKit.getStyleSheet();
+        styleSheet.addRule(".code-template-libraries-panel {font-family:\"Tahoma\";font-size:11;text-align:top}");
+        descriptionTextPane.setEditorKit(editorKit);
+        descriptionTextPane.setEditable(false);
+        descriptionScrollPane = new JScrollPane(descriptionTextPane);
+        descriptionScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        descriptionScrollPane.setVisible(false);
     }
 
     private void initLayout() {
         setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
-        add(enableButton, "left, split 2, w 48!");
-        add(disableButton, "w 48!");
         add(expandAllLabel, "right, split");
         add(separatorLabel);
         add(collapseAllLabel);
         add(libraryTreeTableScrollPane, "newline, grow, sx, push");
+        add(descriptionScrollPane, "newline, grow, h 90!");
     }
 
-    private class LibraryTreeCellRenderer extends JLabel implements TreeCellRenderer {
+    private class LibraryTreeCellRenderer extends JPanel implements TreeCellRenderer {
+
+        private JCheckBox checkBox;
+        private JLabel filler;
+        private JLabel label;
+
+        public LibraryTreeCellRenderer() {
+            super(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
+            checkBox = new JCheckBox();
+            add(checkBox);
+            filler = new JLabel();
+            add(filler, "w 13!");
+            label = new JLabel();
+            add(label, "grow, push");
+        }
+
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            if (selected) {
+                setBackground(libraryTreeTable.getSelectionBackground());
+            } else {
+                setBackground(row % 2 == 0 ? UIConstants.HIGHLIGHTER_COLOR : UIConstants.BACKGROUND_COLOR);
+            }
+            checkBox.setBackground(getBackground());
+            label.setBackground(getBackground());
+
             if (value != null) {
                 MutableTreeTableNode node = (MutableTreeTableNode) value;
 
                 if (node.getUserObject() != null) {
                     Triple<String, String, Boolean> triple = (Triple<String, String, Boolean>) node.getUserObject();
-                    setText(triple.getMiddle());
-                    setIcon(triple.getRight() ? UIConstants.ICON_BULLET_GREEN : UIConstants.ICON_BULLET_RED);
+                    label.setText(triple.getMiddle());
+                    checkBox.setSelected(triple.getRight());
+                    if (node.getParent().getParent() == null) {
+                        checkBox.setVisible(true);
+                        filler.setVisible(false);
+                    } else {
+                        checkBox.setVisible(false);
+                        filler.setVisible(true);
+                    }
                 }
             }
             return this;
         }
     }
 
-    private void setLibraryEnabled(boolean enabled) {
-        for (int selectedRow : libraryTreeTable.getSelectedRows()) {
-            TreePath selectedPath = libraryTreeTable.getPathForRow(selectedRow);
-            if (selectedPath != null) {
-                if (selectedPath.getPathCount() == 3) {
-                    selectedPath = selectedPath.getParentPath();
-                }
+    private class LibraryTreeCellEditor extends DefaultCellEditor {
 
-                MutableTreeTableNode selectedNode = (MutableTreeTableNode) selectedPath.getLastPathComponent();
-                Triple<String, String, Boolean> triple = (Triple<String, String, Boolean>) ((MutableTreeTableNode) selectedPath.getLastPathComponent()).getUserObject();
-                String libraryId = triple.getLeft();
+        private CheckBoxPanel panel;
+        private JCheckBox checkBox;
+        private JLabel filler;
+        private JLabel label;
+        private String id;
 
-                libraryTreeTable.getTreeTableModel().setValueAt(new ImmutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), enabled), selectedNode, 0);
+        public LibraryTreeCellEditor() {
+            super(new JCheckBox());
+            panel = new CheckBoxPanel(new MigLayout("insets 1 0 0 0, novisualpadding, hidemode 3, fill"));
+            checkBox = (JCheckBox) editorComponent;
+            panel.add(checkBox);
+            filler = new JLabel();
+            panel.add(filler, "w 13!");
+            label = new JLabel();
+            panel.add(label, "grow, push");
+        }
 
-                for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = selectedNode.children(); codeTemplateNodes.hasMoreElements();) {
-                    MutableTreeTableNode codeTemplateNode = codeTemplateNodes.nextElement();
-                    triple = (Triple<String, String, Boolean>) codeTemplateNode.getUserObject();
-                    libraryTreeTable.getTreeTableModel().setValueAt(new ImmutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), enabled), codeTemplateNode, 0);
-                }
+        @Override
+        public Object getCellEditorValue() {
+            return new ImmutableTriple<String, String, Boolean>(id, label.getText(), checkBox.isSelected());
+        }
 
-                CodeTemplateLibrary library = libraryMap.get(libraryId);
-                if (enabled) {
-                    library.getDisabledChannelIds().remove(channelId);
-                    library.getEnabledChannelIds().add(channelId);
-                } else {
-                    library.getDisabledChannelIds().add(channelId);
-                    library.getEnabledChannelIds().remove(channelId);
-                }
+        @Override
+        public boolean isCellEditable(EventObject anEvent) {
+            return true;
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            Triple<String, String, Boolean> triple = (Triple<String, String, Boolean>) value;
+            if (triple != null) {
+                id = triple.getLeft();
+                label.setText(triple.getMiddle());
+                checkBox.setSelected(triple.getRight());
+            }
+
+            MirthTreeTable treeTable = (MirthTreeTable) table;
+            JTree tree = (JTree) treeTable.getCellRenderer(0, treeTable.getHierarchicalColumn());
+            panel.setOffset(tree.getRowBounds(row).x);
+            panel.setBackground(table.getSelectionBackground());
+            checkBox.setBackground(panel.getBackground());
+            label.setBackground(panel.getBackground());
+
+            TreePath path = treeTable.getPathForRow(row);
+            if (path != null && path.getPathCount() == 2) {
+                checkBox.setVisible(true);
+                filler.setVisible(false);
+            } else {
+                checkBox.setVisible(false);
+                filler.setVisible(true);
+            }
+
+            return panel;
+        }
+
+        private class CheckBoxPanel extends JPanel {
+
+            private int offset;
+
+            public CheckBoxPanel(LayoutManager layout) {
+                super(layout);
+            }
+
+            public void setOffset(int offset) {
+                this.offset = offset;
+            }
+
+            @Override
+            public void setBounds(int x, int y, int width, int height) {
+                super.setBounds(x + offset, y, width - offset, height);
             }
         }
     }
 
-    private JButton enableButton;
-    private JButton disableButton;
     private JLabel expandAllLabel;
     private JLabel separatorLabel;
     private JLabel collapseAllLabel;
     private MirthTreeTable libraryTreeTable;
     private JScrollPane libraryTreeTableScrollPane;
+    private JTextPane descriptionTextPane;
+    private JScrollPane descriptionScrollPane;
 }

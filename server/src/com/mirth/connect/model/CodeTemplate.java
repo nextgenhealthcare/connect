@@ -33,7 +33,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("codeTemplate")
 public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheable<CodeTemplate> {
 
-    private static final String DEFAULT_CODE = "/**\n\tModify the description here. Modify the function name and parameters as needed. One function per\n\ttemplate is recommended; create a new code template for each new function.\n\n\t@param {String} arg1 - arg1 description\n\t@return {String} return description\n*/\nfunction new_function1(arg1) {\n\t// TODO: Enter code here\n}";
+    public static final String DEFAULT_CODE = "/**\n\tModify the description here. Modify the function name and parameters as needed. One function per\n\ttemplate is recommended; create a new code template for each new function.\n\n\t@param {String} arg1 - arg1 description\n\t@return {String} return description\n*/\nfunction new_function1(arg1) {\n\t// TODO: Enter code here\n}";
 
     public enum CodeTemplateType {
         FUNCTION("Function"), DRAG_AND_DROP_CODE("Drag-and-Drop Code Block"), COMPILED_CODE(
