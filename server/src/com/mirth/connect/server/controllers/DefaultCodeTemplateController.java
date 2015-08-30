@@ -535,7 +535,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             }
         } catch (Throwable t) {
             updateSummary.setLibrariesSuccess(false);
-            updateSummary.setLibrariesCause(t);
+            updateSummary.setLibrariesCause(convertUpdateCause(t));
 
             // If updating the libraries failed, don't go any further
             return updateSummary;
@@ -551,7 +551,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
                 result.setNewLastModified(codeTemplate.getLastModified());
             } catch (Throwable t) {
                 result.setSuccess(false);
-                result.setCause(t);
+                result.setCause(convertUpdateCause(t));
             }
 
             updateSummary.getCodeTemplateResults().put(codeTemplate.getId(), result);
@@ -566,12 +566,26 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
                 result.setSuccess(true);
             } catch (Throwable t) {
                 result.setSuccess(false);
-                result.setCause(t);
+                result.setCause(convertUpdateCause(t));
             }
 
             updateSummary.getCodeTemplateResults().put(codeTemplate.getId(), result);
         }
 
         return updateSummary;
+    }
+
+    private Throwable convertUpdateCause(Throwable t) {
+        if (t instanceof ControllerException) {
+            if (t.getCause() != null) {
+                t = t.getCause();
+            } else {
+                StackTraceElement[] stackTrace = t.getStackTrace();
+                t = new Exception(t.getMessage());
+                t.setStackTrace(stackTrace);
+            }
+        }
+
+        return t;
     }
 }
