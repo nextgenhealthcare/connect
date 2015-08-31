@@ -34,6 +34,7 @@ import com.mirth.connect.server.ExtensionLoader;
 
 public class DefaultUsageController extends UsageController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private Map<String, Object> lastClientStats = new HashMap<String, Object>();
 
     private static UsageController instance = null;
 
@@ -70,11 +71,17 @@ public class DefaultUsageController extends UsageController {
      * Generates purged data of this server instance and serializes into JSON.
      */
     @Override
-    public String createUsageStats() {
+    public String createUsageStats(Map<String, Object> clientStats) {
         PurgedDocument purgedDocument = new PurgedDocument();
         String usageData = null;
+
+        if (clientStats != null) {
+            lastClientStats = clientStats;
+        }
+
         try {
             if (canSendStats()) {
+                getClientSpecs(purgedDocument);
                 getServerSpecs(purgedDocument);
                 getConfigurationData(purgedDocument);
                 getChannelData(purgedDocument);
@@ -105,6 +112,12 @@ public class DefaultUsageController extends UsageController {
 
     private void getDatabaseVersion() {
         //TODO: Get database version.
+    }
+
+    private void getClientSpecs(PurgedDocument purgedDocument) {
+        // The client specs are cached from the most recent user login.
+        // If no one has logged in since the last server restart, clientStats will be empty.
+        purgedDocument.setClientSpecs(lastClientStats);
     }
 
     private void getServerSpecs(PurgedDocument purgedDocument) {

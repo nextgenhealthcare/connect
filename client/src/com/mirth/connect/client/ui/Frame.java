@@ -1661,7 +1661,7 @@ public class Frame extends JXFrame {
 
                 public Void doInBackground() {
                     try {
-                        String usageData = mirthClient.getUsageData();
+                        String usageData = mirthClient.getUsageData(getClientStats());
                         if (usageData != null) {
                             boolean isSent = ConnectServiceUtil.sendStatistics(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, false, usageData, PlatformUI.HTTPS_PROTOCOLS, PlatformUI.HTTPS_CIPHER_SUITES);
                             if (isSent) {
@@ -1684,6 +1684,12 @@ public class Frame extends JXFrame {
 
             worker.execute();
         }
+    }
+    
+    private Map<String, Object> getClientStats() {
+        Map<String, Object> clientStats = new HashMap<String, Object>();
+        clientStats.put("javaVersion", System.getProperty("java.version"));
+        return clientStats;
     }
 
     /**

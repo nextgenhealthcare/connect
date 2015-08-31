@@ -745,7 +745,7 @@ public class Mirth extends Thread {
     private class UsageSenderTask extends TimerTask {
         @Override
         public void run() {
-            boolean isSent = ConnectServiceUtil.sendStatistics(configurationController.getServerId(), configurationController.getServerVersion(), true, usageController.createUsageStats(), configurationController.getHttpsClientProtocols(), configurationController.getHttpsCipherSuites());
+            boolean isSent = ConnectServiceUtil.sendStatistics(configurationController.getServerId(), configurationController.getServerVersion(), true, usageController.createUsageStats(null), configurationController.getHttpsClientProtocols(), configurationController.getHttpsCipherSuites());
             if (isSent) {
                 UpdateSettings settings = new UpdateSettings();
                 settings.setLastStatsTime(System.currentTimeMillis());

@@ -17,6 +17,7 @@ public class PurgedDocument {
     private String serverId;
     private String databaseType;
     private Map<String, Object> serverSpecs;
+    private Map<String, Object> clientSpecs;
     private Map<String, Integer> globalScripts;
     private List<Map<String, Object>> channels;
     private int invalidChannels;
@@ -139,6 +140,14 @@ public class PurgedDocument {
 
     public void setServerSpecs(Map<String, Object> serverSpecs) {
         this.serverSpecs = serverSpecs;
+    }
+    
+    public Map<String, Object> getClientSpecs() {
+        return clientSpecs;
+    }
+
+    public void setClientSpecs(Map<String, Object> clientSpecs) {
+        this.clientSpecs = clientSpecs;
     }
 
     public List<Map<String, Object>> getConnectorMetaData() {

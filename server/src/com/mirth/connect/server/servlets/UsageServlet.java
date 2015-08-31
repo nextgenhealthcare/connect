@@ -11,6 +11,7 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +43,8 @@ public class UsageServlet extends MirthServlet {
                 if (operation.equals(Operations.USAGE_DATA_GET)) {
                     response.setContentType(TEXT_PLAIN);
                     if (isUserAuthorized(request, null)) {
-                        serializer.serialize(usageController.createUsageStats(), out);
+                        Map<String, Object> clientStats = serializer.deserialize(request.getParameter("clientStats"), Map.class);
+                        serializer.serialize(usageController.createUsageStats(clientStats), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }

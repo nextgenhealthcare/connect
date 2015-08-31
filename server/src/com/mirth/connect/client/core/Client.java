@@ -1323,8 +1323,8 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public String getUsageData() throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USAGE_DATA_GET.getName()) };
+    public String getUsageData(Map<String, Object> clientStats) throws ClientException {
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USAGE_DATA_GET.getName()), new BasicNameValuePair("clientStats", serializer.serialize(clientStats)) };
         return serializer.deserialize(serverConnection.executePostMethodAsync(USAGE_SERVLET, params), String.class);
     }
 
