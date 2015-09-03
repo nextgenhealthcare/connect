@@ -85,7 +85,8 @@ public class FileReader extends ConnectorSettingsPanel {
     public ConnectorProperties getProperties() {
         FileReceiverProperties properties = new FileReceiverProperties();
 
-        properties.setScheme(FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem()));
+        FileScheme scheme = FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem());
+        properties.setScheme(scheme);
 
         if (advancedSettingsDialog != null) {
             properties.setSchemeProperties(advancedSettingsDialog.getFileSchemeProperties());
@@ -100,16 +101,16 @@ public class FileReader extends ConnectorSettingsPanel {
         properties.setDirectoryRecursion(directoryRecursionYesRadio.isSelected());
         properties.setIgnoreDot(ignoreDotFilesYesRadio.isSelected());
 
-        if (anonymousYesRadio.isSelected()) {
-            properties.setAnonymous(true);
-        } else {
-            properties.setAnonymous(false);
-        }
+        properties.setAnonymous(anonymousYesRadio.isSelected() && (scheme == FileScheme.FTP || scheme == FileScheme.WEBDAV));
 
         properties.setUsername(usernameField.getText());
         properties.setPassword(new String(passwordField.getPassword()));
 
         properties.setTimeout(timeoutField.getText());
+
+        properties.setSecure(secureModeYesRadio.isSelected() && scheme == FileScheme.WEBDAV);
+        properties.setPassive(passiveModeYesRadio.isSelected() && scheme == FileScheme.FTP);
+        properties.setValidateConnection(validateConnectionYesRadio.isSelected() && scheme == FileScheme.FTP);
 
         properties.setAfterProcessingAction((FileAction) afterProcessingActionComboBox.getSelectedItem());
         properties.setMoveToDirectory(moveToDirectoryField.getText().replace('\\', '/'));
@@ -743,7 +744,8 @@ public class FileReader extends ConnectorSettingsPanel {
         mirthVariableList = new MirthVariableList();
         mirthVariableList.setBorder(BorderFactory.createEtchedBorder());
         mirthVariableList.setModel(new AbstractListModel() {
-            String[] strings = { "channelName", "channelId", "DATE", "COUNT", "UUID", "SYSTIME", "originalFilename" };
+            String[] strings = { "channelName", "channelId", "DATE", "COUNT", "UUID", "SYSTIME",
+                    "originalFilename" };
 
             public int getSize() {
                 return strings.length;

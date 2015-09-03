@@ -70,7 +70,8 @@ public class FileWriter extends ConnectorSettingsPanel {
     public ConnectorProperties getProperties() {
         FileDispatcherProperties properties = new FileDispatcherProperties();
 
-        properties.setScheme(FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem()));
+        FileScheme scheme = FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem());
+        properties.setScheme(scheme);
 
         if (advancedSettingsDialog != null) {
             properties.setSchemeProperties(advancedSettingsDialog.getFileSchemeProperties());
@@ -84,16 +85,16 @@ public class FileWriter extends ConnectorSettingsPanel {
 
         properties.setOutputPattern(fileNameField.getText());
 
-        properties.setAnonymous(anonymousYesRadio.isSelected());
+        properties.setAnonymous(anonymousYesRadio.isSelected() && (scheme == FileScheme.FTP || scheme == FileScheme.WEBDAV));
 
         properties.setUsername(usernameField.getText());
         properties.setPassword(new String(passwordField.getPassword()));
 
         properties.setTimeout(timeoutField.getText());
 
-        properties.setSecure(secureModeYesRadio.isSelected());
-        properties.setPassive(passiveModeYesRadio.isSelected());
-        properties.setValidateConnection(validateConnectionYesRadio.isSelected());
+        properties.setSecure(secureModeYesRadio.isSelected() && scheme == FileScheme.WEBDAV);
+        properties.setPassive(passiveModeYesRadio.isSelected() && scheme == FileScheme.FTP);
+        properties.setValidateConnection(validateConnectionYesRadio.isSelected() && scheme == FileScheme.FTP);
 
         if (fileExistsAppendRadio.isSelected()) {
             properties.setOutputAppend(true);
