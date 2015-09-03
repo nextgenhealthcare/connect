@@ -284,6 +284,10 @@ public class FileConnector {
     }
 
     protected URI getEndpointURI(String host) throws URISyntaxException {
+        return getEndpointURI(host, scheme, secure);
+    }
+
+    public static URI getEndpointURI(String host, FileScheme scheme, boolean isSecure) throws URISyntaxException {
         StringBuilder sspBuilder = new StringBuilder();
 
         sspBuilder.append("//");
@@ -295,7 +299,7 @@ public class FileConnector {
 
         String schemeName;
         if (scheme == FileScheme.WEBDAV) {
-            if (secure) {
+            if (isSecure) {
                 schemeName = "https";
             } else {
                 schemeName = "http";

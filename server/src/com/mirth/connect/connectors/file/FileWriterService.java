@@ -41,43 +41,21 @@ public class FileWriterService implements ConnectorService {
                 sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId, channelName));
             }
 
-            String fileHost = null;
             FileScheme scheme = connectorProperties.getScheme();
-            String addressHost = null;
-            int port = 0;
-            String dir = null;
-
-            boolean secure = false;
-            boolean passive = false;
             int timeout = Integer.parseInt(connectorProperties.getTimeout());
 
-            if (scheme.equals(FileScheme.FTP) || scheme.equals(FileScheme.SFTP)) {
-                passive = connectorProperties.isPassive();
+            URI address = FileConnector.getEndpointURI(host, scheme, connectorProperties.isSecure());
+            String addressHost = address.getHost();
+            int port = address.getPort();
+            String dir = address.getPath();
+
+            String hostDisplayName = "";
+            if (!scheme.equals(FileScheme.FILE)) {
+                hostDisplayName = scheme.getDisplayName() + "://" + address.getHost();
             }
+            hostDisplayName += dir;
 
-            if (scheme.equals(FileScheme.FILE)) {
-                fileHost = host;
-                dir = host;
-            } else {
-                URI address;
-                if (scheme.equals(FileScheme.WEBDAV)) {
-                    if (connectorProperties.isSecure()) {
-                        secure = true;
-                        address = new URI("https://" + host);
-                    } else {
-                        address = new URI("http://" + host);
-                    }
-                } else {
-                    address = new URI(scheme.getDisplayName(), "//" + host, null);
-                }
-
-                fileHost = address.toString();
-                addressHost = address.getHost();
-                port = address.getPort();
-                dir = address.getPath();
-            }
-
-            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, new FileSystemConnectionOptions(username, password, sftpProperties), addressHost, port, passive, secure, timeout);
+            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, new FileSystemConnectionOptions(username, password, sftpProperties), addressHost, port, connectorProperties.isPassive(), connectorProperties.isSecure(), timeout);
 
             FileSystemConnection connection = null;
 
@@ -85,12 +63,12 @@ public class FileWriterService implements ConnectorService {
                 connection = ((PooledObject<FileSystemConnection>) factory.makeObject()).getObject();
 
                 if (connection.canWrite(dir)) {
-                    return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to: " + fileHost);
+                    return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to: " + hostDisplayName);
                 } else {
-                    return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + fileHost);
+                    return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + hostDisplayName);
                 }
             } catch (Exception e) {
-                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + fileHost + ", Reason: " + e.getMessage());
+                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + hostDisplayName + ", Reason: " + e.getMessage());
             } finally {
                 if (connection != null) {
                     connection.destroy();
