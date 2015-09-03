@@ -20,11 +20,19 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.AttachmentPart;
@@ -109,6 +117,9 @@ public class WebServiceDispatcher extends DestinationConnector {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private WebServiceConfiguration configuration;
     private RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistry;
+    private ExecutorService executor;
+    private Set<DispatchTask<SOAPMessage>> dispatchTasks;
+    private int timeout;
 
     /*
      * Dispatch object used for pooling the soap connection, and the current properties used to
@@ -136,6 +147,8 @@ public class WebServiceDispatcher extends DestinationConnector {
         } catch (Exception e) {
             throw new ConnectorTaskException(e);
         }
+
+        timeout = NumberUtils.toInt(connectorProperties.getSocketTimeout());
     }
 
     @Override
@@ -144,10 +157,19 @@ public class WebServiceDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onStart() throws ConnectorTaskException {}
+    public void onStart() throws ConnectorTaskException {
+        if (timeout == 0) {
+            executor = Executors.newCachedThreadPool();
+            dispatchTasks = Collections.newSetFromMap(new ConcurrentHashMap<DispatchTask<SOAPMessage>, Boolean>());
+        }
+    }
 
     @Override
     public void onStop() throws ConnectorTaskException {
+        if (executor != null) {
+            executor.shutdown();
+        }
+
         for (DispatchContainer dispatchContainer : dispatchContainers.values()) {
             for (File tempFile : dispatchContainer.getTempFiles()) {
                 tempFile.delete();
@@ -158,6 +180,24 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     @Override
     public void onHalt() throws ConnectorTaskException {
+        if (executor != null) {
+            executor.shutdownNow();
+
+            try {
+                // Wait a bit for tasks to finish and remove themselves from the set
+                executor.awaitTermination(100, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                throw new ConnectorTaskException("Halt task interrupted while waiting for executor to shutdown.", e);
+            }
+
+            int numTasks = dispatchTasks.size();
+            if (numTasks > 0) {
+                String message = "Error halting Web Service Sender: " + numTasks + " request" + (numTasks == 1 ? "" : "s") + " failed to be halted. This can potentially lead to a thread leak if the requests continue to hang.";
+                logger.error(message);
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), message, null));
+            }
+        }
+
         for (DispatchContainer dispatchContainer : dispatchContainers.values().toArray(new DispatchContainer[dispatchContainers.size()])) {
             for (File tempFile : dispatchContainer.getTempFiles().toArray(new File[dispatchContainer.getTempFiles().size()])) {
                 tempFile.delete();
@@ -195,9 +235,7 @@ public class WebServiceDispatcher extends DestinationConnector {
             dispatchContainer.setCurrentServiceName(serviceName);
             dispatchContainer.setCurrentPortName(portName);
 
-            int timeout = NumberUtils.toInt(webServiceDispatcherProperties.getSocketTimeout());
-
-            URL endpointUrl = getWsdlUrl(dispatchContainer, timeout);
+            URL endpointUrl = getWsdlUrl(dispatchContainer);
             QName serviceQName = QName.valueOf(serviceName);
             QName portQName = QName.valueOf(portName);
 
@@ -234,7 +272,7 @@ public class WebServiceDispatcher extends DestinationConnector {
      * @return
      * @throws Exception
      */
-    private URL getWsdlUrl(DispatchContainer dispatchContainer, int timeout) throws Exception {
+    private URL getWsdlUrl(DispatchContainer dispatchContainer) throws Exception {
         URI uri = new URI(dispatchContainer.getCurrentWsdlUrl());
 
         // If the URL points to file, just return it
@@ -470,14 +508,31 @@ public class WebServiceDispatcher extends DestinationConnector {
                 tryCount++;
 
                 try {
-                    // Make the call
+                    DispatchTask<SOAPMessage> task = new DispatchTask<SOAPMessage>(dispatch, message, webServiceDispatcherProperties.isOneWay());
+                    SOAPMessage result;
+
+                    /*
+                     * If the timeout is set to zero, we need to do the invocation in a separate
+                     * thread. This is because there's no way to get a reference to the underlying
+                     * JAX-WS socket, so there's no way to forcefully halt the dispatch. If the
+                     * socket is truly hung and the user halts the channel, the best we can do is
+                     * just interrupt and ignore the thread. This means that a thread leak is
+                     * potentially introduced, so we need to notify the user appropriately.
+                     */
+                    if (timeout == 0) {
+                        // Submit the task to an executor so that it's interruptible
+                        Future<SOAPMessage> future = executor.submit(task);
+                        // Keep track of the task by adding it to our set
+                        dispatchTasks.add(task);
+                        result = future.get();
+                    } else {
+                        // Call the task directly
+                        result = task.call();
+                    }
+
                     if (webServiceDispatcherProperties.isOneWay()) {
-                        logger.debug("Invoking one way service...");
-                        dispatch.invokeOneWay(message);
                         responseStatusMessage = "Invoked one way operation successfully.";
                     } else {
-                        logger.debug("Invoking web service...");
-                        SOAPMessage result = dispatch.invoke(message);
                         responseData = sourceToXmlString(result.getSOAPPart().getContent());
                         responseStatusMessage = "Invoked two way operation successfully.";
                     }
@@ -485,8 +540,16 @@ public class WebServiceDispatcher extends DestinationConnector {
 
                     // Automatically accept message; leave it up to the response transformer to find SOAP faults
                     responseStatus = Status.SENT;
-                } catch (Exception e) {
-                    Integer responseCode = (Integer) dispatch.getResponseContext().get(MessageContext.HTTP_RESPONSE_CODE);
+                } catch (Throwable e) {
+                    // Unwrap the exception if it came from the executor
+                    if (e instanceof ExecutionException && e.getCause() != null) {
+                        e = e.getCause();
+                    }
+
+                    Integer responseCode = null;
+                    if (dispatch.getResponseContext() != null) {
+                        responseCode = (Integer) dispatch.getResponseContext().get(MessageContext.HTTP_RESPONSE_CODE);
+                    }
 
                     String location = null;
                     Map<String, List<String>> headers = (Map<String, List<String>>) dispatch.getResponseContext().get(MessageContext.HTTP_RESPONSE_HEADERS);
@@ -614,5 +677,36 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     public RegistryBuilder<ConnectionSocketFactory> getSocketFactoryRegistry() {
         return socketFactoryRegistry;
+    }
+
+    private class DispatchTask<T> implements Callable<T> {
+
+        private Dispatch<T> dispatch;
+        private T message;
+        private boolean oneWay;
+
+        public DispatchTask(Dispatch<T> dispatch, T message, boolean oneWay) {
+            this.dispatch = dispatch;
+            this.message = message;
+            this.oneWay = oneWay;
+        }
+
+        @Override
+        public T call() throws Exception {
+            try {
+                if (oneWay) {
+                    logger.debug("Invoking one way service...");
+                    dispatch.invokeOneWay(message);
+                    return null;
+                } else {
+                    logger.debug("Invoking web service...");
+                    return dispatch.invoke(message);
+                }
+            } finally {
+                if (dispatchTasks != null) {
+                    dispatchTasks.remove(this);
+                }
+            }
+        }
     }
 }
