@@ -20,7 +20,6 @@ import java.util.Map;
 
 import javax.sql.rowset.CachedRowSet;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
@@ -46,6 +45,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private Logger logger = Logger.getLogger(getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private CustomDriver customDriver;
+    private String contextFactoryId;
 
     public DatabaseReceiverQuery(DatabaseReceiver connector) {
         this.connector = connector;
@@ -59,19 +59,18 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
             throw new ConnectorTaskException("A query has not been defined");
         }
 
+        MirthContextFactory contextFactory;
         try {
-            Class.forName(connectorProperties.getDriver());
-        } catch (ClassNotFoundException e) {
-            try {
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
-                if (CollectionUtils.isNotEmpty(contextFactory.getResourceIds())) {
-                    customDriver = new CustomDriver(contextFactory.getApplicationClassLoader(), connectorProperties.getDriver());
-                } else {
-                    throw new ConnectorTaskException(e);
-                }
-            } catch (Exception e2) {
-                throw new ConnectorTaskException(e2);
-            }
+            contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+            contextFactoryId = contextFactory.getId();
+        } catch (Exception e) {
+            throw new ConnectorTaskException("Error retrieving context factory.", e);
+        }
+
+        try {
+            initDriver(contextFactory);
+        } catch (Exception e) {
+            throw new ConnectorTaskException(e);
         }
     }
 
@@ -79,6 +78,12 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     public void start() throws ConnectorTaskException {
         // if the keepConnectionOpen option is enabled, we open the database connection(s) here and they remain open until undeploy()
         if (connectorProperties.isKeepConnectionOpen()) {
+            try {
+                checkContextFactory();
+            } catch (Exception e) {
+                throw new ConnectorTaskException(e);
+            }
+
             initConnection();
         }
     }
@@ -134,14 +139,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     }
 
     @Override
-    public void undeploy() {
-        if (customDriver != null) {
-            try {
-                customDriver.dispose();
-            } catch (SQLException e) {
-            }
-        }
-    }
+    public void undeploy() {}
 
     @Override
     public Object poll() throws DatabaseReceiverException, InterruptedException {
@@ -152,6 +150,13 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), channelId, channelName), 0);
         int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), channelId, channelName), 0);
         boolean done = false;
+        boolean contextFactoryChanged = false;
+
+        try {
+            contextFactoryChanged = checkContextFactory();
+        } catch (Exception e) {
+            throw new DatabaseReceiverException(e);
+        }
 
         while (!done && !connector.isTerminated()) {
             CachedRowSet cachedRowSet = null;
@@ -159,9 +164,10 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
             try {
                 /*
                  * If the keepConnectionOpen option is not enabled, we open the database
-                 * connection(s) here. They will be closed in afterPoll().
+                 * connection(s) here. They will be closed in afterPoll(). Always reset the
+                 * connection if the connector's context factory has changed.
                  */
-                if (!connectorProperties.isKeepConnectionOpen()) {
+                if (contextFactoryChanged || !connectorProperties.isKeepConnectionOpen()) {
                     initSelectConnection();
 
                     if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_EACH) {
@@ -281,6 +287,39 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         }
     }
 
+    private void initDriver(MirthContextFactory contextFactory) throws Exception {
+        customDriver = null;
+
+        try {
+            ClassLoader isolatedClassLoader = contextFactory.getIsolatedClassLoader();
+            if (isolatedClassLoader != null) {
+                // If the custom driver couldn't be created because the class couldn't be found, this will throw an exception
+                customDriver = new CustomDriver(isolatedClassLoader, connectorProperties.getDriver());
+                logger.debug("Custom driver created: " + customDriver.toString() + ", Version " + customDriver.getMajorVersion() + "." + customDriver.getMinorVersion());
+            } else {
+                logger.debug("Custom classloader is not being used, defaulting to DriverManager.");
+            }
+        } catch (Exception e) {
+            logger.debug("Error creating custom driver, defaulting to DriverManager.", e);
+        }
+
+        // If a custom driver was not created, use the default one
+        if (customDriver == null) {
+            Class.forName(connectorProperties.getDriver());
+        }
+    }
+
+    private boolean checkContextFactory() throws Exception {
+        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+        if (!contextFactoryId.equals(contextFactory.getId())) {
+            initDriver(contextFactory);
+            contextFactoryId = contextFactory.getId();
+            return true;
+        }
+
+        return false;
+    }
+
     private void initSelectConnection() throws SQLException {
         closeSelectConnection();
 
@@ -290,7 +329,11 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
         String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
 
-        selectConnection = DriverManager.getConnection(url, username, password);
+        if (customDriver != null) {
+            selectConnection = customDriver.connect(url, username, password);
+        } else {
+            selectConnection = DriverManager.getConnection(url, username, password);
+        }
         selectConnection.setAutoCommit(true);
 
         /*
@@ -328,7 +371,11 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
         String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
 
-        updateConnection = DriverManager.getConnection(url, username, password);
+        if (customDriver != null) {
+            updateConnection = customDriver.connect(url, username, password);
+        } else {
+            updateConnection = DriverManager.getConnection(url, username, password);
+        }
         updateConnection.setAutoCommit(true);
 
         /*

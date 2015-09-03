@@ -9,9 +9,12 @@
 
 package com.mirth.connect.server.util.javascript;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ScriptableObject;
@@ -23,14 +26,26 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 public class MirthContextFactory extends ContextFactory {
 
     private String id;
+    private URL[] urls;
     private Set<String> resourceIds;
     private ScriptableObject sealedSharedScope;
     private ObjectXMLSerializer serializer;
+    private ClassLoader isolatedClassLoader;
 
-    public MirthContextFactory(ClassLoader classLoader, Set<String> resourceIds) {
+    public MirthContextFactory(URL[] urls, Set<String> resourceIds) {
         this.id = UUID.randomUUID().toString();
+        this.urls = urls;
         this.resourceIds = resourceIds;
+
+        ClassLoader classLoader = null;
+        if (ArrayUtils.isNotEmpty(urls)) {
+            classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+        } else {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
+
         initApplicationClassLoader(classLoader);
+
         sealedSharedScope = JavaScriptScopeUtil.createSealedSharedScope(this);
         serializer = new ObjectXMLSerializer(classLoader);
         try {
@@ -45,6 +60,17 @@ public class MirthContextFactory extends ContextFactory {
 
     public Set<String> getResourceIds() {
         return resourceIds;
+    }
+
+    public ClassLoader getIsolatedClassLoader() {
+        if (isolatedClassLoader == null && ArrayUtils.isNotEmpty(urls)) {
+            synchronized (this) {
+                if (isolatedClassLoader == null) {
+                    isolatedClassLoader = new URLClassLoader(urls, null);
+                }
+            }
+        }
+        return isolatedClassLoader;
     }
 
     public ScriptableObject getSealedSharedScope() {

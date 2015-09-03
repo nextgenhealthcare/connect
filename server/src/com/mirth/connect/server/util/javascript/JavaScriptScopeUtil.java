@@ -32,6 +32,7 @@ import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.userutil.AlertSender;
 import com.mirth.connect.server.userutil.Attachment;
 import com.mirth.connect.server.userutil.ChannelMap;
+import com.mirth.connect.server.userutil.DatabaseConnectionFactory;
 import com.mirth.connect.server.userutil.DestinationSet;
 import com.mirth.connect.server.userutil.ImmutableResponse;
 import com.mirth.connect.server.userutil.SourceMap;
@@ -181,6 +182,11 @@ public class JavaScriptScopeUtil {
         add("logger", scope, logger);
     }
 
+    // DatabaseConnectionFactory builder
+    private static void addDatabaseConnectionFactory(Scriptable scope, Context context) {
+        add("DatabaseConnectionFactory", scope, new DatabaseConnectionFactory((MirthContextFactory) ((MirthContext) context).getFactory()));
+    }
+
     // Status enum builder
     private static void addStatusValues(Scriptable scope) {
         for (Status status : Status.values()) {
@@ -198,6 +204,7 @@ public class JavaScriptScopeUtil {
         addReplacer(scope);
         addConfigurationMap(scope);
         addGlobalMap(scope);
+        addDatabaseConnectionFactory(scope, context);
         return scope;
     }
 

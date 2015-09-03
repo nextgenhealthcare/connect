@@ -22,7 +22,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -59,19 +58,36 @@ public class DatabaseConnectorService implements ConnectorService {
                 String schema = null;
 
                 try {
-                    Class.forName(driver);
-                } catch (ClassNotFoundException e) {
                     MirthContextFactory contextFactory = contextFactoryController.getContextFactory(databaseConnectionInfo.getResourceIds());
-                    if (CollectionUtils.isNotEmpty(contextFactory.getResourceIds())) {
-                        customDriver = new CustomDriver(contextFactory.getApplicationClassLoader(), driver);
-                    } else {
-                        throw e;
+
+                    try {
+                        ClassLoader isolatedClassLoader = contextFactory.getIsolatedClassLoader();
+                        if (isolatedClassLoader != null) {
+                            customDriver = new CustomDriver(isolatedClassLoader, driver);
+                            logger.debug("Custom driver created: " + customDriver.toString() + ", Version " + customDriver.getMajorVersion() + "." + customDriver.getMinorVersion());
+                        } else {
+                            logger.debug("Custom classloader is not being used, defaulting to DriverManager.");
+                        }
+                    } catch (Exception e) {
+                        logger.debug("Error creating custom driver, defaulting to DriverManager.", e);
                     }
+                } catch (Exception e) {
+                    logger.debug("Error retrieving context factory, defaulting to DriverManager.", e);
+                }
+
+                if (customDriver == null) {
+                    Class.forName(driver);
                 }
 
                 int oldLoginTimeout = DriverManager.getLoginTimeout();
                 DriverManager.setLoginTimeout(30);
-                connection = DriverManager.getConnection(address, user, password);
+
+                if (customDriver != null) {
+                    connection = customDriver.connect(address, user, password);
+                } else {
+                    connection = DriverManager.getConnection(address, user, password);
+                }
+
                 DriverManager.setLoginTimeout(oldLoginTimeout);
                 DatabaseMetaData dbMetaData = connection.getMetaData();
 
@@ -202,10 +218,6 @@ public class DatabaseConnectorService implements ConnectorService {
             } finally {
                 if (connection != null) {
                     connection.close();
-                }
-
-                if (customDriver != null) {
-                    customDriver.dispose();
                 }
             }
         }

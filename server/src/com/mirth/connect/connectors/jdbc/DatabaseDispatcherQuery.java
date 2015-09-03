@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
@@ -36,6 +35,7 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private CustomDriver customDriver;
     private Logger logger = Logger.getLogger(getClass());
+    private volatile String contextFactoryId;
 
     public DatabaseDispatcherQuery(DatabaseDispatcher connector) {
         this.connector = connector;
@@ -43,33 +43,23 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
 
     @Override
     public void deploy() throws ConnectorTaskException {
-        DatabaseDispatcherProperties connectorProperties = (DatabaseDispatcherProperties) connector.getConnectorProperties();
+        MirthContextFactory contextFactory;
+        try {
+            contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+            contextFactoryId = contextFactory.getId();
+        } catch (Exception e) {
+            throw new ConnectorTaskException("Error retrieving context factory.", e);
+        }
 
         try {
-            Class.forName(connectorProperties.getDriver());
-        } catch (ClassNotFoundException e) {
-            try {
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
-                if (CollectionUtils.isNotEmpty(contextFactory.getResourceIds())) {
-                    customDriver = new CustomDriver(contextFactory.getApplicationClassLoader(), connectorProperties.getDriver());
-                } else {
-                    throw new ConnectorTaskException(e);
-                }
-            } catch (Exception e2) {
-                throw new ConnectorTaskException(e2);
-            }
+            initDriver(contextFactory);
+        } catch (Exception e) {
+            throw new ConnectorTaskException(e);
         }
     }
 
     @Override
-    public void undeploy() throws ConnectorTaskException {
-        if (customDriver != null) {
-            try {
-                customDriver.dispose();
-            } catch (SQLException e) {
-            }
-        }
-    }
+    public void undeploy() throws ConnectorTaskException {}
 
     @Override
     public void start() throws ConnectorTaskException {}
@@ -139,11 +129,53 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
             }
 
             return new Response(Status.SENT, responseData, responseMessageStatus);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DatabaseDispatcherException("Failed to write to database", e);
         } finally {
             DbUtils.closeQuietly(statement);
         }
+    }
+
+    private void initDriver(MirthContextFactory contextFactory) throws Exception {
+        customDriver = null;
+        DatabaseDispatcherProperties props = (DatabaseDispatcherProperties) connector.getConnectorProperties();
+
+        try {
+            ClassLoader isolatedClassLoader = contextFactory.getIsolatedClassLoader();
+            if (isolatedClassLoader != null) {
+                customDriver = new CustomDriver(isolatedClassLoader, props.getDriver());
+                logger.debug("Custom driver created: " + customDriver.toString() + ", Version " + customDriver.getMajorVersion() + "." + customDriver.getMinorVersion());
+            } else {
+                logger.debug("Custom classloader is not being used, defaulting to DriverManager.");
+            }
+        } catch (Exception e) {
+            logger.debug("Error creating custom driver, defaulting to DriverManager.", e);
+        }
+
+        // If a custom driver was not created, use the default one
+        if (customDriver == null) {
+            Class.forName(props.getDriver());
+        }
+    }
+
+    private boolean checkContextFactory() throws Exception {
+        boolean contextFactoryChanged = false;
+        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+
+        if (!contextFactoryId.equals(contextFactory.getId())) {
+            contextFactoryChanged = true;
+
+            synchronized (this) {
+                contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+
+                if (!contextFactoryId.equals(contextFactory.getId())) {
+                    initDriver(contextFactory);
+                    contextFactoryId = contextFactory.getId();
+                }
+            }
+        }
+
+        return contextFactoryChanged;
     }
 
     private class SimpleDataSource {
@@ -155,17 +187,23 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
 
         // TODO cache the PreparedStatement also
 
-        public Connection getConnection(DatabaseDispatcherProperties properties) throws SQLException {
+        public Connection getConnection(DatabaseDispatcherProperties properties) throws Exception {
+            boolean contextFactoryChanged = checkContextFactory();
+
             /*
              * If a connection hasn't been initialized yet, or if the connection is stale, or if the
              * connection url/username/password have changed, then close the old connection (if
              * applicable) and create a new one.
              */
-            if (connection == null || connection.isClosed() || lastAccessTime < (System.nanoTime() - MAX_CONNECTION_IDLE_TIME_NS) || !properties.getUsername().equals(username) || !properties.getPassword().equals(password) || !properties.getUrl().equals(url)) {
+            if (contextFactoryChanged || connection == null || connection.isClosed() || lastAccessTime < (System.nanoTime() - MAX_CONNECTION_IDLE_TIME_NS) || !properties.getUsername().equals(username) || !properties.getPassword().equals(password) || !properties.getUrl().equals(url)) {
                 closeConnection();
 
                 logger.debug("Creating connection to " + properties.getUrl());
-                connection = DriverManager.getConnection(properties.getUrl(), properties.getUsername(), properties.getPassword());
+                if (customDriver != null) {
+                    connection = customDriver.connect(properties.getUrl(), properties.getUsername(), properties.getPassword());
+                } else {
+                    connection = DriverManager.getConnection(properties.getUrl(), properties.getUsername(), properties.getPassword());
+                }
                 connection.setAutoCommit(true);
 
                 username = properties.getUsername();

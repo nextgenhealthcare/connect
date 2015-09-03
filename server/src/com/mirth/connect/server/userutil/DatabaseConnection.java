@@ -10,6 +10,7 @@
 package com.mirth.connect.server.userutil;
 
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -60,6 +61,37 @@ public class DatabaseConnection {
         logger.debug("creating new database connection: address=" + address + ", " + info);
         this.address = address;
         connection = DriverManager.getConnection(address, info);
+    }
+
+    /**
+     * Instantiates a new database connection with the given driver instance and server address.
+     * 
+     * @param address
+     *            The server address to connect to.
+     * @throws SQLException
+     */
+    public DatabaseConnection(Driver driver, String address) throws SQLException {
+        logger.debug("creating new database connection: address=" + address);
+        this.address = address;
+        connection = driver.connect(address, new Properties());
+    }
+
+    /**
+     * Instantiates a new database connection with the given driver instance, server address, and
+     * connection arguments.
+     * 
+     * @param driver
+     *            The explicit driver instance to connect with.
+     * @param address
+     *            The server address to connect to.
+     * @param info
+     *            A Properties object containing all applicable connection arguments.
+     * @throws SQLException
+     */
+    public DatabaseConnection(Driver driver, String address, Properties info) throws SQLException {
+        logger.debug("creating new database connection: address=" + address + ", " + info);
+        this.address = address;
+        connection = driver.connect(address, info);
     }
 
     /**

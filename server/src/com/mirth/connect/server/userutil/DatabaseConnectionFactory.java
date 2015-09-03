@@ -14,12 +14,24 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
+import com.mirth.connect.connectors.jdbc.CustomDriver;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
+
 /**
  * Used to create database connection objects.
  */
 public class DatabaseConnectionFactory {
 
-    private DatabaseConnectionFactory() {}
+    private MirthContextFactory contextFactory;
+    private boolean customDriverAttempted;
+    private CustomDriver customDriver;
+    private Logger logger = Logger.getLogger(getClass());
+
+    public DatabaseConnectionFactory(MirthContextFactory contextFactory) {
+        this.contextFactory = contextFactory;
+    }
 
     /**
      * Instantiates and returns a new DatabaseConnection object with the given connection
@@ -36,7 +48,7 @@ public class DatabaseConnectionFactory {
      * @return The created DatabaseConnection object.
      * @throws SQLException
      */
-    public static DatabaseConnection createDatabaseConnection(String driver, String address, String username, String password) throws SQLException {
+    public DatabaseConnection createDatabaseConnection(String driver, String address, String username, String password) throws SQLException {
         try {
             initializeDriver(driver);
         } catch (Exception e) {
@@ -46,7 +58,11 @@ public class DatabaseConnectionFactory {
         Properties info = new Properties();
         info.setProperty("user", username);
         info.setProperty("password", password);
-        return new DatabaseConnection(address, info);
+        if (customDriver != null) {
+            return new DatabaseConnection(customDriver, address, info);
+        } else {
+            return new DatabaseConnection(address, info);
+        }
     }
 
     /**
@@ -60,14 +76,18 @@ public class DatabaseConnectionFactory {
      * @return The created DatabaseConnection object.
      * @throws SQLException
      */
-    public static DatabaseConnection createDatabaseConnection(String driver, String address) throws SQLException {
+    public DatabaseConnection createDatabaseConnection(String driver, String address) throws SQLException {
         try {
             initializeDriver(driver);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return new DatabaseConnection(address);
+        if (customDriver != null) {
+            return new DatabaseConnection(customDriver, address);
+        } else {
+            return new DatabaseConnection(address);
+        }
     }
 
     /**
@@ -85,7 +105,7 @@ public class DatabaseConnectionFactory {
      * @return The created DatabaseConnection object.
      * @throws SQLException
      */
-    public static Connection createConnection(String driver, String address, String username, String password) throws SQLException {
+    public Connection createConnection(String driver, String address, String username, String password) throws SQLException {
         try {
             initializeDriver(driver);
         } catch (Exception e) {
@@ -96,7 +116,11 @@ public class DatabaseConnectionFactory {
         info.setProperty("user", username);
         info.setProperty("password", password);
 
-        return DriverManager.getConnection(address, info);
+        if (customDriver != null) {
+            return customDriver.connect(address, info);
+        } else {
+            return DriverManager.getConnection(address, info);
+        }
     }
 
     /**
@@ -107,7 +131,26 @@ public class DatabaseConnectionFactory {
      *            The JDBC driver class (as a string) to initialize.
      * @throws Exception
      */
-    public static void initializeDriver(String driver) throws Exception {
-        Class.forName(driver, true, Thread.currentThread().getContextClassLoader());
+    public void initializeDriver(String driver) throws Exception {
+        if (!customDriverAttempted) {
+            try {
+                ClassLoader isolatedClassLoader = contextFactory.getIsolatedClassLoader();
+                if (isolatedClassLoader != null) {
+                    customDriver = new CustomDriver(isolatedClassLoader, driver);
+                    logger.debug("Custom driver created: " + customDriver.toString() + ", Version " + customDriver.getMajorVersion() + "." + customDriver.getMinorVersion());
+                } else {
+                    logger.debug("Custom classloader is not being used, defaulting to DriverManager.");
+                }
+            } catch (Exception e) {
+                logger.debug("Error creating custom driver, defaulting to DriverManager.", e);
+            }
+
+            customDriverAttempted = true;
+        }
+
+        // If a custom driver was not created, use the default one
+        if (customDriver == null) {
+            Class.forName(driver, true, Thread.currentThread().getContextClassLoader());
+        }
     }
 }

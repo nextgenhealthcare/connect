@@ -10,7 +10,6 @@
 package com.mirth.connect.server.controllers;
 
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,7 +60,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
     @Override
     public synchronized void initGlobalContextFactory() {
         logger.debug("Initializing global context factory.");
-        ContextFactory.initGlobal(new MirthContextFactory(Thread.currentThread().getContextClassLoader(), new HashSet<String>()));
+        ContextFactory.initGlobal(new MirthContextFactory(new URL[0], new HashSet<String>()));
     }
 
     @Override
@@ -206,7 +205,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
 
         if (CollectionUtils.isNotEmpty(libraries)) {
             // Only create a new context factory if libraries are being used
-            contextFactory = new MirthContextFactory(new URLClassLoader(libraries.toArray(new URL[libraries.size()]), Thread.currentThread().getContextClassLoader()), libraryResourceIds);
+            contextFactory = new MirthContextFactory(libraries.toArray(new URL[libraries.size()]), libraryResourceIds);
         } else {
             contextFactory = getGlobalContextFactory();
         }
