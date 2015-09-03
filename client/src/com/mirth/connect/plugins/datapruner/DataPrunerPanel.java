@@ -10,14 +10,21 @@
 package com.mirth.connect.plugins.datapruner;
 
 import java.awt.Color;
-import java.util.Calendar;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingWorker;
+import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -30,8 +37,12 @@ import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
-import com.mirth.connect.client.ui.components.MirthTimePicker;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthTextField;
+import com.mirth.connect.client.ui.panels.connectors.PollingSettingsPanel;
 import com.mirth.connect.client.ui.panels.export.MessageExportPanel;
+import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
+import com.mirth.connect.donkey.model.channel.PollingType;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
@@ -44,7 +55,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
     private final static Color UNKNOWN_STATUS_COLOR = new Color(0, 0, 0);
 
     private SettingsPanelPlugin plugin = null;
-    private MessageExportPanel archiverPanel;
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private AtomicBoolean refreshing = new AtomicBoolean(false);
     private Frame parent;
@@ -64,23 +74,15 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         setStopTaskVisible(false);
 
         initComponents();
+        initLayout();
+
         blockSizeTextField.setDocument(new MirthFieldConstraints(0, false, false, true));
         pruneEventAgeTextField.setDocument(new MirthFieldConstraints(0, false, false, true));
-
-        /*
-         * The archiver panel uses MigLayout, so we attach it to a container panel that is part of
-         * the netbeans-generated layout.
-         */
-        archiverPanel = new MessageExportPanel(Frame.userPreferences, true, false);
-        archiverPanel.setBackground(archiverContainerPanel.getBackground());
-        archiverContainerPanel.setLayout(new MigLayout("fillx, insets 0 0 0 0", "[grow,fill]", "[grow,fill]"));
-        archiverContainerPanel.add(archiverPanel, "height 195!, aligny top");
     }
 
     @Override
     public void doRefresh() {
         if (!refreshing.compareAndSet(false, true)) {
-            System.out.println("Already refreshing, ignoring");
             return;
         }
 
@@ -125,9 +127,25 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         pruneEventAgeTextField.setBackground(null);
         blockSizeTextField.setBackground(null);
 
+        pollingSettingsPanel.setInvalidProperties(false, false);
+        if (yesEnabledRadio.isSelected()) {
+            PollConnectorProperties properties = pollingSettingsPanel.getProperties();
+            PollingType pollingType = properties.getPollingType();
+            if (pollingType.equals(PollingType.INTERVAL)) {
+                int frequency = properties.getPollingFrequency();
+
+                if (frequency < 3600000 || frequency >= 86400000) {
+                    valid = false;
+                    pollingSettingsPanel.setInvalidProperties(!valid, false);
+                    builder.append("Frequency must be between 1 and 24 hours when converted to milliseconds.");
+                }
+            }
+        }
+
         String prunerBlockSize = blockSizeTextField.getText();
         if (StringUtils.isEmpty(prunerBlockSize) || Integer.parseInt(prunerBlockSize) < MIN_PRUNING_BLOCK_SIZE || Integer.parseInt(prunerBlockSize) > MAX_PRUNING_BLOCK_SIZE) {
             blockSizeTextField.setBackground(UIConstants.INVALID_COLOR);
+            builder.append("\n");
             builder.append("Pruner Block size must be between 50 and 10000. The recommended value for most servers is 1000.");
 
             valid = false;
@@ -273,26 +291,10 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
     }
 
     public void setProperties(Properties properties) {
-        if (properties.getProperty("interval").equals("disabled")) {
-            disabledRadio.setSelected(true);
-            disabledRadioActionPerformed(null);
-        } else if (properties.getProperty("interval").equals("hourly")) {
-            hourlyRadio.setSelected(true);
-            hourlyRadioActionPerformed(null);
-        } else if (properties.getProperty("interval").equals("daily")) {
-            dailyRadio.setSelected(true);
-            dailyRadioActionPerformed(null);
-            timeOfDay.setDate(properties.getProperty("time"));
-        } else if (properties.getProperty("interval").equals("weekly")) {
-            weeklyRadio.setSelected(true);
-            weeklyRadioActionPerformed(null);
-            dayOfWeek.setDate(properties.getProperty("dayOfWeek"));
-            timeOfDayWeekly.setDate(properties.getProperty("time"));
-        } else if (properties.getProperty("interval").equals("monthly")) {
-            monthlyRadio.setSelected(true);
-            monthlyRadioActionPerformed(null);
-            dayOfMonth.setDate(properties.getProperty("dayOfMonth"));
-            timeOfDayMonthly.setDate(properties.getProperty("time"));
+        if (Boolean.parseBoolean(properties.getProperty("enabled"))) {
+            yesEnabledRadio.setSelected(true);
+        } else {
+            noEnabledRadio.setSelected(true);
         }
 
         archiverPanel.resetInvalidProperties();
@@ -340,33 +342,35 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
             archiverPanel.setArchiverBlockSize("50");
         }
 
+        PollConnectorProperties pollProperties = null;
+        String pollingProperties = properties.getProperty("pollingProperties");
+        if (pollingProperties == null) {
+            pollProperties = new PollConnectorProperties();
+        } else {
+            pollProperties = serializer.deserialize(pollingProperties, PollConnectorProperties.class);
+        }
+
+        pollingSettingsPanel.setProperties(pollProperties);
+        enabledActionPerformed();
+
         repaint();
         updateStatus();
+        parent.setSaveEnabled(false);
     }
 
     public Properties getProperties() {
         Properties properties = new Properties();
 
-        if (disabledRadio.isSelected()) {
-            properties.put("interval", "disabled");
-        } else if (hourlyRadio.isSelected()) {
-            properties.put("interval", "hourly");
-        } else if (dailyRadio.isSelected()) {
-            properties.put("interval", "daily");
-            properties.put("time", timeOfDay.getDate());
-        } else if (weeklyRadio.isSelected()) {
-            properties.put("interval", "weekly");
-            properties.put("time", timeOfDayWeekly.getDate());
-            properties.put("dayOfWeek", dayOfWeek.getDate());
-        } else if (monthlyRadio.isSelected()) {
-            properties.put("interval", "monthly");
-            properties.put("time", timeOfDayMonthly.getDate());
-            properties.put("dayOfMonth", dayOfMonth.getDate());
-        }
-
         if (blockSizeTextField.getText().equals("")) {
             blockSizeTextField.setText("1000");
         }
+
+        String enabled = "true";
+        if (noEnabledRadio.isSelected()) {
+            enabled = "false";
+        }
+        properties.setProperty("enabled", enabled);
+        properties.setProperty("pollingProperties", serializer.serialize(pollingSettingsPanel.getProperties()));
 
         properties.setProperty("pruningBlockSize", blockSizeTextField.getText());
         properties.setProperty("pruneEvents", Boolean.toString(pruneEventsYes.isSelected()));
@@ -391,7 +395,12 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                     currentStateTextLabel.setText(status.get("currentState"));
                     currentProcessTextLabel.setText(status.get("currentProcess"));
                     lastProcessTextLabel.setText(status.get("lastProcess"));
-                    nextProcessTextLabel.setText(status.get("nextProcess"));
+
+                    String nextProcess = "Not scheduled";
+                    if (yesEnabledRadio.isSelected()) {
+                        nextProcess = status.get("nextProcess");
+                    }
+                    nextProcessTextLabel.setText(nextProcess);
 
                     if (status.get("isRunning").equals("false")) {
                         currentStateTextLabel.setForeground(INACTIVE_STATUS_COLOR);
@@ -426,413 +435,155 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         worker.execute();
     }
 
-    // @formatter:off
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        setBackground(UIConstants.BACKGROUND_COLOR);
 
-        scheduleButtonGroup = new javax.swing.ButtonGroup();
-        pruneEventsButtonGroup = new javax.swing.ButtonGroup();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jPanel1 = new javax.swing.JPanel();
-        archiverContainerPanel = new javax.swing.JPanel();
-        pruneSettingsPanel = new javax.swing.JPanel();
-        blockSizeTextField = new com.mirth.connect.client.ui.components.MirthTextField();
-        blockSizeLabel = new javax.swing.JLabel();
-        pruneEventsLabel = new javax.swing.JLabel();
-        pruneEventsYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        pruneEventsNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        pruneEventAgeLabel = new javax.swing.JLabel();
-        pruneEventAgeTextField = new com.mirth.connect.client.ui.components.MirthTextField();
-        eventDaysLabel = new javax.swing.JLabel();
-        pruningSchedulePanel = new javax.swing.JPanel();
-        hourlyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        dailyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        timeOfDay = new MirthTimePicker("hh:mm aa", Calendar.MINUTE);
-        weeklyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        dayOfWeek = new MirthTimePicker("EEEEEEEE", Calendar.DAY_OF_WEEK);
-        weeklyAtLabel = new javax.swing.JLabel();
-        timeOfDayWeekly = new MirthTimePicker("hh:mm aa", Calendar.MINUTE);
-        monthlyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        dayOfMonth = new MirthTimePicker("dd", Calendar.MONTH);
-        monthlyAtLabel = new javax.swing.JLabel();
-        timeOfDayMonthly = new MirthTimePicker("hh:mm aa", Calendar.MINUTE);
-        disabledRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        statusPanel = new javax.swing.JPanel();
-        currentProcessLabel = new javax.swing.JLabel();
-        nextProcessLabel = new javax.swing.JLabel();
-        lastProcessLabel = new javax.swing.JLabel();
-        lastProcessTextLabel = new javax.swing.JLabel();
-        nextProcessTextLabel = new javax.swing.JLabel();
-        currentStateTextLabel = new javax.swing.JLabel();
-        currentProcessTextLabel = new javax.swing.JLabel();
-        currentStateLabel = new javax.swing.JLabel();
+        statusPanel = new JPanel();
+        statusPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        statusPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Status", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-        setBackground(new java.awt.Color(255, 255, 255));
-        setLayout(new java.awt.BorderLayout());
+        currentStateLabel = new JLabel("Current State:");
+        currentStateTextLabel = new JLabel("Unknown");
 
-        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
-        jScrollPane1.setBorder(null);
+        currentProcessLabel = new JLabel("Current Process:");
+        currentProcessTextLabel = new JLabel("Unknown");
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        lastProcessLabel = new JLabel("Last Process:");
+        lastProcessTextLabel = new JLabel("Unknown");
 
-        archiverContainerPanel.setBackground(new java.awt.Color(255, 255, 255));
-        archiverContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Archive Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-        archiverContainerPanel.setLayout(null);
+        nextProcessLabel = new JLabel("Next Process:");
+        nextProcessTextLabel = new JLabel("Unknown");
 
-        pruneSettingsPanel.setBackground(new java.awt.Color(255, 255, 255));
-        pruneSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Prune Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        pruningSchedulePanel = new JPanel();
+        pruningSchedulePanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        pruningSchedulePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Schedule", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11)));
 
+        enabledLabel = new JLabel("Enable:");
+
+        yesEnabledRadio = new MirthRadioButton("Yes");
+        yesEnabledRadio.setFocusable(false);
+        yesEnabledRadio.setBackground(Color.white);
+        yesEnabledRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                enabledActionPerformed();
+            }
+        });
+
+        noEnabledRadio = new MirthRadioButton("No");
+        noEnabledRadio.setFocusable(false);
+        noEnabledRadio.setBackground(Color.white);
+        noEnabledRadio.setSelected(true);
+        noEnabledRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                enabledActionPerformed();
+            }
+        });
+
+        enabledButtonGroup = new ButtonGroup();
+        enabledButtonGroup.add(yesEnabledRadio);
+        enabledButtonGroup.add(noEnabledRadio);
+
+        pollingSettingsPanel = new PollingSettingsPanel(false);
+
+        pruneSettingsPanel = new JPanel();
+        pruneSettingsPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        pruneSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Prune Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11))); // NOI18N
+
+        blockSizeLabel = new JLabel("Block Size:");
+        blockSizeTextField = new MirthTextField();
         blockSizeTextField.setToolTipText("<html>The number of messages that will be pruned at a time. This value must<br/>be between 50 and 10000. The recommended value for most servers is 1000.</html>");
 
-        blockSizeLabel.setText("Block Size:");
+        pruneEventsLabel = new JLabel("Prune Events:");
 
-        pruneEventsLabel.setText("Prune Events:");
-
-        pruneEventsYes.setBackground(new java.awt.Color(255, 255, 255));
-        pruneEventsButtonGroup.add(pruneEventsYes);
-        pruneEventsYes.setText("Yes");
+        pruneEventsYes = new MirthRadioButton("Yes");
+        pruneEventsYes.setBackground(UIConstants.BACKGROUND_COLOR);
         pruneEventsYes.setToolTipText("<html>If Yes, event records older than the Event Age will be pruned. If No, event records will not be pruned.</html>");
-        pruneEventsYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pruneEventsYesActionPerformed(evt);
+        pruneEventsYes.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                pruneEventsActionPerformed(evt);
             }
         });
 
-        pruneEventsNo.setBackground(new java.awt.Color(255, 255, 255));
-        pruneEventsButtonGroup.add(pruneEventsNo);
-        pruneEventsNo.setText("No");
+        pruneEventsNo = new MirthRadioButton("No");
+        pruneEventsNo.setBackground(UIConstants.BACKGROUND_COLOR);
         pruneEventsNo.setToolTipText("<html>If Yes, event records will be pruned in addition to messages. If No, event records will not be pruned.</html>");
-        pruneEventsNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pruneEventsNoActionPerformed(evt);
+        pruneEventsNo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                pruneEventsActionPerformed(evt);
             }
         });
 
-        pruneEventAgeLabel.setText("Prune Event Age:");
+        pruneEventsButtonGroup = new ButtonGroup();
+        pruneEventsButtonGroup.add(pruneEventsYes);
+        pruneEventsButtonGroup.add(pruneEventsNo);
 
+        pruneEventAgeLabel = new JLabel("Prune Event Age:");
+
+        pruneEventAgeTextField = new MirthTextField();
         pruneEventAgeTextField.setToolTipText("<html>Events older than this number of days will be pruned if Prune Events is set to Yes.</html>");
 
-        eventDaysLabel.setText("days");
+        eventDaysLabel = new JLabel("days");
+        eventDaysLabel.setEnabled(false);
 
-        javax.swing.GroupLayout pruneSettingsPanelLayout = new javax.swing.GroupLayout(pruneSettingsPanel);
-        pruneSettingsPanel.setLayout(pruneSettingsPanelLayout);
-        pruneSettingsPanelLayout.setHorizontalGroup(
-            pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pruneSettingsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(pruneEventAgeLabel)
-                    .addComponent(pruneEventsLabel)
-                    .addComponent(blockSizeLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(pruneSettingsPanelLayout.createSequentialGroup()
-                        .addComponent(pruneEventsYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pruneEventsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(pruneEventAgeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(blockSizeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(eventDaysLabel)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        pruneSettingsPanelLayout.setVerticalGroup(
-            pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pruneSettingsPanelLayout.createSequentialGroup()
-                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(blockSizeLabel)
-                    .addComponent(blockSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pruneEventsLabel)
-                    .addComponent(pruneEventsYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pruneEventsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pruneEventAgeLabel)
-                    .addComponent(pruneEventAgeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(eventDaysLabel))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        archiverContainerPanel = new JPanel();
+        archiverContainerPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        archiverContainerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Archive Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11))); // NOI18N
+        archiverContainerPanel.setLayout(null);
 
-        pruningSchedulePanel.setBackground(new java.awt.Color(255, 255, 255));
-        pruningSchedulePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Schedule", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        archiverPanel = new MessageExportPanel(Frame.userPreferences, true, false);
+        archiverPanel.setBackground(archiverContainerPanel.getBackground());
+        archiverContainerPanel.setLayout(new MigLayout("fillx, insets 0 0 0 0", "[grow,fill]", "[grow,fill]"));
+        archiverContainerPanel.add(archiverPanel, "height 195!, aligny top");
 
-        hourlyRadio.setBackground(new java.awt.Color(255, 255, 255));
-        hourlyRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        scheduleButtonGroup.add(hourlyRadio);
-        hourlyRadio.setText("Hourly");
-        hourlyRadio.setToolTipText("<html>Run the data pruner hourly (on the hour, for example: 12:00am, 1:00am, 2:00am, and etc.)</html>");
-        hourlyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        hourlyRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                hourlyRadioActionPerformed(evt);
-            }
-        });
+        enabledActionPerformed();
+    }
 
-        dailyRadio.setBackground(new java.awt.Color(255, 255, 255));
-        dailyRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        scheduleButtonGroup.add(dailyRadio);
-        dailyRadio.setText("Daily");
-        dailyRadio.setToolTipText("<html>Run the data pruner daily at the specified time.</html>");
-        dailyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        dailyRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                dailyRadioActionPerformed(evt);
-            }
-        });
+    private void initLayout() {
+        setLayout(new MigLayout("hidemode 3, novisualpadding, insets 12", "[grow]"));
 
-        weeklyRadio.setBackground(new java.awt.Color(255, 255, 255));
-        weeklyRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        scheduleButtonGroup.add(weeklyRadio);
-        weeklyRadio.setText("Weekly");
-        weeklyRadio.setToolTipText("<html>Run the data pruner weekly at the specified time.</html>");
-        weeklyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        weeklyRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                weeklyRadioActionPerformed(evt);
-            }
-        });
+        statusPanel.setLayout(new MigLayout("hidemode 3, novisualpadding, insets 0", "12[right][left]"));
+        statusPanel.add(currentStateLabel);
+        statusPanel.add(currentStateTextLabel, "wrap");
+        statusPanel.add(currentProcessLabel);
+        statusPanel.add(currentProcessTextLabel, "wrap");
+        statusPanel.add(lastProcessLabel);
+        statusPanel.add(lastProcessTextLabel, "wrap");
+        statusPanel.add(nextProcessLabel);
+        statusPanel.add(nextProcessTextLabel, "wrap");
 
-        weeklyAtLabel.setText("at");
+        pruningSchedulePanel.setLayout(new MigLayout("hidemode 3, novisualpadding, insets 0", "21[][]"));
+        pruningSchedulePanel.add(enabledLabel, "gapleft 37, split");
+        pruningSchedulePanel.add(yesEnabledRadio, "gapleft 11");
+        pruningSchedulePanel.add(noEnabledRadio, "wrap");
+        pruningSchedulePanel.add(pollingSettingsPanel);
 
-        monthlyRadio.setBackground(new java.awt.Color(255, 255, 255));
-        monthlyRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        scheduleButtonGroup.add(monthlyRadio);
-        monthlyRadio.setText("Monthly");
-        monthlyRadio.setToolTipText("<html>Run the data pruner monthly at the specified time.</html>");
-        monthlyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        monthlyRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                monthlyRadioActionPerformed(evt);
-            }
-        });
+        pruneSettingsPanel.setLayout(new MigLayout("hidemode 3, novisualpadding, insets 0", "11[right]12[left]"));
+        pruneSettingsPanel.add(blockSizeLabel);
+        pruneSettingsPanel.add(blockSizeTextField, "w 75!, h 22!, wrap");
+        pruneSettingsPanel.add(pruneEventsLabel);
+        pruneSettingsPanel.add(pruneEventsYes, "split");
+        pruneSettingsPanel.add(pruneEventsNo, "wrap");
+        pruneSettingsPanel.add(pruneEventAgeLabel);
+        pruneSettingsPanel.add(pruneEventAgeTextField, "w 75!, h 22!, split");
+        pruneSettingsPanel.add(eventDaysLabel, "gapleft 8, wrap");
 
-        monthlyAtLabel.setText("at");
+        add(statusPanel, "grow, sx, wrap");
+        add(pruningSchedulePanel, "grow, sx, wrap");
+        add(pruneSettingsPanel, "grow, sx, wrap");
+        add(archiverContainerPanel, "grow, sx");
+    }
 
-        disabledRadio.setBackground(new java.awt.Color(255, 255, 255));
-        disabledRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        scheduleButtonGroup.add(disabledRadio);
-        disabledRadio.setText("Disabled");
-        disabledRadio.setToolTipText("<html>Disables data pruning and archiving.</html>");
-        disabledRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        disabledRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                disabledRadioActionPerformed(evt);
-            }
-        });
+    private void pruneEventsActionPerformed(ActionEvent evt) {
+        pruneEventAgeLabel.setEnabled(pruneEventsYes.isSelected());
+        pruneEventAgeTextField.setEnabled(pruneEventsYes.isSelected());
+        eventDaysLabel.setEnabled(pruneEventsYes.isSelected());
+    }
 
-        javax.swing.GroupLayout pruningSchedulePanelLayout = new javax.swing.GroupLayout(pruningSchedulePanel);
-        pruningSchedulePanel.setLayout(pruningSchedulePanelLayout);
-        pruningSchedulePanelLayout.setHorizontalGroup(
-            pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
-                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(hourlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(dailyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(weeklyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(monthlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(dayOfWeek, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
-                            .addComponent(dayOfMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
-                            .addComponent(timeOfDay, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
-                                .addComponent(monthlyAtLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(timeOfDayMonthly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pruningSchedulePanelLayout.createSequentialGroup()
-                                .addComponent(weeklyAtLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(timeOfDayWeekly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addComponent(disabledRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(529, Short.MAX_VALUE))
-        );
-        pruningSchedulePanelLayout.setVerticalGroup(
-            pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addComponent(disabledRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(7, 7, 7)
-                .addComponent(hourlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(dailyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(timeOfDay, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(weeklyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(weeklyAtLabel)
-                    .addComponent(timeOfDayWeekly, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dayOfWeek, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(monthlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(monthlyAtLabel)
-                    .addComponent(timeOfDayMonthly, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dayOfMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        statusPanel.setBackground(new java.awt.Color(255, 255, 255));
-        statusPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-
-        currentProcessLabel.setText("Current Process:");
-
-        nextProcessLabel.setText("Next Process:");
-
-        lastProcessLabel.setText("Last Process:");
-
-        currentStateTextLabel.setText("Unknown");
-
-        currentStateLabel.setText("Current State:");
-
-        javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(statusPanel);
-        statusPanel.setLayout(statusPanelLayout);
-        statusPanelLayout.setHorizontalGroup(
-            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(statusPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(nextProcessLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lastProcessLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(currentProcessLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(currentStateLabel, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(currentStateTextLabel)
-                    .addComponent(nextProcessTextLabel)
-                    .addComponent(lastProcessTextLabel)
-                    .addComponent(currentProcessTextLabel))
-                .addGap(0, 638, Short.MAX_VALUE))
-        );
-        statusPanelLayout.setVerticalGroup(
-            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(statusPanelLayout.createSequentialGroup()
-                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(currentStateTextLabel)
-                    .addComponent(currentStateLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(currentProcessLabel)
-                    .addComponent(currentProcessTextLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lastProcessLabel)
-                    .addComponent(lastProcessTextLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(nextProcessLabel)
-                    .addComponent(nextProcessTextLabel))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(archiverContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 801, Short.MAX_VALUE)
-                    .addComponent(pruningSchedulePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(statusPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(pruneSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(statusPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pruningSchedulePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pruneSettingsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(archiverContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        jScrollPane1.setViewportView(jPanel1);
-
-        add(jScrollPane1, java.awt.BorderLayout.CENTER);
-    }// </editor-fold>//GEN-END:initComponents
-    // @formatter:on
-
-    private void hourlyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hourlyRadioActionPerformed
-        monthlyAtLabel.setEnabled(false);
-        weeklyAtLabel.setEnabled(false);
-
-        dayOfMonth.setEnabled(false);
-        dayOfWeek.setEnabled(false);
-        timeOfDay.setEnabled(false);
-        timeOfDayWeekly.setEnabled(false);
-        timeOfDayMonthly.setEnabled(false);
-    }//GEN-LAST:event_hourlyRadioActionPerformed
-
-    private void dailyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dailyRadioActionPerformed
-        monthlyAtLabel.setEnabled(false);
-        weeklyAtLabel.setEnabled(false);
-
-        dayOfMonth.setEnabled(false);
-        dayOfWeek.setEnabled(false);
-        timeOfDay.setEnabled(true);
-        timeOfDayWeekly.setEnabled(false);
-        timeOfDayMonthly.setEnabled(false);
-    }//GEN-LAST:event_dailyRadioActionPerformed
-
-    private void weeklyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_weeklyRadioActionPerformed
-        monthlyAtLabel.setEnabled(false);
-        weeklyAtLabel.setEnabled(true);
-
-        dayOfMonth.setEnabled(false);
-        dayOfWeek.setEnabled(true);
-        timeOfDay.setEnabled(false);
-        timeOfDayWeekly.setEnabled(true);
-        timeOfDayMonthly.setEnabled(false);
-    }//GEN-LAST:event_weeklyRadioActionPerformed
-
-    private void monthlyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_monthlyRadioActionPerformed
-        monthlyAtLabel.setEnabled(true);
-        weeklyAtLabel.setEnabled(false);
-
-        dayOfMonth.setEnabled(true);
-        dayOfWeek.setEnabled(false);
-        timeOfDay.setEnabled(false);
-        timeOfDayWeekly.setEnabled(false);
-        timeOfDayMonthly.setEnabled(true);
-    }//GEN-LAST:event_monthlyRadioActionPerformed
-
-    private void disabledRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disabledRadioActionPerformed
-        monthlyAtLabel.setEnabled(false);
-        weeklyAtLabel.setEnabled(false);
-        dayOfMonth.setEnabled(false);
-        dayOfWeek.setEnabled(false);
-        timeOfDay.setEnabled(false);
-        timeOfDayWeekly.setEnabled(false);
-        timeOfDayMonthly.setEnabled(false);
-    }//GEN-LAST:event_disabledRadioActionPerformed
-
-    private void pruneEventsYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pruneEventsYesActionPerformed
-        pruneEventAgeLabel.setEnabled(true);
-        pruneEventAgeTextField.setEnabled(true);
-    }//GEN-LAST:event_pruneEventsYesActionPerformed
-
-    private void pruneEventsNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pruneEventsNoActionPerformed
-        pruneEventAgeLabel.setEnabled(false);
-        pruneEventAgeTextField.setEnabled(false);
-    }//GEN-LAST:event_pruneEventsNoActionPerformed
+    private void enabledActionPerformed() {
+        pollingSettingsPanel.enableComponents(yesEnabledRadio.isSelected());
+    }
 
     private void setStartTaskVisible(boolean visible) {
         setVisibleTasks(startIndex, startIndex, visible);
@@ -842,42 +593,34 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         setVisibleTasks(stopIndex, stopIndex, visible);
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel archiverContainerPanel;
-    private javax.swing.JLabel blockSizeLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField blockSizeTextField;
-    private javax.swing.JLabel currentProcessLabel;
-    private javax.swing.JLabel currentProcessTextLabel;
-    private javax.swing.JLabel currentStateLabel;
-    private javax.swing.JLabel currentStateTextLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton dailyRadio;
-    private com.mirth.connect.client.ui.components.MirthTimePicker dayOfMonth;
-    private com.mirth.connect.client.ui.components.MirthTimePicker dayOfWeek;
-    private com.mirth.connect.client.ui.components.MirthRadioButton disabledRadio;
-    private javax.swing.JLabel eventDaysLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton hourlyRadio;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel lastProcessLabel;
-    private javax.swing.JLabel lastProcessTextLabel;
-    private javax.swing.JLabel monthlyAtLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton monthlyRadio;
-    private javax.swing.JLabel nextProcessLabel;
-    private javax.swing.JLabel nextProcessTextLabel;
-    private javax.swing.JLabel pruneEventAgeLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField pruneEventAgeTextField;
-    private javax.swing.ButtonGroup pruneEventsButtonGroup;
-    private javax.swing.JLabel pruneEventsLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton pruneEventsNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton pruneEventsYes;
-    private javax.swing.JPanel pruneSettingsPanel;
-    private javax.swing.JPanel pruningSchedulePanel;
-    private javax.swing.ButtonGroup scheduleButtonGroup;
-    private javax.swing.JPanel statusPanel;
-    private com.mirth.connect.client.ui.components.MirthTimePicker timeOfDay;
-    private com.mirth.connect.client.ui.components.MirthTimePicker timeOfDayMonthly;
-    private com.mirth.connect.client.ui.components.MirthTimePicker timeOfDayWeekly;
-    private javax.swing.JLabel weeklyAtLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton weeklyRadio;
-    // End of variables declaration//GEN-END:variables
+    private JPanel statusPanel;
+    private JLabel currentStateLabel;
+    private JLabel currentStateTextLabel;
+    private JLabel currentProcessLabel;
+    private JLabel currentProcessTextLabel;
+    private JLabel lastProcessLabel;
+    private JLabel lastProcessTextLabel;
+    private JLabel nextProcessLabel;
+    private JLabel nextProcessTextLabel;
+
+    private JPanel pruningSchedulePanel;
+    private JLabel enabledLabel;
+    private MirthRadioButton yesEnabledRadio;
+    private MirthRadioButton noEnabledRadio;
+    private ButtonGroup enabledButtonGroup;
+    private PollingSettingsPanel pollingSettingsPanel;
+
+    private JPanel pruneSettingsPanel;
+    private JLabel blockSizeLabel;
+    private MirthTextField blockSizeTextField;
+    private JLabel pruneEventsLabel;
+    private MirthRadioButton pruneEventsYes;
+    private MirthRadioButton pruneEventsNo;
+    private ButtonGroup pruneEventsButtonGroup;
+    private JLabel pruneEventAgeLabel;
+    private MirthTextField pruneEventAgeTextField;
+    private JLabel eventDaysLabel;
+
+    private JPanel archiverContainerPanel;
+    private MessageExportPanel archiverPanel;
 }

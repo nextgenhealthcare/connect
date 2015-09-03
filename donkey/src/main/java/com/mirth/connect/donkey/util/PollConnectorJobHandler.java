@@ -25,6 +25,7 @@ public class PollConnectorJobHandler {
     private TriggerFactory triggerFactory;
     private String id;
     private boolean initialTriggerFired;
+    private boolean isPollConnector;
 
     private JobDetail job;
     private Scheduler scheduler;
@@ -32,14 +33,15 @@ public class PollConnectorJobHandler {
     private List<Trigger> triggerList;
     private BaseCalendar calendar;
 
-    public PollConnectorJobHandler(PollConnectorProperties pollConnectorProperties, String id) {
-        this.id = id;
+    public PollConnectorJobHandler(PollConnectorProperties pollConnectorProperties, String id, boolean isPollConnector) {
         this.pollConnectorProperties = pollConnectorProperties;
+        this.id = id;
+        this.isPollConnector = isPollConnector;
         initialTriggerFired = false;
     }
 
-    public void configureJob(Class className, JobFactory jobFactory) throws SchedulerException {
-        JobBuilder jobBuilder = JobBuilder.newJob(className != null ? className : DummyJob.class).withIdentity("PollingConnectorJob" + id, id);
+    public void configureJob(Class className, JobFactory jobFactory, String identity) throws SchedulerException {
+        JobBuilder jobBuilder = JobBuilder.newJob(className != null ? className : DummyJob.class).withIdentity(identity + id, id);
         jobBuilder.storeDurably(true);
         job = jobBuilder.build();
 
@@ -81,19 +83,24 @@ public class PollConnectorJobHandler {
         }
     }
 
-    public void scheduleJob() throws SchedulerException {
+    public void scheduleJob(boolean start) throws SchedulerException {
         if (!triggerList.isEmpty()) {
             scheduler.addJob(job, false);
 
             for (Trigger trigger : triggerList) {
                 scheduler.scheduleJob(trigger);
             }
+
+            if (isPollConnector && pollConnectorProperties.isPollOnStart() && !initialTriggerFired) {
+                scheduler.triggerJob(job.getKey());
+                initialTriggerFired = true;
+            }
+
+            if (start) {
+                scheduler.start();
+            }
         }
 
-        if (pollConnectorProperties.isPollOnStart() && !initialTriggerFired) {
-            scheduler.triggerJob(job.getKey());
-            initialTriggerFired = true;
-        }
     }
 
     public JobDetail getJob() {
@@ -117,12 +124,17 @@ public class PollConnectorJobHandler {
                 }
             }
 
-            if (calendar != null) {
+            PollingType pollingType = pollConnectorProperties.getPollingType();
+            if (pollingType != PollingType.CRON) {
                 boolean isTimeIncluded = calendar.isTimeIncluded(earliestTriggerTime.getTime());
                 if (!isTimeIncluded) {
-                    Calendar includedTime = Calendar.getInstance();
-                    includedTime.setTimeInMillis(calendar.getNextIncludedTime(currentTime.getTimeInMillis()));
-                    earliestTriggerTime = includedTime.getTime();
+                    if (pollingType == PollingType.TIME) {
+                        earliestTriggerTime = triggerList.get(0).getFireTimeAfter(earliestTriggerTime);
+                    } else {
+                        Calendar includedTime = Calendar.getInstance();
+                        includedTime.setTimeInMillis(calendar.getNextIncludedTime(currentTime.getTimeInMillis()));
+                        earliestTriggerTime = includedTime.getTime();
+                    }
                 }
             }
 

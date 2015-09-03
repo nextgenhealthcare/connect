@@ -32,6 +32,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
@@ -83,10 +84,13 @@ public class DataPruner implements Runnable {
     private DataPrunerStatus lastStatus;
     private Logger logger = Logger.getLogger(getClass());
 
+    private PollConnectorProperties pollingProperties;
+
     public DataPruner() {
         this.retryCount = 3;
         this.skipIncomplete = true;
         this.skipStatuses = new Status[] { Status.ERROR, Status.QUEUED, Status.PENDING };
+        pollingProperties = new PollConnectorProperties();
     }
 
     public int getNumExported() {
@@ -167,6 +171,14 @@ public class DataPruner implements Runnable {
 
     public void setMaxEventAge(Integer maxEventAge) {
         this.maxEventAge = maxEventAge;
+    }
+
+    public PollConnectorProperties getPollingProperties() {
+        return pollingProperties;
+    }
+
+    public void setPollingProperties(PollConnectorProperties pollingProperties) {
+        this.pollingProperties = pollingProperties;
     }
 
     public DataPrunerStatus getPrunerStatus() {
@@ -299,6 +311,12 @@ public class DataPruner implements Runnable {
 
             logger.debug("Pruner task queue built, " + taskQueue.size() + " channels will be processed");
 
+            Map<String, String> attributes = new HashMap<String, String>();
+            if (taskQueue.isEmpty()) {
+                attributes.put("No messages to prune.", "");
+                eventController.dispatchEvent(new ServerEvent(serverId, DataPrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
+            }
+
             while (!taskQueue.isEmpty()) {
                 ThreadUtils.checkInterruptedStatus();
                 PrunerTask task = taskQueue.poll();
@@ -312,7 +330,6 @@ public class DataPruner implements Runnable {
 
                     status.getProcessedChannelIds().add(task.getChannelId());
 
-                    Map<String, String> attributes = new HashMap<String, String>();
                     attributes.put("Channel ID", task.getChannelId());
                     attributes.put("Channel Name", task.getChannelName());
 
@@ -329,7 +346,6 @@ public class DataPruner implements Runnable {
                 } catch (Exception e) {
                     status.getFailedChannelIds().add(task.getChannelId());
 
-                    Map<String, String> attributes = new HashMap<String, String>();
                     attributes.put("channel", task.getChannelName());
                     attributes.put("error", e.getMessage());
                     attributes.put("trace", ExceptionUtils.getStackTrace(e));

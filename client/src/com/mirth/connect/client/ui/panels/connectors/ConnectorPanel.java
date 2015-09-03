@@ -365,7 +365,7 @@ public class ConnectorPanel extends JPanel {
         listenerSettingsPanel = new ListenerSettingsPanel();
         add(listenerSettingsPanel, "growx, wrap");
 
-        pollingSettingsPanel = new PollingSettingsPanel();
+        pollingSettingsPanel = new PollingSettingsPanel(true);
         add(pollingSettingsPanel, "growx, wrap");
 
         sourceSettingsPanel = new SourceSettingsPanel();

@@ -9,73 +9,51 @@
 
 package com.mirth.connect.plugins.datapruner;
 
-import static org.quartz.CronScheduleBuilder.cronSchedule;
-import static org.quartz.CronScheduleBuilder.dailyAtHourAndMinute;
-import static org.quartz.CronScheduleBuilder.monthlyOnDayAndHourAndMinute;
-import static org.quartz.CronScheduleBuilder.weeklyOnDayAndHourAndMinute;
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.TriggerBuilder.newTrigger;
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.swing.text.DateFormatter;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.ScheduleBuilder;
 import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
-import org.quartz.impl.StdSchedulerFactory;
 
+import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
+import com.mirth.connect.donkey.util.PollConnectorJobHandler;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.util.PropertyLoader;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DefaultDataPrunerController extends DataPrunerController {
     private static final int MIN_PRUNING_BLOCK_SIZE = 50;
     private static final int MAX_PRUNING_BLOCK_SIZE = 10000;
     private static final int MAX_ARCHIVING_BLOCK_SIZE = 1000;
-    private static final String PRUNER_JOB_KEY = "prunerJob";
     private static final String DATE_FORMAT = "MM/dd/yyyy hh:mm aa";
-    private static final String PRUNER_TRIGGER_KEY = "prunerTrigger";
 
     public static DataPruner pruner = new DataPruner();
 
+    private boolean isEnabled;
+
     private Scheduler scheduler;
+    private PollConnectorJobHandler handler;
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-    private SchedulerFactory schedulerFactory;
-    private JobDetail jobDetail;
     private Logger logger = Logger.getLogger(this.getClass());
 
     @Override
     public void init(Properties properties) throws DataPrunerException {
         try {
-            schedulerFactory = new StdSchedulerFactory();
-            scheduler = schedulerFactory.getScheduler();
-
             applyPrunerSettings(properties);
 
-            jobDetail = newJob(DataPrunerJob.class).withIdentity(PRUNER_JOB_KEY).build();
+            handler = new PollConnectorJobHandler(pruner.getPollingProperties(), "DataPruner", false);
+            handler.configureJob(DataPrunerJob.class, null, "DataPruner");
 
-            Trigger trigger = createTrigger(properties);
-
-            if (trigger == null) {
+            if (!isEnabled) {
                 logger.debug("Data pruner disabled");
             } else {
+                handler.scheduleJob(false);
+                scheduler = handler.getScheduler();
                 logger.debug("Scheduling data pruner job");
-                scheduler.scheduleJob(jobDetail, trigger);
             }
         } catch (Exception e) {
             throw new DataPrunerException(e);
@@ -84,28 +62,34 @@ public class DefaultDataPrunerController extends DataPrunerController {
 
     @Override
     public void update(Properties properties) throws DataPrunerException {
-        if (scheduler != null) {
-            try {
-                scheduler.deleteJob(new JobKey(PRUNER_JOB_KEY));
-                applyPrunerSettings(properties);
-                Trigger trigger = createTrigger(properties);
-
-                if (trigger != null) {
-                    scheduler.scheduleJob(jobDetail, trigger);
-                    logger.debug("Scheduled job to " + new SimpleDateFormat(DATE_FORMAT).format(trigger.getNextFireTime()));
-                }
-            } catch (Exception e) {
-                throw new DataPrunerException(e);
+        try {
+            if (scheduler != null && scheduler.checkExists(handler.getJob().getKey())) {
+                stop(true);
             }
+
+            applyPrunerSettings(properties);
+
+            handler = new PollConnectorJobHandler(pruner.getPollingProperties(), "DataPruner", false);
+            handler.configureJob(DataPrunerJob.class, null, "DataPruner");
+
+            if (isEnabled) {
+                handler.scheduleJob(true);
+                scheduler = handler.getScheduler();
+                logger.debug("Scheduled job to " + handler.getNextFireTime());
+            }
+        } catch (Exception e) {
+            throw new DataPrunerException(e);
         }
     }
 
     @Override
     public void start() throws DataPrunerException {
-        try {
-            scheduler.start();
-        } catch (Exception e) {
-            throw new DataPrunerException(e);
+        if (scheduler != null) {
+            try {
+                scheduler.start();
+            } catch (Exception e) {
+                throw new DataPrunerException(e);
+            }
         }
     }
 
@@ -233,19 +217,10 @@ public class DefaultDataPrunerController extends DataPrunerController {
 
         statusMap.put("nextProcess", "Not scheduled");
 
-        Trigger trigger = null;
+        String nextFireTime = handler.getNextFireTime();
 
-        try {
-            trigger = scheduler.getTrigger(new TriggerKey(PRUNER_TRIGGER_KEY));
-        } catch (SchedulerException e) {
-        }
-
-        if (trigger != null) {
-            Date nextFireTime = trigger.getNextFireTime();
-
-            if (nextFireTime != null) {
-                statusMap.put("nextProcess", "Scheduled " + new SimpleDateFormat(DATE_FORMAT).format(nextFireTime));
-            }
+        if (!StringUtils.isEmpty(nextFireTime)) {
+            statusMap.put("nextProcess", "Scheduled " + nextFireTime);
         }
 
         return statusMap;
@@ -262,6 +237,15 @@ public class DefaultDataPrunerController extends DataPrunerController {
             pruner.setPrunerBlockSize(blockSize);
         } else {
             pruner.setPrunerBlockSize(DataPruner.DEFAULT_PRUNING_BLOCK_SIZE);
+        }
+
+        isEnabled = Boolean.parseBoolean(properties.getProperty("enabled"));
+        if (properties.containsKey("pollingProperties")) {
+            pruner.setPollingProperties(serializer.deserialize(properties.getProperty("pollingProperties"), PollConnectorProperties.class));
+        } else {
+            PollConnectorProperties defaultProperties = new PollConnectorProperties();
+            defaultProperties.setPollingFrequency(3600000);
+            pruner.setPollingProperties(defaultProperties);
         }
 
         pruner.setArchiveEnabled(Boolean.parseBoolean(properties.getProperty("archiveEnabled", Boolean.FALSE.toString())));
@@ -291,61 +275,6 @@ public class DefaultDataPrunerController extends DataPrunerController {
         } else {
             pruner.setArchiverBlockSize(DataPruner.DEFAULT_ARCHIVING_BLOCK_SIZE);
         }
-    }
-
-    private Trigger createTrigger(Properties properties) throws ParseException {
-        String interval = PropertyLoader.getProperty(properties, "interval");
-
-        if (interval.equals("disabled")) {
-            return null;
-        }
-
-        ScheduleBuilder<?> schedule = null;
-
-        if (interval.equals("hourly")) {
-            schedule = cronSchedule("0 0 * * * ?");
-        } else {
-            SimpleDateFormat timeDateFormat = new SimpleDateFormat("hh:mm aa");
-            DateFormatter timeFormatter = new DateFormatter(timeDateFormat);
-
-            String time = PropertyLoader.getProperty(properties, "time");
-            Date timeDate = (Date) timeFormatter.stringToValue(time);
-            Calendar timeCalendar = Calendar.getInstance();
-            timeCalendar.setTime(timeDate);
-
-            if (interval.equals("daily")) {
-                schedule = dailyAtHourAndMinute(timeCalendar.get(Calendar.HOUR_OF_DAY), timeCalendar.get(Calendar.MINUTE));
-            } else if (interval.equals("weekly")) {
-                SimpleDateFormat dayDateFormat = new SimpleDateFormat("EEEEEEEE");
-                DateFormatter dayFormatter = new DateFormatter(dayDateFormat);
-
-                String dayOfWeek = PropertyLoader.getProperty(properties, "dayOfWeek");
-                Date dayDate = (Date) dayFormatter.stringToValue(dayOfWeek);
-                Calendar dayCalendar = Calendar.getInstance();
-                dayCalendar.setTime(dayDate);
-
-                schedule = weeklyOnDayAndHourAndMinute(dayCalendar.get(Calendar.DAY_OF_WEEK), timeCalendar.get(Calendar.HOUR_OF_DAY), timeCalendar.get(Calendar.MINUTE));
-            } else if (interval.equals("monthly")) {
-                SimpleDateFormat dayDateFormat = new SimpleDateFormat("DD");
-                DateFormatter dayFormatter = new DateFormatter(dayDateFormat);
-
-                String dayOfMonth = PropertyLoader.getProperty(properties, "dayOfMonth");
-                Date dayDate = (Date) dayFormatter.stringToValue(dayOfMonth);
-                Calendar dayCalendar = Calendar.getInstance();
-                dayCalendar.setTime(dayDate);
-
-                schedule = monthlyOnDayAndHourAndMinute(dayCalendar.get(Calendar.DAY_OF_MONTH), timeCalendar.get(Calendar.HOUR_OF_DAY), timeCalendar.get(Calendar.MINUTE));
-            } else {
-                logger.error("Invalid pruner interval: " + interval);
-                return null;
-            }
-        }
-
-        return newTrigger()// @formatter:off
-                .withIdentity(PRUNER_TRIGGER_KEY)
-                .withSchedule(schedule)
-                .startNow()
-                .build(); // @formatter:on
     }
 
     private String getElapsedTimeText(Calendar startTime, Calendar endTime) {

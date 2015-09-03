@@ -143,14 +143,15 @@ public class PollConnectorProperties implements Serializable, Migratable, Purgab
     @Override
     public void migrate3_3_0(DonkeyElement element) {
         DonkeyElement pollingType = element.getChildElement("pollingType");
-        pollingType.setTextContent(pollingType.getTextContent().equals("interval") ? "INTERVAL" : "TIME");
-        element.addChildElementIfNotExists("pollOnStart", pollingType.getTextContent().equals("INTERVAL") ? "true" : "false");
+        boolean isInterval = pollingType.getTextContent().equals("interval");
+        pollingType.setTextContent(isInterval ? "INTERVAL" : "TIME");
+        element.addChildElementIfNotExists("pollOnStart", isInterval ? "true" : "false");
 
         element.addChildElementIfNotExists("cronJobs");
 
         DonkeyElement advancedProperties = element.addChildElementIfNotExists("pollConnectorPropertiesAdvanced");
         if (advancedProperties != null) {
-            advancedProperties.addChildElementIfNotExists("isWeekly", "true");
+            advancedProperties.addChildElementIfNotExists("weekly", "true");
 
             DonkeyElement activeDays = advancedProperties.addChildElementIfNotExists("inactiveDays");
             if (activeDays != null) {

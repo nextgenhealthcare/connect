@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EventObject;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
@@ -83,62 +85,20 @@ public class PollingSettingsPanel extends JPanel {
     private PollConnectorProperties nextFireTimeProperties;
     private PollConnectorPropertiesAdvanced cachedAdvancedConnectorProperties;
 
-    public PollingSettingsPanel() {
+    private boolean channelContext;
+    private Set<String> invalidExpressions;
+
+    public PollingSettingsPanel(boolean channelContext) {
+        this.channelContext = channelContext;
+
         initComponents();
         initLayout();
+
+        cachedAdvancedConnectorProperties = new PollConnectorPropertiesAdvanced();
     }
 
     public void setProperties(PollConnectorPropertiesInterface propertiesInterface) {
-        scheduleTypeComboBox.removeActionListener(scheduleTypeActionListener);
-        clearProperties();
-
-        PollConnectorProperties properties = propertiesInterface.getPollConnectorProperties();
-
-        if (properties.getPollingType().equals(PollingType.INTERVAL)) {
-            String frequencyType = POLLING_FREQUENCY_MILLISECONDS;
-            int frequency = properties.getPollingFrequency();
-
-            if (frequency % 3600000 == 0) {
-                frequency /= 3600000;
-                frequencyType = POLLING_FREQUENCY_HOURS;
-            } else if (frequency % 60000 == 0) {
-                frequency /= 60000;
-                frequencyType = POLLING_FREQUENCY_MINUTES;
-            } else if (frequency % 1000 == 0) {
-                frequency /= 1000;
-                frequencyType = POLLING_FREQUENCY_SECONDS;
-            }
-
-            pollingFrequencyField.setText(String.valueOf(frequency));
-            pollingFrequencyTypeComboBox.setSelectedItem(frequencyType);
-        } else if (properties.getPollingType().equals(PollingType.TIME)) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm aa");
-            Calendar timeCalendar = Calendar.getInstance();
-            timeCalendar.set(Calendar.HOUR_OF_DAY, properties.getPollingHour());
-            timeCalendar.set(Calendar.MINUTE, properties.getPollingMinute());
-            pollingTimePicker.setDate(dateFormat.format(timeCalendar.getTime()));
-        } else if (properties.getPollingType().equals(PollingType.CRON)) {
-            List<CronProperty> cronJobs = properties.getCronJobs();
-            if (cronJobs != null && cronJobs.size() > 0) {
-                DefaultTableModel model = (DefaultTableModel) cronJobsTable.getModel();
-                model.setNumRows(0);
-
-                for (CronProperty property : cronJobs) {
-                    model.addRow(new Object[] { property.getExpression(), property.getDescription() });
-                }
-
-                deleteJobButton.setEnabled(true);
-            }
-        }
-
-        String pollingType = properties.getPollingType().getDisplayName();
-        yesStartPollRadioButton.setSelected(properties.isPollOnStart());
-
-        scheduleTypeComboBox.setSelectedItem(pollingType);
-
-        enableComponents(pollingType);
-        cachedAdvancedConnectorProperties = properties.getPollConnectorPropertiesAdvanced();
-        scheduleTypeComboBox.addActionListener(scheduleTypeActionListener);
+        setProperties(propertiesInterface.getPollConnectorProperties());
     }
 
     public void fillProperties(PollConnectorPropertiesInterface propertiesInterface) {
@@ -213,19 +173,22 @@ public class PollingSettingsPanel extends JPanel {
         if (propertiesInterface != null) {
             properties = propertiesInterface.getPollConnectorProperties();
         } else {
+            fillProperties(null);
             properties = nextFireTimeProperties.clone();
         }
 
         boolean valid = true;
+        pollingFrequencyField.setBackground(null);
 
         if (properties.getPollingType().equals(PollingType.INTERVAL)) {
             int frequency = properties.getPollingFrequency();
+
             if (frequency <= 0 || frequency >= 86400000) {
                 valid = false;
+            }
 
-                if (highlight) {
-                    pollingFrequencyField.setBackground(UIConstants.INVALID_COLOR);
-                }
+            if (highlight && !valid) {
+                pollingFrequencyField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -233,12 +196,18 @@ public class PollingSettingsPanel extends JPanel {
             if (cronJobsTable.getRowCount() == 0) {
                 valid = false;
             } else {
+                invalidExpressions = new HashSet<String>();
+                cronJobsTable.removeHighlighter(errorHighlighter);
                 for (int index = 0; index < cronJobsTable.getRowCount(); index++) {
                     String cronExpression = (String) cronJobsTable.getValueAt(index, 0);
                     if (StringUtils.isBlank(cronExpression) || !PollConnectorJobHandler.validateExpression(cronExpression)) {
-                        cronJobsTable.addHighlighter(errorHighlighter);
+                        invalidExpressions.add(cronExpression);
                         valid = false;
                     }
+                }
+
+                if (!valid) {
+                    cronJobsTable.addHighlighter(errorHighlighter);
                 }
             }
         }
@@ -247,12 +216,23 @@ public class PollingSettingsPanel extends JPanel {
     }
 
     public void resetInvalidProperties() {
-        pollingFrequencyField.setBackground(null);
-        pollingTimePicker.setBackground(null);
+        setInvalidProperties(false, false);
+    }
+
+    public void setInvalidProperties(boolean invalidFrequency, boolean invalidJobs) {
+        pollingFrequencyField.setBackground(invalidFrequency ? UIConstants.INVALID_COLOR : null);
         cronJobsTable.removeHighlighter(errorHighlighter);
+        if (invalidJobs) {
+            cronJobsTable.addHighlighter(errorHighlighter);
+        }
+    }
+
+    public void updateInvalidExpressions(Set<String> invalidExpressions) {
+        this.invalidExpressions = invalidExpressions;
     }
 
     private void initComponents() {
+        scheduleTypeLabel = new JLabel("Schedule Type:");
         scheduleTypeComboBox = new MirthComboBox();
         // @formatter:off
         scheduleTypeComboBox.setToolTipText("<html>This connector polls to determine when new messages have arrived.<br>"
@@ -370,7 +350,7 @@ public class PollingSettingsPanel extends JPanel {
                 if (adapter.column == cronJobsTable.getColumnViewIndex("Expression")) {
                     String cronExpression = (String) cronJobsTable.getValueAt(adapter.row, adapter.column);
 
-                    if (StringUtils.isEmpty(cronExpression) || !PollConnectorJobHandler.validateExpression(cronExpression)) {
+                    if (invalidExpressions.contains(cronExpression)) {
                         return true;
                     }
                 }
@@ -398,7 +378,7 @@ public class PollingSettingsPanel extends JPanel {
                     + "<br/> &nbsp <b>?</b> : no specific value"
                     + "<br/> &nbsp <b>-</b> : used to specify ranges"
                     + "<br/> &nbsp <b>,</b> : used to specify list of values"
-                    + "<br/> &nbsp <b>/</b> : used to specify increments &nbsp <b>Example:</b> */5 means every 5 seconds"
+                    + "<br/> &nbsp <b>/</b> : used to specify increments"
                     + "<br/> &nbsp <b>L</b> : used to specify the last of"
                     + "<br/> &nbsp <b>W</b> : used to specify the nearest weekday"
                     + "<br/> &nbsp <b>#</b> : used to specify the nth day of the month"
@@ -461,7 +441,8 @@ public class PollingSettingsPanel extends JPanel {
         advancedSettingsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                new AdvancedPollingSettingsDialog(lastSelectedPollingType, cachedAdvancedConnectorProperties);
+                lastSelectedPollingType = StringUtils.isBlank(lastSelectedPollingType) ? "Interval" : lastSelectedPollingType;
+                new AdvancedPollingSettingsDialog(lastSelectedPollingType, cachedAdvancedConnectorProperties, channelContext);
                 updateNextFireTime();
             }
         });
@@ -471,13 +452,102 @@ public class PollingSettingsPanel extends JPanel {
 
         scheduleSettingsPanel = new JPanel();
         scheduleSettingsPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+
+        if (!channelContext) {
+            // @formatter:off
+            scheduleTypeComboBox.setToolTipText("<html>Select the pruning schedule type.<br>"
+                    + "Select \"Interval\" to prune each n units of time.<br>"
+                    + "Select \"Time\" to prune once a day at the specified time.<br>"
+                    + "Select \"Cron\" to prune at the specified cron expression(s).</html>");
+            // @formatter:on 
+            pollingFrequencyField.setToolTipText("<html>The specified repeating time interval.<br/>Units must be between 1 and 24 hours of time<br/>when converted to milliseconds.</html>");
+        }
+    }
+
+    public void enableComponents(boolean enable) {
+        scheduleTypeLabel.setEnabled(enable);
+        scheduleTypeComboBox.setEnabled(enable);
+
+        pollingTimePicker.setEnabled(enable);
+
+        pollingFrequencySettingsPanel.setEnabled(enable);
+        pollingFrequencyField.setEnabled(enable);
+        pollingFrequencyTypeComboBox.setEnabled(enable);
+
+        cronJobsTable.setEnabled(enable);
+        cronScrollPane.setEnabled(enable);
+        addJobButton.setEnabled(enable);
+        deleteJobButton.setEnabled(enable);
+
+        timeSettingsLabel.setEnabled(enable);
+        advancedSettingsButton.setEnabled(enable);
+        scheduleSettingsPanel.setEnabled(enable);
+    }
+
+    public PollConnectorProperties getProperties() {
+        fillProperties(null);
+        return nextFireTimeProperties;
+    }
+
+    public void setProperties(PollConnectorProperties properties) {
+        scheduleTypeComboBox.removeActionListener(scheduleTypeActionListener);
+
+        clearProperties();
+
+        if (properties.getPollingType().equals(PollingType.INTERVAL)) {
+            String frequencyType = POLLING_FREQUENCY_MILLISECONDS;
+            int frequency = properties.getPollingFrequency();
+
+            if (frequency % 3600000 == 0) {
+                frequency /= 3600000;
+                frequencyType = POLLING_FREQUENCY_HOURS;
+            } else if (frequency % 60000 == 0) {
+                frequency /= 60000;
+                frequencyType = POLLING_FREQUENCY_MINUTES;
+            } else if (frequency % 1000 == 0) {
+                frequency /= 1000;
+                frequencyType = POLLING_FREQUENCY_SECONDS;
+            }
+
+            pollingFrequencyField.setText(String.valueOf(frequency));
+            pollingFrequencyTypeComboBox.setSelectedItem(frequencyType);
+        } else if (properties.getPollingType().equals(PollingType.TIME)) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm aa");
+            Calendar timeCalendar = Calendar.getInstance();
+            timeCalendar.set(Calendar.HOUR_OF_DAY, properties.getPollingHour());
+            timeCalendar.set(Calendar.MINUTE, properties.getPollingMinute());
+            pollingTimePicker.setDate(dateFormat.format(timeCalendar.getTime()));
+        } else if (properties.getPollingType().equals(PollingType.CRON)) {
+            List<CronProperty> cronJobs = properties.getCronJobs();
+            if (cronJobs != null && cronJobs.size() > 0) {
+                DefaultTableModel model = (DefaultTableModel) cronJobsTable.getModel();
+                model.setNumRows(0);
+
+                for (CronProperty property : cronJobs) {
+                    model.addRow(new Object[] { property.getExpression(), property.getDescription() });
+                }
+
+                deleteJobButton.setEnabled(true);
+            }
+        }
+
+        nextFireTimeProperties = properties.clone();
+
+        String pollingType = properties.getPollingType().getDisplayName();
+        yesStartPollRadioButton.setSelected(properties.isPollOnStart());
+
+        scheduleTypeComboBox.setSelectedItem(pollingType);
+
+        enableComponents(pollingType);
+        cachedAdvancedConnectorProperties = properties.getPollConnectorPropertiesAdvanced();
+        scheduleTypeComboBox.addActionListener(scheduleTypeActionListener);
     }
 
     private void scheduleTypeActionPerformed() {
         String selectedType = (String) scheduleTypeComboBox.getSelectedItem();
 
         // If connector is changing, ignore this...
-        if (lastSelectedPollingType != null && (!isDefaultProperties() || !cachedAdvancedConnectorProperties.equals(new PollConnectorPropertiesAdvanced()))) {
+        if (lastSelectedPollingType != null && channelContext && (!isDefaultProperties() || !cachedAdvancedConnectorProperties.equals(new PollConnectorPropertiesAdvanced()))) {
             if (!selectedType.equals(lastSelectedPollingType) && JOptionPane.showConfirmDialog(PlatformUI.MIRTH_FRAME, "Are you sure you would like to change the polling type and lose all of the current properties?", "Select an Option", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                 clearProperties();
                 enableComponents(selectedType);
@@ -512,21 +582,23 @@ public class PollingSettingsPanel extends JPanel {
     private boolean isDefaultProperties() {
         boolean isDefault = true;
 
-        if (lastSelectedPollingType.equals(PollingType.INTERVAL.getDisplayName())) {
-            if (!pollingFrequencyField.getText().equalsIgnoreCase("5")) {
-                isDefault = false;
+        if (channelContext) {
+            if (lastSelectedPollingType.equals(PollingType.INTERVAL.getDisplayName())) {
+                if (!pollingFrequencyField.getText().equalsIgnoreCase("5")) {
+                    isDefault = false;
+                }
+
+                if (pollingFrequencyTypeComboBox.getSelectedIndex() != 1) {
+                    isDefault = false;
+                }
             }
 
-            if (pollingFrequencyTypeComboBox.getSelectedIndex() != 1) {
-                isDefault = false;
-            }
-        }
-
-        if (lastSelectedPollingType.equals(PollingType.CRON.getDisplayName())) {
-            if (cronJobsTable.getRowCount() == 1) {
-                isDefault = cronJobsTable.getValueAt(0, 0).equals(defaultCronJob);
-            } else {
-                isDefault = false;
+            if (lastSelectedPollingType.equals(PollingType.CRON.getDisplayName())) {
+                if (cronJobsTable.getRowCount() == 1) {
+                    isDefault = cronJobsTable.getValueAt(0, 0).equals(defaultCronJob);
+                } else {
+                    isDefault = false;
+                }
             }
         }
 
@@ -536,8 +608,6 @@ public class PollingSettingsPanel extends JPanel {
     private void clearProperties() {
         scheduleTypeComboBox.setSelectedItem(PollingType.INTERVAL.getDisplayName());
         noStartPollRadioButton.setSelected(true);
-        pollingFrequencyTypeComboBox.setSelectedItem(POLLING_FREQUENCY_SECONDS);
-        pollingFrequencyField.setText("5");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm aa");
         pollingTimePicker.setDate(dateFormat.format(Calendar.getInstance().getTime()));
@@ -548,8 +618,19 @@ public class PollingSettingsPanel extends JPanel {
         }
 
         Vector<String> row = new Vector<String>();
-        row.add(defaultCronJob);
-        row.add("Run every 5 seconds.");
+        if (channelContext) {
+            pollingFrequencyTypeComboBox.setSelectedItem(POLLING_FREQUENCY_SECONDS);
+            pollingFrequencyField.setText("5");
+
+            row.add(defaultCronJob);
+            row.add("Run every 5 seconds.");
+        } else {
+            pollingFrequencyTypeComboBox.setSelectedItem(POLLING_FREQUENCY_HOURS);
+            pollingFrequencyField.setText("1");
+
+            row.add("0 0 */1 * * ?");
+            row.add("Run hourly.");
+        }
 
         model.addRow(row);
 
@@ -557,13 +638,13 @@ public class PollingSettingsPanel extends JPanel {
     }
 
     public void updateNextFireTime() {
-        if (nextFireTimeProperties != null) {
+        if (channelContext && nextFireTimeProperties != null) {
             fillProperties(null);
             boolean isCron = nextFireTimeProperties.getPollingType().equals(PollingType.CRON);
             if (isCron || checkProperties(null, false)) {
                 try {
-                    PollConnectorJobHandler handler = new PollConnectorJobHandler(nextFireTimeProperties, PlatformUI.MIRTH_FRAME.mirthClient.getGuid());
-                    handler.configureJob(null, null);
+                    PollConnectorJobHandler handler = new PollConnectorJobHandler(nextFireTimeProperties, PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), false);
+                    handler.configureJob(null, null, "DummyJob");
                     nextPollLabel.setText("Next poll at: " + handler.getNextFireTime());
                 } catch (Exception e) {
                     StringBuilder builder = new StringBuilder();
@@ -585,20 +666,30 @@ public class PollingSettingsPanel extends JPanel {
     }
 
     private void initLayout() {
+        String gapleft = "";
+        if (!channelContext) {
+            gapleft = "gapleft 8,";
+        }
+
         setBackground(UIConstants.BACKGROUND_COLOR);
-        setBorder(javax.swing.BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Polling Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
         setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0", "[right][left]"));
 
-        add(new JLabel("Schedule Type:"));
-        add(scheduleTypeComboBox, "split");
-        add(nextPollLabel, "gapleft 8, wrap");
+        if (channelContext) {
+            setBorder(javax.swing.BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Polling Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-        add(new JLabel("Poll Once on Start:"));
-        add(yesStartPollRadioButton, "split");
-        add(noStartPollRadioButton, "wrap");
+            add(scheduleTypeLabel);
+            add(scheduleTypeComboBox, "split");
+            add(nextPollLabel, "gapleft 8, wrap");
+
+            add(new JLabel("Poll Once on Start:"));
+            add(yesStartPollRadioButton, "split");
+            add(noStartPollRadioButton, "wrap");
+        } else {
+            add(scheduleTypeLabel);
+            add(scheduleTypeComboBox, gapleft + "wrap");
+        }
 
         add(timeSettingsLabel, "aligny top, gaptop 2");
-
         scheduleSettingsPanel.setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0"));
 
         scheduleSettingsPanel.add(pollingTimePicker, "w 70!");
@@ -618,7 +709,7 @@ public class PollingSettingsPanel extends JPanel {
         pollingCronSettingsPanel.add(buttonPanel, "top");
         scheduleSettingsPanel.add(pollingCronSettingsPanel);
 
-        add(scheduleSettingsPanel, "shrink, aligny top, split");
+        add(scheduleSettingsPanel, gapleft + "shrink, aligny top, split");
         add(advancedSettingsButton, "h 21!, w 22!");
     }
 
@@ -635,8 +726,7 @@ public class PollingSettingsPanel extends JPanel {
 
             for (int i = 0; i < cronJobsTable.getRowCount(); i++) {
                 boolean isDuplicateExpression = cronJobsTable.getValueAt(i, 0) != null && ((String) cronJobsTable.getValueAt(i, 0)).equals(property);
-                boolean isDuplicateDescription = cronJobsTable.getValueAt(i, 1) != null && ((String) cronJobsTable.getValueAt(i, 1)).equals(property);
-                if (isDuplicateExpression || isDuplicateDescription) {
+                if (isDuplicateExpression) {
                     exists = true;
                 }
             }
@@ -677,6 +767,7 @@ public class PollingSettingsPanel extends JPanel {
         }
     }
 
+    private JLabel scheduleTypeLabel;
     private MirthComboBox scheduleTypeComboBox;
     private ActionListener scheduleTypeActionListener;
     private JLabel nextPollLabel;

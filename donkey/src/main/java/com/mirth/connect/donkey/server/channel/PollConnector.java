@@ -33,16 +33,14 @@ public abstract class PollConnector extends SourceConnector {
 
         terminated.set(false);
         PollConnectorProperties pollConnectorProperties = ((PollConnectorPropertiesInterface) getConnectorProperties()).getPollConnectorProperties();
-        handler = new PollConnectorJobHandler(pollConnectorProperties, getChannelId());
+        handler = new PollConnectorJobHandler(pollConnectorProperties, getChannelId(), true);
 
         try {
-            handler.configureJob(PollConnectorJob.class, new PollConnectorJobFactory(this));
-            handler.scheduleJob();
+            handler.configureJob(PollConnectorJob.class, new PollConnectorJobFactory(this), "PollConnector");
+            handler.scheduleJob(true);
 
             job = handler.getJob();
-
             scheduler = handler.getScheduler();
-            scheduler.start();
         } catch (Exception e) {
             throw new ConnectorTaskException(e);
         }

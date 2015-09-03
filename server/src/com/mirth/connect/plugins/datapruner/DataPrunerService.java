@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.TaskConstants;
+import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.ServicePlugin;
@@ -93,8 +94,12 @@ public class DataPrunerService implements ServicePlugin {
     @Override
     public Properties getDefaultProperties() {
         Properties properties = new Properties();
-        properties.put("interval", "disabled");
-        properties.put("time", "12:00 AM");
+        properties.put("enabled", "false");
+
+        PollConnectorProperties defaultProperties = new PollConnectorProperties();
+        defaultProperties.setPollingFrequency(3600000);
+        properties.put("pollingProperties", serializer.serialize(defaultProperties));
+
         properties.put("pruningBlockSize", String.valueOf(DataPruner.DEFAULT_PRUNING_BLOCK_SIZE));
         properties.put("archiveEnabled", serializer.serialize(false));
         properties.put("archiverBlockSize", String.valueOf(DataPruner.DEFAULT_ARCHIVING_BLOCK_SIZE));

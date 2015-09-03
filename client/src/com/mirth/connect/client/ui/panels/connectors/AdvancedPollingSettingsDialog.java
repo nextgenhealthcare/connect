@@ -27,7 +27,6 @@ import net.miginfocom.swing.MigLayout;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.client.ui.components.MirthTimePicker;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesAdvanced;
 import com.mirth.connect.donkey.model.channel.PollingType;
@@ -36,11 +35,14 @@ public class AdvancedPollingSettingsDialog extends MirthDialog {
     private String scheduleType;
     private PollConnectorPropertiesAdvanced advancedProperties;
 
-    public AdvancedPollingSettingsDialog(String pollingScheduleType, PollConnectorPropertiesAdvanced advancedProperties) {
+    private boolean channelContext = true;
+
+    public AdvancedPollingSettingsDialog(String scheduleType, PollConnectorPropertiesAdvanced advancedProperties, boolean channelContext) {
         super(PlatformUI.MIRTH_FRAME, true);
 
+        this.scheduleType = scheduleType;
         this.advancedProperties = advancedProperties;
-        scheduleType = pollingScheduleType;
+        this.channelContext = channelContext;
 
         setTitle("Settings");
         setResizable(false);
@@ -50,7 +52,7 @@ public class AdvancedPollingSettingsDialog extends MirthDialog {
         initComponents();
         initLayout();
         setProperties();
-        
+
         pack();
         setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
         setVisible(true);
@@ -140,10 +142,16 @@ public class AdvancedPollingSettingsDialog extends MirthDialog {
     }
 
     private void initComponents() {
+        String weekly = "<html>Select Weekly to poll on the specified days of the week.<br>Select Monthly to poll on the specified day of the month.</html>";
+        String active = "<html>If \"All Day\" is selected, polling may occur at any time during the day.<br>If \"Range\" is selected, polling will only occur during the specified range.</html>";
+        if (!channelContext) {
+            weekly = "<html>Select Weekly to prune on the specified days of the week.<br>Select Monthly to prune on the specified day of the month.</html>";
+            active = "<html>If \"All Day\" is selected, pruning may occur at any time during the day.<br>If \"Range\" is selected, pruning will only occur during the specified range.</html>";
+        }
         activeDaysLabel = new JLabel("Active Days:");
 
         weeklyRadioButton = new JRadioButton("Weekly");
-        weeklyRadioButton.setToolTipText("<html>Select Weekly to poll on the specified days of the week.<br>Select Monthly to poll on the specified day of the month.</html>");
+        weeklyRadioButton.setToolTipText(weekly);
         weeklyRadioButton.setBackground(UIConstants.BACKGROUND_COLOR);
         weeklyRadioButton.setFocusable(false);
         weeklyRadioButton.setSelected(true);
@@ -155,7 +163,7 @@ public class AdvancedPollingSettingsDialog extends MirthDialog {
         });
 
         monthlyRadioButton = new JRadioButton("Monthly");
-        monthlyRadioButton.setToolTipText("<html>Select Weekly to poll on the specified day(s) of the week.<br>Select Monthly to poll on the specified day of the month.</html>");
+        monthlyRadioButton.setToolTipText(weekly);
         monthlyRadioButton.setBackground(UIConstants.BACKGROUND_COLOR);
         monthlyRadioButton.setFocusable(false);
         monthlyRadioButton.addActionListener(new ActionListener() {
@@ -191,7 +199,7 @@ public class AdvancedPollingSettingsDialog extends MirthDialog {
         activeTimeLabel = new JLabel("Active Time:");
 
         allDayRadioButton = new JRadioButton("All Day");
-        allDayRadioButton.setToolTipText("<html>If \"All Day\" is selected, polling may occur at any time during the day.<br>If \"Range\" is selected, polling will only occur during the specified range.</html>");
+        allDayRadioButton.setToolTipText(active);
         allDayRadioButton.setBackground(UIConstants.BACKGROUND_COLOR);
         allDayRadioButton.setFocusable(false);
         allDayRadioButton.setSelected(true);
@@ -203,7 +211,7 @@ public class AdvancedPollingSettingsDialog extends MirthDialog {
         });
 
         rangeRadioButton = new JRadioButton("Range");
-        rangeRadioButton.setToolTipText("<html>If \"All Day\" is selected, polling may occur at any time during the day.<br>If \"Range\" is selected, polling will only occur within the specified range.</html>");
+        rangeRadioButton.setToolTipText(active);
         rangeRadioButton.setBackground(UIConstants.BACKGROUND_COLOR);
         rangeRadioButton.setFocusable(false);
         rangeRadioButton.addActionListener(new ActionListener() {

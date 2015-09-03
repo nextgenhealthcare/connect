@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import com.mirth.connect.donkey.util.purge.Purgable;
 
 public class PollConnectorPropertiesAdvanced implements Serializable, Purgable {
-    private boolean isWeekly;
+    private boolean weekly;
     private boolean[] inactiveDays;
 
     private int dayOfMonth;
@@ -24,7 +24,7 @@ public class PollConnectorPropertiesAdvanced implements Serializable, Purgable {
     private int endingMinute;
 
     public PollConnectorPropertiesAdvanced() {
-        isWeekly = true;
+        weekly = true;
         inactiveDays = new boolean[8];
 
         inactiveDays[Calendar.SUNDAY] = false; // true means to exclude
@@ -45,7 +45,7 @@ public class PollConnectorPropertiesAdvanced implements Serializable, Purgable {
     }
 
     public PollConnectorPropertiesAdvanced(PollConnectorPropertiesAdvanced properties) {
-        isWeekly = properties.isWeekly();
+        weekly = properties.isWeekly();
 
         boolean[] days = new boolean[8];
         boolean[] inactiveDays = properties.getInactiveDays();
@@ -64,11 +64,11 @@ public class PollConnectorPropertiesAdvanced implements Serializable, Purgable {
     }
 
     public void setWeekly(boolean isWeekly) {
-        this.isWeekly = isWeekly;
+        this.weekly = isWeekly;
     }
 
     public boolean isWeekly() {
-        return isWeekly;
+        return weekly;
     }
 
     public void setActiveDays(boolean[] inactiveDays) {
@@ -140,7 +140,7 @@ public class PollConnectorPropertiesAdvanced implements Serializable, Purgable {
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
-        purgedProperties.put("isWeekly", isWeekly);
+        purgedProperties.put("weekly", weekly);
         purgedProperties.put("inactiveDays", inactiveDays.toString());
         purgedProperties.put("dayOfMonth", dayOfMonth);
         purgedProperties.put("allDay", allDay);
