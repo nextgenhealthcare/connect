@@ -130,6 +130,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private String[] httpsClientProtocols;
     private String[] httpsServerProtocols;
     private String[] httpsCipherSuites;
+    private boolean startupDeploy;
     private volatile Map<String, String> configurationMap = Collections.unmodifiableMap(new HashMap<String, String>());
     private volatile Map<String, String> commentMap = Collections.unmodifiableMap(new HashMap<String, String>());
     private static PropertiesConfiguration versionConfig = new PropertiesConfiguration();
@@ -147,6 +148,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String HTTPS_CLIENT_PROTOCOLS = "https.client.protocols";
     private static final String HTTPS_SERVER_PROTOCOLS = "https.server.protocols";
     private static final String HTTPS_CIPHER_SUITES = "https.ciphersuites";
+    private static final String STARTUP_DEPLOY = "server.startupdeploy";
 
     // singleton pattern
     private static ConfigurationController instance = null;
@@ -246,6 +248,11 @@ public class DefaultConfigurationController extends ConfigurationController {
                 httpsCipherSuites = StringUtils.split(httpsCipherSuitesString, ',');
             } else {
                 httpsCipherSuites = MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES;
+            }
+
+            String deploy = String.valueOf(mirthConfig.getProperty(STARTUP_DEPLOY));
+            if (StringUtils.isNotBlank(deploy)) {
+                startupDeploy = Boolean.parseBoolean(deploy);
             }
 
             // Check for server GUID and generate a new one if it doesn't exist
@@ -472,6 +479,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public String[] getHttpsCipherSuites() {
         return ArrayUtils.clone(httpsCipherSuites);
+    }
+
+    @Override
+    public boolean isStartupDeploy() {
+        return startupDeploy;
     }
 
     @Override

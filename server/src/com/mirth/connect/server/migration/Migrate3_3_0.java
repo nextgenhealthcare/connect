@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,6 +26,7 @@ import javax.swing.text.DateFormatter;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -292,7 +294,11 @@ public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
 
     @Override
     public Map<String, Object> getConfigurationPropertiesToAdd() {
-        return null;
+        Map<String, Object> propertiesToAdd = new LinkedHashMap<String, Object>();
+
+        propertiesToAdd.put("server.startupdeploy", new MutablePair<Object, String>(true, "Determines whether or not channels are deployed on server startup."));
+
+        return propertiesToAdd;
     }
 
     @Override

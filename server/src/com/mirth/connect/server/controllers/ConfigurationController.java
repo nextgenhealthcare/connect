@@ -215,6 +215,8 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract String[] getHttpsCipherSuites();
 
+    public abstract boolean isStartupDeploy();
+
     /**
      * Returns the server configuration, which contains:
      * <ul>

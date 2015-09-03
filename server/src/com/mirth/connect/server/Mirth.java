@@ -309,7 +309,12 @@ public class Mirth extends Thread {
             alertController.initAlerts();
 
             configurationController.setStatus(ConfigurationController.STATUS_INITIAL_DEPLOY);
-            engineController.startupDeploy();
+
+            if (configurationController.isStartupDeploy()) {
+                engineController.startupDeploy();
+            } else {
+                logger.info("Property \"server.startupdeploy\" is disabled. Skipping initial deployment of channels...");
+            }
         } catch (Exception e) {
             logger.error(e);
         }
