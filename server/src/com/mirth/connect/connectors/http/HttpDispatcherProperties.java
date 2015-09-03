@@ -65,8 +65,8 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         this.responseXmlBody = false;
         this.responseParseMultipart = true;
         this.responseIncludeMetadata = false;
-        this.responseBinaryMimeTypes = "application/, image/, video/, audio/";
-        this.responseBinaryMimeTypesRegex = false;
+        this.responseBinaryMimeTypes = "application/.*(?<!json|xml)$|image/.*|video/.*|audio/.*";
+        this.responseBinaryMimeTypesRegex = true;
         this.multipart = false;
         this.useAuthentication = false;
         this.authenticationType = "Basic";

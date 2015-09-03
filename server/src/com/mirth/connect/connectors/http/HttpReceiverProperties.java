@@ -49,8 +49,8 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         this.xmlBody = false;
         this.parseMultipart = true;
         this.includeMetadata = false;
-        this.binaryMimeTypes = "application/, image/, video/, audio/";
-        this.binaryMimeTypesRegex = false;
+        this.binaryMimeTypes = "application/.*(?<!json|xml)$|image/.*|video/.*|audio/.*";
+        this.binaryMimeTypesRegex = true;
         this.responseContentType = "text/plain";
         this.responseDataTypeBinary = false;
         this.responseStatusCode = "";
