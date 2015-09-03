@@ -32,16 +32,16 @@ public class DelimitedReader extends SAXParser {
     private String ungottenRawText;
     private String columnDelimiter = null;
     private String recordDelimiter = null;
-    private String quoteChar = null;
-    private String quoteEscapeChar = null;
+    private String quoteToken = null;
+    private String quoteEscapeToken = null;
 
     public DelimitedReader(DelimitedSerializationProperties serializationProperties) {
         this.serializationProperties = serializationProperties;
 
         updateColumnDelimiter();
         updateRecordDelimiter();
-        updateQuoteChar();
-        updateQuoteEscapeChar();
+        updateQuoteToken();
+        updateQuoteEscapeToken();
 
         // Initially, there is no ungotten (pushed back) record
         ungottenRecord = null;
@@ -57,28 +57,22 @@ public class DelimitedReader extends SAXParser {
         // Each record is a collection of columns. Columns can be either fixed
         // width, or delimited.
         // Records are delimited.
-        //
-        // Assumptions
-        // 1. Fixed record layout
         // Each record is assumed to contain the same number and type of
         // columns.
-        // 2. Special characters are single characters. This includes: column
-        // delimiter,
-        // record delimiter, quote character, quote escape character.
         //
         // The following user configurable options affect the behavior of the
         // parser:
         // o columnWidths The array of fixed column widths.
-        // o columnDelimiter The character that delimits (separates) the
+        // o columnDelimiter The characters that delimit (separate) the
         // columns.
-        // o recordDelimiter The character that delimits (separates) each
+        // o recordDelimiter The characters that delimit (separate) each
         // record.
-        // o quoteChar The character that is used to quote a column value.
+        // o quoteToken The characters that are used to quote a column value.
         // o escapeWithDoubleQuote Iff true, embedded quotes are escaped with
         // two consecutive quotes.
-        // Otherwise, the quote escape character escapes embedded quote
+        // Otherwise, the quote escape characters escape embedded quote
         // characters.
-        // o quoteEscapeChar The character used to escape a quote (or itself).
+        // o quoteEscapeToken The characters used to escape a quote (or itself).
         // o ignoreCR Iff true, all incoming \r characters are ignored and not
         // processed.
         //
@@ -176,38 +170,59 @@ public class DelimitedReader extends SAXParser {
         if (ch == -1)
             return null;
 
-        char recDelim = recordDelimiter.charAt(0);
+        String recDelim = recordDelimiter;
+        String lookAhead = "";
         ArrayList<String> record = new ArrayList<String>();
+
+        // If column widths are set, separate and get each column's value based off of its set width
         if (serializationProperties.getColumnWidths() != null) {
 
+            // Iterate through the list of column widths
             for (int i = 0; i < serializationProperties.getColumnWidths().length; i++) {
 
+                // Read through the stream at the set length for this column width
                 StringBuilder columnValue = new StringBuilder();
                 for (int j = 0; j < serializationProperties.getColumnWidths()[i]; j++) {
 
-                    ch = getChar(in, rawText);
+                    // If the next characters are the record delimiter
+                    lookAhead = peekChars(in, recDelim.length());
+                    if (lookAhead.equals(recDelim)) {
+                        // Consume the record delimiter
+                        for (int k = 0; k < recDelim.length(); k++) {
+                            ch = getChar(in, rawText);
+                        }
+                        break;
+                    }
 
-                    if (ch == -1 || ((char) ch) == recDelim)
+                    // Break on end of input
+                    ch = getChar(in, rawText);
+                    if (ch == -1)
                         break;
 
                     columnValue.append((char) ch);
                 }
 
+                // Add column value to the record
                 record.add(ltrim(columnValue.toString()));
 
-                if (ch == -1 || ((char) ch) == recDelim)
+                // Break on end of input or record delimiter
+                lookAhead = peekChars(in, recDelim.length());
+                if (ch == -1 || lookAhead.equals(recDelim)) {
                     break;
+                }
             }
 
             // Consume trailing characters up until end of input stream or
             // record delimiter
-            while (ch != -1 && ((char) ch) != recDelim) {
+            lookAhead = peekChars(in, recDelim.length());
+            while (ch != -1 && !lookAhead.equals(recDelim)) {
                 ch = getChar(in, rawText);
+                lookAhead = peekChars(in, recDelim.length());
             }
         } else {
-            char colDelim = ','; // default
+            String colDelim = ","; // default
             if (StringUtils.isNotEmpty(columnDelimiter)) {
-                colDelim = columnDelimiter.charAt(0);
+                colDelim = columnDelimiter;
             }
 
             for (;;) {
@@ -215,16 +230,28 @@ public class DelimitedReader extends SAXParser {
 
                 record.add(columnValue);
 
+                // Break at end of input
                 ch = peekChar(in);
-
-                if (ch == -1 || ((char) ch) == recDelim) {
-                    // consume record delimiter
+                if (ch == -1) {
                     ch = getChar(in, rawText);
-
                     break;
-                } else if (((char) ch) == colDelim) {
-                    // consume column delimiter
-                    ch = getChar(in, rawText);
+                }
+
+                // Consume record delimiter and break
+                lookAhead = peekChars(in, recDelim.length());
+                if (lookAhead.equals(recDelim)) {
+                    for (int i = 0; i < recDelim.length(); i++) {
+                        ch = getChar(in, rawText);
+                    }
+                    break;
+                }
+
+                // Consume column delimiter
+                lookAhead = peekChars(in, colDelim.length());
+                if (lookAhead.equals(colDelim)) {
+                    for (int i = 0; i < colDelim.length(); i++) {
+                        ch = getChar(in, rawText);
+                    }
                 }
             }
         }
@@ -259,6 +286,7 @@ public class DelimitedReader extends SAXParser {
      */
     private String getColumnValue(BufferedReader in, StringBuilder rawText) throws IOException {
 
+        // Return empty string if input stream is empty
         int ch;
         ch = peekChar(in);
         if (ch == -1)
@@ -266,41 +294,48 @@ public class DelimitedReader extends SAXParser {
 
         StringBuilder columnValue = new StringBuilder();
 
-        char colDelim = ','; // default
+        String colDelim = ","; // default
         if (StringUtils.isNotEmpty(columnDelimiter)) {
-            colDelim = columnDelimiter.charAt(0);
+            colDelim = columnDelimiter;
         }
 
-        char recDelim = '\n'; // default
+        String recDelim = "\\n"; // default
         if (StringUtils.isNotEmpty(recordDelimiter)) {
-            recDelim = recordDelimiter.charAt(0);
+            recDelim = recordDelimiter;
         }
 
-        char theQuoteChar = '"'; // default
-        if (StringUtils.isNotEmpty(quoteChar)) {
-            theQuoteChar = quoteChar.charAt(0);
+        String theQuoteToken = "\""; // default
+        if (StringUtils.isNotEmpty(quoteToken)) {
+            theQuoteToken = quoteToken;
         }
 
-        char theQuoteEscapeChar = '\\'; // default
-        if (StringUtils.isNotEmpty(quoteEscapeChar)) {
-            theQuoteEscapeChar = quoteEscapeChar.charAt(0);
+        String theQuoteEscapeToken = "\\"; // default
+        if (StringUtils.isNotEmpty(quoteEscapeToken)) {
+            theQuoteEscapeToken = quoteEscapeToken;
         }
 
         // If the column value isn't quoted
         boolean inQuote = false;
-        if (((char) peekChar(in)) != theQuoteChar) {
+        String lookAhead = peekChars(in, theQuoteToken.length());
+        if (!lookAhead.equals(theQuoteToken)) {
             for (;;) {
+                // Break on record delimiter
+                lookAhead = peekChars(in, recDelim.length());
+                if (lookAhead.equals(recDelim)) {
+                    break;
+                }
+
+                // Break on column delimiter
+                lookAhead = peekChars(in, colDelim.length());
+                if (lookAhead.equals(colDelim)) {
+                    break;
+                }
+
                 ch = getChar(in, rawText);
 
                 // Break on end of input and end of column
                 if (ch == -1)
                     break;
-
-                // Unget and break on record delimiter or column delimiter
-                if (((char) ch) == recDelim || ((char) ch) == colDelim) {
-                    ungetChar(in, rawText);
-                    break;
-                }
 
                 columnValue.append((char) ch);
             }
@@ -310,70 +345,100 @@ public class DelimitedReader extends SAXParser {
 
             inQuote = true;
 
-            // Consume the quote
-            ch = getChar(in, rawText);
+            // Get the quote token
+            for (int i = 0; i < theQuoteToken.length(); i++) {
+                ch = getChar(in, rawText);
+            }
 
             for (;;) {
-                ch = getChar(in, rawText);
-
                 // Process escaped quotes
                 if (inQuote) {
-
                     // If the quote escape method is double quoting
                     if (serializationProperties.isEscapeWithDoubleQuote()) {
 
-                        // If the character is a quote
-                        if (((char) ch) == theQuoteChar) {
+                        // Then check if the next few characters are two quote tokens
+                        lookAhead = peekChars(in, theQuoteToken.length() * 2);
+                        if (lookAhead.equals(theQuoteToken + theQuoteToken)) {
+                            // If so, consume the first one
+                            for (int i = 0; i < theQuoteToken.length(); i++) {
+                                getChar(in, rawText);
+                            }
 
-                            // If the next character is a quote
-                            if (((char) peekChar(in)) == theQuoteChar) {
-                                // Get the escaped quote
+                            // And add the second one (the escaped quote)
+                            for (int i = 0; i < theQuoteToken.length(); i++) {
                                 ch = getChar(in, rawText);
                                 columnValue.append((char) ch);
-                                continue;
                             }
+                            continue;
                         }
                     } else {
+                        // First check if the next few characters are an escaped quote token
+                        lookAhead = peekChars(in, theQuoteEscapeToken.length() + theQuoteToken.length());
+                        if (lookAhead.equals(theQuoteEscapeToken + theQuoteToken)) {
+                            // Consume the escape token
+                            for (int i = 0; i < theQuoteEscapeToken.length(); i++) {
+                                getChar(in, rawText);
+                            }
 
-                        // If the character is an escape
-                        if (((char) ch) == theQuoteEscapeChar) {
-
-                            // If the next character is a quote
-                            if (((char) peekChar(in)) == theQuoteChar) {
-                                // Get the escaped quote
+                            // And add the escaped quote token
+                            for (int i = 0; i < theQuoteToken.length(); i++) {
                                 ch = getChar(in, rawText);
                                 columnValue.append((char) ch);
-                                continue;
                             }
-                            // Else if the next character is an escape
-                            else if (((char) peekChar(in)) == theQuoteEscapeChar) {
-                                // Get the escaped escape
+                            continue;
+                        }
+
+                        // If not, then check if the next few characters are an escaped escape token
+                        lookAhead = peekChars(in, theQuoteEscapeToken.length() * 2);
+                        if (lookAhead.equals(theQuoteEscapeToken + theQuoteEscapeToken)) {
+                            // Consume the escape token
+                            for (int i = 0; i < theQuoteEscapeToken.length(); i++) {
+                                getChar(in, rawText);
+                            }
+
+                            // And add the escaped escape token
+                            for (int i = 0; i < theQuoteEscapeToken.length(); i++) {
                                 ch = getChar(in, rawText);
                                 columnValue.append((char) ch);
-                                continue;
                             }
+                            continue;
                         }
                     }
                 }
 
-                // If the character is a quote
-                if (inQuote && ((char) ch) == theQuoteChar) {
-
-                    // This is the ending quote. Consume it.
+                // If the next characters are a quote token
+                lookAhead = peekChars(in, theQuoteToken.length());
+                if (inQuote && lookAhead.equals(theQuoteToken)) {
+                    // This is the ending quote token. Get it.
+                    for (int i = 0; i < theQuoteToken.length(); i++) {
+                        ch = getChar(in, rawText);
+                    }
                     inQuote = false;
                     continue;
                 }
-                // Break on end of input
-                else if (ch == -1) {
-                    break;
-                }
-                // Unget and break on record delimiter or column delimiter
-                else if (!inQuote && (((char) ch) == recDelim || ((char) ch) == colDelim)) {
-                    ungetChar(in, rawText);
+
+                // Break on record delimiter
+                lookAhead = peekChars(in, recDelim.length());
+                if (!inQuote && lookAhead.equals(recDelim)) {
                     break;
                 }
 
-                // This character is part of the column value
+                // Break on column delimiter
+                lookAhead = peekChars(in, colDelim.length());
+                if (!inQuote && lookAhead.equals(colDelim)) {
+                    break;
+                }
+
+                // Get the next character. If this point has been reached, 
+                // then the next character is not part of 
+                // a delimiter, quote, or escape token.
+                ch = getChar(in, rawText);
+                // Break on end of input
+                if (ch == -1) {
+                    break;
+                }
+
+                // Add the next character to the column value
                 columnValue.append((char) ch);
             }
         }
@@ -399,20 +464,20 @@ public class DelimitedReader extends SAXParser {
         }
     }
 
-    private void updateQuoteChar() {
-        if (quoteChar == null) {
+    private void updateQuoteToken() {
+        if (quoteToken == null) {
 
-            if (StringUtils.isNotEmpty(serializationProperties.getQuoteChar())) {
-                quoteChar = StringUtil.unescape(serializationProperties.getQuoteChar());
+            if (StringUtils.isNotEmpty(serializationProperties.getQuoteToken())) {
+                quoteToken = StringUtil.unescape(serializationProperties.getQuoteToken());
             }
         }
     }
 
-    private void updateQuoteEscapeChar() {
-        if (quoteEscapeChar == null) {
+    private void updateQuoteEscapeToken() {
+        if (quoteEscapeToken == null) {
 
-            if (StringUtils.isNotEmpty(serializationProperties.getQuoteEscapeChar())) {
-                quoteEscapeChar = StringUtil.unescape(serializationProperties.getQuoteEscapeChar());
+            if (StringUtils.isNotEmpty(serializationProperties.getQuoteEscapeToken())) {
+                quoteEscapeToken = StringUtil.unescape(serializationProperties.getQuoteEscapeToken());
             }
         }
     }
@@ -425,12 +490,12 @@ public class DelimitedReader extends SAXParser {
         return recordDelimiter;
     }
 
-    public String getQuoteChar() {
-        return quoteChar;
+    public String getQuoteToken() {
+        return quoteToken;
     }
 
-    public String getQuoteEscapeChar() {
-        return quoteEscapeChar;
+    public String getQuoteEscapeToken() {
+        return quoteEscapeToken;
     }
 
     /**
@@ -484,26 +549,6 @@ public class DelimitedReader extends SAXParser {
         }
 
         return ch;
-    }
-
-    /**
-     * Unget the last character read by getChar().
-     * 
-     * @param in
-     *            The input stream (it's a BufferedReader, because operations on it require
-     *            in.mark()).
-     * @param rawText
-     *            Optional StringBuilder used to return a copy of the raw text unread by this
-     *            method.
-     * @throws IOException
-     */
-    public void ungetChar(BufferedReader in, StringBuilder rawText) throws IOException {
-        in.reset();
-
-        // If building up the raw text, remove the most recently read character
-        if (rawText != null) {
-            rawText.deleteCharAt(rawText.length() - 1);
-        }
     }
 
     /**

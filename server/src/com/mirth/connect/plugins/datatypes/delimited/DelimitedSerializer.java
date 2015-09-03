@@ -44,11 +44,11 @@ public class DelimitedSerializer implements IMessageSerializer {
 
         //TODO Optimize which properties require serialization and which can be done via transformWithoutSerializing
         if (toXml) {
-            if (!serializationProperties.getColumnDelimiter().equals(",") || !serializationProperties.getRecordDelimiter().equals("\\n") || serializationProperties.getColumnWidths() != null || !serializationProperties.getQuoteChar().equals("\"") || !serializationProperties.isEscapeWithDoubleQuote() || !serializationProperties.getQuoteEscapeChar().equals("\\") || serializationProperties.getColumnNames() != null || serializationProperties.isNumberedRows() || !serializationProperties.isIgnoreCR()) {
+            if (!serializationProperties.getColumnDelimiter().equals(",") || !serializationProperties.getRecordDelimiter().equals("\\n") || serializationProperties.getColumnWidths() != null || !serializationProperties.getQuoteToken().equals("\"") || !serializationProperties.isEscapeWithDoubleQuote() || !serializationProperties.getQuoteEscapeToken().equals("\\") || serializationProperties.getColumnNames() != null || serializationProperties.isNumberedRows() || !serializationProperties.isIgnoreCR()) {
                 serializationRequired = true;
             }
         } else {
-            if (!deserializationProperties.getColumnDelimiter().equals(",") || !deserializationProperties.getRecordDelimiter().equals("\\n") || deserializationProperties.getColumnWidths() != null || !deserializationProperties.getQuoteChar().equals("\"") || !deserializationProperties.isEscapeWithDoubleQuote() || !deserializationProperties.getQuoteEscapeChar().equals("\\")) {
+            if (!deserializationProperties.getColumnDelimiter().equals(",") || !deserializationProperties.getRecordDelimiter().equals("\\n") || deserializationProperties.getColumnWidths() != null || !deserializationProperties.getQuoteToken().equals("\"") || !deserializationProperties.isEscapeWithDoubleQuote() || !deserializationProperties.getQuoteEscapeToken().equals("\\")) {
                 serializationRequired = true;
             }
         }

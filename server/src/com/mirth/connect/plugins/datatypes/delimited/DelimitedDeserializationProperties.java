@@ -28,20 +28,20 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
     private String columnDelimiter = ",";
     private String recordDelimiter = "\\n";
     private Integer[] columnWidths = null; // list of widths: width1,width2,...,widthN
-    private String quoteChar = "\"";
+    private String quoteToken = "\"";
     private boolean escapeWithDoubleQuote = true;
-    private String quoteEscapeChar = "\\";
+    private String quoteEscapeToken = "\\";
 
     @Override
     public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
 
-        properties.put("columnDelimiter", new DataTypePropertyDescriptor(columnDelimiter, "Column Delimiter", "If column values are delimited, enter the column delimiter that separates columns.  For example, this is a comma in a CSV file.", PropertyEditorType.STRING));
-        properties.put("recordDelimiter", new DataTypePropertyDescriptor(recordDelimiter, "Record Delimiter", "Enter the character that separates each record (a message may contain multiple records).  For example, this is a newline (\\n) in a CSV file.", PropertyEditorType.STRING));
+        properties.put("columnDelimiter", new DataTypePropertyDescriptor(columnDelimiter, "Column Delimiter", "If column values are delimited, enter the characters that separate columns.  For example, this is a comma in a CSV file.", PropertyEditorType.STRING));
+        properties.put("recordDelimiter", new DataTypePropertyDescriptor(recordDelimiter, "Record Delimiter", "Enter the characters that separate each record (a message may contain multiple records).  For example, this is a newline (\\n) in a CSV file.", PropertyEditorType.STRING));
         properties.put("columnWidths", new DataTypePropertyDescriptor(toCommaSeparatedString(columnWidths), "Column Widths", "If the column values are fixed width, enter a comma separated list of fixed column widths.  By default, column values are assumed to be delimited.", PropertyEditorType.STRING));
-        properties.put("quoteChar", new DataTypePropertyDescriptor(quoteChar, "Quote Character", "Enter the quote character that is used to bracket delimit column values containing embedded special characters like column delimiters, record delimiters, quote characters and/or message delimiters.    For example, this is a double quote (\") in a CSV file.", PropertyEditorType.STRING));
-        properties.put("escapeWithDoubleQuote", new DataTypePropertyDescriptor(escapeWithDoubleQuote, "Double Quote Escaping", "By default, two consecutive quote characters within a quoted value are treated as an embedded quote character.  Uncheck to enable escaped quote character processing (and specify the Escape Character).", PropertyEditorType.BOOLEAN));
-        properties.put("quoteEscapeChar", new DataTypePropertyDescriptor(quoteEscapeChar, "Escape Character", "Enter the character used to escape embedded quote characters.  By default, this is a back slash.  This option has no effect unless Double Quote Escaping is unchecked.", PropertyEditorType.STRING));
+        properties.put("quoteToken", new DataTypePropertyDescriptor(quoteToken, "Quote Token", "Enter the quote characters that are used to bracket delimit column values containing embedded special characters like column delimiters, record delimiters, quote characters and/or message delimiters.    For example, this is a double quote (\") in a CSV file.", PropertyEditorType.STRING));
+        properties.put("escapeWithDoubleQuote", new DataTypePropertyDescriptor(escapeWithDoubleQuote, "Double Quote Escaping", "By default, two consecutive quote tokens within a quoted value are treated as an embedded quote token.  Uncheck to enable escaped quote token processing (and specify the Escape Tokens).", PropertyEditorType.BOOLEAN));
+        properties.put("quoteEscapeToken", new DataTypePropertyDescriptor(quoteEscapeToken, "Escape Token", "Enter the characters used to escape embedded quote tokens.  By default, this is a back slash.  This option has no effect unless Double Quote Escaping is unchecked.", PropertyEditorType.STRING));
 
         return properties;
     }
@@ -87,16 +87,16 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
                 }
             }
 
-            if (StringUtils.isNotEmpty((String) properties.get("quoteChar"))) {
-                quoteChar = (String) properties.get("quoteChar");
+            if (StringUtils.isNotEmpty((String) properties.get("quoteToken"))) {
+                quoteToken = (String) properties.get("quoteToken");
             }
 
             if (properties.get("escapeWithDoubleQuote") != null) {
                 escapeWithDoubleQuote = (Boolean) properties.get("escapeWithDoubleQuote");
             }
 
-            if (StringUtils.isNotEmpty((String) properties.get("quoteEscapeChar"))) {
-                quoteEscapeChar = (String) properties.get("quoteEscapeChar");
+            if (StringUtils.isNotEmpty((String) properties.get("quoteEscapeToken"))) {
+                quoteEscapeToken = (String) properties.get("quoteEscapeToken");
             }
         }
     }
@@ -148,12 +148,12 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
         this.columnWidths = columnWidths;
     }
 
-    public String getQuoteChar() {
-        return quoteChar;
+    public String getQuoteToken() {
+        return quoteToken;
     }
 
-    public void setQuoteChar(String quoteChar) {
-        this.quoteChar = quoteChar;
+    public void setQuoteToken(String quoteToken) {
+        this.quoteToken = quoteToken;
     }
 
     public boolean isEscapeWithDoubleQuote() {
@@ -164,12 +164,12 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
         this.escapeWithDoubleQuote = escapeWithDoubleQuote;
     }
 
-    public String getQuoteEscapeChar() {
-        return quoteEscapeChar;
+    public String getQuoteEscapeToken() {
+        return quoteEscapeToken;
     }
 
-    public void setQuoteEscapeChar(String quoteEscapeChar) {
-        this.quoteEscapeChar = quoteEscapeChar;
+    public void setQuoteEscapeToken(String quoteEscapeToken) {
+        this.quoteEscapeToken = quoteEscapeToken;
     }
 
     @Override
@@ -185,7 +185,17 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
     public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_3_0(DonkeyElement element) {}
+    public void migrate3_3_0(DonkeyElement element) {
+        DonkeyElement childElement = element.getChildElement("quoteChar");
+        if (childElement != null) {
+            childElement.setNodeName("quoteToken");
+        }
+
+        childElement = element.getChildElement("quoteEscapeChar");
+        if (childElement != null) {
+            childElement.setNodeName("quoteEscapeToken");
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

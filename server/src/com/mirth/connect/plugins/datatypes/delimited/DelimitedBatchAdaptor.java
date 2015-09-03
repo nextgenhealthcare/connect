@@ -286,9 +286,9 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
         scopeObjects.put("columnDelimiter", delimitedReader.getColumnDelimiter());
         scopeObjects.put("recordDelimiter", delimitedReader.getRecordDelimiter());
         scopeObjects.put("columnWidths", props.getColumnWidths());
-        scopeObjects.put("quoteChar", delimitedReader.getQuoteChar());
+        scopeObjects.put("quoteToken", delimitedReader.getQuoteToken());
         scopeObjects.put("escapeWithDoubleQuote", props.isEscapeWithDoubleQuote());
-        scopeObjects.put("quoteEscapeChar", delimitedReader.getQuoteEscapeChar());
+        scopeObjects.put("quoteEscapeToken", delimitedReader.getQuoteEscapeToken());
         scopeObjects.put("ignoreCR", props.isIgnoreCR());
         if (skipHeader) {
             scopeObjects.put("skipRecords", batchSkipRecords);

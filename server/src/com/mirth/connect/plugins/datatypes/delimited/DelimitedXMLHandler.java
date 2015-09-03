@@ -15,7 +15,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.mirth.connect.util.StringUtil;
 
-
 public class DelimitedXMLHandler extends DefaultHandler {
 
 	private StringBuilder output = new StringBuilder();
@@ -26,8 +25,8 @@ public class DelimitedXMLHandler extends DefaultHandler {
 	private int columnIndex;
 	private String columnDelimiter = null;
 	private String recordDelimiter = null;
-	private String quoteChar = null;
-	private String quoteEscapeChar = null;
+	private String quoteToken = null;
+	private String quoteEscapeToken = null;
 	private String escapedQuote = null;
 	private String escapedQuoteEscape = null;
 	private StringBuilder columnValue = null;
@@ -38,8 +37,8 @@ public class DelimitedXMLHandler extends DefaultHandler {
 		
 		updateColumnDelimiter();
         updateRecordDelimiter();
-        updateQuoteChar();
-        updateQuoteEscapeChar();
+        updateQuoteToken();
+        updateQuoteEscapeToken();
         updateEscapedQuote();
         updateEscapedQuoteEscape();
 	}
@@ -110,12 +109,12 @@ public class DelimitedXMLHandler extends DefaultHandler {
 				if (temp.contains(columnDelimiter) || temp.contains(recordDelimiter)) {
 					
 					// Escape the escape characters and the quote characters
-					temp = temp.replace(quoteEscapeChar, escapedQuoteEscape);
-					temp = temp.replace(quoteChar, escapedQuote);
+					temp = temp.replace(quoteEscapeToken, escapedQuoteEscape);
+					temp = temp.replace(quoteToken, escapedQuote);
 	
-					output.append(quoteChar);
+					output.append(quoteToken);
 					output.append(temp);
-					output.append(quoteChar);
+					output.append(quoteToken);
 				}
 				else {
 					output.append(columnValue);
@@ -169,7 +168,7 @@ public class DelimitedXMLHandler extends DefaultHandler {
 		if (columnDelimiter == null) {
 			
 			if (StringUtils.isNotEmpty(properties.getColumnDelimiter())) {
-				columnDelimiter = StringUtil.unescape(properties.getColumnDelimiter()).substring(0,1);
+				columnDelimiter = StringUtil.unescape(properties.getColumnDelimiter());
 			}
 		}
 	}
@@ -178,25 +177,25 @@ public class DelimitedXMLHandler extends DefaultHandler {
 		if (recordDelimiter == null) {
 			
 			if (StringUtils.isNotEmpty(properties.getRecordDelimiter())) {
-				recordDelimiter = StringUtil.unescape(properties.getRecordDelimiter()).substring(0,1);
+				recordDelimiter = StringUtil.unescape(properties.getRecordDelimiter());
 			}
 		}
 	}
 
-	private void updateQuoteChar() {
-		if (quoteChar == null) {
+	private void updateQuoteToken() {
+		if (quoteToken == null) {
 			
-			if (StringUtils.isNotEmpty(properties.getQuoteChar())) {
-				quoteChar = StringUtil.unescape(properties.getQuoteChar()).substring(0,1);
+			if (StringUtils.isNotEmpty(properties.getQuoteToken())) {
+				quoteToken = StringUtil.unescape(properties.getQuoteToken());
 			}
 		}
 	}
 
-	private void updateQuoteEscapeChar() {
-		if (quoteEscapeChar == null) {
+	private void updateQuoteEscapeToken() {
+		if (quoteEscapeToken == null) {
 			
-			if (StringUtils.isNotEmpty(properties.getQuoteEscapeChar())) {
-				quoteEscapeChar = StringUtil.unescape(properties.getQuoteEscapeChar()).substring(0,1);
+			if (StringUtils.isNotEmpty(properties.getQuoteEscapeToken())) {
+				quoteEscapeToken = StringUtil.unescape(properties.getQuoteEscapeToken());
 			}
 		}
 	}
@@ -206,10 +205,10 @@ public class DelimitedXMLHandler extends DefaultHandler {
 		if (escapedQuote == null) {
 			
 			if (properties.isEscapeWithDoubleQuote()) {
-				escapedQuote = quoteChar + quoteChar;
+				escapedQuote = quoteToken + quoteToken;
 			}
 			else {
-				escapedQuote = quoteEscapeChar + quoteChar;
+				escapedQuote = quoteEscapeToken + quoteToken;
 			}
 		}
 	}
@@ -217,7 +216,7 @@ public class DelimitedXMLHandler extends DefaultHandler {
 	private void updateEscapedQuoteEscape() {
 		
 		if (escapedQuoteEscape == null) {
-			escapedQuoteEscape = quoteEscapeChar + quoteEscapeChar;
+			escapedQuoteEscape = quoteEscapeToken + quoteEscapeToken;
 		}
 	}
 }
