@@ -2207,6 +2207,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
                     if (!currentParent.getLibraryId().equals(fullLibraryNode.getLibraryId())) {
                         updateCurrentNode();
+                        updateCurrentNode.set(false);
                         model.removeNodeFromParent(codeTemplateNode);
 
                         if (libraryNode != null) {
@@ -2221,6 +2222,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                             fullModel.removeNodeFromParent(fullCodeTemplateNode);
                             fullModel.insertNodeInto(fullCodeTemplateNode, fullLibraryNode);
                         }
+                        updateCurrentNode.set(true);
                     }
                 }
             }
