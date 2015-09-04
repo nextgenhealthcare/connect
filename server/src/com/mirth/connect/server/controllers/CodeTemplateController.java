@@ -45,5 +45,5 @@ public abstract class CodeTemplateController extends Controller {
 
     public abstract void removeCodeTemplate(CodeTemplate codeTemplate, ServerEventContext context) throws ControllerException;
 
-    public abstract CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, List<CodeTemplate> updatedCodeTemplates, List<CodeTemplate> removedCodeTemplates, ServerEventContext context, boolean override);
+    public abstract CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, List<CodeTemplateLibrary> removedLibraries, List<CodeTemplate> updatedCodeTemplates, List<CodeTemplate> removedCodeTemplates, ServerEventContext context, boolean override);
 }

@@ -3400,7 +3400,7 @@ public class Frame extends JXFrame {
                 CodeTemplateImportDialog dialog = new CodeTemplateImportDialog(this, importChannel.getCodeTemplateLibraries(), false, true);
 
                 if (dialog.wasSaved()) {
-                    CodeTemplateLibrarySaveResult updateSummary = codeTemplatePanel.attemptUpdate(dialog.getUpdatedLibraries(), dialog.getUpdatedCodeTemplates(), new HashMap<String, CodeTemplate>(), true, null, null);
+                    CodeTemplateLibrarySaveResult updateSummary = codeTemplatePanel.attemptUpdate(dialog.getUpdatedLibraries(), new HashMap<String, CodeTemplateLibrary>(), dialog.getUpdatedCodeTemplates(), new HashMap<String, CodeTemplate>(), true, null, null);
 
                     if (updateSummary == null || updateSummary.isOverrideNeeded() || !updateSummary.isLibrariesSuccess()) {
                         return;

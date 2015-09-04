@@ -145,7 +145,7 @@ public class ChannelDependenciesDialog extends MirthDialog {
                 return;
             }
 
-            UpdateSwingWorker worker = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getSwingWorker(libraryMap, new HashMap<String, CodeTemplate>(), new HashMap<String, CodeTemplate>(), false);
+            UpdateSwingWorker worker = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getSwingWorker(libraryMap, new HashMap<String, CodeTemplateLibrary>(), new HashMap<String, CodeTemplate>(), new HashMap<String, CodeTemplate>(), false);
             worker.setActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent evt) {

@@ -128,10 +128,12 @@ public class CodeTemplateServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CODE_TEMPLATE_UPDATE_ALL)) {
                     List<CodeTemplateLibrary> libraries = serializer.deserializeList(request.getParameter("libraries"), CodeTemplateLibrary.class);
+                    List<CodeTemplateLibrary> removedLibraries = serializer.deserializeList(request.getParameter("removedLibraries"), CodeTemplateLibrary.class);
                     List<CodeTemplate> updatedCodeTemplates = serializer.deserializeList(request.getParameter("updatedCodeTemplates"), CodeTemplate.class);
                     List<CodeTemplate> removedCodeTemplates = serializer.deserializeList(request.getParameter("removedCodeTemplates"), CodeTemplate.class);
                     boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
                     parameterMap.put("libraries", libraries);
+                    parameterMap.put("removedLibraries", removedLibraries);
                     parameterMap.put("updatedCodeTemplates", updatedCodeTemplates);
                     parameterMap.put("removedCodeTemplates", removedCodeTemplates);
                     parameterMap.put("override", override);
@@ -140,7 +142,7 @@ public class CodeTemplateServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(APPLICATION_XML);
-                        serializer.serialize(codeTemplateController.updateLibrariesAndTemplates(libraries, updatedCodeTemplates, removedCodeTemplates, context, override), out);
+                        serializer.serialize(codeTemplateController.updateLibrariesAndTemplates(libraries, removedLibraries, updatedCodeTemplates, removedCodeTemplates, context, override), out);
                     }
                 }
             } catch (RuntimeIOException rio) {

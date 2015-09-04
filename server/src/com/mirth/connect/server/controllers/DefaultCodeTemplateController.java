@@ -478,7 +478,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
     }
 
     @Override
-    public synchronized CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, List<CodeTemplate> updatedCodeTemplates, List<CodeTemplate> removedCodeTemplates, ServerEventContext context, boolean override) {
+    public synchronized CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, List<CodeTemplateLibrary> removedLibraries, List<CodeTemplate> updatedCodeTemplates, List<CodeTemplate> removedCodeTemplates, ServerEventContext context, boolean override) {
         // If override is disabled, first check all libraries and templates to make sure they haven't been modified already
         if (!override) {
             Map<String, CodeTemplateLibrary> libraryMap = libraryCache.getAllItems();
@@ -498,7 +498,20 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
                             return new CodeTemplateLibrarySaveResult(true);
                         }
                     }
+
+                    // If a matching library was found, always remove it from the map
+                    libraryMap.remove(library.getId());
                 }
+            }
+
+            // Remove any libraries that were expected to be removed
+            for (CodeTemplateLibrary library : removedLibraries) {
+                libraryMap.remove(library.getId());
+            }
+
+            // If any libraries are left, the client is out of sync
+            if (!libraryMap.isEmpty()) {
+                return new CodeTemplateLibrarySaveResult(true);
             }
 
             Map<String, CodeTemplate> codeTemplateMap = codeTemplateCache.getAllItems();

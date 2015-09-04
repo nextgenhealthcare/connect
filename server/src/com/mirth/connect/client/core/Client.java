@@ -608,9 +608,9 @@ public class Client {
      * 
      * @throws ClientException
      */
-    public synchronized CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, List<CodeTemplate> updatedCodeTemplates, List<CodeTemplate> removedCodeTemplates, boolean override) throws ClientException {
+    public synchronized CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, List<CodeTemplateLibrary> removedLibraries, List<CodeTemplate> updatedCodeTemplates, List<CodeTemplate> removedCodeTemplates, boolean override) throws ClientException {
         logger.debug("Updating code templates and libraries: libraries=" + libraries + ", updatedCodeTemplates=" + updatedCodeTemplates + ", removedCodeTemplates=" + removedCodeTemplates + ", override=" + override);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_UPDATE_ALL.getName()), new BasicNameValuePair("libraries", serializer.serialize(libraries)), new BasicNameValuePair("updatedCodeTemplates", serializer.serialize(updatedCodeTemplates)), new BasicNameValuePair("removedCodeTemplates", serializer.serialize(removedCodeTemplates)), new BasicNameValuePair("override", new Boolean(override).toString()) };
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_UPDATE_ALL.getName()), new BasicNameValuePair("libraries", serializer.serialize(libraries)), new BasicNameValuePair("removedLibraries", serializer.serialize(removedLibraries)), new BasicNameValuePair("updatedCodeTemplates", serializer.serialize(updatedCodeTemplates)), new BasicNameValuePair("removedCodeTemplates", serializer.serialize(removedCodeTemplates)), new BasicNameValuePair("override", new Boolean(override).toString()) };
         return serializer.deserialize(serverConnection.executePostMethod(TEMPLATE_SERVLET, params), CodeTemplateLibrarySaveResult.class);
     }
 

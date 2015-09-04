@@ -968,7 +968,7 @@ public class CommandLineInterface {
                 libraryMap.put(library.getId(), library);
             }
 
-            CodeTemplateLibrarySaveResult updateSummary = client.updateLibrariesAndTemplates(new ArrayList<CodeTemplateLibrary>(libraryMap.values()), new ArrayList<CodeTemplate>(codeTemplateMap.values()), new ArrayList<CodeTemplate>(), force);
+            CodeTemplateLibrarySaveResult updateSummary = client.updateLibrariesAndTemplates(new ArrayList<CodeTemplateLibrary>(libraryMap.values()), new ArrayList<CodeTemplateLibrary>(), new ArrayList<CodeTemplate>(codeTemplateMap.values()), new ArrayList<CodeTemplate>(), force);
 
             if (!updateSummary.isOverrideNeeded()) {
                 if (updateSummary.isLibrariesSuccess()) {
