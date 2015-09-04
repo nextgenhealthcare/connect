@@ -83,7 +83,6 @@ public class FileReader extends ConnectorSettingsPanel {
 
     @Override
     public ConnectorProperties getProperties() {
-        System.out.println("Get Props");
         FileReceiverProperties properties = new FileReceiverProperties();
 
         properties.setScheme(FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem()));
