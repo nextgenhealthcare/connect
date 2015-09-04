@@ -1571,7 +1571,11 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
                             if (codeTemplateNode.getConflicts().getMatchingCodeTemplate() != null) {
                                 warningsPanel.setVisible(true);
-                                warningsTextArea.setText("The selected code template already exists in library \"" + codeTemplateNode.getConflicts().getMatchingLibrary().getName() + "\".");
+                                if (codeTemplateNode.getConflicts().getMatchingLibrary() != null) {
+                                    warningsTextArea.setText("The selected code template already exists in library \"" + codeTemplateNode.getConflicts().getMatchingLibrary().getName() + "\".");
+                                } else {
+                                    warningsTextArea.setText("The selected code template already exists.");
+                                }
                             }
                         }
                     }
