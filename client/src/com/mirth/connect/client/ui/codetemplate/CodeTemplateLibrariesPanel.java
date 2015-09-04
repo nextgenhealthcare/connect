@@ -47,6 +47,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
@@ -132,6 +133,36 @@ public class CodeTemplateLibrariesPanel extends JPanel {
     private void initComponents(Channel channel) {
         setBackground(UIConstants.BACKGROUND_COLOR);
 
+        selectAllLabel = new JLabel("<html><u>Select All</u></html>");
+        selectAllLabel.setForeground(Color.BLUE);
+        selectAllLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+                for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((MutableTreeTableNode) libraryTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
+                    MutableTreeTableNode libraryNode = libraryNodes.nextElement();
+                    Triple<String, String, Boolean> triple = (Triple<String, String, Boolean>) libraryNode.getUserObject();
+                    libraryNode.setUserObject(new MutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), true));
+                }
+                libraryTreeTable.updateUI();
+            }
+        });
+
+        selectSeparatorLabel = new JLabel("|");
+
+        deselectAllLabel = new JLabel("<html><u>Deselect All</u></html>");
+        deselectAllLabel.setForeground(Color.BLUE);
+        deselectAllLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+                for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((MutableTreeTableNode) libraryTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
+                    MutableTreeTableNode libraryNode = libraryNodes.nextElement();
+                    Triple<String, String, Boolean> triple = (Triple<String, String, Boolean>) libraryNode.getUserObject();
+                    libraryNode.setUserObject(new MutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), false));
+                }
+                libraryTreeTable.updateUI();
+            }
+        });
+
         expandAllLabel = new JLabel("<html><u>Expand All</u></html>");
         expandAllLabel.setForeground(Color.BLUE);
         expandAllLabel.addMouseListener(new MouseAdapter() {
@@ -141,7 +172,7 @@ public class CodeTemplateLibrariesPanel extends JPanel {
             }
         });
 
-        separatorLabel = new JLabel("|");
+        expandSeparatorLabel = new JLabel("|");
 
         collapseAllLabel = new JLabel("<html><u>Collapse All</u></html>");
         collapseAllLabel.setForeground(Color.BLUE);
@@ -262,11 +293,14 @@ public class CodeTemplateLibrariesPanel extends JPanel {
 
     private void initLayout() {
         setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
-        add(expandAllLabel, "right, split");
-        add(separatorLabel);
-        add(collapseAllLabel);
+        add(selectAllLabel, "split 3");
+        add(selectSeparatorLabel);
+        add(deselectAllLabel);
+        add(expandAllLabel, "right, split, w 51!");
+        add(expandSeparatorLabel);
+        add(collapseAllLabel, "w 60!");
         add(libraryTreeTableScrollPane, "newline, grow, sx, push");
-        add(descriptionScrollPane, "newline, grow, h 90!");
+        add(descriptionScrollPane, "newline, grow, sx, h 90!");
     }
 
     private class LibraryTreeCellRenderer extends JPanel implements TreeCellRenderer {
@@ -391,8 +425,11 @@ public class CodeTemplateLibrariesPanel extends JPanel {
         }
     }
 
+    private JLabel selectAllLabel;
+    private JLabel selectSeparatorLabel;
+    private JLabel deselectAllLabel;
     private JLabel expandAllLabel;
-    private JLabel separatorLabel;
+    private JLabel expandSeparatorLabel;
     private JLabel collapseAllLabel;
     private MirthTreeTable libraryTreeTable;
     private JScrollPane libraryTreeTableScrollPane;

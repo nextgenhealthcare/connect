@@ -488,6 +488,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         }
         model.setRoot(root);
         model.sort();
+        updateFilterNotification();
 
         return selectPathFromNodeId(selectedNode, root);
     }
@@ -747,6 +748,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                     }
                     model.setRoot(root);
                     model.sort();
+                    updateFilterNotification();
 
                     saveAdjusting.set(true);
                     ReferenceListFactory.getInstance().updateUserCodeTemplates();
@@ -1435,6 +1437,8 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         templateTreeTableScrollPane = new JScrollPane(templateTreeTable);
         templateTreeTableScrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x6E6E6E)));
 
+        templateFilterNotificationLabel = new JLabel();
+
         templateFilterLabel = new JLabel("Filter:");
 
         templateFilterField = new JTextField();
@@ -1848,8 +1852,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
     private void initLayout() {
         topPanel.setLayout(new MigLayout("insets 0 0 5 0, novisualpadding, hidemode 3, fill"));
-        topPanel.add(templateTreeTableScrollPane, "grow, push");
-        topPanel.add(templateFilterLabel, "newline, right, split");
+        topPanel.add(templateTreeTableScrollPane, "grow, sx, push");
+        topPanel.add(templateFilterNotificationLabel, "newline, gapbefore 13");
+        topPanel.add(templateFilterLabel, "right, split");
         topPanel.add(templateFilterField, "right, w :300, gapafter 5");
         splitPane.setTopComponent(topPanel);
         splitPane.setBottomComponent(blankPanel);
@@ -2294,10 +2299,61 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
         model.setRoot(root);
         model.sort();
+        updateFilterNotification();
 
         templateTreeTable.expandAll();
         templateTreeTable.clearSelection();
         switchSplitPaneComponent(blankPanel);
+    }
+
+    private void updateFilterNotification() {
+        int totalLibraries = 0;
+        int totalCodeTemplates = 0;
+        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((MutableTreeTableNode) fullModel.getRoot()).children(); libraryNodes.hasMoreElements();) {
+            totalLibraries++;
+            totalCodeTemplates += libraryNodes.nextElement().getChildCount();
+        }
+
+        int tableLibraries = 0;
+        int tableCodeTemplates = 0;
+        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((MutableTreeTableNode) templateTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
+            tableLibraries++;
+            tableCodeTemplates += libraryNodes.nextElement().getChildCount();
+        }
+
+        StringBuilder builder = new StringBuilder();
+        if (totalLibraries == tableLibraries) {
+            builder.append(String.valueOf(tableLibraries)).append(" librar");
+            if (tableLibraries == 1) {
+                builder.append('y');
+            } else {
+                builder.append("ies");
+            }
+            builder.append(" total, ");
+        } else {
+            builder.append(String.valueOf(tableLibraries)).append(" out of ").append(String.valueOf(totalLibraries)).append(" librar");
+            if (totalLibraries == 1) {
+                builder.append('y');
+            } else {
+                builder.append("ies");
+            }
+            builder.append(" total (").append(String.valueOf(totalLibraries - tableLibraries)).append(" filtered), ");
+        }
+        if (totalCodeTemplates == tableCodeTemplates) {
+            builder.append(String.valueOf(tableCodeTemplates)).append(" code template");
+            if (tableCodeTemplates != 1) {
+                builder.append('s');
+            }
+            builder.append(" total");
+        } else {
+            builder.append(String.valueOf(tableCodeTemplates)).append(" out of ").append(String.valueOf(totalCodeTemplates)).append(" code template");
+            if (totalCodeTemplates != 1) {
+                builder.append('s');
+            }
+            builder.append(" total (").append(String.valueOf(totalCodeTemplates - tableCodeTemplates)).append(" filtered)");
+        }
+
+        templateFilterNotificationLabel.setText(builder.toString());
     }
 
     private void printTreeTable() {
@@ -2341,6 +2397,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     private JPanel topPanel;
     private MirthTreeTable templateTreeTable;
     private JScrollPane templateTreeTableScrollPane;
+    private JLabel templateFilterNotificationLabel;
     private JLabel templateFilterLabel;
     private JTextField templateFilterField;
     private JPanel blankPanel;
