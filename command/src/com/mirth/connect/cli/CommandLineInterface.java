@@ -301,7 +301,7 @@ public class CommandLineInterface {
                     // Deprecated, remove in 3.4
                     error("The exportcodetemplates command is deprecated. Please use \"codetemplate [library] export id|name|* path\" instead.", null);
                     if (!hasInvalidNumberOfArguments(arguments, 2)) {
-                        commandExportCodeTemplates("*", arguments[1].getText());
+                        commandExportCodeTemplateLibraries("*", arguments[1].getText());
                     }
                 } else if (arg1 == Token.IMPORTMESSAGES) {
                     commandImportMessages(arguments);
@@ -359,9 +359,8 @@ public class CommandLineInterface {
                         error("unknown channel command " + comm, null);
                     }
                 } else if (arg1 == Token.CODE_TEMPLATE) {
-                    String syntax = "Syntax is: codetemplate library list [includecodetemplates], codetemplate list, codetemplate [library] import path [force], codetemplate [library] export id|name|* path, or codetemplate [library] remove id|name|*";
                     if (arguments.length < 2) {
-                        error("Invalid number of arguments. " + syntax, null);
+                        error("Invalid number of arguments. Syntax is: codetemplate library list [includecodetemplates], codetemplate list, codetemplate [library] import path [force], codetemplate export id|name path, codetemplate library export id|name|* path, codetemplate remove id|name, or codetemplate library remove id|name|*", null);
                         return;
                     }
 
@@ -369,7 +368,7 @@ public class CommandLineInterface {
 
                     if (arg2 == Token.LIBRARY) {
                         if (arguments.length < 3) {
-                            error("Invalid number of arguments. " + syntax, null);
+                            error("Invalid number of arguments. Syntax is: codetemplate library list [includecodetemplates], codetemplate library import path [force], codetemplate library export id|name|* path, or codetemplate library remove id|name|*", null);
                             return;
                         }
 
@@ -379,48 +378,48 @@ public class CommandLineInterface {
                             commandListCodeTemplateLibraries(arguments.length > 3 && StringUtils.equalsIgnoreCase(arguments[3].getText(), "includecodetemplates"));
                         } else if (arg3 == Token.IMPORT) {
                             if (arguments.length < 4) {
-                                error("Invalid number of arguments. " + syntax, null);
+                                error("Invalid number of arguments. Syntax is: codetemplate library import path [force]", null);
                                 return;
                             }
                             commandImportCodeTemplateLibraries(arguments[3].getText(), arguments.length > 4 && StringUtils.equalsIgnoreCase(arguments[4].getText(), "force"));
                         } else if (arg3 == Token.EXPORT) {
                             if (arguments.length < 5) {
-                                error("Invalid number of arguments. " + syntax, null);
+                                error("Invalid number of arguments. Syntax is: codetemplate library export id|name|* path", null);
                                 return;
                             }
                             commandExportCodeTemplateLibraries(arguments[3].getText(), arguments[4].getText());
                         } else if (arg3 == Token.REMOVE) {
                             if (arguments.length < 4) {
-                                error("Invalid number of arguments. " + syntax, null);
+                                error("Invalid number of arguments. Syntax is: codetemplate library remove id|name|*", null);
                                 return;
                             }
                             commandRemoveCodeTemplateLibraries(arguments[3].getText());
                         } else {
-                            error("Unknown code template library command " + arg3 + ". " + syntax, null);
+                            error("Unknown code template library command " + arg3 + ". Syntax is: codetemplate library list [includecodetemplates], codetemplate library import path [force], codetemplate library export id|name|* path, or codetemplate library remove id|name|*", null);
                             return;
                         }
                     } else if (arg2 == Token.LIST) {
                         commandListCodeTemplates();
                     } else if (arg2 == Token.IMPORT) {
                         if (arguments.length < 3) {
-                            error("Invalid number of arguments. " + syntax, null);
+                            error("Invalid number of arguments. Syntax is: codetemplate import path [force]", null);
                             return;
                         }
                         commandImportCodeTemplates(arguments[2].getText(), arguments.length > 3 && StringUtils.equalsIgnoreCase(arguments[3].getText(), "force"));
                     } else if (arg2 == Token.EXPORT) {
                         if (arguments.length < 4) {
-                            error("Invalid number of arguments. " + syntax, null);
+                            error("Invalid number of arguments. Syntax is: codetemplate export id|name path", null);
                             return;
                         }
-                        commandExportCodeTemplates(arguments[2].getText(), arguments[3].getText());
+                        commandExportCodeTemplate(arguments[2].getText(), arguments[3].getText());
                     } else if (arg2 == Token.REMOVE) {
                         if (arguments.length < 3) {
-                            error("Invalid number of arguments. " + syntax, null);
+                            error("Invalid number of arguments. Syntax is: codetemplate remove id|name", null);
                             return;
                         }
-                        commandRemoveCodeTemplates(arguments[2].getText());
+                        commandRemoveCodeTemplate(arguments[2].getText());
                     } else {
-                        error("Unknown code template command " + arg2 + ". " + syntax, null);
+                        error("Unknown code template command " + arg2 + ". Syntax is: codetemplate library list [includecodetemplates], codetemplate list, codetemplate [library] import path [force], codetemplate export id|name path, codetemplate library export id|name|* path, codetemplate remove id|name, or codetemplate library remove id|name|*", null);
                         return;
                     }
                 } else if (arg1 == Token.CLEARALLMESSAGES) {
@@ -545,8 +544,10 @@ public class CommandLineInterface {
         out.println("codetemplate library list [includecodetemplates]\n\tLists all code template libraries. Optional 'includecodetemplates' additionally lists the code templates within each library.\n");
         out.println("codetemplate list\n\tLists all code templates.\n");
         out.println("codetemplate [library] import path [force]\n\tImports code templates or libraries (with the 'library' option).\n");
-        out.println("codetemplate [library] export id|name|* path\n\tExports all matched code templates or libraries (with the 'library' option) to <path>.\n");
-        out.println("codetemplate [library] remove id|name|*\n\tRemoves all matched code templates or libraries (with the 'library' option).\n");
+        out.println("codetemplate library export id|name|* path\n\tExports all matched code template libraries to <path>.\n");
+        out.println("codetemplate export id|name path\n\tExports a single code template to <path>.\n");
+        out.println("codetemplate library remove id|name|*\n\tRemoves all matched code template libraries.\n");
+        out.println("codetemplate remove id|name\n\tRemoves a single code template.\n");
         out.println("importmessages \"path\" id\n\tImports messages specified by <path> into the channel specified by <id>\n");
         out.println("exportmessages \"path/file-pattern\" id [xml|xml-attach|raw|processedraw|transformed|encoded|response] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
         out.println("importmap \"path\"\n\tImports configuration map specified by <path>\n");
@@ -1018,7 +1019,7 @@ public class CommandLineInterface {
                 break;
             }
 
-            if ((searchText.equals("*") || StringUtils.containsIgnoreCase(library.getName(), searchText))) {
+            if ((searchText.equals("*") || StringUtils.equals(library.getName(), searchText))) {
                 exportLibraries.add(library);
             }
         }
@@ -1047,7 +1048,7 @@ public class CommandLineInterface {
                 break;
             }
 
-            if (searchText.equals("*") || StringUtils.containsIgnoreCase(library.getName(), searchText)) {
+            if (searchText.equals("*") || StringUtils.equals(library.getName(), searchText)) {
                 matchedLibraries.add(library);
             }
         }
@@ -1143,18 +1144,16 @@ public class CommandLineInterface {
         }
     }
 
-    private void commandExportCodeTemplates(String searchText, String path) throws ClientException {
+    private void commandExportCodeTemplate(String searchText, String path) throws ClientException {
         List<CodeTemplate> codeTemplates = client.getCodeTemplates(null);
         List<CodeTemplate> exportCodeTemplates = new ArrayList<CodeTemplate>();
 
         for (CodeTemplate codeTemplate : codeTemplates) {
-            if (codeTemplate.getId().equals(searchText)) {
+            if (StringUtils.equals(codeTemplate.getId(), searchText)) {
                 exportCodeTemplates.clear();
                 exportCodeTemplates.add(codeTemplate);
                 break;
-            }
-
-            if (searchText.equals("*") || StringUtils.containsIgnoreCase(codeTemplate.getName(), searchText)) {
+            } else if (StringUtils.equals(codeTemplate.getName(), searchText)) {
                 exportCodeTemplates.add(codeTemplate);
             }
         }
@@ -1162,28 +1161,30 @@ public class CommandLineInterface {
         if (exportCodeTemplates.isEmpty()) {
             out.println("No code templates found for search criteria \"" + searchText + "\".");
             return;
+        } else if (exportCodeTemplates.size() > 1) {
+            error("Error exporting code template by name, multiple found:", null);
+            listCodeTemplates(exportCodeTemplates, false);
+            return;
         }
 
         try {
-            FileUtils.writeStringToFile(new File(path), ObjectXMLSerializer.getInstance().serialize(exportCodeTemplates));
-            out.println("Successfully exported " + exportCodeTemplates.size() + " code template" + (exportCodeTemplates.size() == 1 ? "" : "s") + ".");
+            FileUtils.writeStringToFile(new File(path), ObjectXMLSerializer.getInstance().serialize(exportCodeTemplates.get(0)));
+            out.println("Successfully exported code template.");
         } catch (IOException e) {
-            error("Error exporting code templates to file: " + path, e);
+            error("Error exporting code template to file: " + path, e);
         }
     }
 
-    private void commandRemoveCodeTemplates(String searchText) throws ClientException {
+    private void commandRemoveCodeTemplate(String searchText) throws ClientException {
         List<CodeTemplate> codeTemplates = client.getCodeTemplates(null);
         List<CodeTemplate> removeCodeTemplates = new ArrayList<CodeTemplate>();
 
         for (CodeTemplate codeTemplate : codeTemplates) {
-            if (codeTemplate.getId().equals(searchText)) {
+            if (StringUtils.equals(codeTemplate.getId(), searchText)) {
                 removeCodeTemplates.clear();
                 removeCodeTemplates.add(codeTemplate);
                 break;
-            }
-
-            if (searchText.equals("*") || StringUtils.containsIgnoreCase(codeTemplate.getName(), searchText)) {
+            } else if (StringUtils.equals(codeTemplate.getName(), searchText)) {
                 removeCodeTemplates.add(codeTemplate);
             }
         }
@@ -1191,13 +1192,15 @@ public class CommandLineInterface {
         if (removeCodeTemplates.isEmpty()) {
             out.println("No code templates found for search criteria \"" + searchText + "\".");
             return;
+        } else if (removeCodeTemplates.size() > 1) {
+            error("Error removing code template by name, multiple found:", null);
+            listCodeTemplates(removeCodeTemplates, false);
+            return;
         }
 
-        for (CodeTemplate codeTemplate : removeCodeTemplates) {
-            out.println("Removing code template \"" + codeTemplate.getName() + "\"...");
-            client.removeCodeTemplate(codeTemplate);
-        }
-        out.println("Successfully removed " + removeCodeTemplates.size() + " code template" + (removeCodeTemplates.size() == 1 ? "" : "s") + ".");
+        out.println("Removing code template \"" + removeCodeTemplates.get(0).getName() + "\"...");
+        client.removeCodeTemplate(removeCodeTemplates.get(0));
+        out.println("Successfully removed code template.");
     }
 
     private void commandImportMessages(Token[] arguments) {
