@@ -27,6 +27,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
@@ -66,23 +67,30 @@ public class CodeTemplateTreeTableCellEditor extends DefaultCellEditor {
         boolean valid = StringUtils.isNotBlank(value) && value.length() <= 255;
 
         if (valid) {
-            for (Enumeration<? extends MutableTreeTableNode> libraries = ((MutableTreeTableNode) parent.getFullModel().getRoot()).children(); libraries.hasMoreElements();) {
-                CodeTemplateLibraryTreeTableNode libraryNode = (CodeTemplateLibraryTreeTableNode) libraries.nextElement();
-                if (libraryNode.getLibrary().getName().equals(value)) {
-                    valid = false;
-                    break;
-                }
+            int selectedRow = parent.getTreeTable().getSelectedRow();
+            if (selectedRow >= 0) {
+                TreePath selectedPath = parent.getTreeTable().getPathForRow(selectedRow);
+                if (selectedPath != null) {
+                    TreeTableNode selectedNode = (TreeTableNode) selectedPath.getLastPathComponent();
 
-                for (Enumeration<? extends MutableTreeTableNode> codeTemplates = libraryNode.children(); codeTemplates.hasMoreElements();) {
-                    CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) codeTemplates.nextElement();
-                    if (codeTemplateNode.getCodeTemplate().getName().equals(value)) {
-                        valid = false;
-                        break;
+                    if (selectedNode instanceof CodeTemplateLibraryTreeTableNode) {
+                        for (Enumeration<? extends MutableTreeTableNode> libraries = ((MutableTreeTableNode) parent.getFullModel().getRoot()).children(); libraries.hasMoreElements();) {
+                            if (((CodeTemplateLibraryTreeTableNode) libraries.nextElement()).getLibrary().getName().equals(value)) {
+                                valid = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        CodeTemplateLibraryTreeTableNode libraryNode = (CodeTemplateLibraryTreeTableNode) selectedNode.getParent();
+
+                        for (Enumeration<? extends MutableTreeTableNode> codeTemplates = libraryNode.children(); codeTemplates.hasMoreElements();) {
+                            CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) codeTemplates.nextElement();
+                            if (codeTemplateNode.getCodeTemplate().getName().equals(value)) {
+                                valid = false;
+                                break;
+                            }
+                        }
                     }
-                }
-
-                if (!valid) {
-                    break;
                 }
             }
         }
