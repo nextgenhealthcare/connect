@@ -83,10 +83,10 @@ public class FileReader extends ConnectorSettingsPanel {
 
     @Override
     public ConnectorProperties getProperties() {
+        System.out.println("Get Props");
         FileReceiverProperties properties = new FileReceiverProperties();
 
-        FileScheme scheme = FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem());
-        properties.setScheme(scheme);
+        properties.setScheme(FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem()));
 
         if (advancedSettingsDialog != null) {
             properties.setSchemeProperties(advancedSettingsDialog.getFileSchemeProperties());
@@ -101,16 +101,16 @@ public class FileReader extends ConnectorSettingsPanel {
         properties.setDirectoryRecursion(directoryRecursionYesRadio.isSelected());
         properties.setIgnoreDot(ignoreDotFilesYesRadio.isSelected());
 
-        properties.setAnonymous(anonymousYesRadio.isSelected() && (scheme == FileScheme.FTP || scheme == FileScheme.WEBDAV));
+        properties.setAnonymous(anonymousYesRadio.isSelected());
 
         properties.setUsername(usernameField.getText());
         properties.setPassword(new String(passwordField.getPassword()));
 
         properties.setTimeout(timeoutField.getText());
 
-        properties.setSecure(secureModeYesRadio.isSelected() && scheme == FileScheme.WEBDAV);
-        properties.setPassive(passiveModeYesRadio.isSelected() && scheme == FileScheme.FTP);
-        properties.setValidateConnection(validateConnectionYesRadio.isSelected() && scheme == FileScheme.FTP);
+        properties.setSecure(secureModeYesRadio.isSelected());
+        properties.setPassive(passiveModeYesRadio.isSelected());
+        properties.setValidateConnection(validateConnectionYesRadio.isSelected());
 
         properties.setAfterProcessingAction((FileAction) afterProcessingActionComboBox.getSelectedItem());
         properties.setMoveToDirectory(moveToDirectoryField.getText().replace('\\', '/'));
@@ -331,6 +331,7 @@ public class FileReader extends ConnectorSettingsPanel {
 
     @Override
     public ConnectorProperties getDefaults() {
+        System.out.println("GET DEFAULTS");
         return new FileReceiverProperties();
     }
 
