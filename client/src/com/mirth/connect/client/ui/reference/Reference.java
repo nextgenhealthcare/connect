@@ -138,7 +138,7 @@ public abstract class Reference {
     }
 
     public CodeTemplate toCodeTemplate() {
-        return new CodeTemplate(name, getCodeTemplateType(type), contextSet, replacementCode);
+        return new CodeTemplate(name, getCodeTemplateType(type), contextSet, replacementCode, description);
     }
 
     @Override

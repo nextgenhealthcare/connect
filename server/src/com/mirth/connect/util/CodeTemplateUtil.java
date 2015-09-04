@@ -36,21 +36,29 @@ public class CodeTemplateUtil {
     private static Pattern COMMENT_PATTERN = Pattern.compile("^/\\*{2}([\\s\\S](?!\\*/))*[\\s\\S]?\\*/(\r\n|\r|\n)*");
 
     public static CodeTemplateDocumentation getDocumentation(String code) {
-        FunctionVisitor visitor = new FunctionVisitor();
+        String description = null;
+        CodeTemplateFunctionDefinition functionDefinition = null;
 
         if (StringUtils.isNotBlank(code)) {
             try {
+                FunctionVisitor visitor = new FunctionVisitor();
                 CompilerEnvirons env = new CompilerEnvirons();
                 env.setRecordingLocalJsDocComments(true);
                 env.setAllowSharpComments(true);
                 env.setRecordingComments(true);
 
                 new Parser(env).parse(new StringReader(code), null, 1).visitAll(visitor);
+                description = visitor.getDescription();
+                functionDefinition = visitor.getFunctionDefinition();
             } catch (Exception e) {
+                Matcher matcher = COMMENT_PATTERN.matcher(code);
+                if (matcher.find()) {
+                    description = matcher.group().replaceAll("^\\s*/\\*+\\s*|\\s*\\*+/\\s*$", "").trim();
+                }
             }
         }
 
-        return new CodeTemplateDocumentation(visitor.getDescription(), visitor.getFunctionDefinition());
+        return new CodeTemplateDocumentation(description, functionDefinition);
     }
 
     public static String updateCode(String code) {
