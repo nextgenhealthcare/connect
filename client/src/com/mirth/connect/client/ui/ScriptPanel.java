@@ -64,6 +64,9 @@ public class ScriptPanel extends JPanel {
         for (MirthRTextScrollPane scriptTextArea : scriptTextAreaMap.values()) {
             scriptTextArea.updateDisplayOptions();
         }
+        for (FunctionList functionList : functionListMap.values()) {
+            functionList.updateUserTemplates();
+        }
     }
 
     public void validateCurrentScript() {
