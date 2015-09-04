@@ -330,7 +330,6 @@ public class FileReader extends ConnectorSettingsPanel {
 
     @Override
     public ConnectorProperties getDefaults() {
-        System.out.println("GET DEFAULTS");
         return new FileReceiverProperties();
     }
 
