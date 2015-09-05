@@ -64,6 +64,8 @@ public interface DonkeyDao {
 
     public void deleteMessageContent(String channelId, long messageId);
 
+    public void deleteMessageContentByMetaDataIds(String channelId, long messageId, Set<Integer> metaDataIds);
+
     public void deleteMessageAttachments(String channelId, long messageId);
 
     public void deleteMessageStatistics(String channelId, long messageId, Set<Integer> metaDataIds);
@@ -104,7 +106,7 @@ public interface DonkeyDao {
 
     public long getConnectorMessageMaxMessageId(String channelId, String serverId, int metaDataId, Status status);
 
-    public Set<Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed);
+    public Map<Integer, Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed);
 
     public List<Message> getUnfinishedMessages(String channelId, String serverId, int limit, Long minMessageId);
 

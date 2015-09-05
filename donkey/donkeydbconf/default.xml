@@ -114,13 +114,13 @@
 	</query>
 	
 	<query id="getConnectorMessageStatuses">
-		SELECT STATUS
+		SELECT ID, STATUS
 		FROM D_MM${localChannelId}
 		WHERE MESSAGE_ID = ?
 	</query>
 	
 	<query id="getConnectorMessageStatusesCheckProcessed">
-		SELECT MM.STATUS
+		SELECT MM.ID, MM.STATUS
 		FROM D_M${localChannelId} M
 		JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID
 		WHERE M.ID = ? AND M.PROCESSED = TRUE
@@ -366,6 +366,12 @@
 	<query id="deleteMessageContent">
 		DELETE FROM D_MC${localChannelId}
 		WHERE MESSAGE_ID = ?
+	</query>
+	
+	<query id="deleteMessageContentByMetaDataIds">
+		DELETE FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND METADATA_ID IN (${metaDataIds})
 	</query>
 	
 	<query id="deleteMessageContentByMetaDataIdAndContentType">

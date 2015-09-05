@@ -35,6 +35,7 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
     private MessageStorageMode messageStorageMode;
     private boolean encryptData;
     private boolean removeContentOnCompletion;
+    private boolean removeOnlyFilteredOnCompletion;
     private boolean removeAttachmentsOnCompletion;
     private DeployedState initialState;
     private boolean storeAttachments;
@@ -89,6 +90,14 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
 
     public void setRemoveContentOnCompletion(boolean removeContentOnCompletion) {
         this.removeContentOnCompletion = removeContentOnCompletion;
+    }
+
+    public boolean isRemoveOnlyFilteredOnCompletion() {
+        return removeOnlyFilteredOnCompletion;
+    }
+
+    public void setRemoveOnlyFilteredOnCompletion(boolean removeOnlyFilteredOnCompletion) {
+        this.removeOnlyFilteredOnCompletion = removeOnlyFilteredOnCompletion;
     }
 
     public boolean isRemoveAttachmentsOnCompletion() {
@@ -193,7 +202,9 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
     }
 
     @Override
-    public void migrate3_3_0(DonkeyElement element) {}
+    public void migrate3_3_0(DonkeyElement element) {
+        element.addChildElementIfNotExists("removeOnlyFilteredOnCompletion", "false");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

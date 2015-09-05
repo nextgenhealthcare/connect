@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -47,10 +48,10 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
+import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
@@ -1839,12 +1840,13 @@ public class Channel implements Runnable {
              */
             if (commit) {
                 /*
-                 * If any status in the message is ERROR then we don't actually need to check the
-                 * database; we already know that we can't remove content. We only check destination
-                 * connectors that don't have queuing enabled, since it may be updated but not yet
-                 * committed in a separate thread.
+                 * If any status in the message is ERROR and we're not removing only FILTERED
+                 * content, then we don't actually need to check the database; we already know that
+                 * we can't remove content. We only check destination connectors that don't have
+                 * queuing enabled, since it may be updated but not yet committed in a separate
+                 * thread.
                  */
-                if (message != null) {
+                if (message != null && !storageSettings.isRemoveOnlyFilteredOnCompletion()) {
                     for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
                         int metaDataId = connectorMessage.getMetaDataId();
                         if (connectorMessage.getStatus() == Status.ERROR && (metaDataId == 0 || !getDestinationConnector(metaDataId).isQueueEnabled())) {
@@ -1855,9 +1857,43 @@ public class Channel implements Runnable {
 
                 try {
                     // Grab the current statuses from the database, checking the processed flag only if we have to
-                    Set<Status> statuses = dao.getConnectorMessageStatuses(channelId, messageId, checkProcessed);
+                    Map<Integer, Status> statusMap = dao.getConnectorMessageStatuses(channelId, messageId, checkProcessed);
+                    Set<Status> statuses = new HashSet<Status>(statusMap.values());
+                    boolean messageCompleted = messageController.isMessageCompleted(statuses);
+                    boolean messageStatusesFinal = messageController.isMessageStatusesFinal(statuses);
 
-                    if (messageController.isMessageCompleted(statuses)) {
+                    if (storageSettings.isRemoveContentOnCompletion() && storageSettings.isRemoveOnlyFilteredOnCompletion()) {
+                        if (messageStatusesFinal) {
+                            /*
+                             * If the processed flag is set and all statuses are FILTERED,
+                             * TRANSFORMED, or SENT then we're okay to delete the content for
+                             * filtered connector messages and attachments. Otherwise, only delete
+                             * the filtered content.
+                             */
+                            obtainRemoveContentLock();
+
+                            try {
+                                Set<Integer> filteredMetaDataIds = new HashSet<Integer>();
+                                for (Entry<Integer, Status> entry : statusMap.entrySet()) {
+                                    if (entry.getValue().getStatusCode() == Status.FILTERED.getStatusCode()) {
+                                        filteredMetaDataIds.add(entry.getKey());
+                                    }
+                                }
+
+                                if (!filteredMetaDataIds.isEmpty()) {
+                                    dao.deleteMessageContentByMetaDataIds(channelId, messageId, filteredMetaDataIds);
+                                }
+
+                                if (messageCompleted && storageSettings.isRemoveAttachmentsOnCompletion()) {
+                                    dao.deleteMessageAttachments(channelId, messageId);
+                                }
+
+                                dao.commit();
+                            } finally {
+                                releaseRemoveContentLock();
+                            }
+                        }
+                    } else if (messageCompleted) {
                         /*
                          * If the processed flag is set and all statuses are FILTERED, TRANSFORMED,
                          * or SENT, then we're okay to delete content and/or attachments.
@@ -1881,12 +1917,29 @@ public class Channel implements Runnable {
                 } catch (Exception e) {
                     logger.error("Error removing content for message " + messageId + " for channel " + name + " (" + channelId + ").", e);
                 }
-            } else if (!commit && message != null && messageController.isMessageCompleted(message)) {
+            } else if (!commit && message != null && messageController.isMessageStatusesFinal(message)) {
+                // Will be true if the statuses are FILTERED, TRANSFORMED, or SENT
+                boolean messageCompleted = messageController.isMessageCompleted(message);
+
+                // If we're only removing filtered content, then it doesn't matter if some are errored
                 if (storageSettings.isRemoveContentOnCompletion()) {
-                    dao.deleteMessageContent(channelId, messageId);
+                    if (storageSettings.isRemoveOnlyFilteredOnCompletion()) {
+                        Set<Integer> filteredMetaDataIds = new HashSet<Integer>();
+                        for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
+                            if (connectorMessage.getStatus().getStatusCode() == Status.FILTERED.getStatusCode()) {
+                                filteredMetaDataIds.add(connectorMessage.getMetaDataId());
+                            }
+                        }
+
+                        if (!filteredMetaDataIds.isEmpty()) {
+                            dao.deleteMessageContentByMetaDataIds(channelId, messageId, filteredMetaDataIds);
+                        }
+                    } else if (messageCompleted) {
+                        dao.deleteMessageContent(channelId, messageId);
+                    }
                 }
 
-                if (storageSettings.isRemoveAttachmentsOnCompletion()) {
+                if (messageCompleted && storageSettings.isRemoveAttachmentsOnCompletion()) {
                     dao.deleteMessageAttachments(channelId, messageId);
                 }
             }

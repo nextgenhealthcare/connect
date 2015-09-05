@@ -98,7 +98,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="messagePruningPanel" max="32767" attributes="0"/>
-                                  <Component id="customMetadataPanel" pref="472" max="32767" attributes="0"/>
+                                  <Component id="customMetadataPanel" pref="488" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -450,7 +450,11 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="durableStatusLabel" max="32767" attributes="0"/>
                               </Group>
-                              <Component id="removeContentCheckbox" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="removeContentCheckbox" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="removeOnlyFilteredCheckBox" min="-2" max="-2" attributes="0"/>
+                              </Group>
                               <Component id="encryptMessagesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="storageModeLabel" alignment="0" max="32767" attributes="0"/>
                               <Component id="contentLabel" alignment="0" max="32767" attributes="0"/>
@@ -480,10 +484,13 @@
                               <Component id="messageStorageProgressBar" min="-2" pref="15" max="-2" attributes="0"/>
                               <Component id="performanceLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace pref="9" max="32767" attributes="0"/>
                           <Component id="encryptMessagesCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="removeContentCheckbox" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="removeContentCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="removeOnlyFilteredCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="removeAttachmentsCheckbox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -608,6 +615,15 @@
                     </Property>
                     <Property name="text" type="java.lang.String" value="&lt;html&gt;Disable source &amp; destination queueing before using this mode&lt;/html&gt;"/>
                     <Property name="verticalAlignment" type="int" value="1"/>
+                  </Properties>
+                </Component>
+                <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="removeOnlyFilteredCheckBox">
+                  <Properties>
+                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="Filtered only"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, only content for filtered connector&lt;br/&gt;messages will be removed. This will apply even if&lt;br/&gt;other connector messages have an errored status.&lt;/html&gt;"/>
                   </Properties>
                 </Component>
               </SubComponents>

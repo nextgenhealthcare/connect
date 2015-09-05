@@ -810,6 +810,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         messageStorageSlider.setValue(properties.getMessageStorageMode().getValue());
         encryptMessagesCheckBox.setSelected(properties.isEncryptData());
         removeContentCheckbox.setSelected(properties.isRemoveContentOnCompletion());
+        removeOnlyFilteredCheckBox.setSelected(properties.isRemoveOnlyFilteredOnCompletion());
         removeAttachmentsCheckbox.setSelected(properties.isRemoveAttachmentsOnCompletion());
         updateStorageMode();
 
@@ -958,6 +959,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 messageStorageProgressBar.setValue(20);
                 encryptMessagesCheckBox.setEnabled(true);
                 removeContentCheckbox.setEnabled(true);
+                removeOnlyFilteredCheckBox.setEnabled(removeContentCheckbox.isSelected());
                 removeAttachmentsCheckbox.setEnabled(true);
                 break;
 
@@ -970,6 +972,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 messageStorageProgressBar.setValue(25);
                 encryptMessagesCheckBox.setEnabled(true);
                 removeContentCheckbox.setEnabled(true);
+                removeOnlyFilteredCheckBox.setEnabled(removeContentCheckbox.isSelected());
                 removeAttachmentsCheckbox.setEnabled(true);
                 break;
 
@@ -982,6 +985,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 messageStorageProgressBar.setValue(60);
                 encryptMessagesCheckBox.setEnabled(true);
                 removeContentCheckbox.setEnabled(true);
+                removeOnlyFilteredCheckBox.setEnabled(removeContentCheckbox.isSelected());
                 removeAttachmentsCheckbox.setEnabled(true);
                 break;
 
@@ -994,6 +998,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 messageStorageProgressBar.setValue(65);
                 encryptMessagesCheckBox.setEnabled(false);
                 removeContentCheckbox.setEnabled(false);
+                removeOnlyFilteredCheckBox.setEnabled(false);
                 removeAttachmentsCheckbox.setEnabled(false);
                 break;
 
@@ -1006,6 +1011,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 messageStorageProgressBar.setValue(100);
                 encryptMessagesCheckBox.setEnabled(false);
                 removeContentCheckbox.setEnabled(false);
+                removeOnlyFilteredCheckBox.setEnabled(false);
                 removeAttachmentsCheckbox.setEnabled(false);
                 break;
         }
@@ -1321,6 +1327,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         properties.setMessageStorageMode(messageStorageMode);
         properties.setEncryptData(encryptMessagesCheckBox.isSelected());
         properties.setRemoveContentOnCompletion(removeContentCheckbox.isSelected());
+        properties.setRemoveOnlyFilteredOnCompletion(removeOnlyFilteredCheckBox.isSelected());
         properties.setRemoveAttachmentsOnCompletion(removeAttachmentsCheckbox.isSelected());
     }
 
@@ -1789,6 +1796,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         removeContentCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         removeAttachmentsCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         queueWarningLabel = new javax.swing.JLabel();
+        removeOnlyFilteredCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         messagePruningPanel = new javax.swing.JPanel();
         metadataPruningLabel = new javax.swing.JLabel();
         metadataPruningOffRadio = new javax.swing.JRadioButton();
@@ -2085,6 +2093,10 @@ public class ChannelSetup extends javax.swing.JPanel {
         queueWarningLabel.setText("<html>Disable source & destination queueing before using this mode</html>");
         queueWarningLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
+        removeOnlyFilteredCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        removeOnlyFilteredCheckBox.setText("Filtered only");
+        removeOnlyFilteredCheckBox.setToolTipText("<html>If checked, only content for filtered connector<br/>messages will be removed. This will apply even if<br/>other connector messages have an errored status.</html>");
+
         javax.swing.GroupLayout messageStoragePanelLayout = new javax.swing.GroupLayout(messageStoragePanel);
         messageStoragePanel.setLayout(messageStoragePanelLayout);
         messageStoragePanelLayout.setHorizontalGroup(
@@ -2102,7 +2114,10 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addComponent(durableLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(durableStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(removeContentCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(messageStoragePanelLayout.createSequentialGroup()
+                        .addComponent(removeContentCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(removeOnlyFilteredCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(encryptMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(storageModeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(contentLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -2127,10 +2142,12 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addGroup(messageStoragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(messageStorageProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(performanceLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addComponent(encryptMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(removeContentCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(messageStoragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(removeContentCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(removeOnlyFilteredCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(removeAttachmentsCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -2409,7 +2426,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(messagePruningPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE))))
+                            .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         summaryLayout.setVerticalGroup(
@@ -2581,7 +2598,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(channelView, javax.swing.GroupLayout.PREFERRED_SIZE, 777, Short.MAX_VALUE)
+            .addComponent(channelView, javax.swing.GroupLayout.DEFAULT_SIZE, 777, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -3382,6 +3399,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private javax.swing.JPanel customMetadataPanel;
     private javax.swing.JButton deleteMetaDataButton;
     private com.mirth.connect.client.ui.components.MirthButton deleteTagButton;
+    private javax.swing.JLabel dependenciesLabel;
     private javax.swing.JPanel destination;
     private javax.swing.JScrollPane destinationConnectorPane;
     private com.mirth.connect.client.ui.panels.connectors.ConnectorPanel destinationConnectorPanel;
@@ -3398,7 +3416,6 @@ public class ChannelSetup extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lastModified;
-    private javax.swing.JLabel dependenciesLabel;
     private javax.swing.JPanel messagePruningPanel;
     private javax.swing.JPanel messageStoragePanel;
     private javax.swing.JProgressBar messageStorageProgressBar;
@@ -3416,6 +3433,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private javax.swing.JLabel queueWarningLabel;
     private com.mirth.connect.client.ui.components.MirthCheckBox removeAttachmentsCheckbox;
     private com.mirth.connect.client.ui.components.MirthCheckBox removeContentCheckbox;
+    private com.mirth.connect.client.ui.components.MirthCheckBox removeOnlyFilteredCheckBox;
     private javax.swing.JButton revertMetaDataButton;
     private com.mirth.connect.client.ui.ScriptPanel scripts;
     private javax.swing.JButton setDependenciesButton;

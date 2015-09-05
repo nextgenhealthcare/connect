@@ -119,6 +119,7 @@ public class BufferedDao implements DonkeyDao {
                     case DELETE_MESSAGE_STATISTICS: dao.deleteMessageStatistics((String) p[0], (Long) p[1], (Set<Integer>) p[2]); break;
                     case DELETE_ALL_MESSAGES: dao.deleteAllMessages((String) p[0]); break;
                     case DELETE_MESSAGE_CONTENT: dao.deleteMessageContent((String) p[0], (Long) p[1]); break;
+                    case DELETE_MESSAGE_CONTENT_BY_META_DATA_IDS: dao.deleteMessageContentByMetaDataIds((String) p[0], (Long) p[1], (Set<Integer>) p[2]); break;
                     case DELETE_MESSAGE_ATTACHMENTS: dao.deleteMessageAttachments((String) p[0], (Long) p[1]); break;
                     case CREATE_CHANNEL: dao.createChannel((String) p[0], (Long) p[1]); break;
                     case REMOVE_CHANNEL: dao.removeChannel((String) p[0]); break;
@@ -278,6 +279,12 @@ public class BufferedDao implements DonkeyDao {
     public void deleteMessageContent(String channelId, long messageId) {
         tasks.add(new DaoTask(DaoTaskType.DELETE_MESSAGE_CONTENT, new Object[] { channelId,
                 messageId }));
+    }
+
+    @Override
+    public void deleteMessageContentByMetaDataIds(String channelId, long messageId, Set<Integer> metaDataIds) {
+        tasks.add(new DaoTask(DaoTaskType.DELETE_MESSAGE_CONTENT_BY_META_DATA_IDS, new Object[] {
+                channelId, messageId, metaDataIds }));
     }
 
     @Override
@@ -475,7 +482,7 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
-    public Set<Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed) {
+    public Map<Integer, Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed) {
         DonkeyDao dao = getDelegateDao();
 
         try {

@@ -221,7 +221,7 @@
 	</query>
 	
 	<query id="getConnectorMessageStatusesCheckProcessed">
-		SELECT MM.STATUS
+		SELECT MM.ID, MM.STATUS
 		FROM D_M${localChannelId} M
 		JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID
 		WHERE M.ID = ? AND M.PROCESSED = 1

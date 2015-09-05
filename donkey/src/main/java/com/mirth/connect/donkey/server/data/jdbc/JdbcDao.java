@@ -976,6 +976,23 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
+    @Override
+    public void deleteMessageContentByMetaDataIds(String channelId, long messageId, Set<Integer> metaDataIds) {
+        logger.debug(channelId + "/" + messageId + ": deleting content by metadata IDs: " + String.valueOf(metaDataIds));
+
+        try {
+            Map<String, Object> values = new HashMap<String, Object>();
+            values.put("localChannelId", getLocalChannelId(channelId));
+            values.put("metaDataIds", StringUtils.join(metaDataIds, ','));
+
+            PreparedStatement statement = connection.prepareStatement(querySource.getQuery("deleteMessageContentByMetaDataIds", values));
+            statement.setLong(1, messageId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        }
+    }
+
     private void deleteMessageContentByMetaDataIdAndContentType(String channelId, long messageId, int metaDataId, ContentType contentType) {
         logger.debug(channelId + "/" + messageId + ": deleting content");
 
@@ -1572,7 +1589,7 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public Set<Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed) {
+    public Map<Integer, Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed) {
         ResultSet resultSet = null;
 
         try {
@@ -1580,13 +1597,13 @@ public class JdbcDao implements DonkeyDao {
             statement.setLong(1, messageId);
             resultSet = statement.executeQuery();
 
-            Set<Status> statuses = new HashSet<Status>();
+            Map<Integer, Status> statusMap = new HashMap<Integer, Status>();
 
             while (resultSet.next()) {
-                statuses.add(Status.fromChar(resultSet.getString(1).charAt(0)));
+                statusMap.put(resultSet.getInt(1), Status.fromChar(resultSet.getString(2).charAt(0)));
             }
 
-            return statuses;
+            return statusMap;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {

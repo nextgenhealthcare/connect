@@ -11,7 +11,6 @@ package com.mirth.connect.donkey.server.data.passthru;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -231,6 +230,9 @@ public class PassthruDao implements DonkeyDao {
     public void deleteMessageContent(String channelId, long messageId) {}
 
     @Override
+    public void deleteMessageContentByMetaDataIds(String channelId, long messageId, Set<Integer> metaDataIds) {}
+
+    @Override
     public void deleteMessageAttachments(String channelId, long messageId) {}
 
     @Override
@@ -285,8 +287,8 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public Set<Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed) {
-        return new HashSet<Status>();
+    public Map<Integer, Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed) {
+        return new HashMap<Integer, Status>();
     }
 
     @Override

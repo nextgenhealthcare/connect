@@ -16,6 +16,7 @@ public class StorageSettings {
 
     private boolean messageRecoveryEnabled = true;
     private boolean removeContentOnCompletion = false;
+    private boolean removeOnlyFilteredOnCompletion = false;
     private boolean removeAttachmentsOnCompletion = false;
 
     private boolean storeAttachments = true;
@@ -89,6 +90,14 @@ public class StorageSettings {
 
     public void setRemoveContentOnCompletion(boolean removeContentOnCompletion) {
         this.removeContentOnCompletion = removeContentOnCompletion;
+    }
+
+    public boolean isRemoveOnlyFilteredOnCompletion() {
+        return removeOnlyFilteredOnCompletion;
+    }
+
+    public void setRemoveOnlyFilteredOnCompletion(boolean removeOnlyFilteredOnCompletion) {
+        this.removeOnlyFilteredOnCompletion = removeOnlyFilteredOnCompletion;
     }
 
     public boolean isRemoveAttachmentsOnCompletion() {
@@ -171,14 +180,14 @@ public class StorageSettings {
         this.storeSent = storeSent;
     }
 
-	public boolean isStoreResponseTransformed() {
-		return storeResponseTransformed;
-	}
+    public boolean isStoreResponseTransformed() {
+        return storeResponseTransformed;
+    }
 
-	public void setStoreResponseTransformed(boolean storeResponseTransformed) {
-		this.storeResponseTransformed = storeResponseTransformed;
-	}
-	
+    public void setStoreResponseTransformed(boolean storeResponseTransformed) {
+        this.storeResponseTransformed = storeResponseTransformed;
+    }
+
     public boolean isStoreProcessedResponse() {
         return storeProcessedResponse;
     }

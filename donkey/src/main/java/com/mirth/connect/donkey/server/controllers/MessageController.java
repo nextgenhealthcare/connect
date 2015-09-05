@@ -105,6 +105,36 @@ public class MessageController {
         return true;
     }
 
+    public boolean isMessageStatusesFinal(Set<Status> statuses) {
+        if (CollectionUtils.isEmpty(statuses)) {
+            return false;
+        }
+
+        for (Status status : statuses) {
+            if (!status.isFinal()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean isMessageStatusesFinal(Message message) {
+        if (MapUtils.isEmpty(message.getConnectorMessages())) {
+            return false;
+        }
+
+        for (Entry<Integer, ConnectorMessage> connectorMessageEntry : message.getConnectorMessages().entrySet()) {
+            ConnectorMessage connectorMessage = connectorMessageEntry.getValue();
+
+            if (!connectorMessage.getStatus().isFinal()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public void deleteMessages(String channelId, Map<Long, Set<Integer>> messages) {
         DonkeyDao dao = donkey.getDaoFactory().getDao();
 

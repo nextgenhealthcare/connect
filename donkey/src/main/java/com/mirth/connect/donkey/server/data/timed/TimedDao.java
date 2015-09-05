@@ -337,6 +337,17 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
+    public void deleteMessageContentByMetaDataIds(String channelId, long messageId, Set<Integer> metaDataIds) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            dao.deleteMessageContentByMetaDataIds(channelId, messageId, metaDataIds);
+        } finally {
+            timer.log("deleteMessageContentByMetaDataIds", System.currentTimeMillis() - startTime);
+        }
+    }
+
+    @Override
     public void deleteMessageAttachments(String channelId, long messageId) {
         long startTime = System.currentTimeMillis();
 
@@ -568,7 +579,7 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public Set<Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed) {
+    public Map<Integer, Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed) {
         long startTime = System.currentTimeMillis();
 
         try {

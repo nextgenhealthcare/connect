@@ -15,8 +15,7 @@ package com.mirth.connect.donkey.model.message;
  * RECEIVED, FILTERED, TRANSFORMED, SENT, QUEUED, ERROR, PENDING
  */
 public enum Status {
-    RECEIVED('R'), FILTERED('F'), TRANSFORMED('T'), SENT('S'), QUEUED('Q'), ERROR(
-            'E'), PENDING('P');
+    RECEIVED('R'), FILTERED('F'), TRANSFORMED('T'), SENT('S'), QUEUED('Q'), ERROR('E'), PENDING('P');
 
     private char status;
 
@@ -32,11 +31,19 @@ public enum Status {
     }
 
     /**
-     * Returns true if this status is SENT or FILTERED. Used to determine
-     * whether to remove content upon completion of a message.
+     * Returns true if this status is FILTERED, TRANSFORMED, or SENT. Used to determine whether to
+     * remove content upon completion of a message.
      */
     public boolean isCompleted() {
-        return (status == SENT.getStatusCode() || status == FILTERED.getStatusCode() || status == TRANSFORMED.getStatusCode());
+        return (status == FILTERED.getStatusCode() || status == TRANSFORMED.getStatusCode() || status == SENT.getStatusCode());
+    }
+
+    /**
+     * Returns true if this status is FILTERED, TRANSFORMED, SENT, or ERROR. Used to determine
+     * whether to remove content upon completion of a message.
+     */
+    public boolean isFinal() {
+        return isCompleted() || status == ERROR.getStatusCode();
     }
 
     /**
