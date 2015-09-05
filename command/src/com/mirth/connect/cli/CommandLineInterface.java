@@ -1065,8 +1065,19 @@ public class CommandLineInterface {
             }
         }
 
-        client.updateCodeTemplateLibraries(updatedLibraries, true);
-        out.println("Successfully removed " + matchedLibraries.size() + " code template librar" + (matchedLibraries.size() == 1 ? "y" : "ies") + ".");
+        if (client.updateCodeTemplateLibraries(updatedLibraries, true)) {
+            out.println("Successfully removed " + matchedLibraries.size() + " code template librar" + (matchedLibraries.size() == 1 ? "y" : "ies") + ".");
+
+            for (CodeTemplateLibrary library : matchedLibraries) {
+                for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                    try {
+                        client.removeCodeTemplate(codeTemplate);
+                    } catch (ClientException e) {
+                        error("Error removing code template " + codeTemplate.getId() + ".", e);
+                    }
+                }
+            }
+        }
     }
 
     private void commandListCodeTemplates() throws ClientException {
