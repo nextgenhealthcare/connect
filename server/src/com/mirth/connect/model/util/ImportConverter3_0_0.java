@@ -349,6 +349,14 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("removeContentOnCompletion").setTextContent(removeData);
         properties.addChildElement("removeAttachmentsOnCompletion").setTextContent(removeData);
 
+        /*
+         * MIRTH-3775: The remove only filtered property should be enabled if the channel was set to
+         * only store filtered messages.
+         */
+        if (readBooleanValue(oldProperties, "dont_store_filtered", false)) {
+            properties.addChildElement("removeOnlyFilteredOnCompletion", "true");
+        }
+
         properties.addChildElement("initialState").setTextContent((oldProperties.getProperty("initialState", "started").equals("started") ? "STARTED" : "STOPPED"));
         properties.addChildElement("tags").setAttribute("class", "linked-hash-set");
 
