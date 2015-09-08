@@ -99,12 +99,14 @@ public class DICOMDispatcher extends DestinationConnector {
         String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
 
+        File tempFile = null;
+        DcmSnd dcmSnd = new DcmSnd();
+
         try {
-            File tempFile = File.createTempFile("temp", "tmp");
+            tempFile = File.createTempFile("temp", "tmp");
 
             FileUtils.writeByteArrayToFile(tempFile, getAttachmentHandler().reAttachMessage(dicomDispatcherProperties.getTemplate(), connectorMessage, null, true));
 
-            DcmSnd dcmSnd = new DcmSnd();
             dcmSnd.setCalledAET("DCMRCV");
             dcmSnd.setRemoteHost(dicomDispatcherProperties.getHost());
             dcmSnd.setRemotePort(NumberUtils.toInt(dicomDispatcherProperties.getPort()));
@@ -229,10 +231,12 @@ public class DICOMDispatcher extends DestinationConnector {
 
             dcmSnd.open();
             dcmSnd.send();
-            dcmSnd.close();
 
-            dcmSnd.stop();
-            tempFile.delete();
+            if (dcmSnd.isStorageCommitment() && !dcmSnd.commit()) {
+                logger.error("Failed to send Storage Commitment request.");
+            }
+
+            dcmSnd.close();
 
             responseStatusMessage = "DICOM message successfully sent";
             responseStatus = Status.SENT;
@@ -241,6 +245,12 @@ public class DICOMDispatcher extends DestinationConnector {
             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), e.getMessage(), null);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), e.getMessage(), null));
         } finally {
+            dcmSnd.stop();
+
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
         }
 
