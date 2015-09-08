@@ -33,6 +33,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.TypeInfo;
 import org.w3c.dom.UserDataHandler;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 import org.xmlpull.v1.dom2_builder.DOM2XmlPullBuilder;
 
 /**
@@ -473,7 +475,17 @@ public class DonkeyElement implements Element {
 
     private Element fromXml(String xml, Document document) throws DonkeyElementException {
         try {
-            return new DOM2XmlPullBuilder().parse(new StringReader(xml), document);
+            /*
+             * MIRTH-3686: Java 8u40 introduced memory leak for web start applications using
+             * getResourceAsStream method on non class resources. To avoid this method being used in
+             * xpp3 classes we have to use a different version of the newInstance method.
+             */
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance("org.xmlpull.mxp1.MXParserFactory", null);
+            XmlPullParser pp = factory.newPullParser();
+            pp.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
+            pp.setInput(new StringReader(xml));
+            pp.next();
+            return new DOM2XmlPullBuilder().parse(pp, document);
         } catch (Exception e) {
             throw new DonkeyElementException(e);
         }
