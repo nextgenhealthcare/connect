@@ -972,6 +972,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
         TreePath selectedPath = new TreePath(model.getPathToRoot(codeTemplateNode));
         selectTemplatePath(selectedPath);
+        updateFilterNotification();
     }
 
     public void doNewLibrary() {
@@ -1000,6 +1001,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         selectTemplatePath(selectedPath);
 
         updateLibrariesComboBox();
+        updateFilterNotification();
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -1246,6 +1248,8 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                     }
                 });
             }
+
+            updateFilterNotification();
         }
     }
 
@@ -2334,34 +2338,33 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
         StringBuilder builder = new StringBuilder();
         if (totalLibraries == tableLibraries) {
-            builder.append(String.valueOf(tableLibraries)).append(" librar");
+            builder.append(String.valueOf(tableLibraries)).append(" Librar");
             if (tableLibraries == 1) {
                 builder.append('y');
             } else {
                 builder.append("ies");
             }
-            builder.append(" total, ");
+            builder.append(", ");
         } else {
-            builder.append(String.valueOf(tableLibraries)).append(" out of ").append(String.valueOf(totalLibraries)).append(" librar");
+            builder.append(String.valueOf(tableLibraries)).append(" of ").append(String.valueOf(totalLibraries)).append(" Librar");
             if (totalLibraries == 1) {
                 builder.append('y');
             } else {
                 builder.append("ies");
             }
-            builder.append(" total (").append(String.valueOf(totalLibraries - tableLibraries)).append(" filtered), ");
+            builder.append(" (").append(String.valueOf(totalLibraries - tableLibraries)).append(" filtered), ");
         }
         if (totalCodeTemplates == tableCodeTemplates) {
-            builder.append(String.valueOf(tableCodeTemplates)).append(" code template");
+            builder.append(String.valueOf(tableCodeTemplates)).append(" Code Template");
             if (tableCodeTemplates != 1) {
                 builder.append('s');
             }
-            builder.append(" total");
         } else {
-            builder.append(String.valueOf(tableCodeTemplates)).append(" out of ").append(String.valueOf(totalCodeTemplates)).append(" code template");
+            builder.append(String.valueOf(tableCodeTemplates)).append(" of ").append(String.valueOf(totalCodeTemplates)).append(" Code Template");
             if (totalCodeTemplates != 1) {
                 builder.append('s');
             }
-            builder.append(" total (").append(String.valueOf(totalCodeTemplates - tableCodeTemplates)).append(" filtered)");
+            builder.append(" (").append(String.valueOf(totalCodeTemplates - tableCodeTemplates)).append(" filtered)");
         }
 
         templateFilterNotificationLabel.setText(builder.toString());
