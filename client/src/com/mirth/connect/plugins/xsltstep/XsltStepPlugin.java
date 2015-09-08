@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.xsltstep;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
@@ -92,6 +93,7 @@ public class XsltStepPlugin extends TransformerStepPlugin {
         data.put("Source", "");
         data.put("Result", "");
         data.put("XsltTemplate", "");
+        data.put("Factory", "");
         panel.setData(data);
     }
 
@@ -100,7 +102,13 @@ public class XsltStepPlugin extends TransformerStepPlugin {
 
         StringBuilder script = new StringBuilder();
 
-        script.append("tFactory = Packages.javax.xml.transform.TransformerFactory.newInstance();\n");
+        String factory = (String) data.get("Factory");
+        if (StringUtils.isNotBlank(factory)) {
+            script.append("tFactory = Packages.javax.xml.transform.TransformerFactory.newInstance(\"" + factory + "\", null);\n");
+        } else {
+            script.append("tFactory = Packages.javax.xml.transform.TransformerFactory.newInstance();\n");
+        }
+
         script.append("xsltTemplate = new Packages.java.io.StringReader(" + data.get("XsltTemplate") + ");\n");
         script.append("transformer = tFactory.newTransformer(new Packages.javax.xml.transform.stream.StreamSource(xsltTemplate));\n");
         script.append("sourceVar = new Packages.java.io.StringReader(" + data.get("Source") + ");\n");
