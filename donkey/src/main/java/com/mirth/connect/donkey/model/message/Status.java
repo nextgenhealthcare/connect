@@ -39,14 +39,6 @@ public enum Status {
     }
 
     /**
-     * Returns true if this status is FILTERED, TRANSFORMED, SENT, or ERROR. Used to determine
-     * whether to remove content upon completion of a message.
-     */
-    public boolean isFinal() {
-        return isCompleted() || status == ERROR.getStatusCode();
-    }
-
-    /**
      * Converts a character code into the appropriate status.
      * 
      * @param status

@@ -2095,7 +2095,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         removeOnlyFilteredCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         removeOnlyFilteredCheckBox.setText("Filtered only");
-        removeOnlyFilteredCheckBox.setToolTipText("<html>If checked, only content for filtered connector<br/>messages will be removed. This will apply even if<br/>other connector messages have an errored status.</html>");
+        removeOnlyFilteredCheckBox.setToolTipText("<html>If checked, only content for filtered connector messages will be removed.</html>");
 
         javax.swing.GroupLayout messageStoragePanelLayout = new javax.swing.GroupLayout(messageStoragePanel);
         messageStoragePanel.setLayout(messageStoragePanelLayout);

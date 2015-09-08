@@ -623,7 +623,7 @@
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Filtered only"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, only content for filtered connector&lt;br/&gt;messages will be removed. This will apply even if&lt;br/&gt;other connector messages have an errored status.&lt;/html&gt;"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, only content for filtered connector messages will be removed.&lt;/html&gt;"/>
                   </Properties>
                 </Component>
               </SubComponents>
