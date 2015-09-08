@@ -26,6 +26,7 @@ import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -336,7 +337,15 @@ public class DefaultConfigurationController extends ConfigurationController {
         return timeZoneDisplay;
     }
 
-    // ast: Get the list of all avaiable encodings for this JVM
+    /*
+     * Return the server time
+     */
+    @Override
+    public Calendar getServerTime() {
+        return Calendar.getInstance();
+    }
+
+    // ast: Get the list of all available encodings for this JVM
     @Override
     public List<String> getAvaiableCharsetEncodings() throws ControllerException {
         logger.debug("Retrieving avaiable character encodings");

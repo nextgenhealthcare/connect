@@ -9,6 +9,11 @@
 
 package com.mirth.connect.client.ui;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import javax.swing.ImageIcon;
 import javax.swing.border.BevelBorder;
 
@@ -18,6 +23,9 @@ import org.apache.commons.lang3.StringUtils;
  * Creates the status bar for the Mirth client application.
  */
 public class StatusBar extends javax.swing.JPanel {
+    private String timezoneText;
+    private String serverTimeZone;
+    private String localTimeZone;
 
     /** Creates new form StatusBar */
     public StatusBar() {
@@ -25,7 +33,7 @@ public class StatusBar extends javax.swing.JPanel {
         workingText.setText("");
         StringBuilder statusBarText = new StringBuilder();
         statusBarText.append("Connected to: ");
-        
+
         if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
             statusBarText.append(PlatformUI.SERVER_NAME + " | ");
         }
@@ -34,6 +42,7 @@ public class StatusBar extends javax.swing.JPanel {
         serverLabel.setIcon(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/server.png")));
         progressBar.setEnabled(false);
         progressBar.setForeground(UIConstants.JX_CONTAINER_BACKGROUND_COLOR);
+
         this.setBorder(new BevelBorder(BevelBorder.LOWERED));
     }
 
@@ -58,11 +67,50 @@ public class StatusBar extends javax.swing.JPanel {
     }
 
     public void setTimezoneText(String timezoneText) {
-        timezoneLabel.setText(timezoneText);
+        this.timezoneText = timezoneText;
     }
 
-    public String getTimezoneText() {
-        return timezoneLabel.getText();
+    public void setServerTime(Calendar serverTime) {
+        serverTimeZone = serverTime.getTimeZone().getID();
+        localTimeZone = Calendar.getInstance().getTimeZone().getID();
+
+        new Thread() {
+            @Override
+            public void run() {
+                updateTime();
+            }
+        }.start();
+    }
+
+    private void updateTime() {
+        while (true) {
+            try {
+                timezoneLabel.setText(convertLocalToServerTime() + " " + timezoneText);
+                Thread.sleep(30000);
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    private String convertLocalToServerTime() {
+        TimeZone localTime = TimeZone.getTimeZone(localTimeZone);
+        TimeZone serverTime = TimeZone.getTimeZone(serverTimeZone);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(localTime);
+        calendar.setTime(new Date());
+
+        calendar.add(Calendar.MILLISECOND, localTime.getRawOffset() * -1);
+        if (localTime.inDaylightTime(calendar.getTime())) {
+            calendar.add(Calendar.MILLISECOND, calendar.getTimeZone().getDSTSavings() * -1);
+        }
+
+        calendar.add(Calendar.MILLISECOND, serverTime.getRawOffset());
+        if (serverTime.inDaylightTime(calendar.getTime())) {
+            calendar.add(Calendar.MILLISECOND, serverTime.getDSTSavings());
+        }
+
+        return new SimpleDateFormat("h:mm a").format(calendar.getTime());
     }
 
     public void setStatusText(String statusText) {

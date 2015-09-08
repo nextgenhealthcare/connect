@@ -50,7 +50,7 @@ public class ConfigurationServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
         response.setCharacterEncoding("UTF-8");
-        
+
         try {
             PrintWriter out = response.getWriter();
             Operation operation = Operations.getOperation(request.getParameter("op"));
@@ -171,6 +171,13 @@ public class ConfigurationServlet extends MirthServlet {
                     if (isUserAuthorized(request, null)) {
                         response.setContentType(APPLICATION_XML);
                         out.println(configurationController.getServerTimezone(request.getLocale()));
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
+                } else if (operation.equals(Operations.CONFIGURATION_SERVER_TIME_GET)) {
+                    if (isUserAuthorized(request, null)) {
+                        response.setContentType(APPLICATION_XML);
+                        serializer.serialize(configurationController.getServerTime(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }

@@ -443,6 +443,7 @@ public class Frame extends JXFrame {
             PlatformUI.SERVER_ID = mirthClient.getServerId();
             PlatformUI.SERVER_VERSION = mirthClient.getVersion();
             PlatformUI.SERVER_TIMEZONE = mirthClient.getServerTimezone();
+            PlatformUI.SERVER_TIME = mirthClient.getServerTime();
 
             setTitle(getTitle() + " - (" + PlatformUI.SERVER_VERSION + ")");
 
@@ -459,6 +460,7 @@ public class Frame extends JXFrame {
 
         // Display the server timezone information
         statusBar.setTimezoneText(PlatformUI.SERVER_TIMEZONE);
+        statusBar.setServerTime(PlatformUI.SERVER_TIME);
 
         setCurrentTaskPaneContainer(taskPaneContainer);
         login.setStatus("Loading dashboard...");

@@ -11,6 +11,7 @@ package com.mirth.connect.client.core;
 
 import java.io.File;
 import java.security.Provider;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -181,6 +182,18 @@ public class Client {
         logger.debug("retrieving server's timezone");
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_SERVER_TIMEZONE_GET.getName()) };
         return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+    }
+
+    /**
+     * Returns the time of the server.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public Calendar getServerTime() throws ClientException {
+        logger.debug("retrieving server's timezone");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_SERVER_TIME_GET.getName()) };
+        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), Calendar.class);
     }
 
     /**

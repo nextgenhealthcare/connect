@@ -75,6 +75,7 @@ public class Operations {
     public static final Operation SERVER_CONFIGURATION_SET = new Operation("setServerConfiguration", "Set server configuration", true);
     public static final Operation CONFIGURATION_SERVER_ID_GET = new Operation("getServerId", "Get server ID", false);
     public static final Operation CONFIGURATION_SERVER_TIMEZONE_GET = new Operation("getServerTimezone", "Get server timezone", false);
+    public static final Operation CONFIGURATION_SERVER_TIME_GET = new Operation("getServerTime", "Get server time", false);
     public static final Operation CONFIGURATION_PASSWORD_REQUIREMENTS_GET = new Operation("getPasswordRequirements", "Get password requirements", true);
     public static final Operation CONFIGURATION_STATUS_GET = new Operation("getStatus", "Get status", true);
     public static final Operation CONFIGURATION_MAP_GET = new Operation("getConfigurationMap", "Get configuration map", true);
@@ -205,6 +206,7 @@ public class Operations {
         operationMap.put(SERVER_CONFIGURATION_SET.getName(), SERVER_CONFIGURATION_SET);
         operationMap.put(CONFIGURATION_SERVER_ID_GET.getName(), CONFIGURATION_SERVER_ID_GET);
         operationMap.put(CONFIGURATION_SERVER_TIMEZONE_GET.getName(), CONFIGURATION_SERVER_TIMEZONE_GET);
+        operationMap.put(CONFIGURATION_SERVER_TIME_GET.getName(), CONFIGURATION_SERVER_TIME_GET);
         operationMap.put(CONFIGURATION_PASSWORD_REQUIREMENTS_GET.getName(), CONFIGURATION_PASSWORD_REQUIREMENTS_GET);
         operationMap.put(CONFIGURATION_STATUS_GET.getName(), CONFIGURATION_STATUS_GET);
         operationMap.put(CONFIGURATION_MAP_GET.getName(), CONFIGURATION_MAP_GET);

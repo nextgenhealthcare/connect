@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -97,6 +98,8 @@ public abstract class ConfigurationController extends Controller {
     public abstract String getServerName();
 
     public abstract String getServerTimezone(Locale locale);
+
+    public abstract Calendar getServerTime();
 
     /**
      * Returns all of the charset encodings available on the server.
