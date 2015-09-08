@@ -1247,6 +1247,8 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                         selectTemplatePath(newSelectedPath);
                     }
                 });
+            } else {
+                switchSplitPaneComponent(blankPanel);
             }
 
             updateFilterNotification();
