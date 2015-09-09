@@ -127,6 +127,11 @@ public class WebServiceDispatcher extends DestinationConnector {
      */
     private Map<Long, DispatchContainer> dispatchContainers = new ConcurrentHashMap<Long, DispatchContainer>();
 
+    /*
+     * CloseableHttpClient objects used to request the initial WSDL
+     */
+    private Set<CloseableHttpClient> clients = Collections.newSetFromMap(new ConcurrentHashMap<CloseableHttpClient, Boolean>());
+
     @Override
     public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (WebServiceDispatcherProperties) getConnectorProperties();
@@ -166,6 +171,11 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     @Override
     public void onStop() throws ConnectorTaskException {
+        for (CloseableHttpClient client : clients.toArray(new CloseableHttpClient[clients.size()])) {
+            HttpClientUtils.closeQuietly(client);
+        }
+        clients.clear();
+
         if (executor != null) {
             executor.shutdown();
         }
@@ -180,21 +190,30 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     @Override
     public void onHalt() throws ConnectorTaskException {
+        for (CloseableHttpClient client : clients.toArray(new CloseableHttpClient[clients.size()])) {
+            HttpClientUtils.closeQuietly(client);
+        }
+        clients.clear();
+
         if (executor != null) {
+            boolean shutdown = executor.isShutdown();
             executor.shutdownNow();
 
-            try {
-                // Wait a bit for tasks to finish and remove themselves from the set
-                executor.awaitTermination(100, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                throw new ConnectorTaskException("Halt task interrupted while waiting for executor to shutdown.", e);
-            }
+            // Only log an error out if this is the first time the executor was shutdown
+            if (!shutdown) {
+                try {
+                    // Wait a bit for tasks to finish and remove themselves from the set
+                    executor.awaitTermination(100, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    throw new ConnectorTaskException("Halt task interrupted while waiting for executor to shutdown.", e);
+                }
 
-            int numTasks = dispatchTasks.size();
-            if (numTasks > 0) {
-                String message = "Error halting Web Service Sender: " + numTasks + " request" + (numTasks == 1 ? "" : "s") + " failed to be halted. This can potentially lead to a thread leak if the requests continue to hang.";
-                logger.error(message);
-                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), message, null));
+                int numTasks = dispatchTasks.size();
+                if (numTasks > 0) {
+                    String message = "Error halting Web Service Sender: " + numTasks + " request" + (numTasks == 1 ? "" : "s") + " failed to be halted. This can potentially lead to a thread leak if the requests continue to hang.";
+                    logger.error(message);
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), message, null));
+                }
             }
         }
 
@@ -282,6 +301,7 @@ public class WebServiceDispatcher extends DestinationConnector {
             CloseableHttpClient client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
 
             try {
+                clients.add(client);
                 HttpClientContext context = HttpClientContext.create();
 
                 if (dispatchContainer.getCurrentUsername() != null && dispatchContainer.getCurrentPassword() != null) {
@@ -304,6 +324,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                 return getWsdl(client, context, dispatchContainer, new HashMap<String, File>(), dispatchContainer.getCurrentWsdlUrl()).toURI().toURL();
             } finally {
                 HttpClientUtils.closeQuietly(client);
+                clients.remove(client);
             }
         }
 
@@ -547,16 +568,17 @@ public class WebServiceDispatcher extends DestinationConnector {
                     }
 
                     Integer responseCode = null;
+                    String location = null;
+
                     if (dispatch.getResponseContext() != null) {
                         responseCode = (Integer) dispatch.getResponseContext().get(MessageContext.HTTP_RESPONSE_CODE);
-                    }
 
-                    String location = null;
-                    Map<String, List<String>> headers = (Map<String, List<String>>) dispatch.getResponseContext().get(MessageContext.HTTP_RESPONSE_HEADERS);
-                    if (MapUtils.isNotEmpty(headers)) {
-                        List<String> locations = headers.get("Location");
-                        if (CollectionUtils.isNotEmpty(locations)) {
-                            location = locations.get(0);
+                        Map<String, List<String>> headers = (Map<String, List<String>>) dispatch.getResponseContext().get(MessageContext.HTTP_RESPONSE_HEADERS);
+                        if (MapUtils.isNotEmpty(headers)) {
+                            List<String> locations = headers.get("Location");
+                            if (CollectionUtils.isNotEmpty(locations)) {
+                                location = locations.get(0);
+                            }
                         }
                     }
 
