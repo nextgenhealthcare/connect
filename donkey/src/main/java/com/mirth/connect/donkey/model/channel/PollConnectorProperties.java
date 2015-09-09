@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
@@ -142,6 +143,15 @@ public class PollConnectorProperties implements Serializable, Migratable, Purgab
 
     @Override
     public void migrate3_3_0(DonkeyElement element) {
+        DonkeyElement pollingFrequencyElement = element.getChildElement("pollingFrequency");
+        int pollingFrequency = NumberUtils.toInt(pollingFrequencyElement.getTextContent());
+        if (pollingFrequency <= 0) {
+            pollingFrequency = 5000;
+        } else if (pollingFrequency >= 86400000) {
+            pollingFrequency = 86399999;
+        }
+        pollingFrequencyElement.setTextContent(String.valueOf(pollingFrequency));
+
         DonkeyElement pollingType = element.getChildElement("pollingType");
         boolean isInterval = pollingType.getTextContent().equals("interval");
         pollingType.setTextContent(isInterval ? "INTERVAL" : "TIME");
