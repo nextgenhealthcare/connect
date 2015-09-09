@@ -9,8 +9,8 @@
 
 package com.mirth.connect.donkey.server.message;
 
-import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.model.message.MessageSerializer;
+import com.mirth.connect.donkey.model.message.SerializationType;
 
 public class DataType {
 

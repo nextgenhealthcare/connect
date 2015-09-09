@@ -33,8 +33,8 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.UserInfo;
-import com.mirth.connect.connectors.file.SftpSchemeProperties;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
+import com.mirth.connect.connectors.file.SftpSchemeProperties;
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 public class SftpConnection implements FileSystemConnection {
