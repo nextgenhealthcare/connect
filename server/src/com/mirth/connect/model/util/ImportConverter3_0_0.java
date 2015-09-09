@@ -354,6 +354,7 @@ public class ImportConverter3_0_0 {
          * only store filtered messages.
          */
         if (readBooleanValue(oldProperties, "dont_store_filtered", false)) {
+            properties.getChildElement("removeContentOnCompletion").setTextContent("true");
             properties.addChildElement("removeOnlyFilteredOnCompletion", "true");
         }
 
