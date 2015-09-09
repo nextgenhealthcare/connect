@@ -41,7 +41,7 @@ public class LoginActionBean extends BaseActionBean {
         if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
             try {
                 User user = new User();
-                user.setUsername(username);
+                user.setUsername((loginStatus.getUpdatedUsername() != null) ? loginStatus.getUpdatedUsername() : username);
                 User validUser = client.getUser(user).get(0);
 
                 // set the sessions attributes

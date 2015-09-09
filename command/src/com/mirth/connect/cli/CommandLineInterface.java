@@ -175,7 +175,9 @@ public class CommandLineInterface {
             client = new Client(server);
             this.debug = debug;
 
-            if (client.login(user, password, version).getStatus() != LoginStatus.Status.SUCCESS) {
+            LoginStatus loginStatus = client.login(user, password, version);
+
+            if (loginStatus.getStatus() != LoginStatus.Status.SUCCESS) {
                 error("Could not login to server.", null);
                 return;
             }
@@ -187,7 +189,7 @@ public class CommandLineInterface {
             }
 
             out.println("Connected to Mirth Connect server @ " + server + " (" + serverVersion + ")");
-            currentUser = user;
+            currentUser = StringUtils.defaultString(loginStatus.getUpdatedUsername(), user);
 
             if (script != null) {
                 runScript(script);

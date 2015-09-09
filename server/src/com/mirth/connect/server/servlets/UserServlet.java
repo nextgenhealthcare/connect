@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.io.RuntimeIOException;
@@ -220,6 +221,7 @@ public class UserServlet extends MirthServlet {
                 HttpSession session = request.getSession();
 
                 loginStatus = userController.authorizeUser(username, password);
+                username = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username);
 
                 if ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD)) {
                     User user = new User();

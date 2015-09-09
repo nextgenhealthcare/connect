@@ -433,7 +433,7 @@ public class LoginPanel extends javax.swing.JFrame {
                             PlatformUI.SERVER_NAME = null;
                         }
 
-                        PlatformUI.USER_NAME = username.getText();
+                        PlatformUI.USER_NAME = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username.getText());
                         setStatus("Authenticated...");
                         new Mirth(client);
                         LoginPanel.getInstance().setVisible(false);

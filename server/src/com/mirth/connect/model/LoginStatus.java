@@ -19,10 +19,17 @@ public class LoginStatus implements Serializable {
 
     private Status status;
     private String message;
+    private String updatedUsername;
 
     public LoginStatus(Status status, String message) {
         this.status = status;
         this.message = message;
+    }
+    
+    public LoginStatus(Status status, String message, String updatedUsername) {
+        this.status = status;
+        this.message = message;
+        this.updatedUsername = updatedUsername;
     }
 
     public Status getStatus() {
@@ -33,4 +40,7 @@ public class LoginStatus implements Serializable {
         return message;
     }
 
+    public String getUpdatedUsername() {
+        return updatedUsername;
+    }
 }
