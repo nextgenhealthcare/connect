@@ -567,6 +567,11 @@ public class WebServiceDispatcher extends DestinationConnector {
                         e = e.getCause();
                     }
 
+                    // If the dispatch was interrupted, make sure to reset the interrupted flag
+                    if (e instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                    }
+
                     Integer responseCode = null;
                     String location = null;
 
