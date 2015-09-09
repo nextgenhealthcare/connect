@@ -28,6 +28,26 @@ public class JSONTokenMarker extends TokenMarker {
             lastKeyword = offset;
             int length = line.count + offset;
             boolean backslash = false;
+            State currentState;
+            State lastState = currentState = State.OBJECT_KEY;
+            if (lineIndex != 0 && lineInfo[lineIndex - 1].obj != null) {
+                lastState = currentState = (State) lineInfo[lineIndex - 1].obj;
+            }
+
+            switch (lastState) {
+                case OBJECT_KEY:
+                    insideObject = true;
+                    isValue = false;
+                    break;
+                case OBJECT_VALUE:
+                    insideObject = true;
+                    isValue = true;
+                    break;
+                case ARRAY_ELEMENT:
+                    insideObject = false;
+                    isValue = true;
+                    break;
+            }
 
             for (int i = offset; i < length; i++) {
                 int i1 = (i + 1);
@@ -35,126 +55,116 @@ public class JSONTokenMarker extends TokenMarker {
 
                 if (c == '\\') {
                     backslash = !backslash;
-                } else {
-                    switch (token) {
-                        case Token.NULL:
-                            switch (c) {
-                                case '"': // inside a key
-                                    addToken(i - lastOffset, token);
-                                    token = Token.KEYWORD1;
-                                    lastOffset = lastKeyword = i;
-                                    addToken(i1 - lastOffset, token);
-                                    lastOffset = lastKeyword = i1;
-                                    break;
-                                case '[': // inside an array
-                                    arrLevel++;
-                                case ':': // inside a value
-                                    addToken(i1 - lastOffset, token);
-                                    token = Token.KEYWORD2;
-                                    lastOffset = lastKeyword = i1;
-                                    break;
-                                case '}': // end of object
-                                    insideObject = false;
-                                default:
-                                    addToken(i1 - lastOffset, token);
-                                    lastOffset = lastKeyword = i1;
-                                    break;
-                            }
-                            break;
-                        case Token.KEYWORD1: // inside a key
-                            addToken(i1 - lastOffset, token);
-                            lastOffset = lastKeyword = i1;
+                } else if (Character.isDigit(c) && token != Token.KEYWORD3) {
+                    token = Token.DIGIT;
+                }
 
-                            if (c == '"') {
-                                if (backslash) {
-                                    backslash = false;
-                                } else {
-                                    token = Token.NULL;
-                                }
-                            }
-                            break;
-                        case Token.KEYWORD2: // inside a value
-                            if (c == '{') { // inside an object
-                                token = Token.NULL;
-                                addToken(i1 - lastOffset, token);
-                                lastOffset = lastKeyword = i1;
-                                insideObject = true;
-                            } else if (c == '[') { // inside an array
-                                addToken(i1 - lastOffset, Token.NULL);
-                                lastOffset = lastKeyword = i1;
-                                arrLevel++;
-                            } else if (c == '"') { // inside a String value
-                                if (backslash) {
-                                    backslash = false;
+                switch (token) {
+                    case Token.NULL:
+                        switch (c) {
+                            case '"': // inside a String
+                                if (insideObject && !isValue) {
+                                    token = Token.KEYWORD1;
                                 } else {
                                     token = Token.KEYWORD3;
-                                    addToken(i1 - lastOffset, token);
-                                    lastOffset = lastKeyword = i1;
                                 }
-                            } else if (c == '-' || Character.isDigit(c)) { // inside a numeric value
-                                addToken(i - lastOffset, token);
-                                lastOffset = lastKeyword = i;
+                                addToken(i1 - lastOffset, token);
+                                lastOffset = lastKeyword = i1;
+                                break;
+                            case '-': // inside a numeric value
                                 token = Token.DIGIT;
                                 addToken(i1 - lastOffset, token);
                                 lastOffset = lastKeyword = i1;
-                            } else if (Character.isLetter(c)) { // inside an alphabetic value, possibly a keyword
-                                addToken(i - lastOffset, Token.NULL);
-                                lastOffset = lastKeyword = i;
-//                                doKeyword(line, i, c);
-                                addToken(i1 - lastOffset, Token.NULL);
-                                lastOffset = lastKeyword = i1;
-                                token = Token.OPERATOR;
-                            } else {
-                                if (c != ' ') { // ignore leading spaces of values
-                                    token = Token.NULL;
+                                break;
+                            default:
+                                backslash = false;
+                                switch (c) {
+                                    case '{':
+                                        insideObject = true;
+                                        isValue = false;
+                                        lineInfo[lineIndex].obj = currentState = State.OBJECT_KEY;
+                                        break;
+                                    case '[':
+                                        insideObject = false;
+                                        isValue = true;
+                                        lineInfo[lineIndex].obj = currentState = State.ARRAY_ELEMENT;
+                                        break;
                                 }
-                                addToken(i1 - lastOffset, Token.NULL);
-                                lastOffset = lastKeyword = i1;
-                            }
-                            break;
-                        case Token.KEYWORD3: // inside a String value
-                            addToken(i1 - lastOffset, token);
-                            lastOffset = lastKeyword = i1;
-                            if (c == '"') {
-                                if (backslash) {
-                                    backslash = false;
+                                if (Character.isLetter(c)) {
+                                    addToken(i - lastOffset, token);
+                                    lastOffset = lastKeyword = i;
+                                    token = Token.COMMENT1;
                                 } else {
-                                    token = Token.NULL;
+                                    addToken(i1 - lastOffset, token);
+                                    lastOffset = lastKeyword = i1;
+                                }
+                        }
+                        break;
+                    case Token.KEYWORD1: // inside a key
+                        addToken(i1 - lastOffset, token);
+                        lastOffset = lastKeyword = i1;
+
+                        if (c == '"') { // end key
+                            if (backslash) {
+                                backslash = false;
+                            } else {
+                                isValue = true;
+                                lineInfo[lineIndex].obj = currentState = State.OBJECT_VALUE;
+                                token = Token.NULL;
+                            }
+                        }
+                        break;
+                    case Token.KEYWORD3: // inside a value
+                        addToken(i1 - lastOffset, token);
+                        lastOffset = lastKeyword = i1;
+
+                        if (c == '"') { // end String value
+                            if (backslash) {
+                                backslash = false;
+                            } else {
+                                if (insideObject) {
+                                    lineInfo[lineIndex].obj = currentState = State.OBJECT_KEY;
+                                    isValue = false;
+                                }
+                                token = Token.NULL;
+                            }
+                        }
+                        break;
+                    case Token.DIGIT: // inside a numeric value
+                        if (!Character.isDigit(c) && c != '.' && c != 'E' && c != '+') { // end of value
+                            token = Token.NULL;
+
+                            if (insideObject) {
+                                isValue = false;
+                                lineInfo[lineIndex].obj = currentState = State.OBJECT_KEY;
+                            }
+                        }
+                        addToken(i1 - lastOffset, token);
+                        lastOffset = lastKeyword = i1;
+
+                        break;
+                    case Token.COMMENT1:
+                        if (!Character.isLetter(c)) {
+                            if (!doKeyword(line, i, c)) {
+                                token = Token.NULL;
+                                addToken(i1 - lastOffset, token);
+                                lastOffset = lastKeyword = i1;
+
+                                if (insideObject) {
+                                    isValue = false;
+                                    lineInfo[lineIndex].obj = currentState = State.OBJECT_KEY;
                                 }
                             }
-                            break;
-                        case Token.DIGIT: // inside a numeric value
-                            if (!Character.isDigit(c) && c != '.') { // end of value
-                                token = Token.NULL;
-                            }
-                            addToken(i1 - lastOffset, token);
-                            lastOffset = lastKeyword = i1;
-                            break;
-                        case Token.OPERATOR: // inside a keyword value, possibly
-//                            doKeyword(line, i, c);
-                            addToken(i1 - lastOffset, Token.NULL);
-                            lastOffset = i1;
-                            if (!Character.isLetter(c)) { // end of value
-                                token = Token.NULL;
-                            }
-                            break;
-                    }
+                        }
                 }
-                
-//                addToken(length - lastOffset, token);
+            }
 
-                if (token == Token.NULL) {
-                    // If within an array and item isn't an object, the following characters are values
-                    if (arrLevel > 0 && !insideObject) {
-                        token = Token.KEYWORD2;
-                    }
+            if (lineInfo[lineIndex].obj == null) {
+                lineInfo[lineIndex].obj = currentState;
+            }
 
-                    if (c == ']') { // end of an array
-                        arrLevel--;
-                    } else if (c == '}') { // end of an object
-                        insideObject = false;
-                    }
-                }
+            if (token == Token.COMMENT1) {
+                addToken(length - lastOffset, Token.NULL);
             }
 
             return token;
@@ -166,7 +176,6 @@ public class JSONTokenMarker extends TokenMarker {
         int len = i - lastKeyword;
         byte id = keywords.lookup(line, lastKeyword, len);
         if (id != Token.NULL) {
-            System.out.println("the id!: " + id);
             if (lastKeyword != lastOffset) {
                 addToken(lastKeyword - lastOffset, Token.NULL);
             }
@@ -181,6 +190,10 @@ public class JSONTokenMarker extends TokenMarker {
 
     private int lastOffset;
     private int lastKeyword;
-    private int arrLevel = 0; // how many levels deep the current value is contained in an array
-    private boolean insideObject = false;
+    private boolean insideObject = true;
+    private boolean isValue = false;
+
+    private enum State {
+        OBJECT_KEY, OBJECT_VALUE, ARRAY_ELEMENT;
+    }
 }

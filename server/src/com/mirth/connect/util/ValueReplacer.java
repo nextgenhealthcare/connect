@@ -32,6 +32,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.userutil.ImmutableMessage;
+import com.mirth.connect.userutil.JsonUtil;
 import com.mirth.connect.userutil.ValueReplacerConnectorMessage;
 import com.mirth.connect.userutil.ValueReplacerMessage;
 import com.mirth.connect.userutil.XmlUtil;
@@ -225,6 +226,7 @@ public class ValueReplacer {
         context.put("UUID", UUID.randomUUID().toString());
         context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
         context.put("XmlUtil", XmlUtil.class);
+        context.put("JsonUtil", JsonUtil.class);
         context.put("maps", new MapTool());
 
         return context;

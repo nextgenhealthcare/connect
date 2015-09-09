@@ -72,9 +72,6 @@ import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JSONTokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
@@ -110,6 +107,7 @@ import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
 import com.mirth.connect.plugins.AttachmentViewer;
+import com.mirth.connect.util.MirthJsonUtil;
 import com.mirth.connect.util.MirthXmlUtil;
 import com.mirth.connect.util.StringUtil;
 
@@ -967,13 +965,13 @@ public class MessageBrowser extends javax.swing.JPanel {
         SyntaxDocument newDoc = new SyntaxDocument();
         boolean isXml = false;
         boolean isJson = false;
-        
+
         if (StringUtils.isNotEmpty(message)) {
             String trimmedMessage = message.trim();
             char firstChar = trimmedMessage.charAt(0);
             isXml = trimmedMessage.length() > 0 && firstChar == '<';
             isJson = trimmedMessage.length() > 0 && (firstChar == '{' || firstChar == '[');
-            
+
             // Set token markers
             if (isXml) {
                 newDoc.setTokenMarker(new XMLTokenMarker());
@@ -991,17 +989,17 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
 
         textPane.setCaretPosition(0);
-        
+
         // Pretty print (if enabled) on a separate thread since it's prone to take a while for certain DTDs
         if (formatMessageCheckBox.isSelected() && (isXml || isJson)) {
             final boolean formatXml = isXml;
             final boolean formatJson = isJson;
-            
+
             final String workingId = parent.startWorking("Pretty printing...");
-            
+
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 String prettifiedMessage = null;
-                
+
                 @Override
                 public Void doInBackground() {
                     if (StringUtils.isNotEmpty(message)) {
@@ -1009,19 +1007,16 @@ public class MessageBrowser extends javax.swing.JPanel {
                             prettifiedMessage = MirthXmlUtil.prettyPrint(message);
                         } else if (formatJson) {
                             try {
-                                ObjectMapper mapper = new ObjectMapper();
-                                mapper.enable(SerializationFeature.INDENT_OUTPUT);
-                                JsonNode json = mapper.readTree(message);
-                                prettifiedMessage = mapper.writeValueAsString(json);
+                                prettifiedMessage = MirthJsonUtil.prettyPrint(message);
                             } catch (Exception e) {
                                 logger.error("Error pretty printing json.", e);
                             }
                         }
                     }
-                    
+
                     return null;
                 }
-            
+
                 @Override
                 public void done() {
                     if (!isCancelled()) {
@@ -1030,11 +1025,11 @@ public class MessageBrowser extends javax.swing.JPanel {
                             textPane.setCaretPosition(0);
                         }
                     }
-                    
+
                     parent.stopWorking(workingId);
                 }
             };
-            
+
             prettyPrintWorkers.add(worker);
             executor.submit(worker);
         }
