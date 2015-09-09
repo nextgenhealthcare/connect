@@ -92,7 +92,7 @@ public class WebServiceListener extends ConnectorSettingsPanel {
         WebServiceReceiverProperties props = (WebServiceReceiverProperties) properties;
 
         versionComboBox.setSelectedIndex(0);
-        versionComboBox.setSelectedItem(props.getSoapBinding());
+        versionComboBox.setSelectedItem(props.getSoapBinding().getName());
 
         classNameField.setText(props.getClassName());
         updateClassNameRadio();
