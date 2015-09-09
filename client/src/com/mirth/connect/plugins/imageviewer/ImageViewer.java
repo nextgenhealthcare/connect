@@ -33,6 +33,13 @@ public class ImageViewer extends AttachmentViewer {
 
     private BufferedImage image;
 
+    static {
+        /*
+         * MIRTH-2130: ImageIO does not scan for plugins correctly on its own in mac os.
+         */
+        ImageIO.scanForPlugins();
+    }
+
     public ImageViewer(String name) {
         super(name);
     }
