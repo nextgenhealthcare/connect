@@ -1,17 +1,15 @@
 package com.mirth.connect.connectors.file;
 
-public interface AdvancedSettingsDialog {
-    public void setDialogVisible(boolean visible);
+import com.mirth.connect.client.ui.MirthDialog;
+import com.mirth.connect.client.ui.PlatformUI;
 
-    public void setFileSchemeProperties(SchemeProperties properties);
+public abstract class AdvancedSettingsDialog extends MirthDialog {
 
-    public SchemeProperties getFileSchemeProperties();
+    public AdvancedSettingsDialog() {
+        super(PlatformUI.MIRTH_FRAME, true);
+    }
 
-    public SchemeProperties getDefaultProperties();
+    public abstract boolean wasSaved();
 
-    public boolean isDefaultProperties();
-
-    public boolean validateProperties();
-
-    public String getSummaryText();
+    public abstract SchemeProperties getSchemeProperties();
 }

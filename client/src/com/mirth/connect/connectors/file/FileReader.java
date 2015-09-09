@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.file;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Objects;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
@@ -51,7 +52,7 @@ public class FileReader extends ConnectorSettingsPanel {
     private Frame parent;
 
     private String selectedScheme;
-    private AdvancedSettingsDialog advancedSettingsDialog;
+    private SchemeProperties advancedProperties;
 
     public FileReader() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -87,9 +88,7 @@ public class FileReader extends ConnectorSettingsPanel {
 
         properties.setScheme(FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem()));
 
-        if (advancedSettingsDialog != null) {
-            properties.setSchemeProperties(advancedSettingsDialog.getFileSchemeProperties());
-        }
+        properties.setSchemeProperties(advancedProperties);
 
         if (schemeComboBox.getSelectedItem().equals(FileScheme.FILE.getDisplayName())) {
             properties.setHost(directoryField.getText().replace('\\', '/'));
@@ -211,7 +210,8 @@ public class FileReader extends ConnectorSettingsPanel {
         schemeComboBox.setSelectedItem(scheme.getDisplayName());
         schemeComboBoxActionPerformed(null);
 
-        initAdvancedSettingsDialog(scheme.getDisplayName(), ((FileReceiverProperties) properties).getSchemeProperties());
+        advancedProperties = props.getSchemeProperties();
+        setSummaryText();
 
         setDirHostPath(props, true, false);
 
@@ -317,10 +317,10 @@ public class FileReader extends ConnectorSettingsPanel {
     }
 
     private void setSummaryText() {
-        if (advancedSettingsDialog != null) {
+        if (advancedProperties != null) {
             summaryLabel.setEnabled(true);
             summaryField.setEnabled(true);
-            summaryField.setText(advancedSettingsDialog.getSummaryText());
+            summaryField.setText(advancedProperties.getSummaryText());
         } else {
             summaryLabel.setEnabled(false);
             summaryField.setEnabled(false);
@@ -435,20 +435,6 @@ public class FileReader extends ConnectorSettingsPanel {
                 parent.alertWarning(parent, connectionTestResponse.getMessage());
             }
         }
-    }
-
-    private void initAdvancedSettingsDialog(String scheme, SchemeProperties fileSchemeProperties) {
-        advancedSettingsDialog = null;
-        if (scheme.equals(FileScheme.SFTP.getDisplayName())) {
-            advancedSettingsDialog = new AdvancedSftpSettingsDialog();
-
-            if (fileSchemeProperties != null) {
-                advancedSettingsDialog.setFileSchemeProperties(fileSchemeProperties);
-            } else {
-                advancedSettingsDialog.setFileSchemeProperties(advancedSettingsDialog.getDefaultProperties());
-            }
-        }
-        setSummaryText();
     }
 
     private void initComponents() {
@@ -859,7 +845,7 @@ public class FileReader extends ConnectorSettingsPanel {
     }
 
     private void initLayout() {
-        JPanel topPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 13 0 0", "[right]12[left]"));
+        JPanel topPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 13 0 0, gapy 6", "[right]12[left]"));
         topPanel.setBackground(UIConstants.BACKGROUND_COLOR);
         topPanel.add(schemeLabel);
         topPanel.add(schemeComboBox, "split 3");
@@ -918,7 +904,7 @@ public class FileReader extends ConnectorSettingsPanel {
         topPanel.add(afterProcessingActionComboBox, "w 55!, wrap");
         add(topPanel, "wrap");
 
-        JPanel splitPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 18 0 0", "[right]12[left]"));
+        JPanel splitPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 18 0 0, gapy 6", "[right]12[left]"));
         splitPanel.setBackground(UIConstants.BACKGROUND_COLOR);
         splitPanel.add(moveToDirectoryLabel);
         splitPanel.add(moveToDirectoryField, "w 250!, wrap");
@@ -941,7 +927,7 @@ public class FileReader extends ConnectorSettingsPanel {
         add(splitPanel, "split 2");
         add(variableListScrollPane, "aligny top, growy, wrap");
 
-        JPanel bottomPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 60 0 0", "[right]12[left]"));
+        JPanel bottomPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 60 0 0, gapy 6", "[right]12[left]"));
         bottomPanel.setBackground(UIConstants.BACKGROUND_COLOR);
         bottomPanel.add(checkFileAgeLabel);
         bottomPanel.add(checkFileAgeYesRadio, "split 2");
@@ -1026,6 +1012,7 @@ public class FileReader extends ConnectorSettingsPanel {
         timeoutLabel.setEnabled(false);
         timeoutField.setEnabled(false);
         advancedSettingsButton.setEnabled(false);
+        advancedProperties = null;
 
         if (scheme.equals(FileScheme.FTP)) {
             anonymousLabel.setEnabled(true);
@@ -1043,6 +1030,7 @@ public class FileReader extends ConnectorSettingsPanel {
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
             advancedSettingsButton.setEnabled(true);
+            advancedProperties = new SftpSchemeProperties();
         } else if (scheme.equals(FileScheme.WEBDAV)) {
             anonymousLabel.setEnabled(true);
             anonymousYesRadio.setEnabled(true);
@@ -1057,27 +1045,37 @@ public class FileReader extends ConnectorSettingsPanel {
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
         }
+
+        setSummaryText();
     }
 
     private void advancedFileSettingsActionPerformed() {
-        if (advancedSettingsDialog != null) {
-            advancedSettingsDialog.setDialogVisible(true);
-            setSummaryText();
+        if (StringUtils.equals(selectedScheme, FileScheme.SFTP.getDisplayName())) {
+            AdvancedSettingsDialog dialog = new AdvancedSftpSettingsDialog((SftpSchemeProperties) advancedProperties);
+            if (dialog.wasSaved()) {
+                advancedProperties = dialog.getSchemeProperties();
+                setSummaryText();
+            }
         }
+    }
+
+    private boolean isAdvancedDefault() {
+        if (StringUtils.equals(selectedScheme, FileScheme.SFTP.getDisplayName())) {
+            return Objects.equals(advancedProperties, new SftpSchemeProperties());
+        }
+        return true;
     }
 
     private void schemeComboBoxActionPerformed(ActionEvent evt) {
         String text = (String) schemeComboBox.getSelectedItem();
 
         if (!text.equals(selectedScheme)) {
-            if (StringUtils.isNotEmpty(selectedScheme) && advancedSettingsDialog != null && !advancedSettingsDialog.isDefaultProperties()) {
+            if (StringUtils.isNotEmpty(selectedScheme) && !isAdvancedDefault()) {
                 if (JOptionPane.showConfirmDialog(parent, "Are you sure you would like to change the scheme mode and lose all of the current properties?", "Select an Option", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
                     schemeComboBox.setSelectedItem(selectedScheme);
                     return;
                 }
             }
-
-            initAdvancedSettingsDialog(text, null);
 
             // if File is selected
             if (text.equals(FileScheme.FILE.getDisplayName())) {

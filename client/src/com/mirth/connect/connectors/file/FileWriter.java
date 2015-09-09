@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.file;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -46,14 +47,14 @@ public class FileWriter extends ConnectorSettingsPanel {
     private Frame parent;
 
     private String selectedScheme;
-    private AdvancedSettingsDialog advancedSettingsDialog;
+    private SchemeProperties advancedProperties;
 
     public FileWriter() {
         this.parent = PlatformUI.MIRTH_FRAME;
 
         setBackground(UIConstants.BACKGROUND_COLOR);
         setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, fill", "[right][left]"));
+        setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, fill, gapy 6", "[right][left]"));
 
         initComponents();
         initLayout();
@@ -72,9 +73,7 @@ public class FileWriter extends ConnectorSettingsPanel {
 
         properties.setScheme(FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem()));
 
-        if (advancedSettingsDialog != null) {
-            properties.setSchemeProperties(advancedSettingsDialog.getFileSchemeProperties());
-        }
+        properties.setSchemeProperties(advancedProperties);
 
         if (schemeComboBox.getSelectedItem().equals(FileScheme.FILE.getDisplayName())) {
             properties.setHost(directoryField.getText().replace('\\', '/'));
@@ -184,7 +183,8 @@ public class FileWriter extends ConnectorSettingsPanel {
         schemeComboBox.setSelectedItem(scheme.getDisplayName());
         schemeComboBoxActionPerformed(null);
 
-        initAdvancedSettingsDialog(scheme.getDisplayName(), ((FileDispatcherProperties) properties).getSchemeProperties());
+        advancedProperties = props.getSchemeProperties();
+        setSummaryText();
 
         setDirHostPath(props, true, false);
 
@@ -267,10 +267,10 @@ public class FileWriter extends ConnectorSettingsPanel {
     }
 
     private void setSummaryText() {
-        if (advancedSettingsDialog != null) {
+        if (advancedProperties != null) {
             summaryLabel.setEnabled(true);
             summaryField.setEnabled(true);
-            summaryField.setText(advancedSettingsDialog.getSummaryText());
+            summaryField.setText(advancedProperties.getSummaryText());
         } else {
             summaryLabel.setEnabled(false);
             summaryField.setEnabled(false);
@@ -368,20 +368,6 @@ public class FileWriter extends ConnectorSettingsPanel {
                 parent.alertWarning(parent, connectionTestResponse.getMessage());
             }
         }
-    }
-
-    private void initAdvancedSettingsDialog(String scheme, SchemeProperties fileSchemeProperties) {
-        advancedSettingsDialog = null;
-        if (scheme.equals(FileScheme.SFTP.getDisplayName())) {
-            advancedSettingsDialog = new AdvancedSftpSettingsDialog();
-
-            if (fileSchemeProperties != null) {
-                advancedSettingsDialog.setFileSchemeProperties(fileSchemeProperties);
-            } else {
-                advancedSettingsDialog.setFileSchemeProperties(advancedSettingsDialog.getDefaultProperties());
-            }
-        }
-        setSummaryText();
     }
 
     private void initComponents() {
@@ -788,6 +774,7 @@ public class FileWriter extends ConnectorSettingsPanel {
         timeoutLabel.setEnabled(false);
         timeoutField.setEnabled(false);
         advancedSettingsButton.setEnabled(false);
+        advancedProperties = null;
 
         if (allowAppend) {
             fileExistsOverwriteRadio.setEnabled(true);
@@ -820,6 +807,7 @@ public class FileWriter extends ConnectorSettingsPanel {
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
             advancedSettingsButton.setEnabled(true);
+            advancedProperties = new SftpSchemeProperties();
         } else if (scheme.equals(FileScheme.WEBDAV)) {
             anonymousLabel.setEnabled(true);
             anonymousYesRadio.setEnabled(true);
@@ -836,27 +824,37 @@ public class FileWriter extends ConnectorSettingsPanel {
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
         }
+
+        setSummaryText();
     }
 
     private void advancedFileSettingsActionPerformed() {
-        if (advancedSettingsDialog != null) {
-            advancedSettingsDialog.setDialogVisible(true);
-            setSummaryText();
+        if (StringUtils.equals(selectedScheme, FileScheme.SFTP.getDisplayName())) {
+            AdvancedSettingsDialog dialog = new AdvancedSftpSettingsDialog((SftpSchemeProperties) advancedProperties);
+            if (dialog.wasSaved()) {
+                advancedProperties = dialog.getSchemeProperties();
+                setSummaryText();
+            }
         }
+    }
+
+    private boolean isAdvancedDefault() {
+        if (StringUtils.equals(selectedScheme, FileScheme.SFTP.getDisplayName())) {
+            return Objects.equals(advancedProperties, new SftpSchemeProperties());
+        }
+        return true;
     }
 
     private void schemeComboBoxActionPerformed(ActionEvent evt) {
         String text = (String) schemeComboBox.getSelectedItem();
 
         if (!text.equals(selectedScheme)) {
-            if (StringUtils.isNotEmpty(selectedScheme) && advancedSettingsDialog != null && !advancedSettingsDialog.isDefaultProperties()) {
+            if (StringUtils.isNotEmpty(selectedScheme) && !isAdvancedDefault()) {
                 if (JOptionPane.showConfirmDialog(parent, "Are you sure you would like to change the scheme mode and lose all of the current properties?", "Select an Option", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
                     schemeComboBox.setSelectedItem(selectedScheme);
                     return;
                 }
             }
-
-            initAdvancedSettingsDialog(text, null);
 
             // if File is selected
             if (text.equals(FileScheme.FILE.getDisplayName())) {

@@ -5,6 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class SftpSchemeProperties extends SchemeProperties {
     private boolean passwordAuth;
@@ -126,6 +128,29 @@ public class SftpSchemeProperties extends SchemeProperties {
     }
 
     @Override
+    public String getSummaryText() {
+        StringBuilder builder = new StringBuilder();
+
+        if (passwordAuth && keyAuth) {
+            builder.append("Password and Public Key");
+        } else if (keyAuth) {
+            builder.append("Public Key");
+        } else {
+            builder.append("Password");
+        }
+        builder.append(" Authentication / Hostname Checking ");
+        if (StringUtils.equals(hostKeyChecking, "yes")) {
+            builder.append("On");
+        } else if (StringUtils.equals(hostKeyChecking, "no")) {
+            builder.append("Off");
+        } else {
+            builder.append("Ask");
+        }
+
+        return builder.toString();
+    }
+
+    @Override
     public SchemeProperties clone() {
         return new SftpSchemeProperties(this);
     }
@@ -139,5 +164,10 @@ public class SftpSchemeProperties extends SchemeProperties {
         purgedProperties.put("configurationSettingsCount", configurationSettings.size());
 
         return purgedProperties;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

@@ -9,6 +9,8 @@ public abstract class SchemeProperties implements Serializable, Purgable {
 
     public abstract SchemeProperties getFileSchemeProperties();
 
+    public abstract String getSummaryText();
+
     public abstract String toFormattedString();
 
     @Override

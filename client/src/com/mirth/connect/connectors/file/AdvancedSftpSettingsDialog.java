@@ -5,10 +5,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.prefs.Preferences;
@@ -18,8 +16,11 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -31,27 +32,20 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.Mirth;
-import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTable;
-import com.mirth.connect.client.ui.components.MirthTextField;
 
-public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedSettingsDialog {
+public class AdvancedSftpSettingsDialog extends AdvancedSettingsDialog {
     private final int NAME_COLUMN = 0;
     private final String NAME_COLUMN_NAME = "Name";
     private final String VALUE_COLUMN_NAME = "Value";
 
-    private SftpSchemeProperties fileSchemeProperties;
+    private boolean saved;
 
-    public AdvancedSftpSettingsDialog() {
-        super(PlatformUI.MIRTH_FRAME, true);
-
-        this.fileSchemeProperties = (SftpSchemeProperties) fileSchemeProperties;
-
+    public AdvancedSftpSettingsDialog(SftpSchemeProperties schemeProperties) {
         setTitle("Method Settings");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setSize(new Dimension(600, 400));
@@ -61,65 +55,74 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
 
         initComponents();
         initLayout();
-    }
 
-    @Override
-    public void setDialogVisible(boolean visible) {
+        setFileSchemeProperties(schemeProperties);
+
         keyLocationField.setBackground(null);
         knownHostsField.setBackground(null);
         setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
-        setVisible(visible);
+        setVisible(true);
     }
 
     @Override
-    public boolean isDefaultProperties() {
-        boolean isDefault = true;
-
-        if (!usePasswordRadio.isSelected()) {
-            isDefault = false;
-        }
-
-        if (StringUtils.isNotEmpty(keyLocationField.getText())) {
-            isDefault = false;
-        }
-
-        if (StringUtils.isNotEmpty(passphraseField.getText())) {
-            isDefault = false;
-        }
-
-        if (!useKnownHostsAskRadio.isSelected()) {
-            isDefault = false;
-        }
-
-        if (StringUtils.isNotEmpty(knownHostsField.getText())) {
-            isDefault = false;
-        }
-
-        if (configurationsTable.getRowCount() > 0) {
-            isDefault = false;
-        }
-
-        return isDefault;
+    public boolean wasSaved() {
+        return saved;
     }
 
     @Override
-    public void setFileSchemeProperties(SchemeProperties schemeProperties) {
-        fileSchemeProperties = (SftpSchemeProperties) schemeProperties;
+    public SchemeProperties getSchemeProperties() {
+        SftpSchemeProperties props = new SftpSchemeProperties();
 
-        if (fileSchemeProperties.isPasswordAuth() && fileSchemeProperties.isKeyAuth()) {
+        if (usePasswordRadio.isSelected()) {
+            props.setPasswordAuth(true);
+            props.setKeyAuth(false);
+        } else if (usePrivateKeyRadio.isSelected()) {
+            props.setPasswordAuth(false);
+            props.setKeyAuth(true);
+        } else {
+            props.setPasswordAuth(true);
+            props.setKeyAuth(true);
+        }
+
+        props.setKeyFile(keyLocationField.getText());
+        props.setPassPhrase(new String(passphraseField.getPassword()));
+
+        if (useKnownHostsYesRadio.isSelected()) {
+            props.setHostChecking("yes");
+        } else if (useKnownHostsAskRadio.isSelected()) {
+            props.setHostChecking("ask");
+        } else {
+            props.setHostChecking("no");
+        }
+
+        props.setKnownHostsFile(knownHostsField.getText());
+
+        Map<String, String> configurationSettings = new LinkedHashMap<String, String>();
+
+        for (int rowCount = 0; rowCount < configurationsTable.getRowCount(); rowCount++) {
+            configurationSettings.put((String) configurationsTable.getValueAt(rowCount, 0), (String) configurationsTable.getValueAt(rowCount, 1));
+        }
+
+        props.setConfigurationSettings(configurationSettings);
+
+        return props;
+    }
+
+    public void setFileSchemeProperties(SftpSchemeProperties schemeProperties) {
+        if (schemeProperties.isPasswordAuth() && schemeProperties.isKeyAuth()) {
             useBothRadio.setSelected(true);
         } else {
-            if (fileSchemeProperties.isKeyAuth()) {
+            if (schemeProperties.isKeyAuth()) {
                 usePrivateKeyRadio.setSelected(true);
             } else {
                 usePasswordRadio.setSelected(true);
             }
         }
 
-        keyLocationField.setText(fileSchemeProperties.getKeyFile());
-        passphraseField.setText(fileSchemeProperties.getPassPhrase());
+        keyLocationField.setText(schemeProperties.getKeyFile());
+        passphraseField.setText(schemeProperties.getPassPhrase());
 
-        String hostnameVerification = fileSchemeProperties.getHostChecking();
+        String hostnameVerification = schemeProperties.getHostChecking();
         if (hostnameVerification.equals("yes")) {
             useKnownHostsYesRadio.setSelected(true);
         } else if (hostnameVerification.equals("ask")) {
@@ -128,9 +131,9 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
             useKnownHostsNoRadio.setSelected(true);
         }
 
-        knownHostsField.setText(fileSchemeProperties.getKnownHostsFile());
+        knownHostsField.setText(schemeProperties.getKnownHostsFile());
 
-        Map<String, String> configurationSettings = fileSchemeProperties.getConfigurationSettings();
+        Map<String, String> configurationSettings = schemeProperties.getConfigurationSettings();
         if (configurationSettings != null && configurationSettings.size() > 0) {
             DefaultTableModel model = (DefaultTableModel) configurationsTable.getModel();
             model.setNumRows(0);
@@ -150,75 +153,6 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
         authenticationRadioButtonActionPerformed();
     }
 
-    private void getProperties() {
-        if (usePasswordRadio.isSelected()) {
-            fileSchemeProperties.setPasswordAuth(true);
-            fileSchemeProperties.setKeyAuth(false);
-        } else if (usePrivateKeyRadio.isSelected()) {
-            fileSchemeProperties.setPasswordAuth(false);
-            fileSchemeProperties.setKeyAuth(true);
-        } else {
-            fileSchemeProperties.setPasswordAuth(true);
-            fileSchemeProperties.setKeyAuth(true);
-        }
-
-        fileSchemeProperties.setKeyFile(keyLocationField.getText());
-        fileSchemeProperties.setPassPhrase(passphraseField.getText());
-
-        if (useKnownHostsYesRadio.isSelected()) {
-            fileSchemeProperties.setHostChecking("yes");
-        } else if (useKnownHostsAskRadio.isSelected()) {
-            fileSchemeProperties.setHostChecking("ask");
-        } else {
-            fileSchemeProperties.setHostChecking("no");
-        }
-
-        fileSchemeProperties.setKnownHostsFile(knownHostsField.getText());
-
-        Map<String, String> configurationSettings = new LinkedHashMap<String, String>();
-
-        for (int rowCount = 0; rowCount < configurationsTable.getRowCount(); rowCount++) {
-            configurationSettings.put((String) configurationsTable.getValueAt(rowCount, 0), (String) configurationsTable.getValueAt(rowCount, 1));
-        }
-
-        fileSchemeProperties.setConfigurationSettings(configurationSettings);
-    }
-
-    @Override
-    public SchemeProperties getFileSchemeProperties() {
-        return fileSchemeProperties;
-    }
-
-    @Override
-    public SchemeProperties getDefaultProperties() {
-        return new SftpSchemeProperties();
-    }
-
-    @Override
-    public String getSummaryText() {
-        List<String> list = new ArrayList<String>();
-
-        String authType = "Password";
-        if (fileSchemeProperties.isPasswordAuth() && fileSchemeProperties.isKeyAuth()) {
-            authType = "Password and Private Key";
-        } else if (fileSchemeProperties.isKeyAuth()) {
-            authType = "Private Key";
-        }
-
-        list.add(authType + " Authentication");
-
-        String verification = "Ask";
-        if (fileSchemeProperties.getHostChecking().equals("yes")) {
-            verification = "On";
-        } else if (fileSchemeProperties.getHostChecking().equals("no")) {
-            verification = "Off";
-        }
-        list.add("Hostname Checking " + verification);
-
-        return StringUtils.join(list, " / ");
-    }
-
-    @Override
     public boolean validateProperties() {
         boolean valid = true;
 
@@ -250,7 +184,7 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
     private void initComponents() {
         authenticationLabel = new JLabel("Authentication:");
 
-        usePasswordRadio = new MirthRadioButton("Password");
+        usePasswordRadio = new JRadioButton("Password");
         usePasswordRadio.setFocusable(false);
         usePasswordRadio.setBackground(new Color(255, 255, 255));
         usePasswordRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -262,12 +196,12 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
             }
         });
 
-        usePrivateKeyRadio = new MirthRadioButton("Private Key");
+        usePrivateKeyRadio = new JRadioButton("Public Key");
         usePrivateKeyRadio.setSelected(true);
         usePrivateKeyRadio.setFocusable(false);
         usePrivateKeyRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         usePrivateKeyRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        usePrivateKeyRadio.setToolTipText("Select this option to use a private key to gain access to the server.");
+        usePrivateKeyRadio.setToolTipText("Select this option to use a public/private keypair to gain access to the server.");
         usePrivateKeyRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -275,12 +209,12 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
             }
         });
 
-        useBothRadio = new MirthRadioButton("Both");
+        useBothRadio = new JRadioButton("Both");
         useBothRadio.setSelected(true);
         useBothRadio.setFocusable(false);
         useBothRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         useBothRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        useBothRadio.setToolTipText("Select this option to use both a password and a private key to gain access to the server.");
+        useBothRadio.setToolTipText("Select this option to use both a password and a public/private keypair to gain access to the server.");
         useBothRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -293,29 +227,29 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
         privateKeyButtonGroup.add(usePrivateKeyRadio);
         privateKeyButtonGroup.add(useBothRadio);
 
-        keyLocationLabel = new JLabel("Key File:");
-        keyLocationField = new MirthTextField();
-        keyLocationField.setToolTipText("The absolute file path of the local Private Key used to gain access to the remote server.");
+        keyLocationLabel = new JLabel("Public/Private Key File:");
+        keyLocationField = new JTextField();
+        keyLocationField.setToolTipText("The absolute file path of the public/private keypair used to gain access to the remote server.");
 
         passphraseLabel = new JLabel("Passphrase:");
-        passphraseField = new MirthTextField();
-        passphraseField.setToolTipText("The passphrase associated with the local Private Key.");
+        passphraseField = new JPasswordField();
+        passphraseField.setToolTipText("The passphrase associated with the public/private keypair.");
 
         useKnownHostsLabel = new JLabel("Host Key Checking:");
 
-        useKnownHostsYesRadio = new MirthRadioButton("Yes");
+        useKnownHostsYesRadio = new JRadioButton("Yes");
         useKnownHostsYesRadio.setFocusable(false);
         useKnownHostsYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         useKnownHostsYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         useKnownHostsYesRadio.setToolTipText("<html>Select this option to validate the server's host key within the provided<br>Known Hosts file. Known Hosts file is required.</html>");
 
-        useKnownHostsAskRadio = new MirthRadioButton("Ask");
+        useKnownHostsAskRadio = new JRadioButton("Ask");
         useKnownHostsAskRadio.setFocusable(false);
         useKnownHostsAskRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         useKnownHostsAskRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         useKnownHostsAskRadio.setToolTipText("<html>Select this option to ask the user to add the server's host key to the provided<br>Known Hosts file. Known Hosts file is optional.</html>");
 
-        useKnownHostsNoRadio = new MirthRadioButton("No");
+        useKnownHostsNoRadio = new JRadioButton("No");
         useKnownHostsNoRadio.setSelected(true);
         useKnownHostsNoRadio.setFocusable(false);
         useKnownHostsNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
@@ -328,7 +262,7 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
         knownHostsButtonGroup.add(useKnownHostsNoRadio);
 
         knownHostsLocationLabel = new JLabel("Known Hosts:");
-        knownHostsField = new MirthTextField();
+        knownHostsField = new JTextField();
         knownHostsField.setToolTipText("The absolute file path of the local Known Hosts file used to authenticate the remote server.");
 
         configurationsLabel = new JLabel("Configuration Options:");
@@ -409,7 +343,7 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                okCancelButtonActionPerformed(true);
+                okCancelButtonActionPerformed();
             }
         });
 
@@ -417,7 +351,7 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                okCancelButtonActionPerformed(false);
+                dispose();
             }
         });
 
@@ -469,21 +403,17 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
         add(buttonPanel, "south, span");
     }
 
-    private void okCancelButtonActionPerformed(boolean saveProperties) {
+    private void okCancelButtonActionPerformed() {
         if (configurationsTable.isEditing()) {
             configurationsTable.getCellEditor().stopCellEditing();
         }
 
-        if (saveProperties) {
-            if (!validateProperties()) {
-                return;
-            }
-
-            getProperties();
-        } else {
-            setFileSchemeProperties(fileSchemeProperties);
+        if (!validateProperties()) {
+            return;
         }
 
+        saved = true;
+        PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         dispose();
     }
 
@@ -535,30 +465,29 @@ public class AdvancedSftpSettingsDialog extends MirthDialog implements AdvancedS
                 return false;
             }
 
-            PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
             return true;
         }
     }
 
     private JLabel authenticationLabel;
-    private MirthRadioButton usePasswordRadio;
-    private MirthRadioButton usePrivateKeyRadio;
-    private MirthRadioButton useBothRadio;
+    private JRadioButton usePasswordRadio;
+    private JRadioButton usePrivateKeyRadio;
+    private JRadioButton useBothRadio;
     private ButtonGroup privateKeyButtonGroup;
 
     private JLabel keyLocationLabel;
-    private MirthTextField keyLocationField;
+    private JTextField keyLocationField;
 
     private JLabel passphraseLabel;
-    private MirthTextField passphraseField;
+    private JPasswordField passphraseField;
 
     private JLabel useKnownHostsLabel;
-    private MirthRadioButton useKnownHostsYesRadio;
-    private MirthRadioButton useKnownHostsAskRadio;
-    private MirthRadioButton useKnownHostsNoRadio;
+    private JRadioButton useKnownHostsYesRadio;
+    private JRadioButton useKnownHostsAskRadio;
+    private JRadioButton useKnownHostsNoRadio;
     private ButtonGroup knownHostsButtonGroup;
     private JLabel knownHostsLocationLabel;
-    private MirthTextField knownHostsField;
+    private JTextField knownHostsField;
 
     private JLabel configurationsLabel;
     private MirthTable configurationsTable;
