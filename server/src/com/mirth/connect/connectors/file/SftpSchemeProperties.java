@@ -122,7 +122,6 @@ public class SftpSchemeProperties extends SchemeProperties {
 
         if (MapUtils.isNotEmpty(configurationSettings)) {
             builder.append("[CONFIGURATION OPTIONS]");
-            builder.append(hostKeyChecking);
             builder.append(newLine);
 
             for (Map.Entry<String, String> setting : configurationSettings.entrySet()) {
