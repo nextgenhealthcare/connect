@@ -555,7 +555,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         pruningSchedulePanel.setLayout(new MigLayout("hidemode 3, novisualpadding, insets 0", "21[][]"));
         pruningSchedulePanel.add(enabledLabel, "gapleft 37, split");
-        pruningSchedulePanel.add(yesEnabledRadio, "gapleft 11");
+        pruningSchedulePanel.add(yesEnabledRadio, "gapleft 12");
         pruningSchedulePanel.add(noEnabledRadio, "wrap");
         pruningSchedulePanel.add(pollingSettingsPanel);
 

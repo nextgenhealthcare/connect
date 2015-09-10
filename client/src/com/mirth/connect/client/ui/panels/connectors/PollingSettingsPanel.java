@@ -565,10 +565,13 @@ public class PollingSettingsPanel extends JPanel {
     private void enableComponents(String selectedType) {
         if (selectedType.equals(PollingType.INTERVAL.getDisplayName())) {
             timeSettingsLabel.setText("Interval:");
+            ((MigLayout) getLayout()).setComponentConstraints(timeSettingsLabel, "newline, right");
         } else if (selectedType.equals(PollingType.TIME.getDisplayName())) {
             timeSettingsLabel.setText("Time:");
+            ((MigLayout) getLayout()).setComponentConstraints(timeSettingsLabel, "newline, right");
         } else if (selectedType.equals(PollingType.CRON.getDisplayName())) {
             timeSettingsLabel.setText("Cron Jobs:");
+            ((MigLayout) getLayout()).setComponentConstraints(timeSettingsLabel, "newline, right, top");
         }
         pollingFrequencySettingsPanel.setVisible(selectedType.equals(PollingType.INTERVAL.getDisplayName()));
         pollingTimePicker.setVisible(selectedType.equals(PollingType.TIME.getDisplayName()));
@@ -666,51 +669,47 @@ public class PollingSettingsPanel extends JPanel {
     }
 
     private void initLayout() {
-        String gapleft = "";
-        if (!channelContext) {
-            gapleft = "gapleft 8,";
-        }
-
         setBackground(UIConstants.BACKGROUND_COLOR);
-        setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0", "[right][left]"));
 
         if (channelContext) {
+            setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, gap 6 4", "[]12[]"));
             setBorder(javax.swing.BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Polling Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-            add(scheduleTypeLabel);
+            add(scheduleTypeLabel, "right");
             add(scheduleTypeComboBox, "split");
-            add(nextPollLabel, "gapleft 8, wrap");
+            add(nextPollLabel, "gapbefore 6");
 
-            add(new JLabel("Poll Once on Start:"));
+            add(new JLabel("Poll Once on Start:"), "newline, right");
             add(yesStartPollRadioButton, "split");
-            add(noStartPollRadioButton, "wrap");
+            add(noStartPollRadioButton, "gapbefore 5");
         } else {
-            add(scheduleTypeLabel);
-            add(scheduleTypeComboBox, gapleft + "wrap");
+            setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, gap 6 6", "[]12[]"));
+            add(scheduleTypeLabel, "right");
+            add(scheduleTypeComboBox);
         }
 
-        add(timeSettingsLabel, "aligny top, gaptop 2");
-        scheduleSettingsPanel.setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0"));
+        add(timeSettingsLabel, "newline, right");
+        scheduleSettingsPanel.setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, gap 6 6"));
 
         scheduleSettingsPanel.add(pollingTimePicker, "w 70!");
 
-        pollingFrequencySettingsPanel.setLayout(new MigLayout("novisualpadding, insets 0"));
+        pollingFrequencySettingsPanel.setLayout(new MigLayout("novisualpadding, insets 0, gap 6 6"));
         pollingFrequencySettingsPanel.add(pollingFrequencyField, "w 75!, left");
         pollingFrequencySettingsPanel.add(pollingFrequencyTypeComboBox, "left");
         scheduleSettingsPanel.add(pollingFrequencySettingsPanel);
 
-        pollingCronSettingsPanel.setLayout(new MigLayout("novisualpadding, insets 0"));
+        pollingCronSettingsPanel.setLayout(new MigLayout("novisualpadding, insets 0, gap 6 6"));
         pollingCronSettingsPanel.add(cronScrollPane, "h 74!, w 400!");
 
-        JPanel buttonPanel = new JPanel(new MigLayout("novisualpadding, insets 0"));
+        JPanel buttonPanel = new JPanel(new MigLayout("novisualpadding, insets 0, gap 6 6"));
         buttonPanel.setBackground(UIConstants.BACKGROUND_COLOR);
         buttonPanel.add(addJobButton, "wrap, w 50!");
         buttonPanel.add(deleteJobButton, "w 50!");
         pollingCronSettingsPanel.add(buttonPanel, "top");
         scheduleSettingsPanel.add(pollingCronSettingsPanel);
 
-        add(scheduleSettingsPanel, gapleft + "shrink, aligny top, split");
-        add(advancedSettingsButton, "h 21!, w 22!");
+        add(scheduleSettingsPanel, "split");
+        add(advancedSettingsButton, "gapbefore 6, h 21!, w 22!");
     }
 
     private class CronTableCellEditor extends TextFieldCellEditor {

@@ -399,7 +399,7 @@ public class AdvancedPollingSettingsDialog extends MirthDialog {
     }
 
     private void initLayout() {
-        JPanel advancedSettingsPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 8 12 12 12", "[right][left][left]"));
+        JPanel advancedSettingsPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 8 12 12 12, gap 6 6", "[right]12[left][left]"));
         advancedSettingsPanel.setBackground(UIConstants.BACKGROUND_COLOR);
         advancedSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "Advanced Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
