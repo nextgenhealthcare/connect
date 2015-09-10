@@ -11,7 +11,6 @@ package com.mirth.connect.client.ui;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
@@ -26,6 +25,7 @@ public class StatusBar extends javax.swing.JPanel {
     private String timezoneText;
     private String serverTimeZone;
     private String localTimeZone;
+    private long timeOffset;
 
     /** Creates new form StatusBar */
     public StatusBar() {
@@ -71,6 +71,7 @@ public class StatusBar extends javax.swing.JPanel {
     }
 
     public void setServerTime(Calendar serverTime) {
+        timeOffset = serverTime.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
         serverTimeZone = serverTime.getTimeZone().getID();
         localTimeZone = Calendar.getInstance().getTimeZone().getID();
 
@@ -93,21 +94,20 @@ public class StatusBar extends javax.swing.JPanel {
     }
 
     private String convertLocalToServerTime() {
-        TimeZone localTime = TimeZone.getTimeZone(localTimeZone);
-        TimeZone serverTime = TimeZone.getTimeZone(serverTimeZone);
+        TimeZone localTimeZone = TimeZone.getTimeZone(this.localTimeZone);
+        TimeZone serverTimeZone = TimeZone.getTimeZone(this.serverTimeZone);
 
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(localTime);
-        calendar.setTime(new Date());
+        calendar.add(Calendar.MILLISECOND, (int) timeOffset);
 
-        calendar.add(Calendar.MILLISECOND, localTime.getRawOffset() * -1);
-        if (localTime.inDaylightTime(calendar.getTime())) {
-            calendar.add(Calendar.MILLISECOND, calendar.getTimeZone().getDSTSavings() * -1);
+        calendar.add(Calendar.MILLISECOND, localTimeZone.getRawOffset() * -1);
+        if (localTimeZone.inDaylightTime(calendar.getTime())) {
+            calendar.add(Calendar.MILLISECOND, localTimeZone.getDSTSavings() * -1);
         }
 
-        calendar.add(Calendar.MILLISECOND, serverTime.getRawOffset());
-        if (serverTime.inDaylightTime(calendar.getTime())) {
-            calendar.add(Calendar.MILLISECOND, serverTime.getDSTSavings());
+        calendar.add(Calendar.MILLISECOND, serverTimeZone.getRawOffset());
+        if (serverTimeZone.inDaylightTime(calendar.getTime())) {
+            calendar.add(Calendar.MILLISECOND, serverTimeZone.getDSTSavings());
         }
 
         return new SimpleDateFormat("h:mm a").format(calendar.getTime());
