@@ -3927,31 +3927,37 @@ public class Frame extends JXFrame {
 
     public void doSendMessage() {
         retrieveChannels();
+        String channelId = null;
+        List<Integer> selectedMetaDataIds = null;
 
-        List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
-        String channelId = selectedStatuses.get(0).getChannelId();
-        List<Integer> selectedMetaDataIds = new ArrayList<Integer>();
+        if (currentContentPage == dashboardPanel) {
+            List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
+            channelId = selectedStatuses.get(0).getChannelId();
+            selectedMetaDataIds = new ArrayList<Integer>();
 
-        for (DashboardStatus status : selectedStatuses) {
-            if (status.getChannelId() != channelId) {
-                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
-                return;
-            }
+            for (DashboardStatus status : selectedStatuses) {
+                if (status.getChannelId() != channelId) {
+                    JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
+                    return;
+                }
 
-            if (status.getStatusType() == StatusType.CHANNEL) {
-                selectedMetaDataIds = null;
-            } else if (selectedMetaDataIds != null) {
-                Integer metaDataId = status.getMetaDataId();
+                if (status.getStatusType() == StatusType.CHANNEL) {
+                    selectedMetaDataIds = null;
+                } else if (selectedMetaDataIds != null) {
+                    Integer metaDataId = status.getMetaDataId();
 
-                if (metaDataId != null) {
-                    selectedMetaDataIds.add(metaDataId);
+                    if (metaDataId != null) {
+                        selectedMetaDataIds.add(metaDataId);
+                    }
                 }
             }
+        } else if (currentContentPage == messageBrowser) {
+            channelId = messageBrowser.getChannelId();
         }
 
         ChannelStatus channelStatus = channelStatuses.get(channelId);
 
-        if (channelStatus == null) {
+        if (channelId == null || channelStatus == null) {
             alertError(this, "Channel no longer exists!");
             return;
         }

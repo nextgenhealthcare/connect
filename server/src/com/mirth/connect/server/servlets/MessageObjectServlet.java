@@ -35,6 +35,7 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.MessageController;
@@ -53,7 +54,7 @@ public class MessageObjectServlet extends MirthServlet {
         } else {
             try {
                 final MessageController messageController = ControllerFactory.getFactory().createMessageController();
-                final EngineController engineController =  ControllerFactory.getFactory().createEngineController();
+                final EngineController engineController = ControllerFactory.getFactory().createEngineController();
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 PrintWriter out = response.getWriter();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
@@ -165,7 +166,11 @@ public class MessageObjectServlet extends MirthServlet {
                         Runnable reprocessTask = new Runnable() {
                             @Override
                             public void run() {
-                                messageController.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds);
+                                try {
+                                    messageController.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds);
+                                } catch (ControllerException e) {
+                                    logger.error("Error reprocessing messages for channel " + channelId + ": " + e.getMessage(), e);
+                                }
                             }
                         };
 

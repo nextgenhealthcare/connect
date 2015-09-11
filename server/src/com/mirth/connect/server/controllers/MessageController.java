@@ -46,7 +46,7 @@ public abstract class MessageController {
 
     public abstract void removeMessages(String channelId, MessageFilter filter);
 
-    public abstract void reprocessMessages(String channelId, MessageFilter filter, boolean replace, Collection<Integer> reprocessMetaDataIds);
+    public abstract void reprocessMessages(String channelId, MessageFilter filter, boolean replace, Collection<Integer> reprocessMetaDataIds) throws ControllerException;
 
     public abstract void importMessage(String channelId, Message message) throws MessageImportException;
 

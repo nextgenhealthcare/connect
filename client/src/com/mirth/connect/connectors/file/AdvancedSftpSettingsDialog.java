@@ -270,9 +270,9 @@ public class AdvancedSftpSettingsDialog extends AdvancedSettingsDialog {
         knownHostsButtonGroup.add(useKnownHostsAskRadio);
         knownHostsButtonGroup.add(useKnownHostsNoRadio);
 
-        knownHostsLocationLabel = new JLabel("Known Hosts:");
+        knownHostsLocationLabel = new JLabel("Known Hosts File:");
         knownHostsField = new JTextField();
-        knownHostsField.setToolTipText("The absolute file path of the local Known Hosts file used to authenticate the remote server.");
+        knownHostsField.setToolTipText("The path to the local Known Hosts file used to authenticate the remote server.");
 
         configurationsLabel = new JLabel("Configuration Options:");
         configurationsTable = new MirthTable();

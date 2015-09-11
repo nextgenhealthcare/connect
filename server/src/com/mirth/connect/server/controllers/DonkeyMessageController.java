@@ -330,9 +330,13 @@ public class DonkeyMessageController extends MessageController {
         }
     }
 
-    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, Collection<Integer> reprocessMetaDataIds) {
+    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, Collection<Integer> reprocessMetaDataIds) throws ControllerException {
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
         Channel deployedChannel = engineController.getDeployedChannel(channelId);
+        if (deployedChannel == null) {
+            throw new ControllerException("Channel is no longer deployed!");
+        }
+
         AttachmentHandler attachmentHandler = deployedChannel.getAttachmentHandler();
         DataType dataType = deployedChannel.getSourceConnector().getInboundDataType();
         boolean isBinary = ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary();
