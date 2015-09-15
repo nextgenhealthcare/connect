@@ -20,6 +20,8 @@ import java.util.UUID;
 
 import javax.swing.text.DateFormatter;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.migration.Migratable;
@@ -184,11 +186,11 @@ public class ServerConfiguration implements Serializable, Migratable {
             throw new SerializerException("Failed to migrate code templates.", e);
         }
 
+        boolean enabled = true;
         String time = "";
         String interval = "";
         String dayOfWeek = "";
         String dayOfMonth = "1";
-        boolean disabled = true;
 
         DonkeyElement properties = null;
         DonkeyElement pluginProperties = element.getChildElement("pluginProperties");
@@ -214,15 +216,14 @@ public class ServerConfiguration implements Serializable, Migratable {
                 }
             }
 
+            enabled = !interval.equals("disabled");
             String pollingType = "INTERVAL";
             String pollingHour = "12";
             String pollingMinute = "0";
-            boolean isWeekly = true;
+            boolean weekly = !StringUtils.equals(interval, "monthly");
             boolean[] activeDays = new boolean[] { true, true, true, true, true, true, true, true };
 
-            disabled = interval.equals("disabled");
-
-            if (!interval.equals("hourly") && !disabled) {
+            if (enabled && !StringUtils.equals(interval, "hourly")) {
                 SimpleDateFormat timeDateFormat = new SimpleDateFormat("hh:mm aa");
                 DateFormatter timeFormatter = new DateFormatter(timeDateFormat);
                 Date timeDate = null;
@@ -236,8 +237,7 @@ public class ServerConfiguration implements Serializable, Migratable {
                     pollingHour = String.valueOf(timeCalendar.get(Calendar.HOUR_OF_DAY));
                     pollingMinute = String.valueOf(timeCalendar.get(Calendar.MINUTE));
 
-                    isWeekly = interval.equals("weekly");
-                    if (isWeekly) {
+                    if (StringUtils.equals(interval, "weekly")) {
                         SimpleDateFormat dayDateFormat = new SimpleDateFormat("EEEEEEEE");
                         DateFormatter dayFormatter = new DateFormatter(dayDateFormat);
 
@@ -245,7 +245,9 @@ public class ServerConfiguration implements Serializable, Migratable {
                         Calendar dayCalendar = Calendar.getInstance();
                         dayCalendar.setTime(dayDate);
 
-                        activeDays[dayCalendar.get(Calendar.DAY_OF_WEEK)] = false;
+                        activeDays = new boolean[] { false, false, false, false, false, false,
+                                false, false };
+                        activeDays[dayCalendar.get(Calendar.DAY_OF_WEEK)] = true;
                     }
                 } catch (Exception e) {
                 }
@@ -262,12 +264,12 @@ public class ServerConfiguration implements Serializable, Migratable {
                 pollingProperties.addChildElementIfNotExists("cronJobs");
 
                 DonkeyElement advancedProperties = pollingProperties.addChildElementIfNotExists("pollConnectorPropertiesAdvanced");
-                advancedProperties.addChildElementIfNotExists("weekly", isWeekly ? "true" : "false");
+                advancedProperties.addChildElementIfNotExists("weekly", weekly ? "true" : "false");
 
                 DonkeyElement inactiveDays = advancedProperties.addChildElementIfNotExists("inactiveDays");
                 if (inactiveDays != null) {
                     for (int index = 0; index < 8; ++index) {
-                        inactiveDays.addChildElement("boolean", activeDays[index] ? "true" : "false");
+                        inactiveDays.addChildElement("boolean", activeDays[index] ? "false" : "true");
                     }
                 }
 
@@ -281,7 +283,7 @@ public class ServerConfiguration implements Serializable, Migratable {
                 DonkeyElement prunerProperty = properties.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(pollingProperties.toXml()));
                 prunerProperty.setAttribute("name", "pollingProperties");
 
-                DonkeyElement enabledProperty = properties.addChildElement("property", Boolean.toString(!disabled));
+                DonkeyElement enabledProperty = properties.addChildElement("property", Boolean.toString(enabled));
                 enabledProperty.setAttribute("name", "enabled");
             } catch (Exception e) {
                 throw new SerializerException("Failed to migrate Data Pruner properties.", e);

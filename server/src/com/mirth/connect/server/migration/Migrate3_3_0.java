@@ -26,6 +26,7 @@ import javax.swing.text.DateFormatter;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.log4j.Logger;
 
@@ -146,11 +147,11 @@ public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
     }
 
     private void migrateDataPrunerConfiguration() {
+        boolean enabled = true;
         String time = "";
         String interval = "";
         String dayOfWeek = "";
         String dayOfMonth = "1";
-        boolean disabled = true;
 
         ResultSet results = null;
         PreparedStatement statement = null;
@@ -159,7 +160,7 @@ public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
         try {
             connection = getConnection();
             try {
-                statement = connection.prepareStatement("SELECT NAME, VALUE FROM CONFIGURATION");
+                statement = connection.prepareStatement("SELECT NAME, VALUE FROM CONFIGURATION WHERE CATEGORY = 'Data Pruner'");
 
                 results = statement.executeQuery();
                 while (results.next()) {
@@ -183,15 +184,14 @@ public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
                 DbUtils.closeQuietly(results);
             }
 
+            enabled = !interval.equals("disabled");
             String pollingType = "INTERVAL";
             String pollingHour = "12";
             String pollingMinute = "0";
-            boolean isWeekly = true;
+            boolean weekly = !StringUtils.equals(interval, "monthly");
             boolean[] activeDays = new boolean[] { true, true, true, true, true, true, true, true };
 
-            disabled = interval.equals("disabled");
-
-            if (!interval.equals("hourly") && !disabled) {
+            if (enabled && !StringUtils.equals(interval, "hourly")) {
                 SimpleDateFormat timeDateFormat = new SimpleDateFormat("hh:mm aa");
                 DateFormatter timeFormatter = new DateFormatter(timeDateFormat);
                 Date timeDate = null;
@@ -205,8 +205,7 @@ public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
                     pollingHour = String.valueOf(timeCalendar.get(Calendar.HOUR_OF_DAY));
                     pollingMinute = String.valueOf(timeCalendar.get(Calendar.MINUTE));
 
-                    isWeekly = interval.equals("weekly");
-                    if (isWeekly) {
+                    if (StringUtils.equals(interval, "weekly")) {
                         SimpleDateFormat dayDateFormat = new SimpleDateFormat("EEEEEEEE");
                         DateFormatter dayFormatter = new DateFormatter(dayDateFormat);
 
@@ -214,7 +213,9 @@ public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
                         Calendar dayCalendar = Calendar.getInstance();
                         dayCalendar.setTime(dayDate);
 
-                        activeDays[dayCalendar.get(Calendar.DAY_OF_WEEK)] = false;
+                        activeDays = new boolean[] { false, false, false, false, false, false,
+                                false, false };
+                        activeDays[dayCalendar.get(Calendar.DAY_OF_WEEK)] = true;
                     }
                 } catch (Exception e) {
                     logger.error("Failed to get Data Pruner time properties", e);
@@ -231,12 +232,12 @@ public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
             pollingProperties.addChildElementIfNotExists("cronJobs");
 
             DonkeyElement advancedProperties = pollingProperties.addChildElementIfNotExists("pollConnectorPropertiesAdvanced");
-            advancedProperties.addChildElementIfNotExists("weekly", isWeekly ? "true" : "false");
+            advancedProperties.addChildElementIfNotExists("weekly", weekly ? "true" : "false");
 
             DonkeyElement inactiveDays = advancedProperties.addChildElementIfNotExists("inactiveDays");
             if (inactiveDays != null) {
                 for (int index = 0; index < 8; ++index) {
-                    inactiveDays.addChildElement("boolean", activeDays[index] ? "true" : "false");
+                    inactiveDays.addChildElement("boolean", activeDays[index] ? "false" : "true");
                 }
             }
 
@@ -265,7 +266,7 @@ public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
             try {
                 updateStatement = connection.prepareStatement("UPDATE CONFIGURATION SET NAME = ?, VALUE = ? WHERE CATEGORY = ? AND NAME = ?");
                 updateStatement.setString(1, "enabled");
-                updateStatement.setString(2, !disabled ? "true" : "false");
+                updateStatement.setString(2, enabled ? "true" : "false");
                 updateStatement.setString(3, "Data Pruner");
                 updateStatement.setString(4, "interval");
                 updateStatement.executeUpdate();
