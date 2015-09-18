@@ -1222,12 +1222,14 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                 }
             }
 
+            updateCurrentNode.set(false);
             selectedNode = (MutableTreeTableNode) selectedPath.getLastPathComponent();
             model.removeNodeFromParent(selectedNode);
 
             if (model.getRoot() != fullModel.getRoot()) {
                 fullModel.removeNodeFromParent(findFullNode((AbstractSortableTreeTableNode) selectedNode));
             }
+            updateCurrentNode.set(true);
 
             if (selectedNodeIndex < parent.getChildCount()) {
                 newSelectedNode = (MutableTreeTableNode) parent.getChildAt(selectedNodeIndex);
