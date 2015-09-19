@@ -56,11 +56,14 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeWillExpandListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
+import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 
 import net.miginfocom.swing.MigLayout;
@@ -1107,6 +1110,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             int selectedRow = templateTreeTable.getSelectedRow();
             TreeTableNode selectedNode = selectedRow >= 0 ? (TreeTableNode) templateTreeTable.getPathForRow(selectedRow).getLastPathComponent() : null;
             new UpdateSwingWorker(dialog.getUpdatedLibraries(), new HashMap<String, CodeTemplateLibrary>(), dialog.getUpdatedCodeTemplates(), new HashMap<String, CodeTemplate>(), true, selectedNode, getExpandedLibraryIds()).execute();
+            doRefreshCodeTemplates();
         }
     }
 
@@ -1448,6 +1452,29 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                         });
                     }
                 }
+            }
+        });
+
+        templateTreeTable.addTreeWillExpandListener(new TreeWillExpandListener() {
+            @Override
+            public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
+                treeExpansionChanged();
+            }
+
+            @Override
+            public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
+                treeExpansionChanged();
+            }
+
+            private void treeExpansionChanged() {
+                updateCurrentNode();
+                updateCurrentNode.set(false);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateCurrentNode.set(true);
+                    }
+                });
             }
         });
 
@@ -2399,7 +2426,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             builder.append(libraryNode.getLibrary().getName()).append("\t\t\t\t").append(libraryNode.getLibrary().getDescription().replaceAll("\r\n|\r|\n", " "));
         } else if (node instanceof CodeTemplateTreeTableNode) {
             CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) node;
-            builder.append(codeTemplateNode.getCodeTemplate().getName()).append("\t\t\t\t").append(codeTemplateNode.getCodeTemplate().getDescription().replaceAll("\r\n|\r|\n", " "));
+            builder.append(codeTemplateNode.getCodeTemplate().getName()).append("\t\t\t\t").append(StringUtils.defaultString(codeTemplateNode.getCodeTemplate().getDescription()).replaceAll("\r\n|\r|\n", " "));
         }
         builder.append('\n');
 

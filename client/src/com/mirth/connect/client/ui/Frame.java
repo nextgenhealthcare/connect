@@ -3413,6 +3413,8 @@ public class Frame extends JXFrame {
                             }
                         }
                     }
+
+                    codeTemplatePanel.doRefreshCodeTemplates();
                 }
             }
 
