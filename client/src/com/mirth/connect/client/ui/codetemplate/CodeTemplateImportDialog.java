@@ -84,7 +84,6 @@ import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
 
@@ -881,7 +880,6 @@ public class CodeTemplateImportDialog extends MirthDialog {
             panel = new OffsetPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
             field = (JTextField) editorComponent;
             field.setBackground(UIConstants.BACKGROUND_COLOR);
-            field.setDocument(new MirthFieldConstraints(0, false, true, true));
             field.setVisible(false);
             panel.add(field, "grow, push");
 
@@ -992,7 +990,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
             String value = (String) getCellEditorValue();
             boolean valid = true;
 
-            if (StringUtils.isBlank(value) || !value.matches("^[a-zA-Z_0-9\\-\\s]*$")) {
+            if (StringUtils.isBlank(value)) {
                 valid = false;
             }
 
