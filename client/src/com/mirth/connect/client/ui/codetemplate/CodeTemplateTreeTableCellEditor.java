@@ -29,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
-import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 
 public class CodeTemplateTreeTableCellEditor extends DefaultCellEditor {
@@ -43,7 +42,6 @@ public class CodeTemplateTreeTableCellEditor extends DefaultCellEditor {
         this.parent = parent;
         panel = new OffsetPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
         field = (JTextField) editorComponent;
-        field.setDocument(new MirthFieldConstraints(0, false, true, true));
         panel.add(field, "grow, push");
     }
 
