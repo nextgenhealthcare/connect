@@ -138,7 +138,10 @@ public class PollConnectorJobHandler {
                 boolean isTimeIncluded = calendar.isTimeIncluded(earliestTriggerTime.getTime());
                 if (!isTimeIncluded) {
                     if (pollingType == PollingType.TIME) {
-                        earliestTriggerTime = triggerList.get(0).getFireTimeAfter(earliestTriggerTime);
+                        for (int count = 0; !isTimeIncluded && count < 7; count++) {
+                            earliestTriggerTime = triggerList.get(0).getFireTimeAfter(earliestTriggerTime);
+                            isTimeIncluded = calendar.isTimeIncluded(earliestTriggerTime.getTime());
+                        }
                     } else {
                         Calendar includedTime = Calendar.getInstance();
                         includedTime.setTimeInMillis(calendar.getNextIncludedTime(currentTime.getTimeInMillis()));
