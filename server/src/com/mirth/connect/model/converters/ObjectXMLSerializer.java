@@ -130,10 +130,11 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     }
 
     public ObjectXMLSerializer(ClassLoader classLoader) {
-        super(new InvalidChannelWrapper(), classLoader);
+        super(new MirthMapperWrapper(), classLoader);
         processAnnotations(annotatedClasses);
         getXStream().registerConverter(new MapContentConverter(getXStream().getMapper()));
         getXStream().registerConverter(new PluginMetaDataConverter(getXStream().getMapper()));
+        getXStream().registerConverter(new JavaScriptObjectConverter(getXStream().getMapper()));
     }
 
     public void processAnnotations(Class<?>[] classes) {

@@ -17,7 +17,7 @@ import java.util.TimeZone;
  * See ECMA 15.9.
  * @author Mike McCabe
  */
-final class NativeDate extends IdScriptableObject
+public final class NativeDate extends IdScriptableObject
 {
     static final long serialVersionUID = -8307438915861678966L;
 
@@ -57,7 +57,7 @@ final class NativeDate extends IdScriptableObject
         return super.getDefaultValue(typeHint);
     }
 
-    double getJSTimeValue()
+    public double getJSTimeValue()
     {
         return date;
     }
@@ -1306,7 +1306,7 @@ final class NativeDate extends IdScriptableObject
         return result.toString();
     }
 
-    private static String js_toISOString(double t) {
+    public static String js_toISOString(double t) {
         StringBuilder result = new StringBuilder(27);
 
         int year = YearFromTime(t);

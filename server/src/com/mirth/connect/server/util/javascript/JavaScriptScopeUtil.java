@@ -20,6 +20,9 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeJSON;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -29,6 +32,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.transformers.InvalidTransformedDataException;
 import com.mirth.connect.server.userutil.AlertSender;
 import com.mirth.connect.server.userutil.Attachment;
 import com.mirth.connect.server.userutil.ChannelMap;
@@ -383,18 +387,22 @@ public class JavaScriptScopeUtil {
      * Functions to get variables back out of the scope
      */
 
-    public static String getTransformedDataFromScope(Scriptable scope, boolean hasTemplate) {
+    public static String getTransformedDataFromScope(Scriptable scope, boolean hasTemplate) throws InvalidTransformedDataException {
         String result = null;
-        Object transformedData = null;
-
-        if (hasTemplate) {
-            transformedData = scope.get("tmp", scope);
-        } else {
-            transformedData = scope.get("msg", scope);
-        }
+        String transformedVariableName = hasTemplate ? "tmp" : "msg";
+        Object transformedData = scope.get(transformedVariableName, scope);
 
         if (transformedData != Scriptable.NOT_FOUND) {
-            result = Context.toString(transformedData);
+            if (transformedData instanceof NativeObject || transformedData instanceof NativeArray) {
+                // Convert objects and arrays to JSON first
+                try {
+                    result = NativeJSON.stringify(Context.getCurrentContext(), scope, transformedData, null, null).toString();
+                } catch (Exception e) {
+                    throw new InvalidTransformedDataException("Error converting JavaScript object \"" + transformedVariableName + "\" to JSON.", e);
+                }
+            } else {
+                result = Context.toString(transformedData);
+            }
         }
 
         return result;
