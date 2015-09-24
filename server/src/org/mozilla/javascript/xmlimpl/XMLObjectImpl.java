@@ -437,8 +437,9 @@ abstract class XMLObjectImpl extends XMLObject {
         Id_toSource                = 39,
         Id_toXMLString             = 40,
         Id_valueOf                 = 41,
+        Id_toJSON                  = 42,
 
-        MAX_PROTOTYPE_ID           = 41;
+        MAX_PROTOTYPE_ID           = Id_toJSON;
 
     @Override
     protected int findPrototypeId(String s) {
@@ -455,6 +456,7 @@ abstract class XMLObjectImpl extends XMLObject {
             case 6: c=s.charAt(0);
                 if (c=='l') { X="length";id=Id_length; }
                 else if (c=='p') { X="parent";id=Id_parent; }
+                else if (c=='t') { X="toJSON";id=Id_toJSON; }
                 break L;
             case 7: c=s.charAt(0);
                 if (c=='r') { X="replace";id=Id_replace; }
@@ -580,6 +582,7 @@ abstract class XMLObjectImpl extends XMLObject {
             case Id_toSource:          arity=1; s="toSource";          break;
             case Id_toXMLString:       arity=1; s="toXMLString";       break;
             case Id_valueOf:           arity=0; s="valueOf";           break;
+            case Id_toJSON:            arity=1; s="toJSON";            break;
 
             default: throw new IllegalArgumentException(String.valueOf(id));
         }
@@ -801,6 +804,8 @@ abstract class XMLObjectImpl extends XMLObject {
             }
             case Id_valueOf:
                 return realThis.valueOf();
+            case Id_toJSON:
+                return realThis.toString();
         }
         throw new IllegalArgumentException(String.valueOf(id));
     }

@@ -9,12 +9,17 @@
 
 package com.mirth.connect.model.converters;
 
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeBoolean;
+import org.mozilla.javascript.NativeDate;
+import org.mozilla.javascript.NativeObject;
+
 import com.mirth.connect.donkey.util.xstream.DonkeyMapperWrapper;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.InvalidChannel;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 
-public class InvalidChannelWrapper implements DonkeyMapperWrapper {
+public class MirthMapperWrapper implements DonkeyMapperWrapper {
 
     @Override
     public MapperWrapper wrapMapper(MapperWrapper next) {
@@ -23,6 +28,8 @@ public class InvalidChannelWrapper implements DonkeyMapperWrapper {
             public String serializedClass(Class type) {
                 if (type == InvalidChannel.class) {
                     return super.serializedClass(Channel.class);
+                } else if (type == NativeObject.class || type == NativeArray.class || type == NativeDate.class || type == NativeBoolean.class) {
+                    return super.serializedClass(String.class);
                 }
                 return super.serializedClass(type);
             }

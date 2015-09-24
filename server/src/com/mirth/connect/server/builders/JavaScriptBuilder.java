@@ -52,9 +52,6 @@ public class JavaScriptBuilder {
         // add #trim() function to JavaScript String prototype
         script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
 
-        // Override toString on Arrays to return the JSON representation
-        script.append("Array.prototype.toString = function() { return JSON.stringify(this); };");
-
         for (MetaData metaData : extensionController.getConnectorMetaData().values()) {
             if (CollectionUtils.isNotEmpty(metaData.getUserutilPackages())) {
                 for (String packageName : metaData.getUserutilPackages()) {
@@ -349,23 +346,52 @@ public class JavaScriptBuilder {
             }
         }
 
-        builder.append("if ('xml' === typeof msg && msg.hasSimpleContent()) { msg = msg.toXMLString(); }");
-        builder.append("if ('xml' === typeof tmp && tmp.hasSimpleContent()) { tmp = tmp.toXMLString(); }");
-        builder.append("\n}\n");
+        builder.append("if ('xml' === typeof msg) {\n");
+        builder.append("    if (msg.hasSimpleContent()) {\n");
+        builder.append("        msg = msg.toXMLString();\n");
+        builder.append("    }\n");
+        builder.append("} else if ('undefined' !== typeof msg && msg !== null) {\n");
+        builder.append("    var toStringResult = Object.prototype.toString.call(msg);\n");
+        builder.append("    if (toStringResult == '[object Object]' || toStringResult == '[object Array]') {\n");
+        builder.append("        msg = JSON.stringify(msg);\n");
+        builder.append("    }\n");
+        builder.append("}\n");
+
+        builder.append("if ('xml' === typeof tmp) {\n");
+        builder.append("    if (tmp.hasSimpleContent()) {\n");
+        builder.append("        tmp = tmp.toXMLString();\n");
+        builder.append("    }\n");
+        builder.append("} else if ('undefined' !== typeof tmp && tmp !== null) {\n");
+        builder.append("    var toStringResult = Object.prototype.toString.call(tmp);\n");
+        builder.append("    if (toStringResult == '[object Object]' || toStringResult == '[object Array]') {\n");
+        builder.append("        tmp = JSON.stringify(tmp);\n");
+        builder.append("    }\n");
+        builder.append("}\n");
+
+        builder.append("}\n");
     }
 
     private static void appendMiscFunctions(StringBuilder builder) {
         // Script used to check for existence of segment
-        builder.append("function validate(mapping, defaultValue, replacement) {");
-        builder.append("var result = mapping;");
-        builder.append("if ((result == undefined) || (result.toString().length == 0)) { ");
-        builder.append("if (defaultValue == undefined) { defaultValue = ''} result = defaultValue; } ");
-        builder.append("if ('string' === typeof result || result instanceof java.lang.String) { ");
-        builder.append("result = new java.lang.String(result.toString()); ");
-        builder.append("if (replacement != undefined) {");
-        builder.append("for (var i = 0; i < replacement.length; i++) { ");
-        builder.append("var entry = replacement[i]; result = result.replaceAll(entry[0], entry[1]); } } }");
-        builder.append("return result; }");
+        builder.append("function validate(mapping, defaultValue, replacement) {\n");
+        builder.append("    var result = mapping;\n");
+        builder.append("    if ((result == undefined) || (result.toString().length == 0)) {\n");
+        builder.append("        if (defaultValue == undefined) {\n");
+        builder.append("            defaultValue = '';\n");
+        builder.append("        }\n");
+        builder.append("        result = defaultValue;\n");
+        builder.append("    }\n");
+        builder.append("    if ('string' === typeof result || result instanceof java.lang.String || 'xml' === typeof result) {\n");
+        builder.append("        result = new java.lang.String(result.toString());\n");
+        builder.append("        if (replacement != undefined) {\n");
+        builder.append("            for (var i = 0; i < replacement.length; i++) { ");
+        builder.append("                var entry = replacement[i];\n");
+        builder.append("                result = result.replaceAll(entry[0], entry[1]);\n");
+        builder.append("            }\n");
+        builder.append("        }\n");
+        builder.append("    }\n");
+        builder.append("    return result;\n");
+        builder.append("}\n");
 
         // Helper function to create segments
         builder.append("function createSegment(name, msgObj, index) {");

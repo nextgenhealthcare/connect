@@ -11,7 +11,7 @@ package org.mozilla.javascript;
  * See ECMA 15.6.
  * @author Norris Boyd
  */
-final class NativeBoolean extends IdScriptableObject
+public final class NativeBoolean extends IdScriptableObject
 {
     static final long serialVersionUID = -3716996899943880933L;
 
