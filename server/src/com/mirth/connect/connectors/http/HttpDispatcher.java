@@ -261,6 +261,10 @@ public class HttpDispatcher extends DestinationConnector {
                 charset = contentType.getCharset();
             }
 
+            if (httpDispatcherProperties.isMultipart()) {
+                tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
+            }
+
             HttpHost target = new HttpHost(host, port, scheme);
 
             httpMethod = buildHttpRequest(hostURI, httpDispatcherProperties, connectorMessage, tempFile, contentType, charset);
@@ -455,7 +459,6 @@ public class HttpDispatcher extends DestinationConnector {
                 logger.debug("setting multipart file content");
                 setQueryString(uriBuilder, queryParameters);
                 httpMethod = new HttpPost(uriBuilder.build());
-                tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
 
                 if (content instanceof String) {
                     FileUtils.writeStringToFile(tempFile, (String) content, contentType.getCharset(), false);
