@@ -355,7 +355,8 @@ public class FileReader extends ConnectorSettingsPanel {
                     usernameField.setBackground(UIConstants.INVALID_COLOR);
                 }
             }
-            if (props.getPassword().length() == 0) {
+            boolean ignorePassword = props.getScheme() == FileScheme.SFTP && !((SftpSchemeProperties) props.getSchemeProperties()).isPasswordAuth();
+            if (!ignorePassword && props.getPassword().length() == 0) {
                 valid = false;
                 if (highlight) {
                     passwordField.setBackground(UIConstants.INVALID_COLOR);
