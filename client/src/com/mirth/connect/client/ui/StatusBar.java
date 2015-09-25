@@ -9,11 +9,13 @@
 
 package com.mirth.connect.client.ui;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
 import org.apache.commons.lang3.StringUtils;
@@ -78,19 +80,22 @@ public class StatusBar extends javax.swing.JPanel {
         new Thread() {
             @Override
             public void run() {
-                updateTime();
+                while (!Thread.currentThread().isInterrupted()) {
+                    try {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                timezoneLabel.setText(convertLocalToServerTime() + " " + timezoneText);
+                            }
+                        });
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    } catch (InvocationTargetException e) {
+                    }
+                }
             }
         }.start();
-    }
-
-    private void updateTime() {
-        while (true) {
-            try {
-                timezoneLabel.setText(convertLocalToServerTime() + " " + timezoneText);
-                Thread.sleep(30000);
-            } catch (Exception e) {
-            }
-        }
     }
 
     private String convertLocalToServerTime() {
