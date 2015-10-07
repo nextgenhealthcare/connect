@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
@@ -286,6 +287,9 @@ public class DefaultAlertPanel extends AlertPanel {
             }
         }
     }
+
+    @Override
+    public void updateAlertDetails(Set<String> alertIds) {}
 
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);

@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui.alert;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JPanel;
 
@@ -26,4 +27,5 @@ public abstract class AlertPanel extends JPanel {
 
     public abstract void setSelectedAlertIds(List<String> alertIds);
 
+    public abstract void updateAlertDetails(Set<String> alertIds);
 }

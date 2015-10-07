@@ -4426,6 +4426,7 @@ public class Frame extends JXFrame {
                         return null;
                     }
                 }
+                alertPanel.updateAlertDetails(new HashSet<String>(selectedAlertIds));
 
                 return null;
             }
