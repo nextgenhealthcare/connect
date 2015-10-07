@@ -14,8 +14,10 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.mail.internet.InternetAddress;
 import javax.swing.ImageIcon;
@@ -34,6 +36,7 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
+import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ConnectionTestResponse;
@@ -43,6 +46,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     public static final String TAB_NAME = "Server";
 
     private List<MetaDataColumn> defaultMetaDataColumns;
+    private boolean updateAlerts;
 
     public SettingsPanelServer(String tabName) {
         super(tabName);
@@ -409,6 +413,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 int option = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_OPTION);
 
                 if (option == JOptionPane.YES_OPTION) {
+                    updateAlerts = false;
+                    final Set<String> alertIds = new HashSet<String>();
+                    for (AlertStatus alertStatus : PlatformUI.MIRTH_FRAME.mirthClient.getAlertStatusList()) {
+                        alertIds.add(alertStatus.getId());
+                    }
+
                     final String workingId = getFrame().startWorking("Restoring server config...");
 
                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -419,6 +429,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                                 getFrame().clearChannelCache();
                                 doRefresh();
                                 getFrame().alertInformation(SettingsPanelServer.this, "Your configuration was successfully restored.");
+                                updateAlerts = true;
                             } catch (ClientException e) {
                                 getFrame().alertThrowable(SettingsPanelServer.this, e);
                             }
@@ -426,6 +437,9 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         }
 
                         public void done() {
+                            if (updateAlerts) {
+                                PlatformUI.MIRTH_FRAME.alertPanel.updateAlertDetails(alertIds);
+                            }
                             getFrame().stopWorking(workingId);
                         }
                     };
