@@ -31,6 +31,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.TaskConstants;
+import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.ServerConfiguration;
@@ -46,7 +47,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     public static final String TAB_NAME = "Server";
 
     private List<MetaDataColumn> defaultMetaDataColumns;
-    private boolean updateAlerts;
 
     public SettingsPanelServer(String tabName) {
         super(tabName);
@@ -413,7 +413,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 int option = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_OPTION);
 
                 if (option == JOptionPane.YES_OPTION) {
-                    updateAlerts = false;
                     final Set<String> alertIds = new HashSet<String>();
                     for (AlertStatus alertStatus : PlatformUI.MIRTH_FRAME.mirthClient.getAlertStatusList()) {
                         alertIds.add(alertStatus.getId());
@@ -422,6 +421,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     final String workingId = getFrame().startWorking("Restoring server config...");
 
                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+                        private boolean updateAlerts = false;
 
                         public Void doInBackground() {
                             try {
@@ -437,8 +438,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         }
 
                         public void done() {
+                            if (getFrame().alertPanel == null) {
+                                getFrame().alertPanel = new DefaultAlertPanel();
+                            }
+
                             if (updateAlerts) {
-                                PlatformUI.MIRTH_FRAME.alertPanel.updateAlertDetails(alertIds);
+                                getFrame().alertPanel.updateAlertDetails(alertIds);
                             }
                             getFrame().stopWorking(workingId);
                         }
