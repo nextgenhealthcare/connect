@@ -196,8 +196,9 @@ public class DelimitedReader extends SAXParser {
 
                     // Break on end of input
                     ch = getChar(in, rawText);
-                    if (ch == -1)
+                    if (ch == -1) {
                         break;
+                    }
 
                     columnValue.append((char) ch);
                 }
@@ -212,12 +213,18 @@ public class DelimitedReader extends SAXParser {
                 }
             }
 
-            // Consume trailing characters up until end of input stream or
+            // Consume trailing characters, if any, up until end of input stream or
             // record delimiter
-            lookAhead = peekChars(in, recDelim.length());
             while (ch != -1 && !lookAhead.equals(recDelim)) {
                 ch = getChar(in, rawText);
                 lookAhead = peekChars(in, recDelim.length());
+            }
+
+            // Consume record delimiter
+            if (lookAhead.equals(recDelim)) {
+                for (int i = 0; i < recDelim.length(); i++) {
+                    ch = getChar(in, rawText);
+                }
             }
         } else {
             String colDelim = ","; // default
