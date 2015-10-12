@@ -968,9 +968,8 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         if (StringUtils.isNotEmpty(message)) {
             String trimmedMessage = message.trim();
-            char firstChar = trimmedMessage.charAt(0);
-            isXml = trimmedMessage.length() > 0 && firstChar == '<';
-            isJson = trimmedMessage.length() > 0 && (firstChar == '{' || firstChar == '[');
+            isXml = trimmedMessage.length() > 0 && trimmedMessage.charAt(0) == '<';
+            isJson = trimmedMessage.length() > 0 && (trimmedMessage.charAt(0) == '{' || trimmedMessage.charAt(0) == '[');
 
             // Set token markers
             if (isXml) {
