@@ -122,14 +122,22 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
      * @throws InterruptedException
      */
     private String getMessage(final BufferedReader in, final boolean skipHeader) throws Exception {
-        char recDelim = delimitedReader.getRecordDelimiter().charAt(0);
+        String recDelim = delimitedReader.getRecordDelimiter();
         int ch;
-
-        // If skipping the header, and the option is configured
+        String lookAhead = "";
+        // If skipping the header, and the option is configured, consume all the skip records,
+        // including the record delimiters
         if (skipHeader && batchProperties.getBatchSkipRecords() > 0) {
-
             for (int i = 0; i < batchProperties.getBatchSkipRecords(); i++) {
-                while ((ch = in.read()) != -1 && ((char) ch) != recDelim) {
+                do {
+                    ch = in.read();
+                    lookAhead = delimitedReader.peekChars(in, recDelim.length());
+                } while (ch != -1 && !lookAhead.equals(recDelim));
+
+                if (lookAhead.equals(recDelim)) {
+                    for (int j = 0; j < recDelim.length(); j++) {
+                        ch = in.read();
+                    }
                 }
             }
         }
@@ -159,7 +167,7 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
                 }
 
                 // If the next sequence of characters is the message delimiter
-                String lookAhead = delimitedReader.peekChars(in, batchMessageDelimiter.length());
+                lookAhead = delimitedReader.peekChars(in, batchMessageDelimiter.length());
                 if (lookAhead.equals(batchMessageDelimiter)) {
 
                     // Consume it.
