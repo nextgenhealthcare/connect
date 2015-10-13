@@ -1109,7 +1109,7 @@ public class Frame extends JXFrame {
      * Alerts the user with a conflict resolution dialog
      */
     public ConflictOption alertConflict(Component parentComponent, String message, int count) {
-        final JCheckBox conflictCheckbox = new JCheckBox("Do this for the next " + String.valueOf(count) + " conflicts");
+        final JCheckBox conflictCheckbox = new JCheckBox("Do this for the next " + String.valueOf(count - 1) + " conflicts");
         conflictCheckbox.setSelected(false);
 
         Object[] params = { message, conflictCheckbox };
@@ -3647,30 +3647,39 @@ public class Frame extends JXFrame {
 
                 boolean overwriteAll = false;
                 boolean skipAll = false;
-                for (int i = 0, size = channelList.size(); i < size && !skipAll; i++) {
+                for (int i = 0, size = channelList.size(); i < size; i++) {
                     Channel channel = channelList.get(i);
                     exportFile = new File(exportPath + "/" + channel.getName() + ".xml");
 
-                    if (exportFile.exists()) {
-                        if (!overwriteAll) {
-                            ConflictOption conflictStatus = alertConflict(PlatformUI.MIRTH_FRAME, "<html>The file " + channel.getName() + ".xml already exists.<br>Would you like to overwrite it?</html>", exportCollisionCount);
+                    boolean fileExists = exportFile.exists();
+                    if (fileExists) {
+                        if (!overwriteAll && !skipAll) {
+                            if (exportCollisionCount == 1) {
+                                if (!alertOption(this, "The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?")) {
+                                    continue;
+                                }
+                            } else {
+                                ConflictOption conflictStatus = alertConflict(PlatformUI.MIRTH_FRAME, "<html>The file " + channel.getName() + ".xml already exists.<br>Would you like to overwrite it?</html>", exportCollisionCount);
 
-                            if (conflictStatus == ConflictOption.YES_APPLY_ALL) {
-                                overwriteAll = true;
-                            } else if (conflictStatus == ConflictOption.NO) {
-                                exportCollisionCount--;
-                                continue;
-                            } else if (conflictStatus == ConflictOption.NO_APPLY_ALL) {
-                                skipAll = true;
-                                continue;
+                                if (conflictStatus == ConflictOption.YES_APPLY_ALL) {
+                                    overwriteAll = true;
+                                } else if (conflictStatus == ConflictOption.NO) {
+                                    exportCollisionCount--;
+                                    continue;
+                                } else if (conflictStatus == ConflictOption.NO_APPLY_ALL) {
+                                    skipAll = true;
+                                    continue;
+                                }
                             }
                         }
                         exportCollisionCount--;
                     }
 
-                    String channelXML = ObjectXMLSerializer.getInstance().serialize(channel);
-                    FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
-                    exportCount++;
+                    if (!fileExists || !skipAll) {
+                        String channelXML = ObjectXMLSerializer.getInstance().serialize(channel);
+                        FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
+                        exportCount++;
+                    }
                 }
 
                 if (exportCount > 0) {
