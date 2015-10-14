@@ -182,15 +182,11 @@ public class DelimitedReader extends SAXParser {
 
                 // Read through the stream at the set length for this column width
                 StringBuilder columnValue = new StringBuilder();
+                lookAhead = peekChars(in, recDelim.length());
                 for (int j = 0; j < serializationProperties.getColumnWidths()[i]; j++) {
 
                     // If the next characters are the record delimiter
-                    lookAhead = peekChars(in, recDelim.length());
                     if (lookAhead.equals(recDelim)) {
-                        // Consume the record delimiter
-                        for (int k = 0; k < recDelim.length(); k++) {
-                            ch = getChar(in, rawText);
-                        }
                         break;
                     }
 
@@ -201,13 +197,13 @@ public class DelimitedReader extends SAXParser {
                     }
 
                     columnValue.append((char) ch);
+                    lookAhead = peekChars(in, recDelim.length());
                 }
 
                 // Add column value to the record
                 record.add(ltrim(columnValue.toString()));
 
                 // Break on end of input or record delimiter
-                lookAhead = peekChars(in, recDelim.length());
                 if (ch == -1 || lookAhead.equals(recDelim)) {
                     break;
                 }
