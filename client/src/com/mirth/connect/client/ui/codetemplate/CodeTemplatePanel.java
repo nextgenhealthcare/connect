@@ -129,8 +129,8 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     public static final int TEMPLATE_LAST_MODIFIED_COLUMN = 5;
 
     static final int TEMPLATE_NUM_COLUMNS = 6;
+    static final String NEW_CHANNELS = "[New Channels]";
 
-    private static final String NEW_CHANNELS = "[New Channels]";
     private static final int LIBRARY_CHANNELS_NAME_COLUMN = 0;
     private static final int LIBRARY_CHANNELS_ID_COLUMN = 1;
 

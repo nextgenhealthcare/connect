@@ -23,6 +23,11 @@ public class ChannelsTableCellRenderer extends JCheckBox implements TableCellRen
         setEnabled(table.isEnabled());
         setSelected(channelInfo.isEnabled());
         setText(channelInfo.getName());
+        if (channelInfo.getName().equals(CodeTemplatePanel.NEW_CHANNELS)) {
+            setToolTipText(table.getToolTipText());
+        } else {
+            setToolTipText(channelInfo.getName());
+        }
         setBackground(table.getBackground());
         setMargin(new Insets(0, 5, 0, 0));
         return this;
