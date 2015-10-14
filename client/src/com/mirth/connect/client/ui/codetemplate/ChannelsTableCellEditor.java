@@ -40,6 +40,11 @@ public class ChannelsTableCellEditor extends DefaultCellEditor {
         checkBox.setBackground(row % 2 == 0 ? UIConstants.HIGHLIGHTER_COLOR : UIConstants.BACKGROUND_COLOR);
         checkBox.setSelected(channelInfo.isEnabled());
         checkBox.setText(channelInfo.getName());
+        if (channelInfo.getName().equals(CodeTemplatePanel.NEW_CHANNELS)) {
+            checkBox.setToolTipText(table.getToolTipText());
+        } else {
+            checkBox.setToolTipText(channelInfo.getName());
+        }
         return checkBox;
     }
 }
