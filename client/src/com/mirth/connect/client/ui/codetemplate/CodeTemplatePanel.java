@@ -2042,7 +2042,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             Set<String> enabledChannelIds = new HashSet<String>();
             Set<String> disabledChannelIds = new HashSet<String>();
 
-            for (int row = 0; row < libraryChannelsTable.getRowCount(); row++) {
+            for (int row = 0; row < libraryChannelsTable.getModel().getRowCount(); row++) {
                 ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
                 String channelId = (String) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_ID_COLUMN);
 
