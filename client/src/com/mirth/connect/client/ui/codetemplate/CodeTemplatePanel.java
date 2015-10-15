@@ -1912,7 +1912,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         libraryLeftPanel.add(libraryDescriptionScrollPane, "grow, push, w :400, h 100:100");
         libraryPanel.add(libraryLeftPanel, "grow, push");
 
-        libraryRightPanel.setLayout(new MigLayout("insets 12 0 12 12, novisualpadding, hidemode 3, fill"));
+        libraryRightPanel.setLayout(new MigLayout("insets 12 0 12 12, novisualpadding, hidemode 3, fill", "", "[][][grow]"));
         libraryRightPanel.add(libraryChannelsLabel, "left");
 
         libraryChannelsSelectPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
@@ -1924,7 +1924,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         libraryRightPanel.add(libraryChannelsFilterLabel, "newline, split 2, sx");
         libraryRightPanel.add(libraryChannelsFilterField, "grow");
 
-        libraryRightPanel.add(libraryChannelsScrollPane, "newline, grow, push, h 100:100, sx");
+        libraryRightPanel.add(libraryChannelsScrollPane, "newline, grow, h 100:100, sx");
 
         libraryPanel.add(libraryRightPanel, "grow, w 220!");
 
