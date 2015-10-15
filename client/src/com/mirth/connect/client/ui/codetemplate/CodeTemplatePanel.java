@@ -1583,9 +1583,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             public void mouseReleased(MouseEvent evt) {
                 if (evt.getComponent().isEnabled()) {
                     for (int row = 0; row < libraryChannelsTable.getRowCount(); row++) {
-                        ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
+                        ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
                         channelInfo.setEnabled(true);
-                        libraryChannelsTable.getModel().setValueAt(channelInfo, row, LIBRARY_CHANNELS_NAME_COLUMN);
+                        libraryChannelsTable.setValueAt(channelInfo, row, LIBRARY_CHANNELS_NAME_COLUMN);
                     }
                     setSaveEnabled(true);
                 }
@@ -1599,9 +1599,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             public void mouseReleased(MouseEvent evt) {
                 if (evt.getComponent().isEnabled()) {
                     for (int row = 0; row < libraryChannelsTable.getRowCount(); row++) {
-                        ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
+                        ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
                         channelInfo.setEnabled(false);
-                        libraryChannelsTable.getModel().setValueAt(channelInfo, row, LIBRARY_CHANNELS_NAME_COLUMN);
+                        libraryChannelsTable.setValueAt(channelInfo, row, LIBRARY_CHANNELS_NAME_COLUMN);
                     }
                     setSaveEnabled(true);
                 }
@@ -1994,7 +1994,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     }
 
     private void setLibraryChannels(boolean includeNewChannels, Set<String> enabledChannelIds, Set<String> disabledChannelIds) {
-        for (int row = 0; row < libraryChannelsTable.getRowCount(); row++) {
+        for (int row = 0; row < libraryChannelsTable.getModel().getRowCount(); row++) {
             ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
             String channelId = (String) libraryChannelsTable.getModel().getValueAt(row, LIBRARY_CHANNELS_ID_COLUMN);
 
