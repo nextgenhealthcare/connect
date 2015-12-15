@@ -862,7 +862,8 @@ public class DonkeyEngineController implements EngineController {
             DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
             MessageSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
 
-            if (outboundServerPlugin.isBinary() || outboundServerPlugin.getSerializationType() == SerializationType.RAW) {
+            // Serialize template to XML only if serialization type is XML
+            if (outboundServerPlugin.isBinary() || outboundServerPlugin.getSerializationType() != SerializationType.XML) {
                 template = transformer.getOutboundTemplate();
             } else {
                 try {
