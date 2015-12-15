@@ -130,13 +130,13 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
         if (skipHeader && batchProperties.getBatchSkipRecords() > 0) {
             for (int i = 0; i < batchProperties.getBatchSkipRecords(); i++) {
                 do {
-                    ch = in.read();
+                    ch = delimitedReader.getChar(in, null);
                     lookAhead = delimitedReader.peekChars(in, recDelim.length());
                 } while (ch != -1 && !lookAhead.equals(recDelim));
 
                 if (lookAhead.equals(recDelim)) {
                     for (int j = 0; j < recDelim.length(); j++) {
-                        ch = in.read();
+                        ch = delimitedReader.getChar(in, null);
                     }
                 }
             }
