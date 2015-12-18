@@ -67,66 +67,96 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @Path("/{channelId}/_start")
     @ApiOperation("Starts the channel with the specified ID.")
     @MirthOperation(name = "startChannels", display = "Start channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void startChannel(@Param("channelId") @ApiParam(value = "The channel ID to start.", required = true) @PathParam("channelId") String channelId) throws ClientException;
+    public void startChannel(// @formatter:off
+            @Param("channelId") @ApiParam(value = "The channel ID to start.", required = true) @PathParam("channelId") String channelId,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/_start")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ApiOperation("Starts the channels with the specified IDs.")
     @MirthOperation(name = "startChannels", display = "Start channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void startChannels(@Param("channelIds") @ApiParam(value = "The channel IDs to start.", required = true) @FormParam("channelId") Set<String> channelIds) throws ClientException;
+    public void startChannels(// @formatter:off
+            @Param("channelIds") @ApiParam(value = "The channel IDs to start.", required = true) @FormParam("channelId") Set<String> channelIds,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/{channelId}/_stop")
     @ApiOperation("Stops the channel with the specified ID.")
     @MirthOperation(name = "stopChannels", display = "Stop channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void stopChannel(@Param("channelId") @ApiParam(value = "The channel ID to stop.", required = true) @PathParam("channelId") String channelId) throws ClientException;
+    public void stopChannel(// @formatter:off
+            @Param("channelId") @ApiParam(value = "The channel ID to stop.", required = true) @PathParam("channelId") String channelId,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/_stop")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ApiOperation("Stops the channels with the specified IDs.")
     @MirthOperation(name = "stopChannels", display = "Stop channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void stopChannels(@Param("channelIds") @ApiParam(value = "The channel IDs to stop.", required = true) @FormParam("channelId") Set<String> channelIds) throws ClientException;
+    public void stopChannels(// @formatter:off
+            @Param("channelIds") @ApiParam(value = "The channel IDs to stop.", required = true) @FormParam("channelId") Set<String> channelIds,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/{channelId}/_halt")
     @ApiOperation("Halts the channel with the specified ID.")
     @MirthOperation(name = "haltChannels", display = "Halt channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void haltChannel(@Param("channelId") @ApiParam(value = "The channel ID to halt.", required = true) @PathParam("channelId") String channelId) throws ClientException;
+    public void haltChannel(// @formatter:off
+            @Param("channelId") @ApiParam(value = "The channel ID to halt.", required = true) @PathParam("channelId") String channelId,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/_halt")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ApiOperation("Halts the channels with the specified IDs.")
     @MirthOperation(name = "haltChannels", display = "Halt channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void haltChannels(@Param("channelIds") @ApiParam(value = "The channel IDs to halt.", required = true) @FormParam("channelId") Set<String> channelIds) throws ClientException;
+    public void haltChannels(// @formatter:off
+            @Param("channelIds") @ApiParam(value = "The channel IDs to halt.", required = true) @FormParam("channelId") Set<String> channelIds,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/{channelId}/_pause")
     @ApiOperation("Pauses the channel with the specified ID.")
     @MirthOperation(name = "pauseChannels", display = "Pause channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void pauseChannel(@Param("channelId") @ApiParam(value = "The channel ID to pause.", required = true) @PathParam("channelId") String channelId) throws ClientException;
+    public void pauseChannel(// @formatter:off
+            @Param("channelId") @ApiParam(value = "The channel ID to pause.", required = true) @PathParam("channelId") String channelId,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/_pause")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ApiOperation("Pauses the channels with the specified IDs.")
     @MirthOperation(name = "pauseChannels", display = "Pause channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void pauseChannels(@Param("channelIds") @ApiParam(value = "The channel IDs to pause.", required = true) @FormParam("channelId") Set<String> channelIds) throws ClientException;
+    public void pauseChannels(// @formatter:off
+            @Param("channelIds") @ApiParam(value = "The channel IDs to pause.", required = true) @FormParam("channelId") Set<String> channelIds,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/{channelId}/_resume")
     @ApiOperation("Resumes the channel with the specified ID.")
     @MirthOperation(name = "resumeChannels", display = "Resume channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void resumeChannel(@Param("channelId") @ApiParam(value = "The channel ID to resume.", required = true) @PathParam("channelId") String channelId) throws ClientException;
+    public void resumeChannel(// @formatter:off
+            @Param("channelId") @ApiParam(value = "The channel ID to resume.", required = true) @PathParam("channelId") String channelId,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/_resume")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ApiOperation("Resume the channels with the specified IDs.")
     @MirthOperation(name = "resumeChannels", display = "Resume channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void resumeChannels(@Param("channelIds") @ApiParam(value = "The channel IDs to resume.", required = true) @FormParam("channelId") Set<String> channelIds) throws ClientException;
+    public void resumeChannels(// @formatter:off
+            @Param("channelIds") @ApiParam(value = "The channel IDs to resume.", required = true) @FormParam("channelId") Set<String> channelIds,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/{channelId}/connector/{metaDataId}/_start")
@@ -134,14 +164,18 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @MirthOperation(name = "startConnectors", display = "Start connectors", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
     public void startConnector(// @formatter:off
             @Param("channelId") @ApiParam(value = "The channel ID to start a connector for.", required = true) @PathParam("channelId") String channelId,
-            @Param("metaDataId") @ApiParam(value = "The connector metadata ID to start.", required = true) @PathParam("metaDataId") Integer metaDataId) throws ClientException;
+            @Param("metaDataId") @ApiParam(value = "The connector metadata ID to start.", required = true) @PathParam("metaDataId") Integer metaDataId,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
     // @formatter:on
 
     @POST
     @Path("/_startConnectors")
     @ApiOperation("Starts the connectors with the specified channel and metadata IDs.")
     @MirthOperation(name = "startConnectors", display = "Start connectors", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void startConnectors(@Param("connectorInfo") @ApiParam(value = "A map of channel and metadata IDs to start connectors for.", required = true) Map<String, List<Integer>> connectorInfo) throws ClientException;
+    public void startConnectors(// @formatter:off
+            @Param("connectorInfo") @ApiParam(value = "A map of channel and metadata IDs to start connectors for.", required = true) Map<String, List<Integer>> connectorInfo,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/{channelId}/connector/{metaDataId}/_stop")
@@ -149,12 +183,16 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @MirthOperation(name = "stopConnectors", display = "Stop connectors", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
     public void stopConnector(// @formatter:off
             @Param("channelId") @ApiParam(value = "The channel ID to stop a connector for.", required = true) @PathParam("channelId") String channelId,
-            @Param("metaDataId") @ApiParam(value = "The connector metadata ID to stop.", required = true) @PathParam("metaDataId") Integer metaDataId) throws ClientException;
+            @Param("metaDataId") @ApiParam(value = "The connector metadata ID to stop.", required = true) @PathParam("metaDataId") Integer metaDataId,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
     // @formatter:on
 
     @POST
     @Path("/_stopConnectors")
     @ApiOperation("Stops the connectors with the specified channel and metadata IDs.")
     @MirthOperation(name = "stopConnectors", display = "Stop connectors", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
-    public void stopConnectors(@Param("connectorInfo") @ApiParam(value = "A map of channel and metadata IDs to stop connectors for.", required = true) Map<String, List<Integer>> connectorInfo) throws ClientException;
+    public void stopConnectors(// @formatter:off
+            @Param("connectorInfo") @ApiParam(value = "A map of channel and metadata IDs to stop connectors for.", required = true) Map<String, List<Integer>> connectorInfo,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 }

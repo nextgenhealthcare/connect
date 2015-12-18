@@ -16,7 +16,7 @@ import java.util.concurrent.CancellationException;
  * task. Normally this should only be used when only a single task is expected to be dispatched.
  * Otherwise if multiple errors occur only the most recent error will be retrievable.
  */
-public class ErrorTaskHandler extends ChannelTaskHandler {
+public class ErrorTaskHandler extends LoggingTaskHandler {
     private Exception error;
 
     public Exception getError() {
@@ -27,11 +27,15 @@ public class ErrorTaskHandler extends ChannelTaskHandler {
         return error != null;
     }
 
+    @Override
     public void taskErrored(String channelId, Integer metaDataId, Exception e) {
+        super.taskErrored(channelId, metaDataId, e);
         error = e;
     }
 
+    @Override
     public void taskCancelled(String channelId, Integer metaDataId, CancellationException e) {
+        super.taskCancelled(channelId, metaDataId, e);
         error = e;
     }
 }

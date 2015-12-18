@@ -86,133 +86,133 @@ public class ChannelStatusServlet extends MirthServlet implements ChannelStatusS
 
     @Override
     @CheckAuthorizedChannelId
-    public void startChannel(String channelId) {
+    public void startChannel(String channelId, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.startChannels(Collections.singleton(channelId), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
-    public void startChannels(Set<String> channelIds) {
+    public void startChannels(Set<String> channelIds, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.startChannels(redactChannelIds(channelIds), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
     @CheckAuthorizedChannelId
-    public void stopChannel(String channelId) {
+    public void stopChannel(String channelId, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.stopChannels(Collections.singleton(channelId), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
-    public void stopChannels(Set<String> channelIds) {
+    public void stopChannels(Set<String> channelIds, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.stopChannels(redactChannelIds(channelIds), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
     @CheckAuthorizedChannelId
-    public void haltChannel(String channelId) {
+    public void haltChannel(String channelId, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.haltChannels(Collections.singleton(channelId), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
-    public void haltChannels(Set<String> channelIds) {
+    public void haltChannels(Set<String> channelIds, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.haltChannels(redactChannelIds(channelIds), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
     @CheckAuthorizedChannelId
-    public void pauseChannel(String channelId) {
+    public void pauseChannel(String channelId, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.pauseChannels(Collections.singleton(channelId), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
-    public void pauseChannels(Set<String> channelIds) {
+    public void pauseChannels(Set<String> channelIds, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.pauseChannels(redactChannelIds(channelIds), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
     @CheckAuthorizedChannelId
-    public void resumeChannel(String channelId) {
+    public void resumeChannel(String channelId, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.resumeChannels(Collections.singleton(channelId), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
-    public void resumeChannels(Set<String> channelIds) {
+    public void resumeChannels(Set<String> channelIds, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.resumeChannels(redactChannelIds(channelIds), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
     @CheckAuthorizedChannelId
-    public void startConnector(String channelId, Integer metaDataId) {
+    public void startConnector(String channelId, Integer metaDataId, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.startConnector(Collections.singletonMap(channelId, Collections.singletonList(metaDataId)), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
-    public void startConnectors(Map<String, List<Integer>> connectorInfo) {
+    public void startConnectors(Map<String, List<Integer>> connectorInfo, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.startConnector(redactConnectorInfo(connectorInfo), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
     @CheckAuthorizedChannelId
-    public void stopConnector(String channelId, Integer metaDataId) {
+    public void stopConnector(String channelId, Integer metaDataId, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.stopConnector(Collections.singletonMap(channelId, Collections.singletonList(metaDataId)), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
-    public void stopConnectors(Map<String, List<Integer>> connectorInfo) {
+    public void stopConnectors(Map<String, List<Integer>> connectorInfo, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.stopConnector(redactConnectorInfo(connectorInfo), handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }

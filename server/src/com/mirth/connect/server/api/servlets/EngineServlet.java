@@ -38,57 +38,57 @@ public class EngineServlet extends MirthServlet implements EngineServletInterfac
     }
 
     @Override
-    public void redeployAllChannels() {
+    public void redeployAllChannels(boolean returnErrors) {
         if (userHasChannelRestrictions) {
             throw new MirthApiException(Status.FORBIDDEN);
         }
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.redeployAllChannels(context, handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
     @CheckAuthorizedChannelId
-    public void deployChannel(String channelId) {
+    public void deployChannel(String channelId, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.deployChannels(Collections.singleton(channelId), context, handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
-    public void deployChannels(Set<String> channelIds) {
+    public void deployChannels(Set<String> channelIds, boolean returnErrors) {
         if (CollectionUtils.isEmpty(channelIds)) {
             channelIds = channelController.getChannelIds();
         }
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.deployChannels(redactChannelIds(channelIds), context, handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
     @CheckAuthorizedChannelId
-    public void undeployChannel(String channelId) {
+    public void undeployChannel(String channelId, boolean returnErrors) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.undeployChannels(Collections.singleton(channelId), context, handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
-    public void undeployChannels(Set<String> channelIds) {
+    public void undeployChannels(Set<String> channelIds, boolean returnErrors) {
         if (CollectionUtils.isEmpty(channelIds)) {
             channelIds = engineController.getDeployedIds();
         }
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.undeployChannels(redactChannelIds(channelIds), context, handler);
-        if (handler.isErrored()) {
+        if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }

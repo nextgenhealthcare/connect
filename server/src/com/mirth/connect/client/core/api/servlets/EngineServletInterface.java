@@ -40,29 +40,41 @@ public interface EngineServletInterface extends BaseServletInterface {
     @Path("/_redeployAll")
     @ApiOperation("Redeploys all channels.")
     @MirthOperation(name = "redeployAllChannels", display = "Redeploy all channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
-    public void redeployAllChannels() throws ClientException;
+    public void redeployAllChannels(@Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
 
     @POST
     @Path("/{channelId}/_deploy")
     @ApiOperation("Deploys (or redeploys) a single channel.")
     @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
-    public void deployChannel(@Param("channelId") @ApiParam(value = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId) throws ClientException;
+    public void deployChannel(// @formatter:off
+            @Param("channelId") @ApiParam(value = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/_deploy")
     @ApiOperation("Deploys (or redeploys) selected channels.")
     @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
-    public void deployChannels(@Param("channelIds") @ApiParam(value = "The ID of the channel(s) to deploy. If absent, all channels will be deployed.") @QueryParam("channelId") Set<String> channelIds) throws ClientException;
+    public void deployChannels(// @formatter:off
+            @Param("channelIds") @ApiParam(value = "The ID of the channel(s) to deploy. If absent, all channels will be deployed.") @QueryParam("channelId") Set<String> channelIds,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/{channelId}/_undeploy")
     @ApiOperation("Undeploys a single channel.")
     @MirthOperation(name = "undeployChannels", display = "Undeploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
-    public void undeployChannel(@Param("channelId") @ApiParam(value = "The ID of the channel to undeploy.", required = true) @PathParam("channelId") String channelId) throws ClientException;
+    public void undeployChannel(// @formatter:off
+            @Param("channelId") @ApiParam(value = "The ID of the channel to undeploy.", required = true) @PathParam("channelId") String channelId,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/_undeploy")
     @ApiOperation("Undeploys selected channels.")
     @MirthOperation(name = "undeployChannels", display = "Undeploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
-    public void undeployChannels(@Param("channelIds") @ApiParam(value = "The ID of the channel(s) to undeploy. If absent, all channels will be undeployed.") @QueryParam("channelId") Set<String> channelIds) throws ClientException;
+    public void undeployChannels(// @formatter:off
+            @Param("channelIds") @ApiParam(value = "The ID of the channel(s) to undeploy. If absent, all channels will be undeployed.") @QueryParam("channelId") Set<String> channelIds,
+            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    // @formatter:on
 }

@@ -262,7 +262,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
             }
         });
     }
-    
+
     public ServerConnection getServerConnection() {
         return serverConnection;
     }
@@ -274,7 +274,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
             client.close();
         }
     }
-    
+
     public boolean isClosed() {
         return closed.get();
     }
@@ -962,7 +962,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public DashboardChannelInfo getDashboardChannelInfo(int fetchSize) throws ClientException {
         return getServlet(ChannelStatusServletInterface.class).getDashboardChannelInfo(fetchSize);
     }
-    
+
     /**
      * Returns the channel status list for specific channel IDs.
      * 
@@ -987,9 +987,27 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * 
      * @see ChannelStatusServletInterface#startChannel
      */
-    @Override
     public void startChannel(String channelId) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).startChannel(channelId);
+        getServlet(ChannelStatusServletInterface.class).startChannel(channelId, false);
+    }
+
+    /**
+     * Starts the channel with the specified ID.
+     * 
+     * @see ChannelStatusServletInterface#startChannel
+     */
+    @Override
+    public void startChannel(String channelId, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startChannel(channelId, returnErrors);
+    }
+
+    /**
+     * Starts the channels with the specified IDs.
+     * 
+     * @see ChannelStatusServletInterface#startChannels
+     */
+    public void startChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startChannels(channelIds, false);
     }
 
     /**
@@ -998,8 +1016,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#startChannels
      */
     @Override
-    public void startChannels(Set<String> channelIds) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).startChannels(channelIds);
+    public void startChannels(Set<String> channelIds, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startChannels(channelIds, returnErrors);
+    }
+
+    /**
+     * Stops the channel with the specified ID.
+     * 
+     * @see ChannelStatusServletInterface#stopChannel
+     */
+    public void stopChannel(String channelId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopChannel(channelId, false);
     }
 
     /**
@@ -1008,8 +1035,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#stopChannel
      */
     @Override
-    public void stopChannel(String channelId) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).stopChannel(channelId);
+    public void stopChannel(String channelId, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopChannel(channelId, returnErrors);
+    }
+
+    /**
+     * Stops the channels with the specified IDs.
+     * 
+     * @see ChannelStatusServletInterface#stopChannels
+     */
+    public void stopChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopChannels(channelIds, false);
     }
 
     /**
@@ -1018,8 +1054,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#stopChannels
      */
     @Override
-    public void stopChannels(Set<String> channelIds) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).stopChannels(channelIds);
+    public void stopChannels(Set<String> channelIds, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopChannels(channelIds, returnErrors);
+    }
+
+    /**
+     * Halts the channel with the specified ID.
+     * 
+     * @see ChannelStatusServletInterface#haltChannel
+     */
+    public void haltChannel(String channelId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).haltChannel(channelId, false);
     }
 
     /**
@@ -1028,8 +1073,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#haltChannel
      */
     @Override
-    public void haltChannel(String channelId) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).haltChannel(channelId);
+    public void haltChannel(String channelId, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).haltChannel(channelId, returnErrors);
+    }
+
+    /**
+     * Halts the channels with the specified IDs.
+     * 
+     * @see ChannelStatusServletInterface#haltChannels
+     */
+    public void haltChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).haltChannels(channelIds, false);
     }
 
     /**
@@ -1038,8 +1092,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#haltChannels
      */
     @Override
-    public void haltChannels(Set<String> channelIds) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).haltChannels(channelIds);
+    public void haltChannels(Set<String> channelIds, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).haltChannels(channelIds, returnErrors);
+    }
+
+    /**
+     * Pauses the channel with the specified ID.
+     * 
+     * @see ChannelStatusServletInterface#pauseChannel
+     */
+    public void pauseChannel(String channelId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).pauseChannel(channelId, false);
     }
 
     /**
@@ -1048,8 +1111,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#pauseChannel
      */
     @Override
-    public void pauseChannel(String channelId) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).pauseChannel(channelId);
+    public void pauseChannel(String channelId, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).pauseChannel(channelId, returnErrors);
+    }
+
+    /**
+     * Pauses the channels with the specified IDs.
+     * 
+     * @see ChannelStatusServletInterface#pauseChannels
+     */
+    public void pauseChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).pauseChannels(channelIds, false);
     }
 
     /**
@@ -1058,8 +1130,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#pauseChannels
      */
     @Override
-    public void pauseChannels(Set<String> channelIds) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).pauseChannels(channelIds);
+    public void pauseChannels(Set<String> channelIds, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).pauseChannels(channelIds, returnErrors);
+    }
+
+    /**
+     * Resumes the channel with the specified ID.
+     * 
+     * @see ChannelStatusServletInterface#resumeChannel
+     */
+    public void resumeChannel(String channelId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).resumeChannel(channelId, false);
     }
 
     /**
@@ -1068,8 +1149,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#resumeChannel
      */
     @Override
-    public void resumeChannel(String channelId) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).resumeChannel(channelId);
+    public void resumeChannel(String channelId, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).resumeChannel(channelId, returnErrors);
+    }
+
+    /**
+     * Resumes the channels with the specified IDs.
+     * 
+     * @see ChannelStatusServletInterface#resumeChannels
+     */
+    public void resumeChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).resumeChannels(channelIds, false);
     }
 
     /**
@@ -1078,8 +1168,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#resumeChannels
      */
     @Override
-    public void resumeChannels(Set<String> channelIds) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).resumeChannels(channelIds);
+    public void resumeChannels(Set<String> channelIds, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).resumeChannels(channelIds, returnErrors);
+    }
+
+    /**
+     * Starts the connector with the specified channel and metadata ID.
+     * 
+     * @see ChannelStatusServletInterface#startConnector
+     */
+    public void startConnector(String channelId, Integer metaDataId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startConnector(channelId, metaDataId, false);
     }
 
     /**
@@ -1088,8 +1187,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#startConnector
      */
     @Override
-    public void startConnector(String channelId, Integer metaDataId) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).startConnector(channelId, metaDataId);
+    public void startConnector(String channelId, Integer metaDataId, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startConnector(channelId, metaDataId, returnErrors);
+    }
+
+    /**
+     * Starts the connectors with the specified channel and metadata IDs.
+     * 
+     * @see ChannelStatusServletInterface#startConnectors
+     */
+    public void startConnectors(Map<String, List<Integer>> connectorInfo) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startConnectors(connectorInfo, false);
     }
 
     /**
@@ -1098,8 +1206,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#startConnectors
      */
     @Override
-    public void startConnectors(Map<String, List<Integer>> connectorInfo) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).startConnectors(connectorInfo);
+    public void startConnectors(Map<String, List<Integer>> connectorInfo, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startConnectors(connectorInfo, returnErrors);
+    }
+
+    /**
+     * Stops the connector with the specified channel and metadata ID.
+     * 
+     * @see ChannelStatusServletInterface#stopConnector
+     */
+    public void stopConnector(String channelId, Integer metaDataId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopConnector(channelId, metaDataId, false);
     }
 
     /**
@@ -1108,8 +1225,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#stopConnector
      */
     @Override
-    public void stopConnector(String channelId, Integer metaDataId) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).stopConnector(channelId, metaDataId);
+    public void stopConnector(String channelId, Integer metaDataId, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopConnector(channelId, metaDataId, returnErrors);
+    }
+
+    /**
+     * Stops the connectors with the specified channel and metadata IDs.
+     * 
+     * @see ChannelStatusServletInterface#stopConnectors
+     */
+    public void stopConnectors(Map<String, List<Integer>> connectorInfo) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopConnectors(connectorInfo, false);
     }
 
     /**
@@ -1118,8 +1244,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#stopConnectors
      */
     @Override
-    public void stopConnectors(Map<String, List<Integer>> connectorInfo) throws ClientException {
-        getServlet(ChannelStatusServletInterface.class).stopConnectors(connectorInfo);
+    public void stopConnectors(Map<String, List<Integer>> connectorInfo, boolean returnErrors) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopConnectors(connectorInfo, returnErrors);
     }
 
     /******************************
@@ -1179,9 +1305,27 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * 
      * @see EngineServletInterface#redeployAllChannels
      */
-    @Override
     public void redeployAllChannels() throws ClientException {
-        getServlet(EngineServletInterface.class).redeployAllChannels();
+        getServlet(EngineServletInterface.class).redeployAllChannels(false);
+    }
+
+    /**
+     * Redeploys all channels.
+     * 
+     * @see EngineServletInterface#redeployAllChannels
+     */
+    @Override
+    public void redeployAllChannels(boolean returnErrors) throws ClientException {
+        getServlet(EngineServletInterface.class).redeployAllChannels(returnErrors);
+    }
+
+    /**
+     * Deploys (or redeploys) a single channel.
+     * 
+     * @see EngineServletInterface#deployChannel
+     */
+    public void deployChannel(String channelId) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannel(channelId, false);
     }
 
     /**
@@ -1190,8 +1334,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannel
      */
     @Override
-    public void deployChannel(String channelId) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannel(channelId);
+    public void deployChannel(String channelId, boolean returnErrors) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannel(channelId, returnErrors);
+    }
+
+    /**
+     * Deploys (or redeploys) selected channels.
+     * 
+     * @see EngineServletInterface#deployChannels
+     */
+    public void deployChannels(Set<String> channelIds) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannels(channelIds, false);
     }
 
     /**
@@ -1200,8 +1353,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannels
      */
     @Override
-    public void deployChannels(Set<String> channelIds) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannels(channelIds);
+    public void deployChannels(Set<String> channelIds, boolean returnErrors) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannels(channelIds, returnErrors);
+    }
+
+    /**
+     * Undeploys a single channel.
+     * 
+     * @see EngineServletInterface#undeployChannel
+     */
+    public void undeployChannel(String channelId) throws ClientException {
+        getServlet(EngineServletInterface.class).undeployChannel(channelId, false);
     }
 
     /**
@@ -1210,8 +1372,17 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#undeployChannel
      */
     @Override
-    public void undeployChannel(String channelId) throws ClientException {
-        getServlet(EngineServletInterface.class).undeployChannel(channelId);
+    public void undeployChannel(String channelId, boolean returnErrors) throws ClientException {
+        getServlet(EngineServletInterface.class).undeployChannel(channelId, returnErrors);
+    }
+
+    /**
+     * Undeploys selected channels.
+     * 
+     * @see EngineServletInterface#undeployChannels
+     */
+    public void undeployChannels(Set<String> channelIds) throws ClientException {
+        getServlet(EngineServletInterface.class).undeployChannels(channelIds, false);
     }
 
     /**
@@ -1220,8 +1391,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#undeployChannels
      */
     @Override
-    public void undeployChannels(Set<String> channelIds) throws ClientException {
-        getServlet(EngineServletInterface.class).undeployChannels(channelIds);
+    public void undeployChannels(Set<String> channelIds, boolean returnErrors) throws ClientException {
+        getServlet(EngineServletInterface.class).undeployChannels(channelIds, returnErrors);
     }
 
     /*******************
