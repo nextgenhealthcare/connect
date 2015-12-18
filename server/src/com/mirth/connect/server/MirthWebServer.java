@@ -72,8 +72,6 @@ public class MirthWebServer extends Server {
 
     private static final String CONNECTOR = "connector";
     private static final String CONNECTOR_SSL = "sslconnector";
-    private static final String CONNECTOR_LOCAL = "localonly";
-    private static final String CONNECTOR_LOCAL_SSL = "localonlyssl";
 
     private Logger logger = Logger.getLogger(getClass());
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -90,7 +88,6 @@ public class MirthWebServer extends Server {
 
         String baseAPI = "/api";
         boolean apiAllowHTTP = Boolean.parseBoolean(mirthProperties.getString("server.api.allowhttp", "false"));
-        boolean bypasswordEnabled = configurationController.isBypasswordEnabled();
 
         // add HTTP listener
         connector = new SelectChannelConnector();
@@ -98,31 +95,8 @@ public class MirthWebServer extends Server {
         connector.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
         connector.setPort(mirthProperties.getInt("http.port"));
 
-        KeyStore keyStore = KeyStore.getInstance("JCEKS");
-        FileInputStream is = new FileInputStream(new File(mirthProperties.getString("keystore.path")));
-        try {
-            keyStore.load(is, mirthProperties.getString("keystore.storepass").toCharArray());
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
-
         // add HTTPS listener
-        sslConnector = createSSLConnector(CONNECTOR_SSL, mirthProperties.getString("https.host", "0.0.0.0"), keyStore, mirthProperties);
-
-        SelectChannelConnector localOnlyConnector = null;
-        SelectChannelConnector localOnlySSLConnector = null;
-        if (bypasswordEnabled) {
-            // Add HTTPS localhost-only listener
-            localOnlySSLConnector = createSSLConnector(CONNECTOR_LOCAL_SSL, "localhost", keyStore, mirthProperties);
-
-            if (apiAllowHTTP) {
-                // Add HTTP localhost-only listener
-                localOnlyConnector = new SelectChannelConnector();
-                localOnlyConnector.setName(CONNECTOR_LOCAL);
-                localOnlyConnector.setHost("localhost");
-                localOnlyConnector.setPort(mirthProperties.getInt("http.port"));
-            }
-        }
+        sslConnector = createSSLConnector(CONNECTOR_SSL, mirthProperties);
 
         handlers = new HandlerList();
         String contextPath = mirthProperties.getString("http.contextpath", "");
@@ -228,11 +202,11 @@ public class MirthWebServer extends Server {
         // Add Jersey API / swagger servlets for each specific version
         Version version = Version.getApiEarliest();
         while (version != null) {
-            addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, bypasswordEnabled, version);
+            addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, version);
             version = version.getNextVersion();
         }
         // Add servlets for the main (default) API endpoint
-        addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, bypasswordEnabled, null);
+        addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, null);
 
         // add the default handler for misc requests (favicon, etc.)
         DefaultHandler defaultHandler = new DefaultHandler();
@@ -240,17 +214,7 @@ public class MirthWebServer extends Server {
         handlers.addHandler(defaultHandler);
 
         setHandler(handlers);
-
-        if (bypasswordEnabled) {
-            if (apiAllowHTTP) {
-                setConnectors(new Connector[] { connector, sslConnector, localOnlyConnector,
-                        localOnlySSLConnector });
-            } else {
-                setConnectors(new Connector[] { connector, sslConnector, localOnlySSLConnector });
-            }
-        } else {
-            setConnectors(new Connector[] { connector, sslConnector });
-        }
+        setConnectors(new Connector[] { connector, sslConnector });
     }
 
     public void startup() throws Exception {
@@ -271,7 +235,15 @@ public class MirthWebServer extends Server {
         logger.debug("started jetty web server on ports: " + connector.getPort() + ", " + sslConnector.getPort());
     }
 
-    private SslSelectChannelConnector createSSLConnector(String name, String host, KeyStore keyStore, PropertiesConfiguration mirthProperties) throws Exception {
+    private SslSelectChannelConnector createSSLConnector(String name, PropertiesConfiguration mirthProperties) throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        FileInputStream is = new FileInputStream(new File(mirthProperties.getString("keystore.path")));
+        try {
+            keyStore.load(is, mirthProperties.getString("keystore.storepass").toCharArray());
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+
         SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
         /*
          * http://www.mirthcorp.com/community/issues/browse/MIRTH-3070 Keep SSL connections alive
@@ -287,7 +259,7 @@ public class MirthWebServer extends Server {
         // Then close connections after 200 seconds, which is the default MaxIdleTime value. This should affect existing connections as well.
         sslConnector.setLowResourcesMaxIdleTime(200000);
         sslConnector.setName(name);
-        sslConnector.setHost(host);
+        sslConnector.setHost(mirthProperties.getString("https.host", "0.0.0.0"));
         sslConnector.setPort(mirthProperties.getInt("https.port"));
 
         SslContextFactory contextFactory = sslConnector.getSslContextFactory();
@@ -306,14 +278,14 @@ public class MirthWebServer extends Server {
         return sslConnector;
     }
 
-    private void addApiServlets(HandlerList handlers, String contextPath, String baseAPI, boolean apiAllowHTTP, boolean bypasswordEnabled, Version version) {
+    private void addApiServlets(HandlerList handlers, String contextPath, String baseAPI, boolean apiAllowHTTP, Version version) {
         // Create the servlet handler for the API
         ServletContextHandler apiServletContextHandler = new ServletContextHandler();
         apiServletContextHandler.setMaxFormContentSize(0);
         apiServletContextHandler.setSessionHandler(new SessionHandler());
         apiServletContextHandler.setContextPath(contextPath + baseAPI);
         apiServletContextHandler.addFilter(new FilterHolder(new ApiOriginFilter()), "/*", 1);
-        setConnectorNames(apiServletContextHandler, apiAllowHTTP, bypasswordEnabled);
+        setConnectorNames(apiServletContextHandler, apiAllowHTTP);
 
         String apiPath = "";
         Version apiVersion = version;
@@ -337,31 +309,25 @@ public class MirthWebServer extends Server {
         apiServletContextHandler.addServlet(swaggerVersionedServlet, apiPath);
 
         // Add Swagger UI web page servlet
-        handlers.addHandler(getSwaggerContextHandler(contextPath, baseAPI, apiAllowHTTP, bypasswordEnabled, version));
+        handlers.addHandler(getSwaggerContextHandler(contextPath, baseAPI, apiAllowHTTP, version));
         // Add API handler
         handlers.addHandler(apiServletContextHandler);
     }
 
-    private ContextHandler getSwaggerContextHandler(String contextPath, String baseAPI, boolean apiAllowHTTP, boolean bypasswordEnabled, Version version) {
+    private ContextHandler getSwaggerContextHandler(String contextPath, String baseAPI, boolean apiAllowHTTP, Version version) {
         ContextHandler swaggerContextHandler = new ContextHandler();
         swaggerContextHandler.setContextPath(contextPath + baseAPI + (version != null ? "/" + version.toString() : ""));
         swaggerContextHandler.setResourceBase(ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "public_api_html");
         swaggerContextHandler.setHandler(new ResourceHandler());
-        setConnectorNames(swaggerContextHandler, apiAllowHTTP, bypasswordEnabled);
+        setConnectorNames(swaggerContextHandler, apiAllowHTTP);
         return swaggerContextHandler;
     }
 
-    private void setConnectorNames(ContextHandler contextHandler, boolean apiAllowHTTP, boolean bypasswordEnabled) {
+    private void setConnectorNames(ContextHandler contextHandler, boolean apiAllowHTTP) {
         List<String> connectorNames = new ArrayList<String>();
         connectorNames.add(CONNECTOR_SSL);
         if (apiAllowHTTP) {
             connectorNames.add(CONNECTOR);
-        }
-        if (bypasswordEnabled) {
-            connectorNames.add(CONNECTOR_LOCAL_SSL);
-            if (apiAllowHTTP) {
-                connectorNames.add(CONNECTOR_LOCAL);
-            }
         }
         contextHandler.setConnectorNames(connectorNames.toArray(new String[connectorNames.size()]));
     }
