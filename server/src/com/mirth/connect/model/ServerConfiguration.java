@@ -290,4 +290,7 @@ public class ServerConfiguration implements Serializable, Migratable {
             }
         }
     }
+
+    @Override
+    public void migrate3_4_0(DonkeyElement element) {}
 }

@@ -41,7 +41,9 @@ public enum Version {
     V3_2_0("3.2.0"),
     V3_2_1("3.2.1"),
     V3_2_2("3.2.2"),
-    V3_3_0("3.3.0");
+    V3_3_0("3.3.0"),
+    V3_3_1("3.3.1"),
+    V3_4_0("3.4.0");
     
     // @formatter:on
 
@@ -80,7 +82,7 @@ public enum Version {
     }
 
     public static Version getApiEarliest() {
-        return V3_3_0;
+        return V3_4_0;
     }
 
     public static Version getLatest() {

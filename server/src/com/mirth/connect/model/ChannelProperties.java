@@ -207,6 +207,9 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
     }
 
     @Override
+    public void migrate3_4_0(DonkeyElement element) {}
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("clearGlobalChannelMap", clearGlobalChannelMap);
