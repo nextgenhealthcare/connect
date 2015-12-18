@@ -156,7 +156,8 @@ public class MessageExportDialog extends MirthDialog {
                     messageWriter.close();
                 }
             } else {
-                exportCount = parent.mirthClient.exportMessagesServer(channelId, messageFilter, pageSize, messageExportPanel.isIncludeAttachments(), writerOptions);
+                writerOptions.setIncludeAttachments(messageExportPanel.isIncludeAttachments());
+                exportCount = parent.mirthClient.exportMessagesServer(channelId, messageFilter, pageSize, writerOptions);
             }
 
             setVisible(false);

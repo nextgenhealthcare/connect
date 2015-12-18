@@ -13,4 +13,7 @@
 	</clientClasses>
 	<library type="CLIENT" path="globalmapviewer-client.jar" />
 	<library type="SERVER" path="globalmapviewer-server.jar" />
+	<library type="SHARED" path="globalmapviewer-shared.jar" />
+	<apiProvider type="SERVLET_INTERFACE" name="com.mirth.connect.plugins.globalmapviewer.GlobalMapServletInterface"/>
+	<apiProvider type="SERVER_CLASS" name="com.mirth.connect.plugins.globalmapviewer.GlobalMapServlet"/>
 </pluginMetaData>

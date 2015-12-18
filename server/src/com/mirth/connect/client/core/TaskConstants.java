@@ -27,6 +27,8 @@ public class TaskConstants {
     public static final String SETTINGS_KEY_PREFIX = "settings_";
     public static final String SETTINGS_SERVER_KEY = SETTINGS_KEY_PREFIX + "Server";
     public static final String SETTINGS_CONFIGURATION_MAP_KEY = SETTINGS_KEY_PREFIX + "Configuration Map";
+    public static final String SETTINGS_DATABASE_TASKS_KEY = SETTINGS_KEY_PREFIX + "Database Tasks";
+    public static final String SETTINGS_RESOURCES_KEY = SETTINGS_KEY_PREFIX + "Resources";
 
     // View Tasks
     public static final String VIEW_DASHBOARD = "doShowDashboard";
@@ -50,9 +52,14 @@ public class TaskConstants {
     public static final String SETTINGS_CONFIGURATION_MAP_IMPORT = "doImportMap";
     public static final String SETTINGS_CONFIGURATION_MAP_EXPORT = "doExportMap";
 
-    // Migration Tasks
+    // Database Tasks
     public static final String SETTINGS_RUN_DATABASE_TASK = "doRunDatabaseTask";
     public static final String SETTINGS_CANCEL_DATABASE_TASK = "doCancelDatabaseTask";
+
+    // Resources
+    public static final String SETTINGS_ADD_RESOURCE = "doAddResource";
+    public static final String SETTINGS_REMOVE_RESOURCE = "doRemoveResource";
+    public static final String SETTINGS_RELOAD_RESOURCE = "doReloadResource";
 
     // Alert Tasks
     public static final String ALERT_REFRESH = "doRefreshAlerts";
@@ -173,6 +180,7 @@ public class TaskConstants {
     // Other Tasks
     public static final String OTHER_NOTIFICATIONS = "goToNotifications";
     public static final String OTHER_VIEW_USER_API = "goToUserAPI";
+    public static final String OTHER_VIEW_CLIENT_API = "goToClientAPI";
     public static final String OTHER_HELP = "doHelp";
     public static final String OTHER_ABOUT = "goToAbout";
     public static final String OTHER_VISIT_MIRTH = "goToMirth";

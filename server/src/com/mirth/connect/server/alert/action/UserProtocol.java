@@ -10,6 +10,7 @@
 package com.mirth.connect.server.alert.action;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,8 +20,8 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.User;
-import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.UserController;
 
@@ -38,7 +39,7 @@ public class UserProtocol implements Protocol {
         Map<String, String> options = new HashMap<String, String>();
 
         try {
-            for (User user : UserController.getInstance().getUser(null)) {
+            for (User user : UserController.getInstance().getAllUsers()) {
                 options.put(user.getId().toString(), user.getUsername());
             }
         } catch (ControllerException e) {
@@ -54,11 +55,9 @@ public class UserProtocol implements Protocol {
             List<User> users = null;
 
             if (recipients.size() == 1) {
-                User user = new User();
-                user.setId(Integer.parseInt(recipients.get(0)));
-                users = userController.getUser(user);
+                users = Collections.singletonList(userController.getUser(Integer.parseInt(recipients.get(0)), null));
             } else {
-                users = userController.getUser(null);
+                users = userController.getAllUsers();
             }
 
             List<String> emailAddresses = new ArrayList<>();

@@ -176,7 +176,7 @@ public class LoadedExtensions {
                         }
                     }
                 } catch (Exception e) {
-                    PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, "Could not load plugin class: " + clazzName);
                 }
             }
         }

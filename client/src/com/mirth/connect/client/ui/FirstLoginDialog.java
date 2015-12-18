@@ -194,43 +194,42 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
     }// </editor-fold>//GEN-END:initComponents
 
     /**
-     * An action for when the finish button is pressed. Checks and saves all of
-     * the information.
+     * An action for when the finish button is pressed. Checks and saves all of the information.
      */
-private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
-    finishButton.requestFocus();
-    String validateUserMessage = userEditPanel.validateUser();
-    if (validateUserMessage != null) {
-        parent.alertWarning(this, validateUserMessage);
-    } else {
-        User user = userEditPanel.getUser();
-        boolean success = false;
-        
-        success = parent.updateCurrentUser(this, user, userEditPanel.getPassword());
-        
-        if (!success) {
-            return;
+    private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
+        finishButton.requestFocus();
+        String validateUserMessage = userEditPanel.validateUser();
+        if (validateUserMessage != null) {
+            parent.alertWarning(this, validateUserMessage);
+        } else {
+            User user = userEditPanel.getUser();
+            boolean success = false;
+
+            success = parent.updateCurrentUser(this, user, userEditPanel.getPassword());
+
+            if (!success) {
+                return;
+            }
+
+            if (registerCheckBox.isSelected()) {
+                parent.registerUser(user);
+            }
+
+            try {
+                User currentUser = parent.getCurrentUser(parent);
+                parent.mirthClient.setUserPreference(currentUser.getId(), "firstlogin", "false");
+            } catch (ClientException e) {
+                parent.alertThrowable(this, e);
+            }
+
+            this.dispose();
         }
+    }//GEN-LAST:event_finishButtonActionPerformed
 
-        if (registerCheckBox.isSelected()) {
-            parent.registerUser(user);
-        }
-
-        try {
-        	User currentUser = parent.getCurrentUser(parent);
-            parent.mirthClient.setUserPreference(currentUser, "firstlogin", "false");
-        } catch (ClientException e) {
-            parent.alertThrowable(this, e);
-        }
-
-        this.dispose();
-    }
-}//GEN-LAST:event_finishButtonActionPerformed
-
-private void registerCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerCheckBoxActionPerformed
-    boolean selected = registerCheckBox.isSelected();
-    userEditPanel.setRequiredFields(selected, selected, selected, selected, true, selected);
-}//GEN-LAST:event_registerCheckBoxActionPerformed
+    private void registerCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerCheckBoxActionPerformed
+        boolean selected = registerCheckBox.isSelected();
+        userEditPanel.setRequiredFields(selected, selected, selected, selected, true, selected);
+    }//GEN-LAST:event_registerCheckBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel channelOverview;

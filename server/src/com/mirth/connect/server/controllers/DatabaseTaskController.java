@@ -17,7 +17,7 @@ public interface DatabaseTaskController {
 
     public Map<String, DatabaseTask> getDatabaseTasks() throws Exception;
 
-    public String runDatabaseTask(DatabaseTask task) throws Exception;
+    public String runDatabaseTask(String taskId) throws Exception;
 
-    public void cancelDatabaseTask(DatabaseTask task) throws Exception;
+    public void cancelDatabaseTask(String taskId) throws Exception;
 }

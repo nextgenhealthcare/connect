@@ -147,7 +147,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
                 public Void doInBackground() {
                     try {
-                        checkForNotifications = getFrame().mirthClient.getUserPreference(currentUser, "checkForNotifications");
+                        checkForNotifications = getFrame().mirthClient.getUserPreference(currentUser.getId(), "checkForNotifications");
                     } catch (ClientException e) {
                         getFrame().alertThrowable(getFrame(), e);
                     }
@@ -231,7 +231,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
                 try {
-                    getFrame().mirthClient.setUserPreference(currentUser, "checkForNotifications", Boolean.toString(checkForNotificationsYesRadio.isSelected()));
+                    getFrame().mirthClient.setUserPreference(currentUser.getId(), "checkForNotifications", Boolean.toString(checkForNotificationsYesRadio.isSelected()));
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }

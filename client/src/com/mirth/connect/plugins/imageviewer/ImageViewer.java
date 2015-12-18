@@ -48,13 +48,13 @@ public class ImageViewer extends AttachmentViewer {
         return false;
     }
 
-    public void viewAttachments(String channelId, String attachmentId, Long messageId) {
+    public void viewAttachments(String channelId, Long messageId, String attachmentId) {
 
         JFrame frame = new JFrame("Image Viewer");
 
         try {
 
-            Attachment attachment = parent.mirthClient.getAttachment(channelId, attachmentId, messageId);
+            Attachment attachment = parent.mirthClient.getAttachment(channelId, messageId, attachmentId);
             byte[] rawData = attachment.getContent();
             ByteArrayInputStream bis = new ByteArrayInputStream(rawData);
 

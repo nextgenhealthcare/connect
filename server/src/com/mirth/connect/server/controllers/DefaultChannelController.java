@@ -24,6 +24,8 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
@@ -243,6 +245,54 @@ public class DefaultChannelController extends ChannelController {
             if (!(cachedChannel instanceof InvalidChannel) && cachedChannel.isEnabled() != enabled) {
                 Channel channel = (Channel) SerializationUtils.clone(cachedChannel);
                 channel.setEnabled(enabled);
+                channel.setRevision(channel.getRevision() + 1);
+
+                try {
+                    Map<String, Object> params = new HashMap<String, Object>();
+                    params.put("id", channel.getId());
+                    params.put("name", channel.getName());
+                    params.put("revision", channel.getRevision());
+                    params.put("channel", channel);
+
+                    // Update the new channel in the database
+                    logger.debug("updating channel");
+                    SqlConfig.getSqlSessionManager().update("Channel.updateChannel", params);
+
+                    // invoke the channel plugins
+                    for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                        channelPlugin.save(channel, context);
+                    }
+                } catch (Exception e) {
+                    if (firstCause == null) {
+                        firstCause = new ControllerException(e);
+                    }
+                }
+            }
+        }
+
+        if (firstCause != null) {
+            throw firstCause;
+        }
+    }
+    
+    @Override
+    public synchronized void setChannelInitialState(Set<String> channelIds, ServerEventContext context, DeployedState initialState) throws ControllerException {
+        /*
+         * Methods that update the channel must be synchronized to ensure the channel cache and
+         * database never contain different versions of a channel.
+         */
+        if (initialState != DeployedState.STARTED && initialState != DeployedState.PAUSED && initialState != DeployedState.STOPPED) {
+            throw new ControllerException("Cannot set initial state to " + initialState);
+        }
+        
+        ControllerException firstCause = null;
+        List<Channel> cachedChannels = getChannels(channelIds);
+
+        for (Channel cachedChannel : cachedChannels) {
+            // If the channel is not invalid, and its enabled flag isn't already the same as what was passed in
+            if (!(cachedChannel instanceof InvalidChannel) && cachedChannel.getProperties().getInitialState() != initialState) {
+                Channel channel = (Channel) SerializationUtils.clone(cachedChannel);
+                channel.getProperties().setInitialState(initialState);
                 channel.setRevision(channel.getRevision() + 1);
 
                 try {
@@ -494,6 +544,21 @@ public class DefaultChannelController extends ChannelController {
     @Override
     public Statistics getTotalStatistics() {
         return com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getTotalStatistics();
+    }
+
+    @Override
+    public Statistics getStatisticsFromStorage(String serverId) {
+        return com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getStatisticsFromStorage(serverId);
+    }
+
+    @Override
+    public Statistics getTotalStatisticsFromStorage(String serverId) {
+        return com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getTotalStatisticsFromStorage(serverId);
+    }
+    
+    @Override
+    public int getConnectorMessageCount(String channelId, String serverId, int metaDataId, Status status) {
+        return com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getConnectorMessageCount(channelId, serverId, metaDataId, status);
     }
 
     @Override

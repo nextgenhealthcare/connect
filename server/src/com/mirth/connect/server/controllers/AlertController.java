@@ -12,6 +12,7 @@ package com.mirth.connect.server.controllers;
 import java.util.List;
 import java.util.Map;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.server.alert.Alert;

@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.ContextType;
@@ -32,7 +33,6 @@ import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.controllers.CodeTemplateController;
-import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.ScriptController;

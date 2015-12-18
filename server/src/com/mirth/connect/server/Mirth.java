@@ -9,9 +9,6 @@
 
 package com.mirth.connect.server;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,7 +17,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.security.KeyStore;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,21 +33,9 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.DefaultHandler;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.mirth.connect.client.core.ConnectServiceUtil;
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.model.ResourceProperties;
@@ -61,10 +45,8 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.server.controllers.AlertController;
-import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
-import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.EventController;
@@ -76,40 +58,24 @@ import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.logging.JuliToLog4JService;
 import com.mirth.connect.server.logging.LogOutputStream;
 import com.mirth.connect.server.logging.MirthLog4jFilter;
-import com.mirth.connect.server.servlets.AlertServlet;
-import com.mirth.connect.server.servlets.ChannelServlet;
-import com.mirth.connect.server.servlets.ChannelStatisticsServlet;
-import com.mirth.connect.server.servlets.ChannelStatusServlet;
-import com.mirth.connect.server.servlets.CodeTemplateServlet;
-import com.mirth.connect.server.servlets.ConfigurationServlet;
-import com.mirth.connect.server.servlets.DatabaseTaskServlet;
-import com.mirth.connect.server.servlets.EngineServlet;
-import com.mirth.connect.server.servlets.EventServlet;
-import com.mirth.connect.server.servlets.ExtensionServlet;
-import com.mirth.connect.server.servlets.MessageObjectServlet;
-import com.mirth.connect.server.servlets.UsageServlet;
-import com.mirth.connect.server.servlets.UserServlet;
-import com.mirth.connect.server.servlets.WebStartServlet;
-import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
-import com.mirth.connect.util.MirthSSLUtil;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
  * 
  */
 public class Mirth extends Thread {
+
     private Logger logger = Logger.getLogger(this.getClass());
     private boolean running = false;
     private PropertiesConfiguration mirthProperties = new PropertiesConfiguration();
     private PropertiesConfiguration versionProperties = new PropertiesConfiguration();
-    private Server webServer = null;
+    private MirthWebServer webServer;
     private CommandQueue commandQueue = CommandQueue.getInstance();
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private UserController userController = ControllerFactory.getFactory().createUserController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
@@ -392,210 +358,8 @@ public class Mirth extends Thread {
         logger.debug("starting jetty web server");
 
         try {
-            // this disables a "form too large" error for occuring by setting
-            // form size to infinite
-            System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize", "0");
-
-            webServer = new Server();
-
-            // add HTTP listener
-            SelectChannelConnector connector = new SelectChannelConnector();
-            connector.setName("connector");
-            connector.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
-            connector.setPort(mirthProperties.getInt("http.port"));
-
-            // add HTTPS listener
-            SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
-            /*
-             * http://www.mirthcorp.com/community/issues/browse/MIRTH-3070 Keep SSL connections
-             * alive for 24 hours unless closed by the client. When the Administrator runs on
-             * Windows, the SSL handshake performed when a new connection is created takes about 4-5
-             * seconds if connecting via IP address and no reverse DNS entry can be found. By
-             * keeping the connection alive longer the Administrator shouldn't have to perform the
-             * handshake unless idle for this amount of time.
-             */
-            sslConnector.setMaxIdleTime(86400000);
-            // If the number of connections open reaches 200
-            sslConnector.setLowResourcesConnections(200);
-            // Then close connections after 200 seconds, which is the default MaxIdleTime value. This should affect existing connections as well.
-            sslConnector.setLowResourcesMaxIdleTime(200000);
-            sslConnector.setName("sslconnector");
-            sslConnector.setHost(mirthProperties.getString("https.host", "0.0.0.0"));
-            sslConnector.setPort(mirthProperties.getInt("https.port"));
-
-            SslContextFactory contextFactory = sslConnector.getSslContextFactory();
-            KeyStore keyStore = KeyStore.getInstance("JCEKS");
-            FileInputStream is = new FileInputStream(new File(mirthProperties.getString("keystore.path")));
-
-            try {
-                keyStore.load(is, mirthProperties.getString("keystore.storepass").toCharArray());
-            } finally {
-                IOUtils.closeQuietly(is);
-            }
-
-            contextFactory.setKeyStore(keyStore);
-            contextFactory.setCertAlias("mirthconnect");
-            contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
-
-            /*
-             * We were previously disabling low and medium strength ciphers (MIRTH-1924). However
-             * with MIRTH-3492, we're now always specifying an include list everywhere rather than
-             * an exclude list.
-             */
-            contextFactory.setIncludeProtocols(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsServerProtocols()));
-            contextFactory.setIncludeCipherSuites(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()));
-
-            HandlerList handlers = new HandlerList();
-            String contextPath = mirthProperties.getString("http.contextpath", "");
-
-            // Add a starting slash if one does not exist
-            if (!contextPath.startsWith("/")) {
-                contextPath = "/" + contextPath;
-            }
-
-            // Remove a trailing slash if one exists
-            if (contextPath.endsWith("/")) {
-                contextPath = contextPath.substring(0, contextPath.length() - 1);
-            }
-
-            // find the client-lib path
-            String clientLibPath = null;
-
-            if (ClassPathResource.getResourceURI("client-lib") != null) {
-                clientLibPath = ClassPathResource.getResourceURI("client-lib").getPath() + File.separator;
-            } else {
-                clientLibPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "client-lib" + File.separator;
-            }
-
-            // Create the lib context
-            ContextHandler libContextHandler = new ContextHandler();
-            libContextHandler.setContextPath(contextPath + "/webstart/client-lib");
-            libContextHandler.setResourceBase(clientLibPath);
-            libContextHandler.setHandler(new ResourceHandler());
-            handlers.addHandler(libContextHandler);
-
-            // Create the extensions context
-            ContextHandler extensionsContextHandler = new ContextHandler();
-            extensionsContextHandler.setContextPath(contextPath + "/webstart/extensions/libs");
-            String extensionsPath = new File(ExtensionController.getExtensionsPath()).getPath();
-            extensionsContextHandler.setResourceBase(extensionsPath);
-            extensionsContextHandler.setHandler(new ResourceHandler());
-            handlers.addHandler(extensionsContextHandler);
-
-            // Create the public_html context
-            ContextHandler publicContextHandler = new ContextHandler();
-            publicContextHandler.setContextPath(contextPath);
-            String publicPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "public_html";
-            publicContextHandler.setResourceBase(publicPath);
-            publicContextHandler.setHandler(new ResourceHandler());
-            handlers.addHandler(publicContextHandler);
-
-            // Create the javadocs context
-            ContextHandler javadocsContextHandler = new ContextHandler();
-            javadocsContextHandler.setContextPath(contextPath + "/javadocs");
-            String javadocsPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "docs" + File.separator + "javadocs";
-            javadocsContextHandler.setResourceBase(javadocsPath);
-            ResourceHandler javadocsResourceHandler = new ResourceHandler();
-            javadocsResourceHandler.setDirectoriesListed(true);
-            javadocsContextHandler.setHandler(javadocsResourceHandler);
-            handlers.addHandler(javadocsContextHandler);
-
-            // Create a normal servlet handler
-            ServletContextHandler servletContextHandler = new ServletContextHandler();
-            servletContextHandler.setContextPath(contextPath);
-            servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart.jnlp");
-            servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart");
-            servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart/extensions/*");
-            servletContextHandler.setConnectorNames(new String[] { "connector" });
-            handlers.addHandler(servletContextHandler);
-
-            // Load all web apps dynamically
-            List<WebAppContext> webapps = new ArrayList<WebAppContext>();
-
-            FileFilter filter = new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return file.getName().endsWith(".war");
-                }
-            };
-
-            /*
-             * If in an IDE, webapps will be on the classpath as a resource. If that's the case, use
-             * that directory. Otherwise, use the mirth home directory and append webapps.
-             */
-            String webappsDir = null;
-            if (ClassPathResource.getResourceURI("webapps") != null) {
-                webappsDir = ClassPathResource.getResourceURI("webapps").getPath() + File.separator;
-            } else {
-                webappsDir = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "webapps" + File.separator;
-            }
-
-            File[] listOfFiles = new File(webappsDir).listFiles(filter);
-
-            if (listOfFiles != null) {
-                for (File file : listOfFiles) {
-                    logger.debug("webApp File Path: " + file.getAbsolutePath());
-
-                    WebAppContext webapp = new WebAppContext();
-                    webapp.setContextPath(contextPath + "/" + file.getName().substring(0, file.getName().length() - 4));
-
-                    logger.debug("webApp Context Path: " + webapp.getContextPath());
-
-                    webapp.setWar(file.getPath());
-                    handlers.addHandler(webapp);
-                    webapps.add(webapp);
-                }
-            }
-
-            // Create the ssl servlet handler
-            ServletContextHandler sslServletContextHandler = new ServletContextHandler();
-            sslServletContextHandler.setMaxFormContentSize(0);
-            sslServletContextHandler.setSessionHandler(new SessionHandler());
-            sslServletContextHandler.setContextPath(contextPath);
-
-            // Use our special error handler so that we dont have ugly URL
-            // encoding
-            sslServletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart.jnlp");
-            sslServletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart");
-            sslServletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart/extensions/*");
-            sslServletContextHandler.addServlet(new ServletHolder(new AlertServlet()), "/alerts");
-            sslServletContextHandler.addServlet(new ServletHolder(new ChannelServlet()), "/channels");
-            sslServletContextHandler.addServlet(new ServletHolder(new ChannelStatisticsServlet()), "/channelstatistics");
-            sslServletContextHandler.addServlet(new ServletHolder(new ChannelStatusServlet()), "/channelstatus");
-            sslServletContextHandler.addServlet(new ServletHolder(new CodeTemplateServlet()), "/codetemplates");
-            sslServletContextHandler.addServlet(new ServletHolder(new ConfigurationServlet()), "/configuration");
-            sslServletContextHandler.addServlet(new ServletHolder(new MessageObjectServlet()), "/messages");
-            sslServletContextHandler.addServlet(new ServletHolder(new EngineServlet()), "/engine");
-            sslServletContextHandler.addServlet(new ServletHolder(new ExtensionServlet()), "/extensions");
-            sslServletContextHandler.addServlet(new ServletHolder(new EventServlet()), "/events");
-            sslServletContextHandler.addServlet(new ServletHolder(new UserServlet()), "/users");
-            sslServletContextHandler.addServlet(new ServletHolder(new UsageServlet()), "/usage");
-            sslServletContextHandler.addServlet(new ServletHolder(new DatabaseTaskServlet()), "/databasetasks");
-            sslServletContextHandler.setConnectorNames(new String[] { "sslconnector" });
-            handlers.addHandler(sslServletContextHandler);
-
-            // add the default handler for misc requests (favicon, etc.)
-            DefaultHandler defaultHandler = new DefaultHandler();
-            defaultHandler.setServeIcon(false); // don't serve the Jetty favicon
-            handlers.addHandler(defaultHandler);
-
-            webServer.setHandler(handlers);
-            webServer.setConnectors(new Connector[] { connector, sslConnector });
-            try {
-                webServer.start();
-            } catch (Throwable e) {
-                logger.error("Could not load web app", e);
-                try {
-                    webServer.stop();
-                } catch (Throwable t) {
-                    // Ignore exception stopping
-                }
-                for (WebAppContext webapp : webapps) {
-                    handlers.removeHandler(webapp);
-                }
-                webServer.start();
-            }
-            logger.debug("started jetty web server on ports: " + connector.getPort() + ", " + sslConnector.getPort());
+            webServer = new MirthWebServer(mirthProperties);
+            webServer.startup();
         } catch (Exception e) {
             logger.warn("Could not start web server.", e);
 

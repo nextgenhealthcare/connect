@@ -47,6 +47,7 @@ public final class ExtensionLoader {
     private Map<String, ConnectorMetaData> connectorMetaDataMap = new HashMap<String, ConnectorMetaData>();
     private Map<String, PluginMetaData> pluginMetaDataMap = new HashMap<String, PluginMetaData>();
     private Map<String, ConnectorMetaData> connectorProtocolsMap = new HashMap<String, ConnectorMetaData>();
+    private Map<String, MetaData> invalidMetaDataMap = new HashMap<String, MetaData>();
     private boolean loadedExtensions = false;
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private static Logger logger = Logger.getLogger(ExtensionLoader.class);
@@ -66,6 +67,11 @@ public final class ExtensionLoader {
     public Map<String, ConnectorMetaData> getConnectorProtocols() {
         loadExtensions();
         return connectorProtocolsMap;
+    }
+    
+    public Map<String, MetaData> getInvalidMetaData() {
+        loadExtensions();
+        return invalidMetaDataMap;
     }
 
     @SuppressWarnings("unchecked")
@@ -179,6 +185,7 @@ public final class ExtensionLoader {
                             }
                         } else {
                             logger.error("Extension \"" + metaData.getName() + "\" is not compatible with this version of Mirth Connect and was not loaded. Please install a compatible version.");
+                            invalidMetaDataMap.put(metaData.getName(), metaData);
                         }
                     } catch (Exception e) {
                         logger.error("Error reading or parsing extension metadata file: " + extensionFile.getName(), e);

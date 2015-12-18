@@ -30,6 +30,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
@@ -457,7 +458,7 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public int exportMessages(final String channelId, final MessageFilter messageFilter, int pageSize, boolean includeAttachments, MessageWriterOptions options) throws MessageExportException, InterruptedException {
+    public int exportMessages(final String channelId, final MessageFilter messageFilter, int pageSize, MessageWriterOptions options) throws MessageExportException, InterruptedException {
         final MessageController messageController = this;
         final EngineController engineController = ControllerFactory.getFactory().createEngineController();
 
@@ -479,7 +480,7 @@ public class DonkeyMessageController extends MessageController {
             MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(options, ConfigurationController.getInstance().getEncryptor());
 
             AttachmentSource attachmentSource = null;
-            if (includeAttachments) {
+            if (options.includeAttachments()) {
                 attachmentSource = new AttachmentSource() {
                     @Override
                     public List<Attachment> getMessageAttachments(Message message) {
@@ -1131,7 +1132,7 @@ public class DonkeyMessageController extends MessageController {
         private boolean searchText;
 
         public FilterOptions(MessageFilter filter, String channelId) {
-            if (filter.getMinMessageId() != null && filter.getMinMessageId() > filter.getMaxMessageId()) {
+            if (filter.getMinMessageId() != null && filter.getMaxMessageId() != null && filter.getMinMessageId() > filter.getMaxMessageId()) {
                 /*
                  * If the min message id is greater than the max, use them directly so they fail at
                  * a later point. If we fix them by getting the actual min and max, we may return
@@ -1149,7 +1150,11 @@ public class DonkeyMessageController extends MessageController {
                  * If the max is greater than the actual max, set the max message id to the actual
                  * max to prevent unnecessary searches
                  */
-                maxMessageId = Math.min(filter.getMaxMessageId(), DonkeyMessageController.this.getMaxMessageId(channelId));
+                if (filter.getMaxMessageId() != null) {
+                    maxMessageId = Math.min(filter.getMaxMessageId(), DonkeyMessageController.this.getMaxMessageId(channelId));
+                } else {
+                    maxMessageId = DonkeyMessageController.this.getMaxMessageId(channelId);
+                }
             }
 
             searchCustomMetaData = CollectionUtils.isNotEmpty(filter.getMetaDataSearch());

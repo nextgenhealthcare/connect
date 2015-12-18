@@ -9,8 +9,13 @@
 
 package com.mirth.connect.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import com.mirth.connect.client.core.Version;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -25,6 +30,9 @@ public abstract class MetaData {
     private String pluginVersion;
     private String url;
     private String description;
+    @XStreamAlias("apiProviders")
+    @XStreamImplicit(itemFieldName = "apiProvider")
+    private List<ApiProvider> apiProviders;
     @XStreamAlias("libraries")
     @XStreamImplicit(itemFieldName = "library")
     private List<ExtensionLibrary> libraries;
@@ -88,6 +96,39 @@ public abstract class MetaData {
         this.description = description;
     }
 
+    public List<ApiProvider> getApiProviders() {
+        return apiProviders;
+    }
+
+    public List<ApiProvider> getApiProviders(Version version) {
+        List<ApiProvider> list = new ArrayList<ApiProvider>();
+
+        if (CollectionUtils.isNotEmpty(apiProviders)) {
+            for (ApiProvider provider : apiProviders) {
+                boolean valid = true;
+                Version minVersion = Version.fromString(provider.getMinVersion());
+                Version maxVersion = Version.fromString(provider.getMaxVersion());
+
+                if (minVersion != null && minVersion.ordinal() > version.ordinal()) {
+                    valid = false;
+                }
+                if (maxVersion != null && maxVersion.ordinal() < version.ordinal()) {
+                    valid = false;
+                }
+
+                if (valid) {
+                    list.add(provider);
+                }
+            }
+        }
+
+        return list;
+    }
+
+    public void setApiProviders(List<ApiProvider> apiProviders) {
+        this.apiProviders = apiProviders;
+    }
+
     public List<ExtensionLibrary> getLibraries() {
         return libraries;
     }
@@ -118,5 +159,10 @@ public abstract class MetaData {
 
     public void setNotify(Boolean notify) {
         this.notify = notify;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
     }
 }

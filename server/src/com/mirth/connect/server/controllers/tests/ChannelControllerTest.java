@@ -20,11 +20,11 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
-import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.tools.ScriptRunner;
 

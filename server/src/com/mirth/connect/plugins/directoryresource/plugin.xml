@@ -14,4 +14,6 @@
 	<library type="SERVER" path="directoryresource-server.jar" />
 	<library type="CLIENT" path="directoryresource-client.jar" />
 	<library type="SHARED" path="directoryresource-shared.jar" />
+	<apiProvider type="SERVLET_INTERFACE" name="com.mirth.connect.plugins.directoryresource.DirectoryResourceServletInterface"/>
+	<apiProvider type="SERVER_CLASS" name="com.mirth.connect.plugins.directoryresource.DirectoryResourceServlet"/>
 </pluginMetaData>

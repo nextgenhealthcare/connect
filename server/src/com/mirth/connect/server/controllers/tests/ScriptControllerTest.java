@@ -14,8 +14,8 @@ import java.io.File;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.server.controllers.ConfigurationController;
-import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.tools.ScriptRunner;

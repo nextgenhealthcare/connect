@@ -9,12 +9,21 @@
 
 package com.mirth.connect.plugins.datapruner;
 
+import static com.mirth.connect.client.core.api.servlets.ExtensionServletInterface.OPERATION_PLUGIN_PROPERTIES_GET;
+import static com.mirth.connect.client.core.api.servlets.ExtensionServletInterface.OPERATION_PLUGIN_PROPERTIES_SET;
+import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.PERMISSION_SAVE;
+import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.PERMISSION_START_STOP;
+import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.PERMISSION_VIEW;
+import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.PLUGIN_POINT;
+import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.TASK_START;
+import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.TASK_STOP;
+
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.TaskConstants;
+import com.mirth.connect.client.core.api.util.OperationUtil;
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -22,7 +31,9 @@ import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DataPrunerService implements ServicePlugin {
+
     public static final String PLUGINPOINT = "Data Pruner";
+
     private DataPrunerController dataPrunerController = DataPrunerController.getInstance();
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private Logger logger = Logger.getLogger(this.getClass());
@@ -69,29 +80,6 @@ public class DataPrunerService implements ServicePlugin {
     }
 
     @Override
-    public Object invoke(String method, Object object, String sessionId) {
-        try {
-            if (method.equals("getStatus")) {
-                return dataPrunerController.getStatusMap();
-            } else if (method.equals("start")) {
-                dataPrunerController.startPruner();
-                return dataPrunerController.getPrunerStatus().getStartTime();
-            } else if (method.equals("stop")) {
-                try {
-                    dataPrunerController.stopPruner();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    logger.warn("Stopped waiting for the data pruner to stop, due to a thread interruption.", e);
-                }
-            }
-        } catch (DataPrunerException e) {
-            logger.error("Failed to invoke data pruner service method: " + method, e);
-        }
-
-        return null;
-    }
-
-    @Override
     public Properties getDefaultProperties() {
         Properties properties = new Properties();
         properties.put("enabled", "false");
@@ -112,9 +100,11 @@ public class DataPrunerService implements ServicePlugin {
 
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
-        ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Settings", "Displays the Data Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_GET.getName() }, new String[] { TaskConstants.SETTINGS_REFRESH });
-        ExtensionPermission savePermission = new ExtensionPermission(PLUGINPOINT, "Save Settings", "Allows changing the Data Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_SET.getName() }, new String[] { TaskConstants.SETTINGS_SAVE });
+        ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_VIEW, "Displays the Data Pruner settings.", OperationUtil.getOperationNamesForPermission(PERMISSION_VIEW, DataPrunerServletInterface.class, OPERATION_PLUGIN_PROPERTIES_GET), new String[] { TaskConstants.SETTINGS_REFRESH });
+        ExtensionPermission savePermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_SAVE, "Allows changing the Data Pruner settings.", OperationUtil.getOperationNamesForPermission(PERMISSION_SAVE, DataPrunerServletInterface.class, OPERATION_PLUGIN_PROPERTIES_SET), new String[] { TaskConstants.SETTINGS_SAVE });
+        ExtensionPermission startStopPermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_START_STOP, "Allows starting or stopping the Data Pruner on-demand.", OperationUtil.getOperationNamesForPermission(PERMISSION_START_STOP, DataPrunerServletInterface.class), new String[] {
+                TASK_START, TASK_STOP });
 
-        return new ExtensionPermission[] { viewPermission, savePermission };
+        return new ExtensionPermission[] { viewPermission, savePermission, startStopPermission };
     }
 }

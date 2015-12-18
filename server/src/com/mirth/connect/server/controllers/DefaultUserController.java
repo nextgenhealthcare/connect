@@ -22,6 +22,7 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Digester;
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.PasswordRequirements;
@@ -65,12 +66,29 @@ public class DefaultUserController extends UserController {
             logger.error("Could not reset user status.");
         }
     }
-
-    public List<User> getUser(User user) throws ControllerException {
-        logger.debug("getting user: " + user);
+    
+    public List<User> getAllUsers() throws ControllerException {
+        logger.debug("getting all users");
 
         try {
-            return SqlConfig.getSqlSessionManager().selectList("User.getUser", user);
+            return SqlConfig.getSqlSessionManager().selectList("User.getUser");
+        } catch (PersistenceException e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    public User getUser(Integer userId, String userName) throws ControllerException {
+        logger.debug("getting user: " + userId);
+        
+        if (userId == null && userName == null) {
+            throw new ControllerException("Error getting user: Both user ID and user name cannot be null.");
+        }
+
+        try {
+            User user = new User();
+            user.setId(userId);
+            user.setUsername(userName);
+            return SqlConfig.getSqlSessionManager().selectOne("User.getUser", user);
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
@@ -78,24 +96,18 @@ public class DefaultUserController extends UserController {
 
     public synchronized void updateUser(User user) throws ControllerException {
         try {
-            User checkUserName = new User();
-            checkUserName.setUsername(user.getUsername());
-            List<User> existingUsers = getUser(checkUserName);
+            User existingUser = getUser(null, user.getUsername());
 
             if (user.getId() == null) {
-                if (existingUsers.size() != 0) {
+                if (existingUser != null) {
                     throw new ControllerException("Error adding user: username must be unique");
                 }
 
                 logger.debug("adding user: " + user);
                 SqlConfig.getSqlSessionManager().insert("User.insertUser", getUserMap(user));
             } else {
-                if (existingUsers.size() != 0) {
-                    for (User existingUser : existingUsers) {
-                        if (!user.getId().equals(existingUser.getId())) {
-                            throw new ControllerException("Error updating user: username must be unique");
-                        }
-                    }
+                if (existingUser != null && !user.getId().equals(existingUser.getId())) {
+                    throw new ControllerException("Error updating user: username must be unique");
                 }
 
                 logger.debug("updating user: " + user);
@@ -153,18 +165,20 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    public synchronized void removeUser(User user, Integer currentUserId) throws ControllerException {
-        logger.debug("removing user: " + user);
+    public synchronized void removeUser(Integer userId, Integer currentUserId) throws ControllerException {
+        logger.debug("removing user: " + userId);
 
-        if (user.getId() == null) {
+        if (userId == null) {
             throw new ControllerException("Error removing user: User Id cannot be null");
         }
 
-        if (user.getId().equals(currentUserId)) {
+        if (userId.equals(currentUserId)) {
             throw new ControllerException("Error removing user: You cannot remove yourself");
         }
 
         try {
+            User user = new User();
+            user.setId(userId);
             SqlConfig.getSqlSessionManager().delete("User.deleteUser", user);
 
             if (DatabaseUtil.statementExists("User.vacuumPersonTable")) {
@@ -205,14 +219,10 @@ public class DefaultUserController extends UserController {
             boolean authorized = false;
 
             // Validate the user
-            User userFilter = new User();
-            userFilter.setUsername(username);
-            List<User> userResults = getUser(userFilter);
-
+            User validUser = getUser(null, username);
             Credentials credentials = null;
-            User validUser = null;
-            if (CollectionUtils.isNotEmpty(userResults)) {
-                validUser = userResults.get(0);
+            
+            if (validUser != null) {
                 credentials = (Credentials) SqlConfig.getSqlSessionManager().selectOne("User.getLatestUserCredentials", validUser.getId());
 
                 if (credentials != null) {
@@ -331,9 +341,9 @@ public class DefaultUserController extends UserController {
 
     }
 
-    public boolean isUserLoggedIn(User user) throws ControllerException {
+    public boolean isUserLoggedIn(Integer userId) throws ControllerException {
         try {
-            return (Boolean) SqlConfig.getSqlSessionManager().selectOne("User.isUserLoggedIn", user.getId());
+            return (Boolean) SqlConfig.getSqlSessionManager().selectOne("User.isUserLoggedIn", userId);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -367,22 +377,23 @@ public class DefaultUserController extends UserController {
     }
 
     @Override
-    public void setUserPreferences(User user, Properties properties) throws ControllerException {
+    public void setUserPreferences(Integer userId, Properties properties) throws ControllerException {
         for (String property : properties.stringPropertyNames()) {
-            setUserPreference(user, property, properties.getProperty(property));
+            setUserPreference(userId, property, properties.getProperty(property));
         }
     }
 
-    public void setUserPreference(User user, String name, String value) {
-        logger.debug("storing preference: user id=" + user.getId() + ", name=" + name);
+    @Override
+    public void setUserPreference(Integer userId, String name, String value) {
+        logger.debug("storing preference: user id=" + userId + ", name=" + name);
 
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
-            parameterMap.put("person_id", user.getId());
+            parameterMap.put("person_id", userId);
             parameterMap.put("name", name);
             parameterMap.put("value", value);
 
-            if (getUserPreference(user, name) == null) {
+            if (getUserPreference(userId, name) == null) {
                 SqlConfig.getSqlSessionManager().insert("User.insertPreference", parameterMap);
             } else {
                 SqlConfig.getSqlSessionManager().insert("User.updatePreference", parameterMap);
@@ -392,43 +403,41 @@ public class DefaultUserController extends UserController {
                 SqlConfig.getSqlSessionManager().update("User.vacuumPersonPreferencesTable");
             }
         } catch (Exception e) {
-            logger.error("Could not store preference: user id=" + user.getId() + ", name=" + name, e);
+            logger.error("Could not store preference: user id=" + userId + ", name=" + name, e);
         }
     }
 
     @Override
-    public Properties getUserPreferences(User user, Set<String> names) {
-        int id = user.getId();
-        logger.debug("retrieving preferences: user id=" + id);
+    public Properties getUserPreferences(Integer userId, Set<String> names) {
+        logger.debug("retrieving preferences: user id=" + userId);
         Properties properties = new Properties();
 
         try {
-            List<KeyValuePair> result = SqlConfig.getSqlSessionManager().selectList("User.selectPreferencesForUser", id);
+            List<KeyValuePair> result = SqlConfig.getSqlSessionManager().selectList("User.selectPreferencesForUser", userId);
 
             for (KeyValuePair pair : result) {
-                if (names == null || names.contains(pair.getKey())) {
+                if (CollectionUtils.isEmpty(names) || names.contains(pair.getKey())) {
                     properties.setProperty(pair.getKey(), StringUtils.defaultString(pair.getValue()));
                 }
             }
         } catch (Exception e) {
-            logger.error("Could not retrieve preferences: user id=" + id, e);
+            logger.error("Could not retrieve preferences: user id=" + userId, e);
         }
 
         return properties;
     }
 
     @Override
-    public String getUserPreference(User user, String name) {
-        int id = user.getId();
-        logger.debug("retrieving preference: user id=" + id + ", name=" + name);
+    public String getUserPreference(Integer userId, String name) {
+        logger.debug("retrieving preference: user id=" + userId + ", name=" + name);
 
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
-            parameterMap.put("person_id", id);
+            parameterMap.put("person_id", userId);
             parameterMap.put("name", name);
             return (String) SqlConfig.getSqlSessionManager().selectOne("User.selectPreference", parameterMap);
         } catch (Exception e) {
-            logger.warn("Could not retrieve preference: user id=" + id + ", name=" + name, e);
+            logger.warn("Could not retrieve preference: user id=" + userId + ", name=" + name, e);
         }
 
         return null;

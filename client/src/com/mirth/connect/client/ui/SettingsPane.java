@@ -56,7 +56,7 @@ public class SettingsPane extends javax.swing.JPanel {
 
     private void loadPanel(AbstractSettingsPanel settingsPanel) {
         // Only load the panel if the refresh task is authorized
-        if (AuthorizationControllerFactory.getAuthorizationController().checkTask(TaskConstants.SETTINGS_KEY_PREFIX + settingsPanel.getTabName(), TaskConstants.SETTINGS_REFRESH)) {
+        if (AuthorizationControllerFactory.getAuthorizationController().checkTask(settingsPanel.getTaskPane().getName(), TaskConstants.SETTINGS_REFRESH)) {
             // add task pane before the "other" pane
             parent.setNonFocusable(settingsPanel.getTaskPane());
             settingsPanel.getTaskPane().setVisible(false);

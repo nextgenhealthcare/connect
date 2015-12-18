@@ -8,10 +8,11 @@
 	<clientClassName>com.mirth.connect.connectors.jdbc.DatabaseWriter</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.jdbc.DatabaseDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.jdbc.DatabaseDispatcherProperties</sharedClassName>
-	<serviceClassName>com.mirth.connect.connectors.jdbc.DatabaseConnectorService</serviceClassName>
 	<library type="CLIENT" path="jdbc-client.jar" />
 	<library type="SHARED" path="jdbc-shared.jar" />
 	<library type="SERVER" path="jdbc-server.jar" />
+	<apiProvider type="SERVLET_INTERFACE" name="com.mirth.connect.connectors.jdbc.DatabaseConnectorServletInterface"/>
+	<apiProvider type="SERVER_CLASS" name="com.mirth.connect.connectors.jdbc.DatabaseConnectorServlet"/>
 	<protocol>jdbc</protocol>
 	<type>DESTINATION</type>
 </connectorMetaData>

@@ -9,12 +9,21 @@
 
 package com.mirth.connect.client.ui.panels.connectors;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
+
+import org.glassfish.jersey.internal.util.ReflectionHelper;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
@@ -23,9 +32,11 @@ import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public abstract class ConnectorSettingsPanel extends JPanel {
-
+    
     protected ConnectorPanel connectorPanel;
 
+    private Map<String, SwingWorker<Object, Void>> workerMap = new ConcurrentHashMap<String, SwingWorker<Object, Void>>();
+    
     /**
      * Gets the name of the connector
      */
@@ -101,7 +112,7 @@ public abstract class ConnectorSettingsPanel extends JPanel {
      * @return
      */
     public ConnectorProperties getFilledProperties() {
-        return ((ConnectorPanel) getParent().getParent()).getProperties();
+        return connectorPanel.getProperties();
     }
 
     /**
@@ -139,6 +150,14 @@ public abstract class ConnectorSettingsPanel extends JPanel {
      */
     public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {}
 
+    public final <T> T getServlet(final Class<T> servletInterface, final String workerDisplayText, final String errorText) {
+        return getServlet(servletInterface, workerDisplayText, errorText, null);
+    }
+    
+    public final <T> T getServlet(final Class<T> servletInterface, final String workerDisplayText, final String errorText, final ResponseHandler responseHandler) {
+        return getServlet(servletInterface, workerDisplayText, errorText, responseHandler, null);
+    }
+
     /**
      * Invokes a method on a connector service in an asynchronous worker, which passes the returned
      * object to the handlePluginConnectorServiceResponse method.
@@ -151,43 +170,85 @@ public abstract class ConnectorSettingsPanel extends JPanel {
      *            A custom error message to display if an exception occurs during connector service
      *            invocation
      */
-    public final void invokeConnectorService(final String method, String workerDisplayText, final String errorText) {
-        final ConnectorProperties connectorProperties = connectorPanel.getProperties();
-        final String workingId = PlatformUI.MIRTH_FRAME.startWorking(workerDisplayText);
-
-        SwingWorker<?, ?> worker = new SwingWorker<Object, Void>() {
+    @SuppressWarnings("unchecked")
+    public final <T> T getServlet(final Class<T> servletInterface, final String workerDisplayText, final String errorText, final ResponseHandler responseHandler, final String workerId) {
+        return (T) Proxy.newProxyInstance(AccessController.doPrivileged(ReflectionHelper.getClassLoaderPA(servletInterface)), new Class[] { servletInterface }, new InvocationHandler() {
             @Override
-            public Object doInBackground() throws ClientException {
-                return PlatformUI.MIRTH_FRAME.mirthClient.invokeConnectorService(PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getId(), PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getName(), getConnectorName(), method, connectorProperties);
-            }
+            public Object invoke(final Object proxy, final Method method, final Object[] args) throws ClientException {
+                final String workingId = PlatformUI.MIRTH_FRAME.startWorking(workerDisplayText);
+                final ResponseHandler responseHandlerWrapper = connectorPanel.getResponseHandler(responseHandler, method);
 
-            @Override
-            public void done() {
-                try {
-                    connectorPanel.handlePluginConnectorServiceResponse(method, get());
-                } catch (Exception e) {
-                    Throwable cause = e;
-                    if (e instanceof ExecutionException && e.getCause() != null) {
-                        cause = e.getCause();
+                SwingWorker<Object, Void> worker = new SwingWorker<Object, Void>() {
+                    @Override
+                    public Object doInBackground() throws ClientException {
+                        try {
+                            if (servletInterface.isAssignableFrom(PlatformUI.MIRTH_FRAME.mirthClient.getClass())) {
+                                return method.invoke(PlatformUI.MIRTH_FRAME.mirthClient, args);
+                            }
+                            return method.invoke(PlatformUI.MIRTH_FRAME.mirthClient.getServlet(servletInterface), args);
+                        } catch (Throwable t) {
+                            Throwable cause = t;
+                            if (cause instanceof InvocationTargetException && cause.getCause() != null) {
+                                cause = cause.getCause();
+                            }
+                            if (cause instanceof ClientException) {
+                                throw (ClientException) cause;
+                            } else {
+                                throw new ClientException(cause);
+                            }
+                        }
                     }
 
-                    PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, errorText + cause.getMessage());
-                } finally {
-                    PlatformUI.MIRTH_FRAME.stopWorking(workingId);
-                }
-            }
-        };
+                    @Override
+                    public void done() {
+                        try {
+                            if (!isCancelled()) {
+                                try {
+                                    if (responseHandlerWrapper != null) {
+                                        responseHandlerWrapper.handle(get());
+                                    }
+                                } catch (Exception e) {
+                                    Throwable cause = e;
+                                    if (e instanceof ExecutionException && e.getCause() != null) {
+                                        cause = e.getCause();
+                                    }
 
-        worker.execute();
+                                    PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, errorText + cause.getMessage());
+                                }
+                            }
+                        } finally {
+                            PlatformUI.MIRTH_FRAME.stopWorking(workingId);
+                            if (workerId != null) {
+                                workerMap.remove(workerId);
+                            }
+                        }
+                    }
+                };
+                
+                if (workerId != null) {
+                    workerMap.put(workerId, worker);
+                }
+
+                worker.execute();
+
+                // Make sure to return the right type
+                if (method.getReturnType().isPrimitive()) {
+                    return method.getReturnType() == boolean.class ? false : (byte) 0x00;
+                }
+                return null;
+            }
+        });
     }
 
-    /**
-     * Allows the connector-specific settings panel to take actions after a connector service has
-     * been invoked. This may be called when handlePluginConnectorServiceResponse is called, unless
-     * the event is intercepted by a connector service plugin.
-     * 
-     * @param method
-     * @param response
-     */
-    public void handleConnectorServiceResponse(String method, Object response) {}
+    public final String getChannelId() {
+        return PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getId();
+    }
+
+    public final String getChannelName() {
+        return PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getName();
+    }
+    
+    public SwingWorker<Object, Void> getWorker(String workerId) {
+        return workerMap.get(workerId);
+    }
 }

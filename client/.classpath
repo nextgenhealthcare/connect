@@ -10,6 +10,7 @@
 			<accessrule kind="accessible" pattern="org/mozilla/**"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/dimse/DICOMDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/dimse/DICOMReceiverProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/DocumentConnectorServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/DocumentDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SchemeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SftpSchemeProperties"/>
@@ -17,37 +18,46 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileScheme"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileAction"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileServiceMethods"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileConnectorServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpStaticResource"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpStaticResource$ResourceType"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpConnectorServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseConnectionInfo"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/Table"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/Column"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseConnectorServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/js/JavaScriptReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/smtp/SmtpDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/smtp/SmtpConnectorServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/smtp/Attachment"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/tcp/TcpReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/tcp/TcpDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/tcp/TcpConnectorServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/vm/VmReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/vm/VmDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/Binding"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceConnectorServiceMethods"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/DefinitionServiceMap"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/DefinitionServiceMap$DefinitionPortMap"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/DefinitionServiceMap$PortInformation"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceConnectorServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsConnectorProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mllpmode/MLLPModeProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsConnectorServletInterface"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/dashboardstatus/DashboardConnectorStatusServletInterface"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datapruner/DataPrunerServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datatypes/**"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceServletInterface"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/globalmapviewer/GlobalMapServletInterface"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mllpmode/MLLPModeProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/serverlog/ServerLogServletInterface"/>
 			<accessrule kind="nonaccessible" pattern="*/**"/>
 		</accessrules>
 	</classpathentry>
@@ -99,9 +109,6 @@
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.8.2.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-2.0.jar"/>
-	<classpathentry kind="lib" path="lib/httpclient-4.3.3.jar"/>
-	<classpathentry kind="lib" path="lib/httpcore-4.3.2.jar"/>
-	<classpathentry kind="lib" path="lib/httpmime-4.3.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/javax.mail-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-151.jar"/>
@@ -117,5 +124,25 @@
 	<classpathentry kind="lib" path="lib/rhino-1.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar"/>
 	<classpathentry kind="lib" path="lib/jai_imageio.jar"/>
+	<classpathentry kind="lib" path="lib/javax.ws.rs-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/swagger-annotations-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-client-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-proxy-client-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections4-4.0.jar"/>
+	<classpathentry kind="lib" path="lib/reflections-0.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-common-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-api-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-locator-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-utils-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-guava-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/guava-18.0.jar"/>
+	<classpathentry kind="lib" path="lib/javassist-3.19.0-GA.jar"/>
+	<classpathentry kind="lib" path="lib/javax.inject-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/javax.annotation-api-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-media-multipart-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/mimepull-1.9.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

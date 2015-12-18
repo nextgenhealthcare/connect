@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.builders.JavaScriptBuilder;

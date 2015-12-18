@@ -11,8 +11,8 @@ package com.mirth.connect.server.util.test;
 
 import junit.framework.TestCase;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.PasswordRequirements;
-import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
 
 public class PasswordRequirementsTest extends TestCase {

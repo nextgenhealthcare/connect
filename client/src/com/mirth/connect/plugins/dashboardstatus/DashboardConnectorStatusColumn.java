@@ -18,7 +18,6 @@ import javax.swing.ImageIcon;
 import javax.swing.table.TableCellRenderer;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.ui.CellData;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.ImageCellRenderer;
@@ -29,8 +28,6 @@ import com.mirth.connect.plugins.DashboardColumnPlugin;
 public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
     private static final String _SOURCE_CONNECTOR = "_0";
-    private static final String GET_STATES = "getStates";
-    private static final String DASHBOARD_SERVICE_PLUGINPOINT = "Dashboard Connector Service";
     private Map<String, Object[]> currentStates;
     private ImageIcon greenBullet;
     private ImageIcon yellowBullet;
@@ -105,15 +102,11 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     public void tableUpdate(List<DashboardStatus> status) {
         // get states from server
         try {
-            currentStates = (HashMap<String, Object[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethodAsync(DASHBOARD_SERVICE_PLUGINPOINT, GET_STATES, null);
+            currentStates = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getConnectorStateMap();
         } catch (ClientException e) {
-            if (e.getCause() instanceof UnauthorizedException) {
-                currentStates = null;
-            } else {
-                PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e);
-            }
             // we can safely ignore this
-            // e.printStackTrace();
+            currentStates = null;
+            PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, false);
         }
     }
 

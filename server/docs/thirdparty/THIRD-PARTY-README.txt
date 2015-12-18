@@ -12,7 +12,10 @@ APACHE-LICENSE-2.0.txt):
 	Apache Velocity Engine 1.7
 	Apache Velocity Tools 2.0
 	Apache XMLBeans [Mirth Connect only]
+	Bean Validation API 1.1.0 (http://beanvalidation.org/)
+	Guava 18.0 (https://code.google.com/p/guava-libraries)
 	HikariCP 2.3.2 [Mirth Connect only]
+	Jackson Project (https://github.com/FasterXML/jackson)
 	Jasypt 1.7.1 [Mirth Connect only]
 	Jetty 7.6.7 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
@@ -20,8 +23,9 @@ APACHE-LICENSE-2.0.txt):
 	Not-Yet-Commons-SSL 0.3.11
 	Quartz Scheduler 2.1.7 [Mirth Connect only]
 	SQLite JDBC Driver 3.7.2 [Mirth Connect only] (https://bitbucket.org/xerial/sqlite-jdbc)
+	Swagger Core 1.5.4 (https://github.com/swagger-api/swagger-core)
+	Swagger UI 2.1.3 (http://swagger.io/swagger-ui/)
 	webdavclient4j 0.92 [Mirth Connect only] (http://sourceforge.net/projects/webdavclient4j/)
-	Guava 18.0 [Mirth Connect only] (https://code.google.com/p/guava-libraries)
 
 
 --------------------------------------------------------------------------------
@@ -61,12 +65,24 @@ the same license terms.
 Mirth Connect includes the following, which is distributed under the terms of
 the Common Development and Distribution License version 1.1 (see CDDL-1.1.txt):
 
+	HK2 2.4.0 (source code can be downloaded from:
+	https://hk2.java.net/2.4.0-b34/)
+
 	JavaMail API 1.5.0 (source code can be downloaded from:
 	http://search.maven.org/remotecontent?filepath=com/sun/mail/javax.mail/1.5.0
 	/javax.mail-1.5.0-sources.jar)
+	
+	Java Persistence API 1.0 (source code can be downloaded from:
+	https://glassfish.java.net/downloads/persistence/JavaPersistence.html)
+	
+	Jersey RESTful Web Services framework 2.22.1 (source code can be downloaded
+	from: https://jersey.java.net/)
 
 	JSON Processing API (source code can be downloaded from: 
 	https://jsonp.java.net/)
+	
+	Mimepull 1.9.6 (source code can be downloaded from:
+	https://mimepull.java.net/)
 
 
 --------------------------------------------------------------------------------
@@ -101,7 +117,18 @@ Mirth Connect includes the following, which is distributed under the terms of
 the Artistic License version 1.0 (see ARTISTIC-LICENSE-1.0.txt):
 
 	Display tag library (displaytag.org)
+	
+	
+--------------------------------------------------------------------------------
 
+
+Mirth Connect includes the following, which is distributed under the terms of
+the OSGi Specification License, Version 1.0 (see OSGi-1.0.txt):
+
+	OSGi Core Release 4.2.0 (source code can be downloaded from:
+	https://www.osgi.org/release-4-version-4-2/)
+	
+	
 --------------------------------------------------------------------------------
 
 
@@ -1183,6 +1210,47 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=================== End of License =========================
+
+
+--------------------------------------------------------------------------------
+
+
+The license below pertains to a portion of the software included with ASM, which
+is included with Mirth Connect.
+
+=================== Beginning of License ===================
+
+Copyright (c) 2000-2011 INRIA, France Telecom
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holders nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE.
 
 =================== End of License =========================
 

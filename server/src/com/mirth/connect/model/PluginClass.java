@@ -9,6 +9,8 @@
 
 package com.mirth.connect.model;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("pluginClass")
@@ -31,5 +33,10 @@ public class PluginClass {
 
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
     }
 }

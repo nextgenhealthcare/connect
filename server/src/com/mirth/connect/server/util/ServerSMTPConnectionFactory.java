@@ -9,8 +9,8 @@
 
 package com.mirth.connect.server.util;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.ServerSettings;
-import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class ServerSMTPConnectionFactory {

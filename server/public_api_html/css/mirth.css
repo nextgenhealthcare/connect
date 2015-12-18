@@ -1,0 +1,74 @@
+.swagger-section #header {
+  background-color: #E6E6E6;
+  padding: 14px 14px 4px 14px;
+}
+
+.swagger-section #header a#mirthLogo {
+  height: 40px;
+}
+
+.swagger-section #header form {
+  display: block;
+  clear: none;
+  float: right;
+}
+
+.swagger-section #header form .input {
+  display: block;
+  clear: none;
+  float: left;
+  margin: 0 10px 0 0;
+}
+
+.swagger-section #header form .input input#username {
+  width: 200px;
+}
+
+.swagger-section #header form .input input#password {
+  width: 200px;
+}
+
+.swagger-section #header form .input.login a {
+  display: block;
+  text-decoration: none;
+  padding: 6px 8px;
+  font-size: 11pt;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  color: #333;
+  background-color: #A9E351;
+  background-image: -webkit-linear-gradient(top, #B9E871, #92DC22);
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -o-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -khtml-border-radius: 4px;
+  border-radius: 4px;
+}
+
+.swagger-section #header form .input.login a:hover {
+  background-color: #547f00;
+}
+
+.swagger-section #header form .input input {
+  font-size: 0.9em;
+  padding: 3px;
+  margin: 0;
+}
+
+.swagger-section #header #loginImage {
+	float: right;
+	padding-top: 15px;
+}
+
+#loginForm {
+	padding-top: 8px;
+}
+
+#logoutForm {
+	padding-top: 12px;
+}
+
+#logout {
+	display: inline !important;
+}

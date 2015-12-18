@@ -18,19 +18,15 @@ public interface ServicePlugin extends ServerPlugin {
 
     public void update(Properties properties);
 
-    public Object invoke(String method, Object object, String sessionId) throws Exception;
-
     /**
-     * Returns the default properties for this plugin, or an empty Properties if
-     * there are none.
+     * Returns the default properties for this plugin, or an empty Properties if there are none.
      * 
      * @return
      */
     public Properties getDefaultProperties();
 
     /**
-     * Returns permissions for this plugin so they can be initialized on
-     * startup.
+     * Returns permissions for this plugin so they can be initialized on startup.
      * 
      * @return
      */

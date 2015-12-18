@@ -12,6 +12,8 @@ package com.mirth.connect.server.controllers;
 import java.util.List;
 import java.util.Map;
 
+import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.server.ExtensionLoader;
@@ -20,9 +22,7 @@ public class DefaultAuthorizationController extends AuthorizationController {
 
     private static AuthorizationController instance = null;
 
-    private DefaultAuthorizationController() {
-
-    }
+    private DefaultAuthorizationController() {}
 
     public static AuthorizationController create() {
         synchronized (DefaultAuthorizationController.class) {
@@ -39,21 +39,15 @@ public class DefaultAuthorizationController extends AuthorizationController {
     }
 
     @Override
-    public boolean isUserAuthorized(Integer userId, String operation, Map<String, Object> parameterMap, String address) throws ControllerException {
-        auditAuthorizationRequest(userId, operation, parameterMap, ServerEvent.Outcome.SUCCESS, address);
+    public boolean isUserAuthorized(Integer userId, Operation operation, Map<String, Object> parameterMap, String address, boolean audit) throws ControllerException {
+        if (audit) {
+            auditAuthorizationRequest(userId, operation, parameterMap, ServerEvent.Outcome.SUCCESS, address);
+        }
         return true;
     }
 
     @Override
-    public boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String operationName, Map<String, Object> parameterMap, String address) throws ControllerException {
-        auditAuthorizationRequest(userId, extensionName + "#" + operationName, parameterMap, ServerEvent.Outcome.SUCCESS, address);
-        return true;
-    }
-
-    @Override
-    public void addExtensionPermission(ExtensionPermission extensionPermission) {
-
-    }
+    public void addExtensionPermission(ExtensionPermission extensionPermission) {}
 
     @Override
     public boolean doesUserHaveChannelRestrictions(Integer userId) throws ControllerException {

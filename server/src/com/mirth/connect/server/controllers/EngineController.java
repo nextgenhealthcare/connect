@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -85,6 +86,8 @@ public interface EngineController {
      * @throws ControllerException
      */
     public List<DashboardStatus> getChannelStatusList(Set<String> channelIds);
+    
+    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, boolean includeUndeployed);
 
     /**
      * Returns a DashboardStatus object representing a running channel.

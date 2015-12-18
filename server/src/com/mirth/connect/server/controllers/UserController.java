@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
@@ -27,16 +28,24 @@ public abstract class UserController extends Controller {
      * 
      */
     public abstract void resetUserStatus();
-
+    
     /**
-     * Returns a list of users that match the fields on the specified user, or all users if
-     * user parameter is <code>null</code>.
+     * Returns a list of all users.
      * 
-     * @param user
      * @return
      * @throws ControllerException
      */
-    public abstract List<User> getUser(User user) throws ControllerException;
+    public abstract List<User> getAllUsers() throws ControllerException;
+
+    /**
+     * Returns a user by ID and/or user name.
+     * 
+     * @param userId
+     * @param userName
+     * @return
+     * @throws ControllerException
+     */
+    public abstract User getUser(Integer userId, String userName) throws ControllerException;
 
     /**
      * Updates the specified user.
@@ -65,7 +74,7 @@ public abstract class UserController extends Controller {
      * @param currentUserId the ID of the user requesting this action
      * @throws ControllerException if the specified user is <code>null</code> or is the current user
      */
-    public abstract void removeUser(User user, Integer currentUserId) throws ControllerException;
+    public abstract void removeUser(Integer userId, Integer currentUserId) throws ControllerException;
 
     /**
      * Authorizes the specified user.
@@ -104,11 +113,11 @@ public abstract class UserController extends Controller {
     /**
      * Returns <code>true</code> if the user's status is set to logged in
      * 
-     * @param user the user to check
+     * @param userId the user to check
      * @return <code>true</code> if the user's status is set to logged in, <code>false</code> otherwise
      * @throws ControllerException if the user's status could not be retrieved
      */
-    public abstract boolean isUserLoggedIn(User user) throws ControllerException;
+    public abstract boolean isUserLoggedIn(Integer userId) throws ControllerException;
 
     public abstract List<Credentials> getUserCredentials(Integer userId) throws ControllerException;
 
@@ -119,9 +128,9 @@ public abstract class UserController extends Controller {
      * @return a <code>Properties</code> that contains the name/value pairs of preferences
      * @throws ControllerException if the preferences could not be retrieved
      */
-    public abstract String getUserPreference(User user, String name) throws ControllerException;
+    public abstract String getUserPreference(Integer userId, String name) throws ControllerException;
     
-    public abstract Properties getUserPreferences(User user, Set<String> names) throws ControllerException;
+    public abstract Properties getUserPreferences(Integer userId, Set<String> names) throws ControllerException;
 
     /**
      * Sets a user preference. For example, the dashboard refresh interval.
@@ -131,9 +140,9 @@ public abstract class UserController extends Controller {
      * @param value the value of the preference
      * @throws ControllerException if the preference could not be set
      */
-    public abstract void setUserPreference(User user, String name, String value) throws ControllerException;
+    public abstract void setUserPreference(Integer userId, String name, String value) throws ControllerException;
     
-    public abstract void setUserPreferences(User user, Properties properties) throws ControllerException;
+    public abstract void setUserPreferences(Integer userId, Properties properties) throws ControllerException;
     
     public abstract void removePreferencesForUser(int id);
 

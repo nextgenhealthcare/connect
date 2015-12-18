@@ -72,6 +72,36 @@ public class ChannelController {
         return totalStats;
     }
 
+    public Statistics getStatisticsFromStorage(String serverId) {
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
+
+        try {
+            return dao.getChannelStatistics(serverId);
+        } finally {
+            dao.close();
+        }
+    }
+
+    public Statistics getTotalStatisticsFromStorage(String serverId) {
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
+
+        try {
+            return dao.getChannelTotalStatistics(serverId);
+        } finally {
+            dao.close();
+        }
+    }
+
+    public int getConnectorMessageCount(String channelId, String serverId, int metaDataId, Status status) {
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
+
+        try {
+            return dao.getConnectorMessageCount(channelId, serverId, metaDataId, status);
+        } finally {
+            dao.close();
+        }
+    }
+
     /**
      * Reset the statistics for the given channels/connectors and statuses
      * 

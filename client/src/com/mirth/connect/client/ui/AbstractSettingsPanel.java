@@ -37,7 +37,7 @@ public abstract class AbstractSettingsPanel extends JPanel {
         this.tabName = tabName;
 
         taskPane.setTitle(tabName + " Tasks");
-        taskPane.setName(TaskConstants.SETTINGS_KEY_PREFIX + tabName);
+        taskPane.setName(TaskConstants.SETTINGS_KEY_PREFIX + getTaskKey());
         taskPane.setFocusable(false);
 
         addTask(TaskConstants.SETTINGS_REFRESH, "Refresh", "Refresh " + tabName + " settings.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")));
@@ -68,8 +68,8 @@ public abstract class AbstractSettingsPanel extends JPanel {
     }
 
     /**
-     * Initializes the bound method call for the task taskPane actions and adds
-     * them to the taskpane/popupmenu.
+     * Initializes the bound method call for the task taskPane actions and adds them to the
+     * taskpane/popupmenu.
      */
     public int addTask(String callbackMethod, String displayName, String toolTip, String shortcutKey, ImageIcon icon) {
         BoundAction boundAction = ActionFactory.createBoundAction(callbackMethod, displayName, shortcutKey);
@@ -81,6 +81,11 @@ public abstract class AbstractSettingsPanel extends JPanel {
         boundAction.registerCallback(this, callbackMethod);
 
         Component component = taskPane.add(boundAction);
+
+        if (!AuthorizationControllerFactory.getAuthorizationController().checkTask(taskPane.getName(), callbackMethod)) {
+            component.setVisible(false);
+        }
+
         parent.getComponentTaskMap().put(component, callbackMethod);
 
         popupMenu.add(boundAction);
@@ -104,6 +109,10 @@ public abstract class AbstractSettingsPanel extends JPanel {
         return tabName;
     }
 
+    public String getTaskKey() {
+        return tabName;
+    }
+
     public Frame getFrame() {
         return parent;
     }
@@ -111,7 +120,7 @@ public abstract class AbstractSettingsPanel extends JPanel {
     public JXTaskPane getTaskPane() {
         return taskPane;
     }
-    
+
     public JPopupMenu getPopupMenu() {
         return popupMenu;
     }

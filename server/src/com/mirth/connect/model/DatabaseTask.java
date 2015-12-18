@@ -35,6 +35,10 @@ public class DatabaseTask implements Serializable {
     private Map<String, String> affectedChannels;
     private Calendar startDateTime;
 
+    public DatabaseTask(String id) {
+        this(id, null, null);
+    }
+
     public DatabaseTask(String id, String name, String description) {
         this(id, name, description, null);
     }

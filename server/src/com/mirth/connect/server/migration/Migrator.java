@@ -24,9 +24,11 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.util.MigrationException;
 
 public abstract class Migrator {
+    private Version startingVersion;
     private Connection connection;
     private String databaseType;
     private String defaultScriptPath;
@@ -34,6 +36,14 @@ public abstract class Migrator {
     public abstract void migrate() throws MigrationException;
 
     public abstract void migrateSerializedData() throws MigrationException;
+
+    public Version getStartingVersion() {
+        return startingVersion;
+    }
+
+    public void setStartingVersion(Version startingVersion) {
+        this.startingVersion = startingVersion;
+    }
 
     public Connection getConnection() throws SQLException {
         // MIRTH-3764: Some migrators disable auto-commit, so we make sure to always enable it before returning the connection.

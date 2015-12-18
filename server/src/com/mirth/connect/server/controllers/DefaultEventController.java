@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.DeployedStateEvent;
@@ -192,6 +193,7 @@ public class DefaultEventController extends EventController {
     private Map<String, Object> getParameters(EventFilter filter, Integer offset, Integer limit) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("maxEventId", filter.getMaxEventId());
+        params.put("minEventId", filter.getMinEventId());
         params.put("offset", offset);
         params.put("limit", limit);
 

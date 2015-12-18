@@ -163,16 +163,16 @@ public class DashboardConnectorEventListener extends EventListener {
                     }
                     channelLog.addFirst(new String[] { String.valueOf(logId), channelName,
                             dateFormat.format(timestamp), connectorType,
-                            ((ConnectionStatusEvent) event).getState().toString(), information, channelId,
-                            Integer.toString(metaDataId) });
+                            ((ConnectionStatusEvent) event).getState().toString(), information,
+                            channelId, Integer.toString(metaDataId) });
 
                     if (entireConnectorInfoLogs.size() == MAX_LOG_SIZE) {
                         entireConnectorInfoLogs.removeLast();
                     }
                     entireConnectorInfoLogs.addFirst(new String[] { String.valueOf(logId),
                             channelName, dateFormat.format(timestamp), connectorType,
-                            ((ConnectionStatusEvent) event).getState().toString(), information, channelId,
-                            Integer.toString(metaDataId) });
+                            ((ConnectionStatusEvent) event).getState().toString(), information,
+                            channelId, Integer.toString(metaDataId) });
 
                     logId++;
 
@@ -204,9 +204,8 @@ public class DashboardConnectorEventListener extends EventListener {
 
         if (object == null) {
             /*
-             * object is null - no channel is selected. return the latest
-             * entire log entries of all channels combined. ONLY new
-             * entries.
+             * object is null - no channel is selected. return the latest entire log entries of all
+             * channels combined. ONLY new entries.
              */
             channelName = "No Channel Selected";
             channelLog = entireConnectorInfoLogs;
@@ -246,9 +245,8 @@ public class DashboardConnectorEventListener extends EventListener {
 
                 if (newChannelLogEntries.size() > 0) {
                     /*
-                     * put the lastDisplayedLogId into the HashMap. index 0
-                     * is the most recent entry, and index0 of that entry
-                     * contains the logId.
+                     * put the lastDisplayedLogId into the HashMap. index 0 is the most recent
+                     * entry, and index0 of that entry contains the logId.
                      */
                     lastDisplayedLogIdByChannel.put(channelName, Long.parseLong(newChannelLogEntries.get(0)[0]));
                     lastDisplayedLogIndexBySessionId.put(sessionId, lastDisplayedLogIdByChannel);
@@ -261,11 +259,9 @@ public class DashboardConnectorEventListener extends EventListener {
                 }
             } else {
                 /*
-                 * new channel viewing on an already open client. -> all log
-                 * entries are new. display them all. put the
-                 * lastDisplayedLogId into the HashMap. index0 is the most
-                 * recent entry, and index0 of that entry object contains
-                 * the logId.
+                 * new channel viewing on an already open client. -> all log entries are new.
+                 * display them all. put the lastDisplayedLogId into the HashMap. index0 is the most
+                 * recent entry, and index0 of that entry object contains the logId.
                  */
                 if (channelLog.size() > 0) {
                     lastDisplayedLogIdByChannel.put(channelName, Long.parseLong(channelLog.get(0)[0]));
@@ -305,7 +301,7 @@ public class DashboardConnectorEventListener extends EventListener {
         return null;
     }
 
-    public Object channelDeployed(String sessionId) {
+    public boolean startSession(String sessionId) {
         if (channelsDeployedFlagForEachClient.containsKey(sessionId)) {
             // sessionId found. no (re)deploy occurred.
             return false;
@@ -318,7 +314,7 @@ public class DashboardConnectorEventListener extends EventListener {
         }
     }
 
-    public Object removeSession(String sessionId) {
+    public void removeSession(String sessionId) {
         // client shut down, or user logged out -> remove everything
         // involving this sessionId.
         if (lastDisplayedLogIndexBySessionId.containsKey(sessionId)) {
@@ -328,8 +324,6 @@ public class DashboardConnectorEventListener extends EventListener {
         if (channelsDeployedFlagForEachClient.containsKey(sessionId)) {
             channelsDeployedFlagForEachClient.remove(sessionId);
         }
-
-        return null;
     }
 
     public Color getColor(ConnectionStatusEventType type) {

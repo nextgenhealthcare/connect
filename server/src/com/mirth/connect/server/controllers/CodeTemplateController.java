@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.CodeTemplateLibrarySaveResult;
@@ -31,7 +32,7 @@ public abstract class CodeTemplateController extends Controller {
 
     public abstract CodeTemplateLibrary getLibraryByName(String name) throws ControllerException;
 
-    public abstract boolean updateLibraries(List<CodeTemplateLibrary> libraries, ServerEventContext context, boolean override) throws ControllerException;
+    public abstract boolean updateLibraries(Set<CodeTemplateLibrary> libraries, ServerEventContext context, boolean override) throws ControllerException;
 
     public abstract List<CodeTemplate> getCodeTemplates(Set<String> codeTemplateIds) throws ControllerException;
 
@@ -43,7 +44,7 @@ public abstract class CodeTemplateController extends Controller {
 
     public abstract boolean updateCodeTemplate(CodeTemplate codeTemplate, ServerEventContext context, boolean override) throws ControllerException;
 
-    public abstract void removeCodeTemplate(CodeTemplate codeTemplate, ServerEventContext context) throws ControllerException;
+    public abstract void removeCodeTemplate(String codeTemplateId, ServerEventContext context) throws ControllerException;
 
-    public abstract CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, List<CodeTemplateLibrary> removedLibraries, List<CodeTemplate> updatedCodeTemplates, List<CodeTemplate> removedCodeTemplates, ServerEventContext context, boolean override);
+    public abstract CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(Set<CodeTemplateLibrary> libraries, Set<String> removedLibraryIds, Set<CodeTemplate> updatedCodeTemplates, Set<String> removedCodeTemplateIds, ServerEventContext context, boolean override);
 }

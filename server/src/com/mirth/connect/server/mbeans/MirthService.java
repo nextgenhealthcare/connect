@@ -11,10 +11,10 @@ package com.mirth.connect.server.mbeans;
 
 import java.util.Properties;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.server.Command;
 import com.mirth.connect.server.CommandQueue;
 import com.mirth.connect.server.Mirth;
-import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 

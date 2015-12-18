@@ -15,6 +15,7 @@
    <sql id='searchEventsBody'>
 	  <where>
 	  	 <if test='maxEventId != null'>AND ID &lt;= #{maxEventId}</if>
+	  	 <if test='minEventId != null'>AND ID &gt;= #{minEventId}</if>
          <if test='id != null'>AND ID = #{id}</if>
          <if test='name != null'>AND LOWER(NAME) LIKE LOWER('%${name}%')</if>
          <if test="levels != null">

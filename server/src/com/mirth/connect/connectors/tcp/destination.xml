@@ -8,10 +8,11 @@
 	<clientClassName>com.mirth.connect.connectors.tcp.TcpSender</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.tcp.TcpDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.tcp.TcpDispatcherProperties</sharedClassName>
-	<serviceClassName>com.mirth.connect.connectors.tcp.TcpSenderService</serviceClassName>
 	<library type="CLIENT" path="tcp-client.jar" />
 	<library type="SHARED" path="tcp-shared.jar" />
 	<library type="SERVER" path="tcp-server.jar" />
+	<apiProvider type="SERVLET_INTERFACE" name="com.mirth.connect.connectors.tcp.TcpConnectorServletInterface"/>
+	<apiProvider type="SERVER_CLASS" name="com.mirth.connect.connectors.tcp.TcpConnectorServlet"/>
 	<transformers/>
 	<protocol>tcp</protocol>
 	<type>DESTINATION</type>

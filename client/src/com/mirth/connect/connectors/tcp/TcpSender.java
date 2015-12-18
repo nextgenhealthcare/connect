@@ -16,7 +16,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
@@ -27,6 +26,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.plugins.BasicModeClientProvider;
@@ -279,6 +279,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         }
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -680,6 +681,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {settingsPlaceHolderLabel, transmissionModeComboBox});
 
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void dataTypeBinaryRadioActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeBinaryRadioActionPerformed
     {//GEN-HEADEREND:event_dataTypeBinaryRadioActionPerformed
@@ -703,36 +705,25 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     }//GEN-LAST:event_ignoreResponseCheckBoxActionPerformed
 
     private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-        final String workingId = parent.startWorking("Testing connection...");
-
-        SwingWorker worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-
-                try {
-                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), parent.channelEditPanel.currentChannel.getName(), getConnectorName(), "testConnection", getProperties());
-
-                    if (response == null) {
-                        throw new ClientException("Failed to invoke service.");
-                    } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
-                        parent.alertInformation(parent, response.getMessage());
-                    } else {
-                        parent.alertWarning(parent, response.getMessage());
-                    }
-
-                    return null;
-                } catch (ClientException e) {
-                    parent.alertError(parent, e.getMessage());
-                    return null;
+        ResponseHandler handler = new ResponseHandler() {
+            @Override
+            public void handle(Object response) {
+                ConnectionTestResponse connectionTestResponse = (ConnectionTestResponse) response;
+                if (connectionTestResponse == null) {
+                    parent.alertError(parent, "Failed to invoke service.");
+                } else if (connectionTestResponse.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                    parent.alertInformation(parent, connectionTestResponse.getMessage());
+                } else {
+                    parent.alertWarning(parent, connectionTestResponse.getMessage());
                 }
-            }
-
-            public void done() {
-                parent.stopWorking(workingId);
             }
         };
 
-        worker.execute();
+        try {
+            getServlet(TcpConnectorServletInterface.class, "Testing connection...", "Failed to test connection: ", handler).testConnection(getChannelId(), getChannelName(), (TcpDispatcherProperties) getFilledProperties());
+        } catch (ClientException e) {
+            // Should not happen
+        }
     }//GEN-LAST:event_testConnectionActionPerformed
 
     private void keepConnectionOpenYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_keepConnectionOpenYesRadioActionPerformed
@@ -799,7 +790,8 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
     private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
     }// GEN-LAST:event_charsetEncodingComboboxActionPerformed
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+     // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private com.mirth.connect.client.ui.components.MirthTextField bufferSizeField;
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private javax.swing.ButtonGroup checkRemoteHostButtonGroup;

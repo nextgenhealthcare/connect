@@ -26,20 +26,20 @@ public class ExtensionPermission implements Serializable {
         this.taskNames = taskNames;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
     public String getExtensionName() {
         return extensionName;
     }
 
     public void setExtensionName(String extensionName) {
         this.extensionName = extensionName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public String getDescription() {

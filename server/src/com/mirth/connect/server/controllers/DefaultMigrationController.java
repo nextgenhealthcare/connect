@@ -85,6 +85,7 @@ public class DefaultMigrationController extends MigrationController {
         Connection connection = SqlConfig.getSqlSessionManager().getConnection();
 
         try {
+            // ServerMigrator will set its own starting version
             serverMigrator.setConnection(connection);
             serverMigrator.setDatabaseType(configurationController.getDatabaseType());
             serverMigrator.migrate();
@@ -105,6 +106,7 @@ public class DefaultMigrationController extends MigrationController {
         try {
             for (Migrator migrator : pluginMigrators) {
                 try {
+                    migrator.setStartingVersion(serverMigrator.getStartingVersion());
                     migrator.setConnection(connection);
                     migrator.setDatabaseType(configurationController.getDatabaseType());
                     migrator.migrate();

@@ -4,14 +4,15 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.3.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
-	<description>This connector allows Mirth Connecto to send email messages via SMTP. A template is available to dynamically create messages.</description>
+	<description>This connector allows Mirth Connect to send email messages via SMTP. A template is available to dynamically create messages.</description>
 	<clientClassName>com.mirth.connect.connectors.smtp.SmtpSender</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.smtp.SmtpDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.smtp.SmtpDispatcherProperties</sharedClassName>
-	<serviceClassName>com.mirth.connect.connectors.smtp.SmtpSenderService</serviceClassName>
 	<library type="CLIENT" path="smtp-client.jar" />
 	<library type="SHARED" path="smtp-shared.jar" />
 	<library type="SERVER" path="smtp-server.jar" />
+	<apiProvider type="SERVLET_INTERFACE" name="com.mirth.connect.connectors.smtp.SmtpConnectorServletInterface"/>
+	<apiProvider type="SERVER_CLASS" name="com.mirth.connect.connectors.smtp.SmtpConnectorServlet"/>
 	<transformers></transformers>
 	<protocol>smtp</protocol>
 	<type>DESTINATION</type>

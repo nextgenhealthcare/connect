@@ -29,20 +29,17 @@ public class LoginActionBean extends BaseActionBean {
 
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        String version = request.getParameter("version");
 
         try {
             client = new Client(getContext().getServerAddress());
-            loginStatus = client.login(username, password, version);
+            loginStatus = client.login(username, password);
         } catch (Exception e) {
             return new RedirectResolution(Constants.INDEX_PAGE).addParameter("showAlert", true);
         }
 
         if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
             try {
-                User user = new User();
-                user.setUsername((loginStatus.getUpdatedUsername() != null) ? loginStatus.getUpdatedUsername() : username);
-                User validUser = client.getUser(user).get(0);
+                User validUser = client.getUser(loginStatus.getUpdatedUsername() != null ? loginStatus.getUpdatedUsername() : username);
 
                 // set the sessions attributes
                 getContext().setUser(validUser);

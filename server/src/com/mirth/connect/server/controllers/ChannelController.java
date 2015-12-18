@@ -15,6 +15,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.channel.Statistics;
@@ -47,6 +49,8 @@ public abstract class ChannelController extends Controller {
     public abstract List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels) throws ControllerException;
 
     public abstract void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException;
+    
+    public abstract void setChannelInitialState(Set<String> channelIds, ServerEventContext context, DeployedState initialState) throws ControllerException;
 
     public abstract boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException;
 
@@ -75,6 +79,12 @@ public abstract class ChannelController extends Controller {
     public abstract Statistics getStatistics();
 
     public abstract Statistics getTotalStatistics();
+    
+    public abstract Statistics getStatisticsFromStorage(String serverId);
+
+    public abstract Statistics getTotalStatisticsFromStorage(String serverId);
+
+    public abstract int getConnectorMessageCount(String channelId, String serverId, int metaDataId, Status status);
 
     public abstract void resetStatistics(Map<String, List<Integer>> channelConnectorMap, Set<Status> statuses);
 

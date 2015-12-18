@@ -16,6 +16,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -154,11 +155,10 @@ public class CommandLineInterface {
             String server = line.getOptionValue("a", configDefaults.getProperty("address"));
             String user = line.getOptionValue("u", configDefaults.getProperty("user"));
             String password = line.getOptionValue("p", configDefaults.getProperty("password"));
-            String version = line.getOptionValue("v", configDefaults.getProperty("version"));
             String script = line.getOptionValue("s", configDefaults.getProperty("script"));
 
-            if ((server != null) && (user != null) && (password != null) && (version != null)) {
-                runShell(server, user, password, version, script, line.hasOption("d"));
+            if ((server != null) && (user != null) && (password != null)) {
+                runShell(server, user, password, script, line.hasOption("d"));
             } else {
                 new HelpFormatter().printHelp("Shell", options);
                 error("all of address, user, password, and version options must be supplied as arguments or in the default configuration file", null);
@@ -170,12 +170,12 @@ public class CommandLineInterface {
         }
     }
 
-    private void runShell(String server, String user, String password, String version, String script, boolean debug) {
+    private void runShell(String server, String user, String password, String script, boolean debug) {
         try {
             client = new Client(server);
             this.debug = debug;
 
-            LoginStatus loginStatus = client.login(user, password, version);
+            LoginStatus loginStatus = client.login(user, password);
 
             if (loginStatus.getStatus() != LoginStatus.Status.SUCCESS) {
                 error("Could not login to server.", null);
@@ -197,12 +197,14 @@ public class CommandLineInterface {
                 runConsole();
             }
             client.logout();
-            client.cleanup();
+            client.close();
             out.println("Disconnected from server.");
         } catch (ClientException ce) {
             ce.printStackTrace();
         } catch (IOException ioe) {
             error("Could not load script file.", ioe);
+        } catch (URISyntaxException e) {
+            error("Invalid server address.", e);
         }
     }
 
@@ -568,7 +570,7 @@ public class CommandLineInterface {
     }
 
     private void commandUserList(Token[] arguments) throws ClientException {
-        List<User> users = client.getUser(null);
+        List<User> users = client.getAllUsers();
         out.println("ID\tUser Name\tName\t\t\tEmail");
         for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
             User user = iter.next();
@@ -599,7 +601,7 @@ public class CommandLineInterface {
         user.setOrganization(organization);
         user.setEmail(email);
 
-        List<User> users = client.getUser(null);
+        List<User> users = client.getAllUsers();
         for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
             User luser = iter.next();
             if (luser.getUsername().equalsIgnoreCase(username)) {
@@ -609,17 +611,17 @@ public class CommandLineInterface {
         }
 
         try {
-            List<String> responses = client.checkOrUpdateUserPassword(user, password);
+            List<String> responses = client.checkUserPassword(password);
             if (responses != null) {
                 for (String response : responses) {
                     out.println(response);
                 }
                 return;
             }
-            client.updateUser(user);
+            client.createUser(user);
             // Get the new user object that contains the user id
-            User newUser = client.getUser(user).get(0);
-            responses = client.checkOrUpdateUserPassword(newUser, password);
+            User newUser = client.getUser(username);
+            responses = client.updateUserPassword(newUser.getId(), password);
 
             if (responses != null) {
                 System.out.println("User \"" + username + "\" has been created but the password could not be set:");
@@ -644,11 +646,11 @@ public class CommandLineInterface {
             error("cannot remove current user.", null);
             return;
         }
-        List<User> users = client.getUser(null);
+        List<User> users = client.getAllUsers();
         for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
             User user = iter.next();
             if (user.getId().toString().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
-                client.removeUser(user);
+                client.removeUser(user.getId());
                 out.println("User \"" + user.getUsername() + "\" successfully removed.");
                 return;
             }
@@ -662,11 +664,11 @@ public class CommandLineInterface {
         }
         String key = arguments[2].getText();
         String newPassword = arguments[3].getText();
-        List<User> users = client.getUser(null);
+        List<User> users = client.getAllUsers();
         for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
             User user = iter.next();
             if (user.getId().toString().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
-                List<String> responses = client.checkOrUpdateUserPassword(user, newPassword);
+                List<String> responses = client.updateUserPassword(user.getId(), newPassword);
                 if (responses != null) {
                     for (String response : responses) {
                         out.println(response);
@@ -681,7 +683,7 @@ public class CommandLineInterface {
 
     private void commandDeploy(Token[] arguments) throws ClientException {
         out.println("Deploying Channels");
-        List<Channel> channels = client.getChannels(null);
+        List<Channel> channels = client.getAllChannels();
 
         boolean hasChannels = false;
         for (Channel channel : channels) {
@@ -699,7 +701,7 @@ public class CommandLineInterface {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            List<DashboardStatus> channelStatus = client.getChannelStatusList();
+            List<DashboardStatus> channelStatus = client.getAllChannelStatuses();
             int limit = 60; // 30 second limit
             if (arguments.length > 1 && arguments[1] instanceof IntToken) {
                 limit = ((IntToken) arguments[1]).getValue() * 2; // multiply
@@ -714,7 +716,7 @@ public class CommandLineInterface {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                channelStatus = client.getChannelStatusList();
+                channelStatus = client.getAllChannelStatuses();
                 limit--;
             }
             if (limit > 0) {
@@ -816,7 +818,7 @@ public class CommandLineInterface {
         Token key = arguments[1];
         String path = arguments[2].getText();
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        List<AlertModel> alerts = client.getAlert(null);
+        List<AlertModel> alerts = client.getAllAlerts();
         if (key == Token.WILDCARD) {
             for (AlertModel alert : alerts) {
                 try {
@@ -971,7 +973,7 @@ public class CommandLineInterface {
                 libraryMap.put(library.getId(), library);
             }
 
-            CodeTemplateLibrarySaveResult updateSummary = client.updateLibrariesAndTemplates(new ArrayList<CodeTemplateLibrary>(libraryMap.values()), new ArrayList<CodeTemplateLibrary>(), new ArrayList<CodeTemplate>(codeTemplateMap.values()), new ArrayList<CodeTemplate>(), force);
+            CodeTemplateLibrarySaveResult updateSummary = client.updateLibrariesAndTemplates(new HashSet<CodeTemplateLibrary>(libraryMap.values()), new HashSet<String>(), new HashSet<CodeTemplate>(codeTemplateMap.values()), new HashSet<String>(), force);
 
             if (!updateSummary.isOverrideNeeded()) {
                 if (updateSummary.isLibrariesSuccess()) {
@@ -1060,7 +1062,7 @@ public class CommandLineInterface {
             return;
         }
 
-        List<CodeTemplateLibrary> updatedLibraries = new ArrayList<CodeTemplateLibrary>();
+        Set<CodeTemplateLibrary> updatedLibraries = new HashSet<CodeTemplateLibrary>();
         for (CodeTemplateLibrary library : libraries) {
             if (!matchedLibraries.contains(library)) {
                 updatedLibraries.add(library);
@@ -1073,7 +1075,7 @@ public class CommandLineInterface {
             for (CodeTemplateLibrary library : matchedLibraries) {
                 for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
                     try {
-                        client.removeCodeTemplate(codeTemplate);
+                        client.removeCodeTemplate(codeTemplate.getId());
                     } catch (ClientException e) {
                         error("Error removing code template " + codeTemplate.getId() + ".", e);
                     }
@@ -1212,7 +1214,7 @@ public class CommandLineInterface {
         }
 
         out.println("Removing code template \"" + removeCodeTemplates.get(0).getName() + "\"...");
-        client.removeCodeTemplate(removeCodeTemplates.get(0));
+        client.removeCodeTemplate(removeCodeTemplates.get(0).getId());
         out.println("Successfully removed code template.");
     }
 
@@ -1440,7 +1442,7 @@ public class CommandLineInterface {
 
     private void commandStatus(Token[] arguments) throws ClientException {
         out.println("ID\t\t\t\t\tStatus\t\tName");
-        List<DashboardStatus> channels = client.getChannelStatusList();
+        List<DashboardStatus> channels = client.getAllChannelStatuses();
         for (Iterator<DashboardStatus> iter = channels.iterator(); iter.hasNext();) {
             DashboardStatus channel = iter.next();
 
@@ -1457,7 +1459,7 @@ public class CommandLineInterface {
         Token key = arguments[1];
         String path = arguments[2].getText();
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        List<Channel> channels = client.getChannels(null);
+        List<Channel> channels = client.getAllChannels();
         if (key == Token.WILDCARD) {
             for (Channel channel : channels) {
                 try {
@@ -1494,7 +1496,7 @@ public class CommandLineInterface {
     private void commandAllChannelStats(Token[] arguments) throws ClientException {
         out.println("Received\tFiltered\tQueued\t\tSent\t\tErrored\t\tName");
 
-        List<DashboardStatus> channelStatuses = client.getChannelStatusList();
+        List<DashboardStatus> channelStatuses = client.getAllChannelStatuses();
 
         for (DashboardStatus channelStatus : channelStatuses) {
             ChannelStatistics stats = client.getStatistics(channelStatus.getChannelId());
@@ -1503,7 +1505,7 @@ public class CommandLineInterface {
     }
 
     private void commandChannelList(Token[] arguments) throws ClientException {
-        List<Channel> allChannels = client.getChannels(null);
+        List<Channel> allChannels = client.getAllChannels();
         out.println("ID\t\t\t\t\tEnabled\t\tName");
         String enable = "";
         for (Iterator<Channel> iter = allChannels.iterator(); iter.hasNext();) {
@@ -1542,7 +1544,7 @@ public class CommandLineInterface {
             if (channel.isEnabled()) {
                 channel.setEnabled(false);
             }
-            client.removeChannel(channel);
+            client.removeChannel(channel.getId());
             out.println("Channel '" + channel.getName() + "' Removed");
         }
     }
@@ -1644,7 +1646,7 @@ public class CommandLineInterface {
      * Checks to see if the passed in channel id already exists
      */
     public Channel getChannelById(String id) throws ClientException {
-        for (Channel channel : client.getChannels(null)) {
+        for (Channel channel : client.getAllChannels()) {
             if (channel.getId().equalsIgnoreCase(id)) {
                 return channel;
             }
@@ -1680,7 +1682,7 @@ public class CommandLineInterface {
     }
 
     private Channel getChannelByName(String name) throws ClientException {
-        for (Channel channel : client.getChannels(null)) {
+        for (Channel channel : client.getAllChannels()) {
             if (channel.getName().equalsIgnoreCase(name)) {
                 out.println("Channel \"" + name + "\" already exists.");
                 return channel;
@@ -1692,7 +1694,7 @@ public class CommandLineInterface {
     private List<Channel> getMatchingChannels(Token key) throws ClientException {
         List<Channel> result = new ArrayList<Channel>();
 
-        for (Channel channel : client.getChannels(null)) {
+        for (Channel channel : client.getAllChannels()) {
             if (matchesChannel(key, channel.getName(), channel.getId())) {
                 result.add(channel);
             }
@@ -1715,7 +1717,7 @@ public class CommandLineInterface {
     private List<DashboardStatus> getMatchingChannelStatuses(Token key) throws ClientException {
         List<DashboardStatus> result = new ArrayList<DashboardStatus>();
 
-        for (DashboardStatus status : client.getChannelStatusList()) {
+        for (DashboardStatus status : client.getAllChannelStatuses()) {
             if (matchesChannel(key, status.getName(), status.getChannelId())) {
                 result.add(status);
             }
@@ -1738,11 +1740,11 @@ public class CommandLineInterface {
     private void commandClearAllMessages(Token[] arguments) throws ClientException {
         Set<String> channelIds = new HashSet<String>();
 
-        for (Channel channel : client.getChannels(null)) {
+        for (Channel channel : client.getAllChannels()) {
             channelIds.add(channel.getId());
         }
 
-        client.clearMessages(channelIds, true, false);
+        client.removeAllMessages(channelIds, true, false);
     }
 
     private void commandResetstats(Token[] arguments) throws ClientException {
@@ -1754,7 +1756,7 @@ public class CommandLineInterface {
         if (lifetime) {
             client.clearAllStatistics();
         } else {
-            List<DashboardStatus> channelStatuses = client.getChannelStatusList();
+            List<DashboardStatus> channelStatuses = client.getAllChannelStatuses();
 
             Map<String, List<Integer>> channelConnectorMap = new HashMap<String, List<Integer>>();
 
@@ -1841,7 +1843,7 @@ public class CommandLineInterface {
         builder.append("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
         builder.append("Name, Received, Filtered, Queued, Sent, Errored\n");
 
-        List<DashboardStatus> channelStatuses = client.getChannelStatusList();
+        List<DashboardStatus> channelStatuses = client.getAllChannelStatuses();
 
         for (DashboardStatus channelStatus : channelStatuses) {
             ChannelStatistics stats = client.getStatistics(channelStatus.getChannelId());
@@ -1938,7 +1940,7 @@ public class CommandLineInterface {
                     importAlert.setName(tempId);
                     importAlert.setId(tempId);
                 } else {
-                    for (AlertModel alert : client.getAlert(null)) {
+                    for (AlertModel alert : client.getAllAlerts()) {
                         if (alert.getName().equalsIgnoreCase(alertName)) {
                             // If overwriting, use the old id
                             importAlert.setId(alert.getId());
@@ -1966,7 +1968,7 @@ public class CommandLineInterface {
             return false;
         }
 
-        for (AlertModel alert : client.getAlert(null)) {
+        for (AlertModel alert : client.getAllAlerts()) {
             if (alert.getName().equalsIgnoreCase(name)) {
                 out.println("Alert \"" + name + "\" already exists.");
                 return false;

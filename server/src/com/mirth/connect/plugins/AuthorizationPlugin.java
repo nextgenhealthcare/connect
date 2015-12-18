@@ -9,8 +9,8 @@
 
 package com.mirth.connect.plugins;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.LoginStatus;
-import com.mirth.connect.server.controllers.ControllerException;
 
 public interface AuthorizationPlugin extends ServerPlugin {
     public LoginStatus authorizeUser(String username, String plainPassword) throws ControllerException;

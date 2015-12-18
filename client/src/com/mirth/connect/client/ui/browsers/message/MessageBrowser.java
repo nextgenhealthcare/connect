@@ -74,9 +74,10 @@ import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.Operation;
-import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.client.core.RequestAbortedException;
+import com.mirth.connect.client.core.api.servlets.MessageServletInterface;
+import com.mirth.connect.client.core.api.util.OperationUtil;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.Mirth;
@@ -194,7 +195,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         makeMessageTable();
         //Initialize the mappings table
         makeMappingsTable();
-        
+
         executor = Executors.newFixedThreadPool(5);
     }
 
@@ -354,14 +355,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         runSearch();
     }
 
-    public List<Operation> getAbortOperations() {
-        List<Operation> operations = new ArrayList<Operation>();
-
-        operations.add(Operations.MESSAGE_GET);
-        operations.add(Operations.MESSAGE_GET_COUNT);
-        operations.add(Operations.MESSAGE_REMOVE);
-
-        return operations;
+    public Set<Operation> getAbortOperations() {
+        return OperationUtil.getAbortableOperations(MessageServletInterface.class);
     }
 
     public void resetSearchCriteria() {
@@ -1079,7 +1074,6 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTreeTable.setPreferredScrollableViewportSize(messageTreeTable.getPreferredSize());
         messageTreeTable.setMirthTransferHandlerEnabled(true);
 
-
         tableModel = new MessageBrowserTableModel(columnMap.size());
         // Add a blank column to the column initially, otherwise it return an exception on load
         // Columns will be re-generated when the message browser is viewed
@@ -1600,7 +1594,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                     public Void doInBackground() {
-                        attachmentViewer.viewAttachments(channelId, attachmentId, messageId);
+                        attachmentViewer.viewAttachments(channelId, messageId, attachmentId);
                         return null;
                     }
 
@@ -1641,7 +1635,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     worker.cancel(true);
                 }
                 prettyPrintWorkers.clear();
-                
+
                 parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
                 parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, -1, isChannelDeployed);
 
@@ -1671,7 +1665,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                                 return;
                             }
 
-                            attachments = parent.mirthClient.getAttachmentIdsByMessageId(channelId, messageId);
+                            attachments = parent.mirthClient.getAttachmentsByMessageId(channelId, messageId, false);
                         } catch (Throwable t) {
                             if (t.getMessage().contains("Java heap space")) {
                                 parent.alertError(parent, "There was an out of memory error when trying to retrieve message content.\nIncrease your heap size and try again.");

@@ -11,9 +11,9 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/json-simple-1.1.1.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jsp-api.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jstl-1.2.jar"/>
-	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/standard.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/stripes.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/servlet-api-3.0.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Server">
 		<accessrules>
 			<accessrule kind="accessible" pattern="com/mirth/connect/client/core/**"/>

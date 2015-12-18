@@ -14,11 +14,17 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 public class Operation {
     private String name;
     private String displayName;
+    private ExecuteType executeType;
     private boolean auditable;
+    
+    public enum ExecuteType {
+        SYNC, ASYNC, ABORT_PENDING
+    }
 
-    public Operation(String name, String displayName, boolean auditable) {
+    public Operation(String name, String displayName, ExecuteType executeType, boolean auditable) {
         this.name = name;
         this.displayName = displayName;
+        this.executeType = executeType;
         this.auditable = auditable;
     }
 
@@ -36,6 +42,14 @@ public class Operation {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public ExecuteType getExecuteType() {
+        return executeType;
+    }
+
+    public void setExecuteType(ExecuteType executeType) {
+        this.executeType = executeType;
     }
 
     public boolean isAuditable() {

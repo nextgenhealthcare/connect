@@ -43,20 +43,20 @@ public class UserSessionCache {
         userSessionMap.put(session, user);
     }
 
-    public void invalidateAllSessionsForUser(User user) {
+    public void invalidateAllSessionsForUser(Integer userId) {
         for (Entry<HttpSession, User> entry : userSessionMap.entrySet()) {
             HttpSession entrySession = entry.getKey();
             User entryUser = entry.getValue();
 
-            if (entryUser.getId().equals(user.getId())) {
+            if (entryUser.getId().equals(userId)) {
                 logger.debug("invalidating session: user=" + entryUser.getId() + ", session=" + entrySession.getId());
-                
+
                 try {
                     entrySession.removeAttribute("authorized");
                 } catch (IllegalStateException e) {
                     logger.debug("tried to invalidate session, but user was already logged out");
                 }
-                
+
                 userSessionMap.remove(entrySession);
             }
         }

@@ -12,5 +12,8 @@
 		<string>com.mirth.connect.plugins.datapruner.DataPrunerClient</string>
 	</clientClasses>
 	<library type="CLIENT" path="datapruner-client.jar" />
+	<library type="SHARED" path="datapruner-shared.jar" />
 	<library type="SERVER" path="datapruner-server.jar" />
+	<apiProvider type="SERVLET_INTERFACE" name="com.mirth.connect.plugins.datapruner.DataPrunerServletInterface"/>
+	<apiProvider type="SERVER_CLASS" name="com.mirth.connect.plugins.datapruner.DataPrunerServlet"/>
 </pluginMetaData>

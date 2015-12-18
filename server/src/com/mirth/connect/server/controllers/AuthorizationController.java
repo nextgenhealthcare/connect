@@ -15,10 +15,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.client.core.ExtensionOperation;
 import com.mirth.connect.client.core.Operation;
-import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Auditable;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.ServerEvent;
@@ -28,34 +28,21 @@ public abstract class AuthorizationController {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
 
-    public abstract boolean isUserAuthorized(Integer userId, String operation, Map<String, Object> parameterMap, String address) throws ControllerException;
-
-    public abstract boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String operation, Map<String, Object> parameterMap, String address) throws ControllerException;
+    public abstract boolean isUserAuthorized(Integer userId, Operation operation, Map<String, Object> parameterMap, String address, boolean audit) throws ControllerException;
 
     public abstract void addExtensionPermission(ExtensionPermission extensionPermission);
-    
+
     public abstract boolean doesUserHaveChannelRestrictions(Integer userId) throws ControllerException;
-    
+
     public abstract List<String> getAuthorizedChannelIds(Integer userId) throws ControllerException;
 
-    public void auditAuthorizationRequest(Integer userId, String operationName, Map<String, Object> parameterMap, ServerEvent.Outcome outcome, String address) {
-        Operation operation = null;
-        String extensionName = null;
-
-        /*
-         * If this is an operation being invoked through an extension, get the
-         * name of the extension
-         */
-        if (StringUtils.contains(operationName, "#")) {
-            String[] parts = StringUtils.split(operationName, '#');
-            extensionName = parts[0];
-            operation = Operations.getOperation(parts[1]);
-        } else {
-            operation = Operations.getOperation(operationName);
-        }
-
-        if ((operation != null) && operation.isAuditable()) {
-            ServerEvent serverEvent = new ServerEvent(serverId, operation.getDisplayName() + ((extensionName == null) ? "" : (" invoked through " + extensionName)));
+    public void auditAuthorizationRequest(Integer userId, Operation operation, Map<String, Object> parameterMap, ServerEvent.Outcome outcome, String address) {
+        if (operation != null && operation.isAuditable()) {
+            String displayName = operation.getDisplayName();
+            if (operation instanceof ExtensionOperation) {
+                displayName += " invoked through " + ((ExtensionOperation) operation).getExtensionName();
+            }
+            ServerEvent serverEvent = new ServerEvent(serverId, displayName);
             serverEvent.setLevel(Level.INFORMATION);
             serverEvent.setUserId(userId);
             serverEvent.setOutcome(outcome);

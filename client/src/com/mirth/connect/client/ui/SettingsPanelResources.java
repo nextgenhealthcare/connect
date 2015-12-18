@@ -52,6 +52,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
@@ -77,6 +78,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
     private JScrollPane exceptionScrollPane;
     private JTextPane exceptionTextPane;
     private int selectedRow = -1;
+    private int addResourceTaskIndex;
     private int removeResourceTaskIndex;
     private int reloadResourceTaskIndex;
 
@@ -84,11 +86,13 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
         super(tabName);
         initComponents();
 
-        addTask("doAddResource", "Add Resource", "Add new resource.", "", new ImageIcon(Frame.class.getResource("images/add.png")));
-        removeResourceTaskIndex = addTask("doRemoveResource", "Remove Resource", "Remove selected resource.", "", new ImageIcon(Frame.class.getResource("images/delete.png")));
-        reloadResourceTaskIndex = addTask("doReloadResource", "Reload Resource", "Reloads the selected resource on the server.", "", new ImageIcon(Frame.class.getResource("images/arrow_rotate_clockwise.png")));
+        addResourceTaskIndex = addTask(TaskConstants.SETTINGS_ADD_RESOURCE, "Add Resource", "Add new resource.", "", new ImageIcon(Frame.class.getResource("images/add.png")));
+        removeResourceTaskIndex = addTask(TaskConstants.SETTINGS_REMOVE_RESOURCE, "Remove Resource", "Remove selected resource.", "", new ImageIcon(Frame.class.getResource("images/delete.png")));
+        reloadResourceTaskIndex = addTask(TaskConstants.SETTINGS_RELOAD_RESOURCE, "Reload Resource", "Reloads the selected resource on the server.", "", new ImageIcon(Frame.class.getResource("images/arrow_rotate_clockwise.png")));
 
-        setVisibleTasks(removeResourceTaskIndex, removeResourceTaskIndex, false);
+        setVisibleTasks(addResourceTaskIndex, reloadResourceTaskIndex, false);
+        setVisibleTasks(addResourceTaskIndex, addResourceTaskIndex, true);
+        setVisibleTasks(reloadResourceTaskIndex, reloadResourceTaskIndex, true);
     }
 
     @Override

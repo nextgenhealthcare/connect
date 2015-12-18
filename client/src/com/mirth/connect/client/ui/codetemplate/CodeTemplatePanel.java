@@ -345,10 +345,18 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     }
 
     public void doRefreshCodeTemplates() {
-        doRefreshCodeTemplates(null);
+        doRefreshCodeTemplates(true);
     }
 
-    public void doRefreshCodeTemplates(final ActionListener actionListener) {
+    public void doRefreshCodeTemplates(boolean showMessageOnForbidden) {
+        doRefreshCodeTemplates(null, showMessageOnForbidden);
+    }
+
+    public void doRefreshCodeTemplates(ActionListener actionListener) {
+        doRefreshCodeTemplates(actionListener, true);
+    }
+
+    public void doRefreshCodeTemplates(final ActionListener actionListener, final boolean showMessageOnForbidden) {
         if (isSaveEnabled() && !confirmLeave()) {
             return;
         }
@@ -432,7 +440,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                     if (cause instanceof ExecutionException) {
                         cause = e.getCause();
                     }
-                    parent.alertThrowable(parent, e.getCause());
+                    parent.alertThrowable(parent, e.getCause(), showMessageOnForbidden);
                 }
 
                 if (actionListener != null) {
@@ -664,7 +672,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     }
 
     private CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(Map<String, CodeTemplateLibrary> libraries, Map<String, CodeTemplateLibrary> removedLibraries, Map<String, CodeTemplate> updatedCodeTemplates, Map<String, CodeTemplate> removedCodeTemplates, boolean override) throws Exception {
-        return parent.mirthClient.updateLibrariesAndTemplates(new ArrayList<CodeTemplateLibrary>(libraries.values()), new ArrayList<CodeTemplateLibrary>(removedLibraries.values()), new ArrayList<CodeTemplate>(updatedCodeTemplates.values()), new ArrayList<CodeTemplate>(removedCodeTemplates.values()), override);
+        return parent.mirthClient.updateLibrariesAndTemplates(new HashSet<CodeTemplateLibrary>(libraries.values()), new HashSet<String>(removedLibraries.keySet()), new HashSet<CodeTemplate>(updatedCodeTemplates.values()), new HashSet<String>(removedCodeTemplates.keySet()), override);
     }
 
     private void handleUpdateSummary(Map<String, CodeTemplateLibrary> libraries, Map<String, CodeTemplate> updatedCodeTemplates, Map<String, CodeTemplate> removedCodeTemplates, boolean override, TreeTableNode selectedNode, Set<String> expandedLibraryIds, CodeTemplateLibrarySaveResult updateSummary) {

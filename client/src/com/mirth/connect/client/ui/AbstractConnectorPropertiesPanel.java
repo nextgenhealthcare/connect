@@ -9,6 +9,8 @@
 
 package com.mirth.connect.client.ui;
 
+import java.lang.reflect.Method;
+
 import javax.swing.JPanel;
 
 import com.mirth.connect.client.ui.panels.connectors.ConnectorPanel;
@@ -85,7 +87,7 @@ public abstract class AbstractConnectorPropertiesPanel extends JPanel {
      * @param response
      * @return true if the regular connector panel response logic should be used, otherwise false
      */
-    public boolean handleConnectorServiceResponse(ConnectorSettingsPanel settingsPanel, String method, Object response) {
+    public boolean handleConnectorServiceResponse(ConnectorSettingsPanel settingsPanel, Method method, Object response) {
         return true;
     }
 }

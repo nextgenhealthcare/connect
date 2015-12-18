@@ -9,7 +9,7 @@
 
 package com.mirth.connect.server.userutil;
 
-import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.client.core.ControllerException;
 
 /**
  * Utility class used to create SMTPConnection object using the server's default SMTP settings.

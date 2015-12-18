@@ -87,10 +87,12 @@ public class PluginMetaData extends MetaData implements Serializable, Purgable {
         this.sqlMapConfigs = sqlMapConfigs;
     }
 
+    @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
 
+    @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }

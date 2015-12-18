@@ -78,7 +78,7 @@ public class TestUtils {
     }
 
     public static DashboardStatus getDashboardStatus(Client client, String channelId) throws Exception {
-        List<DashboardStatus> statuses = client.getChannelStatusList();
+        List<DashboardStatus> statuses = client.getAllChannelStatuses();
         DashboardStatus channelStatus = null;
 
         for (DashboardStatus status : statuses) {

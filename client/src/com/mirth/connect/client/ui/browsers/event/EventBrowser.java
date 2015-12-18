@@ -19,7 +19,6 @@ import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -48,9 +47,10 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.Operation;
-import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.PaginatedEventList;
 import com.mirth.connect.client.core.RequestAbortedException;
+import com.mirth.connect.client.core.api.servlets.EventServletInterface;
+import com.mirth.connect.client.core.api.util.OperationUtil;
 import com.mirth.connect.client.ui.CellData;
 import com.mirth.connect.client.ui.DateCellRenderer;
 import com.mirth.connect.client.ui.Frame;
@@ -93,8 +93,7 @@ public class EventBrowser extends javax.swing.JPanel {
     private SwingWorker<Void, Void> worker;
 
     /**
-     * Constructs the new event browser and sets up its default
-     * information/layout.
+     * Constructs the new event browser and sets up its default information/layout.
      */
     public EventBrowser() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -322,18 +321,18 @@ public class EventBrowser extends javax.swing.JPanel {
             events = new PaginatedEventList();
             events.setClient(parent.mirthClient);
             events.setEventFilter(eventFilter);
-        
+
             try {
                 events.setPageSize(Integer.parseInt(pageSizeField.getText()));
             } catch (NumberFormatException e) {
                 parent.alertError(parent, "Invalid page size.");
                 return;
             }
-        
+
             countButton.setVisible(true);
             clearCache();
             loadPageNumber(1);
-        
+
             updateSearchCriteriaPane();
         }
     }
@@ -532,8 +531,7 @@ public class EventBrowser extends javax.swing.JPanel {
     }
 
     /**
-     * Updates the cached username/id list so user ids can be displayed with
-     * their names.
+     * Updates the cached username/id list so user ids can be displayed with their names.
      */
     private void updateCachedUserMap() {
         // Retrieve users again to update the cache
@@ -564,14 +562,8 @@ public class EventBrowser extends javax.swing.JPanel {
         }
     }
 
-    public List<Operation> getAbortOperations() {
-        List<Operation> operations = new ArrayList<Operation>();
-
-        operations.add(Operations.EVENT_GET);
-        operations.add(Operations.EVENT_GET_COUNT);
-        operations.add(Operations.EVENT_REMOVE_ALL);
-
-        return operations;
+    public Set<Operation> getAbortOperations() {
+        return OperationUtil.getAbortableOperations(EventServletInterface.class);
     }
 
     public void resetSearchCriteria() {
@@ -669,7 +661,8 @@ public class EventBrowser extends javax.swing.JPanel {
                     EVENT_NAME_COLUMN_NAME, EVENT_SERVER_ID_COLUMN_NAME, EVENT_USER_COLUMN_NAME,
                     EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false, false };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false,
+                        false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -679,8 +672,8 @@ public class EventBrowser extends javax.swing.JPanel {
     }
 
     /**
-     * Creates the table with all of the information given after being filtered
-     * by the specified 'filter'
+     * Creates the table with all of the information given after being filtered by the specified
+     * 'filter'
      */
     private void makeEventTable() {
         updateEventTable(null);
@@ -696,7 +689,7 @@ public class EventBrowser extends javax.swing.JPanel {
 
         DateCellRenderer dateCellRenderer = new DateCellRenderer();
         dateCellRenderer.setDateFormat(new SimpleDateFormat(DATE_FORMAT));
-        
+
         eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setCellRenderer(dateCellRenderer);
         eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setMinWidth(140);
         eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setMaxWidth(140);
@@ -746,8 +739,8 @@ public class EventBrowser extends javax.swing.JPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed. Deselects the rows if no row was selected.
+     * Shows the popup menu when the trigger button (right-click) has been pushed. Deselects the
+     * rows if no row was selected.
      */
     private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = eventTable.rowAtPoint(new Point(evt.getX(), evt.getY()));

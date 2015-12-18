@@ -9,13 +9,23 @@
 
 package com.mirth.connect.donkey.model.channel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 public enum DeployedState {
-    DEPLOYING, UNDEPLOYING, STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED, SYNCING, UNKNOWN;
+    UNDEPLOYED, DEPLOYING, UNDEPLOYING, STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED, SYNCING, UNKNOWN;
 
     @Override
     public String toString() {
         return WordUtils.capitalizeFully(super.toString());
+    }
+    
+    public static DeployedState fromString(String value) {
+        for (DeployedState state : values()) {
+            if (StringUtils.equalsIgnoreCase(state.toString(), value)) {
+                return state;
+            }
+        }
+        return null;
     }
 }

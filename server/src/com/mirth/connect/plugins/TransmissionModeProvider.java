@@ -11,14 +11,12 @@ package com.mirth.connect.plugins;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Properties;
 
 import com.mirth.connect.donkey.server.message.StreamHandler;
 import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
-import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 
-public abstract class TransmissionModeProvider implements ServicePlugin {
+public abstract class TransmissionModeProvider implements ServerPlugin {
 
     public abstract StreamHandler getStreamHandler(InputStream inputStream, OutputStream outputStream, BatchStreamReader batchStreamReader, TransmissionModeProperties transmissionModeProperties);
 
@@ -27,25 +25,4 @@ public abstract class TransmissionModeProvider implements ServicePlugin {
 
     @Override
     public void stop() {}
-
-    @Override
-    public void init(Properties properties) {}
-
-    @Override
-    public void update(Properties properties) {}
-
-    @Override
-    public Object invoke(String method, Object object, String sessionId) throws Exception {
-        return null;
-    }
-
-    @Override
-    public Properties getDefaultProperties() {
-        return new Properties();
-    }
-
-    @Override
-    public ExtensionPermission[] getExtensionPermissions() {
-        return new ExtensionPermission[] {};
-    }
 }

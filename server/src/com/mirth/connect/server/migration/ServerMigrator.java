@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
@@ -60,14 +61,16 @@ public class ServerMigrator extends Migrator {
         if (startingVersion == null) {
             startingVersion = Version.values()[0];
         }
+        setStartingVersion(startingVersion);
 
         Version version = startingVersion.getNextVersion();
 
         while (version != null) {
-            Migrator migrator = getMigrator(startingVersion, version);
+            Migrator migrator = getMigrator(version);
 
             if (migrator != null) {
                 logger.info("Migrating server to version " + version);
+                migrator.setStartingVersion(startingVersion);
                 migrator.setConnection(connection);
                 migrator.setDatabaseType(getDatabaseType());
                 migrator.setDefaultScriptPath(getDefaultScriptPath());
@@ -91,7 +94,7 @@ public class ServerMigrator extends Migrator {
         Version version = Version.values()[1];
 
         while (version != null) {
-            Migrator migrator = getMigrator(null, version);
+            Migrator migrator = getMigrator(version);
 
             if (migrator != null && migrator instanceof ConfigurationMigrator) {
                 runConfigurationMigrator((ConfigurationMigrator) migrator, mirthConfig, version);
@@ -183,7 +186,7 @@ public class ServerMigrator extends Migrator {
         }
     }
 
-    private Migrator getMigrator(Version startingVersion, Version version) {
+    private Migrator getMigrator(Version version) {
         switch (version) {// @formatter:off
             case V0: return new LegacyMigrator(0);
             case V1: return new LegacyMigrator(1);
@@ -195,7 +198,7 @@ public class ServerMigrator extends Migrator {
             case V7: return new Migrate2_0_0();
             case V8: return new LegacyMigrator(8);
             case V9: return new Migrate2_2_0();
-            case V3_0_0: return new Migrate3_0_0(startingVersion);
+            case V3_0_0: return new Migrate3_0_0();
             case V3_0_1: return null;
             case V3_0_2: return new Migrate3_0_2();
             case V3_0_3: return null;
@@ -240,7 +243,7 @@ public class ServerMigrator extends Migrator {
             updateVersion(Version.getLatest());
         }
     }
-
+    
     private Version getCurrentVersion() throws MigrationException {
         Statement statement = null;
         ResultSet resultSet = null;

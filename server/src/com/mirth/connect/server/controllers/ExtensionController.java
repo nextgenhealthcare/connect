@@ -10,18 +10,19 @@
 package com.mirth.connect.server.controllers;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
-import org.apache.commons.fileupload.FileItem;
-
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.AuthorizationPlugin;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.CodeTemplateServerPlugin;
-import com.mirth.connect.plugins.ConnectorServicePlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ResourcePlugin;
 import com.mirth.connect.plugins.ServerPlugin;
@@ -128,22 +129,8 @@ public abstract class ExtensionController extends Controller {
      * @throws ControllerException
      */
     public abstract Properties getPluginProperties(String name) throws ControllerException;
-
-    /**
-     * Invokes a server plugin service.
-     * 
-     * @param name
-     *            the name of the plugin
-     * @param method
-     *            the signature of the method to invoke
-     * @param object
-     *            parameters for the method (for example, a Map for multiple parameters)
-     * @param sessionId
-     *            the user's session ID
-     * @return the result of invoking the plugin service
-     * @throws Exception
-     */
-    public abstract Object invokePluginService(String name, String method, Object object, String sessionId) throws Exception;
+    
+    public abstract Map<String, MetaData> getInvalidMetaData();
 
     // ************************************************************
     // Connectors
@@ -155,22 +142,6 @@ public abstract class ExtensionController extends Controller {
 
     public abstract ConnectorMetaData getConnectorMetaDataByTransportName(String transportName);
 
-    /**
-     * Invokes a connector service.
-     * 
-     * @param name
-     *            the name of the connector
-     * @param method
-     *            the signature of the method to invoke
-     * @param object
-     *            parameters for the method (for example, a Map for multiple parameters)
-     * @param sessionId
-     *            the user's session ID
-     * @return the result of invoking the connector service
-     * @throws Exception
-     */
-    public abstract Object invokeConnectorService(String channelId, String channelName, String name, String method, Object object, String sessionId) throws Exception;
-
     // ************************************************************
     // Extension installation and unistallation
     // ************************************************************
@@ -179,7 +150,7 @@ public abstract class ExtensionController extends Controller {
      * Extracts the contents of the uploaded zip file into the installation temp directory to be
      * picked up by MirthLauncher on next restart.
      */
-    public abstract void extractExtension(FileItem fileItem) throws ControllerException;
+    public abstract InstallationResult extractExtension(InputStream inputStream);
 
     /**
      * Adds the extension's SQL uninstall script to the server uninstallation script. Also adds the
@@ -213,11 +184,27 @@ public abstract class ExtensionController extends Controller {
 
     public abstract Map<String, DataTypeServerPlugin> getDataTypePlugins();
 
-    public abstract Map<String, ConnectorServicePlugin> getConnectorServicePlugins();
-
     public abstract Map<String, ResourcePlugin> getResourcePlugins();
 
     public abstract AuthorizationPlugin getAuthorizationPlugin();
 
     public abstract List<ServerPlugin> getServerPlugins();
+    
+    public class InstallationResult {
+        private Throwable cause;
+        private Set<MetaData> metaData;
+        
+        public InstallationResult(Throwable cause, Set<MetaData> metaData) {
+            this.cause = cause;
+            this.metaData = metaData;
+        }
+
+        public Throwable getCause() {
+            return cause;
+        }
+
+        public Set<MetaData> getMetaData() {
+            return metaData;
+        }
+    }
 }

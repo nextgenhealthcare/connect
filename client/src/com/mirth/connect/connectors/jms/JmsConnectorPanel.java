@@ -228,7 +228,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         Object result = null;
 
         try {
-            result = invokeRemoteMethod("getTemplates", null);
+            result = parent.mirthClient.getServlet(JmsConnectorServletInterface.class).getTemplates();
         } catch (Exception e) {
             parent.alertThrowable(parent, e);
         }
@@ -682,7 +682,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         template.setConnectionProperties(connectionPropertiesTable.getProperties());
 
         try {
-            invokeRemoteMethod("saveTemplate", new Object[] { templateName, template });
+            parent.mirthClient.getServlet(JmsConnectorServletInterface.class).saveTemplate(templateName, template);
         } catch (Exception e) {
             parent.alertThrowable(parent, e);
             return;
@@ -700,7 +700,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         }
 
         try {
-            invokeRemoteMethod("deleteTemplate", templateName);
+            parent.mirthClient.getServlet(JmsConnectorServletInterface.class).deleteTemplate(templateName);
         } catch (Exception e) {
             parent.alertThrowable(parent, e);
             return;
@@ -715,10 +715,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
         templateList.setSelectedIndex(selectedIndex);
     }//GEN-LAST:event_deleteTemplateButtonActionPerformed
-
-    private Object invokeRemoteMethod(String method, Object arg) throws Exception {
-        return parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), parent.channelEditPanel.currentChannel.getName(), connectorName, method, arg);
-    }
 
     private boolean confirmDialog(String message) {
         return (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(parent, message, "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE));

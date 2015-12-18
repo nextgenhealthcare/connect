@@ -37,6 +37,7 @@ import org.apache.http.entity.ContentType;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
@@ -45,6 +46,7 @@ import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
@@ -647,19 +649,6 @@ public class HttpSender extends ConnectorSettingsPanel {
             urlField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
             urlField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
             urlField.setBackground(connectorTypeDecoration.getHighlightColor());
-        }
-    }
-
-    @Override
-    public void handleConnectorServiceResponse(String method, Object response) {
-        ConnectionTestResponse connectionTestResponse = (ConnectionTestResponse) response;
-
-        if (connectionTestResponse == null) {
-            parent.alertError(parent, "Failed to invoke service.");
-        } else if (connectionTestResponse.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
-            parent.alertInformation(parent, connectionTestResponse.getMessage());
-        } else {
-            parent.alertWarning(parent, connectionTestResponse.getMessage());
         }
     }
 
@@ -1436,7 +1425,26 @@ public class HttpSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-        invokeConnectorService("testConnection", "Testing connection...", "Error testing HTTP connection: ");
+        ResponseHandler handler = new ResponseHandler() {
+            @Override
+            public void handle(Object response) {
+                ConnectionTestResponse connectionTestResponse = (ConnectionTestResponse) response;
+
+                if (connectionTestResponse == null) {
+                    parent.alertError(parent, "Failed to invoke service.");
+                } else if (connectionTestResponse.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                    parent.alertInformation(parent, connectionTestResponse.getMessage());
+                } else {
+                    parent.alertWarning(parent, connectionTestResponse.getMessage());
+                }
+            }
+        };
+
+        try {
+            getServlet(HttpConnectorServletInterface.class, "Testing connection...", "Error testing HTTP connection: ", handler).testConnection(getChannelId(), getChannelName(), (HttpDispatcherProperties) getFilledProperties());
+        } catch (ClientException e) {
+            // Should not happen
+        }
     }//GEN-LAST:event_testConnectionActionPerformed
 
     private void queryParametersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queryParametersDeleteButtonActionPerformed

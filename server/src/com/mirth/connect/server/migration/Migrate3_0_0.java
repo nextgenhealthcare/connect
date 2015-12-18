@@ -29,17 +29,12 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.mirth.connect.client.core.Version;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.util.MigrationException;
 
 public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     private Logger logger = Logger.getLogger(getClass());
-
-    private Version startingVersion;
-
-    public Migrate3_0_0(Version startingVersion) {
-        this.startingVersion = startingVersion;
-    }
 
     @Override
     public void migrate() throws MigrationException {
@@ -385,7 +380,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
                     codeTemplate.addChildElement("scope", codeScope);
 
                     // If the starting schema version is 2.0 or later, we need to add the version node to the XML.
-                    if (startingVersion != null && startingVersion.ordinal() >= Version.V7.ordinal()) {
+                    if (getStartingVersion() != null && getStartingVersion().ordinal() >= Version.V7.ordinal()) {
                         codeTemplate.addChildElement("version", "2.0");
                     }
 

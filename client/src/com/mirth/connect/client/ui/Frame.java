@@ -28,7 +28,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -91,9 +90,12 @@ import org.syntax.jedit.JEditTextArea;
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ConnectServiceUtil;
+import com.mirth.connect.client.core.ForbiddenException;
 import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.core.UnauthorizedException;
+import com.mirth.connect.client.core.Version;
+import com.mirth.connect.client.core.VersionMismatchException;
 import com.mirth.connect.client.ui.alert.AlertEditPanel;
 import com.mirth.connect.client.ui.alert.AlertPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
@@ -109,6 +111,7 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
+import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatus;
@@ -125,6 +128,7 @@ import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.InvalidChannel;
+import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
@@ -475,7 +479,7 @@ public class Frame extends JXFrame {
         messageBrowser = new MessageBrowser();
 
         // Refresh code templates after extensions have been loaded
-        codeTemplatePanel.doRefreshCodeTemplates();
+        codeTemplatePanel.doRefreshCodeTemplates(false);
 
         // DEBUGGING THE UIDefaults:
 
@@ -492,6 +496,29 @@ public class Frame extends JXFrame {
         try {
             loadedPlugins = mirthClient.getPluginMetaData();
             loadedConnectors = mirthClient.getConnectorMetaData();
+
+            // Register extension JAX-RS providers with the client
+            Set<String> apiProviderPackages = new HashSet<String>();
+            Set<String> apiProviderClasses = new HashSet<String>();
+
+            for (Object extensionMetaData : CollectionUtils.union(loadedPlugins.values(), loadedConnectors.values())) {
+                MetaData metaData = (MetaData) extensionMetaData;
+                for (ApiProvider provider : metaData.getApiProviders(Version.getLatest())) {
+                    switch (provider.getType()) {
+                        case SERVLET_INTERFACE_PACKAGE:
+                        case CORE_PACKAGE:
+                            apiProviderPackages.add(provider.getName());
+                            break;
+                        case SERVLET_INTERFACE:
+                        case CORE_CLASS:
+                            apiProviderClasses.add(provider.getName());
+                            break;
+                        default:
+                    }
+                }
+            }
+
+            mirthClient.registerApiProviders(apiProviderPackages, apiProviderClasses);
         } catch (ClientException e) {
             alertThrowable(this, e, "Unable to load extensions");
         }
@@ -1024,6 +1051,7 @@ public class Frame extends JXFrame {
         otherPane.setFocusable(false);
         addTask(TaskConstants.OTHER_NOTIFICATIONS, UIConstants.VIEW_NOTIFICATIONS, "View notifications from Mirth.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/flag_orange.png")), otherPane, null);
         addTask(TaskConstants.OTHER_VIEW_USER_API, "View User API", "View documentation for the Mirth Connect User API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_VIEW_CLIENT_API, "View Client API", "View documentation for the Mirth Connect Client API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
         addTask(TaskConstants.OTHER_HELP, "Help", "View the Mirth Connect wiki.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
         addTask(TaskConstants.OTHER_ABOUT, "About Mirth Connect", "View the about page for Mirth Connect.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png")), otherPane, null);
         addTask(TaskConstants.OTHER_VISIT_MIRTH, "Visit mirthcorp.com", "View Mirth's homepage.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/house.png")), otherPane, null);
@@ -1183,13 +1211,34 @@ public class Frame extends JXFrame {
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
     public void alertThrowable(Component parentComponent, Throwable t, String customMessage) {
-        alertThrowable(parentComponent, t, customMessage, null);
+        alertThrowable(parentComponent, t, customMessage, true);
+    }
+
+    /**
+     * Alerts the user with an exception dialog with the passed in stack trace.
+     */
+    public void alertThrowable(Component parentComponent, Throwable t, boolean showMessageOnForbidden) {
+        alertThrowable(parentComponent, t, null, showMessageOnForbidden);
+    }
+
+    /**
+     * Alerts the user with an exception dialog with the passed in stack trace.
+     */
+    public void alertThrowable(Component parentComponent, Throwable t, String customMessage, boolean showMessageOnForbidden) {
+        alertThrowable(parentComponent, t, customMessage, showMessageOnForbidden, null);
     }
 
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
     public void alertThrowable(Component parentComponent, Throwable t, String customMessage, String safeErrorKey) {
+        alertThrowable(parentComponent, t, customMessage, true, safeErrorKey);
+    }
+
+    /**
+     * Alerts the user with an exception dialog with the passed in stack trace.
+     */
+    public void alertThrowable(Component parentComponent, Throwable t, String customMessage, boolean showMessageOnForbidden, String safeErrorKey) {
         if (connectionError) {
             return;
         }
@@ -1204,9 +1253,13 @@ public class Frame extends JXFrame {
 
         parentComponent = getVisibleComponent(parentComponent);
         String message = StringUtils.trimToEmpty(customMessage);
+        boolean showDialog = true;
 
         if (t != null) {
             if (t instanceof ExecutionException && t.getCause() != null) {
+                t = t.getCause();
+            }
+            if (t.getCause() != null && t.getCause() instanceof ClientException) {
                 t = t.getCause();
             }
 
@@ -1222,9 +1275,16 @@ public class Frame extends JXFrame {
              * "Connection reset", for example.
              */
             if (t instanceof ClientException) {
-                if (StringUtils.contains(t.getMessage(), "Received close_notify during handshake")) {
+                if (t instanceof ForbiddenException || t.getCause() != null && t.getCause() instanceof ForbiddenException) {
+                    message = "You are not authorized to peform this action.\n\n" + message;
+                    if (!showMessageOnForbidden) {
+                        showDialog = false;
+                    }
+                } else if (StringUtils.contains(t.getMessage(), "Received close_notify during handshake")) {
                     return;
-                } else if (StringUtils.contains(t.getMessage(), "Forbidden") || StringUtils.contains(t.getMessage(), "reset")) {
+                } else if (t.getCause() != null && t.getCause() instanceof IllegalStateException && mirthClient.isClosed()) {
+                    return;
+                } else if (StringUtils.contains(t.getMessage(), "reset") || (t instanceof UnauthorizedException || t.getCause() != null && t.getCause() instanceof UnauthorizedException)) {
                     connectionError = true;
                     statusUpdaterExecutor.shutdownNow();
 
@@ -1232,7 +1292,7 @@ public class Frame extends JXFrame {
                     if (!exportChannelOnError()) {
                         return;
                     }
-                    mirthClient.cleanup();
+                    mirthClient.close();
                     this.dispose();
                     LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
                     return;
@@ -1250,12 +1310,10 @@ public class Frame extends JXFrame {
                     if (!exportChannelOnError()) {
                         return;
                     }
-                    mirthClient.cleanup();
+                    mirthClient.close();
                     this.dispose();
                     LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
                     return;
-                } else if (t.getCause() != null && t.getCause() instanceof UnauthorizedException) {
-                    message = "You are not authorized to peform this action.\n\n" + message;
                 }
             }
 
@@ -1269,12 +1327,14 @@ public class Frame extends JXFrame {
 
         logger.error(message);
 
-        Window owner = getWindowForComponent(parentComponent);
+        if (showDialog) {
+            Window owner = getWindowForComponent(parentComponent);
 
-        if (owner instanceof java.awt.Frame) {
-            new ErrorDialog((java.awt.Frame) owner, message);
-        } else { // window instanceof Dialog
-            new ErrorDialog((java.awt.Dialog) owner, message);
+            if (owner instanceof java.awt.Frame) {
+                new ErrorDialog((java.awt.Frame) owner, message);
+            } else { // window instanceof Dialog
+                new ErrorDialog((java.awt.Dialog) owner, message);
+            }
         }
     }
 
@@ -1442,8 +1502,8 @@ public class Frame extends JXFrame {
      * 
      * @throws ClientException
      */
-    public boolean updateChannel(Channel curr, boolean override) throws ClientException {
-        if (!mirthClient.updateChannel(curr, override)) {
+    public boolean updateChannel(Channel curr, boolean overwriting) throws ClientException {
+        if (overwriting ? !mirthClient.updateChannel(curr, false) : !mirthClient.createChannel(curr)) {
             if (alertOption(this, "This channel has been modified since you first opened it.\nWould you like to overwrite it?")) {
                 mirthClient.updateChannel(curr, true);
             } else {
@@ -1473,7 +1533,11 @@ public class Frame extends JXFrame {
             }
 
             try {
-                mirthClient.updateUser(updateUser);
+                if (updateUser.getId() == null) {
+                    mirthClient.createUser(updateUser);
+                } else {
+                    mirthClient.updateUser(updateUser);
+                }
             } catch (ClientException e) {
                 if (e.getMessage() != null && e.getMessage().contains("username must be unique")) {
                     alertWarning(parentComponent, "This username already exists. Please choose another one.");
@@ -1578,7 +1642,7 @@ public class Frame extends JXFrame {
             try {
                 LoadedExtensions.getInstance().resetPlugins();
                 mirthClient.logout();
-                mirthClient.login(currentUser.getUsername(), newPassword, PlatformUI.CLIENT_VERSION);
+                mirthClient.login(currentUser.getUsername(), newPassword);
                 PlatformUI.USER_NAME = currentUser.getUsername();
             } catch (ClientException e) {
                 alertThrowable(parentComponent, e);
@@ -1592,7 +1656,13 @@ public class Frame extends JXFrame {
 
     public boolean checkOrUpdateUserPassword(Component parentComponent, final User currentUser, String newPassword) {
         try {
-            List<String> responses = mirthClient.checkOrUpdateUserPassword(currentUser, newPassword);
+            List<String> responses;
+            if (currentUser.getId() == null) {
+                responses = mirthClient.checkUserPassword(newPassword);
+            } else {
+                responses = mirthClient.updateUserPassword(currentUser.getId(), newPassword);
+            }
+
             if (CollectionUtils.isNotEmpty(responses)) {
                 String responseString = "Your password is not valid. Please fix the following:\n";
                 for (String response : responses) {
@@ -1687,7 +1757,7 @@ public class Frame extends JXFrame {
             worker.execute();
         }
     }
-    
+
     private Map<String, Object> getClientStats() {
         Map<String, Object> clientStats = new HashMap<String, Object>();
         clientStats.put("javaVersion", System.getProperty("java.version"));
@@ -1792,6 +1862,10 @@ public class Frame extends JXFrame {
 
     public void goToUserAPI() {
         BareBonesBrowserLaunch.openURL(PlatformUI.SERVER_URL + UIConstants.USER_API_LOCATION);
+    }
+
+    public void goToClientAPI() {
+        BareBonesBrowserLaunch.openURL(PlatformUI.SERVER_URL + UIConstants.CLIENT_API_LOCATION);
     }
 
     public void goToAbout() {
@@ -1967,7 +2041,7 @@ public class Frame extends JXFrame {
 
         try {
             mirthClient.logout();
-            mirthClient.cleanup();
+            mirthClient.close();
             this.dispose();
 
             if (!quit) {
@@ -2430,7 +2504,7 @@ public class Frame extends JXFrame {
                     }
                 } catch (ClientException e) {
                     status = null;
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e, e.getMessage(), TaskConstants.DASHBOARD_REFRESH);
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e, e.getMessage(), false, TaskConstants.DASHBOARD_REFRESH);
                 }
 
                 return null;
@@ -2886,7 +2960,7 @@ public class Frame extends JXFrame {
 
                 try {
                     if (userToDelete != UIConstants.ERROR_CONSTANT) {
-                        mirthClient.removeUser(users.get(userToDelete));
+                        mirthClient.removeUser(users.get(userToDelete).getId());
                         retrieveUsers();
                     }
                 } catch (ClientException e) {
@@ -4389,9 +4463,7 @@ public class Frame extends JXFrame {
                     alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send email alerts.");
                 }
             } catch (ClientException e) {
-                if (!(e.getCause() instanceof UnauthorizedException)) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
-                }
+                alertThrowable(PlatformUI.MIRTH_FRAME, e, false);
             }
 
             final String workingId = startWorking("Saving alerts...");
@@ -4450,7 +4522,7 @@ public class Frame extends JXFrame {
     }
 
     public void doNewAlert() throws ClientException {
-        AlertInfo alertInfo = mirthClient.getAlertInfo(null, getChannelHeaders());
+        AlertInfo alertInfo = mirthClient.getAlertInfo(getChannelHeaders());
         updateChannelStatuses(alertInfo.getChangedChannels());
         setupAlert(alertInfo.getProtocolOptions());
     }
@@ -4573,20 +4645,18 @@ public class Frame extends JXFrame {
             return;
         }
 
-        List<AlertModel> alerts;
+        AlertModel alert;
         try {
-            alerts = mirthClient.getAlert(selectedAlertIds.get(0));
+            alert = mirthClient.getAlert(selectedAlertIds.get(0));
         } catch (ClientException e) {
             alertThrowable(this, e);
             return;
         }
 
-        AlertModel alert;
-        if (CollectionUtils.isEmpty(alerts)) {
+        if (alert == null) {
             JOptionPane.showMessageDialog(Frame.this, "Alert no longer exists.");
             doRefreshAlerts(true);
         } else {
-            alert = alerts.get(0);
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
             String alertXML = serializer.serialize(alert);
 
@@ -4614,7 +4684,7 @@ public class Frame extends JXFrame {
 
                 List<AlertModel> alerts;
                 try {
-                    alerts = mirthClient.getAlert(null);
+                    alerts = mirthClient.getAllAlerts();
                 } catch (ClientException e) {
                     alertThrowable(this, e);
                     return;
@@ -4846,20 +4916,11 @@ public class Frame extends JXFrame {
                 alertError(this, "Invalid extension file.");
                 return false;
             }
-        } catch (Exception e) {
-            String errorMessage = e.getMessage();
-            try {
-                errorMessage = java.net.URLDecoder.decode(errorMessage, "UTF-8");
-            } catch (UnsupportedEncodingException e1) {
-            }
-
-            String versionError = "VersionMismatchException: ";
-            int messageIndex = errorMessage.indexOf(versionError);
-
-            if (messageIndex != -1) {
-                alertError(this, errorMessage.substring(messageIndex + versionError.length()));
+        } catch (ClientException e) {
+            if (e.getCause() != null && e.getCause() instanceof VersionMismatchException) {
+                alertError(this, e.getCause().getMessage());
             } else {
-                alertThrowable(this, e, "Unable to install extension: " + errorMessage);
+                alertThrowable(this, e, "Unable to install extension: " + e.getMessage());
             }
 
             return false;
@@ -4971,7 +5032,7 @@ public class Frame extends JXFrame {
     }
 
     public void retrieveUsers() throws ClientException {
-        users = mirthClient.getUser(null);
+        users = mirthClient.getAllUsers();
     }
 
     public synchronized void updateAcceleratorKeyPressed(InputEvent e) {

@@ -9,91 +9,100 @@
 
 package com.mirth.connect.client.core;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.util.Arrays;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLContext;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.client.ClientRequest;
+import org.glassfish.jersey.client.ClientResponse;
+import org.glassfish.jersey.client.spi.AsyncConnectorCallback;
+import org.glassfish.jersey.client.spi.Connector;
+import org.glassfish.jersey.message.internal.OutboundMessageContext;
+import org.glassfish.jersey.message.internal.Statuses;
 
+import com.mirth.connect.client.core.Operation.ExecuteType;
 import com.mirth.connect.util.MirthSSLUtil;
 
-public final class ServerConnection {
+public class ServerConnection implements Connector {
 
-    private Logger logger = Logger.getLogger(this.getClass());
-    private CloseableHttpClient client;
-    private RequestConfig requestConfig;
-    private String address;
-    private HttpPost post = null;
-    private HttpPost channelPost = null;
-    private HttpClientContext channelPostContext = null;
-    final private Operation currentOp = new Operation(null, null, false);
-    final private AbortTask abortTask = new AbortTask();
-    private ExecutorService abortExecutor = Executors.newSingleThreadExecutor();
+    public static final String EXECUTE_TYPE_PROPERTY = "executeType";
+    public static final String OPERATION_PROPERTY = "operation";
 
-    private static final Charset CONTENT_CHARSET = Charset.forName("UTF-8");
     private static final int CONNECT_TIMEOUT = 10000;
 
-    public ServerConnection(String address) {
-        // Default timeout is infinite.
-        this(address, 0);
+    private Logger logger = Logger.getLogger(getClass());
+    private CloseableHttpClient client;
+    private RequestConfig requestConfig;
+    private final Operation currentOp = new Operation(null, null, null, false);
+    private HttpRequestBase syncRequestBase;
+    private HttpRequestBase abortPendingRequestBase;
+    private HttpClientContext abortPendingClientContext = null;
+    private final AbortTask abortTask = new AbortTask();
+    private ExecutorService abortExecutor = Executors.newSingleThreadExecutor();
+
+    public ServerConnection(int timeout, String[] httpsProtocols, String[] httpsCipherSuites) {
+        this(timeout, httpsProtocols, httpsCipherSuites, false);
     }
 
-    public ServerConnection(String address, int timeout) {
-        this(address, timeout, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES);
-    }
-
-    public ServerConnection(String address, String[] httpsProtocols, String[] httpsCipherSuites) {
-        // Default timeout is infinite.
-        this(address, 0, httpsProtocols, httpsCipherSuites);
-    }
-
-    public ServerConnection(String address, int timeout, String[] httpsProtocols, String[] httpsCipherSuites) {
-        this.address = address;
-
+    public ServerConnection(int timeout, String[] httpsProtocols, String[] httpsCipherSuites, boolean allowHTTP) {
         SSLContext sslContext = null;
         try {
-            sslContext = SSLContexts.custom().useTLS().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
+            sslContext = SSLContexts.custom().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
         } catch (Exception e) {
             logger.error("Unable to build SSL context.", e);
         }
 
         String[] enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(httpsProtocols);
         String[] enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(httpsCipherSuites);
-        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, enabledProtocols, enabledCipherSuites, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslConnectionSocketFactory).build();
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, enabledProtocols, enabledCipherSuites, NoopHostnameVerifier.INSTANCE);
+        RegistryBuilder<ConnectionSocketFactory> builder = RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslConnectionSocketFactory);
+        if (allowHTTP) {
+            builder.register("http", PlainConnectionSocketFactory.getSocketFactory());
+        }
+        Registry<ConnectionSocketFactory> socketFactoryRegistry = builder.build();
 
         PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
         httpClientConnectionManager.setDefaultMaxPerRoute(5);
@@ -101,198 +110,55 @@ public final class ServerConnection {
 
         client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
         requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setConnectionRequestTimeout(CONNECT_TIMEOUT).setSocketTimeout(timeout).build();
-        post = getDefaultHttpPost();
-        channelPost = getDefaultHttpPost();
     }
 
-    /**
-     * Executes a POST method on a servlet with a set of parameters.
-     * 
-     * @param servletName
-     *            The name of the servlet.
-     * @param params
-     *            NameValuePair parameters for the request.
-     * @return
-     * @throws ClientException
-     */
-    public synchronized String executePostMethod(String servletName, NameValuePair[] params) throws ClientException {
-        synchronized (currentOp) {
-            if (params[0].getName().equals("op")) {
-                Operation op = Operations.getOperation(params[0].getValue());
-                currentOp.setName(op.getName());
-                currentOp.setDisplayName(op.getDisplayName());
-                currentOp.setAuditable(op.isAuditable());
-            }
+    @Override
+    public ClientResponse apply(ClientRequest request) {
+        Operation operation = (Operation) request.getConfiguration().getProperty(OPERATION_PROPERTY);
+        if (operation == null) {
+            throw new ProcessingException("No operation provided for request: " + request);
         }
 
-        CloseableHttpResponse response = null;
+        ExecuteType executeType = (ExecuteType) request.getConfiguration().getProperty(EXECUTE_TYPE_PROPERTY);
+        if (executeType == null) {
+            executeType = operation.getExecuteType();
+        }
+
+        if (logger.isDebugEnabled()) {
+            StringBuilder debugMessage = new StringBuilder(operation.getDisplayName()).append('\n');
+            debugMessage.append(request.getMethod()).append(' ').append(request.getUri());
+            logger.debug(debugMessage.toString());
+        }
 
         try {
-            post.setURI(URI.create(address + servletName));
-            post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), CONTENT_CHARSET));
-
-            response = client.execute(post);
-            return getResponsePayload(response);
-        } catch (Exception e) {
-            if (post.isAborted()) {
-                throw new ClientException(new RequestAbortedException(e));
-            } else {
-                throw new ClientException(e);
+            switch (executeType) {
+                case SYNC:
+                    return executeSync(request, operation);
+                case ASYNC:
+                    return executeAsync(request);
+                case ABORT_PENDING:
+                    return executeAbortPending(request);
             }
-        } finally {
-            HttpClientUtils.closeQuietly(response);
-            post.reset();
-
-            synchronized (currentOp) {
-                currentOp.setName(null);
-                currentOp.setDisplayName(null);
-                currentOp.setAuditable(false);
-            }
+        } catch (ClientException e) {
+            throw new ProcessingException(e);
         }
+
+        return null;
     }
 
-    /**
-     * Executes a POST method on a servlet with a set of parameters. The requests sent through this
-     * channel will be aborted on the client side when a new request arrives. Currently there is no
-     * guarantee of the order that pending requests will be sent
-     * 
-     * @param servletName
-     *            The name of the servlet.
-     * @param params
-     *            NameValuePair parameters for the request.
-     * @return
-     * @throws ClientException
-     */
-    public String executePostMethodAbortPending(String servletName, NameValuePair[] params) throws ClientException {
-        //TODO make order sequential
-        abortTask.incrementRequestsInQueue();
-
-        synchronized (abortExecutor) {
-            if (!abortExecutor.isShutdown() && !abortTask.isRunning()) {
-                abortExecutor.execute(abortTask);
-            }
-
-            CloseableHttpResponse response = null;
-
-            try {
-                channelPostContext = HttpClientContext.create();
-                channelPostContext.setRequestConfig(requestConfig);
-                channelPost.setURI(URI.create(address + servletName));
-                channelPost.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), CONTENT_CHARSET));
-
-                abortTask.setAbortAllowed(true);
-                response = client.execute(channelPost, channelPostContext);
-                abortTask.setAbortAllowed(false);
-
-                return getResponsePayload(response);
-            } catch (Exception e) {
-                if (channelPost.isAborted()) {
-                    return null;
-                } else {
-                    throw new ClientException(e);
-                }
-            } finally {
-                abortTask.decrementRequestsInQueue();
-                HttpClientUtils.closeQuietly(response);
-                channelPost.reset();
-            }
-        }
+    @Override
+    public Future<?> apply(ClientRequest request, AsyncConnectorCallback callback) {
+        throw new UnsupportedOperationException();
     }
 
-    /**
-     * Executes a POST method on a servlet with a set of parameters, but allows multiple
-     * simultaneous requests.
-     * 
-     * @param servletName
-     *            The name of the servlet.
-     * @param params
-     *            NameValuePair parameters for the request.
-     * @return
-     * @throws ClientException
-     */
-    public String executePostMethodAsync(String servletName, NameValuePair[] params) throws ClientException {
-        HttpPost post = null;
-        CloseableHttpResponse response = null;
-
-        try {
-            post = getDefaultHttpPost();
-            post.setURI(URI.create(address + servletName));
-            post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), CONTENT_CHARSET));
-
-            response = client.execute(post);
-            return getResponsePayload(response);
-        } catch (Exception e) {
-            if (post.isAborted()) {
-                throw new ClientException(new RequestAbortedException(e));
-            } else {
-                throw new ClientException(e);
-            }
-        } finally {
-            HttpClientUtils.closeQuietly(response);
-
-            if (post != null) {
-                post.reset();
-            }
-        }
+    @Override
+    public String getName() {
+        return "Mirth Server Connection";
     }
 
-    public synchronized String executeFileUpload(String servletName, NameValuePair[] params, File file) throws ClientException {
-        synchronized (currentOp) {
-            if (params[0].getName().equals("op")) {
-                Operation op = Operations.getOperation(params[0].getValue());
-                currentOp.setName(op.getName());
-                currentOp.setDisplayName(op.getDisplayName());
-                currentOp.setAuditable(op.isAuditable());
-            }
-        }
-
-        CloseableHttpResponse response = null;
-
-        try {
-            post.setURI(URI.create(address + servletName));
-
-            MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-            for (NameValuePair param : params) {
-                multipartEntityBuilder.addTextBody(param.getName(), param.getValue());
-            }
-            multipartEntityBuilder.addPart(file.getName(), new FileBody(file));
-            post.setEntity(multipartEntityBuilder.build());
-
-            response = client.execute(post);
-            return getResponsePayload(response);
-        } catch (Exception e) {
-            if (post.isAborted()) {
-                throw new ClientException(new RequestAbortedException(e));
-            } else {
-                throw new ClientException(e);
-            }
-        } finally {
-            HttpClientUtils.closeQuietly(response);
-            post.reset();
-
-            synchronized (currentOp) {
-                currentOp.setName(null);
-                currentOp.setDisplayName(null);
-                currentOp.setAuditable(false);
-            }
-        }
-    }
-
-    /**
-     * Aborts the request if the currentOp is equal to the passed operation, or if the passed
-     * operation is null
-     * 
-     * @param operation
-     */
-    public void abort(List<Operation> operations) {
-        synchronized (currentOp) {
-            for (Operation operation : operations) {
-                if (currentOp.equals(operation)) {
-                    post.abort();
-                    return;
-                }
-            }
-        }
+    @Override
+    public void close() {
+        // Do nothing
     }
 
     public void shutdown() {
@@ -302,7 +168,331 @@ public final class ServerConnection {
         HttpClientUtils.closeQuietly(client);
     }
 
-    public class AbortTask implements Runnable {
+    /**
+     * Aborts the request if the currentOp is equal to the passed operation, or if the passed
+     * operation is null
+     * 
+     * @param operation
+     */
+    public void abort(Collection<Operation> operations) {
+        synchronized (currentOp) {
+            if (operations.contains(currentOp)) {
+                syncRequestBase.abort();
+            }
+        }
+    }
+
+    /**
+     * Allows one request at a time.
+     */
+    private synchronized ClientResponse executeSync(ClientRequest request, Operation operation) throws ClientException {
+        synchronized (currentOp) {
+            currentOp.setName(operation.getName());
+            currentOp.setDisplayName(operation.getDisplayName());
+            currentOp.setAuditable(operation.isAuditable());
+        }
+
+        HttpRequestBase requestBase = null;
+        CloseableHttpResponse response = null;
+        boolean shouldClose = true;
+
+        try {
+            requestBase = setupRequestBase(request, ExecuteType.SYNC);
+            response = client.execute(requestBase);
+            ClientResponse responseContext = handleResponse(request, requestBase, response);
+            if (responseContext.hasEntity()) {
+                shouldClose = false;
+            }
+            return responseContext;
+        } catch (Exception e) {
+            if (requestBase != null && requestBase.isAborted()) {
+                throw new ClientException(new RequestAbortedException(e));
+            } else if (e instanceof ClientException) {
+                throw (ClientException) e;
+            }
+            throw new ClientException(e);
+        } finally {
+            if (shouldClose) {
+                HttpClientUtils.closeQuietly(response);
+
+                synchronized (currentOp) {
+                    currentOp.setName(null);
+                    currentOp.setDisplayName(null);
+                    currentOp.setAuditable(false);
+                }
+            }
+        }
+    }
+
+    /**
+     * Allows multiple simultaneous requests.
+     */
+    private ClientResponse executeAsync(ClientRequest request) throws ClientException {
+        HttpRequestBase requestBase = null;
+        CloseableHttpResponse response = null;
+        boolean shouldClose = true;
+
+        try {
+            requestBase = setupRequestBase(request, ExecuteType.ASYNC);
+            response = client.execute(requestBase);
+            ClientResponse responseContext = handleResponse(request, requestBase, response);
+            if (responseContext.hasEntity()) {
+                shouldClose = false;
+            }
+            return responseContext;
+        } catch (Exception e) {
+            if (requestBase != null && requestBase.isAborted()) {
+                throw new ClientException(new RequestAbortedException(e));
+            } else if (e instanceof ClientException) {
+                throw (ClientException) e;
+            }
+            throw new ClientException(e);
+        } finally {
+            if (shouldClose) {
+                HttpClientUtils.closeQuietly(response);
+            }
+        }
+    }
+
+    /**
+     * The requests sent through this channel will be aborted on the client side when a new request
+     * arrives. Currently there is no guarantee of the order that pending requests will be sent.
+     */
+    private ClientResponse executeAbortPending(ClientRequest request) throws ClientException {
+        // TODO: Make order sequential
+        abortTask.incrementRequestsInQueue();
+
+        synchronized (abortExecutor) {
+            if (!abortExecutor.isShutdown() && !abortTask.isRunning()) {
+                abortExecutor.execute(abortTask);
+            }
+
+            HttpRequestBase requestBase = null;
+            CloseableHttpResponse response = null;
+            boolean shouldClose = true;
+
+            try {
+                abortPendingClientContext = HttpClientContext.create();
+                abortPendingClientContext.setRequestConfig(requestConfig);
+
+                requestBase = setupRequestBase(request, ExecuteType.ABORT_PENDING);
+
+                abortTask.setAbortAllowed(true);
+                response = client.execute(requestBase, abortPendingClientContext);
+                abortTask.setAbortAllowed(false);
+
+                ClientResponse responseContext = handleResponse(request, requestBase, response);
+                if (responseContext.hasEntity()) {
+                    shouldClose = false;
+                }
+                return responseContext;
+            } catch (Exception e) {
+                if (requestBase != null && requestBase.isAborted()) {
+                    return null;
+                } else if (e instanceof ClientException) {
+                    throw (ClientException) e;
+                }
+                throw new ClientException(e);
+            } finally {
+                abortTask.decrementRequestsInQueue();
+                if (shouldClose) {
+                    HttpClientUtils.closeQuietly(response);
+                }
+            }
+        }
+    }
+
+    private HttpRequestBase createRequestBase(String method) {
+        HttpRequestBase requestBase = null;
+
+        if (StringUtils.equalsIgnoreCase(HttpGet.METHOD_NAME, method)) {
+            requestBase = new HttpGet();
+        } else if (StringUtils.equalsIgnoreCase(HttpPost.METHOD_NAME, method)) {
+            requestBase = new HttpPost();
+        } else if (StringUtils.equalsIgnoreCase(HttpPut.METHOD_NAME, method)) {
+            requestBase = new HttpPut();
+        } else if (StringUtils.equalsIgnoreCase(HttpDelete.METHOD_NAME, method)) {
+            requestBase = new HttpDelete();
+        } else if (StringUtils.equalsIgnoreCase(HttpOptions.METHOD_NAME, method)) {
+            requestBase = new HttpOptions();
+        } else if (StringUtils.equalsIgnoreCase(HttpPatch.METHOD_NAME, method)) {
+            requestBase = new HttpPatch();
+        }
+
+        requestBase.setConfig(requestConfig);
+        return requestBase;
+    }
+
+    private HttpRequestBase getRequestBase(ExecuteType executeType, String method) {
+        HttpRequestBase requestBase = createRequestBase(method);
+
+        if (executeType == ExecuteType.SYNC) {
+            syncRequestBase = requestBase;
+        } else if (executeType == ExecuteType.ABORT_PENDING) {
+            abortPendingRequestBase = requestBase;
+        }
+
+        return requestBase;
+    }
+
+    private HttpRequestBase setupRequestBase(ClientRequest request, ExecuteType executeType) {
+        HttpRequestBase requestBase = getRequestBase(executeType, request.getMethod());
+        requestBase.setURI(request.getUri());
+
+        for (Entry<String, List<String>> entry : request.getStringHeaders().entrySet()) {
+            for (String value : entry.getValue()) {
+                requestBase.addHeader(entry.getKey(), value);
+            }
+        }
+
+        if (request.hasEntity() && requestBase instanceof HttpEntityEnclosingRequestBase) {
+            final HttpEntityEnclosingRequestBase entityRequestBase = (HttpEntityEnclosingRequestBase) requestBase;
+            entityRequestBase.setEntity(new ClientRequestEntity(request));
+        }
+
+        return requestBase;
+    }
+
+    private ClientResponse handleResponse(ClientRequest request, HttpRequestBase requestBase, CloseableHttpResponse response) throws IOException, ClientException {
+        StatusLine statusLine = response.getStatusLine();
+        int statusCode = statusLine.getStatusCode();
+
+        if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+            throw new UnauthorizedException(statusLine.toString());
+        } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
+            throw new ForbiddenException(statusLine.toString());
+        }
+
+        ClientResponse responseContext = new ClientResponse(Statuses.from(statusCode), request);
+
+        MultivaluedMap<String, String> headerMap = new MultivaluedHashMap<String, String>();
+        for (Header header : response.getAllHeaders()) {
+            headerMap.add(header.getName(), header.getValue());
+        }
+        responseContext.headers(headerMap);
+
+        HttpEntity responseEntity = response.getEntity();
+        if (responseEntity != null) {
+            responseContext.setEntityStream(new EntityInputStreamWrapper(response, responseEntity.getContent()));
+        }
+
+        if (statusCode >= 400) {
+            if (responseContext.hasEntity()) {
+                try {
+                    Object entity = responseContext.readEntity(Object.class);
+                    if (entity instanceof Throwable) {
+                        throw new ClientException("Method failed: " + statusLine, (Throwable) entity);
+                    }
+                } catch (ProcessingException e) {
+                }
+            }
+            throw new ClientException("Method failed: " + statusLine);
+        }
+
+        return responseContext;
+    }
+
+    private class ClientRequestEntity extends AbstractHttpEntity {
+
+        private ClientRequest request;
+
+        public ClientRequestEntity(ClientRequest request) {
+            this.request = request;
+        }
+
+        @Override
+        public boolean isRepeatable() {
+            return false;
+        }
+
+        @Override
+        public long getContentLength() {
+            return -1;
+        }
+
+        @Override
+        public InputStream getContent() throws UnsupportedOperationException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void writeTo(final OutputStream outstream) throws IOException {
+            request.setStreamProvider(new OutboundMessageContext.StreamProvider() {
+                @Override
+                public OutputStream getOutputStream(int contentLength) throws IOException {
+                    return outstream;
+                }
+            });
+            request.writeEntity();
+        }
+
+        @Override
+        public boolean isStreaming() {
+            return true;
+        }
+    }
+
+    private class EntityInputStreamWrapper extends InputStream {
+
+        private CloseableHttpResponse response;
+        private InputStream delegate;
+
+        public EntityInputStreamWrapper(CloseableHttpResponse response, InputStream delegate) {
+            this.response = response;
+            this.delegate = delegate;
+        }
+
+        @Override
+        public int read() throws IOException {
+            return delegate.read();
+        }
+
+        @Override
+        public int read(byte[] b) throws IOException {
+            return delegate.read(b);
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            return delegate.read(b, off, len);
+        }
+
+        @Override
+        public long skip(long n) throws IOException {
+            return delegate.skip(n);
+        }
+
+        @Override
+        public int available() throws IOException {
+            return delegate.available();
+        }
+
+        @Override
+        public void close() throws IOException {
+            try {
+                delegate.close();
+            } finally {
+                HttpClientUtils.closeQuietly(response);
+            }
+        }
+
+        @Override
+        public synchronized void mark(int readlimit) {
+            delegate.mark(readlimit);
+        }
+
+        @Override
+        public synchronized void reset() throws IOException {
+            delegate.reset();
+        }
+
+        @Override
+        public boolean markSupported() {
+            return delegate.markSupported();
+        }
+    }
+
+    private class AbortTask implements Runnable {
         private final AtomicBoolean running = new AtomicBoolean(false);
         private int requestsInQueue = 0;
         private boolean abortAllowed = false;
@@ -332,8 +522,8 @@ public final class ServerConnection {
                         if (requestsInQueue == 0) {
                             return;
                         }
-                        if (requestsInQueue > 1 && abortAllowed && channelPostContext.isRequestSent()) {
-                            channelPost.abort();
+                        if (requestsInQueue > 1 && abortAllowed && abortPendingClientContext.isRequestSent()) {
+                            abortPendingRequestBase.abort();
                             abortAllowed = false;
                         }
                     }
@@ -348,42 +538,5 @@ public final class ServerConnection {
                 running.set(false);
             }
         }
-    }
-
-    private HttpPost getDefaultHttpPost() {
-        HttpPost post = new HttpPost();
-        post.setConfig(requestConfig);
-        return post;
-    }
-
-    private String getResponsePayload(HttpResponse response) throws ClientException, IOException {
-        StatusLine statusLine = response.getStatusLine();
-        int statusCode = statusLine.getStatusCode();
-
-        if (statusCode == HttpStatus.SC_FORBIDDEN) {
-            throw new InvalidLoginException(statusLine.toString());
-        } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
-            throw new UnauthorizedException(statusLine.toString());
-        } else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
-            throw new ClientException("method failed: " + statusLine);
-        }
-
-        HttpEntity responseEntity = response.getEntity();
-        Charset responseCharset = null;
-
-        try {
-            ContentType responseContentType = ContentType.get(responseEntity);
-            if (responseContentType != null) {
-                responseCharset = responseContentType.getCharset();
-            }
-        } catch (Exception e) {
-        }
-
-        // If the charset couldn't be inferred from the response, use the default
-        if (responseCharset == null) {
-            responseCharset = CONTENT_CHARSET;
-        }
-
-        return IOUtils.toString(responseEntity.getContent(), responseCharset).trim();
     }
 }

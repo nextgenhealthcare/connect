@@ -70,7 +70,7 @@ public class DirectoryResourcePropertiesPanel extends ResourcePropertiesPanel {
 
             @Override
             public List<String> doInBackground() throws ClientException {
-                return (List<String>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethodAsync(DirectoryResourceProperties.PLUGIN_POINT, "getLibraries", props);
+                return (List<String>) PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DirectoryResourceServletInterface.class).getLibraries(props.getId());
             }
 
             @Override

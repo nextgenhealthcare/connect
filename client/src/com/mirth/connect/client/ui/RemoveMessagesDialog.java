@@ -132,7 +132,7 @@ public class RemoveMessagesDialog extends MirthDialog {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
                 try {
-                    parent.mirthClient.clearMessages(channelIds, includeRunningChannels.isSelected(), clearStatsCheckBox.isSelected());
+                    parent.mirthClient.removeAllMessages(channelIds, includeRunningChannels.isSelected(), clearStatsCheckBox.isSelected());
                 } catch (ClientException e) {
                     parent.alertThrowable(PlatformUI.MIRTH_FRAME, e);
                 }

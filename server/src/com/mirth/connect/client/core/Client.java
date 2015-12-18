@@ -10,30 +10,74 @@
 package com.mirth.connect.client.core;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.AccessController;
 import java.security.Provider;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.ws.rs.Path;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Configuration;
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.proxy.WebResourceFactory;
+import org.glassfish.jersey.client.spi.Connector;
+import org.glassfish.jersey.client.spi.ConnectorProvider;
+import org.glassfish.jersey.internal.util.ReflectionHelper;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.reflections.Reflections;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.commons.encryption.KeyEncryptor;
+import com.mirth.connect.client.core.Operation.ExecuteType;
+import com.mirth.connect.client.core.api.BaseServletInterface;
+import com.mirth.connect.client.core.api.providers.MetaDataSearchParamConverterProvider.MetaDataSearch;
+import com.mirth.connect.client.core.api.servlets.AlertServletInterface;
+import com.mirth.connect.client.core.api.servlets.ChannelServletInterface;
+import com.mirth.connect.client.core.api.servlets.ChannelStatisticsServletInterface;
+import com.mirth.connect.client.core.api.servlets.ChannelStatusServletInterface;
+import com.mirth.connect.client.core.api.servlets.CodeTemplateServletInterface;
+import com.mirth.connect.client.core.api.servlets.ConfigurationServletInterface;
+import com.mirth.connect.client.core.api.servlets.DatabaseTaskServletInterface;
+import com.mirth.connect.client.core.api.servlets.EngineServletInterface;
+import com.mirth.connect.client.core.api.servlets.EventServletInterface;
+import com.mirth.connect.client.core.api.servlets.ExtensionServletInterface;
+import com.mirth.connect.client.core.api.servlets.MessageServletInterface;
+import com.mirth.connect.client.core.api.servlets.UsageServletInterface;
+import com.mirth.connect.client.core.api.servlets.UserServletInterface;
+import com.mirth.connect.client.core.api.util.OperationUtil;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
@@ -51,959 +95,509 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.MessageImportResult;
+import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ResourceProperties;
-import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
+import com.mirth.connect.model.ServerEvent.Level;
+import com.mirth.connect.model.ServerEvent.Outcome;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertInfo;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.ConfigurationProperty;
+import com.mirth.connect.util.ConnectionTestResponse;
+import com.mirth.connect.util.MirthSSLUtil;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
-public class Client {
-    private Logger logger = Logger.getLogger(this.getClass());
-    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-    private ServerConnection serverConnection;
-    private String address;
-    private int timeout;
+public class Client implements UserServletInterface, ConfigurationServletInterface, ChannelServletInterface, ChannelStatusServletInterface, ChannelStatisticsServletInterface, EngineServletInterface, MessageServletInterface, EventServletInterface, AlertServletInterface, CodeTemplateServletInterface, DatabaseTaskServletInterface, UsageServletInterface, ExtensionServletInterface {
 
-    public final static String USER_SERVLET = "/users";
-    public final static String CHANNEL_SERVLET = "/channels";
-    public final static String CONFIGURATION_SERVLET = "/configuration";
-    public final static String CHANNEL_STATUS_SERVLET = "/channelstatus";
-    public final static String CHANNEL_STATISTICS_SERVLET = "/channelstatistics";
-    public final static String MESSAGE_SERVLET = "/messages";
-    public final static String EVENT_SERVLET = "/events";
-    public final static String ALERT_SERVLET = "/alerts";
-    public final static String TEMPLATE_SERVLET = "/codetemplates";
-    public final static String EXTENSION_SERVLET = "/extensions";
-    public final static String ENGINE_SERVLET = "/engine";
-    public final static String USAGE_SERVLET = "/usage";
-    public final static String DATABASE_TASK_SERVLET = "/databasetasks";
+    private Logger logger = Logger.getLogger(this.getClass());
+    private ServerConnection serverConnection;
+    private javax.ws.rs.client.Client client;
+    private URI api;
+    private AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
      * Instantiates a new Mirth client with a connection to the specified server.
-     * 
-     * @param address
      */
-    public Client(String address) {
-        this.address = address;
-        serverConnection = ServerConnectionFactory.createServerConnection(address);
+    public Client(String address) throws URISyntaxException {
+        // Default timeout is infinite.
+        this(address, 0, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES, null);
     }
 
-    public Client(String address, int timeout) {
-        this.address = address;
-        this.timeout = timeout;
-        serverConnection = ServerConnectionFactory.createServerConnection(address, this.timeout);
+    public Client(String address, String[] httpsProtocols, String[] httpsCipherSuites) throws URISyntaxException {
+        // Default timeout is infinite.
+        this(address, 0, httpsProtocols, httpsCipherSuites, null);
     }
 
-    public Client(String address, String[] httpsProtocols, String[] httpsCipherSuites) {
-        this.address = address;
-        serverConnection = ServerConnectionFactory.createServerConnection(address, httpsProtocols, httpsCipherSuites);
+    public Client(String address, String[] httpsProtocols, String[] httpsCipherSuites, String[] apiProviderClasses) throws URISyntaxException {
+        // Default timeout is infinite.
+        this(address, 0, httpsProtocols, httpsCipherSuites, apiProviderClasses);
     }
 
-    public Client(String address, int timeout, String[] httpsProtocols, String[] httpsCipherSuites) {
-        this.address = address;
-        this.timeout = timeout;
-        serverConnection = ServerConnectionFactory.createServerConnection(address, this.timeout, httpsProtocols, httpsCipherSuites);
+    public Client(String address, int timeout, String[] httpsProtocols, String[] httpsCipherSuites) throws URISyntaxException {
+        this(address, timeout, httpsProtocols, httpsCipherSuites, null);
     }
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-        serverConnection = ServerConnectionFactory.createServerConnection(address, this.timeout);
+    public Client(String address, int timeout, String[] httpsProtocols, String[] httpsCipherSuites, String[] apiProviderClasses) throws URISyntaxException {
+        if (!address.endsWith("/")) {
+            address += "/";
+        }
+        URI addressURI = new URI(address);
+
+        serverConnection = new ServerConnection(timeout, httpsProtocols, httpsCipherSuites, StringUtils.equalsIgnoreCase(addressURI.getScheme(), "http"));
+
+        ClientConfig config = new ClientConfig().connectorProvider(new ConnectorProvider() {
+            @Override
+            public Connector getConnector(javax.ws.rs.client.Client client, Configuration runtimeConfig) {
+                return serverConnection;
+            }
+        });
+
+        // Register providers
+        for (Class<?> providerClass : new Reflections("com.mirth.connect.client.core.api.providers").getTypesAnnotatedWith(javax.ws.rs.ext.Provider.class)) {
+            config.register(providerClass);
+        }
+        config.register(MultiPartFeature.class);
+
+        // Register servlet interfaces
+        Set<Class<? extends BaseServletInterface>> servletClasses = new Reflections("com.mirth.connect.client.core.api.servlets").getSubTypesOf(BaseServletInterface.class);
+        for (Class<?> servletClass : servletClasses) {
+            config.register(servletClass);
+        }
+
+        if (ArrayUtils.isNotEmpty(apiProviderClasses)) {
+            for (String apiProviderClass : apiProviderClasses) {
+                try {
+                    config.register(Class.forName(apiProviderClass));
+                } catch (Throwable t) {
+                    logger.error("Error registering API provider class: " + apiProviderClass);
+                }
+            }
+        }
+
+        client = ClientBuilder.newClient(config);
+        api = addressURI.resolve("api/" + Version.getLatest().toString());
     }
 
-    public int getTimeout() {
-        return timeout;
+    /**
+     * Allows registration of extension providers after the client is initialized.
+     */
+    public void registerApiProviders(Set<String> packageNames, Set<String> classes) {
+        if (CollectionUtils.isNotEmpty(packageNames)) {
+            for (String packageName : packageNames) {
+                try {
+                    for (Class<?> clazz : new Reflections(packageName).getTypesAnnotatedWith(javax.ws.rs.ext.Provider.class)) {
+                        client.register(clazz);
+                    }
+                    for (Class<?> clazz : new Reflections(packageName).getTypesAnnotatedWith(Path.class)) {
+                        client.register(clazz);
+                    }
+                } catch (Throwable t) {
+                    logger.error("Error registering API provider package: " + packageName);
+                }
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(classes)) {
+            for (String clazz : classes) {
+                try {
+                    client.register(Class.forName(clazz));
+                } catch (Throwable t) {
+                    logger.error("Error registering API provider class: " + clazz);
+                }
+            }
+        }
     }
 
-    public void cleanup() {
-        if (serverConnection != null)
-            serverConnection.shutdown();
+    public <T> T getServlet(Class<T> servletInterface) {
+        return getServlet(servletInterface, null);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T getServlet(final Class<T> servletInterface, final ExecuteType executeType) {
+        return (T) Proxy.newProxyInstance(AccessController.doPrivileged(ReflectionHelper.getClassLoaderPA(servletInterface)), new Class[] { servletInterface }, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws ClientException {
+                try {
+                    WebTarget target = client.target(api);
+
+                    Operation operation = OperationUtil.getOperation(servletInterface, method);
+                    if (operation != null) {
+                        target.property(ServerConnection.OPERATION_PROPERTY, operation);
+                    }
+
+                    if (executeType != null) {
+                        target.property(ServerConnection.EXECUTE_TYPE_PROPERTY, executeType);
+                    }
+
+                    if (args == null && method.getName().equals("toString")) {
+                        return target.toString();
+                    }
+
+                    T resource = WebResourceFactory.newResource(servletInterface, target);
+
+                    return method.invoke(resource, args);
+                } catch (Throwable t) {
+                    Throwable cause = t;
+                    if (cause instanceof InvocationTargetException && cause.getCause() != null) {
+                        cause = cause.getCause();
+                    }
+                    if (cause instanceof ProcessingException && cause.getCause() != null) {
+                        cause = cause.getCause();
+                    }
+                    if (cause instanceof ClientException) {
+                        throw (ClientException) cause;
+                    } else {
+                        throw new ClientException(cause);
+                    }
+                }
+            }
+        });
+    }
+    
     public ServerConnection getServerConnection() {
         return serverConnection;
     }
 
-    /**
-     * Logs a user in to the Mirth Connect server using the specified name and password.
-     * 
-     * @param username
-     * @param password
-     * @return
-     * @throws ClientException
-     */
-    public synchronized LoginStatus login(String username, String password, String version) throws ClientException {
-        logger.debug("attempting to login user: username=" + username);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_LOGIN.getName()), new BasicNameValuePair("username", username), new BasicNameValuePair("password", password), new BasicNameValuePair("version", version) };
-        return serializer.deserialize(serverConnection.executePostMethod(USER_SERVLET, params), LoginStatus.class);
-    }
-
-    /**
-     * Logs the user out of the server.
-     * 
-     * @throws ClientException
-     */
-    public synchronized void logout() throws ClientException {
-        logger.debug("logging out");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_LOGOUT.getName()) };
-        serverConnection.executePostMethod(USER_SERVLET, params);
-    }
-
-    /**
-     * Returns the server id.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public String getServerId() throws ClientException {
-        logger.debug("retrieving server's id");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_SERVER_ID_GET.getName()) };
-        return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
-    }
-
-    /**
-     * Returns the time zone of the server.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public String getServerTimezone() throws ClientException {
-        logger.debug("retrieving server's timezone");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_SERVER_TIMEZONE_GET.getName()) };
-        return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
-    }
-
-    /**
-     * Returns the time of the server.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public Calendar getServerTime() throws ClientException {
-        logger.debug("retrieving server's timezone");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_SERVER_TIME_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), Calendar.class);
-    }
-
-    /**
-     * Returns a ServerConfiguration object which contains all of the channels, users, alerts and properties stored on the Mirth Connect server.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public ServerConfiguration getServerConfiguration() throws ClientException {
-        logger.debug("getting server configuration");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.SERVER_CONFIGURATION_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), ServerConfiguration.class);
-    }
-
-    /**
-     * Sets a ServerConfiguration object which sets all of the channels, alerts and properties stored on the Mirth Connect server.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy) throws ClientException {
-        logger.debug("setting server configuration");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.SERVER_CONFIGURATION_SET.getName()), new BasicNameValuePair("data", serializer.serialize(serverConfiguration)), new BasicNameValuePair("deploy", serializer.serialize(deploy)) };
-        serverConnection.executePostMethodAsync(CONFIGURATION_SERVLET, params);
-    }
-
-    /**
-     * Returns a List of all channels.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public List<Channel> getChannels(Set<String> channelIds) throws ClientException {
-        logger.debug("getting channel");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_GET.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        return serializer.deserializeList(serverConnection.executePostMethod(CHANNEL_SERVLET, params), Channel.class);
-    }
-
-    public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels) throws ClientException {
-        logger.debug("getting channel summary");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_GET_SUMMARY.getName()), new BasicNameValuePair("cachedChannels", serializer.serialize(cachedChannels)) };
-        return serializer.deserializeList(serverConnection.executePostMethodAsync(CHANNEL_SERVLET, params), ChannelSummary.class);
-    }
-
-    /**
-     * Enables/disables the specified channels.
-     * 
-     * @param channel
-     * @throws ClientException
-     */
-    public synchronized void setChannelEnabled(Set<String> channelIds, boolean enabled) throws ClientException {
-        logger.debug("updating channel: channelIds=" + channelIds + ", enabled=" + enabled);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_SET_ENABLED.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)), new BasicNameValuePair("enabled", new Boolean(enabled).toString()) };
-        serverConnection.executePostMethod(CHANNEL_SERVLET, params);
+    public void close() {
+        closed.set(true);
+        if (serverConnection != null) {
+            serverConnection.shutdown();
+            client.close();
+        }
     }
     
+    public boolean isClosed() {
+        return closed.get();
+    }
+
+    /****************
+     * User Servlet *
+     ****************/
+
     /**
-     * Updates the specified channel.
+     * Logs in to the Mirth Connect server using the specified name and password.
      * 
-     * @param channel
-     * @throws ClientException
+     * @see UserServletInterface#login
      */
-    public synchronized boolean updateChannel(Channel channel, boolean override) throws ClientException {
-        logger.debug("updating channel: channelId=" + channel.getId() + ", override=" + override);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_UPDATE.getName()), new BasicNameValuePair("channel", serializer.serialize(channel)), new BasicNameValuePair("override", new Boolean(override).toString()) };
-        return Boolean.valueOf(serverConnection.executePostMethod(CHANNEL_SERVLET, params)).booleanValue();
+    @Override
+    public synchronized LoginStatus login(String username, String password) throws ClientException {
+        return getServlet(UserServletInterface.class).login(username, password);
     }
 
     /**
-     * Removes the channel with the specified id.
+     * Logs out of the server.
      * 
-     * @param channelId
-     * @throws ClientException
+     * @see UserServletInterface#logout
      */
-    public synchronized void removeChannel(Channel channel) throws ClientException {
-        removeChannels(Collections.singleton(channel.getId()));
+    @Override
+    public synchronized void logout() throws ClientException {
+        getServlet(UserServletInterface.class).logout();
     }
 
     /**
-     * Removes the channel with the specified IDs. If undeployFirst is true, any currently deployed
-     * channels will also first attempt to be undeployed.
+     * Creates a new user.
      * 
-     * @param channelIds
-     * @param undeployFirst
-     * @throws ClientException
+     * @see UserServletInterface#createUser
      */
-    public synchronized void removeChannels(Set<String> channelIds) throws ClientException {
-        logger.debug("removing channel: channelIds=" + String.valueOf(channelIds));
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_REMOVE.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        serverConnection.executePostMethod(CHANNEL_SERVLET, params);
-    }
-
-    /**
-     * Install new extension
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public void installExtension(File file) throws ClientException {
-        logger.debug("installing extension");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.EXTENSION_INSTALL.getName()) };
-        serverConnection.executeFileUpload(EXTENSION_SERVLET, params, file);
-    }
-
-    /**
-     * Uninstall an extension
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public void uninstallExtension(String packageName) throws ClientException {
-        logger.debug("installing extension");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.EXTENSION_UNINSTALL.getName()), new BasicNameValuePair("packageName", packageName) };
-        serverConnection.executePostMethod(EXTENSION_SERVLET, params);
-    }
-
-    /**
-     * Returns a List of all connectors.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public Map<String, ConnectorMetaData> getConnectorMetaData() throws ClientException {
-        logger.debug("retrieving connector list");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONNECTOR_METADATA_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(EXTENSION_SERVLET, params), Map.class);
-    }
-
-    /**
-     * Returns a List of all plugins.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public Map<String, PluginMetaData> getPluginMetaData() throws ClientException {
-        logger.debug("retrieving plugin list");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.PLUGIN_METADATA_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(EXTENSION_SERVLET, params), Map.class);
-    }
-
-    /**
-     * Sets an extension as enabled or disabled.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public void setExtensionEnabled(String extensionName, boolean enabled) throws ClientException {
-        logger.debug("setting extension enabled");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.EXTENSION_SET_ENABLED.getName()), new BasicNameValuePair("name", extensionName), new BasicNameValuePair("enabled", BooleanUtils.toStringTrueFalse(enabled)) };
-        serverConnection.executePostMethod(EXTENSION_SERVLET, params);
-    }
-
-    /**
-     * Invoke a method on a plugin and pass back the Object returned
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public Object invokePluginMethod(String pluginName, String method, Object object) throws ClientException {
-        logger.debug("invoking method " + method + " on " + pluginName);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.PLUGIN_SERVICE_INVOKE.getName()), new BasicNameValuePair("name", pluginName), new BasicNameValuePair("method", method), new BasicNameValuePair("object", serializer.serialize(object)) };
-        return serializer.deserialize(serverConnection.executePostMethod(EXTENSION_SERVLET, params), Object.class);
-    }
-
-    /**
-     * Invoke a method on a plugin and pass back the Object returned
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public Object invokePluginMethodAsync(String pluginName, String method, Object object) throws ClientException {
-        logger.debug("invoking method " + method + " on " + pluginName);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.PLUGIN_SERVICE_INVOKE.getName()), new BasicNameValuePair("name", pluginName), new BasicNameValuePair("method", method), new BasicNameValuePair("object", serializer.serialize(object)) };
-        return serializer.deserialize(serverConnection.executePostMethodAsync(EXTENSION_SERVLET, params), Object.class);
-    }
-
-    /**
-     * Invoke a method on a connector and pass back the Object returned
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public Object invokeConnectorService(String channelId, String channelName, String connectorName, String method, Object object) throws ClientException {
-        logger.debug("invoking connector service " + method + " on " + connectorName);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("channelName", channelName), new BasicNameValuePair("name", connectorName), new BasicNameValuePair("method", method), new BasicNameValuePair("object", serializer.serialize(object)) };
-        return serializer.deserialize(serverConnection.executePostMethod(EXTENSION_SERVLET, params), Object.class);
-    }
-
-    /**
-     * Invoke a method on a connector, asynchronously,  and pass back the Object returned
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public Object invokeConnectorServiceAsync(String channelId, String channelName, String connectorName, String method, Object object) throws ClientException {
-        logger.debug("invoking connector service " + method + " on " + connectorName);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("channelName", channelName), new BasicNameValuePair("name", connectorName), new BasicNameValuePair("method", method), new BasicNameValuePair("object", serializer.serialize(object)) };
-        return serializer.deserialize(serverConnection.executePostMethodAsync(EXTENSION_SERVLET, params), Object.class);
-    }
-
-    /**
-     * Returns a List of all of the encodings supported by the server
-     * 
-     * @return
-     * @throws ClientException
-     */
-    // ast: The available charset encodings depends on the JVM in which the
-    // server is running
-    public List<String> getAvailableCharsetEncodings() throws ClientException {
-        logger.debug("retrieving the server supported charset encoging list");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_CHARSET_ENCODINGS_GET.getName()) };
-        return serializer.deserializeList(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), String.class);
+    @Override
+    public synchronized void createUser(User user) throws ClientException {
+        getServlet(UserServletInterface.class).createUser(user);
     }
 
     /**
      * Returns a List of all users.
      * 
-     * @return
-     * @throws ClientException
+     * @see UserServletInterface#getAllUsers
      */
-    public List<User> getUser(User user) throws ClientException {
-        logger.debug("getting user: " + user);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_GET.getName()), new BasicNameValuePair("user", serializer.serialize(user)) };
-        return serializer.deserializeList(serverConnection.executePostMethodAsync(USER_SERVLET, params), User.class);
+    @Override
+    public List<User> getAllUsers() throws ClientException {
+        return getServlet(UserServletInterface.class).getAllUsers();
+    }
+
+    /**
+     * Returns a specific user by ID.
+     * 
+     * @see UserServletInterface#getUser
+     */
+    public User getUser(Integer userId) throws ClientException {
+        return getUser(String.valueOf(userId));
+    }
+
+    /**
+     * Returns a specific user by ID or username.
+     * 
+     * @see UserServletInterface#getUser
+     */
+    @Override
+    public User getUser(String userIdOrName) throws ClientException {
+        return getServlet(UserServletInterface.class).getUser(userIdOrName);
+    }
+
+    /**
+     * Returns the current logged in user.
+     * 
+     * @see UserServletInterface#getCurrentUser
+     */
+    @Override
+    public User getCurrentUser() throws ClientException {
+        return getServlet(UserServletInterface.class).getCurrentUser();
     }
 
     /**
      * Updates a specified user.
      * 
-     * @param user
-     * @throws ClientException
+     * @see UserServletInterface#updateUser
      */
     public synchronized void updateUser(User user) throws ClientException {
-        logger.debug("updating user: " + user);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_UPDATE.getName()), new BasicNameValuePair("user", serializer.serialize(user)) };
-        serverConnection.executePostMethod(USER_SERVLET, params);
+        updateUser(user.getId(), user);
     }
 
     /**
-     * Checks the password against the configured password policies if a null user id is passed in. If a user with an id is passed in their password is also updated.
+     * Updates a specified user.
      * 
-     * @param userId
-     * @param plainPassword
+     * @see UserServletInterface#updateUser
+     */
+    @Override
+    public synchronized void updateUser(Integer userId, User user) throws ClientException {
+        getServlet(UserServletInterface.class).updateUser(user.getId(), user);
+    }
+
+    /**
+     * Checks the password against the configured password policies.
+     * 
+     * @see UserServletInterface#checkUserPassword
+     * 
      * @return A list of errors that occurred with the password
-     * @throws ClientException
      */
-    public synchronized List<String> checkOrUpdateUserPassword(User user, String plainPassword) throws ClientException {
-        logger.debug("updating password for user: " + user);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_CHECK_OR_UPDATE_PASSWORD.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("plainPassword", plainPassword) };
-        return serializer.deserializeList(serverConnection.executePostMethod(USER_SERVLET, params), String.class);
+    @Override
+    public synchronized List<String> checkUserPassword(String plainPassword) throws ClientException {
+        return getServlet(UserServletInterface.class).checkUserPassword(plainPassword);
     }
 
     /**
-     * Removes the user with the specified id.
+     * Updates a user's password.
      * 
-     * @param userId
-     * @throws ClientException
+     * @see UserServletInterface#updateUserPassword
+     * 
+     * @return A list of errors that occurred with the password
      */
-    public synchronized void removeUser(User user) throws ClientException {
-        logger.debug("removing user: " + user);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_REMOVE.getName()), new BasicNameValuePair("user", serializer.serialize(user)) };
-        serverConnection.executePostMethod(USER_SERVLET, params);
+    @Override
+    public synchronized List<String> updateUserPassword(Integer userId, String plainPassword) throws ClientException {
+        return getServlet(UserServletInterface.class).updateUserPassword(userId, plainPassword);
+    }
+
+    /**
+     * Removes a specific user.
+     * 
+     * @see UserServletInterface#removeUser
+     */
+    @Override
+    public synchronized void removeUser(Integer userId) throws ClientException {
+        getServlet(UserServletInterface.class).removeUser(userId);
     }
 
     /**
      * Returns a true if the specified user is logged in to the server.
      * 
-     * @return
-     * @throws ClientException
+     * @see UserServletInterface#isUserLoggedIn
      */
-    public boolean isUserLoggedIn(User user) throws ClientException {
-        logger.debug("checking if user logged in: " + user);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_IS_USER_LOGGED_IN.getName()), new BasicNameValuePair("user", serializer.serialize(user)) };
-        return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params));
-    }
-    
-    /**
-     * Returns a List of all alert statuses.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public List<AlertStatus> getAlertStatusList() throws ClientException {
-        logger.debug("retrieving alert statuses");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_GET_STATUS.getName()) };
-        return serializer.deserializeList(serverConnection.executePostMethod(ALERT_SERVLET, params), AlertStatus.class);
+    @Override
+    public boolean isUserLoggedIn(Integer userId) throws ClientException {
+        return getServlet(UserServletInterface.class).isUserLoggedIn(userId);
     }
 
     /**
-     * Returns a List of all alerts.
+     * Returns a Map of user preferences, optionally filtered by a set of property names.
      * 
-     * @return
-     * @throws ClientException
+     * @see UserServletInterface#getUserPreferences
      */
-    public List<AlertModel> getAlert(String alertId) throws ClientException {
-        logger.debug("getting alert: " + alertId);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_GET.getName()), new BasicNameValuePair("alertId", alertId) };
-        return serializer.deserializeList(serverConnection.executePostMethod(ALERT_SERVLET, params), AlertModel.class);
-    }
-
-    public AlertInfo getAlertInfo(String alertId, Map<String, ChannelHeader> cachedChannels) throws ClientException {
-        logger.debug("getting alert info: " + alertId);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_GET_INFO.getName()), new BasicNameValuePair("alertId", alertId), new BasicNameValuePair("cachedChannels", serializer.serialize(cachedChannels)) };
-        return serializer.deserialize(serverConnection.executePostMethod(ALERT_SERVLET, params), AlertInfo.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Map<String, Map<String, String>> getAlertProtocolOptions() throws ClientException {
-        logger.debug("getting alert protocol options");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_GET_PROTOCOL_OPTIONS.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(ALERT_SERVLET, params), Map.class);
+    @Override
+    public Properties getUserPreferences(Integer userId, Set<String> names) throws ClientException {
+        return getServlet(UserServletInterface.class).getUserPreferences(userId, names);
     }
 
     /**
-     * Updates a list of alerts.
+     * Returns a specific user preference.
      * 
-     * @param alert
-     * @throws ClientException
+     * @see UserServletInterface#getUserPreference
      */
-    public synchronized void updateAlert(AlertModel alertModel) throws ClientException {
-        logger.debug("updating alert: " + alertModel.getId());
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_UPDATE.getName()), new BasicNameValuePair("alertModel", serializer.serialize(alertModel)) };
-        serverConnection.executePostMethod(ALERT_SERVLET, params);
+    @Override
+    public String getUserPreference(Integer userId, String name) throws ClientException {
+        return getServlet(UserServletInterface.class).getUserPreference(userId, name);
     }
 
     /**
-     * Removes the alert with the specified id.
+     * Updates multiple user preferences.
      * 
-     * @param alertId
-     * @throws ClientException
+     * @see UserServletInterface#setUserPreferences
      */
-    public synchronized void removeAlert(String alertId) throws ClientException {
-        logger.debug("removing alert: " + alertId);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_REMOVE.getName()), new BasicNameValuePair("alertId", alertId) };
-        serverConnection.executePostMethod(ALERT_SERVLET, params);
-    }
-    
-    /**
-     * Enables the alert with the specified id.
-     * 
-     * @param alertId
-     * @throws ClientException
-     */
-    public synchronized void enableAlert(String alertId) throws ClientException {
-        logger.debug("removing alert: " + alertId);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_ENABLE.getName()), new BasicNameValuePair("alertId", alertId) };
-        serverConnection.executePostMethod(ALERT_SERVLET, params);
-    }
-    
-    /**
-     * Disables the alert with the specified id.
-     * 
-     * @param alertId
-     * @throws ClientException
-     */
-    public synchronized void disableAlert(String alertId) throws ClientException {
-        logger.debug("removing alert: " + alertId);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_DISABLE.getName()), new BasicNameValuePair("alertId", alertId) };
-        serverConnection.executePostMethod(ALERT_SERVLET, params);
+    @Override
+    public void setUserPreferences(Integer userId, Properties properties) throws ClientException {
+        getServlet(UserServletInterface.class).setUserPreferences(userId, properties);
     }
 
     /**
-     * Returns a List of all code template libraries.
+     * Updates a user preference.
      * 
-     * @throws ClientException
+     * @see UserServletInterface#setUserPreference
      */
-    public List<CodeTemplateLibrary> getCodeTemplateLibraries(Set<String> libraryIds, boolean includeCodeTemplates) throws ClientException {
-        logger.debug("Getting code template libraries");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_LIBRARY_GET.getName()), new BasicNameValuePair("libraryIds", serializer.serialize(libraryIds)), new BasicNameValuePair("includeCodeTemplates", new Boolean(includeCodeTemplates).toString()) };
-        return serializer.deserializeList(serverConnection.executePostMethod(TEMPLATE_SERVLET, params), CodeTemplateLibrary.class);
+    @Override
+    public void setUserPreference(Integer userId, String name, String value) throws ClientException {
+        getServlet(UserServletInterface.class).setUserPreference(userId, name, value);
+    }
+
+    /*************************
+     * Configuration Servlet *
+     *************************/
+
+    /**
+     * Returns the server id.
+     * 
+     * @see ConfigurationServletInterface#getServerId
+     */
+    @Override
+    public String getServerId() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getServerId();
     }
 
     /**
-     * Updates all code template libraries.
+     * Returns the version of the Mirth Connect server.
      * 
-     * @throws ClientException
+     * @see ConfigurationServletInterface#getVersion
      */
-    public synchronized boolean updateCodeTemplateLibraries(List<CodeTemplateLibrary> libraries, boolean override) throws ClientException {
-        logger.debug("Updating code template libraries: " + libraries);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_LIBRARY_UPDATE.getName()), new BasicNameValuePair("libraries", serializer.serialize(libraries)), new BasicNameValuePair("override", new Boolean(override).toString()) };
-        return Boolean.valueOf(serverConnection.executePostMethod(TEMPLATE_SERVLET, params)).booleanValue();
+    @Override
+    public String getVersion() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getVersion();
     }
 
     /**
-     * Returns a List of all code templates.
+     * Returns the build date of the Mirth Connect server.
      * 
-     * @throws ClientException
+     * @see ConfigurationServletInterface#getBuildDate
      */
-    public List<CodeTemplate> getCodeTemplates(Set<String> codeTemplateIds) throws ClientException {
-        logger.debug("Getting code templates");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_GET.getName()), new BasicNameValuePair("codeTemplateIds", serializer.serialize(codeTemplateIds)) };
-        return serializer.deserializeList(serverConnection.executePostMethod(TEMPLATE_SERVLET, params), CodeTemplate.class);
-    }
-
-    public List<CodeTemplateSummary> getCodeTemplateSummary(Map<String, Integer> clientRevisions) throws ClientException {
-        logger.debug("Getting code template summary");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_GET_SUMMARY.getName()), new BasicNameValuePair("clientRevisions", serializer.serialize(clientRevisions)) };
-        return serializer.deserializeList(serverConnection.executePostMethodAsync(TEMPLATE_SERVLET, params), CodeTemplateSummary.class);
+    @Override
+    public String getBuildDate() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getBuildDate();
     }
 
     /**
-     * Updates a single code template.
+     * Returns the status of the Mirth Connect server.
      * 
-     * @throws ClientException
+     * @see ConfigurationServletInterface#getStatus
      */
-    public synchronized boolean updateCodeTemplate(CodeTemplate codeTemplate, boolean override) throws ClientException {
-        logger.debug("Updating code template: " + codeTemplate);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_UPDATE.getName()), new BasicNameValuePair("codeTemplate", serializer.serialize(codeTemplate)), new BasicNameValuePair("override", new Boolean(override).toString()) };
-        return Boolean.valueOf(serverConnection.executePostMethod(TEMPLATE_SERVLET, params)).booleanValue();
+    @Override
+    public synchronized int getStatus() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getStatus();
     }
 
     /**
-     * Removes a single code template library.
+     * Returns the time zone of the server.
      * 
-     * @throws ClientException
+     * @see ConfigurationServletInterface#getServerTimezone
      */
-    public synchronized void removeCodeTemplate(CodeTemplate codeTemplate) throws ClientException {
-        logger.debug("Removing code template: " + codeTemplate);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_REMOVE.getName()), new BasicNameValuePair("codeTemplate", serializer.serialize(codeTemplate)) };
-        serverConnection.executePostMethod(TEMPLATE_SERVLET, params);
+    @Override
+    public String getServerTimezone() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getServerTimezone();
     }
 
     /**
-     * Updates all libraries and updates/removes selected code templates in one request.
+     * Returns the time of the server.
      * 
-     * @throws ClientException
+     * @see ConfigurationServletInterface#getServerTime
      */
-    public synchronized CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, List<CodeTemplateLibrary> removedLibraries, List<CodeTemplate> updatedCodeTemplates, List<CodeTemplate> removedCodeTemplates, boolean override) throws ClientException {
-        logger.debug("Updating code templates and libraries: libraries=" + libraries + ", updatedCodeTemplates=" + updatedCodeTemplates + ", removedCodeTemplates=" + removedCodeTemplates + ", override=" + override);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CODE_TEMPLATE_UPDATE_ALL.getName()), new BasicNameValuePair("libraries", serializer.serialize(libraries)), new BasicNameValuePair("removedLibraries", serializer.serialize(removedLibraries)), new BasicNameValuePair("updatedCodeTemplates", serializer.serialize(updatedCodeTemplates)), new BasicNameValuePair("removedCodeTemplates", serializer.serialize(removedCodeTemplates)), new BasicNameValuePair("override", new Boolean(override).toString()) };
-        return serializer.deserialize(serverConnection.executePostMethod(TEMPLATE_SERVLET, params), CodeTemplateLibrarySaveResult.class);
+    @Override
+    public Calendar getServerTime() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getServerTime();
+    }
+
+    /**
+     * Returns the name of the JVM running Mirth Connect.
+     * 
+     * @see ConfigurationServletInterface#getJVMName
+     */
+    @Override
+    public String getJVMName() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getJVMName();
+    }
+
+    /**
+     * Returns a map of common information about the Mirth Connect server.
+     * 
+     * @see ConfigurationServletInterface#getAbout
+     */
+    @Override
+    public Map<String, Object> getAbout() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getAbout();
+    }
+
+    /**
+     * Returns a ServerConfiguration object which contains all of the channels, users, alerts and
+     * properties stored on the Mirth Connect server.
+     * 
+     * @see ConfigurationServletInterface#getServerConfiguration
+     */
+    public ServerConfiguration getServerConfiguration() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getServerConfiguration(null, false);
+    }
+
+    /**
+     * Returns a ServerConfiguration object which contains all of the channels, users, alerts and
+     * properties stored on the Mirth Connect server.
+     * 
+     * @see ConfigurationServletInterface#getServerConfiguration
+     */
+    @Override
+    public ServerConfiguration getServerConfiguration(DeployedState initialState, boolean pollingOnly) throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getServerConfiguration(initialState, pollingOnly);
+    }
+
+    /**
+     * Updates all of the channels, alerts and properties stored on the Mirth Connect server.
+     * 
+     * @see ConfigurationServletInterface#setServerConfiguration
+     */
+    @Override
+    public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy) throws ClientException {
+        getServlet(ConfigurationServletInterface.class).setServerConfiguration(serverConfiguration, deploy);
+    }
+
+    /**
+     * Returns a List of all of the charset encodings supported by the server.
+     * 
+     * @see ConfigurationServletInterface#getAvailableCharsetEncodings
+     */
+    @Override
+    public List<String> getAvailableCharsetEncodings() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getAvailableCharsetEncodings();
     }
 
     /**
      * Returns a ServerSettings object with all server settings.
      * 
-     * @return
-     * @throws ClientException
+     * @see ConfigurationServletInterface#getServerSettings
      */
+    @Override
     public ServerSettings getServerSettings() throws ClientException {
-        logger.debug("retrieving server settings");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_SERVER_SETTINGS_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), ServerSettings.class);
-    }
-
-    /**
-     * Returns an EncryptionSettings object with all encrpytion settings.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public EncryptionSettings getEncryptionSettings() throws ClientException {
-        logger.debug("retrieving encryption settings");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_ENCRYPTION_SETTINGS_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), EncryptionSettings.class);
+        return getServlet(ConfigurationServletInterface.class).getServerSettings();
     }
 
     /**
      * Updates the server configuration settings.
      * 
-     * @param settings
-     * @throws ClientException
+     * @see ConfigurationServletInterface#setServerSettings
      */
+    @Override
     public synchronized void setServerSettings(ServerSettings settings) throws ClientException {
-        logger.debug("updating server settings");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_SERVER_SETTINGS_SET.getName()), new BasicNameValuePair("data", serializer.serialize(settings)) };
-        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
-    }
-
-   /**
-     * Sends a test email.
-     * 
-     * @param settings
-     * @throws ClientException
-     */
-    public synchronized Object sendTestEmail(Properties properties) throws ClientException {
-        logger.debug("updating server settings");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_SERVER_SEND_EMAIL.getName()), new BasicNameValuePair("data", serializer.serialize(properties)) };
-        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), Object.class);
-    }
-
-   /**
-     * Returns an UpdateSettings object with all update settings.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public UpdateSettings getUpdateSettings() throws ClientException {
-        logger.debug("retrieving update settings");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_UPDATE_SETTINGS_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), UpdateSettings.class);
-    }
-
-    /**
-     * Updates the update settings.
-     * 
-     * @param settings
-     * @throws ClientException
-     */
-    public synchronized void setUpdateSettings(UpdateSettings settings) throws ClientException {
-        logger.debug("updating update settings");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_UPDATE_SETTINGS_SET.getName()), new BasicNameValuePair("data", serializer.serialize(settings)) };
-        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
-    }
-
-    /**
-     * Returns a globaly unique id.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public String getGuid() throws ClientException {
-        return UUID.randomUUID().toString();
-    }
-
-    /**
-     * Re-deploys all channels.
-     * 
-     * @throws ClientException
-     */
-    public void redeployAllChannels() throws ClientException {
-        logger.debug("deploying channels");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_REDEPLOY.getName()) };
-        serverConnection.executePostMethodAbortPending(ENGINE_SERVLET, params);
-    }
-
-    /**
-     * Hot deploys specific channels.
-     * 
-     * @throws ClientException
-     */
-    public void deployChannels(Set<String> channelIds) throws ClientException {
-        logger.debug("deploying channels");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_DEPLOY.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        serverConnection.executePostMethodAbortPending(ENGINE_SERVLET, params);
-    }
-
-    /**
-     * Undeploys specific channels.
-     * 
-     * @throws ClientException
-     */
-    public void undeployChannels(Set<String> channelIds) throws ClientException {
-        logger.debug("undeploying channels");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_UNDEPLOY.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        serverConnection.executePostMethodAbortPending(ENGINE_SERVLET, params);
-    }
-
-    /**
-     * Starts the channel with the specified id.
-     * 
-     * @param channelId
-     * @throws ClientException
-     */
-    public void startChannel(String channelId) throws ClientException {
-        startChannels(Collections.singleton(channelId));
-    }
-    
-    /**
-     * Starts the channels with the specified IDs.
-     * 
-     * @param channelIds
-     * @throws ClientException
-     */
-    public void startChannels(Set<String> channelIds) throws ClientException {
-        logger.debug("starting channels: channelIds=" + String.valueOf(channelIds));
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_START.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
-    }
-
-    /**
-     * Stops the channel with the specified id.
-     * 
-     * @param channelId
-     * @throws ClientException
-     */
-    public void stopChannel(String channelId) throws ClientException {
-        stopChannels(Collections.singleton(channelId));
-    }
-    
-    /**
-     * Stops the channels with the specified IDs.
-     * 
-     * @param channelIds
-     * @throws ClientException
-     */
-    public void stopChannels(Set<String> channelIds) throws ClientException {
-        logger.debug("stopping channels: channelIds=" + String.valueOf(channelIds));
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_STOP.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
-    }
-    
-    /**
-     * Halts the channel with the specified id.
-     * 
-     * @param channelId
-     * @throws ClientException
-     */
-    public void haltChannel(String channelId) throws ClientException {
-        haltChannels(Collections.singleton(channelId));
-    }
-    
-    /**
-     * Halts the channels with the specified IDs.
-     * 
-     * @param channelIds
-     * @throws ClientException
-     */
-    public void haltChannels(Set<String> channelIds) throws ClientException {
-        logger.debug("halting channels: channelIds=" + String.valueOf(channelIds));
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_HALT.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
-    }
-
-    /**
-     * Pauses the channel with the specified id.
-     * 
-     * @param channelId
-     * @throws ClientException
-     */
-    public void pauseChannel(String channelId) throws ClientException {
-        pauseChannels(Collections.singleton(channelId));
-    }
-    
-    /**
-     * Pauses the channels with the specified IDs.
-     * 
-     * @param channelIds
-     * @throws ClientException
-     */
-    public void pauseChannels(Set<String> channelIds) throws ClientException {
-        logger.debug("pausing channels: channelIds=" + String.valueOf(channelIds));
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_PAUSE.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
-    }
-
-    /**
-     * Resumes the channel with the specified id.
-     * 
-     * @param channelId
-     * @throws ClientException
-     */
-    public void resumeChannel(String channelId) throws ClientException {
-        resumeChannels(Collections.singleton(channelId));
-    }
-    
-    /**
-     * Resumes the channels with the specified IDs.
-     * 
-     * @param channelIds
-     * @throws ClientException
-     */
-    public void resumeChannels(Set<String> channelIds) throws ClientException {
-        logger.debug("resuming channels: channelIds=" + String.valueOf(channelIds));
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_RESUME.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
-    }
-    
-    /**
-     * Starts the connector with the specified channel and metaData ids.
-     * 
-     * @param channelId
-     * @param metaDataId
-     * @throws ClientException
-     */
-    public void startConnector(String channelId, Integer metaDataId) throws ClientException {
-        startConnectors(Collections.singletonMap(channelId, Collections.singletonList(metaDataId)));
-    }
-    
-    /**
-     * Starts the connectors with the specified channels and metadata IDs.
-     * 
-     * @param connectorInfo
-     * @throws ClientException
-     */
-    public void startConnectors(Map<String, List<Integer>> connectorInfo) throws ClientException {
-        logger.debug("starting connectors: connectorInfo=" + String.valueOf(connectorInfo));
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_START_CONNECTOR.getName()), new BasicNameValuePair("connectorInfo", serializer.serialize(connectorInfo)) };
-        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
-    }
-    
-    /**
-     * Stops the connector with the specified channel and metaData ids.
-     * 
-     * @param channelId
-     * @param metaDataId
-     * @throws ClientException
-     */
-    public void stopConnector(String channelId, Integer metaDataId) throws ClientException {
-        stopConnectors(Collections.singletonMap(channelId, Collections.singletonList(metaDataId)));
-    }
-    
-    /**
-     * Stops the connectors with the specified channel and metadata IDs.
-     * 
-     * @param connectorInfo
-     * @throws ClientException
-     */
-    public void stopConnectors(Map<String, List<Integer>> connectorInfo) throws ClientException {
-        logger.debug("stopping connectors: connectorInfo=" + String.valueOf(connectorInfo));
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_STOP_CONNECTOR.getName()), new BasicNameValuePair("connectorInfo", serializer.serialize(connectorInfo)) };
-        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
-    }
-
-    /**
-     * Returns the Statistics for the channel with the specified id.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public ChannelStatistics getStatistics(String channelId) throws ClientException {
-        logger.debug("retrieving channel statistics: channelId=" + channelId);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_STATS_GET.getName()), new BasicNameValuePair("id", channelId) };
-        return serializer.deserialize(serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params), ChannelStatistics.class);
-    }
-
-    /**
-     * Clears the statistics for the given connectors and/or channels
-     * 
-     * @param channelConnectorMap
-     *            Channel IDs mapped to lists of metaDataIds (connectors). If the metaDataId list is null, then all statistics for the channel will be cleared.
-     * @return
-     * @throws ClientException
-     */
-    public void clearStatistics(Map<String, List<Integer>> channelConnectorMap, boolean received, boolean filtered, boolean sent, boolean error) throws ClientException {
-        logger.debug("clearing statistics");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_STATS_CLEAR.getName()), new BasicNameValuePair("channelConnectorMap", serializer.serialize(channelConnectorMap)), new BasicNameValuePair("deleteReceived", new Boolean(received).toString()), new BasicNameValuePair("deleteFiltered", new Boolean(filtered).toString()), new BasicNameValuePair("deleteSent", new Boolean(sent).toString()), new BasicNameValuePair("deleteErrored", new Boolean(error).toString()) };
-        serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
-    }
-
-    public void clearAllStatistics() throws ClientException {
-        logger.debug("clearing all statistics (including lifetime)");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_STATS_CLEAR_ALL.getName()) };
-        serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
-    }
-
-    public Integer getMaxEventId() throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.EVENT_GET_MAX_ID.getName()) };
-        Integer maxEventId = null;
-
-        try {
-            maxEventId = Integer.parseInt(serverConnection.executePostMethod(Client.EVENT_SERVLET, params));
-        } catch (NumberFormatException e) {
-            return null;
-        }
-
-        return maxEventId;
-    }
-
-    public List<ServerEvent> getEvents(EventFilter filter, Integer offset, Integer limit) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.EVENT_GET.getName()),
-                new BasicNameValuePair("filter", serializer.serialize(filter)),
-                new BasicNameValuePair("offset", (offset == null) ? "" : offset.toString()),
-                new BasicNameValuePair("limit", (limit == null) ? "" : limit.toString()) };
-
-        return serializer.deserializeList(serverConnection.executePostMethod(Client.EVENT_SERVLET, params), ServerEvent.class);
-    }
-
-    public Long getEventCount(EventFilter filter) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.EVENT_GET_COUNT.getName()),
-                new BasicNameValuePair("filter", serializer.serialize(filter)) };
-        Long count = null;
-
-        try {
-            count = Long.parseLong(serverConnection.executePostMethod(Client.EVENT_SERVLET, params));
-        } catch (NumberFormatException e) {
-            return null;
-        }
-
-        return count;
-    }
-
-    public void removeAllEvents() throws ClientException {
-        logger.debug("removing all events");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.EVENT_REMOVE_ALL.getName()) };
-        serverConnection.executePostMethod(EVENT_SERVLET, params);
-    }
-
-    public String exportAllEvents() throws ClientException {
-        logger.debug("exporting all events");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.EVENT_EXPORT_ALL.getName()) };
-        return (String) serverConnection.executePostMethod(EVENT_SERVLET, params);
-    }
-
-    public String exportAndRemoveAllEvents() throws ClientException {
-        logger.debug("exporting and removing all events");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.EVENT_EXPORT_AND_REMOVE_ALL.getName()) };
-        return (String) serverConnection.executePostMethod(EVENT_SERVLET, params);
-    }
-
-    public void removeMessages(String channelId, MessageFilter filter) throws ClientException {
-        logger.debug("removing messages");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_REMOVE.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("filter", serializer.serialize(filter)) };
-        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
-    }
-
-    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, Collection<Integer> reprocessMetaDataIds) throws ClientException {
-        logger.debug("reprocessing messages");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_REPROCESS.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("filter", serializer.serialize(filter)), new BasicNameValuePair("replace", String.valueOf(replace)), new BasicNameValuePair("reprocessMetaDataIds", serializer.serialize(reprocessMetaDataIds)) };
-        serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
-    }
-
-    public void processMessage(String channelId, String rawMessage) throws ClientException {
-        processMessage(channelId, new RawMessage(rawMessage));
-    }
-
-    public void processMessage(String channelId, RawMessage rawMessage) throws ClientException {
-        logger.debug("processing message");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_PROCESS.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("rawMessage", serializer.serialize(rawMessage)) };
-        serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
+        getServlet(ConfigurationServletInterface.class).setServerSettings(settings);
     }
 
     public Encryptor getEncryptor() {
@@ -1026,348 +620,1421 @@ public class Client {
         try {
             return getEncryptionSettings().getEncryptExport();
         } catch (Exception e) {
-            logger.error("Unable to load encryption settings.");
+            logger.error("Unable to load encryption settings.", e);
         }
 
         return false;
     }
 
-    public void importMessage(String channelId, Message message) throws ClientException {
-        logger.debug("importing message");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_IMPORT.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("message", serializer.serialize(message)) };
-        serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
-    }
-    
-    public MessageImportResult importMessagesServer(String channelId, String path, boolean includeSubfolders) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_IMPORT_SERVER.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("path", path), new BasicNameValuePair("includeSubfolders", serializer.serialize(includeSubfolders)) };
-        return serializer.deserialize(serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params), MessageImportResult.class);
-    }
-
-    public int exportMessagesServer(final String channelId, final MessageFilter filter, final int pageSize, final boolean includeAttachments, final MessageWriterOptions writerOptions) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_EXPORT.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("filter", serializer.serialize(filter)), new BasicNameValuePair("pageSize", serializer.serialize(pageSize)), new BasicNameValuePair("includeAttachments", serializer.serialize(includeAttachments)), new BasicNameValuePair("writerOptions", serializer.serialize(writerOptions)) };
-        
-        try {
-            return Integer.parseInt(serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params));
-        } catch (NumberFormatException e) {
-            logger.error(e);
-            return 0;
-        }
+    /**
+     * Returns an EncryptionSettings object with all encryption settings.
+     * 
+     * @see ConfigurationServletInterface#getEncryptionSettings
+     */
+    @Override
+    public EncryptionSettings getEncryptionSettings() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getEncryptionSettings();
     }
 
-    public void exportAttachmentServer(String channelId, String attachmentId, Long messageId, String filePath, boolean binary) throws ClientException {
-        logger.debug("exporting attachment");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_ATTACHMENT_EXPORT.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("attachmentId", attachmentId), new BasicNameValuePair("messageId", serializer.serialize(messageId)), new BasicNameValuePair("filePath", filePath), new BasicNameValuePair("binary", String.valueOf(binary)) };
-        serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params);
+    /**
+     * Sends a test email.
+     * 
+     * @see ConfigurationServletInterface#sendTestEmail
+     */
+    @Override
+    public synchronized ConnectionTestResponse sendTestEmail(Properties properties) throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).sendTestEmail(properties);
     }
 
+    /**
+     * Returns an UpdateSettings object with all update settings.
+     * 
+     * @see ConfigurationServletInterface#getUpdateSettings
+     */
+    @Override
+    public UpdateSettings getUpdateSettings() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getUpdateSettings();
+    }
+
+    /**
+     * Updates the update settings.
+     * 
+     * @see ConfigurationServletInterface#setUpdateSettings
+     */
+    @Override
+    public synchronized void setUpdateSettings(UpdateSettings settings) throws ClientException {
+        getServlet(ConfigurationServletInterface.class).setUpdateSettings(settings);
+    }
+
+    /**
+     * Returns a globally unique id.
+     * 
+     * @see ConfigurationServletInterface#getGuid
+     */
+    @Override
+    public String getGuid() throws ClientException {
+        return UUID.randomUUID().toString();
+    }
+
+    /**
+     * Returns a map containing all of the global scripts.
+     * 
+     * @see ConfigurationServletInterface#getGlobalScripts
+     */
+    @Override
     public Map<String, String> getGlobalScripts() throws ClientException {
-        logger.debug("getting global scripts");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.GLOBAL_SCRIPT_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), Map.class);
+        return getServlet(ConfigurationServletInterface.class).getGlobalScripts();
     }
 
+    /**
+     * Updates all of the global scripts.
+     * 
+     * @see ConfigurationServletInterface#setGlobalScripts
+     */
+    @Override
     public void setGlobalScripts(Map<String, String> scripts) throws ClientException {
-        logger.debug("setting global scripts");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.GLOBAL_SCRIPT_SET.getName()), new BasicNameValuePair("scripts", serializer.serialize(scripts)) };
-        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+        getServlet(ConfigurationServletInterface.class).setGlobalScripts(scripts);
     }
 
+    /**
+     * Returns all entries in the configuration map.
+     * 
+     * @see ConfigurationServletInterface#getConfigurationMap
+     */
+    @Override
     public Map<String, ConfigurationProperty> getConfigurationMap() throws ClientException {
-        logger.debug("getting configuration map");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_MAP_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), Map.class);
+        return getServlet(ConfigurationServletInterface.class).getConfigurationMap();
     }
 
+    /**
+     * Updates all entries in the configuration map.
+     * 
+     * @see ConfigurationServletInterface#setConfigurationMap
+     */
+    @Override
     public void setConfigurationMap(Map<String, ConfigurationProperty> map) throws ClientException {
-        logger.debug("setting configuration map");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_MAP_SET.getName()), new BasicNameValuePair("map", serializer.serialize(map)) };
-        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
-    }
-    
-    /**
-     * Sets properties for a given plugin
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public Properties getPluginProperties(String pluginName) throws ClientException {
-        logger.debug("getting " + pluginName + " properties");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.PLUGIN_PROPERTIES_GET.getName()), new BasicNameValuePair("name", pluginName) };
-        return serializer.deserialize(serverConnection.executePostMethod(EXTENSION_SERVLET, params), Properties.class);
-    }
-
-    /**
-     * Gets properties for a given plugin
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public void setPluginProperties(String pluginName, Properties properties) throws ClientException {
-        logger.debug("setting " + pluginName + " properties");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.PLUGIN_PROPERTIES_SET.getName()), new BasicNameValuePair("name", pluginName), new BasicNameValuePair("properties", serializer.serialize(properties)) };
-        serverConnection.executePostMethod(EXTENSION_SERVLET, params);
-    }
-
-    /**
-     * True if an extension is installed and enabled, else return false
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public boolean isExtensionEnabled(String extensionName) throws ClientException {
-        logger.debug("checking if " + extensionName + " is installed/enabled");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.EXTENSION_IS_ENABLED.getName()), new BasicNameValuePair("name", extensionName) };
-        return Boolean.valueOf(serverConnection.executePostMethod(EXTENSION_SERVLET, params)).booleanValue();
-    }
-    
-    public Map<Integer, String> getConnectorNames(String channelId) throws ClientException {
-        logger.debug("retrieving channel connector names");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_GET_CONNECTOR_NAMES.getName()), new BasicNameValuePair("channelId", channelId) };
-        return serializer.deserialize(serverConnection.executePostMethod(CHANNEL_SERVLET, params), Map.class);
-    }
-    
-    public List<MetaDataColumn> getMetaDataColumns(String channelId) throws ClientException {
-        logger.debug("retrieving channel metadata columns");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_GET_METADATA_COLUMNS.getName()), new BasicNameValuePair("channelId", channelId) };
-        return serializer.deserializeList(serverConnection.executePostMethod(CHANNEL_SERVLET, params), MetaDataColumn.class);
-    }
-
-    public void clearMessages(Set<String> channelIds, Boolean restartRunningChannels, Boolean clearStatistics) throws ClientException {
-        logger.debug("clearing messages");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_CLEAR.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)), new BasicNameValuePair("restartRunningChannels", serializer.serialize(restartRunningChannels)), new BasicNameValuePair("clearStatistics", serializer.serialize(clearStatistics)) };
-        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
-    }
-
-    public Long getMaxMessageId(String channelId) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_GET_MAX_ID.getName()), new BasicNameValuePair("channelId", channelId)};
-        Long maxMessageId = null;
-        
-        try {
-            maxMessageId = Long.parseLong(serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params));
-        } catch (NumberFormatException e) {
-            return null;
-        }
-        
-        return maxMessageId;
-    }
-    
-    public List<Message> getMessages(String channelId, MessageFilter filter, Boolean includeContent, Integer offset, Integer limit) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_GET.getName()),
-                new BasicNameValuePair("channelId", channelId),
-                new BasicNameValuePair("filter", serializer.serialize(filter)),
-                new BasicNameValuePair("includeContent", (includeContent) ? "y" : "n"),
-                new BasicNameValuePair("offset", (offset == null) ? "" : offset.toString()),
-                new BasicNameValuePair("limit", (limit == null) ? "" : limit.toString()) };
-
-        return serializer.deserializeList(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params), Message.class);
-    }
-    
-    public Long getMessageCount(String channelId, MessageFilter filter) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_GET_COUNT.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("filter", serializer.serialize(filter)) };
-        Long count = null;
-        
-        try {
-            count = Long.parseLong(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params));
-        } catch (NumberFormatException e) {
-            return null;
-        }
-        
-        return count;
-    }
-    
-    public Message getMessageContent(String channelId, Long messageId) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_GET_CONTENT.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("messageId", serializer.serialize(messageId)) };
-        return serializer.deserialize(serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params), Message.class);
-    }
-
-    /**
-     * Returns the channel status list.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public List<DashboardStatus> getChannelStatusList() throws ClientException {
-        logger.debug("retrieving channel status list");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_GET_STATUS_ALL.getName()) };
-        return serializer.deserializeList(serverConnection.executePostMethodAsync(CHANNEL_STATUS_SERVLET, params), DashboardStatus.class);
-    }
-
-    /**
-     * Returns a DashboardChannelInfo object containing a partial channel status list and a set of
-     * remaining channel IDs. The block size specifies the maximum number of statuses to return.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public DashboardChannelInfo getDashboardChannelInfo(int fetchSize) throws ClientException {
-        logger.debug("retrieving channel status list: fetchSize=" + String.valueOf(fetchSize));
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_GET_STATUS_INITIAL.getName()), new BasicNameValuePair("fetchSize", String.valueOf(fetchSize)) };
-        return serializer.deserialize(serverConnection.executePostMethodAsync(CHANNEL_STATUS_SERVLET, params), DashboardChannelInfo.class);
-    }
-
-    /**
-     * Returns the channel status list for specific channel IDs.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds) throws ClientException {
-        logger.debug("retrieving channel status list: channelIds=" + String.valueOf(channelIds));
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_GET_STATUS.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        return serializer.deserializeList(serverConnection.executePostMethodAsync(CHANNEL_STATUS_SERVLET, params), DashboardStatus.class);
+        getServlet(ConfigurationServletInterface.class).setConfigurationMap(map);
     }
 
     /**
      * Returns the database driver list.
      * 
-     * @return
-     * @throws ClientException
+     * @see ConfigurationServletInterface#getDatabaseDrivers
      */
+    @Override
     public List<DriverInfo> getDatabaseDrivers() throws ClientException {
-        logger.debug("retrieving database driver list");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_DATABASE_DRIVERS_GET.getName()) };
-        return serializer.deserializeList(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), DriverInfo.class);
+        return getServlet(ConfigurationServletInterface.class).getDatabaseDrivers();
     }
 
     /**
-     * Returns the version of the Mirth Connect server.
+     * Returns all password requirements for the server.
      * 
-     * @return
-     * @throws ClientException
+     * @see ConfigurationServletInterface#getPasswordRequirements
      */
-    public String getVersion() throws ClientException {
-        logger.debug("retrieving version");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_VERSION_GET.getName()) };
-        return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
-    }
-
-    /**
-     * Returns the status of the Mirth Connect server.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public synchronized int getStatus() throws ClientException {
-        logger.debug("retrieving status");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_STATUS_GET.getName()) };
-        return Integer.valueOf(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
-    }
-
-    /**
-     * Returns the build date of the Mirth Connect server.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public String getBuildDate() throws ClientException {
-        logger.debug("retrieving build date");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_BUILD_DATE_GET.getName()) };
-        return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
-    }
-
-    /**
-     * Returns a Map of user prefereneces.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public Properties getUserPreferences(User user, Set<String> names) throws ClientException {
-        logger.debug("retrieving user preferences");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCES_GET.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("names", serializer.serialize(names)) };
-        return serializer.deserialize(serverConnection.executePostMethod(USER_SERVLET, params), Properties.class);
-    }
-    
-    public String getUserPreference(User user, String name) throws ClientException {
-        logger.debug("retrieving user preference");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCE_GET.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("name", name) };
-        return serializer.deserialize(serverConnection.executePostMethod(USER_SERVLET, params), String.class);
-    }
-
-    /**
-     * Sets a user preference.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public void setUserPreference(User user, String name, String value) throws ClientException {
-        logger.debug("setting user preference");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCE_SET.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("name", name), new BasicNameValuePair("value", value) };
-        serverConnection.executePostMethod(USER_SERVLET, params);
-    }
-    
-    public void setUserPreferences(User user, Properties properties) throws ClientException {
-        logger.debug("setting user preferences");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCES_SET.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("properties", serializer.serialize(properties)) };
-        serverConnection.executePostMethod(USER_SERVLET, params);
-    }
-
-    public Attachment getAttachment(String channelId, String attachmentId, Long messageId) throws ClientException {
-        logger.debug("getting Attachment: " + attachmentId + " for message: " + messageId);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("attachmentId", attachmentId), new BasicNameValuePair("messageId", serializer.serialize(messageId)) };
-        return serializer.deserialize(serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params), Attachment.class);
-    }
-
-    public List<Attachment> getAttachmentsByMessageId(String channelId, Long messageId) throws ClientException {
-        logger.debug("getting Attachments for message: " + messageId);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("messageId", serializer.serialize(messageId)) };
-        return serializer.deserializeList(serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params), Attachment.class);
-    }
-
-    public List<Attachment> getAttachmentIdsByMessageId(String channelId, Long messageId) throws ClientException {
-        logger.debug("getting Attachments for message: " + messageId);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("messageId", serializer.serialize(messageId)) };
-        return serializer.deserializeList(serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params), Attachment.class);
-    }
-
-    public String getDICOMMessage(ConnectorMessage message) throws ClientException {
-        logger.debug("Getting DICOM message for message: " + message);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_DICOM_MESSAGE_GET.getName()), new BasicNameValuePair("message", serializer.serialize(message)) };
-        return serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
-    }
-
+    @Override
     public PasswordRequirements getPasswordRequirements() throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), PasswordRequirements.class);
+        return getServlet(ConfigurationServletInterface.class).getPasswordRequirements();
+    }
+
+    /**
+     * Returns all resources for the server.
+     * 
+     * @see ConfigurationServletInterface#getResources
+     */
+    @Override
+    public List<ResourceProperties> getResources() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getResources();
+    }
+
+    /**
+     * Updates all resources for the server.
+     * 
+     * @see ConfigurationServletInterface#setResources
+     */
+    @Override
+    public void setResources(List<ResourceProperties> resources) throws ClientException {
+        getServlet(ConfigurationServletInterface.class).setResources(resources);
+    }
+
+    /**
+     * Reloads a resource and all libraries associated with it.
+     * 
+     * @see ConfigurationServletInterface#reloadResource
+     */
+    @Override
+    public void reloadResource(String resourceId) throws ClientException {
+        getServlet(ConfigurationServletInterface.class).reloadResource(resourceId);
+    }
+
+    /*******************
+     * Channel Servlet *
+     *******************/
+
+    /**
+     * Creates a new channel.
+     * 
+     * @see ChannelServletInterface#createChannel
+     */
+    @Override
+    public synchronized boolean createChannel(Channel channel) throws ClientException {
+        return getServlet(ChannelServletInterface.class).createChannel(channel);
+    }
+
+    /**
+     * Returns a List of all channels.
+     * 
+     * @see ChannelServletInterface#getAllChannels
+     */
+    public List<Channel> getAllChannels() throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannels(null, false);
+    }
+
+    /**
+     * Retrieve multiple channels by ID.
+     * 
+     * @see ChannelServletInterface#getChannels
+     */
+    public List<Channel> getChannels(Set<String> channelIds) throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannels(channelIds, false);
+    }
+
+    /**
+     * Retrieve multiple channels by ID.
+     * 
+     * @see ChannelServletInterface#getChannels
+     */
+    @Override
+    public List<Channel> getChannels(Set<String> channelIds, boolean pollingOnly) throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannels(channelIds, pollingOnly);
+    }
+
+    /**
+     * Retrieve a single channel by ID.
+     * 
+     * @see ChannelServletInterface#getChannel
+     */
+    @Override
+    public Channel getChannel(String channelId) throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannel(channelId);
+    }
+
+    /**
+     * Returns all connector names for a channel.
+     * 
+     * @see ChannelServletInterface#getConnectorNames
+     */
+    @Override
+    public Map<Integer, String> getConnectorNames(String channelId) throws ClientException {
+        return getServlet(ChannelServletInterface.class).getConnectorNames(channelId);
+    }
+
+    /**
+     * Returns all metadata columns for a channel.
+     * 
+     * @see ChannelServletInterface#getMetaDataColumns
+     */
+    @Override
+    public List<MetaDataColumn> getMetaDataColumns(String channelId) throws ClientException {
+        return getServlet(ChannelServletInterface.class).getMetaDataColumns(channelId);
+    }
+
+    /**
+     * Returns a list of channel summaries, indicating to a client which channels have changed (been
+     * updated, deleted, undeployed, etc.). If a channel was modified, the entire Channel object
+     * will be returned.
+     * 
+     * @see ChannelServletInterface#getChannelSummary
+     */
+    @Override
+    public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels) throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannelSummary(cachedChannels);
+    }
+
+    /**
+     * Enables/disables the specified channels.
+     * 
+     * @see ChannelServletInterface#setChannelEnabled
+     */
+    @Override
+    public synchronized void setChannelEnabled(Set<String> channelIds, boolean enabled) throws ClientException {
+        getServlet(ChannelServletInterface.class).setChannelEnabled(channelIds, enabled);
+    }
+
+    /**
+     * Enables/disables the specified channel.
+     * 
+     * @see ChannelServletInterface#setChannelEnabled
+     */
+    @Override
+    public synchronized void setChannelEnabled(String channelId, boolean enabled) throws ClientException {
+        getServlet(ChannelServletInterface.class).setChannelEnabled(channelId, enabled);
+    }
+
+    /**
+     * Sets the initial state for the specified channels.
+     * 
+     * @see ChannelServletInterface#setChannelInitialState
+     */
+    @Override
+    public synchronized void setChannelInitialState(Set<String> channelIds, DeployedState initialState) throws ClientException {
+        getServlet(ChannelServletInterface.class).setChannelInitialState(channelIds, initialState);
+    }
+
+    /**
+     * Sets the initial state for a single channel.
+     * 
+     * @see ChannelServletInterface#setChannelInitialState
+     */
+    @Override
+    public synchronized void setChannelInitialState(String channelId, DeployedState initialState) throws ClientException {
+        getServlet(ChannelServletInterface.class).setChannelInitialState(channelId, initialState);
+    }
+
+    /**
+     * Updates the specified channel.
+     * 
+     * @see ChannelServletInterface#updateChannel
+     */
+    public synchronized boolean updateChannel(Channel channel, boolean override) throws ClientException {
+        return updateChannel(channel.getId(), channel, override);
+    }
+
+    /**
+     * Updates the specified channel.
+     * 
+     * @see ChannelServletInterface#updateChannel
+     */
+    @Override
+    public synchronized boolean updateChannel(String channelId, Channel channel, boolean override) throws ClientException {
+        return getServlet(ChannelServletInterface.class).updateChannel(channelId, channel, override);
+    }
+
+    /**
+     * Removes the channel with the specified ID.
+     * 
+     * @see ChannelServletInterface#removeChannel
+     */
+    @Override
+    public synchronized void removeChannel(String channelId) throws ClientException {
+        getServlet(ChannelServletInterface.class).removeChannel(channelId);
+    }
+
+    /**
+     * Removes the channels with the specified IDs.
+     * 
+     * @see ChannelServletInterface#removeChannels
+     */
+    @Override
+    public synchronized void removeChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelServletInterface.class).removeChannels(channelIds);
+    }
+
+    /**************************
+     * Channel Status Servlet *
+     **************************/
+
+    /**
+     * Returns the dashboard status for a single channel ID.
+     * 
+     * @see ChannelStatusServletInterface#getChannelStatus
+     */
+    @Override
+    public DashboardStatus getChannelStatus(String channelId) throws ClientException {
+        return getServlet(ChannelStatusServletInterface.class).getChannelStatus(channelId);
+    }
+
+    /**
+     * Returns all channel dashboard statuses.
+     * 
+     * @see ChannelStatusServletInterface#getChannelStatusList
+     */
+    public List<DashboardStatus> getAllChannelStatuses() throws ClientException {
+        return getServlet(ChannelStatusServletInterface.class).getChannelStatusList(null, false);
+    }
+
+    /**
+     * Returns a DashboardChannelInfo object containing a partial channel status list and a set of
+     * remaining channel IDs. The fetch size specifies the maximum number of statuses to return.
+     * 
+     * @see ChannelStatusServletInterface#getDashboardChannelInfo
+     */
+    @Override
+    public DashboardChannelInfo getDashboardChannelInfo(int fetchSize) throws ClientException {
+        return getServlet(ChannelStatusServletInterface.class).getDashboardChannelInfo(fetchSize);
     }
     
     /**
-     * Returns the usage data of the Mirth Connect server.
+     * Returns the channel status list for specific channel IDs.
      * 
-     * @return
-     * @throws ClientException
+     * @see ChannelStatusServletInterface#getChannelStatusList
      */
-    public String getUsageData(Map<String, Object> clientStats) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USAGE_DATA_GET.getName()), new BasicNameValuePair("clientStats", serializer.serialize(clientStats)) };
-        return serializer.deserialize(serverConnection.executePostMethodAsync(USAGE_SERVLET, params), String.class);
+    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds) throws ClientException {
+        return getServlet(ChannelStatusServletInterface.class).getChannelStatusList(channelIds, false);
     }
 
+    /**
+     * Returns the channel status list for specific channel IDs.
+     * 
+     * @see ChannelStatusServletInterface#getChannelStatusList
+     */
+    @Override
+    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, boolean includeUndeployed) throws ClientException {
+        return getServlet(ChannelStatusServletInterface.class).getChannelStatusList(channelIds, includeUndeployed);
+    }
+
+    /**
+     * Starts the channel with the specified ID.
+     * 
+     * @see ChannelStatusServletInterface#startChannel
+     */
+    @Override
+    public void startChannel(String channelId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startChannel(channelId);
+    }
+
+    /**
+     * Starts the channels with the specified IDs.
+     * 
+     * @see ChannelStatusServletInterface#startChannels
+     */
+    @Override
+    public void startChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startChannels(channelIds);
+    }
+
+    /**
+     * Stops the channel with the specified ID.
+     * 
+     * @see ChannelStatusServletInterface#stopChannel
+     */
+    @Override
+    public void stopChannel(String channelId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopChannel(channelId);
+    }
+
+    /**
+     * Stops the channels with the specified IDs.
+     * 
+     * @see ChannelStatusServletInterface#stopChannels
+     */
+    @Override
+    public void stopChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopChannels(channelIds);
+    }
+
+    /**
+     * Halts the channel with the specified ID.
+     * 
+     * @see ChannelStatusServletInterface#haltChannel
+     */
+    @Override
+    public void haltChannel(String channelId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).haltChannel(channelId);
+    }
+
+    /**
+     * Halts the channels with the specified IDs.
+     * 
+     * @see ChannelStatusServletInterface#haltChannels
+     */
+    @Override
+    public void haltChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).haltChannels(channelIds);
+    }
+
+    /**
+     * Pauses the channel with the specified ID.
+     * 
+     * @see ChannelStatusServletInterface#pauseChannel
+     */
+    @Override
+    public void pauseChannel(String channelId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).pauseChannel(channelId);
+    }
+
+    /**
+     * Pauses the channels with the specified IDs.
+     * 
+     * @see ChannelStatusServletInterface#pauseChannels
+     */
+    @Override
+    public void pauseChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).pauseChannels(channelIds);
+    }
+
+    /**
+     * Resumes the channel with the specified ID.
+     * 
+     * @see ChannelStatusServletInterface#resumeChannel
+     */
+    @Override
+    public void resumeChannel(String channelId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).resumeChannel(channelId);
+    }
+
+    /**
+     * Resumes the channels with the specified IDs.
+     * 
+     * @see ChannelStatusServletInterface#resumeChannels
+     */
+    @Override
+    public void resumeChannels(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).resumeChannels(channelIds);
+    }
+
+    /**
+     * Starts the connector with the specified channel and metadata ID.
+     * 
+     * @see ChannelStatusServletInterface#startConnector
+     */
+    @Override
+    public void startConnector(String channelId, Integer metaDataId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startConnector(channelId, metaDataId);
+    }
+
+    /**
+     * Starts the connectors with the specified channel and metadata IDs.
+     * 
+     * @see ChannelStatusServletInterface#startConnectors
+     */
+    @Override
+    public void startConnectors(Map<String, List<Integer>> connectorInfo) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).startConnectors(connectorInfo);
+    }
+
+    /**
+     * Stops the connector with the specified channel and metadata ID.
+     * 
+     * @see ChannelStatusServletInterface#stopConnector
+     */
+    @Override
+    public void stopConnector(String channelId, Integer metaDataId) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopConnector(channelId, metaDataId);
+    }
+
+    /**
+     * Stops the connectors with the specified channel and metadata IDs.
+     * 
+     * @see ChannelStatusServletInterface#stopConnectors
+     */
+    @Override
+    public void stopConnectors(Map<String, List<Integer>> connectorInfo) throws ClientException {
+        getServlet(ChannelStatusServletInterface.class).stopConnectors(connectorInfo);
+    }
+
+    /******************************
+     * Channel Statistics Servlet *
+     ******************************/
+
+    /**
+     * Returns the Statistics for all channels.
+     * 
+     * @see ChannelStatisticsServletInterface#getAllStatistics
+     */
+    @Override
+    public List<ChannelStatistics> getAllStatistics() throws ClientException {
+        return getServlet(ChannelStatisticsServletInterface.class).getAllStatistics();
+    }
+
+    /**
+     * Returns the Statistics for the channel with the specified id.
+     * 
+     * @see ChannelStatisticsServletInterface#getStatistics
+     */
+    @Override
+    public ChannelStatistics getStatistics(String channelId) throws ClientException {
+        return getServlet(ChannelStatisticsServletInterface.class).getStatistics(channelId);
+    }
+
+    /**
+     * Clears the statistics for the given channels and/or connectors.
+     * 
+     * @param channelConnectorMap
+     *            Channel IDs mapped to lists of metaDataIds (connectors). If the metaDataId list is
+     *            null, then all statistics for the channel will be cleared.
+     * 
+     * @see ChannelStatisticsServletInterface#clearStatistics
+     */
+    @Override
+    public void clearStatistics(Map<String, List<Integer>> channelConnectorMap, boolean received, boolean filtered, boolean sent, boolean error) throws ClientException {
+        getServlet(ChannelStatisticsServletInterface.class).clearStatistics(channelConnectorMap, received, filtered, sent, error);
+    }
+
+    /**
+     * Clears all statistics (including lifetime) for all channels/connectors.
+     * 
+     * @see ChannelStatisticsServletInterface#clearAllStatistics
+     */
+    @Override
+    public void clearAllStatistics() throws ClientException {
+        getServlet(ChannelStatisticsServletInterface.class).clearAllStatistics();
+    }
+
+    /******************
+     * Engine Servlet *
+     ******************/
+
+    /**
+     * Redeploys all channels.
+     * 
+     * @see EngineServletInterface#redeployAllChannels
+     */
+    @Override
+    public void redeployAllChannels() throws ClientException {
+        getServlet(EngineServletInterface.class).redeployAllChannels();
+    }
+
+    /**
+     * Deploys (or redeploys) a single channel.
+     * 
+     * @see EngineServletInterface#deployChannel
+     */
+    @Override
+    public void deployChannel(String channelId) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannel(channelId);
+    }
+
+    /**
+     * Deploys (or redeploys) selected channels.
+     * 
+     * @see EngineServletInterface#deployChannels
+     */
+    @Override
+    public void deployChannels(Set<String> channelIds) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannels(channelIds);
+    }
+
+    /**
+     * Undeploys a single channel.
+     * 
+     * @see EngineServletInterface#undeployChannel
+     */
+    @Override
+    public void undeployChannel(String channelId) throws ClientException {
+        getServlet(EngineServletInterface.class).undeployChannel(channelId);
+    }
+
+    /**
+     * Undeploys selected channels.
+     * 
+     * @see EngineServletInterface#undeployChannels
+     */
+    @Override
+    public void undeployChannels(Set<String> channelIds) throws ClientException {
+        getServlet(EngineServletInterface.class).undeployChannels(channelIds);
+    }
+
+    /*******************
+     * Message Servlet *
+     *******************/
+
+    /**
+     * Processes a new message through a channel.
+     * 
+     * @see MessageServletInterface#processMessage
+     */
+    public void processMessage(String channelId, String rawMessage) throws ClientException {
+        processMessage(channelId, rawMessage, null, null, false, false, null);
+    }
+
+    /**
+     * Processes a new message through a channel.
+     * 
+     * @see MessageServletInterface#processMessage
+     */
+    @Override
+    public void processMessage(String channelId, String rawData, Set<Integer> destinationMetaDataIds, Set<String> sourceMapEntries, boolean overwrite, boolean imported, Long originalMessageId) throws ClientException {
+        getServlet(MessageServletInterface.class).processMessage(channelId, rawData, destinationMetaDataIds, sourceMapEntries, overwrite, imported, originalMessageId);
+    }
+
+    /**
+     * Processes a new message through a channel, using the RawMessage object.
+     * 
+     * @see MessageServletInterface#processMessage
+     */
+    @Override
+    public void processMessage(String channelId, RawMessage rawMessage) throws ClientException {
+        getServlet(MessageServletInterface.class).processMessage(channelId, rawMessage);
+    }
+
+    /**
+     * Processes a new message through a channel, using the RawMessage object.
+     * 
+     * @see MessageServletInterface#getMessageContent
+     */
+    @Override
+    public Message getMessageContent(String channelId, Long messageId) throws ClientException {
+        return getServlet(MessageServletInterface.class).getMessageContent(channelId, messageId);
+    }
+
+    /**
+     * Retrieve a list of attachments by message ID.
+     * 
+     * @see MessageServletInterface#getAttachmentsByMessageId
+     */
+    public List<Attachment> getAttachmentsByMessageId(String channelId, Long messageId) throws ClientException {
+        return getAttachmentsByMessageId(channelId, messageId, true);
+    }
+
+    /**
+     * Retrieve a list of attachments by message ID.
+     * 
+     * @see MessageServletInterface#getAttachmentsByMessageId
+     */
+    @Override
+    public List<Attachment> getAttachmentsByMessageId(String channelId, Long messageId, boolean includeContent) throws ClientException {
+        return getServlet(MessageServletInterface.class).getAttachmentsByMessageId(channelId, messageId, includeContent);
+    }
+
+    /**
+     * Retrieve a message attachment by ID.
+     * 
+     * @see MessageServletInterface#getAttachment
+     */
+    @Override
+    public Attachment getAttachment(String channelId, Long messageId, String attachmentId) throws ClientException {
+        return getServlet(MessageServletInterface.class).getAttachment(channelId, messageId, attachmentId);
+    }
+
+    /**
+     * Given a ConnectorMessage object, reattaches any DICOM attachment data and returns the raw
+     * Base64 encoded message data.
+     * 
+     * @see MessageServletInterface#getDICOMMessage
+     */
+    public String getDICOMMessage(ConnectorMessage message) throws ClientException {
+        return getDICOMMessage(message.getChannelId(), message.getMessageId(), message);
+    }
+
+    /**
+     * Given a ConnectorMessage object, reattaches any DICOM attachment data and returns the raw
+     * Base64 encoded message data.
+     * 
+     * @see MessageServletInterface#getDICOMMessage
+     */
+    @Override
+    public String getDICOMMessage(String channelId, Long messageId, ConnectorMessage message) throws ClientException {
+        return getServlet(MessageServletInterface.class).getDICOMMessage(channelId, messageId, message);
+    }
+
+    /**
+     * Returns the maximum message ID for the given channel.
+     * 
+     * @see MessageServletInterface#getMaxMessageId
+     */
+    @Override
+    public Long getMaxMessageId(String channelId) throws ClientException {
+        return getServlet(MessageServletInterface.class).getMaxMessageId(channelId);
+    }
+
+    /**
+     * Search for messages by specific filter criteria.
+     * 
+     * @see MessageServletInterface#getMessages
+     */
+    @Override
+    public List<Message> getMessages(String channelId, MessageFilter filter, Boolean includeContent, Integer offset, Integer limit) throws ClientException {
+        return getServlet(MessageServletInterface.class).getMessages(channelId, filter, includeContent, offset, limit);
+    }
+
+    /**
+     * Search for messages by specific filter criteria.
+     * 
+     * @see MessageServletInterface#getMessages
+     */
+    @Override
+    public List<Message> getMessages(String channelId, Long minMessageId, Long maxMessageId, Long minOriginalId, Long maxOriginalId, Long minImportId, Long maxImportId, Calendar startDate, Calendar endDate, String textSearch, Set<Status> statuses, Set<Integer> includedMetaDataIds, Set<Integer> excludedMetaDataIds, String serverId, Set<String> rawContentSearches, Set<String> processedRawContentSearches, Set<String> transformedContentSearches, Set<String> encodedContentSearches, Set<String> sentContentSearches, Set<String> responseContentSearches, Set<String> responseTransformedContentSearches, Set<String> processedResponseContentSearches, Set<String> connectorMapContentSearches, Set<String> channelMapContentSearches, Set<String> sourceMapContentSearches, Set<String> responseMapContentSearches, Set<String> processingErrorContentSearches, Set<String> postprocessorErrorContentSearches, Set<String> responseErrorContentSearches, Set<MetaDataSearch> metaDataSearches, Set<MetaDataSearch> metaDataCaseInsensitiveSearches, Set<String> textSearchMetaDataColumns, Integer minSendAttempts, Integer maxSendAttempts, Boolean attachment, Boolean error, Boolean includeContent, Integer offset, Integer limit) throws ClientException {
+        return getServlet(MessageServletInterface.class).getMessages(channelId, minMessageId, maxMessageId, minOriginalId, maxOriginalId, minImportId, maxImportId, startDate, endDate, textSearch, statuses, includedMetaDataIds, excludedMetaDataIds, serverId, rawContentSearches, processedRawContentSearches, transformedContentSearches, encodedContentSearches, sentContentSearches, responseContentSearches, responseTransformedContentSearches, processedResponseContentSearches, connectorMapContentSearches, channelMapContentSearches, sourceMapContentSearches, responseMapContentSearches, processingErrorContentSearches, postprocessorErrorContentSearches, responseErrorContentSearches, metaDataSearches, metaDataCaseInsensitiveSearches, textSearchMetaDataColumns, minSendAttempts, maxSendAttempts, attachment, error, includeContent, offset, limit);
+    }
+
+    /**
+     * Count number for messages by specific filter criteria.
+     * 
+     * @see MessageServletInterface#getMessageCount
+     */
+    @Override
+    public Long getMessageCount(String channelId, MessageFilter filter) throws ClientException {
+        return getServlet(MessageServletInterface.class).getMessageCount(channelId, filter);
+    }
+
+    /**
+     * Count number for messages by specific filter criteria.
+     * 
+     * @see MessageServletInterface#getMessageCount
+     */
+    @Override
+    public Long getMessageCount(String channelId, Long minMessageId, Long maxMessageId, Long minOriginalId, Long maxOriginalId, Long minImportId, Long maxImportId, Calendar startDate, Calendar endDate, String textSearch, Set<Status> statuses, Set<Integer> includedMetaDataIds, Set<Integer> excludedMetaDataIds, String serverId, Set<String> rawContentSearches, Set<String> processedRawContentSearches, Set<String> transformedContentSearches, Set<String> encodedContentSearches, Set<String> sentContentSearches, Set<String> responseContentSearches, Set<String> responseTransformedContentSearches, Set<String> processedResponseContentSearches, Set<String> connectorMapContentSearches, Set<String> channelMapContentSearches, Set<String> sourceMapContentSearches, Set<String> responseMapContentSearches, Set<String> processingErrorContentSearches, Set<String> postprocessorErrorContentSearches, Set<String> responseErrorContentSearches, Set<MetaDataSearch> metaDataSearches, Set<MetaDataSearch> metaDataCaseInsensitiveSearches, Set<String> textSearchMetaDataColumns, Integer minSendAttempts, Integer maxSendAttempts, Boolean attachment, Boolean error) throws ClientException {
+        return getServlet(MessageServletInterface.class).getMessageCount(channelId, minMessageId, maxMessageId, minOriginalId, maxOriginalId, minImportId, maxImportId, startDate, endDate, textSearch, statuses, includedMetaDataIds, excludedMetaDataIds, serverId, rawContentSearches, processedRawContentSearches, transformedContentSearches, encodedContentSearches, sentContentSearches, responseContentSearches, responseTransformedContentSearches, processedResponseContentSearches, connectorMapContentSearches, channelMapContentSearches, sourceMapContentSearches, responseMapContentSearches, processingErrorContentSearches, postprocessorErrorContentSearches, responseErrorContentSearches, metaDataSearches, metaDataCaseInsensitiveSearches, textSearchMetaDataColumns, minSendAttempts, maxSendAttempts, attachment, error);
+    }
+
+    /**
+     * Reprocesses messages through a channel by specific filter criteria.
+     * 
+     * @see MessageServletInterface#reprocessMessages
+     */
+    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, Collection<Integer> reprocessMetaDataIds) throws ClientException {
+        Set<Integer> set = null;
+        if (reprocessMetaDataIds != null) {
+            set = new HashSet<Integer>(reprocessMetaDataIds);
+        }
+        reprocessMessages(channelId, filter, replace, reprocessMetaDataIds != null, set);
+    }
+
+    /**
+     * Reprocesses messages through a channel by specific filter criteria.
+     * 
+     * @see MessageServletInterface#reprocessMessages
+     */
+    @Override
+    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, boolean filterDestinations, Set<Integer> reprocessMetaDataIds) throws ClientException {
+        getServlet(MessageServletInterface.class).reprocessMessages(channelId, filter, replace, filterDestinations, reprocessMetaDataIds);
+    }
+
+    /**
+     * Reprocesses messages through a channel by specific filter criteria.
+     * 
+     * @see MessageServletInterface#reprocessMessages
+     */
+    @Override
+    public void reprocessMessages(String channelId, Long minMessageId, Long maxMessageId, Long minOriginalId, Long maxOriginalId, Long minImportId, Long maxImportId, Calendar startDate, Calendar endDate, String textSearch, Set<Status> statuses, Set<Integer> includedMetaDataIds, Set<Integer> excludedMetaDataIds, String serverId, Set<String> rawContentSearches, Set<String> processedRawContentSearches, Set<String> transformedContentSearches, Set<String> encodedContentSearches, Set<String> sentContentSearches, Set<String> responseContentSearches, Set<String> responseTransformedContentSearches, Set<String> processedResponseContentSearches, Set<String> connectorMapContentSearches, Set<String> channelMapContentSearches, Set<String> sourceMapContentSearches, Set<String> responseMapContentSearches, Set<String> processingErrorContentSearches, Set<String> postprocessorErrorContentSearches, Set<String> responseErrorContentSearches, Set<MetaDataSearch> metaDataSearches, Set<MetaDataSearch> metaDataCaseInsensitiveSearches, Set<String> textSearchMetaDataColumns, Integer minSendAttempts, Integer maxSendAttempts, Boolean attachment, Boolean error, boolean replace, boolean filterDestinations, Set<Integer> reprocessMetaDataIds) throws ClientException {
+        getServlet(MessageServletInterface.class).reprocessMessages(channelId, minMessageId, maxMessageId, minOriginalId, maxOriginalId, minImportId, maxImportId, startDate, endDate, textSearch, statuses, includedMetaDataIds, excludedMetaDataIds, serverId, rawContentSearches, processedRawContentSearches, transformedContentSearches, encodedContentSearches, sentContentSearches, responseContentSearches, responseTransformedContentSearches, processedResponseContentSearches, connectorMapContentSearches, channelMapContentSearches, sourceMapContentSearches, responseMapContentSearches, processingErrorContentSearches, postprocessorErrorContentSearches, responseErrorContentSearches, metaDataSearches, metaDataCaseInsensitiveSearches, textSearchMetaDataColumns, minSendAttempts, maxSendAttempts, attachment, error, replace, filterDestinations, reprocessMetaDataIds);
+    }
+
+    /**
+     * Reprocesses and overwrites a single message.
+     * 
+     * @see MessageServletInterface#reprocessMessages
+     */
+    @Override
+    public void reprocessMessage(String channelId, Long messageId, boolean filterDestinations, Set<Integer> reprocessMetaDataIds) throws ClientException {
+        getServlet(MessageServletInterface.class).reprocessMessage(channelId, messageId, filterDestinations, reprocessMetaDataIds);
+    }
+
+    /**
+     * Remove messages by specific filter criteria.
+     * 
+     * @see MessageServletInterface#removeMessages
+     */
+    @Override
+    public void removeMessages(String channelId, MessageFilter filter) throws ClientException {
+        getServlet(MessageServletInterface.class).removeMessages(channelId, filter);
+    }
+
+    /**
+     * Remove messages by specific filter criteria.
+     * 
+     * @see MessageServletInterface#removeMessages
+     */
+    @Override
+    public void removeMessages(String channelId, Long minMessageId, Long maxMessageId, Long minOriginalId, Long maxOriginalId, Long minImportId, Long maxImportId, Calendar startDate, Calendar endDate, String textSearch, Set<Status> statuses, Set<Integer> includedMetaDataIds, Set<Integer> excludedMetaDataIds, String serverId, Set<String> rawContentSearches, Set<String> processedRawContentSearches, Set<String> transformedContentSearches, Set<String> encodedContentSearches, Set<String> sentContentSearches, Set<String> responseContentSearches, Set<String> responseTransformedContentSearches, Set<String> processedResponseContentSearches, Set<String> connectorMapContentSearches, Set<String> channelMapContentSearches, Set<String> sourceMapContentSearches, Set<String> responseMapContentSearches, Set<String> processingErrorContentSearches, Set<String> postprocessorErrorContentSearches, Set<String> responseErrorContentSearches, Set<MetaDataSearch> metaDataSearches, Set<MetaDataSearch> metaDataCaseInsensitiveSearches, Set<String> textSearchMetaDataColumns, Integer minSendAttempts, Integer maxSendAttempts, Boolean attachment, Boolean error) throws ClientException {
+        getServlet(MessageServletInterface.class).removeMessages(channelId, minMessageId, maxMessageId, minOriginalId, maxOriginalId, minImportId, maxImportId, startDate, endDate, textSearch, statuses, includedMetaDataIds, excludedMetaDataIds, serverId, rawContentSearches, processedRawContentSearches, transformedContentSearches, encodedContentSearches, sentContentSearches, responseContentSearches, responseTransformedContentSearches, processedResponseContentSearches, connectorMapContentSearches, channelMapContentSearches, sourceMapContentSearches, responseMapContentSearches, processingErrorContentSearches, postprocessorErrorContentSearches, responseErrorContentSearches, metaDataSearches, metaDataCaseInsensitiveSearches, textSearchMetaDataColumns, minSendAttempts, maxSendAttempts, attachment, error);
+    }
+
+    /**
+     * Remove a single message by ID.
+     * 
+     * @see MessageServletInterface#removeMessage
+     */
+    @Override
+    public void removeMessage(String channelId, Long messageId) throws ClientException {
+        getServlet(MessageServletInterface.class).removeMessage(channelId, messageId);
+    }
+
+    /**
+     * Removes all messages for the specified channel.
+     * 
+     * @see MessageServletInterface#removeAllMessages
+     */
+    @Override
+    public void removeAllMessages(String channelId, boolean restartRunningChannels, boolean clearStatistics) throws ClientException {
+        getServlet(MessageServletInterface.class).removeAllMessages(channelId, restartRunningChannels, clearStatistics);
+    }
+
+    /**
+     * Removes all messages for multiple specified channels.
+     * 
+     * @see MessageServletInterface#removeAllMessages
+     */
+    @Override
+    public void removeAllMessages(Set<String> channelIds, boolean restartRunningChannels, boolean clearStatistics) throws ClientException {
+        getServlet(MessageServletInterface.class).removeAllMessages(channelIds, restartRunningChannels, clearStatistics);
+    }
+
+    /**
+     * Imports a Message object into a channel. The message will not actually be processed through
+     * the channel, only imported.
+     * 
+     * @see MessageServletInterface#importMessage
+     */
+    @Override
+    public void importMessage(String channelId, Message message) throws ClientException {
+        getServlet(MessageServletInterface.class).importMessage(channelId, message);
+    }
+
+    /**
+     * Imports messages into a channel from a path accessible by the server. The messages will not
+     * actually be processed through the channel, only imported.
+     * 
+     * @see MessageServletInterface#importMessagesServer
+     */
+    @Override
+    public MessageImportResult importMessagesServer(String channelId, String path, boolean includeSubfolders) throws ClientException {
+        return getServlet(MessageServletInterface.class).importMessagesServer(channelId, path, includeSubfolders);
+    }
+
+    /**
+     * Exports messages into a specific directory path accessible by the server.
+     * 
+     * @see MessageServletInterface#exportMessagesServer
+     */
+    @Override
+    public int exportMessagesServer(final String channelId, final MessageFilter filter, final int pageSize, final MessageWriterOptions writerOptions) throws ClientException {
+        return getServlet(MessageServletInterface.class).exportMessagesServer(channelId, filter, pageSize, writerOptions);
+    }
+
+    /**
+     * Exports messages into a specific directory path accessible by the server.
+     * 
+     * @see MessageServletInterface#exportMessagesServer
+     */
+    @Override
+    public int exportMessagesServer(String channelId, Long minMessageId, Long maxMessageId, Long minOriginalId, Long maxOriginalId, Long minImportId, Long maxImportId, Calendar startDate, Calendar endDate, String textSearch, Set<Status> statuses, Set<Integer> includedMetaDataIds, Set<Integer> excludedMetaDataIds, String serverId, Set<String> rawContentSearches, Set<String> processedRawContentSearches, Set<String> transformedContentSearches, Set<String> encodedContentSearches, Set<String> sentContentSearches, Set<String> responseContentSearches, Set<String> responseTransformedContentSearches, Set<String> processedResponseContentSearches, Set<String> connectorMapContentSearches, Set<String> channelMapContentSearches, Set<String> sourceMapContentSearches, Set<String> responseMapContentSearches, Set<String> processingErrorContentSearches, Set<String> postprocessorErrorContentSearches, Set<String> responseErrorContentSearches, Set<MetaDataSearch> metaDataSearches, Set<MetaDataSearch> metaDataCaseInsensitiveSearches, Set<String> textSearchMetaDataColumns, Integer minSendAttempts, Integer maxSendAttempts, Boolean attachment, Boolean error, int pageSize, ContentType contentType, boolean destinationContent, boolean encrypt, boolean includeAttachments, String baseFolder, String rootFolder, String filePattern, String archiveFileName, String archiveFormat, String compressFormat) throws ClientException {
+        return getServlet(MessageServletInterface.class).exportMessagesServer(channelId, minMessageId, maxMessageId, minOriginalId, maxOriginalId, minImportId, maxImportId, startDate, endDate, textSearch, statuses, includedMetaDataIds, excludedMetaDataIds, serverId, rawContentSearches, processedRawContentSearches, transformedContentSearches, encodedContentSearches, sentContentSearches, responseContentSearches, responseTransformedContentSearches, processedResponseContentSearches, connectorMapContentSearches, channelMapContentSearches, sourceMapContentSearches, responseMapContentSearches, processingErrorContentSearches, postprocessorErrorContentSearches, responseErrorContentSearches, metaDataSearches, metaDataCaseInsensitiveSearches, textSearchMetaDataColumns, minSendAttempts, maxSendAttempts, attachment, error, pageSize, contentType, destinationContent, encrypt, includeAttachments, baseFolder, rootFolder, filePattern, archiveFileName, archiveFormat, compressFormat);
+    }
+
+    /**
+     * Exports a message attachment into a specific file path accessible by the server.
+     * 
+     * @see MessageServletInterface#exportAttachmentServer
+     */
+    @Override
+    public void exportAttachmentServer(String channelId, Long messageId, String attachmentId, String filePath, boolean binary) throws ClientException {
+        getServlet(MessageServletInterface.class).exportAttachmentServer(channelId, messageId, attachmentId, filePath, binary);
+    }
+
+    /*****************
+     * Event Servlet *
+     *****************/
+
+    /**
+     * Returns the maximum event ID currently in the database.
+     * 
+     * @see EventServletInterface#getMaxEventId
+     */
+    @Override
+    public Integer getMaxEventId() throws ClientException {
+        return getServlet(EventServletInterface.class).getMaxEventId();
+    }
+
+    /**
+     * Retrieves an event by ID.
+     * 
+     * @see EventServletInterface#getEvent
+     */
+    @Override
+    public ServerEvent getEvent(Integer eventId) throws ClientException {
+        return getServlet(EventServletInterface.class).getEvent(eventId);
+    }
+
+    /**
+     * Search for events by specific filter criteria.
+     * 
+     * @see EventServletInterface#getEvents
+     */
+    @Override
+    public List<ServerEvent> getEvents(EventFilter filter, Integer offset, Integer limit) throws ClientException {
+        return getServlet(EventServletInterface.class).getEvents(filter, offset, limit);
+    }
+
+    /**
+     * Search for events by specific filter criteria.
+     * 
+     * @see EventServletInterface#getEvents
+     */
+    @Override
+    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String ipAddress, String serverId, Integer offset, Integer limit) throws ClientException {
+        return getServlet(EventServletInterface.class).getEvents(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, ipAddress, serverId, offset, limit);
+    }
+
+    /**
+     * Count number for events by specific filter criteria.
+     * 
+     * @see EventServletInterface#getEventCount
+     */
+    @Override
+    public Long getEventCount(EventFilter filter) throws ClientException {
+        return getServlet(EventServletInterface.class).getEventCount(filter);
+    }
+
+    /**
+     * Count number for events by specific filter criteria.
+     * 
+     * @see EventServletInterface#getEventCount
+     */
+    @Override
+    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String ipAddress, String serverId) throws ClientException {
+        return getServlet(EventServletInterface.class).getEventCount(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, ipAddress, serverId);
+    }
+
+    /**
+     * Exports all events to the application data directory on the server.
+     * 
+     * @see EventServletInterface#exportAllEvents
+     */
+    @Override
+    public String exportAllEvents() throws ClientException {
+        return getServlet(EventServletInterface.class).exportAllEvents();
+    }
+
+    /**
+     * Remove all events, with the option to export them first.
+     * 
+     * @see EventServletInterface#removeAllEvents
+     */
+    @Override
+    public String removeAllEvents(boolean export) throws ClientException {
+        return getServlet(EventServletInterface.class).removeAllEvents(export);
+    }
+
+    /**
+     * Remove all events.
+     * 
+     * @see EventServletInterface#removeAllEvents
+     */
+    public String removeAllEvents() throws ClientException {
+        return getServlet(EventServletInterface.class).removeAllEvents(false);
+    }
+
+    /**
+     * Exports all events to the application data directory on the server, then removes all events.
+     * 
+     * @see EventServletInterface#removeAllEvents
+     */
+    public String exportAndRemoveAllEvents() throws ClientException {
+        return getServlet(EventServletInterface.class).removeAllEvents(true);
+    }
+
+    /*****************
+     * Alert Servlet *
+     *****************/
+
+    /**
+     * Creates a new alert.
+     * 
+     * @see AlertServletInterface#createAlert
+     */
+    @Override
+    public void createAlert(AlertModel alertModel) throws ClientException {
+        getServlet(AlertServletInterface.class).createAlert(alertModel);
+    }
+
+    /**
+     * Retrieves an alert by ID.
+     * 
+     * @see AlertServletInterface#getAlert
+     */
+    @Override
+    public AlertModel getAlert(String alertId) throws ClientException {
+        return getServlet(AlertServletInterface.class).getAlert(alertId);
+    }
+
+    /**
+     * Retrieves all alerts.
+     * 
+     * @see AlertServletInterface#getAlerts
+     */
+    public List<AlertModel> getAllAlerts() throws ClientException {
+        return getServlet(AlertServletInterface.class).getAlerts(null);
+    }
+
+    /**
+     * Retrieves multiple alerts by ID, or all alerts if not specified.
+     * 
+     * @see AlertServletInterface#getAlerts
+     */
+    @Override
+    public List<AlertModel> getAlerts(Set<String> alertIds) throws ClientException {
+        return getServlet(AlertServletInterface.class).getAlerts(alertIds);
+    }
+
+    /**
+     * Returns all alert dashboard statuses.
+     * 
+     * @see AlertServletInterface#getAlertStatusList
+     */
+    @Override
+    public List<AlertStatus> getAlertStatusList() throws ClientException {
+        return getServlet(AlertServletInterface.class).getAlertStatusList();
+    }
+
+    /**
+     * Returns an AlertInfo object containing the alert model, alert protocol options, and any
+     * updated channel summaries.
+     * 
+     * @see AlertServletInterface#getAlertInfo
+     */
+    @Override
+    public AlertInfo getAlertInfo(String alertId, Map<String, ChannelHeader> cachedChannels) throws ClientException {
+        return getServlet(AlertServletInterface.class).getAlertInfo(alertId, cachedChannels);
+    }
+
+    /**
+     * Returns an AlertInfo object containing alert protocol options and any updated channel
+     * summaries.
+     * 
+     * @see AlertServletInterface#getAlertInfo
+     */
+    @Override
+    public AlertInfo getAlertInfo(Map<String, ChannelHeader> cachedChannels) throws ClientException {
+        return getServlet(AlertServletInterface.class).getAlertInfo(cachedChannels);
+    }
+
+    /**
+     * Returns all alert protocol options.
+     * 
+     * @see AlertServletInterface#getAlertProtocolOptions
+     */
+    @Override
+    public Map<String, Map<String, String>> getAlertProtocolOptions() throws ClientException {
+        return getServlet(AlertServletInterface.class).getAlertProtocolOptions();
+    }
+
+    /**
+     * Updates the specified alert.
+     * 
+     * @see AlertServletInterface#updateAlert
+     */
+    public synchronized void updateAlert(AlertModel alertModel) throws ClientException {
+        getServlet(AlertServletInterface.class).updateAlert(alertModel.getId(), alertModel);
+    }
+
+    /**
+     * Updates the specified alert.
+     * 
+     * @see AlertServletInterface#updateAlert
+     */
+    @Override
+    public synchronized void updateAlert(String alertId, AlertModel alertModel) throws ClientException {
+        getServlet(AlertServletInterface.class).updateAlert(alertId, alertModel);
+    }
+
+    /**
+     * Enables the specified alert.
+     * 
+     * @see AlertServletInterface#enableAlert
+     */
+    @Override
+    public synchronized void enableAlert(String alertId) throws ClientException {
+        getServlet(AlertServletInterface.class).enableAlert(alertId);
+    }
+
+    /**
+     * Disables the specified alert.
+     * 
+     * @see AlertServletInterface#disableAlert
+     */
+    public synchronized void disableAlert(String alertId) throws ClientException {
+        getServlet(AlertServletInterface.class).disableAlert(alertId);
+    }
+
+    /**
+     * Removes the specified alert.
+     * 
+     * @see AlertServletInterface#removeAlert
+     */
+    @Override
+    public synchronized void removeAlert(String alertId) throws ClientException {
+        getServlet(AlertServletInterface.class).removeAlert(alertId);
+    }
+
+    /*************************
+     * Code Template Servlet *
+     *************************/
+
+    /**
+     * Retrieves all code template libraries.
+     * 
+     * @see CodeTemplateServletInterface#getCodeTemplateLibraries
+     */
+    public List<CodeTemplateLibrary> getAllCodeTemplateLibraries(boolean includeCodeTemplates) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).getCodeTemplateLibraries(null, includeCodeTemplates);
+    }
+
+    /**
+     * Retrieves multiple code template libraries by ID, or all libraries if not specified.
+     * 
+     * @see CodeTemplateServletInterface#getCodeTemplateLibraries
+     */
+    @Override
+    public List<CodeTemplateLibrary> getCodeTemplateLibraries(Set<String> libraryIds, boolean includeCodeTemplates) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).getCodeTemplateLibraries(libraryIds, includeCodeTemplates);
+    }
+
+    /**
+     * Retrieves a single code template library.
+     * 
+     * @see CodeTemplateServletInterface#getCodeTemplateLibrary
+     */
+    @Override
+    public CodeTemplateLibrary getCodeTemplateLibrary(String libraryId, boolean includeCodeTemplates) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).getCodeTemplateLibrary(libraryId, includeCodeTemplates);
+    }
+
+    /**
+     * Replaces all code template libraries.
+     * 
+     * @see CodeTemplateServletInterface#updateCodeTemplateLibraries
+     */
+    @Override
+    public synchronized boolean updateCodeTemplateLibraries(Set<CodeTemplateLibrary> libraries, boolean override) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).updateCodeTemplateLibraries(libraries, override);
+    }
+
+    /**
+     * Retrieves all code templates.
+     * 
+     * @see CodeTemplateServletInterface#getCodeTemplates
+     */
+    public List<CodeTemplate> getAllCodeTemplates() throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).getCodeTemplates(null);
+    }
+
+    /**
+     * Retrieves multiple code templates by ID, or all templates if not specified.
+     * 
+     * @see CodeTemplateServletInterface#getCodeTemplates
+     */
+    @Override
+    public List<CodeTemplate> getCodeTemplates(Set<String> codeTemplateIds) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).getCodeTemplates(codeTemplateIds);
+    }
+
+    /**
+     * Retrieves a single code template.
+     * 
+     * @see CodeTemplateServletInterface#getCodeTemplate
+     */
+    @Override
+    public CodeTemplate getCodeTemplate(String codeTemplateId) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).getCodeTemplate(codeTemplateId);
+    }
+
+    /**
+     * Returns a list of code template summaries, indicating to a client which code templates have
+     * changed. If a code template was modified, the entire CodeTemplate object will be returned.
+     * 
+     * @see CodeTemplateServletInterface#getCodeTemplateSummary
+     */
+    @Override
+    public List<CodeTemplateSummary> getCodeTemplateSummary(Map<String, Integer> clientRevisions) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).getCodeTemplateSummary(clientRevisions);
+    }
+
+    /**
+     * Updates a single code template.
+     * 
+     * @see CodeTemplateServletInterface#updateCodeTemplate
+     */
+    public synchronized boolean updateCodeTemplate(CodeTemplate codeTemplate, boolean override) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).updateCodeTemplate(codeTemplate.getId(), codeTemplate, override);
+    }
+
+    /**
+     * Updates a single code template.
+     * 
+     * @see CodeTemplateServletInterface#updateCodeTemplate
+     */
+    @Override
+    public synchronized boolean updateCodeTemplate(String codeTemplateId, CodeTemplate codeTemplate, boolean override) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).updateCodeTemplate(codeTemplateId, codeTemplate, override);
+    }
+
+    /**
+     * Removes a single code template.
+     * 
+     * @see CodeTemplateServletInterface#removeCodeTemplate
+     */
+    @Override
+    public synchronized void removeCodeTemplate(String codeTemplateId) throws ClientException {
+        getServlet(CodeTemplateServletInterface.class).removeCodeTemplate(codeTemplateId);
+    }
+
+    /**
+     * Updates all libraries and updates/removes selected code templates in one request.
+     * 
+     * @see CodeTemplateServletInterface#updateLibrariesAndTemplates
+     */
+    @Override
+    public synchronized CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(Set<CodeTemplateLibrary> libraries, Set<String> removedLibraryIds, Set<CodeTemplate> updatedCodeTemplates, Set<String> removedCodeTemplateIds, boolean override) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).updateLibrariesAndTemplates(libraries, removedLibraryIds, updatedCodeTemplates, removedCodeTemplateIds, override);
+    }
+
+    /*************************
+     * Database Task Servlet *
+     *************************/
+
+    /**
+     * Retrieves all current database tasks.
+     * 
+     * @see DatabaseTaskServletInterface#getDatabaseTasks
+     */
+    @Override
     public Map<String, DatabaseTask> getDatabaseTasks() throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.DATABASE_TASKS_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethodAsync(DATABASE_TASK_SERVLET, params), Map.class);
+        return getServlet(DatabaseTaskServletInterface.class).getDatabaseTasks();
     }
 
-    public String runDatabaseTask(DatabaseTask databaseTask) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.DATABASE_TASK_RUN.getName()), new BasicNameValuePair("databaseTask", serializer.serialize(databaseTask)) };
-        return serverConnection.executePostMethodAsync(DATABASE_TASK_SERVLET, params);
+    /**
+     * Retrieves a single database task.
+     * 
+     * @see DatabaseTaskServletInterface#getDatabaseTask
+     */
+    @Override
+    public DatabaseTask getDatabaseTask(String databaseTaskId) throws ClientException {
+        return getServlet(DatabaseTaskServletInterface.class).getDatabaseTask(databaseTaskId);
     }
 
-    public void cancelDatabaseTask(DatabaseTask databaseTask) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.DATABASE_TASK_CANCEL.getName()), new BasicNameValuePair("databaseTask", serializer.serialize(databaseTask)) };
-        serverConnection.executePostMethodAsync(DATABASE_TASK_SERVLET, params);
+    /**
+     * Executes the specified database task.
+     * 
+     * @see DatabaseTaskServletInterface#runDatabaseTask
+     */
+    @Override
+    public String runDatabaseTask(String databaseTaskId) throws ClientException {
+        return getServlet(DatabaseTaskServletInterface.class).runDatabaseTask(databaseTaskId);
     }
 
-    public List<ResourceProperties> getResources() throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.RESOURCES_GET.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethodAsync(CONFIGURATION_SERVLET, params), ResourcePropertiesList.class).getList();
+    /**
+     * Cancels execution of the specified database task.
+     * 
+     * @see DatabaseTaskServletInterface#cancelDatabaseTask
+     */
+    @Override
+    public void cancelDatabaseTask(String databaseTaskId) throws ClientException {
+        getServlet(DatabaseTaskServletInterface.class).cancelDatabaseTask(databaseTaskId);
     }
 
-    public void setResources(List<ResourceProperties> resources) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.RESOURCES_SET.getName()), new BasicNameValuePair("resources", serializer.serialize(new ResourcePropertiesList(resources))) };
-        serverConnection.executePostMethodAsync(CONFIGURATION_SERVLET, params);
+    /***********************************
+     * Usage Data Servlet *
+     ***********************************/
+
+    /**
+     * Generates usage document using data from both the client and server.
+     * 
+     * @see UsageServletInterface#getUsageData
+     */
+    @Override
+    public String getUsageData(Map<String, Object> clientStats) throws ClientException {
+        return getServlet(UsageServletInterface.class).getUsageData(clientStats);
     }
 
-    public void reloadResource(String resourceId) throws ClientException {
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.RESOURCES_RELOAD.getName()), new BasicNameValuePair("resourceId", resourceId) };
-        serverConnection.executePostMethodAsync(CONFIGURATION_SERVLET, params);
+    /*********************
+     * Extension Servlet *
+     *********************/
+
+    /**
+     * Installs an extension.
+     * 
+     * @see ExtensionServletInterface#installExtension
+     */
+    public void installExtension(File file) throws ClientException {
+        FileInputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(file);
+            getServlet(ExtensionServletInterface.class).installExtension(inputStream);
+        } catch (FileNotFoundException e) {
+            throw new ClientException(e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
+    }
+
+    /**
+     * Installs an extension.
+     * 
+     * @see ExtensionServletInterface#installExtension
+     */
+    @Override
+    public void installExtension(InputStream inputStream) throws ClientException {
+        getServlet(ExtensionServletInterface.class).installExtension(inputStream);
+    }
+
+    /**
+     * Uninstalls an extension.
+     * 
+     * @see ExtensionServletInterface#uninstallExtension
+     */
+    @Override
+    public void uninstallExtension(String extensionPath) throws ClientException {
+        getServlet(ExtensionServletInterface.class).uninstallExtension(extensionPath);
+    }
+
+    /**
+     * Returns extension metadata by name.
+     * 
+     * @see ExtensionServletInterface#getExtensionMetaData
+     */
+    @Override
+    public MetaData getExtensionMetaData(String extensionName) throws ClientException {
+        return getServlet(ExtensionServletInterface.class).getExtensionMetaData(extensionName);
+    }
+
+    /**
+     * Returns all active connector metadata.
+     * 
+     * @see ExtensionServletInterface#getConnectorMetaData
+     */
+    @Override
+    public Map<String, ConnectorMetaData> getConnectorMetaData() throws ClientException {
+        return getServlet(ExtensionServletInterface.class).getConnectorMetaData();
+    }
+
+    /**
+     * Returns all active plugin metadata.
+     * 
+     * @see ExtensionServletInterface#getPluginMetaData
+     */
+    @Override
+    public Map<String, PluginMetaData> getPluginMetaData() throws ClientException {
+        return getServlet(ExtensionServletInterface.class).getPluginMetaData();
+    }
+
+    /**
+     * Returns the enabled status of an extension.
+     * 
+     * @see ExtensionServletInterface#isExtensionEnabled
+     */
+    @Override
+    public boolean isExtensionEnabled(String extensionName) throws ClientException {
+        return getServlet(ExtensionServletInterface.class).isExtensionEnabled(extensionName);
+    }
+
+    /**
+     * Enables or disables an extension.
+     * 
+     * @see ExtensionServletInterface#setExtensionEnabled
+     */
+    @Override
+    public void setExtensionEnabled(String extensionName, boolean enabled) throws ClientException {
+        getServlet(ExtensionServletInterface.class).setExtensionEnabled(extensionName, enabled);
+    }
+
+    /**
+     * Returns properties for a specified extension.
+     * 
+     * @see ExtensionServletInterface#getPluginProperties
+     */
+    @Override
+    public Properties getPluginProperties(String extensionName) throws ClientException {
+        return getServlet(ExtensionServletInterface.class).getPluginProperties(extensionName);
+    }
+
+    /**
+     * Sets properties for a specified extension.
+     * 
+     * @see ExtensionServletInterface#setPluginProperties
+     */
+    @Override
+    public void setPluginProperties(String extensionName, Properties properties) throws ClientException {
+        getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties);
     }
 }

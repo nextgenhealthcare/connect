@@ -46,7 +46,6 @@
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc7-12.1.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.51.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.28.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-filecache-2.0.28.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-net-2.0.28.jar"/>
@@ -86,9 +85,45 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/xstream-1.4.7.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.32-bin.jar"/>
-	<classpathentry kind="lib" path="lib/commons/httpclient-4.3.3.jar"/>
-	<classpathentry kind="lib" path="lib/commons/httpcore-4.3.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons/httpmime-4.3.3.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-common-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-container-servlet-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-container-servlet-core-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-server-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-media-jaxb-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-client-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/javax.annotation-api-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/javax.inject-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/jaxb-api-2.2.7.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/aopalliance-repackaged-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/asm-debug-all-5.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/hk2-api-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/hk2-locator-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/hk2-utils-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/org.osgi.core-4.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/osgi-resource-locator-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/persistence-api-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/validation-api-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-annotations-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-core-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-jaxrs-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-models-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-jersey2-jaxrs-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/servlet-api-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/javax.ws.rs-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-container-jetty-http-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-container-jetty-servlet-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/ext/jackson-dataformat-yaml-2.6.3.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-media-multipart-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpclient-4.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpcore-4.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpmime-4.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-proxy-client-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-collections4-4.0.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/ext/reflections-0.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-rewrite-7.6.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-guava-2.22.1.jar"/>
+	<classpathentry kind="lib" path="lib/javassist-3.19.0-GA.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/mimepull-1.9.6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>
@@ -120,7 +155,6 @@
 	<classpathentry kind="lib" path="lib/jetty/jetty-xml-7.6.7.v20120910.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/HikariCP-java6-2.3.2.jar"/>
-	<classpathentry kind="lib" path="lib/javassist-3.19.0-GA.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-151.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-151.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-151.jar"/>
@@ -130,5 +164,6 @@
 	<classpathentry kind="lib" path="lib/jackson-core-2.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7.6.jar"/>
+	<classpathentry kind="lib" path="/Donkey/lib/guava-18.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

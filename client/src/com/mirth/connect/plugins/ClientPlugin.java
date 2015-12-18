@@ -41,10 +41,6 @@ public abstract class ClientPlugin {
         parent.mirthClient.setPluginProperties(pluginName, properties);
     }
 
-    public Object invoke(String method, Object object) throws ClientException {
-        return parent.mirthClient.invokePluginMethod(pluginName, method, object);
-    }
-
     // Each plugin point a plugin implements should define its own name
     public abstract String getPluginPointName();
 
