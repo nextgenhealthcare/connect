@@ -117,7 +117,7 @@ public class TcpReceiver extends SourceConnector {
         if (pluginPointName.equals("Basic")) {
             transmissionModeProvider = new BasicModeProvider();
         } else {
-            transmissionModeProvider = (TransmissionModeProvider) extensionController.getServicePlugins().get(pluginPointName);
+            transmissionModeProvider = (TransmissionModeProvider) extensionController.getTransmissionModeProviders().get(pluginPointName);
         }
 
         if (transmissionModeProvider == null) {

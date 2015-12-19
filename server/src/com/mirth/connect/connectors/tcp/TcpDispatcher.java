@@ -80,7 +80,7 @@ public class TcpDispatcher extends DestinationConnector {
         if (pluginPointName.equals("Basic")) {
             transmissionModeProvider = new BasicModeProvider();
         } else {
-            transmissionModeProvider = (TransmissionModeProvider) ControllerFactory.getFactory().createExtensionController().getServicePlugins().get(pluginPointName);
+            transmissionModeProvider = (TransmissionModeProvider) ControllerFactory.getFactory().createExtensionController().getTransmissionModeProviders().get(pluginPointName);
         }
 
         if (transmissionModeProvider == null) {

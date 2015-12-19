@@ -27,6 +27,7 @@ import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ResourcePlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
+import com.mirth.connect.plugins.TransmissionModeProvider;
 import com.mirth.connect.server.tools.ClassPathResource;
 
 public abstract class ExtensionController extends Controller {
@@ -129,7 +130,7 @@ public abstract class ExtensionController extends Controller {
      * @throws ControllerException
      */
     public abstract Properties getPluginProperties(String name) throws ControllerException;
-    
+
     public abstract Map<String, MetaData> getInvalidMetaData();
 
     // ************************************************************
@@ -186,14 +187,16 @@ public abstract class ExtensionController extends Controller {
 
     public abstract Map<String, ResourcePlugin> getResourcePlugins();
 
+    public abstract Map<String, TransmissionModeProvider> getTransmissionModeProviders();
+
     public abstract AuthorizationPlugin getAuthorizationPlugin();
 
     public abstract List<ServerPlugin> getServerPlugins();
-    
+
     public class InstallationResult {
         private Throwable cause;
         private Set<MetaData> metaData;
-        
+
         public InstallationResult(Throwable cause, Set<MetaData> metaData) {
             this.cause = cause;
             this.metaData = metaData;

@@ -67,6 +67,7 @@ import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ResourcePlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
+import com.mirth.connect.plugins.TransmissionModeProvider;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.migration.Migrator;
 import com.mirth.connect.server.util.DatabaseUtil;
@@ -85,6 +86,7 @@ public class DefaultExtensionController extends ExtensionController {
     private Map<String, CodeTemplateServerPlugin> codeTemplateServerPlugins = new LinkedHashMap<String, CodeTemplateServerPlugin>();
     private Map<String, DataTypeServerPlugin> dataTypePlugins = new LinkedHashMap<String, DataTypeServerPlugin>();
     private Map<String, ResourcePlugin> resourcePlugins = new LinkedHashMap<String, ResourcePlugin>();
+    private Map<String, TransmissionModeProvider> transmissionModeProviders = new LinkedHashMap<String, TransmissionModeProvider>();
     private AuthorizationPlugin authorizationPlugin = null;
     private ExtensionLoader extensionLoader = ExtensionLoader.getInstance();
 
@@ -284,6 +286,13 @@ public class DefaultExtensionController extends ExtensionController {
                         logger.debug("Successfully loaded resource plugin: " + resourcePlugin.getPluginPointName());
                     }
 
+                    if (serverPlugin instanceof TransmissionModeProvider) {
+                        TransmissionModeProvider transmissionModeProvider = (TransmissionModeProvider) serverPlugin;
+                        transmissionModeProviders.put(transmissionModeProvider.getPluginPointName(), transmissionModeProvider);
+                        serverPlugins.add(transmissionModeProvider);
+                        logger.debug("Successfully loaded transmission mode provider plugin: " + transmissionModeProvider.getPluginPointName());
+                    }
+
                     if (serverPlugin instanceof AuthorizationPlugin) {
                         AuthorizationPlugin authorizationPlugin = (AuthorizationPlugin) serverPlugin;
 
@@ -328,6 +337,11 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public Map<String, ResourcePlugin> getResourcePlugins() {
         return resourcePlugins;
+    }
+
+    @Override
+    public Map<String, TransmissionModeProvider> getTransmissionModeProviders() {
+        return transmissionModeProviders;
     }
 
     @Override
@@ -393,7 +407,7 @@ public class DefaultExtensionController extends ExtensionController {
     public InstallationResult extractExtension(InputStream inputStream) {
         Throwable cause = null;
         Set<MetaData> metaDataSet = new HashSet<MetaData>();
-        
+
         File installTempDir = new File(ExtensionController.getExtensionsPath(), "install_temp");
 
         if (!installTempDir.exists()) {
@@ -416,7 +430,7 @@ public class DefaultExtensionController extends ExtensionController {
             } finally {
                 IOUtils.closeQuietly(tempFileOutputStream);
             }
-            
+
             // create a new zip file from the temp file
             zipFile = new ZipFile(tempFile);
             // get a list of all of the entries in the zip file
@@ -442,10 +456,10 @@ public class DefaultExtensionController extends ExtensionController {
             if (cause == null) {
                 // reset the entries and extract
                 entries = zipFile.entries();
-    
+
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
-    
+
                     if (entry.isDirectory()) {
                         /*
                          * assume directories are stored parents first then children.
@@ -478,7 +492,7 @@ public class DefaultExtensionController extends ExtensionController {
             // delete the temp file since it is no longer needed
             FileUtils.deleteQuietly(tempFile);
         }
-        
+
         return new InstallationResult(cause, metaDataSet);
     }
 
@@ -626,7 +640,7 @@ public class DefaultExtensionController extends ExtensionController {
     public ConnectorMetaData getConnectorMetaDataByTransportName(String transportName) {
         return extensionLoader.getConnectorMetaData().get(transportName);
     }
-    
+
     @Override
     public Map<String, MetaData> getInvalidMetaData() {
         return extensionLoader.getInvalidMetaData();
