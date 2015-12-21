@@ -44,9 +44,13 @@ public class ManagerConstants {
     public static final String PATH_VERSION_FILE = "version.properties";
     public static final String PATH_SERVER_ID_FILE = "server.id";
     public static final String PATH_SERVICE_VMOPTIONS = "mcservice.vmoptions";
-    
+
     // Webstart commands
     public static final String CMD_WEBSTART_PREFIX = "javaws http://localhost:";
     public static final String CMD_WEBSTART_SUFFIX = "/webstart.jnlp";
     public static final String CMD_TEST_JETTY_PREFIX = "https://localhost:";
+
+    //Administrator
+    public static final String ADMINISTRATOR_MAX_HEAP_SIZE = "administrator.maxheapsize";
+    public static final String ADMINISTRATOR_MAX_HEAP_SIZE_OPTIONS = "administrator.maxheapsizeoptions";
 }

@@ -55,7 +55,7 @@ public class ManagerTray {
         administratorItem.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                ManagerController.getInstance().launchAdministrator();
+                ManagerController.getInstance().launchAdministrator(null);
             }
         });
         menu.add(administratorItem);

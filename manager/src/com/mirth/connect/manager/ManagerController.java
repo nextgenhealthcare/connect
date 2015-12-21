@@ -28,6 +28,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
@@ -101,8 +102,7 @@ public class ManagerController {
      *            The port to test.
      * @param name
      *            A friendly name to display in case of an error.
-     * @return An error message, or null if the port is not in use and there was
-     *         no error.
+     * @return An error message, or null if the port is not in use and there was no error.
      */
     private String testPort(String port, String name) {
         ServerSocket socket = null;
@@ -296,12 +296,13 @@ public class ManagerController {
         return errorMessage;
     }
 
-    public void launchAdministrator() {
+    public void launchAdministrator(String maxHeapSize) {
         String port = getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT);
         String contextPath = getContextPath();
-        
+
         try {
-            String cmd = ManagerConstants.CMD_WEBSTART_PREFIX + port + contextPath + ManagerConstants.CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime();
+            maxHeapSize = StringUtils.isBlank(maxHeapSize) ? "512m" : maxHeapSize;
+            String cmd = ManagerConstants.CMD_WEBSTART_PREFIX + port + contextPath + ManagerConstants.CMD_WEBSTART_SUFFIX + "?maxHeapSize=" + maxHeapSize + "&time=" + new Date().getTime();
 
             if (CmdUtil.execCmd(new String[] { cmd }, false) != 0) {
                 PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Administator could not be launched.");
@@ -487,7 +488,7 @@ public class ManagerController {
             return false;
         }
     }
-    
+
     /**
      * Get the context path property from the server, adding a starting slash if one does not exist,
      * and then removing a trailing slash if one exists.
