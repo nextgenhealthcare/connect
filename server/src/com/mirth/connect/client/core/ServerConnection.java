@@ -200,7 +200,7 @@ public class ServerConnection implements Connector {
         try {
             requestBase = setupRequestBase(request, ExecuteType.SYNC);
             response = client.execute(requestBase);
-            ClientResponse responseContext = handleResponse(request, requestBase, response);
+            ClientResponse responseContext = handleResponse(request, requestBase, response, true);
             if (responseContext.hasEntity()) {
                 shouldClose = false;
             }
@@ -355,6 +355,10 @@ public class ServerConnection implements Connector {
     }
 
     private ClientResponse handleResponse(ClientRequest request, HttpRequestBase requestBase, CloseableHttpResponse response) throws IOException, ClientException {
+        return handleResponse(request, requestBase, response, false);
+    }
+
+    private ClientResponse handleResponse(ClientRequest request, HttpRequestBase requestBase, CloseableHttpResponse response, boolean sync) throws IOException, ClientException {
         StatusLine statusLine = response.getStatusLine();
         int statusCode = statusLine.getStatusCode();
 
@@ -374,7 +378,7 @@ public class ServerConnection implements Connector {
 
         HttpEntity responseEntity = response.getEntity();
         if (responseEntity != null) {
-            responseContext.setEntityStream(new EntityInputStreamWrapper(response, responseEntity.getContent()));
+            responseContext.setEntityStream(new EntityInputStreamWrapper(response, responseEntity.getContent(), sync));
         }
 
         if (statusCode >= 400) {
@@ -437,10 +441,12 @@ public class ServerConnection implements Connector {
 
         private CloseableHttpResponse response;
         private InputStream delegate;
+        private boolean sync;
 
-        public EntityInputStreamWrapper(CloseableHttpResponse response, InputStream delegate) {
+        public EntityInputStreamWrapper(CloseableHttpResponse response, InputStream delegate, boolean sync) {
             this.response = response;
             this.delegate = delegate;
+            this.sync = sync;
         }
 
         @Override
@@ -474,6 +480,14 @@ public class ServerConnection implements Connector {
                 delegate.close();
             } finally {
                 HttpClientUtils.closeQuietly(response);
+
+                if (sync) {
+                    synchronized (currentOp) {
+                        currentOp.setName(null);
+                        currentOp.setDisplayName(null);
+                        currentOp.setAuditable(false);
+                    }
+                }
             }
         }
 
