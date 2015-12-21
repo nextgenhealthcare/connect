@@ -438,7 +438,7 @@ public class EventBrowser extends javax.swing.JPanel {
 
                     if (t.getMessage().contains("Java heap space")) {
                         parent.alertError(parent, "There was an out of memory error when trying to retrieve events.\nIncrease your heap size or decrease your page size and search again.");
-                    } else if (t.getCause() instanceof RequestAbortedException) {
+                    } else if (t instanceof RequestAbortedException) {
                         // The client is no longer waiting for the search request
                     } else {
                         parent.alertThrowable(parent, t);
@@ -1224,7 +1224,7 @@ public class EventBrowser extends javax.swing.JPanel {
                 try {
                     events.setItemCount(parent.mirthClient.getEventCount(eventFilter));
                 } catch (ClientException e) {
-                    if (e.getCause() instanceof RequestAbortedException) {
+                    if (e instanceof RequestAbortedException) {
                         // The client is no longer waiting for the count request
                     } else {
                         parent.alertThrowable(parent, e);

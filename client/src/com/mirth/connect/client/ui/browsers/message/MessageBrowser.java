@@ -772,7 +772,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
                     if (t.getMessage().contains("Java heap space")) {
                         parent.alertError(parent, "There was an out of memory error when trying to retrieve messages.\nIncrease your heap size or decrease your page size and search again.");
-                    } else if (t.getCause() instanceof RequestAbortedException) {
+                    } else if (t instanceof RequestAbortedException) {
                         // The client is no longer waiting for the search request
                     } else {
                         parent.alertThrowable(parent, t);
@@ -1669,7 +1669,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                         } catch (Throwable t) {
                             if (t.getMessage().contains("Java heap space")) {
                                 parent.alertError(parent, "There was an out of memory error when trying to retrieve message content.\nIncrease your heap size and try again.");
-                            } else if (t.getCause() instanceof RequestAbortedException) {
+                            } else if (t instanceof RequestAbortedException) {
                                 // The client is no longer waiting for the message content request
                             } else {
                                 parent.alertThrowable(parent, t);
@@ -2852,7 +2852,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 try {
                     messages.setItemCount(parent.mirthClient.getMessageCount(channelId, messageFilter));
                 } catch (ClientException e) {
-                    if (e.getCause() instanceof RequestAbortedException) {
+                    if (e instanceof RequestAbortedException) {
                         // The client is no longer waiting for the count request
                     } else {
                         parent.alertThrowable(parent, e);

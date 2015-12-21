@@ -4174,7 +4174,7 @@ public class Frame extends JXFrame {
                     try {
                         mirthClient.removeMessages(messageBrowser.getChannelId(), messageBrowser.getMessageFilter());
                     } catch (ClientException e) {
-                        if (e.getCause() instanceof RequestAbortedException) {
+                        if (e instanceof RequestAbortedException) {
                             // The client is no longer waiting for the delete request
                         } else {
                             alertThrowable(PlatformUI.MIRTH_FRAME, e);

@@ -243,8 +243,13 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
                     }
 
                     T resource = WebResourceFactory.newResource(servletInterface, target);
+                    Object result = method.invoke(resource, args);
 
-                    return method.invoke(resource, args);
+                    // Make sure to return the right type
+                    if (result == null && method.getReturnType().isPrimitive()) {
+                        return method.getReturnType() == boolean.class ? false : (byte) 0x00;
+                    }
+                    return result;
                 } catch (Throwable t) {
                     Throwable cause = t;
                     if (cause instanceof InvocationTargetException && cause.getCause() != null) {

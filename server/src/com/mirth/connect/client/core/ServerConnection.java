@@ -24,6 +24,7 @@ import javax.net.ssl.SSLContext;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -206,7 +207,7 @@ public class ServerConnection implements Connector {
             return responseContext;
         } catch (Exception e) {
             if (requestBase != null && requestBase.isAborted()) {
-                throw new ClientException(new RequestAbortedException(e));
+                throw new RequestAbortedException(e);
             } else if (e instanceof ClientException) {
                 throw (ClientException) e;
             }
@@ -242,7 +243,7 @@ public class ServerConnection implements Connector {
             return responseContext;
         } catch (Exception e) {
             if (requestBase != null && requestBase.isAborted()) {
-                throw new ClientException(new RequestAbortedException(e));
+                throw new RequestAbortedException(e);
             } else if (e instanceof ClientException) {
                 throw (ClientException) e;
             }
@@ -288,7 +289,7 @@ public class ServerConnection implements Connector {
                 return responseContext;
             } catch (Exception e) {
                 if (requestBase != null && requestBase.isAborted()) {
-                    return null;
+                    return new ClientResponse(Status.NO_CONTENT, request);
                 } else if (e instanceof ClientException) {
                     throw (ClientException) e;
                 }

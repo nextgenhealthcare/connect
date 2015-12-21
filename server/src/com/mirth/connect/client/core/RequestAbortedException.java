@@ -9,11 +9,12 @@
 
 package com.mirth.connect.client.core;
 
-public class RequestAbortedException extends Exception {
+public class RequestAbortedException extends ClientException {
+
     public RequestAbortedException(Throwable cause) {
         super(cause);
     }
-    
+
     public RequestAbortedException(String message, Throwable cause) {
         super(message, cause);
     }
