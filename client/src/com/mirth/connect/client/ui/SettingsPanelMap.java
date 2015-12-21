@@ -59,6 +59,10 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     }
 
     public void doRefresh() {
+        if (PlatformUI.MIRTH_FRAME.alertRefresh()) {
+            return;
+        }
+
         final String workingId = getFrame().startWorking("Loading " + getTabName() + " settings...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -67,9 +71,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
 
             public Void doInBackground() {
                 try {
-                    if (getFrame().confirmLeave()) {
-                        configurationMap = getFrame().mirthClient.getConfigurationMap();
-                    }
+                    configurationMap = getFrame().mirthClient.getConfigurationMap();
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }

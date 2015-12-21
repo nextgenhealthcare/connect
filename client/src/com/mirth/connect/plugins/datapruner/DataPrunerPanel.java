@@ -85,7 +85,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
     @Override
     public void doRefresh() {
-        if (!refreshing.compareAndSet(false, true)) {
+        if (PlatformUI.MIRTH_FRAME.alertRefresh()) {
             return;
         }
 
@@ -97,10 +97,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
             public Void doInBackground() {
                 try {
-                    if (!getFrame().confirmLeave()) {
-                        return null;
-                    }
-
                     Properties propertiesFromServer = plugin.getPropertiesFromServer();
 
                     if (propertiesFromServer != null) {

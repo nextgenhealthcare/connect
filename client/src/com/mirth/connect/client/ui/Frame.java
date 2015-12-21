@@ -1163,6 +1163,22 @@ public class Frame extends JXFrame {
         return conflictOption;
     }
 
+    public boolean alertRefresh() {
+        boolean cancelRefresh = false;
+
+        if (PlatformUI.MIRTH_FRAME.isSaveEnabled()) {
+            int option = JOptionPane.showConfirmDialog(PlatformUI.MIRTH_FRAME, "<html>Any unsaved changes will be lost.<br>Would you like to continue?</html>", "Warning", JOptionPane.YES_NO_OPTION);
+
+            if (option == JOptionPane.NO_OPTION || option == JOptionPane.CLOSED_OPTION) {
+                cancelRefresh = true;
+            } else {
+                setSaveEnabled(false);
+            }
+        }
+
+        return cancelRefresh;
+    }
+
     /**
      * Alerts the user with an information dialog with the passed in 'message'
      */

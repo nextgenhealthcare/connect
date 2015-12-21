@@ -66,6 +66,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     }
 
     public void doRefresh() {
+        if (PlatformUI.MIRTH_FRAME.alertRefresh()) {
+            return;
+        }
+
         final String workingId = getFrame().startWorking("Loading " + getTabName() + " settings...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -75,13 +79,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
             public Void doInBackground() {
                 try {
-                    if (getFrame().confirmLeave()) {
-                        serverSettings = getFrame().mirthClient.getServerSettings();
-                        updateSettings = getFrame().mirthClient.getUpdateSettings();
-                    }
+                    serverSettings = getFrame().mirthClient.getServerSettings();
+                    updateSettings = getFrame().mirthClient.getUpdateSettings();
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
+
                 return null;
             }
 
@@ -148,7 +151,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     getFrame().statusBar.setServerText(statusBarText.toString());
 
                     getFrame().mirthClient.setUpdateSettings(updateSettings);
-                } catch (ClientException e) {
+                } catch (Exception e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
 

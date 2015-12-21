@@ -97,7 +97,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
 
     @Override
     public void doRefresh() {
-        if (!getFrame().confirmLeave()) {
+        if (PlatformUI.MIRTH_FRAME.alertRefresh()) {
             return;
         }
 
