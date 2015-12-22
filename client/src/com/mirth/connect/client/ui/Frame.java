@@ -3389,7 +3389,7 @@ public class Frame extends JXFrame {
                 if (result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
                     importLibraries = result == JOptionPane.YES_OPTION;
                     if (alwaysChooseCheckBox.isSelected()) {
-                        Preferences.userNodeForPackage(Mirth.class).putBoolean("exportChannelCodeTemplateLibraries", importLibraries);
+                        Preferences.userNodeForPackage(Mirth.class).putBoolean("importChannelCodeTemplateLibraries", importLibraries);
                     }
                 } else {
                     return;
