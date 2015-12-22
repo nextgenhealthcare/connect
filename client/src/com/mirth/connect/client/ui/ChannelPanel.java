@@ -27,6 +27,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -241,8 +242,13 @@ public class ChannelPanel extends javax.swing.JPanel {
         channelTable.setDropMode(DropMode.ON);
         channelTable.setTransferHandler(new MirthTableTransferHandler(NAME_COLUMN_NUMBER, ID_COLUMN_NUMBER) {
             @Override
-            public void importFile(File file, boolean showAlerts) {
-                parent.importChannel(parent.readFileToString(file), showAlerts);
+            public void importFile(final File file, final boolean showAlerts) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        parent.importChannel(parent.readFileToString(file), showAlerts);
+                    }
+                });
             }
         });
 
