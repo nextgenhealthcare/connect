@@ -431,7 +431,7 @@ public class ChannelPanel extends javax.swing.JPanel {
                     }
 
                     if (parent.channelStatuses != null) {
-                        String channelId = (String) channelTable.getValueAt(adapter.row, ID_COLUMN_NUMBER);
+                        String channelId = (String) channelTable.getModel().getValueAt(channelTable.convertRowIndexToModel(adapter.row), ID_COLUMN_NUMBER);
                         ChannelStatus status = parent.channelStatuses.get(channelId);
                         if (status != null && status.isCodeTemplatesChanged()) {
                             return true;
