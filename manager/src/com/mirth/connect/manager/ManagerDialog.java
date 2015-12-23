@@ -187,6 +187,7 @@ public class ManagerDialog extends JDialog {
         refreshLabel = new JLabel("Refreshes the Mirth Connect service status");
 
         startup = new JCheckBox("Start Mirth Connect Server Manager on system startup");
+        startup.setFocusable(false);
         startup.setToolTipText("Starts this application when logging into the operating system. Currently only enabled for Windows.");
         startup.setBackground(new Color(255, 255, 255));
         startup.addActionListener(new ActionListener() {
@@ -438,11 +439,7 @@ public class ManagerDialog extends JDialog {
     }
 
     private void startupActionPerformed(ActionEvent evt) {
-        if (startup.isSelected()) {
-            serviceController.setStartup(true);
-        } else {
-            serviceController.setStartup(false);
-        }
+        setApplyEnabled(true);
     }
 
     private void refreshServiceButtonActionPerformed(ActionEvent evt) {
@@ -459,6 +456,11 @@ public class ManagerDialog extends JDialog {
     }
 
     private void applyButtonActionPerformed(ActionEvent evt) {
+        if (startup.isSelected()) {
+            serviceController.setStartup(true);
+        } else {
+            serviceController.setStartup(false);
+        }
         saveProperties();
     }
 
