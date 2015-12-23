@@ -81,7 +81,10 @@ public interface ChannelServletInterface extends BaseServletInterface {
     @Path("/_getSummary")
     @ApiOperation("Returns a list of channel summaries, indicating to a client which channels have changed (been updated, deleted, undeployed, etc.). If a channel was modified, the entire Channel object will be returned.")
     @MirthOperation(name = "getChannelSummary", display = "Get channel summary", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public List<ChannelSummary> getChannelSummary(@Param("cachedChannels") @ApiParam(value = "A map of ChannelHeader objects telling the server the state of the client-side channel cache.", required = true) Map<String, ChannelHeader> cachedChannels) throws ClientException;
+    public List<ChannelSummary> getChannelSummary(// @formatter:off
+    		@Param("cachedChannels") @ApiParam(value = "A map of ChannelHeader objects telling the server the state of the client-side channel cache.", required = true) Map<String, ChannelHeader> cachedChannels,
+    		@Param("ignoreNewChannels") @ApiParam(value = "If true, summaries will only be returned for channels in the map's entry set.", required = true) @QueryParam("ignoreNewChannels") boolean ignoreNewChannels) throws ClientException;
+    // @formatter: on
 
     @POST
     @Path("/_setEnabled")

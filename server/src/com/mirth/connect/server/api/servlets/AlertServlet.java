@@ -99,7 +99,7 @@ public class AlertServlet extends MirthServlet implements AlertServletInterface 
     @Override
     public AlertInfo getAlertInfo(String alertId, Map<String, ChannelHeader> cachedChannels) {
         try {
-            List<ChannelSummary> channelSummaries = redactChannelSummaries(channelController.getChannelSummary(cachedChannels));
+            List<ChannelSummary> channelSummaries = redactChannelSummaries(channelController.getChannelSummary(cachedChannels, false));
             Map<String, Map<String, String>> protocolOptions = redactProtocolOptions(alertController.getAlertActionProtocolOptions());
 
             AlertInfo alertInfo = new AlertInfo();
@@ -115,7 +115,7 @@ public class AlertServlet extends MirthServlet implements AlertServletInterface 
     @Override
     public AlertInfo getAlertInfo(Map<String, ChannelHeader> cachedChannels) {
         try {
-            List<ChannelSummary> channelSummaries = redactChannelSummaries(channelController.getChannelSummary(cachedChannels));
+            List<ChannelSummary> channelSummaries = redactChannelSummaries(channelController.getChannelSummary(cachedChannels, false));
             Map<String, Map<String, String>> protocolOptions = redactProtocolOptions(alertController.getAlertActionProtocolOptions());
 
             AlertInfo alertInfo = new AlertInfo();

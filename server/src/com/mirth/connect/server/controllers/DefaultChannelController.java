@@ -119,13 +119,14 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
-    public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> clientChannels) throws ControllerException {
+    public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> clientChannels, boolean ignoreNewChannels) throws ControllerException {
         logger.debug("getting channel summary");
         List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
 
         try {
             Map<String, Channel> serverChannels = new HashMap<String, Channel>();
-            for (Channel serverChannel : getChannels(null)) {
+            List<Channel> channels = getChannels(ignoreNewChannels ? clientChannels.keySet() : null);
+            for (Channel serverChannel : channels) {
                 serverChannels.put(serverChannel.getId(), serverChannel);
             }
 

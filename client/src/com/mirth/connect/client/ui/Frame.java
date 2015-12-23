@@ -2410,7 +2410,7 @@ public class Frame extends JXFrame {
 
     public void retrieveChannels() {
         try {
-            updateChannelStatuses(mirthClient.getChannelSummary(getChannelHeaders()));
+            updateChannelStatuses(mirthClient.getChannelSummary(getChannelHeaders(), false));
         } catch (ClientException e) {
             alertThrowable(this, e);
         }
@@ -3247,6 +3247,7 @@ public class Frame extends JXFrame {
         String id = "";
         String channelName = "";
         boolean channelDeployed = true;
+        Integer channelRevision = null;
 
         final List<Integer> metaDataIds = new ArrayList<Integer>();
         if (currentContentPage == dashboardPanel) {
@@ -3268,6 +3269,7 @@ public class Frame extends JXFrame {
 
             id = selectedStatuses.get(0).getChannelId();
             channelName = selectedChannelStatuses.iterator().next().getName();
+            channelRevision = 0;
         } else if (currentContentPage == channelPanel) {
             Channel selectedChannel = channelPanel.getSelectedChannels().get(0);
 
@@ -3275,6 +3277,7 @@ public class Frame extends JXFrame {
 
             id = selectedChannel.getId();
             channelName = selectedChannel.getName();
+            channelRevision = selectedChannel.getRevision();
 
             channelDeployed = false;
             for (DashboardStatus dashStatus : status) {
@@ -3284,7 +3287,21 @@ public class Frame extends JXFrame {
             }
         }
 
-        retrieveChannels();
+        /*
+         * If the user has not yet navigated to channels at this point, the cache (channelStatuses
+         * object) will return null, and the resulting block will pull down the channelStatus for
+         * the given id.
+         */
+        ChannelStatus channelStatus = channelStatuses.get(id);
+        if (channelStatus == null) {
+            try {
+                Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
+                channelHeaders.put(id, new ChannelHeader(channelRevision, null, true));
+                updateChannelStatuses(mirthClient.getChannelSummary(channelHeaders, true));
+            } catch (ClientException e) {
+                alertThrowable(PlatformUI.MIRTH_FRAME, e);
+            }
+        }
 
         setBold(viewPane, -1);
         setPanelName("Channel Messages - " + channelName);
@@ -4027,7 +4044,6 @@ public class Frame extends JXFrame {
     }
 
     public void doSendMessage() {
-        retrieveChannels();
         String channelId = null;
         List<Integer> selectedMetaDataIds = null;
 
@@ -4056,7 +4072,22 @@ public class Frame extends JXFrame {
             channelId = messageBrowser.getChannelId();
         }
 
+        /*
+         * If the user has not yet navigated to channels at this point, the cache (channelStatuses
+         * object) will return null, and the resulting block will pull down the channelStatus for
+         * the given id.
+         */
         ChannelStatus channelStatus = channelStatuses.get(channelId);
+        if (channelStatus == null) {
+            try {
+                Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
+                channelHeaders.put(channelId, new ChannelHeader(0, null, true));
+                updateChannelStatuses(mirthClient.getChannelSummary(channelHeaders, true));
+                channelStatus = channelStatuses.get(channelId);
+            } catch (ClientException e) {
+                alertThrowable(PlatformUI.MIRTH_FRAME, e);
+            }
+        }
 
         if (channelId == null || channelStatus == null) {
             alertError(this, "Channel no longer exists!");

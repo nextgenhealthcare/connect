@@ -46,7 +46,7 @@ public abstract class ChannelController extends Controller {
 
     public abstract Set<String> getChannelNames();
 
-    public abstract List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels) throws ControllerException;
+    public abstract List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels, boolean ignoreNewChannels) throws ControllerException;
 
     public abstract void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException;
     

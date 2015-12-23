@@ -851,8 +851,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelServletInterface#getChannelSummary
      */
     @Override
-    public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels) throws ClientException {
-        return getServlet(ChannelServletInterface.class).getChannelSummary(cachedChannels);
+    public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels, boolean ignoreNewChannels) throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannelSummary(cachedChannels, ignoreNewChannels);
     }
 
     /**

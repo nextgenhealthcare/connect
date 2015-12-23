@@ -120,13 +120,13 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
 
     @Override
     @DontCheckAuthorized
-    public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels) {
+    public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels, boolean ignoreNewChannels) {
         parameterMap.put("cachedChannels", cachedChannels);
         if (!isUserAuthorized()) {
             return new ArrayList<ChannelSummary>();
         }
         try {
-            return redactChannelSummaries(channelController.getChannelSummary(cachedChannels));
+            return redactChannelSummaries(channelController.getChannelSummary(cachedChannels, ignoreNewChannels));
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }
