@@ -24,8 +24,11 @@ import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 public abstract class AuthorizationController {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
 
     public abstract boolean isUserAuthorized(Integer userId, Operation operation, Map<String, Object> parameterMap, String address, boolean audit) throws ControllerException;
@@ -50,9 +53,33 @@ public abstract class AuthorizationController {
 
             if (MapUtils.isNotEmpty(parameterMap)) {
                 for (Entry<String, Object> entry : parameterMap.entrySet()) {
-                    StringBuilder builder = new StringBuilder();
-                    getAuditDescription(entry.getValue(), builder);
-                    serverEvent.getAttributes().put(entry.getKey(), builder.toString());
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+
+                    // If channelId was one of the params, print out each channel as separate attributes and add the channel name
+                    if (key.contains("channelId")) {
+                        Collection<String> collection = null;
+
+                        if (value instanceof Collection) {
+                            collection = (Collection<String>) value;
+                        } else if (value instanceof String) {
+                            collection = Collections.singleton(value);
+                        }
+
+                        if (collection != null) {
+                            String[] channelIds = collection.toArray(new String[collection.size()]);
+                            for (int i = 0; i < channelIds.length; i++) {
+                                String name = "channel";
+                                if (channelIds.length > 1) {
+                                    name = "channel[" + i + "]";
+                                }
+                                value = channelController.getChannelById(channelIds[i]);
+                                addAttribute(serverEvent.getAttributes(), name, value);
+                            }
+                        }
+                    } else {
+                        addAttribute(serverEvent.getAttributes(), key, value);
+                    }
                 }
             }
             eventController.dispatchEvent(serverEvent);
@@ -69,5 +96,11 @@ public abstract class AuthorizationController {
         } else if (value != null) {
             builder.append(value.toString() + "\n");
         }
+    }
+
+    private void addAttribute(Map<String, String> attributes, String name, Object value) {
+        StringBuilder builder = new StringBuilder();
+        getAuditDescription(value, builder);
+        attributes.put(name, builder.toString());
     }
 }
