@@ -274,7 +274,7 @@ public class PasswordRequirementsChecker implements Serializable {
             }
         }
 
-        if (reuseCount > reuseLimit) {
+        if (reuseCount > 0 && reuseCount > reuseLimit) {
             if (reuseLimit == -1) {
                 return "You cannot reuse the same password.";
             }
