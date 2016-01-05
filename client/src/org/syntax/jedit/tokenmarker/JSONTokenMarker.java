@@ -1,5 +1,8 @@
 package org.syntax.jedit.tokenmarker;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 import javax.swing.text.Segment;
 
 import org.syntax.jedit.KeywordMap;
@@ -28,26 +31,15 @@ public class JSONTokenMarker extends TokenMarker {
             lastKeyword = offset;
             int length = line.count + offset;
             boolean backslash = false;
-            State currentState;
-            State lastState = currentState = State.OBJECT_KEY;
+            Deque<JSONTokenState> lastInfo = new ArrayDeque<JSONTokenState>();
+
+            // Get information from the previous line
             if (lineIndex != 0 && lineInfo[lineIndex - 1].obj != null) {
-                lastState = currentState = (State) lineInfo[lineIndex - 1].obj;
+                lastInfo = (ArrayDeque<JSONTokenState>) lineInfo[lineIndex - 1].obj;
             }
 
-            switch (lastState) {
-                case OBJECT_KEY:
-                    insideObject = true;
-                    isValue = false;
-                    break;
-                case OBJECT_VALUE:
-                    insideObject = true;
-                    isValue = true;
-                    break;
-                case ARRAY_ELEMENT:
-                    insideObject = false;
-                    isValue = true;
-                    break;
-            }
+            // The states determine whether the current token is within an object or an array (at the lowest level).
+            Deque<JSONTokenState> states = new ArrayDeque(lastInfo);
 
             for (int i = offset; i < length; i++) {
                 int i1 = (i + 1);
@@ -63,10 +55,10 @@ public class JSONTokenMarker extends TokenMarker {
                     case Token.NULL:
                         switch (c) {
                             case '"': // inside a String
-                                if (insideObject && !isValue) {
-                                    token = Token.KEYWORD1;
+                                if (states.peek().equals(JSONTokenState.OBJECT_KEY)) {
+                                    token = Token.KEYWORD1; // an object key
                                 } else {
-                                    token = Token.KEYWORD3;
+                                    token = Token.KEYWORD3; // an object or array value
                                 }
                                 addToken(i1 - lastOffset, token);
                                 lastOffset = lastKeyword = i1;
@@ -80,14 +72,17 @@ public class JSONTokenMarker extends TokenMarker {
                                 backslash = false;
                                 switch (c) {
                                     case '{':
-                                        insideObject = true;
-                                        isValue = false;
-                                        lineInfo[lineIndex].obj = currentState = State.OBJECT_KEY;
+                                        states.push(JSONTokenState.OBJECT_KEY);
                                         break;
                                     case '[':
-                                        insideObject = false;
-                                        isValue = true;
-                                        lineInfo[lineIndex].obj = currentState = State.ARRAY_ELEMENT;
+                                        states.push(JSONTokenState.ARRAY);
+                                        break;
+                                    case '}':
+                                        states.pop();
+                                        break;
+                                    case ']':
+                                        states.pop();
+                                        resetState(states);
                                         break;
                                 }
                                 if (Character.isLetter(c)) {
@@ -108,8 +103,8 @@ public class JSONTokenMarker extends TokenMarker {
                             if (backslash) {
                                 backslash = false;
                             } else {
-                                isValue = true;
-                                lineInfo[lineIndex].obj = currentState = State.OBJECT_VALUE;
+                                states.pop();
+                                states.push(JSONTokenState.OBJECT_VALUE);
                                 token = Token.NULL;
                             }
                         }
@@ -122,10 +117,7 @@ public class JSONTokenMarker extends TokenMarker {
                             if (backslash) {
                                 backslash = false;
                             } else {
-                                if (insideObject) {
-                                    lineInfo[lineIndex].obj = currentState = State.OBJECT_KEY;
-                                    isValue = false;
-                                }
+                                resetState(states);
                                 token = Token.NULL;
                             }
                         }
@@ -134,10 +126,7 @@ public class JSONTokenMarker extends TokenMarker {
                         if (!Character.isDigit(c) && c != '.' && c != 'E' && c != '+') { // end of value
                             token = Token.NULL;
 
-                            if (insideObject) {
-                                isValue = false;
-                                lineInfo[lineIndex].obj = currentState = State.OBJECT_KEY;
-                            }
+                            resetState(states);
                         }
                         addToken(i1 - lastOffset, token);
                         lastOffset = lastKeyword = i1;
@@ -149,19 +138,13 @@ public class JSONTokenMarker extends TokenMarker {
                                 token = Token.NULL;
                                 addToken(i1 - lastOffset, token);
                                 lastOffset = lastKeyword = i1;
-
-                                if (insideObject) {
-                                    isValue = false;
-                                    lineInfo[lineIndex].obj = currentState = State.OBJECT_KEY;
-                                }
                             }
                         }
                 }
             }
 
-            if (lineInfo[lineIndex].obj == null) {
-                lineInfo[lineIndex].obj = currentState;
-            }
+            // Set the information for this line
+            lineInfo[lineIndex].obj = states;
 
             if (token == Token.COMMENT1) {
                 addToken(length - lastOffset, Token.NULL);
@@ -186,14 +169,21 @@ public class JSONTokenMarker extends TokenMarker {
         return false;
     }
 
+    // Reset token state from object value to object key
+    private void resetState(Deque<JSONTokenState> states) {
+        JSONTokenState state = states.peek();
+        if (state != null && state.equals(JSONTokenState.OBJECT_VALUE)) {
+            states.pop();
+            states.push(JSONTokenState.OBJECT_KEY);
+        }
+    }
+
     private KeywordMap keywords;
 
     private int lastOffset;
     private int lastKeyword;
-    private boolean insideObject = true;
-    private boolean isValue = false;
 
-    private enum State {
-        OBJECT_KEY, OBJECT_VALUE, ARRAY_ELEMENT;
+    private enum JSONTokenState {
+        OBJECT_KEY, OBJECT_VALUE, ARRAY;
     }
 }
