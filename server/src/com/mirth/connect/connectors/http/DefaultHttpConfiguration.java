@@ -12,10 +12,11 @@ package com.mirth.connect.connectors.http;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.ssl.SSLContexts;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.ServerConnector;
 
 import com.mirth.connect.donkey.server.channel.Connector;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -31,7 +32,7 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
         if (connector instanceof HttpDispatcher) {
             String[] enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols());
             String[] enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites());
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), enabledProtocols, enabledCipherSuites, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), enabledProtocols, enabledCipherSuites, NoopHostnameVerifier.INSTANCE);
             ((HttpDispatcher) connector).getSocketFactoryRegistry().register("https", sslConnectionSocketFactory);
         }
     }
@@ -41,10 +42,10 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
 
     @Override
     public void configureReceiver(HttpReceiver connector) throws Exception {
-        SocketConnector listener = new SocketConnector();
+        ServerConnector listener = new ServerConnector(connector.getServer());
         listener.setHost(connector.getHost());
         listener.setPort(connector.getPort());
-        listener.setMaxIdleTime(connector.getTimeout());
+        listener.setIdleTimeout(connector.getTimeout());
         connector.getServer().addConnector(listener);
     }
 

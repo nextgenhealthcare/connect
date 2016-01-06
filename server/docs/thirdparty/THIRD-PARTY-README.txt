@@ -9,6 +9,9 @@ APACHE-LICENSE-2.0.txt):
 	Apache Geronimo (only components needed for the JMS API) [Mirth Connect only]
 	Apache Log4j 1.2.16
 	Apache PDFBox 1.8.4 [Mirth Connect only]
+	Apache Standard Taglib 1.2.1 [Mirth Connect only]
+	Apache Tomcat Jasper JSP Engine 8.0.9 M3 [Mirth Connect only]
+	Apache Tomcat Jasper Expression Language Impl 8.0.9 M3 [Mirth Connect only]
 	Apache Velocity Engine 1.7
 	Apache Velocity Tools 2.0
 	Apache XMLBeans [Mirth Connect only]
@@ -17,7 +20,7 @@ APACHE-LICENSE-2.0.txt):
 	HikariCP 2.3.2 [Mirth Connect only]
 	Jackson Project (https://github.com/FasterXML/jackson)
 	Jasypt 1.7.1 [Mirth Connect only]
-	Jetty 7.6.7 [Mirth Connect only]
+	Jetty 9.2.14 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
 	MyBatis 3.1.1 [Mirth Connect only]
 	Not-Yet-Commons-SSL 0.3.11
@@ -91,10 +94,11 @@ the Common Development and Distribution License version 1.1 (see CDDL-1.1.txt):
 Mirth Connect includes the following, which is distributed under the terms of
 the Common Development and Distribution License version 1.0 (see CDDL-1.0.txt):
 
-	Glassfish JSP implementation version 2.1.3-b10 (source code can be
-	downloaded from:
-	http://search.maven.org/remotecontent?filepath=org/glassfish/web/jsp-impl/2.
-	1.3-b10/jsp-impl-2.1.3-b10-sources.jar or https://jsp.java.net/)
+	Java Servlet API 3.1.0 (source code can be downloaded from: https://java.net
+	/projects/glassfish/sources/svn/show/tags/javax.servlet-api-3.1.0)
+	
+	Jetty Apache JSP Implementation 9.2.14 (source code can be downloaded from:
+	http://download.eclipse.org/jetty/)
 
 	Swinglabs Wizard (source code can be downloaded from:
 	https://java.net/projects/wizard)
@@ -134,29 +138,11 @@ the OSGi Specification License, Version 1.0 (see OSGi-1.0.txt):
 
 Mirth Connect includes the following software:
 
-	Java Server Pages Expression Language Reference Implementation Source Bundle
+	Eclipse Java Development Tools 3.8.2
 
 Licensing information for this software can be found in the about.html file
-contained within the com.sun.el_1.0.0.v201004190952.jar file. This file can be
-found within the Mirth Connect installation folder at:
-
-	[Mirth Connect Install Folder]/server-lib/jetty/jsp/
-
-Or in the Mirth Connect source code distribution, it can be found at:
-
-	[Mirth Connect Server Source Folder]/lib/jetty/jsp/
-
-
---------------------------------------------------------------------------------
-
-
-Mirth Connect includes the following software:
-
-	Glassfish Taglibs 1.2.0.v201004190952
-
-Licensing information for this software can be found in the about.html file
-contained within the
-org.apache.taglibs.standard.glassfish_1.2.0.v201004190952.jar file. This file
+contained within the 
+org.eclipse.jetty.orbit.org.eclipse.jdt.core-3.8.2.v20130121.jar file. This file
 can be found within the Mirth Connect installation folder at:
 
 	[Mirth Connect Install Folder]/server-lib/jetty/jsp/
@@ -165,96 +151,6 @@ Or in the Mirth Connect source code distribution, it can be found at:
 
 	[Mirth Connect Server Source Folder]/lib/jetty/jsp/
 
-
---------------------------------------------------------------------------------
-
-
-Mirth Connect includes the following software:
-
-	Servlet API Bundle
-
-Licensing information for this software can be found in the about.html file
-contained within the servlet-api-2.5.jar file. This file can be found within the
-Mirth Connect installation folder at:
-
-	[Mirth Connect Install Folder]/server-lib/jetty/
-
-Or in the Mirth Connect source code distribution, it can be found at:
-
-	[Mirth Connect Server Source Folder]/lib/jetty/
-
-
---------------------------------------------------------------------------------
-
-
-Mirth Connect includes the following software:
-
-	Eclipse Compiler for Java(TM)
-
-Licensing information for this software can be found in the about.html file
-contained within the ecj-3.6.jar file. This file can be found within the Mirth
-Connect installation folder at:
-
-	[Mirth Connect Install Folder]/server-lib/jetty/jsp/
-
-Or in the Mirth Connect source code distribution, it can be found at:
-
-	[Mirth Connect Server Source Folder]/lib/jetty/jsp/
-
-
---------------------------------------------------------------------------------
-
-
-Mirth Connect includes the following software:
-
-	Java Server Pages Expression Language Bundle
-
-Licensing information for this software can be found in the about.html file
-contained within the javax.el_2.1.0.v201004190952.jar file. This file can be
-found within the Mirth Connect installation folder at:
-
-	[Mirth Connect Install Folder]/server-lib/jetty/jsp/
-
-Or in the Mirth Connect source code distribution, it can be found at:
-
-	[Mirth Connect Server Source Folder]/lib/jetty/jsp/
-
-
---------------------------------------------------------------------------------
-
-
-Mirth Connect includes the following software:
-
-	Java Server Pages API Bundle
-
-Licensing information for this software can be found in the about.html file
-contained within the javax.servlet.jsp-2.1.0.v201105211820.jar file. This file
-can be found within the Mirth Connect installation folder at:
-
-	[Mirth Connect Install Folder]/server-lib/jetty/jsp/
-
-Or in the Mirth Connect source code distribution, it can be found at:
-
-	[Mirth Connect Server Source Folder]/lib/jetty/jsp/
-
-
---------------------------------------------------------------------------------
-
-
-Mirth Connect includes the following software:
-
-	Java Server Pages Standard Tag Library API Bundle
-
-Licensing information for this software can be found in the about.html file
-contained within the javax.servlet.jsp.jstl_1.2.0.v201004190952.jar file. This
-file can be found within the Mirth Connect installation folder at:
-
-	[Mirth Connect Install Folder]/server-lib/jetty/jsp/
-
-Or in the Mirth Connect source code distribution, it can be found at:
-
-	[Mirth Connect Server Source Folder]/lib/jetty/jsp/
-	
 
 --------------------------------------------------------------------------------
 

@@ -15,11 +15,14 @@ import java.io.FileInputStream;
 import java.lang.annotation.Annotation;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.DispatcherType;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -28,19 +31,25 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.LowResourceMonitor;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ServerProperties;
@@ -78,8 +87,8 @@ public class MirthWebServer extends Server {
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private List<WebAppContext> webapps;
     private HandlerList handlers;
-    private SelectChannelConnector connector;
-    private SelectChannelConnector sslConnector;
+    private ServerConnector connector;
+    private ServerConnector sslConnector;
 
     public MirthWebServer(PropertiesConfiguration mirthProperties) throws Exception {
         // this disables a "form too large" error for occuring by setting
@@ -90,7 +99,7 @@ public class MirthWebServer extends Server {
         boolean apiAllowHTTP = Boolean.parseBoolean(mirthProperties.getString("server.api.allowhttp", "false"));
 
         // add HTTP listener
-        connector = new SelectChannelConnector();
+        connector = new ServerConnector(this);
         connector.setName(CONNECTOR);
         connector.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
         connector.setPort(mirthProperties.getInt("http.port"));
@@ -153,14 +162,6 @@ public class MirthWebServer extends Server {
         javadocsContextHandler.setHandler(javadocsResourceHandler);
         handlers.addHandler(javadocsContextHandler);
 
-        // Create the webstart servlet handler
-        ServletContextHandler servletContextHandler = new ServletContextHandler();
-        servletContextHandler.setContextPath(contextPath);
-        servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart.jnlp");
-        servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart");
-        servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart/extensions/*");
-        handlers.addHandler(servletContextHandler);
-
         // Load all web apps dynamically
         webapps = new ArrayList<WebAppContext>();
 
@@ -185,11 +186,22 @@ public class MirthWebServer extends Server {
         File[] listOfFiles = new File(webappsDir).listFiles(filter);
 
         if (listOfFiles != null) {
+            // Since webapps may use JSP and JSTL, we need to enable the AnnotationConfiguration in order to correctly set up the JSP container.
+            Configuration.ClassList classlist = Configuration.ClassList.setServerDefault(this);
+            classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration", "org.eclipse.jetty.annotations.AnnotationConfiguration");
+            
             for (File file : listOfFiles) {
                 logger.debug("webApp File Path: " + file.getAbsolutePath());
 
                 WebAppContext webapp = new WebAppContext();
                 webapp.setContextPath(contextPath + "/" + file.getName().substring(0, file.getName().length() - 4));
+
+                /*
+                 * Set the ContainerIncludeJarPattern so that Jetty examines these JARs for TLDs,
+                 * web fragments, etc. If you omit the jar that contains the JSTL TLDs, the JSP
+                 * engine will scan for them instead.
+                 */
+                webapp.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*/[^/]*(javax\\.servlet-api|taglibs)[^/]*\\.jar$");
 
                 logger.debug("webApp Context Path: " + webapp.getContextPath());
 
@@ -207,6 +219,14 @@ public class MirthWebServer extends Server {
         }
         // Add servlets for the main (default) API endpoint
         addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, null);
+
+        // Create the webstart servlet handler
+        ServletContextHandler servletContextHandler = new ServletContextHandler();
+        servletContextHandler.setContextPath(contextPath);
+        servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart.jnlp");
+        servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart");
+        servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart/extensions/*");
+        handlers.addHandler(servletContextHandler);
 
         // add the default handler for misc requests (favicon, etc.)
         DefaultHandler defaultHandler = new DefaultHandler();
@@ -235,7 +255,7 @@ public class MirthWebServer extends Server {
         logger.debug("started jetty web server on ports: " + connector.getPort() + ", " + sslConnector.getPort());
     }
 
-    private SslSelectChannelConnector createSSLConnector(String name, PropertiesConfiguration mirthProperties) throws Exception {
+    private ServerConnector createSSLConnector(String name, PropertiesConfiguration mirthProperties) throws Exception {
         KeyStore keyStore = KeyStore.getInstance("JCEKS");
         FileInputStream is = new FileInputStream(new File(mirthProperties.getString("keystore.path")));
         try {
@@ -244,7 +264,18 @@ public class MirthWebServer extends Server {
             IOUtils.closeQuietly(is);
         }
 
-        SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
+        SslContextFactory contextFactory = new SslContextFactory();
+        contextFactory.setKeyStore(keyStore);
+        contextFactory.setCertAlias("mirthconnect");
+        contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
+
+        HttpConfiguration config = new HttpConfiguration();
+        config.setSecureScheme("https");
+        config.setSecurePort(mirthProperties.getInt("https.port"));
+        config.addCustomizer(new SecureRequestCustomizer());
+
+        ServerConnector sslConnector = new ServerConnector(this, new SslConnectionFactory(contextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(config));
+        
         /*
          * http://www.mirthcorp.com/community/issues/browse/MIRTH-3070 Keep SSL connections alive
          * for 24 hours unless closed by the client. When the Administrator runs on Windows, the SSL
@@ -253,19 +284,18 @@ public class MirthWebServer extends Server {
          * connection alive longer the Administrator shouldn't have to perform the handshake unless
          * idle for this amount of time.
          */
-        sslConnector.setMaxIdleTime(86400000);
+        sslConnector.setIdleTimeout(86400000);
+
+        LowResourceMonitor lowResourceMonitor = new LowResourceMonitor(this);
+        lowResourceMonitor.setMonitoredConnectors(Collections.singleton((Connector) sslConnector));
         // If the number of connections open reaches 200
-        sslConnector.setLowResourcesConnections(200);
+        lowResourceMonitor.setMaxConnections(200);
         // Then close connections after 200 seconds, which is the default MaxIdleTime value. This should affect existing connections as well.
-        sslConnector.setLowResourcesMaxIdleTime(200000);
+        lowResourceMonitor.setLowResourcesIdleTimeout(200000);
+
         sslConnector.setName(name);
         sslConnector.setHost(mirthProperties.getString("https.host", "0.0.0.0"));
         sslConnector.setPort(mirthProperties.getInt("https.port"));
-
-        SslContextFactory contextFactory = sslConnector.getSslContextFactory();
-        contextFactory.setKeyStore(keyStore);
-        contextFactory.setCertAlias("mirthconnect");
-        contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
 
         /*
          * We were previously disabling low and medium strength ciphers (MIRTH-1924). However with
@@ -279,14 +309,6 @@ public class MirthWebServer extends Server {
     }
 
     private void addApiServlets(HandlerList handlers, String contextPath, String baseAPI, boolean apiAllowHTTP, Version version) {
-        // Create the servlet handler for the API
-        ServletContextHandler apiServletContextHandler = new ServletContextHandler();
-        apiServletContextHandler.setMaxFormContentSize(0);
-        apiServletContextHandler.setSessionHandler(new SessionHandler());
-        apiServletContextHandler.setContextPath(contextPath + baseAPI);
-        apiServletContextHandler.addFilter(new FilterHolder(new ApiOriginFilter()), "/*", 1);
-        setConnectorNames(apiServletContextHandler, apiAllowHTTP);
-
         String apiPath = "";
         Version apiVersion = version;
         if (apiVersion != null) {
@@ -295,10 +317,18 @@ public class MirthWebServer extends Server {
             apiVersion = Version.getLatest();
         }
 
+        // Create the servlet handler for the API
+        ServletContextHandler apiServletContextHandler = new ServletContextHandler();
+        apiServletContextHandler.setMaxFormContentSize(0);
+        apiServletContextHandler.setSessionHandler(new SessionHandler());
+        apiServletContextHandler.setContextPath(contextPath + baseAPI + apiPath);
+        apiServletContextHandler.addFilter(new FilterHolder(new ApiOriginFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+        setConnectorNames(apiServletContextHandler, apiAllowHTTP);
+
         ApiProviders apiProviders = getApiProviders(apiVersion);
 
         // Add versioned Jersey API servlet
-        ServletHolder jerseyVersionedServlet = apiServletContextHandler.addServlet(ServletContainer.class, apiPath + "/*");
+        ServletHolder jerseyVersionedServlet = apiServletContextHandler.addServlet(ServletContainer.class, "/*");
         jerseyVersionedServlet.setInitOrder(1);
         jerseyVersionedServlet.setInitParameter(ServerProperties.PROVIDER_PACKAGES, StringUtils.join(apiProviders.providerPackages, ','));
         jerseyVersionedServlet.setInitParameter(ServerProperties.PROVIDER_CLASSNAMES, joinClasses(apiProviders.providerClasses));
@@ -306,7 +336,7 @@ public class MirthWebServer extends Server {
         // Add versioned Swagger bootstrap configuration servlet
         ServletHolder swaggerVersionedServlet = new ServletHolder(new SwaggerServlet(contextPath + baseAPI + apiPath, version, apiVersion, apiProviders.servletInterfacePackages, apiProviders.servletInterfaces, apiAllowHTTP));
         swaggerVersionedServlet.setInitOrder(2);
-        apiServletContextHandler.addServlet(swaggerVersionedServlet, apiPath);
+        apiServletContextHandler.addServlet(swaggerVersionedServlet, "/swagger*");
 
         // Add Swagger UI web page servlet
         handlers.addHandler(getSwaggerContextHandler(contextPath, baseAPI, apiAllowHTTP, version));
@@ -325,11 +355,11 @@ public class MirthWebServer extends Server {
 
     private void setConnectorNames(ContextHandler contextHandler, boolean apiAllowHTTP) {
         List<String> connectorNames = new ArrayList<String>();
-        connectorNames.add(CONNECTOR_SSL);
+        connectorNames.add("@" + CONNECTOR_SSL);
         if (apiAllowHTTP) {
-            connectorNames.add(CONNECTOR);
+            connectorNames.add("@" + CONNECTOR);
         }
-        contextHandler.setConnectorNames(connectorNames.toArray(new String[connectorNames.size()]));
+        contextHandler.setVirtualHosts(connectorNames.toArray(new String[connectorNames.size()]));
     }
 
     private class ApiProviders {

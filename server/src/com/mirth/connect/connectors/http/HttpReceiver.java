@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +53,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.http.HttpMethods;
+import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -541,7 +542,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         @Override
         public void handle(String target, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException {
             // Only allow GET requests, otherwise pass to the next request handler
-            if (!baseRequest.getMethod().equalsIgnoreCase(HttpMethods.GET)) {
+            if (!baseRequest.getMethod().equalsIgnoreCase(HttpMethod.GET.asString())) {
                 return;
             }
 
@@ -699,19 +700,15 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         request.extractParameters();
         Map<String, List<String>> parameterMap = new HashMap<String, List<String>>();
 
-        for (Entry<String, Object> entry : request.getParameters().entrySet()) {
+        for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
             List<String> list = parameterMap.get(entry.getKey());
 
             if (list == null) {
                 list = new ArrayList<String>();
                 parameterMap.put(entry.getKey(), list);
             }
-
-            if (entry.getValue() instanceof List) {
-                list.addAll((List<String>) entry.getValue());
-            } else {
-                list.add((String) entry.getValue());
-            }
+            
+            list.addAll(Arrays.asList(entry.getValue()));
         }
 
         return parameterMap;

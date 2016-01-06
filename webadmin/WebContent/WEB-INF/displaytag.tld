@@ -1,0 +1,743 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+  <tlib-version>1.1</tlib-version>
+  <jsp-version>1.2</jsp-version>
+  <short-name>display</short-name>
+  <uri>http://displaytag.sf.net</uri>
+  <display-name>Display *: Tag Library</display-name>
+  <description>
+    The display tag library is an open source suite of custom tags that provide high level web presentation patterns
+    which will work in a MVC model, and provide a significant amount of functionality while still being simple and
+    straight-forward to use. The primary tag in the library is the Table tag.
+  </description>
+  <tag>
+    <name>table</name>
+    <tag-class>org.displaytag.tags.TableTag</tag-class>
+    <tei-class>org.displaytag.tags.TableTagExtraInfo</tei-class>
+    <body-content>JSP</body-content>
+    <display-name>table</display-name>
+    <description>
+      Displays a list in an html table, formatting each item in the list according to the Column tags nested inside of
+      this tag. Use the list attribute to indicate the Collection of data, in some scope, that the tag should operate
+      on. Supports the export of the list data to alternative formats such as CSV, Excel, and XML. The contents of the
+      list can be sorted, and the list can be broken into individual pages for display. If you use this tag in Struts,
+      or in some other framework where the page is included via a jsp:include, you should use the requestURI attribute
+      to indicate where tag generated links should point.
+    </description>
+    <attribute>
+      <name>list</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Reference to the object used as source for the table. Can be an expression like requestScope.object.property .
+        You must define either the name attribute or the list attribute. Using "Name" is suggested.
+      </description>
+    </attribute>
+    <attribute>
+      <name>name</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        reference to the object used as source for the table. Can be an expression like requestScope.object.property. In
+        the EL version of the taglibrary this must be an EL expression which points to the source object.
+      </description>
+    </attribute>
+    <attribute>
+      <name>length</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>int</type>
+      <description>number of records to be shown</description>
+    </attribute>
+    <attribute>
+      <name>offset</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>int</type>
+      <description>index of the first record to be shown</description>
+    </attribute>
+    <attribute>
+      <name>pagesize</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>int</type>
+      <description>number of records in a page</description>
+    </attribute>
+    <attribute>
+      <name>decorator</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        Fully qualified class name for a TableDecorator. Use a TableDecorator to provide custom operations against the
+        whole list, such as computing totals. Must extend org.displaytag.decorator.TableDecorator.
+      </description>
+    </attribute>
+    <attribute>
+      <name>requestURI</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        When the present, links for sorting, exports, and paging are formed by adding any tag generated parameters to
+        the value of requestURI attribute.
+      </description>
+    </attribute>
+    <attribute>
+      <name>requestURIcontext</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+      <description>
+        Enable/disable prepending of application context to generated links. Default is true, you can set it to false in
+        order to generate cross-context links.
+      </description>
+    </attribute>
+    <attribute>
+      <name>excludedParams</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        Whitespace separated list containg the name of parameters which should NOT be forwarded during paging or
+        sorting. You can use excludedParams="*" to match (exclude) any parameter.
+      </description>
+    </attribute>
+    <attribute>
+      <name>varTotals</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        Store a java.util.Map of the column totals in a pageContext variable by this name. The keys of the map are
+        "column" and the column number (first column is "column1", etc); values are the corresponding total for the
+        column; columns that are not marked as to total="true" will be omitted from the map. The variable will ONLY be
+        available within the footer tag and after the end of the table, it is not available with the body of the table
+        or columns.
+      </description>
+    </attribute>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute</description>
+    </attribute>
+    <attribute>
+      <name>class</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute</description>
+    </attribute>
+    <attribute>
+      <name>cellspacing</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute</description>
+    </attribute>
+    <attribute>
+      <name>cellpadding</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute. Better using "padding" css attribute in style or class</description>
+    </attribute>
+    <attribute>
+      <name>frame</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute.</description>
+    </attribute>
+    <attribute>
+      <name>rules</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute.</description>
+    </attribute>
+    <attribute>
+      <name>summary</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute</description>
+    </attribute>
+    <attribute>
+      <name>htmlId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html "id" pass through attribute</description>
+    </attribute>
+    <attribute>
+      <name>export</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+      <description>enable/disable export. Valid values are true or false</description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        See "uid". The id attribute can't be a runtime expression in jsp 1.0 compliant containers, while uid will allow
+        it.
+      </description>
+    </attribute>
+    <attribute>
+      <name>uid</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        Unique id used to identify this table. The object representing the current row is also added to the pageContext
+        under this name and the current row number is added using the key uid_rowNum. Two tables in the same page can't
+        have the same uid (paging and sorting will affect both). If no "htmlId" is specified the same value will be used
+        for the html id of the generated table.
+      </description>
+    </attribute>
+    <attribute>
+      <name>sort</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        Use 'page' if you want to sort only visible records, or 'list' if you want to sort the full list, or 'external'
+        if the data is sorted outside displaytag.
+      </description>
+    </attribute>
+    <attribute>
+      <name>defaultsort</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>int</type>
+      <description>The index of the column that will be used by default for sorting (starting from 1)</description>
+    </attribute>
+    <attribute>
+      <name>defaultorder</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        The default order for the sorted column. Valid values are "ascending" (default) or "descending"
+      </description>
+    </attribute>
+    <attribute>
+      <name>partialList</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+      <description>enable/disable partialLists. Valid values are true or false</description>
+    </attribute>
+    <attribute>
+      <name>size</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Used only when partialList=true. Reference to the Integer object containing the size of the total dataset. Can
+        be an expression like requestScope.object.property. In the EL version of the taglibrary this must be an EL
+        expression which points to the source object.
+      </description>
+    </attribute>
+    <attribute>
+      <name>keepStatus</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+      <description>
+        Preserve the current paging/sort status across session. The default is false (do not use sessions). Note that
+        for this to work properly you need to assign to each table in your application a different id.
+      </description>
+    </attribute>
+    <attribute>
+      <name>clearStatus</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+      <description>Clears the current paging/sort status saved in session.</description>
+    </attribute>
+    <attribute>
+      <name>form</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Uses post for paging/sorting links, by submitting the for with the given name. Note that this form will not be
+        created by displaytag, and it must exist in page.
+      </description>
+    </attribute>
+    <example>
+      <![CDATA[
+<display:table name="someList" export="true" id="row" requestURI="MyAction.do">
+  <display:column sortable="true" title="ID"> <c:out value="${row.id}"/> </display:column>
+  <display:column property="email" autolink="true"/>
+  <display:column property="description" title="Comments"/>
+</display:table>
+]]>
+    </example>
+  </tag>
+  <tag>
+    <name>column</name>
+    <tag-class>org.displaytag.tags.ColumnTag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>column</display-name>
+    <description>
+      Displays a property of a row object inside a table. MUST be nested inside of a Table tag. The value displayed will
+      be the results of a decorator (if any); else the property named by the 'property' attribute; or if the 'property'
+      attribute is null, then the results of evaluating the JSP body of the tag.
+    </description>
+    <attribute>
+      <name>property</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        name of the property in the bean specified in the parent table tag (via the "name" attribute) mapped to this
+        column
+      </description>
+    </attribute>
+    <attribute>
+      <name>sortProperty</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        name of the property in the bean specified in the parent table tag (via the "name" attribute) which will be used
+        to sort values in the column. This can be used when the column body is filled or a decorator is used and column
+        should sort on undecorated values.
+      </description>
+    </attribute>
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>title of the column (text for the th cell)</description>
+    </attribute>
+    <attribute>
+      <name>comparator</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The classname of comparator to use when sorting this column, or the comparator itself. Defaults to the
+        DefaultComparator.
+      </description>
+    </attribute>
+    <attribute>
+      <name>titleKey</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Resource key used to lookup the title value. Only works if "title" is not defined. Works together with a
+        configured I18nResourceProvider, specified via the displaytag.properties file. By default, if JSTL is available,
+        the JSTL provider is used, which makes this attribute work the same as fmt:message's key property.
+      </description>
+    </attribute>
+    <attribute>
+      <name>nulls</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+      <description>
+        By default, null values don't appear in the list. By setting 'nulls' to 'true', then null values will appear as
+        "null" in the list (mostly useful for debugging). Defaults to 'false'.
+      </description>
+    </attribute>
+    <attribute>
+      <name>total</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+      <description>
+        If true, will total the contents of this column. This value is available via the Map named in varTotals for the
+        table. Column values need to Numbers.
+      </description>
+    </attribute>
+    <attribute>
+      <name>sortable</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+      <description>Set to 'true' to make the column sortable. Defaults to 'false'.</description>
+    </attribute>
+    <attribute>
+      <name>defaultorder</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        The default sort order for this column. Valid values are "ascending" (default) or "descending"
+      </description>
+    </attribute>
+    <attribute>
+      <name>autolink</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+      <description>
+        Automatically hyperlink URLs and email addresses that appear in the column. Defaults to 'false'.
+      </description>
+    </attribute>
+    <attribute>
+      <name>format</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        A MessageFormat patter that will be used to decorate objects in the column. Can be used as a "shortcut" for
+        simple column decorations. @since 1.1
+      </description>
+    </attribute>
+    <attribute>
+      <name>escapeXml</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+      <description>
+        Set it to true to escape special characters in html and xml output. Defaults to 'false'. @since 1.1
+      </description>
+    </attribute>
+    <attribute>
+      <name>media</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        Use this attribute to keep a column from being output during an export. The column will only render for the
+        named media type(s) - it won't be added to the table if the current request media is not supported. Can be any
+        space separated combination of 'html', 'csv', 'xml', 'all', or 'excel'. Defaults to 'all'. See the export page
+        in the example webapp for more details.
+      </description>
+    </attribute>
+    <attribute>
+      <name>href</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        <![CDATA[
+        The base URL used to construct the dynamic link. If this attribute is provided, then the data that is shown for
+        this column is wrapped inside a <a href=""> tag with the url provided through this attribute. Typically you
+        would use this attribute along with one of the struts-like param attributes (param*) to create a dynamic link so
+        that each row creates a different URL based on the data that is being viewed. An empty href value will generate
+        a link to the current page, preserving parameters just like for paging links.]]>
+      </description>
+    </attribute>
+    <attribute>
+      <name>url</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        The base URL used to construct the dynamic link. This attribute has the same functionality as the href
+        attribute, but it pre-pends the contextPath.
+      </description>
+    </attribute>
+    <attribute>
+      <name>paramId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        The name of the request parameter that will be dynamically added to the generated href URL. The corresponding
+        value is defined by the paramProperty and (optional) paramName attributes, optionally scoped by the paramScope
+        attribute.
+      </description>
+    </attribute>
+    <attribute>
+      <name>paramName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        The name of a JSP bean that is a String containing the value for the request parameter named by paramId (if
+        paramProperty is not specified), or a JSP bean whose property getter is called to return a String (if
+        paramProperty is specified). The JSP bean is constrained to the bean scope specified by the paramScope property,
+        if it is specified. If paramName is omitted, then it is assumed that the current object being iterated on is the
+        target bean.
+      </description>
+    </attribute>
+    <attribute>
+      <name>paramProperty</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        The name of a property of the current object being iterated on, whose return value will be used as the value of
+        the parameter (named by the paramId attribute) that will be dynamically added to this href URL. If paramName is
+        also specified the property will not be fetched from the object being iterated on, but from the bean specified
+        by paramName. The support of paramProperty in conjunction with paramName will be probably removed in future: use
+        paramProperty only if you need a property in the iterated object, elsewhere use only paramName (you can select a
+        property using an expression name.property).
+      </description>
+    </attribute>
+    <attribute>
+      <name>paramScope</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        @deprecated - use Expressions in paramName. The scope within which to search for the bean specified by the
+        paramName attribute. If not specified, all scopes are searched. If paramName is not provided, then the current
+        object being iterated on is assumed to be the target bean.
+      </description>
+    </attribute>
+    <attribute>
+      <name>maxLength</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>int</type>
+      <description>
+        If this attribute is provided, then the column's displayed is limited to this number of characters. An elipse
+        (...) is appended to the end if this column is linked, and the user can mouseover the elipse to get the full
+        text. Be careful on using this attribute for String which can contain html tags or entities, or together with
+        the autolink attribute turned on: displaytag will do its best trying to avoid leaving unclosed tags or broken
+        entities in the output, but a complex or bad input could lead to unattended results.
+      </description>
+    </attribute>
+    <attribute>
+      <name>maxWords</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>int</type>
+      <description>
+        If this attribute is provided, then the column's displayed is limited to this number of words. An elipse (...)
+        is appended to the end if this column is linked, and the user can mouseover the elipse to get the full text. Be
+        careful on using this attribute for String which can contain html tags or entities, or together with the
+        autolink attribute turned on: displaytag will do its best trying to avoid leaving unclosed tags or broken
+        entities in the output, but a complex or bad input could lead to unattended results.
+      </description>
+    </attribute>
+    <attribute>
+      <name>class</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        html pass through attribute; use this instead of directly coding presentational atttributes.
+      </description>
+    </attribute>
+    <attribute>
+      <name>headerClass</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>"class" html attribute added only for header cells.</description>
+    </attribute>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute.</description>
+    </attribute>
+    <attribute>
+      <name>group</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>int</type>
+      <description>
+        The grouping level (starting at 1 and incrementing) of this column (indicates if successive contain the same
+        values, then they should not be displayed). The level indicates that if a lower level no longer matches, then
+        the matching for this higher level should start over as well. If this attribute is not included, then no
+        grouping is performed.
+      </description>
+    </attribute>
+    <attribute>
+      <name>decorator</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        Whitespace separated list of column decorators to apply to the current column. A table decorator name can be the
+        name of an object in page, request, session or application scope or a fully qualified class name of a class
+        implementing the org.displaytag.decorator.DisplaytagColumnDecorator interface. If a decorator is specified for
+        the entire table, then this decorator will decorate that decorator.
+      </description>
+    </attribute>
+    <attribute>
+      <name>sortName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        Used with sort="external", the name that should be given to the server to sort this column. IE if
+        sortName="buzz", then the href for this column to sort will have a parameter d-(encodedId)-s=buzz. If sortName
+        is ommitted the value for the sort param will default to the column number.
+      </description>
+    </attribute>
+    <attribute>
+      <name>headerScope</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>"scope" html attribute added only for header cells.</description>
+    </attribute>
+    <attribute>
+      <name>scope</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>"scope" html attribute.</description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Object</type>
+      <description>
+        Static value to be used for the column. It has the same meaning of setting a value in the tag body, but values
+        set using this attribute will not be coerced to Strings. You may need to use the value attribute instead of a
+        scriptlet in the tag body if you need to calculate totals on numeric values.
+      </description>
+    </attribute>
+  </tag>
+  <tag>
+    <name>setProperty</name>
+    <tag-class>org.displaytag.tags.SetPropertyTag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>setProperty</display-name>
+    <description>
+      Sets the indicated property on the enclosing Table tag. MUST be nested within a Table tag. As an alternative, you
+      may create a property file that holds sitewide defaults; see the configuration documentation or the
+      DisplayPropertiesLoaderServlet javadoc for information.
+    </description>
+    <attribute>
+      <name>name</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>The name of the property to set on the enclosing Table tag.</description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        The value to which the property is set. You can also set the property value in the tag body.
+      </description>
+    </attribute>
+    <example>
+      <![CDATA[
+<display:setProperty name="paging.banner.placement" value="bottom" />
+or
+<display:setProperty name="paging.banner.placement">bottom</display:setProperty>
+]]>
+    </example>
+  </tag>
+  <tag>
+    <name>footer</name>
+    <tag-class>org.displaytag.tags.TableFooterTag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>footer</display-name>
+    <description>
+      Tag wich should be nested into a table tag to provide a custom table footer. The body of the tag is into the tfoot
+      section of the table. The totals variable, if designated, will be in pageContext in this tag.
+    </description>
+    <attribute>
+      <name>media</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        Use this attribute to keep a footer from being output during an export. The caption will only render for the
+        named media type(s) - it won't be added to the table if the current request media is not supported. Can be any
+        space separated combination of 'html', 'csv', 'xml', 'all', or 'excel'. Defaults to 'all'. See the export page
+        in the example webapp for more details.
+      </description>
+    </attribute>
+    <example>
+      <![CDATA[
+<display:table name="someList" varTotals="totals">
+  <display:column property="itemName"/>
+  <display:column property="price" total="true"/>
+  <display:footer>
+    <tr>
+      <td>Total Bill:</td>
+      <td><c:out value="${totals.column2}" /></td>
+    <tr>
+  </display:footer>
+</display:table>
+]]>
+    </example>
+  </tag>
+  <tag>
+    <name>caption</name>
+    <tag-class>org.displaytag.tags.CaptionTag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>caption</display-name>
+    <description>
+      Simple tag which mimics the html caption tag. Use it inside a table tag to display a caption.
+    </description>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute.</description>
+    </attribute>
+    <attribute>
+      <name>class</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute.</description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute.</description>
+    </attribute>
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute.</description>
+    </attribute>
+    <attribute>
+      <name>lang</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute.</description>
+    </attribute>
+    <attribute>
+      <name>dir</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>html pass through attribute.</description>
+    </attribute>
+    <attribute>
+      <name>media</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+        Use this attribute to keep a caption from being output during an export. The caption will only render for the
+        named media type(s) - it won't be added to the table if the current request media is not supported. Can be any
+        space separated combination of 'html', 'csv', 'xml', 'all', or 'excel'. Defaults to 'all'. See the export page
+        in the example webapp for more details.
+      </description>
+    </attribute>
+    <example>
+      <![CDATA[
+<display:table name="someList">
+  <display:column property="mail"/>
+  <display:column property="total"/>
+  <display:caption>This is the table caption</display:caption>
+</display:table>
+]]>
+    </example>
+  </tag>
+</taglib>
