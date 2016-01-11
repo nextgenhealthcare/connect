@@ -44,6 +44,7 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.api.DontCheckAuthorized;
 import com.mirth.connect.server.api.MirthServlet;
+import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -59,6 +60,7 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
     private static final ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private static final ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private static final ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private static final ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private static final ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
@@ -108,10 +110,13 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
     @Override
     public Map<String, Object> getAbout() {
         Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("name", configurationController.getServerName());
         properties.put("version", configurationController.getServerVersion());
         properties.put("date", configurationController.getBuildDate());
         properties.put("database", configurationController.getDatabaseType());
-
+        
+        properties.put("channelCount", channelController.getChannelIds().size());
+        
         Map<String, String> plugins = new HashMap<String, String>();
 
         for (MetaData plugin : extensionController.getPluginMetaData().values()) {
