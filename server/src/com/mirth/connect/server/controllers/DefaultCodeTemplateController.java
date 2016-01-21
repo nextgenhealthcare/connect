@@ -71,6 +71,8 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         logger.debug("Getting code template libraries, libraryIds=" + String.valueOf(libraryIds));
         if (CollectionUtils.isEmpty(libraryIds)) {
             libraryIds = null;
+        } else {
+            libraryIds = new HashSet<String>(libraryIds);
         }
 
         Map<String, CodeTemplateLibrary> libraryMap = libraryCache.getAllItems();
