@@ -303,8 +303,8 @@ public interface MessageServletInterface extends BaseServletInterface {
             @Param("reprocessMetaDataIds") @ApiParam(value = "Indicates which destinations to send the message to.") @QueryParam("metaDataId") Set<Integer> reprocessMetaDataIds) throws ClientException;
     // @formatter:on
 
-    @DELETE
-    @Path("/{channelId}/messages")
+    @POST
+    @Path("/{channelId}/messages/_remove")
     @ApiOperation("Remove messages by specific filter criteria.")
     @MirthOperation(name = "removeMessages", display = "Remove messages", permission = Permissions.MESSAGES_REMOVE, abortable = true)
     public void removeMessages(// @formatter:off
