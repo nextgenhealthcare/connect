@@ -56,9 +56,9 @@ public class ChannelStatusServlet extends MirthServlet implements ChannelStatusS
     @Override
     public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, boolean includeUndeployed) {
         if (CollectionUtils.isEmpty(channelIds)) {
-            return redactChannelStatuses(engineController.getChannelStatusList());
+            return redactChannelStatuses(engineController.getChannelStatusList(null, includeUndeployed));
         } else {
-            return engineController.getChannelStatusList(redactChannelIds(channelIds));
+            return engineController.getChannelStatusList(redactChannelIds(channelIds), includeUndeployed);
         }
     }
 
