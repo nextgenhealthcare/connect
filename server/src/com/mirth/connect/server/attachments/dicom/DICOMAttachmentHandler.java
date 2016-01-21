@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.attachments;
+package com.mirth.connect.server.attachments.dicom;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.dcm4che2.data.DicomElement;
@@ -17,21 +17,17 @@ import org.dcm4che2.data.Tag;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
-import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
 
-public class DICOMAttachmentHandler extends MirthAttachmentHandler {
+public class DICOMAttachmentHandler implements AttachmentHandler {
 
     private DicomObject dicomObject;
     private DicomElement dicomElement;
     private int index;
-
-    public DICOMAttachmentHandler() {
-
-    }
 
     @Override
     public void initialize(RawMessage message, Channel channel) throws AttachmentException {
@@ -89,20 +85,5 @@ public class DICOMAttachmentHandler extends MirthAttachmentHandler {
             throw new AttachmentException(t);
         }
 
-    }
-
-    @Override
-    public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties) {
-
-    }
-
-    @Override
-    public boolean canExtractAttachments() {
-        return true;
-    }
-
-    @Override
-    public byte[] replaceOutboundAttachment(byte[] content) {
-        return content;
     }
 }

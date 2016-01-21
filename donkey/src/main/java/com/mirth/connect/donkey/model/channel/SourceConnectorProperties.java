@@ -73,6 +73,7 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
     private boolean respondAfterProcessing;
     private boolean processBatch;
     private boolean firstResponse;
+    private int processingThreads;
     private Set<String> resourceIds;
 
     public SourceConnectorProperties() {
@@ -84,6 +85,7 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
         this.respondAfterProcessing = true;
         this.processBatch = false;
         this.firstResponse = false;
+        this.processingThreads = 1;
         this.resourceIds = new LinkedHashSet<String>();
         this.resourceIds.add("Default Resource");
     }
@@ -118,6 +120,14 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
 
     public void setFirstResponse(boolean firstResponse) {
         this.firstResponse = firstResponse;
+    }
+
+    public int getProcessingThreads() {
+        return processingThreads;
+    }
+
+    public void setProcessingThreads(int processingThreads) {
+        this.processingThreads = processingThreads;
     }
 
     public Set<String> getResourceIds() {
@@ -158,7 +168,9 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
     public void migrate3_3_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_4_0(DonkeyElement element) {}
+    public void migrate3_4_0(DonkeyElement element) {
+        element.addChildElementIfNotExists("processingThreads", "1");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -166,6 +178,7 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
         purgedProperties.put("respondAfterProcessing", respondAfterProcessing);
         purgedProperties.put("processBatch", processBatch);
         purgedProperties.put("firstResponse", firstResponse);
+        purgedProperties.put("processingThreads", processingThreads);
         purgedProperties.put("resourceIdsCount", resourceIds.size());
         return purgedProperties;
     }

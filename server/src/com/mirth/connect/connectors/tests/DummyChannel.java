@@ -26,7 +26,7 @@ import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
-import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.ResponseTransformerExecutor;
@@ -58,9 +58,9 @@ public class DummyChannel extends Channel {
             ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
             responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
             destinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
-            DestinationChain chain = new DestinationChain();
+            DestinationChainProvider chain = new DestinationChainProvider();
             chain.addDestination(1, destinationConnector);
-            getDestinationChains().add(chain);
+            getDestinationChainProviders().add(chain);
         }
     }
 
@@ -149,7 +149,7 @@ public class DummyChannel extends Channel {
 
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
-        for (DestinationChain chain : getDestinationChains()) {
+        for (DestinationChainProvider chain : getDestinationChainProviders()) {
             for (Integer metaDataId : chain.getMetaDataIds()) {
                 chain.getDestinationConnectors().get(metaDataId).process(dao, destinationMessage, destinationMessage.getStatus());
             }

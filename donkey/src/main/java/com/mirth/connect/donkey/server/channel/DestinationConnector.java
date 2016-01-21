@@ -36,7 +36,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProvider;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
@@ -68,7 +68,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
     private Logger logger = Logger.getLogger(getClass());
-    private AtomicBoolean attemptedFirst = new AtomicBoolean(false);
 
     public abstract void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message);
 
@@ -199,8 +198,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
         return isQueueEnabled() && destinationConnectorProperties.isRegenerateTemplate() && destinationConnectorProperties.isIncludeFilterTransformer();
     }
 
-    protected AttachmentHandler getAttachmentHandler() {
-        return channel.getAttachmentHandler();
+    protected AttachmentHandlerProvider getAttachmentHandlerProvider() {
+        return channel.getAttachmentHandlerProvider();
     }
 
     public void updateCurrentState(DeployedState currentState) {
@@ -444,7 +443,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
             afterSend(dao, message, response, previousStatus);
 
             if (message.getStatus() == Status.QUEUED) {
-                attemptedFirst.set(true);
+                message.setAttemptedFirst(true);
             }
         } else {
             updateQueuedStatus(dao, message, previousStatus);
@@ -542,15 +541,16 @@ public abstract class DestinationConnector extends Connector implements Runnable
                     try {
                         /*
                          * If the last message id is equal to the current message id, then the
-                         * message was not successfully send and is being retried, so wait the retry
+                         * message was not successfully sent and is being retried, so wait the retry
                          * interval.
                          * 
                          * If the last message id is greater than the current message id, then some
                          * message was not successful, message rotation is on, and the queue is back
                          * to the oldest message, so wait the retry interval.
                          */
-                        if (attemptedFirst.getAndSet(false) || (lastMessageId != null && lastMessageId >= connectorMessage.getMessageId())) {
+                        if (connectorMessage.isAttemptedFirst() || (lastMessageId != null && lastMessageId >= connectorMessage.getMessageId())) {
                             Thread.sleep(retryIntervalMillis);
+                            connectorMessage.setAttemptedFirst(false);
                         }
 
                         lastMessageId = connectorMessage.getMessageId();

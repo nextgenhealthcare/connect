@@ -22,4 +22,6 @@ public interface DonkeyDaoFactory {
     public void setEncryptData(boolean encryptData);
 
     public void setDecryptData(boolean decryptData);
+
+    public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater);
 }

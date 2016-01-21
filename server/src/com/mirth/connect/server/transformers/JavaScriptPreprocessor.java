@@ -38,8 +38,7 @@ public class JavaScriptPreprocessor implements PreProcessor {
 
     private Channel channel;
     private String scriptId;
-    private String contextFactoryId;
-    private JavaScriptPreProcessorTask task;
+    private volatile String contextFactoryId;
 
     public JavaScriptPreprocessor(Channel channel, String preProcessingScript) throws JavaScriptInitializationException {
         this.channel = channel;
@@ -50,7 +49,6 @@ public class JavaScriptPreprocessor implements PreProcessor {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
             contextFactoryId = contextFactory.getId();
             JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, preProcessingScript, ContextType.CHANNEL_PREPROCESSOR);
-            task = new JavaScriptPreProcessorTask(contextFactory);
         } catch (Exception e) {
             logger.error("Error compiling preprocessor script " + scriptId + ".", e);
 
@@ -68,13 +66,16 @@ public class JavaScriptPreprocessor implements PreProcessor {
         try {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
             if (!contextFactoryId.equals(contextFactory.getId())) {
-                JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
-                contextFactoryId = contextFactory.getId();
-                task.setContextFactory(contextFactory);
+                synchronized (this) {
+                    contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
+                    if (!contextFactoryId.equals(contextFactory.getId())) {
+                        JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                        contextFactoryId = contextFactory.getId();
+                    }
+                }
             }
 
-            task.setMessage(message);
-            return JavaScriptUtil.executeJavaScriptPreProcessorTask(task, message.getChannelId());
+            return JavaScriptUtil.executeJavaScriptPreProcessorTask(new JavaScriptPreProcessorTask(contextFactory, message), message.getChannelId());
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
@@ -92,11 +93,8 @@ public class JavaScriptPreprocessor implements PreProcessor {
 
         private ConnectorMessage message;
 
-        public JavaScriptPreProcessorTask(MirthContextFactory contextFactory) {
+        public JavaScriptPreProcessorTask(MirthContextFactory contextFactory, ConnectorMessage message) {
             super(contextFactory);
-        }
-
-        public void setMessage(ConnectorMessage message) {
             this.message = message;
         }
 

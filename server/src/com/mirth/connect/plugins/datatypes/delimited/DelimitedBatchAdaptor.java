@@ -236,8 +236,13 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
 
                 MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                    JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
-                    factory.setContextFactoryId(contextFactory.getId());
+                    synchronized (factory) {
+                        contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
+                        if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
+                            JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
+                            factory.setContextFactoryId(contextFactory.getId());
+                        }
+                    }
                 }
 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory) {

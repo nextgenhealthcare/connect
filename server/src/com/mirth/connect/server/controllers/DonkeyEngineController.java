@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -52,8 +53,8 @@ import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProvider;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.Donkey;
@@ -62,8 +63,10 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
+import com.mirth.connect.donkey.server.channel.ChannelProcessLock;
 import com.mirth.connect.donkey.server.channel.Connector;
-import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.DefaultChannelProcessLock;
+import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
@@ -77,7 +80,6 @@ import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
-import com.mirth.connect.donkey.server.data.passthru.DelayedStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
@@ -109,8 +111,8 @@ import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.ExtensionLoader;
-import com.mirth.connect.server.attachments.MirthAttachmentHandler;
-import com.mirth.connect.server.attachments.PassthruAttachmentHandler;
+import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
+import com.mirth.connect.server.attachments.passthru.PassthruAttachmentHandlerProvider;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.channel.ChannelFuture;
 import com.mirth.connect.server.channel.ChannelTask;
@@ -200,8 +202,11 @@ public class DonkeyEngineController implements EngineController {
                 eventController.dispatchEvent(event);
             }
         };
+        
+        Properties donkeyProperties = configurationController.getDatabaseSettings().getProperties();
+        donkeyProperties.setProperty("donkey.statsupdateinterval", String.valueOf(configurationController.getStatsUpdateInterval()));
 
-        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), donkeyEncryptor, eventDispatcher, configurationController.getServerId()));
+        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), donkeyProperties, donkeyEncryptor, eventDispatcher, configurationController.getServerId()));
     }
 
     @Override
@@ -529,8 +534,8 @@ public class DonkeyEngineController implements EngineController {
 
                 status.getChildStatuses().add(sourceStatus);
 
-                for (DestinationChain chain : channel.getDestinationChains()) {
-                    for (Entry<Integer, DestinationConnector> connectorEntry : chain.getDestinationConnectors().entrySet()) {
+                for (DestinationChainProvider chainProvider : channel.getDestinationChainProviders()) {
+                    for (Entry<Integer, DestinationConnector> connectorEntry : chainProvider.getDestinationConnectors().entrySet()) {
                         Integer metaDataId = connectorEntry.getKey();
                         DestinationConnector connector = connectorEntry.getValue();
 
@@ -641,7 +646,7 @@ public class DonkeyEngineController implements EngineController {
         channel.setInitialState(channelProperties.getInitialState());
         channel.setStorageSettings(storageSettings);
         channel.setMetaDataColumns(channelProperties.getMetaDataColumns());
-        channel.setAttachmentHandler(createAttachmentHandler(channel, contextFactory, channelProperties.getAttachmentProperties()));
+        channel.setAttachmentHandlerProvider(createAttachmentHandlerProvider(channel, contextFactory, channelProperties.getAttachmentProperties()));
         channel.setPreProcessor(createPreProcessor(channel, channelModel.getPreprocessingScript()));
         channel.setPostProcessor(createPostProcessor(channel, channelModel.getPostprocessingScript()));
         channel.setSourceConnector(createSourceConnector(channel, channelModel.getSourceConnector(), storageSettings, destinationIdMap));
@@ -651,31 +656,33 @@ public class DonkeyEngineController implements EngineController {
         SourceQueue sourceQueue = new SourceQueue();
         sourceQueue.setBufferCapacity(queueBufferSize);
         channel.setSourceQueue(sourceQueue);
-
+        
         if (channelModel.getSourceConnector().getProperties() instanceof SourceConnectorPropertiesInterface) {
             SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties();
             channel.getResponseSelector().setRespondFromName(sourceConnectorProperties.getResponseVariable());
         }
+        
+        channel.setProcessLock(getChannelProcessLock(channelModel));
 
         if (storageSettings.isEnabled()) {
             SerializerProvider serializerProvider = createSerializerProvider(channelModel);
-            BufferedDaoFactory bufferedDaoFactory = new BufferedDaoFactory(donkey.getDaoFactory(), serializerProvider);
+            BufferedDaoFactory bufferedDaoFactory = new BufferedDaoFactory(donkey.getDaoFactory(), serializerProvider, donkey.getStatisticsUpdater());
             bufferedDaoFactory.setEncryptData(channelProperties.isEncryptData());
 
             channel.setDaoFactory(bufferedDaoFactory);
         } else {
-            channel.setDaoFactory(new PassthruDaoFactory(new DelayedStatisticsUpdater(donkey.getDaoFactory())));
+            channel.setDaoFactory(new PassthruDaoFactory(donkey.getStatisticsUpdater()));
         }
 
-        DestinationChain chain = createDestinationChain(channel);
+        DestinationChainProvider chain = createDestinationChain(channel);
 
         for (com.mirth.connect.model.Connector connectorModel : channelModel.getDestinationConnectors()) {
             if (connectorModel.isEnabled()) {
                 // read 'waitForPrevious' property and add new chains as needed
                 // if there are currently no chains, add a new one regardless of 'waitForPrevious'
-                if (!connectorModel.isWaitForPrevious() || channel.getDestinationChains().size() == 0) {
+                if (!connectorModel.isWaitForPrevious() || channel.getDestinationChainProviders().size() == 0) {
                     chain = createDestinationChain(channel);
-                    channel.addDestinationChain(chain);
+                    channel.addDestinationChainProvider(chain);
                 }
 
                 Integer metaDataId = connectorModel.getMetaDataId();
@@ -692,6 +699,14 @@ public class DonkeyEngineController implements EngineController {
         }
 
         return channel;
+    }
+    
+    protected ChannelProcessLock getChannelProcessLock(com.mirth.connect.model.Channel channelModel) {
+        int processingThreads = ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties().getProcessingThreads();
+        if (processingThreads < 1) {
+            processingThreads = 1;
+        }
+        return new DefaultChannelProcessLock(processingThreads);
     }
 
     protected SerializerProvider createSerializerProvider(com.mirth.connect.model.Channel channelModel) {
@@ -795,23 +810,23 @@ public class DonkeyEngineController implements EngineController {
         return storageSettings;
     }
 
-    private AttachmentHandler createAttachmentHandler(Channel channel, MirthContextFactory contextFactory, AttachmentHandlerProperties attachmentHandlerProperties) throws Exception {
-        AttachmentHandler attachmentHandler = null;
+    private AttachmentHandlerProvider createAttachmentHandlerProvider(Channel channel, MirthContextFactory contextFactory, AttachmentHandlerProperties attachmentHandlerProperties) throws Exception {
+        AttachmentHandlerProvider attachmentHandlerProvider = null;
 
         if (AttachmentHandlerType.fromString(attachmentHandlerProperties.getType()) != AttachmentHandlerType.NONE) {
-            Class<?> attachmentHandlerClass = Class.forName(attachmentHandlerProperties.getClassName(), true, contextFactory.getApplicationClassLoader());
+            Class<?> attachmentHandlerProviderClass = Class.forName(attachmentHandlerProperties.getClassName(), true, contextFactory.getApplicationClassLoader());
 
-            if (MirthAttachmentHandler.class.isAssignableFrom(attachmentHandlerClass)) {
-                attachmentHandler = (MirthAttachmentHandler) attachmentHandlerClass.newInstance();
-                attachmentHandler.setProperties(channel, attachmentHandlerProperties);
+            if (MirthAttachmentHandlerProvider.class.isAssignableFrom(attachmentHandlerProviderClass)) {
+                attachmentHandlerProvider = (MirthAttachmentHandlerProvider) attachmentHandlerProviderClass.newInstance();
+                attachmentHandlerProvider.setProperties(channel, attachmentHandlerProperties);
             } else {
-                throw new Exception(attachmentHandlerProperties.getClassName() + " does not extend " + MirthAttachmentHandler.class.getName());
+                throw new Exception(attachmentHandlerProperties.getClassName() + " does not extend " + MirthAttachmentHandlerProvider.class.getName());
             }
         } else {
-            attachmentHandler = new PassthruAttachmentHandler();
+            attachmentHandlerProvider = new PassthruAttachmentHandlerProvider();
         }
 
-        return attachmentHandler;
+        return attachmentHandlerProvider;
     }
 
     private PreProcessor createPreProcessor(Channel channel, String preProcessingScript) throws JavaScriptInitializationException {
@@ -969,8 +984,8 @@ public class DonkeyEngineController implements EngineController {
         return responseTransformerExecutor;
     }
 
-    private DestinationChain createDestinationChain(Channel channel) {
-        DestinationChain chain = new DestinationChain();
+    private DestinationChainProvider createDestinationChain(Channel channel) {
+        DestinationChainProvider chain = new DestinationChainProvider();
         chain.setChannelId(channel.getChannelId());
         return chain;
     }
@@ -1356,8 +1371,8 @@ public class DonkeyEngineController implements EngineController {
                 if (!connectorsToStart.contains(0)) {
                     channel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
                 }
-                for (DestinationChain destinationChain : channel.getDestinationChains()) {
-                    for (Entry<Integer, DestinationConnector> entry : destinationChain.getDestinationConnectors().entrySet()) {
+                for (DestinationChainProvider destinationChainProvider : channel.getDestinationChainProviders()) {
+                    for (Entry<Integer, DestinationConnector> entry : destinationChainProvider.getDestinationConnectors().entrySet()) {
                         if (!connectorsToStart.contains(entry.getKey())) {
                             entry.getValue().updateCurrentState(DeployedState.STOPPED);
                         }
@@ -1413,13 +1428,13 @@ public class DonkeyEngineController implements EngineController {
                         channel.getSourceConnector().getFilterTransformerExecutor().getFilterTransformer().dispose();
                     }
 
-                    for (DestinationChain chain : channel.getDestinationChains()) {
-                        for (Integer metaDataId : chain.getDestinationConnectors().keySet()) {
-                            if (chain.getDestinationConnectors().get(metaDataId).getFilterTransformerExecutor().getFilterTransformer() != null) {
-                                chain.getDestinationConnectors().get(metaDataId).getFilterTransformerExecutor().getFilterTransformer().dispose();
+                    for (DestinationChainProvider chainProvider : channel.getDestinationChainProviders()) {
+                        for (Integer metaDataId : chainProvider.getDestinationConnectors().keySet()) {
+                            if (chainProvider.getDestinationConnectors().get(metaDataId).getFilterTransformerExecutor().getFilterTransformer() != null) {
+                                chainProvider.getDestinationConnectors().get(metaDataId).getFilterTransformerExecutor().getFilterTransformer().dispose();
                             }
-                            if (chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer() != null) {
-                                chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer().dispose();
+                            if (chainProvider.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer() != null) {
+                                chainProvider.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer().dispose();
                             }
                         }
                     }

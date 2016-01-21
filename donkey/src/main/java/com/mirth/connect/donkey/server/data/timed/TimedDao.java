@@ -21,6 +21,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
+import com.mirth.connect.donkey.server.data.StatisticsUpdater;
 import com.mirth.connect.donkey.util.ActionTimer;
 
 public class TimedDao implements DonkeyDao {
@@ -56,6 +57,11 @@ public class TimedDao implements DonkeyDao {
     @Override
     public void setDecryptData(boolean decryptData) {
         dao.setDecryptData(decryptData);
+    }
+    
+    @Override
+    public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
+        dao.setStatisticsUpdater(statisticsUpdater);
     }
 
     @Override

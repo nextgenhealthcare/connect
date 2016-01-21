@@ -25,7 +25,7 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
-import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.data.timed.TimedDaoFactory;
 import com.mirth.connect.donkey.test.util.TestChannel;
@@ -121,7 +121,7 @@ public class PerformanceTests {
         for (int i = 0; i < numSources; i++) {
             sourceChannels[i] = TestUtils.createDefaultChannel(channelId + i, serverId, waitForDestinations, 1, 1);
 
-            DestinationChain chain = sourceChannels[i].getDestinationChains().get(0);
+            DestinationChainProvider chain = sourceChannels[i].getDestinationChainProviders().get(0);
 
             TestChannelWriter channelWriter = new TestChannelWriter(destChannel);
             channelWriter.setChannelId(channelId);

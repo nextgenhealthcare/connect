@@ -7,15 +7,15 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.attachments;
+package com.mirth.connect.server.attachments.passthru;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
-import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.channel.Channel;
 
-public class PassthruAttachmentHandler extends MirthAttachmentHandler {
+public class PassthruAttachmentHandler implements AttachmentHandler {
     @Override
     public void initialize(RawMessage message, Channel channel) throws AttachmentException {}
 
@@ -27,18 +27,5 @@ public class PassthruAttachmentHandler extends MirthAttachmentHandler {
     @Override
     public String shutdown() throws AttachmentException {
         return null;
-    }
-
-    @Override
-    public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties) {}
-
-    @Override
-    public boolean canExtractAttachments() {
-        return false;
-    }
-
-    @Override
-    public byte[] replaceOutboundAttachment(byte[] content) {
-        return content;
     }
 }

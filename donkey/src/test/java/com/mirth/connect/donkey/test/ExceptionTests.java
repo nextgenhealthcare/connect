@@ -28,7 +28,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.ResponseSelector;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
@@ -105,13 +105,13 @@ public class ExceptionTests {
         TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDefaultDestinationConnector();
         destinationConnector.setChannelId(channel.getChannelId());
 
-        DestinationChain chain = new DestinationChain();
+        DestinationChainProvider chain = new DestinationChainProvider();
         chain.setChannelId(channel.getChannelId());
         destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
         destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
         chain.addDestination(1, destinationConnector);
-        channel.addDestinationChain(chain);
+        channel.addDestinationChainProvider(chain);
 
         try {
             channel.deploy();

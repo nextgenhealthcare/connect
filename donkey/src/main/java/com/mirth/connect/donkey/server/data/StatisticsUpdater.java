@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.server.data.passthru;
+package com.mirth.connect.donkey.server.data;
 
 import com.mirth.connect.donkey.server.channel.Statistics;
 

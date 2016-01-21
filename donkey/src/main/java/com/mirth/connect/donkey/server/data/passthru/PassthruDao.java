@@ -25,6 +25,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
+import com.mirth.connect.donkey.server.data.StatisticsUpdater;
 
 public class PassthruDao implements DonkeyDao {
     private boolean closed = false;
@@ -89,7 +90,7 @@ public class PassthruDao implements DonkeyDao {
 
         // remove the in-memory stats for any channels that were removed
         for (String channelId : removedChannelIds) {
-            currentStats.getStats().remove(channelId);
+            currentStats.remove(channelId);
         }
 
         // update the in-memory total stats with the stats we just saved in storage
@@ -97,19 +98,19 @@ public class PassthruDao implements DonkeyDao {
 
         // remove the in-memory total stats for any channels that were removed
         for (String channelId : removedChannelIds) {
-            totalStats.getStats().remove(channelId);
+            totalStats.remove(channelId);
         }
 
         if (statisticsUpdater != null) {
             statisticsUpdater.update(transactionStats);
         }
 
-        transactionStats.getStats().clear();
+        transactionStats.clear();
     }
 
     @Override
     public void rollback() {
-        transactionStats.getStats().clear();
+        transactionStats.clear();
     }
 
     @Override
@@ -146,11 +147,7 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public void resetStatistics(String channelId, Integer metaDataId, Set<Status> statuses) {
-        for (Status status : statuses) {
-            if (transactionStats.getChannelStats(channelId).containsKey(metaDataId)) {
-                transactionStats.getChannelStats(channelId).get(metaDataId).remove(status);
-            }
-        }
+        transactionStats.resetStats(channelId, metaDataId, statuses);
 
         if (!resetStats.containsKey(channelId)) {
             resetStats.put(channelId, new HashMap<Integer, Set<Status>>());

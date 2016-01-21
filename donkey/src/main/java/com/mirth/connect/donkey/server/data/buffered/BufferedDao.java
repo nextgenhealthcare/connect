@@ -26,6 +26,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.server.data.StatisticsUpdater;
 import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class BufferedDao implements DonkeyDao {
@@ -33,15 +34,17 @@ public class BufferedDao implements DonkeyDao {
     private SerializerProvider serializerProvider;
     private boolean encryptData;
     private boolean decryptData;
+    private StatisticsUpdater statisticsUpdater;
     private Queue<DaoTask> tasks = new LinkedList<DaoTask>();
     private boolean closed = false;
     private Logger logger = Logger.getLogger(this.getClass());
 
-    protected BufferedDao(DonkeyDaoFactory daoFactory, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData) {
+    protected BufferedDao(DonkeyDaoFactory daoFactory, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, StatisticsUpdater statisticsUpdater) {
         this.daoFactory = daoFactory;
         this.serializerProvider = serializerProvider;
         this.encryptData = encryptData;
         this.decryptData = decryptData;
+        this.statisticsUpdater = statisticsUpdater;
     }
 
     @Override
@@ -52,6 +55,11 @@ public class BufferedDao implements DonkeyDao {
     @Override
     public void setDecryptData(boolean decryptData) {
         this.decryptData = decryptData;
+    }
+    
+    @Override
+    public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
+        this.statisticsUpdater = statisticsUpdater;
     }
 
     @Override
@@ -82,6 +90,7 @@ public class BufferedDao implements DonkeyDao {
 
         dao.setEncryptData(encryptData);
         dao.setDecryptData(decryptData);
+        dao.setStatisticsUpdater(statisticsUpdater);
 
         return dao;
     }

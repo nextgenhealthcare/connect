@@ -36,7 +36,7 @@ public class TestChannel extends Channel {
             public Serializer getSerializer(Integer metaDataId) {
                 return new XStreamSerializer();
             }
-        }));
+        }, Donkey.getInstance().getStatisticsUpdater()));
     }
 
     public int getNumMessages() {

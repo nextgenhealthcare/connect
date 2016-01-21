@@ -222,6 +222,8 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract boolean isStartupDeploy();
 
+    public abstract int getStatsUpdateInterval();
+
     /**
      * Returns the server configuration, which contains:
      * <ul>

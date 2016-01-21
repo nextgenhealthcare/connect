@@ -28,7 +28,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
-import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
@@ -64,15 +64,12 @@ public class DestinationChainTests {
     }
 
     /*
-     * Create channel with two destination chains, two destination connectors
-     * each
-     * Set each destination connector's FilterTransformer to place values in the
-     * connector, channel, and response maps
+     * Create channel with two destination chains, two destination connectors each Set each
+     * destination connector's FilterTransformer to place values in the connector, channel, and
+     * response maps
      * 
-     * Send messages, and for each destination connector, assert that:
-     * - The transformed data was stored
-     * - The encoded data was stored
-     * - The connector message maps were all updated correctly
+     * Send messages, and for each destination connector, assert that: - The transformed data was
+     * stored - The encoded data was stored - The connector message maps were all updated correctly
      * - The connector message status was updated
      */
     @Test
@@ -111,26 +108,26 @@ public class DestinationChainTests {
         }
 
         for (int i = 1; i <= numChains; i++) {
-            DestinationChain chain = new DestinationChain();
+            DestinationChainProvider chain = new DestinationChainProvider();
             chain.setChannelId(channel.getChannelId());
 
             for (int j = 1; j <= numDestinationsPerChain; j++) {
                 int metaDataId = (i - 1) * numDestinationsPerChain + j;
                 TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDestinationConnector(channel.getChannelId(), channel.getServerId(), new TestConnectorProperties(), TestUtils.DEFAULT_DESTINATION_NAME, new TestDataType(), new TestDataType(), new TestResponseTransformer(), metaDataId);
                 destinationConnector.setChannelId(channel.getChannelId());
-                
+
                 destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
                 destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
 
                 FilterTransformerExecutor filterTransformerExecutor = new FilterTransformerExecutor(new TestDataType(), new TestDataType());
                 filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer2());
-                
+
                 destinationConnector.setFilterTransformerExecutor(filterTransformerExecutor);
 
                 chain.addDestination(metaDataId, destinationConnector);
             }
 
-            channel.addDestinationChain(chain);
+            channel.addDestinationChainProvider(chain);
         }
 
         channel.deploy();
@@ -139,19 +136,19 @@ public class DestinationChainTests {
         if (ChannelController.getInstance().channelExists(channelId)) {
             ChannelController.getInstance().deleteAllMessages(channelId);
         }
-        
+
         for (int i = 1; i <= TEST_SIZE; i++) {
             DispatchResult messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
 
-            for (DestinationChain chain : channel.getDestinationChains()) {
+            for (DestinationChainProvider chain : channel.getDestinationChainProviders()) {
                 for (int metaDataId : chain.getDestinationConnectors().keySet()) {
                     Connection connection = null;
                     PreparedStatement statement = null;
                     ResultSet result = null;
-                    
+
                     try {
                         connection = TestUtils.getConnection();
-                        
+
                         // Assert that the transformed data was stored
                         statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
                         statement.setLong(1, messageResponse.getMessageId());
@@ -160,7 +157,7 @@ public class DestinationChainTests {
                         result = statement.executeQuery();
                         assertTrue(result.next());
                         TestUtils.close(result);
-    
+
                         // Assert that the encoded data was stored
                         statement.setInt(3, ContentType.ENCODED.getContentTypeCode());
                         result = statement.executeQuery();
@@ -191,18 +188,13 @@ public class DestinationChainTests {
     }
 
     /*
-     * Create channel with two destination chains, two destination connectors
-     * each
-     * Set the source FilterTransformer to place values in the channel and
-     * response maps
+     * Create channel with two destination chains, two destination connectors each Set the source
+     * FilterTransformer to place values in the channel and response maps
      * 
-     * Send messages, and for each destination connector, assert that:
-     * - The connector message was stored
-     * - The channel and response maps were updated correctly
-     * - If the destination connector isn't the first one in the chain, the raw
-     * data was stored
-     * - If the destination connector is the first one in the chain, the source
-     * encoded data was stored
+     * Send messages, and for each destination connector, assert that: - The connector message was
+     * stored - The channel and response maps were updated correctly - If the destination connector
+     * isn't the first one in the chain, the raw data was stored - If the destination connector is
+     * the first one in the chain, the source encoded data was stored
      */
     @Test
     public final void testCreateNextMessage() throws Exception {
@@ -227,12 +219,12 @@ public class DestinationChainTests {
 
         try {
             connection = TestUtils.getConnection();
-            
+
             for (int i = 1; i <= TEST_SIZE; i++) {
                 DispatchResult messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
 
-                for (DestinationChain chain : channel.getDestinationChains()) {
-                    for (int metaDataId : chain.getEnabledMetaDataIds()) {
+                for (DestinationChainProvider chain : channel.getDestinationChainProviders()) {
+                    for (int metaDataId : chain.getMetaDataIds()) {
                         // Assert that the connector message was stored
                         statement = connection.prepareStatement("SELECT * FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
                         statement.setLong(1, messageResponse.getMessageId());

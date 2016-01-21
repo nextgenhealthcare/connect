@@ -20,6 +20,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.server.data.StatisticsUpdater;
 import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class JdbcDaoFactory implements DonkeyDaoFactory {
@@ -49,6 +50,7 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
     private ConnectionPool connectionPool;
     private QuerySource querySource;
     private SerializerProvider serializerProvider;
+    private StatisticsUpdater statisticsUpdater;
     private boolean encryptData = false;
     private boolean decryptData = true;
     private Map<Connection, PreparedStatementSource> statementSources = new ConcurrentHashMap<Connection, PreparedStatementSource>();
@@ -102,6 +104,11 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
     }
 
     @Override
+    public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
+        this.statisticsUpdater = statisticsUpdater;
+    }
+
+    @Override
     public JdbcDao getDao() {
         return getDao(serializerProvider);
     }
@@ -142,6 +149,6 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
             }
         }
 
-        return new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, channelController.getStatistics(), channelController.getTotalStatistics(), statsServerId);
+        return new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, statisticsUpdater, channelController.getStatistics(), channelController.getTotalStatistics(), statsServerId);
     }
 }

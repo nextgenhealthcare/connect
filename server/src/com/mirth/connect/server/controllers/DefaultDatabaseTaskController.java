@@ -311,7 +311,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
                                         logger.debug("Adding index " + indexName + " on table " + tableName + ".");
                                         executeUpdate(query);
                                     } else {
-                                        throw new Exception("Error adding index: Update statement not found for database type: " + Donkey.getInstance().getConfiguration().getDatabaseProperties().getProperty("database"));
+                                        throw new Exception("Error adding index: Update statement not found for database type: " + Donkey.getInstance().getConfiguration().getDonkeyProperties().getProperty("database"));
                                     }
 
                                     return null;

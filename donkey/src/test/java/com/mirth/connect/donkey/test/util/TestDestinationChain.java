@@ -12,11 +12,11 @@ package com.mirth.connect.donkey.test.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 
-public class TestDestinationChain extends DestinationChain {
+public class TestDestinationChain extends DestinationChainProvider {
     private Map<Integer, FilterTransformerExecutor> filterTransformerExecutors = new HashMap<Integer, FilterTransformerExecutor>();
 
     public Map<Integer, FilterTransformerExecutor> getFilterTransformerExecutors() {

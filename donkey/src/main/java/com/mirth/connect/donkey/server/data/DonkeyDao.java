@@ -126,6 +126,8 @@ public interface DonkeyDao {
 
     public void setDecryptData(boolean decryptData);
 
+    public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater);
+
     public void commit();
 
     public void commit(boolean durable);

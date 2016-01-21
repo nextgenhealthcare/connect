@@ -16,7 +16,7 @@ import javax.activation.UnsupportedDataTypeException;
 
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.server.controllers.MessageController;
-import com.mirth.connect.server.attachments.MirthAttachmentHandler;
+import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
@@ -45,7 +45,7 @@ public class AttachmentUtil {
      *         re-inserted.
      */
     public static byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary) {
-        return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(raw, connectorMessage, charsetEncoding, binary);
+        return getAttachmentHandlerProvider(connectorMessage.getChannelId()).reAttachMessage(raw, connectorMessage, charsetEncoding, binary);
     }
 
     /**
@@ -59,7 +59,7 @@ public class AttachmentUtil {
      * @return The resulting message with all applicable attachment content re-inserted.
      */
     public static String reAttachMessage(ImmutableConnectorMessage connectorMessage) {
-        return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(connectorMessage);
+        return getAttachmentHandlerProvider(connectorMessage.getChannelId()).reAttachMessage(connectorMessage);
     }
 
     /**
@@ -74,7 +74,7 @@ public class AttachmentUtil {
      * @return The resulting message with all applicable attachment content re-inserted.
      */
     public static String reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage) {
-        return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(raw, connectorMessage);
+        return getAttachmentHandlerProvider(connectorMessage.getChannelId()).reAttachMessage(raw, connectorMessage);
     }
 
     /**
@@ -85,7 +85,7 @@ public class AttachmentUtil {
      * @return A list of attachments associated with the connector message.
      */
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws MessageSerializerException {
-        return convertFromDonkeyAttachmentList(MirthAttachmentHandler.getMessageAttachments(connectorMessage));
+        return convertFromDonkeyAttachmentList(MirthAttachmentHandlerProvider.getMessageAttachments(connectorMessage));
     }
 
     /**
@@ -149,7 +149,7 @@ public class AttachmentUtil {
         return new com.mirth.connect.donkey.model.message.attachment.Attachment(attachment.getId(), attachment.getContent(), attachment.getType());
     }
 
-    private static MirthAttachmentHandler getAttachmentHandler(String channelId) {
-        return (MirthAttachmentHandler) engineController.getDeployedChannel(channelId).getAttachmentHandler();
+    private static MirthAttachmentHandlerProvider getAttachmentHandlerProvider(String channelId) {
+        return (MirthAttachmentHandlerProvider) engineController.getDeployedChannel(channelId).getAttachmentHandlerProvider();
     }
 }

@@ -13,9 +13,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 
-public class AttachmentHandlerProperties implements Serializable, Purgable {
+public class AttachmentHandlerProperties implements Serializable, Migratable, Purgable {
 
     private String className;
     private String type;
@@ -71,5 +75,38 @@ public class AttachmentHandlerProperties implements Serializable, Purgable {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("type", type);
         return purgedProperties;
+    }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_1_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_2_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_3_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_4_0(DonkeyElement element) {
+        DonkeyElement classNameElement = element.getChildElement("className");
+        if (classNameElement != null) {
+            String className = classNameElement.getTextContent();
+            
+            if (StringUtils.equals(className, "com.mirth.connect.server.attachments.DICOMAttachmentHandler")) {
+                classNameElement.setTextContent("com.mirth.connect.server.attachments.dicom.DICOMAttachmentHandlerProvider");
+            } else if (StringUtils.equals(className, "com.mirth.connect.server.attachments.JavaScriptAttachmentHandler")) {
+                classNameElement.setTextContent("com.mirth.connect.server.attachments.javascript.JavaScriptAttachmentHandlerProvider");
+            } else if (StringUtils.equals(className, "com.mirth.connect.server.attachments.PassthruAttachmentHandler")) {
+                classNameElement.setTextContent("com.mirth.connect.server.attachments.passthru.PassthruAttachmentHandlerProvider");
+            } else if (StringUtils.equals(className, "com.mirth.connect.server.attachments.RegexAttachmentHandler")) {
+                classNameElement.setTextContent("com.mirth.connect.server.attachments.regex.RegexAttachmentHandlerProvider");
+            }
+        }
     }
 }

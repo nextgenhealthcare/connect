@@ -74,7 +74,7 @@ public class RecoveryTests {
             public Serializer getSerializer(Integer metaDataId) {
                 return new XStreamSerializer();
             }
-        });
+        }, donkey.getStatisticsUpdater());
         donkey.setDaoFactory(daoFactory);
     }
 
@@ -93,9 +93,9 @@ public class RecoveryTests {
         final int testSize = TEST_SIZE;
 
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
-        
+
         List<Long> messageIds = new ArrayList<Long>();
-        
+
         // Add a bunch of RECEIVED source connector messages
         for (int i = 0; i < testSize; i++) {
             messageIds.add(TestUtils.createAndStoreNewMessage(testMessage, channelId, channelName, serverId, daoFactory).getMessageId());
@@ -107,7 +107,7 @@ public class RecoveryTests {
         channel.stop();
         channel.undeploy();
 
-        TestDestinationConnector testDestinationConnector = (TestDestinationConnector) channel.getDestinationChains().get(0).getDestinationConnectors().get(1);
+        TestDestinationConnector testDestinationConnector = (TestDestinationConnector) channel.getDestinationChainProviders().get(0).getDestinationConnectors().get(1);
 
         List<Long> receivedMessageIds = testDestinationConnector.getMessageIds();
 
@@ -134,19 +134,19 @@ public class RecoveryTests {
             message.setEncoded(message.getRaw());
             message.getEncoded().setContentType(ContentType.ENCODED);
             message.setStatus(Status.TRANSFORMED);
-            
+
             DonkeyDao dao = null;
-            
+
             try {
                 dao = daoFactory.getDao();
                 dao.storeMessageContent(message.getEncoded());
                 dao.updateStatus(message, Status.RECEIVED);
-    
+
                 // create incomplete messages for destinations 1 and 4
                 createDestinationMessage(dao, message, 1, Status.RECEIVED);
                 createDestinationMessage(dao, message, 3, Status.SENT);
                 createDestinationMessage(dao, message, 4, Status.RECEIVED);
-                
+
                 dao.commit();
             } finally {
                 TestUtils.close(dao);
@@ -161,7 +161,7 @@ public class RecoveryTests {
         channel.stop();
         channel.undeploy();
 
-        TestDestinationConnector testDestinationConnector = (TestDestinationConnector) channel.getDestinationChains().get(0).getDestinationConnectors().get(1);
+        TestDestinationConnector testDestinationConnector = (TestDestinationConnector) channel.getDestinationChainProviders().get(0).getDestinationConnectors().get(1);
         List<Long> receivedMessageIds = testDestinationConnector.getMessageIds();
 
         // test that the correct number of messages were sent from the destination connector and were recovered by the channel
@@ -186,28 +186,28 @@ public class RecoveryTests {
         ResponseSelector responseSelector = new ResponseSelector(new TestDataType());
         responseSelector.setRespondFromName(SourceConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
         channel.setResponseSelector(responseSelector);
-        
+
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
-        
+
         for (int i = 0; i < testSize; i++) {
             ConnectorMessage message = TestUtils.createAndStoreNewMessage(testMessage, channelId, channelName, serverId, daoFactory).getConnectorMessages().get(0);
             long messageId = message.getMessageId();
             message.setEncoded(message.getRaw());
             message.getEncoded().setContentType(ContentType.ENCODED);
             message.setStatus(Status.TRANSFORMED);
-            
+
             DonkeyDao dao = null;
-            
+
             try {
                 dao = daoFactory.getDao();
                 dao.storeMessageContent(message.getEncoded());
                 dao.updateStatus(message, Status.RECEIVED);
-    
+
                 // create incomplete messages for destinations 1 and 4
                 createDestinationMessage(dao, message, 1, Status.RECEIVED);
                 createDestinationMessage(dao, message, 3, Status.SENT);
                 createDestinationMessage(dao, message, 4, Status.PENDING);
-                
+
                 dao.commit();
             } finally {
                 TestUtils.close(dao);
@@ -253,13 +253,12 @@ public class RecoveryTests {
     }
 
     /*
-     * Start up new channel, send messages that do not get marked as processed,
-     * add each message ID to a list, and assert that:
-     * - Each message in the list has a processed flag of false in the database
+     * Start up new channel, send messages that do not get marked as processed, add each message ID
+     * to a list, and assert that: - Each message in the list has a processed flag of false in the
+     * database
      * 
-     * Call processUnfinishedMessages, then call storeMessageResponse for each
-     * recovered response, and assert that:
-     * - Each message in the list has a processed flag of true in the database
+     * Call processUnfinishedMessages, then call storeMessageResponse for each recovered response,
+     * and assert that: - Each message in the list has a processed flag of true in the database
      */
     @Test
     public final void testProcessedFalseRecovery() throws Exception {
@@ -288,7 +287,7 @@ public class RecoveryTests {
             channel.deploy();
             channel.start(null);
             channel.getUnfinishedMessages();
-            
+
             for (DispatchResult dispatchResult : ((TestSourceConnector) channel.getSourceConnector()).getRecoveredDispatchResults()) {
                 channel.getSourceConnector().finishDispatch(dispatchResult);
             }
@@ -340,7 +339,7 @@ public class RecoveryTests {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
-        
+
         try {
             connection = TestUtils.getConnection();
             statement = connection.prepareStatement("SELECT COUNT(*) FROM d_mm" + localChannelId + " WHERE status = ? AND id = ?");

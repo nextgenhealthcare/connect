@@ -30,7 +30,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -65,19 +65,14 @@ public class QueueTests {
     }
 
     /*
-     * Create a new DatabaseLinkedBlockingQueue
-     * Set the select and count statements, fill the queue buffer, and assert
-     * that:
-     * - The buffer capacity was set correctly
-     * - The buffer size is correct
+     * Create a new DatabaseLinkedBlockingQueue Set the select and count statements, fill the queue
+     * buffer, and assert that: - The buffer capacity was set correctly - The buffer size is correct
      * 
-     * Send messages, then assert that:
-     * - All messages were successfully put in the queue
-     * - The buffer size is still correct
+     * Send messages, then assert that: - All messages were successfully put in the queue - The
+     * buffer size is still correct
      * 
-     * Flush the queue, then assert that:
-     * - The queue size shrank correctly
-     * - The buffer size shrank correctly
+     * Flush the queue, then assert that: - The queue size shrank correctly - The buffer size shrank
+     * correctly
      */
     @Test
     public final void testDatabaseLinkedBlockingQueue() throws SQLException {
@@ -119,20 +114,14 @@ public class QueueTests {
     }
 
     /*
-     * Start up a new channel, and assert that:
-     * - The channel's queue thread is currently running
-     * Then stop the channel and assert that:
-     * - The channel's queue thread has stopped running
+     * Start up a new channel, and assert that: - The channel's queue thread is currently running
+     * Then stop the channel and assert that: - The channel's queue thread has stopped running
      * 
-     * While the channel is stopped, send messages, assert that:
-     * - The queue size is equal to the test size
-     * Start the channel back up, wait a while, assert that:
-     * - The queue size is zero
+     * While the channel is stopped, send messages, assert that: - The queue size is equal to the
+     * test size Start the channel back up, wait a while, assert that: - The queue size is zero
      * 
-     * While the channel is still running, send messages, assert that:
-     * - The queue size is greater than zero
-     * Wait a while, then assert that:
-     * - The queue size is zero
+     * While the channel is still running, send messages, assert that: - The queue size is greater
+     * than zero Wait a while, then assert that: - The queue size is zero
      */
     @Test
     public final void testSourceQueue() throws Exception {
@@ -192,22 +181,19 @@ public class QueueTests {
     }
 
     /*
-     * Start up a new channel, queue up more messages in the channel than the
-     * size of the source queue buffer
+     * Start up a new channel, queue up more messages in the channel than the size of the source
+     * queue buffer
      * 
-     * Send a message (not waiting for destinations) that will cause the
-     * data to get written to the database, but the queue size is never
-     * incremented
+     * Send a message (not waiting for destinations) that will cause the data to get written to the
+     * database, but the queue size is never incremented
      * 
-     * Asynchronously queue up another message normally, wait a bit to let the
-     * asynchronous message get written to the database and queued
+     * Asynchronously queue up another message normally, wait a bit to let the asynchronous message
+     * get written to the database and queued
      * 
-     * Queue up the message from before that wasn't queued, wait for the queue
-     * to clear, then assert that:
-     * - The number of messages processed through the channel is less than the
-     * initial number of messages sent plus two
-     * - The second-to-last message in the messageIds list was processed, but
-     * the last one was not
+     * Queue up the message from before that wasn't queued, wait for the queue to clear, then assert
+     * that: - The number of messages processed through the channel is less than the initial number
+     * of messages sent plus two - The second-to-last message in the messageIds list was processed,
+     * but the last one was not
      */
     @Test
     public final void testSourceQueueOrderAsync() throws Exception {
@@ -234,9 +220,8 @@ public class QueueTests {
         ConnectorMessage sourceMessage = null;
 
         /*
-         * Send a message (not waiting for destinations) that will cause the
-         * data to get written to the database, but the queue size is never
-         * incremented
+         * Send a message (not waiting for destinations) that will cause the data to get written to
+         * the database, but the queue size is never incremented
          */
         System.out.println("Saving a message to the database without calling the queue method...");
         RawMessage rawMessage = new RawMessage(testMessage, null, null);
@@ -264,9 +249,9 @@ public class QueueTests {
         thread.start();
 
         /*
-         * Wait until the queue has cleared to simulate a delay between
-         * committing the message to the database and adding it to the channel's
-         * queue. Meanwhile the asynchronous message should be queued
+         * Wait until the queue has cleared to simulate a delay between committing the message to
+         * the database and adding it to the channel's queue. Meanwhile the asynchronous message
+         * should be queued
          */
         while (sourceQueue.size() > 0 && channel.isQueueThreadRunning() && channel.getCurrentState() == DeployedState.STARTED) {
             System.out.println("Waiting for queue to clear, size: " + sourceQueue.size());
@@ -274,13 +259,11 @@ public class QueueTests {
         }
 
         /*
-         * Queue up the message from before that wasn't queued. Even though this
-         * message has the lower message ID, because the asynchronous message
-         * was queued before this one (increasing the queue size), the queue
-         * buffer will have been filled with THIS message (not the asynchronous
-         * one). Therefore, this message should have already been processed
-         * through the channel. Queuing the same message again should cause a
-         * foreign key constraint violation.
+         * Queue up the message from before that wasn't queued. Even though this message has the
+         * lower message ID, because the asynchronous message was queued before this one (increasing
+         * the queue size), the queue buffer will have been filled with THIS message (not the
+         * asynchronous one). Therefore, this message should have already been processed through the
+         * channel. Queuing the same message again should cause a foreign key constraint violation.
          */
         System.out.println("Calling the queue method for the previous message that wasn't queued...");
         channel.queue(sourceMessage);
@@ -305,27 +288,23 @@ public class QueueTests {
     }
 
     /*
-     * Start up a new channel, queue up more messages in the channel than the
-     * size of the source queue buffer
+     * Start up a new channel, queue up more messages in the channel than the size of the source
+     * queue buffer
      * 
-     * Synchronize on the channel's source queue so that commits and queue
-     * additions happen in the same thread always
+     * Synchronize on the channel's source queue so that commits and queue additions happen in the
+     * same thread always
      * 
-     * Send a message (not waiting for destinations) that will cause the
-     * data to get written to the database, but the queue size is never
-     * incremented
+     * Send a message (not waiting for destinations) that will cause the data to get written to the
+     * database, but the queue size is never incremented
      * 
-     * Asynchronously queue up another message normally, wait a while to
-     * simulate a delay between the commit and queue addition (the asynchronous
-     * message should not be queued)
+     * Asynchronously queue up another message normally, wait a while to simulate a delay between
+     * the commit and queue addition (the asynchronous message should not be queued)
      * 
-     * Queue up the message from before that wasn't queued, wait for the queue
-     * to clear, then assert that:
-     * - The number of messages processed through the channel is equal to the
-     * initial number of messages sent plus two
-     * - The messageIds list is identical (size and order) to the message ID
-     * list generated by the test channel (that is, all messages successfully
-     * processed through the channel and in the right order)
+     * Queue up the message from before that wasn't queued, wait for the queue to clear, then assert
+     * that: - The number of messages processed through the channel is equal to the initial number
+     * of messages sent plus two - The messageIds list is identical (size and order) to the message
+     * ID list generated by the test channel (that is, all messages successfully processed through
+     * the channel and in the right order)
      */
     @Test
     public final void testSourceQueueOrderSync() throws Exception {
@@ -353,9 +332,8 @@ public class QueueTests {
 
         synchronized (channel.getSourceQueue()) {
             /*
-             * Send a message (not waiting for destinations) that will cause the
-             * data to get written to the database, but the queue size is never
-             * incremented
+             * Send a message (not waiting for destinations) that will cause the data to get written
+             * to the database, but the queue size is never incremented
              */
             System.out.println("Saving a message to the database without calling the queue method...");
             RawMessage rawMessage = new RawMessage(testMessage, null, null);
@@ -383,11 +361,10 @@ public class QueueTests {
             thread.start();
 
             /*
-             * Wait a while to simulate a delay between committing the message
-             * to the database and adding it to the channel's queue. The thread
-             * processing the asynchronous message should be waiting on this
-             * block to finish, so it should not add the message to the source
-             * queue
+             * Wait a while to simulate a delay between committing the message to the database and
+             * adding it to the channel's queue. The thread processing the asynchronous message
+             * should be waiting on this block to finish, so it should not add the message to the
+             * source queue
              */
             System.out.println("Waiting ten seconds...");
             Thread.sleep(10000);
@@ -415,26 +392,21 @@ public class QueueTests {
     }
 
     /*
-     * Create a new channel with a test dispatcher destination connector
-     * The dispatcher initially queues all messages
-     * Start up the channel, and assert that:
-     * - The destination connector queue thread is running
+     * Create a new channel with a test dispatcher destination connector The dispatcher initially
+     * queues all messages Start up the channel, and assert that: - The destination connector queue
+     * thread is running
      * 
-     * Send messages, and assert that:
-     * - The queue size is equal to the test size
+     * Send messages, and assert that: - The queue size is equal to the test size
      * 
-     * Change the response status that the dispatcher returns to SENT
-     * Wait a bit, then assert that:
+     * Change the response status that the dispatcher returns to SENT Wait a bit, then assert that:
      * - The queue size is zero
      * 
-     * Stop the channel, assert that:
-     * - The destination connector queue thread is not running
+     * Stop the channel, assert that: - The destination connector queue thread is not running
      * 
-     * Place messages directly in the destination connector queue, assert that:
-     * - All the messages were successfully put in the queue
+     * Place messages directly in the destination connector queue, assert that: - All the messages
+     * were successfully put in the queue
      * 
-     * Start the channel, wait a bit, then assert that:
-     * - The queue size is zero
+     * Start the channel, wait a bit, then assert that: - The queue size is zero
      */
     @Test
     public final void testDestinationQueue() throws Exception {
@@ -465,15 +437,15 @@ public class QueueTests {
 
         TestUtils.initDefaultDestinationConnector(destinationConnector, connectorProperties);
         destinationConnector.setChannelId(channelId);
-        
+
         destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
         destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
-        DestinationChain chain = new DestinationChain();
+        DestinationChainProvider chain = new DestinationChainProvider();
         chain.setChannelId(channelId);
         chain.addDestination(1, destinationConnector);
-        channel.addDestinationChain(chain);
+        channel.addDestinationChainProvider(chain);
 
         // Start up the channel
         channel.deploy();

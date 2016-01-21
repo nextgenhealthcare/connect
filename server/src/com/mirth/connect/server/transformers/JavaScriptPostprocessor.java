@@ -39,8 +39,7 @@ public class JavaScriptPostprocessor implements PostProcessor {
 
     private Channel channel;
     private String scriptId;
-    private String contextFactoryId;
-    private JavaScriptPostProcessorTask task;
+    private volatile String contextFactoryId;
 
     public JavaScriptPostprocessor(Channel channel, String postProcessingScript) throws JavaScriptInitializationException {
         this.channel = channel;
@@ -51,7 +50,6 @@ public class JavaScriptPostprocessor implements PostProcessor {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
             contextFactoryId = contextFactory.getId();
             JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, postProcessingScript, ContextType.CHANNEL_POSTPROCESSOR);
-            task = new JavaScriptPostProcessorTask(contextFactory);
         } catch (Exception e) {
             logger.error("Error compiling postprocessor script " + scriptId + ".", e);
 
@@ -69,13 +67,16 @@ public class JavaScriptPostprocessor implements PostProcessor {
         try {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
             if (!contextFactoryId.equals(contextFactory.getId())) {
-                JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
-                contextFactoryId = contextFactory.getId();
-                task.setContextFactory(contextFactory);
+                synchronized (this) {
+                    contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
+                    if (!contextFactoryId.equals(contextFactory.getId())) {
+                        JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                        contextFactoryId = contextFactory.getId();
+                    }
+                }
             }
 
-            task.setMessage(message);
-            return JavaScriptUtil.executeJavaScriptPostProcessorTask(task, message.getChannelId());
+            return JavaScriptUtil.executeJavaScriptPostProcessorTask(new JavaScriptPostProcessorTask(contextFactory, message), message.getChannelId());
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
@@ -93,11 +94,8 @@ public class JavaScriptPostprocessor implements PostProcessor {
 
         private Message message;
 
-        public JavaScriptPostProcessorTask(MirthContextFactory contextFactory) {
+        public JavaScriptPostProcessorTask(MirthContextFactory contextFactory, Message message) {
             super(contextFactory);
-        }
-
-        public void setMessage(Message message) {
             this.message = message;
         }
 

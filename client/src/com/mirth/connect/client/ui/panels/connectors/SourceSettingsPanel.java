@@ -9,6 +9,10 @@
 
 package com.mirth.connect.client.ui.panels.connectors;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,15 +25,27 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.ui.ChannelSetup;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthComboBox;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
@@ -38,20 +54,17 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.Step;
 
-public class SourceSettingsPanel extends javax.swing.JPanel {
+public class SourceSettingsPanel extends JPanel {
 
     /*
-     * This regular expression uses alternation to capture either the
-     * "responseMap.put" syntax, or the "$r('key'," syntax. Kleene closures for
-     * whitespace are used in between every method token since it is legal
-     * JavaScript. Instead of checking ['"] once at the beginning and end, it
-     * checks once and then uses a backreference later on. That way you can
-     * capture keys like "Foo's Bar". It also accounts for backslashes before
-     * any subsequent backreferences so that "Foo\"s Bar" would still be
-     * captured. In the "$r" case, the regular expression also performs a
-     * lookahead to ensure that there is a comma after the first argument,
-     * indicating that it is the "put" version of the method, not the "get"
-     * version.
+     * This regular expression uses alternation to capture either the "responseMap.put" syntax, or
+     * the "$r('key'," syntax. Kleene closures for whitespace are used in between every method token
+     * since it is legal JavaScript. Instead of checking ['"] once at the beginning and end, it
+     * checks once and then uses a backreference later on. That way you can capture keys like
+     * "Foo's Bar". It also accounts for backslashes before any subsequent backreferences so that
+     * "Foo\"s Bar" would still be captured. In the "$r" case, the regular expression also performs
+     * a lookahead to ensure that there is a comma after the first argument, indicating that it is
+     * the "put" version of the method, not the "get" version.
      */
     private final String RESULT_PATTERN = "responseMap\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)(?<!\\\\)\\1|\\$r\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)(?<!\\\\)\\4(?=\\s*,)";
     private final static int FULL_NAME_MATCHER_INDEX = 2;
@@ -65,6 +78,7 @@ public class SourceSettingsPanel extends javax.swing.JPanel {
     public SourceSettingsPanel() {
         parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        initLayout();
         queueWarningLabel.setVisible(false);
     }
 
@@ -103,6 +117,8 @@ public class SourceSettingsPanel extends javax.swing.JPanel {
         } else {
             batchResponseLastRadio.setSelected(true);
         }
+
+        processingThreadsField.setText(String.valueOf(properties.getProcessingThreads()));
     }
 
     public void updateResponseDropDown(SourceConnectorPropertiesInterface propertiesInterface, boolean channelLoad) {
@@ -233,12 +249,19 @@ public class SourceSettingsPanel extends javax.swing.JPanel {
         properties.setProcessBatch(processBatchYesRadio.isSelected());
 
         properties.setFirstResponse(batchResponseFirstRadio.isSelected());
+
+        properties.setProcessingThreads(NumberUtils.toInt(processingThreadsField.getText(), 0));
     }
 
     public boolean checkProperties(SourceConnectorPropertiesInterface propertiesInterface, boolean highlight) {
         SourceConnectorProperties properties = propertiesInterface.getSourceConnectorProperties();
 
         boolean valid = true;
+
+        if (properties.getProcessingThreads() <= 0) {
+            processingThreadsField.setBackground(UIConstants.INVALID_COLOR);
+            valid = false;
+        }
 
         return valid;
     }
@@ -278,7 +301,9 @@ public class SourceSettingsPanel extends javax.swing.JPanel {
         responseComboBox.setSelectedIndex(0);
     }
 
-    public void resetInvalidProperties() {}
+    public void resetInvalidProperties() {
+        processingThreadsField.setBackground(null);
+    }
 
     public void updateQueueWarning(MessageStorageMode messageStorageMode) {
         switch (messageStorageMode) {
@@ -293,187 +318,122 @@ public class SourceSettingsPanel extends javax.swing.JPanel {
         }
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        setBackground(UIConstants.BACKGROUND_COLOR);
+        setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Source Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-        processBatchButtonGroup = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        batchResponseButtonGroup = new javax.swing.ButtonGroup();
-        responseLabel = new javax.swing.JLabel();
-        responseComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        sourceQueueLabel = new javax.swing.JLabel();
-        sourceQueueComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        queueWarningLabel = new javax.swing.JLabel();
-        processBatchLabel = new javax.swing.JLabel();
-        processBatchYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        processBatchNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        batchResponseLastRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        batchResponseFirstRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        batchResponseLabel = new javax.swing.JLabel();
+        sourceQueueLabel = new JLabel("Source Queue:");
 
-        jLabel1.setText("jLabel1");
-
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Source Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-
-        responseLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        responseLabel.setText("Response:");
-        responseLabel.setMaximumSize(new java.awt.Dimension(62, 15));
-        responseLabel.setMinimumSize(new java.awt.Dimension(62, 15));
-        responseLabel.setPreferredSize(new java.awt.Dimension(62, 15));
-
-        responseComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Auto-generate (After source transformer)", "None", "Auto-generate (Before processing)", "Auto-generate (After source transformer)", "Auto-generate (Destinations completed)", "Post-processor", "Destination 1" }));
-        responseComboBox.setToolTipText("<html>Select a destination's response, the postprocessor return value, or a response map variable.<br/>Select <b>\"Auto-generate\"</b> to send a response generated by the inbound data type using the raw message:<br/>&nbsp;- <b>Before processing:</b> Response generated before the channel processes the message (SENT status)<br/>&nbsp;- <b>After source transformer:</b> Response generated after the channel processes the message (source status)<br/>&nbsp;- <b>Destinations completed:</b> Response generated after the channel processes the message, with a status<br/>&nbsp;&nbsp;&nbsp;&nbsp;based on the destination statuses, using a precedence of ERROR, QUEUED, SENT, FILTERED<br/></html>");
-        responseComboBox.setMinimumSize(new java.awt.Dimension(150, 22));
-        responseComboBox.setPreferredSize(new java.awt.Dimension(212, 22));
-
-        sourceQueueLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        sourceQueueLabel.setText("Source Queue:");
-
-        sourceQueueComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "OFF (Respond after processing)", "ON (Respond before processing)" }));
+        sourceQueueComboBox = new MirthComboBox();
+        sourceQueueComboBox.setModel(new DefaultComboBoxModel(new String[] {
+                "OFF (Respond after processing)", "ON (Respond before processing)" }));
         sourceQueueComboBox.setToolTipText("<html>Selecting OFF will process the message before sending the response (can use response from destinations)<br>Selecting ON will queue messages and immediately send a response (cannot use response from destinations)</html>");
-        sourceQueueComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        sourceQueueComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 sourceQueueComboBoxActionPerformed(evt);
             }
         });
 
-        queueWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
-        queueWarningLabel.setText("Queueing is not supported by the current message storage mode.");
+        queueWarningLabel = new JLabel("Queuing is not supported by the current message storage mode.");
+        queueWarningLabel.setForeground(Color.RED);
 
-        processBatchLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        processBatchLabel.setText("Process Batch:");
+        responseLabel = new JLabel("Response:");
 
-        processBatchYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        processBatchYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        processBatchButtonGroup.add(processBatchYesRadio);
-        processBatchYesRadio.setText("Yes");
+        responseComboBox = new MirthComboBox();
+        responseComboBox.setModel(new DefaultComboBoxModel(new String[] {
+                "Auto-generate (After source transformer)", "None",
+                "Auto-generate (Before processing)", "Auto-generate (After source transformer)",
+                "Auto-generate (Destinations completed)", "Post-processor", "Destination 1" }));
+        responseComboBox.setToolTipText("<html>Select a destination's response, the postprocessor return value, or a response map variable.<br/>Select <b>\"Auto-generate\"</b> to send a response generated by the inbound data type using the raw message:<br/>&nbsp;- <b>Before processing:</b> Response generated before the channel processes the message (SENT status)<br/>&nbsp;- <b>After source transformer:</b> Response generated after the channel processes the message (source status)<br/>&nbsp;- <b>Destinations completed:</b> Response generated after the channel processes the message, with a status<br/>&nbsp;&nbsp;&nbsp;&nbsp;based on the destination statuses, using a precedence of ERROR, QUEUED, SENT, FILTERED<br/></html>");
+
+        processBatchLabel = new JLabel("Process Batch:");
+        ButtonGroup processBatchButtonGroup = new ButtonGroup();
+
+        processBatchYesRadio = new MirthRadioButton("Yes");
+        processBatchYesRadio.setBackground(getBackground());
         processBatchYesRadio.setToolTipText("<html>Select Yes to enable batch processing. Batch messages are only supported if<br>the source connector's inbound properties contains a <b>Batch</b> section.</html>");
-        processBatchYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        processBatchYesRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        processBatchYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 processBatchYesRadioActionPerformed(evt);
             }
         });
+        processBatchButtonGroup.add(processBatchYesRadio);
 
-        processBatchNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        processBatchNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        processBatchButtonGroup.add(processBatchNoRadio);
-        processBatchNoRadio.setText("No");
+        processBatchNoRadio = new MirthRadioButton("No");
+        processBatchNoRadio.setBackground(getBackground());
         processBatchNoRadio.setToolTipText("<html>Select Yes to enable batch processing. Batch messages are only supported if<br>the source connector's inbound properties contains a <b>Batch</b> section.</html>");
-        processBatchNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        processBatchNoRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        processBatchNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 processBatchNoRadioActionPerformed(evt);
             }
         });
+        processBatchButtonGroup.add(processBatchNoRadio);
 
-        batchResponseLastRadio.setBackground(new java.awt.Color(255, 255, 255));
-        batchResponseLastRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        batchResponseButtonGroup.add(batchResponseLastRadio);
-        batchResponseLastRadio.setSelected(true);
-        batchResponseLastRadio.setText("Last");
-        batchResponseLastRadio.setToolTipText("<html>Each message in the batch contains its own response that is generated via the method selected above.<br> Select either the response from the first or last message in the batch to be sent back to the originating system.</html>");
-        batchResponseLastRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        batchResponseLabel = new JLabel("Batch Response:");
+        ButtonGroup batchResponseButtonGroup = new ButtonGroup();
 
-        batchResponseFirstRadio.setBackground(new java.awt.Color(255, 255, 255));
-        batchResponseFirstRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        batchResponseButtonGroup.add(batchResponseFirstRadio);
-        batchResponseFirstRadio.setText("First");
+        batchResponseFirstRadio = new MirthRadioButton("First");
+        batchResponseFirstRadio.setBackground(getBackground());
         batchResponseFirstRadio.setToolTipText("<html>Each message in the batch contains its own response that is generated via the method selected above.<br> Select either the response from the first or last message in the batch to be sent back to the originating system.</html>");
-        batchResponseFirstRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        batchResponseButtonGroup.add(batchResponseFirstRadio);
 
-        batchResponseLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        batchResponseLabel.setText("Batch Response:");
+        batchResponseLastRadio = new MirthRadioButton("Last");
+        batchResponseLastRadio.setBackground(getBackground());
+        batchResponseLastRadio.setToolTipText("<html>Each message in the batch contains its own response that is generated via the method selected above.<br> Select either the response from the first or last message in the batch to be sent back to the originating system.</html>");
+        batchResponseButtonGroup.add(batchResponseLastRadio);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(batchResponseLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(processBatchLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sourceQueueLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(sourceQueueComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(queueWarningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(responseComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(processBatchYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(processBatchNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(batchResponseFirstRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(batchResponseLastRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(62, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sourceQueueLabel)
-                    .addComponent(sourceQueueComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(queueWarningLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(processBatchNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(processBatchYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(processBatchLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(batchResponseLastRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(batchResponseFirstRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(batchResponseLabel)))
-        );
-    }// </editor-fold>//GEN-END:initComponents
+        processingThreadsLabel = new JLabel("Max Processing Threads:");
 
-    private void sourceQueueComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sourceQueueComboBoxActionPerformed
+        processingThreadsField = new MirthTextField();
+        processingThreadsField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        processingThreadsField.setToolTipText("<html>The maximum number of messages that can process through<br/>the channel simultaneously. Note that when this value<br/>is greater than 1, message order is NOT guaranteed.</html>");
+    }
+
+    private void initLayout() {
+        setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, gap 6 4", "[]12[]"));
+
+        add(sourceQueueLabel, "right");
+        add(sourceQueueComboBox, "split");
+        add(queueWarningLabel, "gapbefore 12");
+        add(responseLabel, "newline, right");
+        add(responseComboBox);
+        add(processBatchLabel, "newline, right");
+        add(processBatchYesRadio, "split");
+        add(processBatchNoRadio);
+        add(batchResponseLabel, "newline, right");
+        add(batchResponseFirstRadio, "split");
+        add(batchResponseLastRadio);
+        add(processingThreadsLabel, "newline, right");
+        add(processingThreadsField, "w 50!");
+    }
+
+    private void sourceQueueComboBoxActionPerformed(ActionEvent evt) {
         updateSelectedResponseItem();
-    }//GEN-LAST:event_sourceQueueComboBoxActionPerformed
+    }
 
-    private void processBatchYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processBatchYesRadioActionPerformed
+    private void processBatchYesRadioActionPerformed(ActionEvent evt) {
         batchResponseLabel.setEnabled(true);
         batchResponseFirstRadio.setEnabled(true);
         batchResponseLastRadio.setEnabled(true);
-    }//GEN-LAST:event_processBatchYesRadioActionPerformed
+    }
 
-    private void processBatchNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processBatchNoRadioActionPerformed
+    private void processBatchNoRadioActionPerformed(ActionEvent evt) {
         batchResponseLabel.setEnabled(false);
         batchResponseFirstRadio.setEnabled(false);
         batchResponseLastRadio.setEnabled(false);
-    }//GEN-LAST:event_processBatchNoRadioActionPerformed
+    }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup batchResponseButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton batchResponseFirstRadio;
-    private javax.swing.JLabel batchResponseLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton batchResponseLastRadio;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.ButtonGroup processBatchButtonGroup;
-    private javax.swing.JLabel processBatchLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton processBatchNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton processBatchYesRadio;
-    private javax.swing.JLabel queueWarningLabel;
-    private com.mirth.connect.client.ui.components.MirthComboBox responseComboBox;
-    private javax.swing.JLabel responseLabel;
-    private com.mirth.connect.client.ui.components.MirthComboBox sourceQueueComboBox;
-    private javax.swing.JLabel sourceQueueLabel;
-    // End of variables declaration//GEN-END:variables
+    private JLabel sourceQueueLabel;
+    private MirthComboBox sourceQueueComboBox;
+    private JLabel queueWarningLabel;
+    private JLabel responseLabel;
+    private MirthComboBox responseComboBox;
+    private JLabel processBatchLabel;
+    private MirthRadioButton processBatchYesRadio;
+    private MirthRadioButton processBatchNoRadio;
+    private JLabel batchResponseLabel;
+    private MirthRadioButton batchResponseFirstRadio;
+    private MirthRadioButton batchResponseLastRadio;
+    private JLabel processingThreadsLabel;
+    private MirthTextField processingThreadsField;
 }

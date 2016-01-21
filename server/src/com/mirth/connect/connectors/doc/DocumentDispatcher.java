@@ -159,7 +159,7 @@ public class DocumentDispatcher extends DestinationConnector {
             contents.append(template);
         }
 
-        String stringContents = getAttachmentHandler().reAttachMessage(contents.toString(), connectorMessage);
+        String stringContents = getAttachmentHandlerProvider().reAttachMessage(contents.toString(), connectorMessage);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         if (documentDispatcherProperties.getDocumentType().toLowerCase().equals("pdf")) {

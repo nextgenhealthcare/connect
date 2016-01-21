@@ -11,6 +11,7 @@ package com.mirth.connect.donkey.server.data.buffered;
 
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.server.data.StatisticsUpdater;
 import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class BufferedDaoFactory implements DonkeyDaoFactory {
@@ -18,10 +19,12 @@ public class BufferedDaoFactory implements DonkeyDaoFactory {
     private SerializerProvider serializerProvider;
     private boolean encryptData = false;
     private boolean decryptData = true;
+    private StatisticsUpdater statisticsUpdater;
 
-    public BufferedDaoFactory(DonkeyDaoFactory delegateFactory, SerializerProvider serializerProvider) {
+    public BufferedDaoFactory(DonkeyDaoFactory delegateFactory, SerializerProvider serializerProvider, StatisticsUpdater statisticsUpdater) {
         this.delegateFactory = delegateFactory;
         this.serializerProvider = serializerProvider;
+        this.statisticsUpdater = statisticsUpdater;
     }
 
     public DonkeyDaoFactory getDelegateFactory() {
@@ -41,6 +44,11 @@ public class BufferedDaoFactory implements DonkeyDaoFactory {
     public void setDecryptData(boolean decryptData) {
         this.decryptData = decryptData;
     }
+    
+    @Override
+    public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
+        this.statisticsUpdater = statisticsUpdater;
+    }
 
     @Override
     public DonkeyDao getDao() {
@@ -49,6 +57,6 @@ public class BufferedDaoFactory implements DonkeyDaoFactory {
 
     @Override
     public DonkeyDao getDao(SerializerProvider serializerProvider) {
-        return new BufferedDao(delegateFactory, serializerProvider, encryptData, decryptData);
+        return new BufferedDao(delegateFactory, serializerProvider, encryptData, decryptData, statisticsUpdater);
     }
 }

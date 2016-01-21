@@ -36,7 +36,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
-import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
@@ -69,18 +69,14 @@ public class DestinationConnectorTests {
     }
 
     /*
-     * Create a new channel with a TestDispatcher destination connector
-     * Assert that:
-     * - The destination connector has not been deployed
-     * - The destination connector is not running
-     * - The destination connector's queue thread is not running
+     * Create a new channel with a TestDispatcher destination connector Assert that: - The
+     * destination connector has not been deployed - The destination connector is not running - The
+     * destination connector's queue thread is not running
      * 
-     * Call onDeploy(), assert that:
-     * - The destination connector has been successfully deployed
+     * Call onDeploy(), assert that: - The destination connector has been successfully deployed
      * 
-     * Call start(), assert that:
-     * - The destination connector is running
-     * - The destination connector's queue thread is running
+     * Call start(), assert that: - The destination connector is running - The destination
+     * connector's queue thread is running
      */
     @Test
     public final void testStart() throws Exception {
@@ -107,13 +103,13 @@ public class DestinationConnectorTests {
         TestUtils.initDefaultDestinationConnector(destinationConnector, connectorProperties);
         destinationConnector.setChannelId(channelId);
 
-        DestinationChain chain = new DestinationChain();
+        DestinationChainProvider chain = new DestinationChainProvider();
         chain.setChannelId(channelId);
         destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
         destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
         chain.addDestination(1, destinationConnector);
-        channel.addDestinationChain(chain);
+        channel.addDestinationChainProvider(chain);
 
         // Assert that the destination connector has not been deployed
         assertFalse(destinationConnector.isDeployed());
@@ -141,16 +137,13 @@ public class DestinationConnectorTests {
     }
 
     /*
-     * Create a new channel with a TestDispatcher destination connector
-     * Call onDeploy() and start(), assert that:
-     * - The destination connector has been successfully deployed
-     * - The destination connector is running
-     * - The destination connector's queue thread is running
+     * Create a new channel with a TestDispatcher destination connector Call onDeploy() and start(),
+     * assert that: - The destination connector has been successfully deployed - The destination
+     * connector is running - The destination connector's queue thread is running
      * 
-     * Call stop() and onUndeploy(), assert that:
-     * - The destination connector has been successfully undeployed
-     * - The destination connector is not running
-     * - The destination connector's queue thread is not running
+     * Call stop() and onUndeploy(), assert that: - The destination connector has been successfully
+     * undeployed - The destination connector is not running - The destination connector's queue
+     * thread is not running
      * 
      * Do the same steps as above, except call stop(true) instead of stop()
      */
@@ -178,15 +171,15 @@ public class DestinationConnectorTests {
         connectorProperties.getDestinationConnectorProperties().setQueueEnabled(true);
         TestUtils.initDefaultDestinationConnector(destinationConnector, connectorProperties);
         destinationConnector.setChannelId(channelId);
-        
+
         destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
         destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
-        DestinationChain chain = new DestinationChain();
+        DestinationChainProvider chain = new DestinationChainProvider();
         chain.setChannelId(channelId);
         chain.addDestination(1, destinationConnector);
-        channel.addDestinationChain(chain);
+        channel.addDestinationChainProvider(chain);
 
         channel.deploy();
         channel.start(null);
@@ -234,23 +227,20 @@ public class DestinationConnectorTests {
     }
 
     /*
-     * Create a new channel, where the destination connector is either a
-     * TestDispatcher or a TestDestinationConnector, depending on whether it
-     * should have its queueProperties null or not.
+     * Create a new channel, where the destination connector is either a TestDispatcher or a
+     * TestDestinationConnector, depending on whether it should have its queueProperties null or
+     * not.
      * 
-     * Send messages, assert that:
-     * - If the queue properties is null, the queuing is disabled, queuing is
-     * set to send first, or queuing is set to not regenerate the template, then
-     * the sent content was stored
-     * - If the queue properties is null, queuing is disabled, or queuing is set
-     * to send first, then the send attempts is at least one
-     * - If the queue properties is not null and queuing is enabled, then the
-     * message was added to the destination connector queue
+     * Send messages, assert that: - If the queue properties is null, the queuing is disabled,
+     * queuing is set to send first, or queuing is set to not regenerate the template, then the sent
+     * content was stored - If the queue properties is null, queuing is disabled, or queuing is set
+     * to send first, then the send attempts is at least one - If the queue properties is not null
+     * and queuing is enabled, then the message was added to the destination connector queue
      * 
-     * Repeat the above steps for all applicable combinations of queueNull,
-     * queueEnabled, queueSendFirst, and queueRegenerate
+     * Repeat the above steps for all applicable combinations of queueNull, queueEnabled,
+     * queueSendFirst, and queueRegenerate
      */
-    
+
     // This test is all sorts of broken. It needs to be completely rewritten 
 //    @Test
 //    public final void testProcess() throws Exception {
@@ -319,10 +309,10 @@ public class DestinationConnectorTests {
         destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
         destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
-        DestinationChain chain = new DestinationChain();
+        DestinationChainProvider chain = new DestinationChainProvider();
         chain.setChannelId(channelId);
         chain.addDestination(1, destinationConnector);
-        channel.addDestinationChain(chain);
+        channel.addDestinationChainProvider(chain);
 
         channel.deploy();
         channel.start(null);
@@ -334,11 +324,11 @@ public class DestinationConnectorTests {
 
         try {
             connection = TestUtils.getConnection();
-            
+
             for (int i = 1; i <= TEST_SIZE; i++) {
                 DispatchResult dispatchResult = sourceConnector.readTestMessage(testMessage);
                 sourceConnector.finishDispatch(dispatchResult);
-                
+
                 if (retryCount > 0) {
                     // assert that the connector attempted to send the message the correct number of times
                     assertEquals(new Integer(dispatcherConnectorProperties.getRetryCount() + 1), TestUtils.getSendAttempts(channel.getChannelId(), dispatchResult.getMessageId()));
@@ -377,16 +367,13 @@ public class DestinationConnectorTests {
     }
 
     /*
-     * Create channel where the response transformer blocks the thread
-     * Send messages in asynchronous thread (so that the response transformer is
-     * waiting), assert that:
-     * - The destination connector response content was stored
-     * - The message status was updated to PENDING in the database
+     * Create channel where the response transformer blocks the thread Send messages in asynchronous
+     * thread (so that the response transformer is waiting), assert that: - The destination
+     * connector response content was stored - The message status was updated to PENDING in the
+     * database
      * 
-     * Then allow the response transformer to finish, join the thread, and
-     * assert:
-     * - The response transformer was successfully run
-     * - The message status was updated to SENT in the database
+     * Then allow the response transformer to finish, join the thread, and assert: - The response
+     * transformer was successfully run - The message status was updated to SENT in the database
      */
     @Test
     public final void testAfterSend() throws Exception {
@@ -433,22 +420,22 @@ public class DestinationConnectorTests {
             }
         }
         final BlockingTestResponseTransformer responseTransformer = new BlockingTestResponseTransformer();
-        
+
         destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
         destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
         destinationConnector.setResponseTransformerExecutor(TestUtils.createDefaultResponseTransformerExecutor());
         destinationConnector.getResponseTransformerExecutor().setResponseTransformer(responseTransformer);
 
-        DestinationChain chain = new DestinationChain();
+        DestinationChainProvider chain = new DestinationChainProvider();
         chain.setChannelId(channelId);
         chain.addDestination(1, destinationConnector);
-        channel.addDestinationChain(chain);
+        channel.addDestinationChainProvider(chain);
 
         if (ChannelController.getInstance().channelExists(channelId)) {
             ChannelController.getInstance().deleteAllMessages(channelId);
         }
-        
+
         channel.deploy();
         channel.start(null);
 
@@ -480,7 +467,7 @@ public class DestinationConnectorTests {
             Connection connection = null;
             PreparedStatement statement = null;
             ResultSet result = null;
-            
+
             try {
                 connection = TestUtils.getConnection();
                 long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
@@ -492,7 +479,7 @@ public class DestinationConnectorTests {
                 assertTrue(result.next());
                 result.close();
                 statement.close();
-    
+
                 // Assert that the message status was updated to PENDING
                 statement = connection.prepareStatement("SELECT * FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ? AND status = ?");
                 statement.setLong(1, tempClass.messageId);
@@ -502,13 +489,13 @@ public class DestinationConnectorTests {
                 assertTrue(result.next());
                 result.close();
                 statement.close();
-    
+
                 responseTransformer.waiting = false;
                 thread.join();
-    
+
                 // Assert that the response transformer was run
                 assertTrue(responseTransformer.isTransformed());
-    
+
                 // Assert that the message status was updated to SENT
                 statement = connection.prepareStatement("SELECT * FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ? AND status = ?");
                 statement.setLong(1, tempClass.messageId);
@@ -531,16 +518,14 @@ public class DestinationConnectorTests {
     }
 
     /*
-     * Create new channel where the response transformer changes the message and
-     * status of the Response object
-     * If the response status was changed to QUEUED and queuing is not enabled,
-     * or if the status was changed to something invalid
-     * (RECEIVED/TRANSFORMED/PENDING), then assume that it was changed to ERROR
+     * Create new channel where the response transformer changes the message and status of the
+     * Response object If the response status was changed to QUEUED and queuing is not enabled, or
+     * if the status was changed to something invalid (RECEIVED/TRANSFORMED/PENDING), then assume
+     * that it was changed to ERROR
      * 
-     * Send messages, assert that:
-     * - The processed response was stored
-     * - The destination entry in the response map was overwritten
-     * - The connector message status was changed based on the response status
+     * Send messages, assert that: - The processed response was stored - The destination entry in
+     * the response map was overwritten - The connector message status was changed based on the
+     * response status
      * 
      * Do the above steps for all statuses
      */
@@ -589,7 +574,7 @@ public class DestinationConnectorTests {
             DispatchResult messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
             Serializer serializer = Donkey.getInstance().getSerializer();
             String responseString = serializer.serialize(finalResponse);
-            
+
             // Assert that the processed response was stored
             MessageContent messageContent = new MessageContent(channel.getChannelId(), messageResponse.getMessageId(), 1, ContentType.PROCESSED_RESPONSE, responseString, null, false);
             TestUtils.assertMessageContentExists(messageContent);

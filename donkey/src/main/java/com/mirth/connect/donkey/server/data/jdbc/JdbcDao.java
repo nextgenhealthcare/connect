@@ -52,6 +52,7 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
+import com.mirth.connect.donkey.server.data.StatisticsUpdater;
 import com.mirth.connect.donkey.util.MapUtil;
 import com.mirth.connect.donkey.util.SerializerProvider;
 
@@ -63,6 +64,7 @@ public class JdbcDao implements DonkeyDao {
     private SerializerProvider serializerProvider;
     private boolean encryptData;
     private boolean decryptData;
+    private StatisticsUpdater statisticsUpdater;
     private Set<ContentType> alwaysDecrypt = new HashSet<ContentType>();
     private Encryptor encryptor;
     private Statistics currentStats;
@@ -78,7 +80,7 @@ public class JdbcDao implements DonkeyDao {
     private char quoteChar = '"';
     private Logger logger = Logger.getLogger(this.getClass());
 
-    protected JdbcDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, Statistics currentStats, Statistics totalStats, String statsServerId) {
+    protected JdbcDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, StatisticsUpdater statisticsUpdater, Statistics currentStats, Statistics totalStats, String statsServerId) {
         this.donkey = donkey;
         this.connection = connection;
         this.querySource = querySource;
@@ -86,6 +88,7 @@ public class JdbcDao implements DonkeyDao {
         this.serializerProvider = serializerProvider;
         this.encryptData = encryptData;
         this.decryptData = decryptData;
+        this.statisticsUpdater = statisticsUpdater;
         this.currentStats = currentStats;
         this.totalStats = totalStats;
         this.statsServerId = statsServerId;
@@ -105,6 +108,11 @@ public class JdbcDao implements DonkeyDao {
     @Override
     public void setDecryptData(boolean decryptData) {
         this.decryptData = decryptData;
+    }
+    
+    @Override
+    public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
+        this.statisticsUpdater = statisticsUpdater;
     }
 
     public char getQuoteChar() {
@@ -1815,7 +1823,7 @@ public class JdbcDao implements DonkeyDao {
                 resetCurrentStats.put(channelId, metaDataIdsCurrent);
             }
 
-            Map<Integer, Map<Status, Long>> channelCurrentStats = currentStats.getStats().get(channelId);
+            Map<Integer, Map<Status, Long>> channelCurrentStats = currentStats.getChannelStats(channelId);
             if (channelCurrentStats != null) {
                 for (Entry<Integer, Map<Status, Long>> channelEntry : channelCurrentStats.entrySet()) {
                     metaDataIdsCurrent.put(channelEntry.getKey(), statuses);
@@ -1828,7 +1836,7 @@ public class JdbcDao implements DonkeyDao {
                 resetTotalStats.put(channelId, metaDataIdsTotal);
             }
 
-            Map<Integer, Map<Status, Long>> channelTotalStats = totalStats.getStats().get(channelId);
+            Map<Integer, Map<Status, Long>> channelTotalStats = totalStats.getChannelStats(channelId);
             if (channelTotalStats != null) {
                 for (Entry<Integer, Map<Status, Long>> channelEntry : channelTotalStats.entrySet()) {
                     metaDataIdsTotal.put(channelEntry.getKey(), statuses);
@@ -1876,7 +1884,7 @@ public class JdbcDao implements DonkeyDao {
                     stats.put(Status.SENT, resultSet.getLong("sent"));
                     stats.put(Status.ERROR, resultSet.getLong("error"));
 
-                    statistics.getChannelStats(channelId).put(metaDataId, stats);
+                    statistics.overwrite(channelId, metaDataId, stats);
                 }
             } catch (SQLException e) {
                 throw new DonkeyDaoException(e);
@@ -1895,8 +1903,6 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void commit(boolean durable) {
-        addChannelStatistics(transactionStats);
-
         logger.debug("Committing transaction" + (durable ? "" : " asynchronously"));
 
         try {
@@ -1914,6 +1920,10 @@ public class JdbcDao implements DonkeyDao {
             }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
+        }
+        
+        if (statisticsUpdater != null) {
+            statisticsUpdater.update(transactionStats);
         }
 
         if (transactionAlteredChannels) {
@@ -1943,7 +1953,7 @@ public class JdbcDao implements DonkeyDao {
 
             // remove the in-memory stats for any channels that were removed
             for (String channelId : removedChannelIds) {
-                currentStats.getStats().remove(channelId);
+                currentStats.remove(channelId);
             }
         }
 
@@ -1969,11 +1979,11 @@ public class JdbcDao implements DonkeyDao {
 
             // remove the in-memory total stats for any channels that were removed
             for (String channelId : removedChannelIds) {
-                totalStats.getStats().remove(channelId);
+                totalStats.remove(channelId);
             }
         }
 
-        transactionStats.getStats().clear();
+        transactionStats.clear();
     }
 
     @Override
@@ -1982,7 +1992,7 @@ public class JdbcDao implements DonkeyDao {
 
         try {
             connection.rollback();
-            transactionStats.getStats().clear();
+            transactionStats.clear();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }

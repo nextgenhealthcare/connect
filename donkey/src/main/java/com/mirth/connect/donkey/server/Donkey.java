@@ -20,11 +20,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.server.data.DonkeyStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.jdbc.DBCPConnectionPool;
 import com.mirth.connect.donkey.server.data.jdbc.HikariConnectionPool;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDao;
@@ -59,6 +61,7 @@ public class Donkey {
     private Serializer serializer = new XStreamSerializer();
     private Encryptor encryptor;
     private EventDispatcher eventDispatcher;
+    private DonkeyStatisticsUpdater statisticsUpdater;
     private Logger logger = Logger.getLogger(getClass());
     private boolean running = false;
 
@@ -74,11 +77,15 @@ public class Donkey {
 
         eventDispatcher = donkeyConfiguration.getEventDispatcher();
 
+        int updateInterval = NumberUtils.toInt(donkeyConfiguration.getDonkeyProperties().getProperty("donkey.statsupdateinterval"), DonkeyStatisticsUpdater.DEFAULT_UPDATE_INTERVAL);
+        statisticsUpdater = new DonkeyStatisticsUpdater(daoFactory, updateInterval);
+        statisticsUpdater.start();
+
         running = true;
     }
 
     private void initDaoFactory() throws StartException {
-        Properties dbProperties = donkeyConfiguration.getDatabaseProperties();
+        Properties dbProperties = donkeyConfiguration.getDonkeyProperties();
         String database = dbProperties.getProperty("database");
         String driver = dbProperties.getProperty("database.driver");
         String url = dbProperties.getProperty("database.url");
@@ -153,7 +160,15 @@ public class Donkey {
         this.daoFactory = daoFactory;
     }
 
+    public DonkeyStatisticsUpdater getStatisticsUpdater() {
+        return statisticsUpdater;
+    }
+
     public void stopEngine() {
+        if (statisticsUpdater != null) {
+            statisticsUpdater.shutdown();
+        }
+        
         running = false;
     }
 

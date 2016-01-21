@@ -18,9 +18,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.StringUtils;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProvider;
 import com.mirth.connect.donkey.server.Constants;
-import com.mirth.connect.server.attachments.MirthAttachmentHandler;
+import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class JdbcUtils {
@@ -56,10 +56,9 @@ public class JdbcUtils {
      */
     public static boolean isValidConnection(Connection connection) {
         /*
-         * Check if the connection is still valid. JDBC driver
-         * throws an unexpected error when calling isValid for some
-         * drivers (i.e. informix), so assume the connection is not
-         * valid if an exception occurs
+         * Check if the connection is still valid. JDBC driver throws an unexpected error when
+         * calling isValid for some drivers (i.e. informix), so assume the connection is not valid
+         * if an exception occurs
          */
         try {
             return connection.isValid(10000);
@@ -82,10 +81,11 @@ public class JdbcUtils {
      * @param map
      *            A String/Object map to reference when looking up values
      * @param attachmentHandler
-     *            An attachment handler to use for re-attaching attachment data in the parameter values
+     *            An attachment handler to use for re-attaching attachment data in the parameter
+     *            values
      * @return
      */
-    public static Object[] getParameters(List<String> paramNames, String channelId, String channelName, ConnectorMessage connectorMessage, Map<String, Object> map, AttachmentHandler attachmentHandler) {
+    public static Object[] getParameters(List<String> paramNames, String channelId, String channelName, ConnectorMessage connectorMessage, Map<String, Object> map, AttachmentHandlerProvider attachmentHandlerProvider) {
         Object[] params = new Object[paramNames.size()];
         TemplateValueReplacer replacer = new TemplateValueReplacer();
         int i = 0;
@@ -102,8 +102,8 @@ public class JdbcUtils {
                 value = replacer.replaceValues(paramName, channelId, channelName);
             }
 
-            if (attachmentHandler != null && MirthAttachmentHandler.hasAttachmentKeys(value.toString())) {
-                value = StringUtils.newString(attachmentHandler.reAttachMessage(value.toString(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
+            if (attachmentHandlerProvider != null && MirthAttachmentHandlerProvider.hasAttachmentKeys(value.toString())) {
+                value = StringUtils.newString(attachmentHandlerProvider.reAttachMessage(value.toString(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
             }
 
             params[i++] = value;

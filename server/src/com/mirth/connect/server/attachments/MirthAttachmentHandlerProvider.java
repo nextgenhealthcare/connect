@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProvider;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.StringUtil;
@@ -29,7 +29,7 @@ import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.util.DICOMMessageUtil;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
-public abstract class MirthAttachmentHandler implements AttachmentHandler {
+public abstract class MirthAttachmentHandlerProvider implements AttachmentHandlerProvider {
     private final static String PREFIX = "${";
     private final static String SUFFIX = "}";
     private final static int ATTACHMENT_ID_LENGTH = 36;

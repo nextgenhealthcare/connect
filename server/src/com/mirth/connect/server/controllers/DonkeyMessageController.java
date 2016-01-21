@@ -38,7 +38,7 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProvider;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Channel;
@@ -338,7 +338,7 @@ public class DonkeyMessageController extends MessageController {
             throw new ControllerException("Channel is no longer deployed!");
         }
 
-        AttachmentHandler attachmentHandler = deployedChannel.getAttachmentHandler();
+        AttachmentHandlerProvider attachmentHandlerProvider = deployedChannel.getAttachmentHandlerProvider();
         DataType dataType = deployedChannel.getSourceConnector().getInboundDataType();
         boolean isBinary = ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary();
         Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
@@ -408,7 +408,7 @@ public class DonkeyMessageController extends MessageController {
                     if (isBinary) {
                         rawMessage = new RawMessage(DICOMMessageUtil.getDICOMRawBytes(connectorMessage));
                     } else {
-                        rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(attachmentHandler.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
+                        rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(attachmentHandlerProvider.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
                     }
 
                     rawMessage.setOverwrite(replace);

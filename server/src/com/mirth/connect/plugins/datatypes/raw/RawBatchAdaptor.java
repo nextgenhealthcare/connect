@@ -95,13 +95,22 @@ public class RawBatchAdaptor extends BatchAdaptor {
     private String getMessageFromReader() throws Exception {
         SplitType splitType = batchProperties.getSplitType();
         if (splitType == SplitType.JavaScript) {
+            if (StringUtils.isEmpty(batchProperties.getBatchScript())) {
+                throw new BatchMessageException("No batch script was set.");
+            }
+
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
 
                 MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                    JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
-                    factory.setContextFactoryId(contextFactory.getId());
+                    synchronized (factory) {
+                        contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
+                        if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
+                            JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
+                            factory.setContextFactoryId(contextFactory.getId());
+                        }
+                    }
                 }
 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory) {

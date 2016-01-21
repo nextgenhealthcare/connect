@@ -57,6 +57,7 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
@@ -82,6 +83,7 @@ import com.mirth.commons.encryption.Output;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.server.data.DonkeyStatisticsUpdater;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
@@ -143,6 +145,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static EncryptionSettings encryptionConfig;
     private static DatabaseSettings databaseConfig;
     private static String apiBypassword;
+    private static int statsUpdateInterval;
 
     private static KeyEncryptor encryptor = null;
     private static Digester digester = null;
@@ -156,6 +159,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String HTTPS_CIPHER_SUITES = "https.ciphersuites";
     private static final String STARTUP_DEPLOY = "server.startupdeploy";
     private static final String API_BYPASSWORD = "server.api.bypassword";
+    private static final String STATS_UPDATE_INTERVAL = "donkey.statsupdateinterval";
 
     // singleton pattern
     private static ConfigurationController instance = null;
@@ -280,6 +284,8 @@ public class DefaultConfigurationController extends ConfigurationController {
             if (StringUtils.isNotBlank(apiBypassword)) {
                 apiBypassword = new String(Base64.decodeBase64(apiBypassword), "US-ASCII");
             }
+            
+            statsUpdateInterval = NumberUtils.toInt(mirthConfig.getString(STATS_UPDATE_INTERVAL), DonkeyStatisticsUpdater.DEFAULT_UPDATE_INTERVAL);
 
             // Check for configuration map properties
             if (mirthConfig.getString(CONFIGURATION_MAP_PATH) != null) {
@@ -504,6 +510,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public boolean isStartupDeploy() {
         return startupDeploy;
+    }
+    
+    @Override
+    public int getStatsUpdateInterval() {
+        return statsUpdateInterval;
     }
 
     @Override
