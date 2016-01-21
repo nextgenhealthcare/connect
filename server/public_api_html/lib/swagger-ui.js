@@ -4388,7 +4388,6 @@ Operation.prototype.getHeaderParams = function (args) {
 };
 
 Operation.prototype.urlify = function (args) {
-  var formParams = {};
   var requestUrl = this.path;
   var querystring = ''; // grab params from the args, build the querystring along the way
 
@@ -4425,8 +4424,6 @@ Operation.prototype.urlify = function (args) {
         } else {
           querystring += this.encodeQueryParam(param.name) + '=' + this.encodeQueryParam(args[param.name]);
         }
-      } else if (param.in === 'formData') {
-        formParams[param.name] = args[param.name];
       }
     }
   }
@@ -4456,7 +4453,7 @@ Operation.prototype.getMissingParams = function (args) {
 };
 
 Operation.prototype.getBody = function (headers, args, opts) {
-  var formParams = {}, hasFormParams, body, key, value, hasBody = false;
+  var hasFormParams, body, key, value, hasBody = false;
 
   // look at each param and put form params in an object
   for (var i = 0; i < this.parameters.length; i++) {
@@ -4465,7 +4462,6 @@ Operation.prototype.getBody = function (headers, args, opts) {
       if (param.in === 'body') {
         body = args[param.name];
       } else if (param.in === 'formData') {
-        formParams[param.name] = args[param.name];
         hasFormParams = true;
       }
     }
@@ -4493,15 +4489,24 @@ Operation.prototype.getBody = function (headers, args, opts) {
   if (hasFormParams && !isMultiPart) {
     var encoded = '';
 
-    for (key in formParams) {
-      value = formParams[key];
+    for (var i = 0; i < this.parameters.length; i++) {
+      var param = this.parameters[i];
 
-      if (typeof value !== 'undefined') {
+      if (param.in === 'formData' && typeof args[param.name] !== 'undefined') {
         if (encoded !== '') {
           encoded += '&';
         }
 
-        encoded += encodeURIComponent(key) + '=' + encodeURIComponent(value);
+        var value = args[param.name];
+        if (typeof param.collectionFormat !== 'undefined') {
+          if (Array.isArray(value)) {
+            encoded += this.encodeQueryCollection(param.collectionFormat, param.name, value);
+          } else {
+            encoded += this.encodeQueryParam(param.name) + '=' + this.encodeQueryParam(value);
+          }
+        } else {
+          encoded += this.encodeQueryParam(param.name) + '=' + this.encodeQueryParam(value);
+        }
       }
     }
 
@@ -4509,20 +4514,29 @@ Operation.prototype.getBody = function (headers, args, opts) {
   } else if (isMultiPart) {
     if (opts.useJQuery) {
       var bodyParam = new FormData();
-
       bodyParam.type = 'formData';
 
-      for (key in formParams) {
-        value = args[key];
+      for (var i = 0; i < this.parameters.length; i++) {
+        var param = this.parameters[i];
 
-        if (typeof value !== 'undefined') {
-          // required for jquery file upload
+        if (param.in === 'formData' && typeof args[param.name] !== 'undefined') {
+          var value = args[param.name];
           if (value.type === 'file' && value.value) {
+            // required for jquery file upload
             delete headers['Content-Type'];
 
-            bodyParam.append(key, value.value);
+            bodyParam.append(param.name, value.value);
+          } else if (param.type === 'array' && Array.isArray(value)) {
+            if (param.collectionFormat === 'multi') {
+              for (var j = 0; j < value.length; j++) {
+                bodyParam.append(param.name, value[j]);
+              }
+            } else {
+              var seperator = this.getCollectionFormatSeparator(param.collectionFormat);
+              bodyParam.append(param.name, value.join(seperator));
+            }
           } else {
-            bodyParam.append(key, value);
+            bodyParam.append(param.name, value);
           }
         }
       }
@@ -4854,70 +4868,34 @@ Operation.prototype.asCurl = function (args1, args2) {
 
 Operation.prototype.encodePathCollection = function (type, name, value) {
   var encoded = '';
-  var i;
-  var separator = '';
 
-  if (type === 'ssv') {
-    separator = '%20';
-  } else if (type === 'tsv') {
-    separator = '\\t';
-  } else if (type === 'pipes') {
-    separator = '|';
-  } else {
-    separator = ',';
+  var separator = this.getCollectionFormatSeparator(type);
+  var encodedParams = [];
+  for (var i = 0; i < value.length; i++) {
+    encodedParams[i] = this.encodeQueryParam(value[i])
   }
-
-  for (i = 0; i < value.length; i++) {
-    if (i === 0) {
-      encoded = this.encodeQueryParam(value[i]);
-    } else {
-      encoded += separator + this.encodeQueryParam(value[i]);
-    }
-  }
+  encoded = encodedParams.join(separator);
 
   return encoded;
 };
 
 Operation.prototype.encodeQueryCollection = function (type, name, value) {
   var encoded = '';
-  var i;
 
-  if (type === 'default' || type === 'multi') {
-    for (i = 0; i < value.length; i++) {
+  if (type === 'brackets' || type === 'multi') {
+    var bracket = type === 'brackets' ? '[]' : ''
+    for (var i = 0; i < value.length; i++) {
       if (i > 0) {encoded += '&';}
 
-      encoded += this.encodeQueryParam(name) + '=' + this.encodeQueryParam(value[i]);
+      encoded += this.encodeQueryParam(name) + bracket + '=' + this.encodeQueryParam(value[i]);
     }
   } else {
-    var separator = '';
-
-    if (type === 'csv') {
-      separator = ',';
-    } else if (type === 'ssv') {
-      separator = '%20';
-    } else if (type === 'tsv') {
-      separator = '\\t';
-    } else if (type === 'pipes') {
-      separator = '|';
-    } else if (type === 'brackets') {
-      for (i = 0; i < value.length; i++) {
-        if (i !== 0) {
-          encoded += '&';
-        }
-
-        encoded += this.encodeQueryParam(name) + '[]=' + this.encodeQueryParam(value[i]);
-      }
+    var separator = this.getCollectionFormatSeparator(type);
+    var encodedParams = [];
+    for (var i = 0; i < value.length; i++) {
+      encodedParams[i] = this.encodeQueryParam(value[i])
     }
-
-    if (separator !== '') {
-      for (i = 0; i < value.length; i++) {
-        if (i === 0) {
-          encoded = this.encodeQueryParam(name) + '=' + this.encodeQueryParam(value[i]);
-        } else {
-          encoded += separator + this.encodeQueryParam(value[i]);
-        }
-      }
-    }
+    encoded = this.encodeQueryParam(name) + '=' + encodedParams.join(separator);
   }
 
   return encoded;
@@ -4932,6 +4910,21 @@ Operation.prototype.encodeQueryParam = function (arg) {
  **/
 Operation.prototype.encodePathParam = function (pathParam) {
   return encodeURIComponent(pathParam);
+};
+
+Operation.prototype.getCollectionFormatSeparator = function (collectionFormat) {
+  var separator = ',';
+  if (collectionFormat === 'csv') {
+    separator = ',';
+  } else if (collectionFormat === 'ssv') {
+    separator = '%20';
+  } else if (collectionFormat === 'tsv') {
+    separator = '\\t';
+  } else if (collectionFormat === 'pipes') {
+    separator = '|';
+  }
+
+  return separator;
 };
 
 },{"../helpers":4,"../http":5,"./model":9,"lodash-compat/lang/cloneDeep":142,"lodash-compat/lang/isEmpty":145,"lodash-compat/lang/isObject":148,"lodash-compat/lang/isUndefined":152,"q":161}],11:[function(require,module,exports){
