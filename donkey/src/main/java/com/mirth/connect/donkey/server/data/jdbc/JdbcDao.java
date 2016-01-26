@@ -1621,7 +1621,7 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public int getConnectorMessageCount(String channelId, String serverId, int metaDataId, Status status) {
-        if (donkey.getDeployedChannels().get(channelId) != null && getLocalChannelIds().get(channelId) != null) {
+        if (donkey.getDeployedChannels().get(channelId) != null || getLocalChannelIds().get(channelId) != null) {
             ResultSet resultSet = null;
 
             try {
