@@ -9,12 +9,9 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -32,6 +29,10 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.model.ChannelStatistics;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @Path("/channels")
 @Api("Channel Statistics")
 @Consumes(MediaType.APPLICATION_XML)
@@ -42,7 +43,9 @@ public interface ChannelStatisticsServletInterface extends BaseServletInterface 
     @Path("/statistics")
     @ApiOperation("Returns the Statistics for all channels.")
     @MirthOperation(name = "getAllStatistics", display = "Get all statistics", permission = Permissions.CHANNELS_VIEW, auditable = false)
-    public List<ChannelStatistics> getAllStatistics() throws ClientException;
+    public List<ChannelStatistics> getStatistics(//@formatter:off
+            @Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") @QueryParam("channelId") Set<String> channelIds, @Param("includeUndeployed") @ApiParam(value = "If true, statistics for undeployed channels will also be included.") @QueryParam("includeUndeployed") boolean includeUndeployed, @Param("includeMetadataIds") @ApiParam(value = "The ids of connectors to include. Cannot include and exclude connectors.") @QueryParam("includeMetadataId") Set<Integer> includeMetadataIds, @Param("excludeMetadataIds") @ApiParam(value = "The ids of connectors to exclude. Cannot include and exclude connectors.") @QueryParam("excludeMetadataId") Set<Integer> excludeMetadataIds, @Param("aggregateStats") @ApiParam(value = "If true, statistics will be aggregated into one result") @QueryParam("aggregateStats") boolean aggregateStats) throws ClientException;
+    // @formatter:on 
 
     @GET
     @Path("/{channelId}/statistics")

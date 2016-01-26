@@ -21,6 +21,7 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
+import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.server.channel.ChannelFuture;
@@ -86,8 +87,16 @@ public interface EngineController {
      * @throws ControllerException
      */
     public List<DashboardStatus> getChannelStatusList(Set<String> channelIds);
-    
+
     public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, boolean includeUndeployed);
+
+    /**
+     * Returns a list of ChannelStatistics objects that represent a channel's total statistics.
+     */
+
+    public List<ChannelStatistics> getChannelStatisticsList(Set<String> channelIds, boolean includeUndeployed);
+
+    public List<ChannelStatistics> getChannelStatisticsList(Set<String> channelIds, boolean includeUndeployed, Set<Integer> includeMetadataIds, Set<Integer> excludeMetadataIds);
 
     /**
      * Returns a DashboardStatus object representing a running channel.

@@ -969,7 +969,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
-     * Returns the channel status list for specific channel IDs.
+     * Returns the channel status list for specific channel IDs.Undeployed channels are not included.
      * 
      * @see ChannelStatusServletInterface#getChannelStatusList
      */
@@ -978,7 +978,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
-     * Returns the channel status list for specific channel IDs.
+     * Returns the channel status list for specific channel IDs. With option to include undeployed channels.
      * 
      * @see ChannelStatusServletInterface#getChannelStatusList
      */
@@ -1258,13 +1258,43 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      ******************************/
 
     /**
-     * Returns the Statistics for all channels.
+     * Returns the individual statistics for all deployed channels.
      * 
-     * @see ChannelStatisticsServletInterface#getAllStatistics
+     * @see ChannelStatisticsServletInterface#getStatistics
+     */
+    
+    public List<ChannelStatistics> getStatistics() throws ClientException {
+        return getServlet(ChannelStatisticsServletInterface.class).getStatistics(null, false, null, null, false);
+    }
+    
+    /**
+     * Returns the individual statistics for channels. Has option to include undeployed channels.
+     * 
+     * @see ChannelStatisticsServletInterface#getStatistics
+     */
+    
+    public List<ChannelStatistics> getStatistics(boolean includeUndeployed) throws ClientException {
+        return getServlet(ChannelStatisticsServletInterface.class).getStatistics(null, includeUndeployed, null, null, false);
+    }
+    
+    /**
+     * Returns the individual statistics for channels. Has option to include undeployed channels and to aggregate stats.
+     * 
+     * @see ChannelStatisticsServletInterface#getStatistics
+     */
+    
+    public List<ChannelStatistics> getStatistics(boolean includeUndeployed, boolean aggregateStats) throws ClientException {
+        return getServlet(ChannelStatisticsServletInterface.class).getStatistics(null, includeUndeployed, null, null, aggregateStats);
+    }
+    
+    /**
+     * Returns the individual statistics for channels supplied. Has option to include undeployed channels, aggregate stats, and also include OR exclude connectors.
+     * 
+     * @see ChannelStatisticsServletInterface#getStatistics
      */
     @Override
-    public List<ChannelStatistics> getAllStatistics() throws ClientException {
-        return getServlet(ChannelStatisticsServletInterface.class).getAllStatistics();
+    public List<ChannelStatistics> getStatistics(Set<String> channelIds, boolean includeUndeployed, Set<Integer> includeMetadataIds, Set<Integer> excludeMetadataIds, boolean aggregateStats) throws ClientException {
+        return getServlet(ChannelStatisticsServletInterface.class).getStatistics(channelIds, includeUndeployed, includeMetadataIds, excludeMetadataIds, aggregateStats);
     }
 
     /**

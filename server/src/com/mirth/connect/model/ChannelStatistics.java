@@ -24,6 +24,7 @@ public class ChannelStatistics implements Serializable {
     private long sent = 0L;
     private long error = 0L;
     private long filtered = 0L;
+    private long queued = 0L;
 
     public String getServerId() {
         return serverId;
@@ -71,6 +72,14 @@ public class ChannelStatistics implements Serializable {
 
     public void setError(long errorCount) {
         this.error = errorCount;
+    }
+
+    public long getQueued() {
+        return queued;
+    }
+
+    public void setQueued(long queued) {
+        this.queued = queued;
     }
 
     public boolean equals(Object obj) {

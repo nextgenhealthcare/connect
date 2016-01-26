@@ -10,6 +10,7 @@
 package com.mirth.connect.server.api.servlets;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,13 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import org.apache.commons.collections.CollectionUtils;
+
+import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.servlets.ChannelStatisticsServletInterface;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.ChannelStatistics;
@@ -33,45 +39,60 @@ public class ChannelStatisticsServlet extends MirthServlet implements ChannelSta
 
     private static final ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private static final EngineController engineController = ControllerFactory.getFactory().createEngineController();
+    private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     public ChannelStatisticsServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
     }
 
     @Override
-    public List<ChannelStatistics> getAllStatistics() {
-        List<ChannelStatistics> statistics = new ArrayList<ChannelStatistics>();
-        Set<String> channelIds = engineController.getDeployedIds();
-
-        for (String channelId : channelIds) {
-            Map<Status, Long> map = channelController.getStatistics().getConnectorStats(channelId, null);
-
-            ChannelStatistics channelStatistics = new ChannelStatistics();
-            channelStatistics.setChannelId(channelId);
-            channelStatistics.setError(map.get(Status.ERROR));
-            channelStatistics.setFiltered(map.get(Status.FILTERED));
-            channelStatistics.setReceived(map.get(Status.RECEIVED));
-            channelStatistics.setSent(map.get(Status.SENT));
-
-            statistics.add(channelStatistics);
+    public List<ChannelStatistics> getStatistics(Set<String> channelIds, boolean includeUndeployed, Set<Integer> includeMetadataIds, Set<Integer> excludeMetadataIds, boolean aggregateStats) {
+        if (CollectionUtils.isNotEmpty(includeMetadataIds) && CollectionUtils.isNotEmpty(excludeMetadataIds)) {
+            throw new MirthApiException(Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN_TYPE).entity("Cannot include and exclude connectors in one call").build());
         }
 
-        return statistics;
+        List<ChannelStatistics> stats = engineController.getChannelStatisticsList(channelIds, includeUndeployed, includeMetadataIds, excludeMetadataIds);
+
+        if (aggregateStats) {
+            ChannelStatistics totalStatistics = new ChannelStatistics();
+
+            long errorCount = 0, filteredCount = 0, receivedCount = 0, sentCount = 0,
+                    queuedCount = 0;
+
+            for (ChannelStatistics channelStats : stats) {
+                receivedCount += channelStats.getReceived();
+                errorCount += channelStats.getError();
+                sentCount += channelStats.getSent();
+                filteredCount += channelStats.getFiltered();
+                queuedCount += channelStats.getQueued();
+            }
+            totalStatistics.setServerId(configurationController.getServerId());
+            totalStatistics.setReceived(receivedCount);
+            totalStatistics.setError(errorCount);
+            totalStatistics.setSent(sentCount);
+            totalStatistics.setFiltered(filteredCount);
+            totalStatistics.setQueued(queuedCount);
+
+            stats = new ArrayList<ChannelStatistics>();
+            stats.add(totalStatistics);
+        }
+
+        return stats;
     }
 
     @Override
     @CheckAuthorizedChannelId
     public ChannelStatistics getStatistics(String channelId) {
-        Map<Status, Long> map = channelController.getStatistics().getConnectorStats(channelId, null);
+        ChannelStatistics channelStatistics = null;
+        List<ChannelStatistics> channelStatisticsList = engineController.getChannelStatisticsList(new HashSet<String>(Arrays.asList(channelId)), true);
 
-        ChannelStatistics channelStatistics = new ChannelStatistics();
-        channelStatistics.setChannelId(channelId);
-        channelStatistics.setServerId(ConfigurationController.getInstance().getServerId());
-        channelStatistics.setError(map.get(Status.ERROR));
-        channelStatistics.setFiltered(map.get(Status.FILTERED));
-        channelStatistics.setReceived(map.get(Status.RECEIVED));
-        channelStatistics.setSent(map.get(Status.SENT));
-
+        if (CollectionUtils.isNotEmpty(channelStatisticsList)) {
+            channelStatistics = channelStatisticsList.get(0);
+        } else {
+            channelStatistics = new ChannelStatistics();
+            channelStatistics.setChannelId(channelId);
+            channelStatistics.setServerId(configurationController.getServerId());
+        }
         return channelStatistics;
     }
 

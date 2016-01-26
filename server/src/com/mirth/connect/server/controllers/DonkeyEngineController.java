@@ -95,11 +95,13 @@ import com.mirth.connect.donkey.server.queue.SourceQueue;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.SerializerProvider;
 import com.mirth.connect.model.ChannelProperties;
+import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.Filter;
+import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
@@ -202,7 +204,7 @@ public class DonkeyEngineController implements EngineController {
                 eventController.dispatchEvent(event);
             }
         };
-        
+
         Properties donkeyProperties = configurationController.getDatabaseSettings().getProperties();
         donkeyProperties.setProperty("donkey.statsupdateinterval", String.valueOf(configurationController.getStatsUpdateInterval()));
 
@@ -361,14 +363,11 @@ public class DonkeyEngineController implements EngineController {
     public List<DashboardStatus> getChannelStatusList(Set<String> channelIds) {
         return getChannelStatusList(channelIds, false);
     }
-        
-    @Override
-    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, boolean includeUndeployed) {
-        List<DashboardStatus> statusList = new ArrayList<>();
-        
+
+    private Map<String, Channel> getDashboardChannels(Set<String> channelIds) {
         Map<String, Channel> channels = null;
 
-        if (channelIds != null) {
+        if (CollectionUtils.isNotEmpty(channelIds)) {
             channels = new HashMap<String, Channel>();
 
             for (Channel channel : donkey.getDeployedChannels().values()) {
@@ -395,18 +394,23 @@ public class DonkeyEngineController implements EngineController {
                 }
             }
         }
+        return channels;
+    }
 
-        statusList.addAll(getDashboardStatuses(channels.values()));
+    @Override
+    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, boolean includeUndeployed) {
+        List<DashboardStatus> statusList = new ArrayList<>();
+        Map<String, Channel> dashboardChannels = getDashboardChannels(channelIds);
+
+        statusList.addAll(getDashboardStatuses(dashboardChannels.values()));
 
         if (includeUndeployed) {
             Map<String, com.mirth.connect.model.Channel> channelModels = new HashMap<String, com.mirth.connect.model.Channel>();
-
             for (com.mirth.connect.model.Channel channelModel : channelController.getChannels(null)) {
-                if ((channelIds == null || channelIds.contains(channelModel.getId())) && !channels.containsKey(channelModel.getId())) {
+                if ((CollectionUtils.isEmpty(channelIds) || channelIds.contains(channelModel.getId())) && !dashboardChannels.keySet().contains(channelModel.getId())) {
                     channelModels.put(channelModel.getId(), channelModel);
                 }
             }
-
             statusList.addAll(getUndeployedDashboardStatuses(channelModels.values()));
         }
 
@@ -418,59 +422,64 @@ public class DonkeyEngineController implements EngineController {
         Statistics stats = channelController.getStatisticsFromStorage(configurationController.getServerId());
         Statistics lifetimeStats = channelController.getTotalStatisticsFromStorage(configurationController.getServerId());
         String serverId = configurationController.getServerId();
-        
+
         for (com.mirth.connect.model.Channel channelModel : channelModels) {
-            String channelId = channelModel.getId();
+            if (!(channelModel instanceof InvalidChannel)) {
+                String channelId = channelModel.getId();
 
-            DashboardStatus status = new DashboardStatus();
-            status.setStatusType(StatusType.CHANNEL);
-            status.setChannelId(channelId);
-            status.setName(channelModel.getName());
-            status.setState(DeployedState.UNDEPLOYED);
-            status.setDeployedDate(null); // TODO maybe look up the last deployed date?
-            status.setDeployedRevisionDelta(0);
-            status.setStatistics(stats.getConnectorStats(channelId, null));
-            status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
-            status.setTags(channelModel.getProperties().getTags());
-            
-            DashboardStatus sourceStatus = new DashboardStatus();
-            sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);
-            sourceStatus.setChannelId(channelId);
-            sourceStatus.setMetaDataId(0);
-            sourceStatus.setName("Source");
-            sourceStatus.setState(DeployedState.UNDEPLOYED);
-            sourceStatus.setStatistics(stats.getConnectorStats(channelId, 0));
-            sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, 0));
-            
-            SourceConnectorProperties sourceProps = ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties();
-            sourceStatus.setQueueEnabled(!sourceProps.isRespondAfterProcessing());
-            sourceStatus.setQueued((long) channelController.getConnectorMessageCount(channelId, serverId, 0, Status.QUEUED));
+                DashboardStatus status = new DashboardStatus();
+                status.setStatusType(StatusType.CHANNEL);
+                status.setChannelId(channelId);
+                status.setName(channelModel.getName());
+                status.setState(DeployedState.UNDEPLOYED);
+                status.setDeployedDate(null); // TODO maybe look up the last deployed date?
+                status.setDeployedRevisionDelta(0);
+                status.setStatistics(stats.getConnectorStats(channelId, null));
+                status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
+                status.setTags(channelModel.getProperties().getTags());
 
-            status.setQueued(sourceStatus.getQueued());
-            status.getChildStatuses().add(sourceStatus);
+                DashboardStatus sourceStatus = new DashboardStatus();
+                sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);
+                sourceStatus.setChannelId(channelId);
+                sourceStatus.setMetaDataId(0);
+                sourceStatus.setName("Source");
+                sourceStatus.setState(DeployedState.UNDEPLOYED);
+                sourceStatus.setStatistics(stats.getConnectorStats(channelId, 0));
+                sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, 0));
 
-            for (com.mirth.connect.model.Connector destination : channelModel.getDestinationConnectors()) {
-                Integer metaDataId = destination.getMetaDataId();
-                DestinationConnectorProperties destProps = ((DestinationConnectorPropertiesInterface) destination.getProperties()).getDestinationConnectorProperties();
+                SourceConnectorProperties sourceProps = ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties();
+                sourceStatus.setQueueEnabled(!sourceProps.isRespondAfterProcessing());
 
-                DashboardStatus destinationStatus = new DashboardStatus();
-                destinationStatus.setStatusType(StatusType.DESTINATION_CONNECTOR);
-                destinationStatus.setChannelId(channelId);
-                destinationStatus.setMetaDataId(metaDataId);
-                destinationStatus.setName(destination.getName());
-                destinationStatus.setState(DeployedState.UNDEPLOYED);
-                destinationStatus.setStatistics(stats.getConnectorStats(channelId, metaDataId));
-                destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, metaDataId));
-                destinationStatus.setQueueEnabled(destProps.isQueueEnabled());
-                destinationStatus.setQueued((long) channelController.getConnectorMessageCount(channelId, serverId, metaDataId, Status.QUEUED));
+                if (sourceStatus.isQueueEnabled()) {
+                    sourceStatus.setQueued((long) channelController.getConnectorMessageCount(channelId, serverId, 0, Status.RECEIVED));
+                }
 
-                status.setQueued(status.getQueued() + destinationStatus.getQueued());
-                status.getChildStatuses().add(destinationStatus);
+                status.setQueued(sourceStatus.getQueued());
+                status.getChildStatuses().add(sourceStatus);
+
+                for (com.mirth.connect.model.Connector destination : channelModel.getDestinationConnectors()) {
+                    Integer metaDataId = destination.getMetaDataId();
+                    DestinationConnectorProperties destProps = ((DestinationConnectorPropertiesInterface) destination.getProperties()).getDestinationConnectorProperties();
+
+                    DashboardStatus destinationStatus = new DashboardStatus();
+                    destinationStatus.setStatusType(StatusType.DESTINATION_CONNECTOR);
+                    destinationStatus.setChannelId(channelId);
+                    destinationStatus.setMetaDataId(metaDataId);
+                    destinationStatus.setName(destination.getName());
+                    destinationStatus.setState(DeployedState.UNDEPLOYED);
+                    destinationStatus.setStatistics(stats.getConnectorStats(channelId, metaDataId));
+                    destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, metaDataId));
+                    destinationStatus.setQueueEnabled(destProps.isQueueEnabled());
+                    destinationStatus.setQueued((long) channelController.getConnectorMessageCount(channelId, serverId, metaDataId, Status.QUEUED));
+
+                    status.setQueued(status.getQueued() + destinationStatus.getQueued());
+                    status.getChildStatuses().add(destinationStatus);
+                }
+
+                statuses.add(status);
             }
-
-            statuses.add(status);
         }
-        
+
         return statuses;
     }
 
@@ -575,6 +584,135 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
+    public List<ChannelStatistics> getChannelStatisticsList(Set<String> channelIds, boolean includeUndeployed) {
+        return getChannelStatisticsList(channelIds, includeUndeployed, null, null);
+    }
+
+    @Override
+    public List<ChannelStatistics> getChannelStatisticsList(Set<String> channelIds, boolean includeUndeployed, Set<Integer> includeMetadataIds, Set<Integer> excludeMetadataIds) {
+        List<ChannelStatistics> statistics = new ArrayList<ChannelStatistics>();
+        Map<String, Channel> dashboardChannels = getDashboardChannels(channelIds);
+
+        statistics.addAll(getDashboardChannelStatistics(dashboardChannels.values(), includeMetadataIds, excludeMetadataIds));
+
+        if (includeUndeployed) {
+            Map<String, com.mirth.connect.model.Channel> channelModels = new HashMap<String, com.mirth.connect.model.Channel>();
+            for (com.mirth.connect.model.Channel channelModel : channelController.getChannels(null)) {
+                if ((CollectionUtils.isEmpty(channelIds) || channelIds.contains(channelModel.getId())) && !dashboardChannels.keySet().contains(channelModel.getId())) {
+                    channelModels.put(channelModel.getId(), channelModel);
+                }
+            }
+            statistics.addAll(getUndeployedChannelStatistics(channelModels.values(), includeMetadataIds, excludeMetadataIds));
+        }
+
+        return statistics;
+    }
+
+    private List<ChannelStatistics> getDashboardChannelStatistics(Collection<Channel> channels, Set<Integer> includeMetaDataIds, Set<Integer> excludeMetaDataIds) {
+        List<ChannelStatistics> statisticsList = new ArrayList<ChannelStatistics>();
+        Statistics stats = channelController.getStatistics();
+
+        String serverId = configurationController.getServerId();
+
+        for (Channel channel : channels) {
+            String channelId = channel.getChannelId();
+            com.mirth.connect.model.Channel channelModel = channelController.getDeployedChannelById(channelId);
+
+            // Make sure the channel is actually still deployed
+            if (channelModel != null) {
+                ChannelStatistics statistics = new ChannelStatistics();
+                statistics.setChannelId(channelId);
+                statistics.setServerId(serverId);
+
+                if (includeConnectorId(0, includeMetaDataIds, excludeMetaDataIds)) {
+                    Map<Status, Long> sourceConnectorStats = stats.getConnectorStats(channelId, 0);
+                    addConnectorToChannelStatistics(sourceConnectorStats, statistics, true);
+
+                    statistics.setQueued(new Long(channel.getSourceQueue().size()));
+                }
+
+                for (DestinationChainProvider chainProvider : channel.getDestinationChainProviders()) {
+                    for (Entry<Integer, DestinationConnector> connectorEntry : chainProvider.getDestinationConnectors().entrySet()) {
+                        DestinationConnector connector = connectorEntry.getValue();
+                        Integer metaDataId = connector.getMetaDataId();
+
+                        if (includeConnectorId(metaDataId, includeMetaDataIds, excludeMetaDataIds)) {
+                            Map<Status, Long> destinationConnectorStats = stats.getConnectorStats(channelId, metaDataId);
+                            addConnectorToChannelStatistics(destinationConnectorStats, statistics, false);
+
+                            statistics.setQueued(statistics.getQueued() + new Long(connector.getQueue().size()));
+                        }
+                    }
+                }
+
+                statisticsList.add(statistics);
+            }
+        }
+        return statisticsList;
+    }
+
+    private List<ChannelStatistics> getUndeployedChannelStatistics(Collection<com.mirth.connect.model.Channel> channelModels, Set<Integer> includeMetaDataIds, Set<Integer> excludeMetaDataIds) {
+        List<ChannelStatistics> statisticsList = new ArrayList<ChannelStatistics>();
+        Statistics stats = channelController.getStatisticsFromStorage(configurationController.getServerId());
+
+        String serverId = configurationController.getServerId();
+
+        for (com.mirth.connect.model.Channel channelModel : channelModels) {
+            if (!(channelModel instanceof InvalidChannel)) {
+                ChannelStatistics statistics = new ChannelStatistics();
+                String channelId = channelModel.getId();
+
+                statistics.setChannelId(channelId);
+                statistics.setServerId(serverId);
+
+                if (includeConnectorId(0, includeMetaDataIds, excludeMetaDataIds)) {
+                    Map<Status, Long> sourceConnectorStats = stats.getConnectorStats(channelId, 0);
+                    addConnectorToChannelStatistics(sourceConnectorStats, statistics, true);
+
+                    if (!((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties().isRespondAfterProcessing()) {
+                        statistics.setQueued((long) channelController.getConnectorMessageCount(channelId, serverId, 0, Status.RECEIVED));
+                    }
+                }
+
+                for (com.mirth.connect.model.Connector destination : channelModel.getDestinationConnectors()) {
+                    Integer metaDataId = destination.getMetaDataId();
+
+                    if (includeConnectorId(metaDataId, includeMetaDataIds, excludeMetaDataIds)) {
+                        Map<Status, Long> destinationConnectorStats = stats.getConnectorStats(channelId, metaDataId);
+                        addConnectorToChannelStatistics(destinationConnectorStats, statistics, false);
+
+                        statistics.setQueued(statistics.getQueued() + (long) channelController.getConnectorMessageCount(channelId, serverId, metaDataId, Status.QUEUED));
+                    }
+                }
+                statisticsList.add(statistics);
+            }
+        }
+
+        return statisticsList;
+    }
+
+    private ChannelStatistics addConnectorToChannelStatistics(Map<Status, Long> stats, ChannelStatistics statistics, boolean sourceConnector) {
+
+        if (statistics == null) {
+            statistics = new ChannelStatistics();
+        }
+
+        if (sourceConnector) {
+            statistics.setReceived(statistics.getReceived() + stats.get(Status.RECEIVED));
+        } else {
+            statistics.setSent(statistics.getSent() + stats.get(Status.SENT));
+        }
+        statistics.setError(statistics.getError() + stats.get(Status.ERROR));
+        statistics.setFiltered(statistics.getFiltered() + stats.get(Status.FILTERED));
+
+        return statistics;
+    }
+
+    private boolean includeConnectorId(Integer metaDataId, Set<Integer> includeMetaDataIds, Set<Integer> excludeMetaDataIds) {
+        return (CollectionUtils.isEmpty(includeMetaDataIds) || includeMetaDataIds.contains(metaDataId)) && (CollectionUtils.isEmpty(excludeMetaDataIds) || !excludeMetaDataIds.contains(metaDataId));
+    }
+
+    @Override
     public Set<String> getDeployedIds() {
         return donkey.getDeployedChannelIds();
     }
@@ -656,12 +794,12 @@ public class DonkeyEngineController implements EngineController {
         SourceQueue sourceQueue = new SourceQueue();
         sourceQueue.setBufferCapacity(queueBufferSize);
         channel.setSourceQueue(sourceQueue);
-        
+
         if (channelModel.getSourceConnector().getProperties() instanceof SourceConnectorPropertiesInterface) {
             SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties();
             channel.getResponseSelector().setRespondFromName(sourceConnectorProperties.getResponseVariable());
         }
-        
+
         channel.setProcessLock(getChannelProcessLock(channelModel));
 
         if (storageSettings.isEnabled()) {
@@ -700,7 +838,7 @@ public class DonkeyEngineController implements EngineController {
 
         return channel;
     }
-    
+
     protected ChannelProcessLock getChannelProcessLock(com.mirth.connect.model.Channel channelModel) {
         int processingThreads = ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties().getProcessingThreads();
         if (processingThreads < 1) {
