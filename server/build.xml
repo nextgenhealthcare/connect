@@ -44,6 +44,7 @@
 		<property name="plugins.directoryresource" value="${extensions}/directoryresource" />
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
 		<property name="plugins.dicomviewer" value="${extensions}/dicomviewer" />
+		<property name="plugins.httpauth" value="${extensions}/httpauth" />
 		<property name="plugins.imageviewer" value="${extensions}/imageviewer" />
 		<property name="plugins.javascriptrule" value="${extensions}/javascriptrule" />
 		<property name="plugins.javascriptstep" value="${extensions}/javascriptstep" />
@@ -642,6 +643,47 @@
 			<include name="com/mirth/connect/plugins/globalmapviewer/**" />
 			<exclude name="com/mirth/connect/plugins/globalmapviewer/GlobalMapServletInterface.class" />
 		</jar>
+		
+		<!-- plugins.httpauth -->
+		<mkdir dir="${plugins.httpauth}" />
+		<copy todir="${plugins.httpauth}">
+			<fileset dir="${src}/com/mirth/connect/plugins/httpauth">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.httpauth}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/httpauth" />
+		</copy>
+		<jar destfile="${plugins.httpauth}/httpauth-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/httpauth/HttpAuthConnectorPluginProperties.class" />
+			<include name="com/mirth/connect/plugins/httpauth/HttpAuthConnectorPluginProperties$AuthType.class" />
+			<include name="com/mirth/connect/plugins/httpauth/NoneHttpAuthProperties.class" />
+			<include name="com/mirth/connect/plugins/httpauth/basic/BasicHttpAuthProperties.class" />
+			<include name="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties.class" />
+			<include name="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$Algorithm.class" />
+			<include name="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$QOPMode.class" />				
+			<include name="com/mirth/connect/plugins/httpauth/custom/CustomHttpAuthProperties.class" />
+			<include name="com/mirth/connect/plugins/httpauth/javascript/JavaScriptHttpAuthProperties.class" />
+			<include name="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties.class" />
+			<include name="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties$TokenLocation.class" />
+		</jar>
+		<jar destfile="${plugins.httpauth}/httpauth-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/httpauth/**" />
+			<exclude name="com/mirth/connect/plugins/httpauth/HttpAuthConnectorPluginProperties.class" />
+			<exclude name="com/mirth/connect/plugins/httpauth/HttpAuthConnectorPluginProperties$AuthType.class" />
+			<exclude name="com/mirth/connect/plugins/httpauth/NoneHttpAuthProperties.class" />
+			<exclude name="com/mirth/connect/plugins/httpauth/basic/BasicHttpAuthProperties.class" />
+			<exclude name="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties.class" />
+			<exclude name="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$Algorithm.class" />
+			<exclude name="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$QOPMode.class" />
+			<exclude name="com/mirth/connect/plugins/httpauth/custom/CustomHttpAuthProperties.class" />
+			<exclude name="com/mirth/connect/plugins/httpauth/javascript/JavaScriptHttpAuthProperties.class" />
+			<exclude name="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties.class" />
+			<exclude name="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties$TokenLocation.class" />
+		</jar>
+		<jar destfile="${plugins.httpauth}/src/httpauth-userutil-sources.jar" basedir="${src}">
+			<include name="com/mirth/connect/plugins/httpauth/userutil/**" />
+		</jar>
 
 		<!-- plugins.imageviewer -->
 		<mkdir dir="${plugins.imageviewer}" />
@@ -1008,6 +1050,7 @@
 		<zip destfile="${dist.extensions}/dicomviewer-${version}.zip" basedir="${extensions}" includes="dicomviewer/**/*" />
 		<zip destfile="${dist.extensions}/pdfviewer-${version}.zip" basedir="${extensions}" includes="pdfviewer/**/*" />
 		<zip destfile="${dist.extensions}/textviewer-${version}.zip" basedir="${extensions}" includes="textviewer/**/*" />
+		<zip destfile="${dist.extensions}/httpauth-${version}.zip" basedir="${extensions}" includes="httpauth/**/*" />
 		<zip destfile="${dist.extensions}/imageviewer-${version}.zip" basedir="${extensions}" includes="imageviewer/**/*" />
 		<zip destfile="${dist.extensions}/globalmapviewer-${version}.zip" basedir="${extensions}" includes="globalmapviewer/**/*" />
 	</target>
@@ -1019,7 +1062,7 @@
 	<target name="create-javadocs" depends="init">
 		<mkdir dir="${docs.javadocs}" />
 		
-		<javadoc sourcepath="${src}" destdir="${docs.javadocs.userapi}" packagenames="com.mirth.connect.server.userutil,com.mirth.connect.userutil">
+		<javadoc sourcepath="${src}" destdir="${docs.javadocs.userapi}" packagenames="com.mirth.connect.server.userutil,com.mirth.connect.userutil,com.mirth.connect.plugins.httpauth.userutil">
 			<classpath refid="classpath" />
 		</javadoc>
 	</target>

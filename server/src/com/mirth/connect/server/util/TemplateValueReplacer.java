@@ -62,6 +62,26 @@ public class TemplateValueReplacer extends ValueReplacer {
     public String replaceValues(String template, String channelId, Map<String, Object> map) {
         if (hasReplaceableValues(template)) {
             VelocityContext context = getDefaultContext();
+            context.put("channelId", channelId);
+            loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables());
+            loadContextFromMap(context, map);
+            return evaluate(context, template);
+        } else {
+            return template;
+        }
+    }
+
+    /**
+     * Replaces variables in the template. Uses the default context along with the global channel
+     * variable map and the passed in map.
+     * 
+     * @return The replaced template
+     */
+    public String replaceValues(String template, String channelId, String channelName, Map<String, Object> map) {
+        if (hasReplaceableValues(template)) {
+            VelocityContext context = getDefaultContext();
+            context.put("channelId", channelId);
+            context.put("channelName", channelName);
             loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables());
             loadContextFromMap(context, map);
             return evaluate(context, template);

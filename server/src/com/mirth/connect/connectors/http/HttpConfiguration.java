@@ -11,8 +11,11 @@ package com.mirth.connect.connectors.http;
 
 import java.util.Map;
 
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.eclipse.jetty.server.Request;
 
+import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.server.channel.Connector;
 
 public interface HttpConfiguration {
@@ -24,6 +27,8 @@ public interface HttpConfiguration {
     public void configureReceiver(HttpReceiver connector) throws Exception;
 
     public void configureDispatcher(HttpDispatcher connector, HttpDispatcherProperties connectorProperties) throws Exception;
+
+    public void configureSocketFactoryRegistry(ConnectorPluginProperties properties, RegistryBuilder<ConnectionSocketFactory> registry) throws Exception;
 
     public Map<String, Object> getRequestInformation(Request request);
 }

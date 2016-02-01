@@ -12,12 +12,15 @@ package com.mirth.connect.connectors.http;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.ssl.SSLContexts;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.ServerConnector;
 
+import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.server.channel.Connector;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -30,10 +33,7 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
     @Override
     public void configureConnectorDeploy(Connector connector) throws Exception {
         if (connector instanceof HttpDispatcher) {
-            String[] enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols());
-            String[] enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites());
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), enabledProtocols, enabledCipherSuites, NoopHostnameVerifier.INSTANCE);
-            ((HttpDispatcher) connector).getSocketFactoryRegistry().register("https", sslConnectionSocketFactory);
+            configureSocketFactoryRegistry(null, ((HttpDispatcher) connector).getSocketFactoryRegistry());
         }
     }
 
@@ -51,6 +51,14 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
 
     @Override
     public void configureDispatcher(HttpDispatcher connector, HttpDispatcherProperties connectorProperties) throws Exception {}
+
+    @Override
+    public void configureSocketFactoryRegistry(ConnectorPluginProperties properties, RegistryBuilder<ConnectionSocketFactory> registry) throws Exception {
+        String[] enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols());
+        String[] enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites());
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), enabledProtocols, enabledCipherSuites, NoopHostnameVerifier.INSTANCE);
+        registry.register("https", sslConnectionSocketFactory);
+    }
 
     @Override
     public Map<String, Object> getRequestInformation(Request request) {

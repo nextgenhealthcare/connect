@@ -9,22 +9,30 @@
 
 package com.mirth.connect.connectors.ws;
 
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.handler.Handler;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
@@ -39,14 +47,23 @@ import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
 import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
+import com.mirth.connect.plugins.httpauth.AuthenticationResult;
+import com.mirth.connect.plugins.httpauth.Authenticator;
+import com.mirth.connect.plugins.httpauth.AuthenticatorProvider;
+import com.mirth.connect.plugins.httpauth.AuthenticatorProviderFactory;
+import com.mirth.connect.plugins.httpauth.HttpAuthConnectorPluginProperties;
+import com.mirth.connect.plugins.httpauth.HttpAuthConnectorPluginProperties.AuthType;
+import com.mirth.connect.plugins.httpauth.RequestInfo;
+import com.mirth.connect.plugins.httpauth.RequestInfo.EntityProvider;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
-import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpContext;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpPrincipal;
 import com.sun.net.httpserver.HttpServer;
 
 public class WebServiceReceiver extends SourceConnector {
@@ -60,6 +77,8 @@ public class WebServiceReceiver extends SourceConnector {
     private WebServiceConfiguration configuration;
     private HttpServer server;
     private WebServiceReceiverProperties connectorProperties;
+    private HttpAuthConnectorPluginProperties authProps;
+    private AuthenticatorProvider authenticatorProvider;
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
@@ -79,6 +98,20 @@ public class WebServiceReceiver extends SourceConnector {
             configuration.configureConnectorDeploy(this);
         } catch (Exception e) {
             throw new ConnectorTaskException(e);
+        }
+
+        for (ConnectorPluginProperties pluginProperties : connectorProperties.getPluginProperties()) {
+            if (pluginProperties instanceof HttpAuthConnectorPluginProperties) {
+                authProps = (HttpAuthConnectorPluginProperties) pluginProperties;
+            }
+        }
+
+        if (authProps != null && authProps.getAuthType() != AuthType.NONE) {
+            try {
+                authenticatorProvider = AuthenticatorProviderFactory.getAuthenticatorProvider(this, authProps);
+            } catch (Exception e) {
+                throw new ConnectorTaskException("Error creating authenticator provider.", e);
+            }
         }
     }
 
@@ -148,24 +181,10 @@ public class WebServiceReceiver extends SourceConnector {
         String serviceName = replacer.replaceValues(connectorProperties.getServiceName(), channelId, channelName);
         HttpContext context = server.createContext("/services/" + serviceName);
 
-        if (CollectionUtils.isNotEmpty(connectorProperties.getUsernames())) {
-            final List<String> usernames = new ArrayList<String>(connectorProperties.getUsernames());
-            final List<String> passwords = new ArrayList<String>(connectorProperties.getPasswords());
-            replacer.replaceValuesInList(usernames, channelId, channelName);
-            replacer.replaceValuesInList(passwords, channelId, channelName);
-
-            context.setAuthenticator(new BasicAuthenticator("/services/" + serviceName) {
-                @Override
-                public boolean checkCredentials(String username, String password) {
-                    if (usernames.contains(username) && passwords.get(usernames.indexOf(username)).equals(password)) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            });
+        // Set a security authenticator if needed
+        if (authenticatorProvider != null) {
+            context.setAuthenticator(createAuthenticator());
         }
-        
 
         webServiceEndpoint.publish(context);
 
@@ -174,6 +193,8 @@ public class WebServiceReceiver extends SourceConnector {
 
     @Override
     public void onStop() throws ConnectorTaskException {
+        ConnectorTaskException firstCause = null;
+
         try {
             logger.debug("stopping Web Service HTTP server");
 
@@ -189,7 +210,15 @@ public class WebServiceReceiver extends SourceConnector {
                 executor.shutdown();
             }
         } catch (Exception e) {
-            throw new ConnectorTaskException("Failed to stop Web Service Listener", e);
+            firstCause = new ConnectorTaskException("Failed to stop Web Service Listener", e);
+        }
+
+        if (authenticatorProvider != null) {
+            authenticatorProvider.shutdown();
+        }
+
+        if (firstCause != null) {
+            throw firstCause;
         }
     }
 
@@ -258,5 +287,80 @@ public class WebServiceReceiver extends SourceConnector {
 
     public void setServer(HttpServer server) {
         this.server = server;
+    }
+
+    private com.sun.net.httpserver.Authenticator createAuthenticator() throws ConnectorTaskException {
+        final Authenticator authenticator;
+        try {
+            authenticator = authenticatorProvider.getAuthenticator();
+        } catch (Exception e) {
+            throw new ConnectorTaskException("Unable to create authenticator.", e);
+        }
+
+        return new com.sun.net.httpserver.Authenticator() {
+            @Override
+            public Result authenticate(final HttpExchange exch) {
+                String remoteAddress = StringUtils.trimToEmpty(exch.getRemoteAddress().getAddress().getHostAddress());
+                int remotePort = exch.getRemoteAddress().getPort();
+                String localAddress = StringUtils.trimToEmpty(exch.getLocalAddress().getAddress().getHostAddress());
+                int localPort = exch.getLocalAddress().getPort();
+                String protocol = StringUtils.trimToEmpty(exch.getProtocol());
+                String method = StringUtils.trimToEmpty(exch.getRequestMethod());
+                String requestURI = StringUtils.trimToEmpty(exch.getRequestURI().toString());
+                Map<String, List<String>> headers = exch.getRequestHeaders();
+
+                Map<String, List<String>> queryParameters = new LinkedHashMap<String, List<String>>();
+                for (NameValuePair nvp : URLEncodedUtils.parse(exch.getRequestURI(), "UTF-8")) {
+                    List<String> list = queryParameters.get(nvp.getName());
+                    if (list == null) {
+                        list = new ArrayList<String>();
+                        queryParameters.put(nvp.getName(), list);
+                    }
+                    list.add(nvp.getValue());
+                }
+
+                EntityProvider entityProvider = new EntityProvider() {
+                    @Override
+                    public InputStream getEntity() {
+                        return exch.getRequestBody();
+                    }
+                };
+
+                RequestInfo requestInfo = new RequestInfo(remoteAddress, remotePort, localAddress, localPort, protocol, method, requestURI, headers, queryParameters, entityProvider);
+
+                try {
+                    AuthenticationResult result = authenticator.authenticate(requestInfo);
+
+                    for (Entry<String, List<String>> entry : result.getResponseHeaders().entrySet()) {
+                        if (StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null) {
+                            for (int i = 0; i < entry.getValue().size(); i++) {
+                                if (i == 0) {
+                                    exch.getResponseHeaders().set(entry.getKey(), entry.getValue().get(i));
+                                } else {
+                                    exch.getResponseHeaders().add(entry.getKey(), entry.getValue().get(i));
+                                }
+                            }
+                        }
+                    }
+
+                    switch (result.getStatus()) {
+                        case CHALLENGED:
+                            return new com.sun.net.httpserver.Authenticator.Retry(HttpServletResponse.SC_UNAUTHORIZED);
+                        case SUCCESS:
+                            String username = StringUtils.trimToEmpty(result.getUsername());
+                            String realm = StringUtils.trimToEmpty(result.getRealm());
+                            return new com.sun.net.httpserver.Authenticator.Success(new HttpPrincipal(username, realm));
+                        case FAILURE:
+                        default:
+                            return new com.sun.net.httpserver.Authenticator.Failure(HttpServletResponse.SC_UNAUTHORIZED);
+
+                    }
+                } catch (Throwable t) {
+                    logger.error("Error in HTTP authentication for " + connectorProperties.getName() + " (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, "Source", connectorProperties.getName(), "Error in HTTP authentication for " + connectorProperties.getName(), t));
+                    return new com.sun.net.httpserver.Authenticator.Failure(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+            }
+        };
     }
 }

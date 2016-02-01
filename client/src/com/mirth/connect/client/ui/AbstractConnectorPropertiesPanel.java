@@ -9,6 +9,7 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Component;
 import java.lang.reflect.Method;
 
 import javax.swing.JPanel;
@@ -52,6 +53,12 @@ public abstract class AbstractConnectorPropertiesPanel extends JPanel {
      * Resets the highlighting on fields that could be highlighted.
      */
     public abstract void resetInvalidProperties();
+
+    /**
+     * Returns a two-dimensional array of all components that should be added to a left/right column
+     * layout.
+     */
+    public abstract Component[][] getLayoutComponents();
 
     /**
      * Sets the ConnectorPanel associated with this plugin properties-specific panel.

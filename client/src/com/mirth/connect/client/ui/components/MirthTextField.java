@@ -28,24 +28,18 @@ import com.mirth.connect.client.ui.actions.PasteAction;
 import com.mirth.connect.client.ui.actions.SelectAllAction;
 
 /**
- * Mirth's implementation of the JTextField. Adds enabling of the save button in
- * parent. Also adds a trigger button (right click) editor menu with Cut, Copy,
- * Paste, Delete, and Select All.
+ * Mirth's implementation of the JTextField. Adds enabling of the save button in parent. Also adds a
+ * trigger button (right click) editor menu with Cut, Copy, Paste, Delete, and Select All.
  */
 public class MirthTextField extends javax.swing.JTextField implements MirthTextInterface {
 
     private Frame parent;
-    private boolean visible = false;
     private JPopupMenu menu;
     private CutAction cutAction;
     private CopyAction copyAction;
     private PasteAction pasteAction;
     private DeleteAction deleteAction;
     private SelectAllAction selectAllAction;
-
-    public boolean isVisible() {
-        return visible;
-    }
 
     public MirthTextField() {
         super();
@@ -89,7 +83,6 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
                 showPopupMenu(evt);
             }
         });
-        visible = true;
     }
 
     /**
@@ -108,16 +101,15 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
     }
 
     /**
-     * Overrides setDocument(Document doc) so that a document listener is added
-     * to the current document to listen for changes.
+     * Overrides setDocument(Document doc) so that a document listener is added to the current
+     * document to listen for changes.
      */
     public void setDocument(Document doc) {
         super.setDocument(doc);
 
         this.getDocument().addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent e) {
-            }
+            public void changedUpdate(DocumentEvent e) {}
 
             public void removeUpdate(DocumentEvent e) {
                 parent.setSaveEnabled(true);
@@ -130,21 +122,21 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
     }
 
     /**
-     * Overrides setText(String t) so that the save button is disabled when
-     * Mirth sets the text of a field.
+     * Overrides setText(String t) so that the save button is disabled when Mirth sets the text of a
+     * field.
      */
     @Override
     public void setText(String t) {
         boolean visible = parent.changesHaveBeenMade();
         super.setText(t);
-        
+
         if (visible) {
             parent.setSaveEnabled(true);
         } else {
             parent.setSaveEnabled(false);
         }
     }
-    
+
     /**
      * Overrides getText() so that it returns trimmed text.
      */
@@ -152,7 +144,7 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
     public String getText() {
         return super.getText().trim();
     }
-    
+
     /**
      * Returns the result of the normal getText(), without trimming it.
      */

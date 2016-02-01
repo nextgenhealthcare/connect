@@ -1,0 +1,19 @@
+<pluginMetaData path="httpauth">
+	<name>HTTP Authentication Settings</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.4.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides advanced authentication support for HTTP-based source connectors.</description>
+	<serverClasses/>
+	<clientClasses>
+		<string weight="-100">com.mirth.connect.plugins.httpauth.HttpAuthConnectorPropertiesPlugin</string>
+	</clientClasses>
+	<userutilPackages>
+		<string>com.mirth.connect.plugins.httpauth.userutil</string>
+	</userutilPackages>
+	<library type="CLIENT" path="httpauth-client.jar" />
+	<library type="CLIENT" path="src/httpauth-userutil-sources.jar" />
+	<library type="SHARED" path="httpauth-shared.jar" />
+	<library type="SERVER" path="httpauth-server.jar" />
+</pluginMetaData>

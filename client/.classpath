@@ -55,6 +55,17 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datatypes/**"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceServletInterface"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/HttpAuthConnectorPluginProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/HttpAuthConnectorPluginProperties$AuthType"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/NoneHttpAuthProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/basic/BasicHttpAuthProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/custom/CustomHttpAuthProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$Algorithm"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$QOPMode"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/javascript/JavaScriptHttpAuthProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties$TokenLocation"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/globalmapviewer/GlobalMapServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mllpmode/MLLPModeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/serverlog/ServerLogServletInterface"/>
