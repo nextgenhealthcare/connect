@@ -4005,27 +4005,21 @@ public class Frame extends JXFrame {
             removeMessagesDialog = new RemoveMessagesDialog(this, true);
         }
 
-        String channelId = "";
-        boolean isChannelDeployed = false;
         Set<String> channelIds = new HashSet<String>();
+        boolean restartCheckboxEnabled = false;
 
-        if (channelPanel != null) {
-            List<Channel> selectedChannels = channelPanel.getSelectedChannels();
+        if (currentContentPage instanceof MessageBrowser) {
+            String channelId = ((MessageBrowser) currentContentPage).getChannelId();
+            channelIds.add(channelId);
 
-            if (CollectionUtils.isNotEmpty(selectedChannels)) {
-                channelId = selectedChannels.get(0).getId();
-                channelIds.add(channelId);
-
-                for (DashboardStatus dashStatus : status) {
-                    if (dashStatus.getChannelId().equals(channelId)) {
-                        isChannelDeployed = true;
+            for (DashboardStatus channelStatus : status) {
+                if (channelStatus.getChannelId().equals(channelId)) {
+                    if (!channelStatus.getState().equals(DeployedState.STOPPED) && !restartCheckboxEnabled) {
+                        restartCheckboxEnabled = true;
                     }
                 }
             }
-        }
-
-        boolean restartCheckboxEnabled = false;
-        if (isChannelDeployed || currentContentPage == dashboardPanel) {
+        } else {
             for (DashboardStatus channelStatus : dashboardPanel.getSelectedChannelStatuses()) {
                 channelIds.add(channelStatus.getChannelId());
 
@@ -4034,7 +4028,7 @@ public class Frame extends JXFrame {
                 }
             }
         }
-
+        
         removeMessagesDialog.init(channelIds, restartCheckboxEnabled);
         removeMessagesDialog.setLocationRelativeTo(this);
         removeMessagesDialog.setVisible(true);
