@@ -141,7 +141,7 @@ public class CodeTemplateLibrariesPanel extends JPanel {
                 for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((MutableTreeTableNode) libraryTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
                     MutableTreeTableNode libraryNode = libraryNodes.nextElement();
                     Triple<String, String, Boolean> triple = (Triple<String, String, Boolean>) libraryNode.getUserObject();
-                    libraryNode.setUserObject(new MutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), true));
+                    libraryTreeTable.getTreeTableModel().setValueAt(new MutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), true), libraryNode, libraryTreeTable.getHierarchicalColumn());
                 }
                 libraryTreeTable.updateUI();
             }
@@ -157,7 +157,7 @@ public class CodeTemplateLibrariesPanel extends JPanel {
                 for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((MutableTreeTableNode) libraryTreeTable.getTreeTableModel().getRoot()).children(); libraryNodes.hasMoreElements();) {
                     MutableTreeTableNode libraryNode = libraryNodes.nextElement();
                     Triple<String, String, Boolean> triple = (Triple<String, String, Boolean>) libraryNode.getUserObject();
-                    libraryNode.setUserObject(new MutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), false));
+                    libraryTreeTable.getTreeTableModel().setValueAt(new MutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), false), libraryNode, libraryTreeTable.getHierarchicalColumn());
                 }
                 libraryTreeTable.updateUI();
             }
