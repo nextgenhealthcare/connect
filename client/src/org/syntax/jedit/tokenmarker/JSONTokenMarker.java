@@ -47,7 +47,7 @@ public class JSONTokenMarker extends TokenMarker {
 
                 if (c == '\\') {
                     backslash = !backslash;
-                } else if (Character.isDigit(c) && token != Token.KEYWORD3) {
+                } else if (token != Token.KEYWORD1 && token != Token.KEYWORD3 && Character.isDigit(c)) {
                     token = Token.DIGIT;
                 }
 
@@ -72,9 +72,11 @@ public class JSONTokenMarker extends TokenMarker {
                                 backslash = false;
                                 switch (c) {
                                     case '{':
+                                        resetState(states);
                                         states.push(JSONTokenState.OBJECT_KEY);
                                         break;
                                     case '[':
+                                        resetState(states);
                                         states.push(JSONTokenState.ARRAY);
                                         break;
                                     case '}':
@@ -134,6 +136,7 @@ public class JSONTokenMarker extends TokenMarker {
                         break;
                     case Token.COMMENT1:
                         if (!Character.isLetter(c)) {
+                            resetState(states);
                             if (!doKeyword(line, i, c)) {
                                 token = Token.NULL;
                                 addToken(i1 - lastOffset, token);
@@ -147,6 +150,7 @@ public class JSONTokenMarker extends TokenMarker {
             lineInfo[lineIndex].obj = states;
 
             if (token == Token.COMMENT1) {
+                doKeyword(line, length, '\0');
                 addToken(length - lastOffset, Token.NULL);
             }
 
