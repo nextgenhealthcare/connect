@@ -80,10 +80,14 @@ public class JSONTokenMarker extends TokenMarker {
                                         states.push(JSONTokenState.ARRAY);
                                         break;
                                     case '}':
-                                        states.pop();
+                                        if (states.peek() != null) {
+                                            states.pop();
+                                        }
                                         break;
                                     case ']':
-                                        states.pop();
+                                        if (states.peek() != null) {
+                                            states.pop();
+                                        }
                                         resetState(states);
                                         break;
                                 }
@@ -105,7 +109,9 @@ public class JSONTokenMarker extends TokenMarker {
                             if (backslash) {
                                 backslash = false;
                             } else {
-                                states.pop();
+                                if (states.peek() != null) {
+                                    states.pop();
+                                }
                                 states.push(JSONTokenState.OBJECT_VALUE);
                                 token = Token.NULL;
                             }
