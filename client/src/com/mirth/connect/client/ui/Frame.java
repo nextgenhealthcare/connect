@@ -3131,30 +3131,32 @@ public class Frame extends JXFrame {
     }
 
     private void deployChannel(final Set<String> selectedChannelIds) {
-        String plural = (selectedChannelIds.size() > 1) ? "s" : "";
-        final String workingId = startWorking("Deploying channel" + plural + "...");
+        if (CollectionUtils.isNotEmpty(selectedChannelIds)) {
+            String plural = (selectedChannelIds.size() > 1) ? "s" : "";
+            final String workingId = startWorking("Deploying channel" + plural + "...");
 
-        dashboardPanel.deselectRows(false);
-        doShowDashboard();
+            dashboardPanel.deselectRows(false);
+            doShowDashboard();
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-            public Void doInBackground() {
-                try {
-                    mirthClient.deployChannels(selectedChannelIds);
-                } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                public Void doInBackground() {
+                    try {
+                        mirthClient.deployChannels(selectedChannelIds);
+                    } catch (ClientException e) {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    }
+                    return null;
                 }
-                return null;
-            }
 
-            public void done() {
-                stopWorking(workingId);
-                doRefreshStatuses(true);
-            }
-        };
+                public void done() {
+                    stopWorking(workingId);
+                    doRefreshStatuses(true);
+                }
+            };
 
-        worker.execute();
+            worker.execute();
+        }
     }
 
     public void doUndeployChannel() {

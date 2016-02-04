@@ -491,7 +491,6 @@ public class ChannelPanel extends javax.swing.JPanel {
         int column = channelTable.getColumnExt(STATUS_COLUMN_NAME).getModelIndex();
 
         if (rows.length > 0) {
-            parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, true);
             parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 8, -1, true);
 
             if (rows.length == 1) {
@@ -508,13 +507,17 @@ public class ChannelPanel extends javax.swing.JPanel {
                 parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 12, 13, false); // hide enable and disable
             }
 
+            boolean deployTaskVisible = false;
             for (int i = 0; i < rows.length; i++) {
                 if (((CellData) channelTable.getModel().getValueAt(rows[i], column)).getText().equals(ENABLED_STATUS)) {
                     parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 13, 13, true);
+                    deployTaskVisible = true;
                 } else {
                     parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 12, 12, true);
                 }
             }
+
+            parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, deployTaskVisible);
 
             for (TaskPlugin plugin : LoadedExtensions.getInstance().getTaskPlugins().values()) {
                 plugin.onRowSelected(channelTable);
