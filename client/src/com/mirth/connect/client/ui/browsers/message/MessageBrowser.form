@@ -150,7 +150,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="MessagesRadioPane" min="-2" pref="17" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="MessagesCardPane" pref="134" max="32767" attributes="0"/>
+                          <Component id="MessagesCardPane" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="formatMessageCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -400,7 +400,6 @@
                       <Layout>
                         <DimensionLayout dim="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="responseStatusTextField" alignment="1" max="32767" attributes="0"/>
                               <Component id="ResponseTextArea" alignment="0" max="32767" attributes="0"/>
                               <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
@@ -409,6 +408,7 @@
                                   </Group>
                                   <EmptySpace min="0" pref="720" max="32767" attributes="0"/>
                               </Group>
+                              <Component id="responseStatusTextArea" alignment="0" max="32767" attributes="0"/>
                           </Group>
                         </DimensionLayout>
                         <DimensionLayout dim="1">
@@ -416,11 +416,11 @@
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="responseStatusLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="responseStatusTextField" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                                  <Component id="responseStatusTextArea" min="-2" pref="57" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
                                   <Component id="responseLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="ResponseTextArea" pref="64" max="32767" attributes="0"/>
+                                  <Component id="ResponseTextArea" pref="37" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -431,26 +431,22 @@
                             <Property name="text" type="java.lang.String" value="Status:"/>
                           </Properties>
                         </Component>
-                        <Component class="javax.swing.JTextField" name="responseStatusTextField">
-                          <Properties>
-                            <Property name="editable" type="boolean" value="false"/>
-                            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                              <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
-                                <EtchetBorder/>
-                              </Border>
-                            </Property>
-                            <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-                              <Color id="Text Cursor"/>
-                            </Property>
-                            <Property name="opaque" type="boolean" value="false"/>
-                          </Properties>
-                        </Component>
                         <Component class="javax.swing.JLabel" name="responseLabel">
                           <Properties>
                             <Property name="text" type="java.lang.String" value="Response:"/>
                           </Properties>
                         </Component>
                         <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="ResponseTextArea">
+                          <Properties>
+                            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                              <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+                                <EtchetBorder/>
+                              </Border>
+                            </Property>
+                            <Property name="editable" type="boolean" value="false"/>
+                          </Properties>
+                        </Component>
+                        <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="responseStatusTextArea">
                           <Properties>
                             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                               <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -492,15 +488,15 @@
                       <Layout>
                         <DimensionLayout dim="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="processedResponseStatusTextField" alignment="1" max="32767" attributes="0"/>
                               <Component id="ProcessedResponseTextArea" alignment="0" max="32767" attributes="0"/>
-                              <Group type="102" alignment="0" attributes="0">
+                              <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Component id="processedResponseStatusLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="processedResponseLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <EmptySpace min="0" pref="720" max="32767" attributes="0"/>
                               </Group>
+                              <Component id="processedResponseStatusTextArea" alignment="0" max="32767" attributes="0"/>
                           </Group>
                         </DimensionLayout>
                         <DimensionLayout dim="1">
@@ -508,11 +504,11 @@
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="processedResponseStatusLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="processedResponseStatusTextField" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                                  <Component id="processedResponseStatusTextArea" min="-2" pref="57" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
                                   <Component id="processedResponseLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="ProcessedResponseTextArea" pref="64" max="32767" attributes="0"/>
+                                  <Component id="ProcessedResponseTextArea" pref="37" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -533,23 +529,19 @@
                             <Property name="text" type="java.lang.String" value="Status:"/>
                           </Properties>
                         </Component>
-                        <Component class="javax.swing.JTextField" name="processedResponseStatusTextField">
+                        <Component class="javax.swing.JLabel" name="processedResponseLabel">
                           <Properties>
-                            <Property name="editable" type="boolean" value="false"/>
+                            <Property name="text" type="java.lang.String" value="Response:"/>
+                          </Properties>
+                        </Component>
+                        <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="processedResponseStatusTextArea">
+                          <Properties>
                             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                               <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
                                 <EtchetBorder/>
                               </Border>
                             </Property>
-                            <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-                              <Color id="Text Cursor"/>
-                            </Property>
-                            <Property name="opaque" type="boolean" value="false"/>
-                          </Properties>
-                        </Component>
-                        <Component class="javax.swing.JLabel" name="processedResponseLabel">
-                          <Properties>
-                            <Property name="text" type="java.lang.String" value="Response:"/>
+                            <Property name="editable" type="boolean" value="false"/>
                           </Properties>
                         </Component>
                       </SubComponents>
