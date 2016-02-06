@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,9 +43,10 @@ public class DestinationQueue extends ConnectorMessageQueue {
     private int queueBuckets = 1;
     private List<Long> queueThreadIds;
     private HashFunction hashFunction;
+    private Map<String, Integer> initialThreadAssignmentMap;
 
     public DestinationQueue(String groupBy, int threadCount, boolean regenerateTemplate, Serializer serializer, MessageMaps messageMaps) {
-        this.groupBy = groupBy;
+        this.groupBy = StringUtils.defaultString(groupBy);
         this.regenerateTemplate = regenerateTemplate;
         this.serializer = serializer;
         this.messageMaps = messageMaps;
@@ -54,6 +57,7 @@ public class DestinationQueue extends ConnectorMessageQueue {
             if (queueBuckets > 1) {
                 queueThreadIds = new ArrayList<Long>(queueBuckets);
                 hashFunction = Hashing.murmur3_32((int) System.currentTimeMillis());
+                initialThreadAssignmentMap = new ConcurrentHashMap<String, Integer>(queueBuckets);
             }
         }
     }
@@ -232,13 +236,38 @@ public class DestinationQueue extends ConnectorMessageQueue {
                         connectorMessage.setSentProperties(sentProperties);
                     }
 
-                    groupByVariable = ((DestinationConnectorPropertiesInterface) sentProperties).getDestinationConnectorProperties().getThreadAssignmentVariable();
+                    groupByVariable = StringUtils.defaultString(((DestinationConnectorPropertiesInterface) sentProperties).getDestinationConnectorProperties().getThreadAssignmentVariable());
                 } catch (SerializerException e) {
                 }
             }
 
-            // Calculate the 32-bit hash, then reduce it to one of the buckets
-            bucket = Math.abs(hashFunction.hashUnencodedChars(String.valueOf(messageMaps.get(groupByVariable, connectorMessage))).asInt() % queueBuckets);
+            String groupByValue = String.valueOf(messageMaps.get(groupByVariable, connectorMessage));
+
+            // Attempt to get the bucket from the initial assignment map first
+            bucket = initialThreadAssignmentMap.get(groupByValue);
+
+            if (bucket == null) {
+                /*
+                 * If the initial assignment map isn't yet full, assign the next available queue
+                 * bucket directly to the assignment value. Otherwise, calculate the bucket using
+                 * the hash function.
+                 */
+                if (initialThreadAssignmentMap.size() < queueBuckets) {
+                    synchronized (initialThreadAssignmentMap) {
+                        int size = initialThreadAssignmentMap.size();
+                        if (size < queueBuckets) {
+                            bucket = size;
+                            initialThreadAssignmentMap.put(groupByValue, bucket);
+                        }
+                    }
+                }
+                
+                if (bucket == null) {
+                    // Calculate the 32-bit hash, then reduce it to one of the buckets
+                    bucket = Math.abs(hashFunction.hashUnencodedChars(groupByValue).asInt() % queueBuckets);
+                }
+            }
+
             connectorMessage.setQueueBucket(bucket);
         }
 
