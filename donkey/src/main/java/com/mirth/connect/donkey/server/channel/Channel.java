@@ -34,6 +34,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -42,6 +43,7 @@ import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -106,7 +108,10 @@ public class Channel implements Runnable {
     private AttachmentHandlerProvider attachmentHandlerProvider;
     private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
     private SourceConnector sourceConnector;
+
     private SourceQueue sourceQueue;
+    private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
+
     private PreProcessor preProcessor;
     private PostProcessor postProcessor;
     private List<DestinationChainProvider> destinationChainProviders = new ArrayList<DestinationChainProvider>();
@@ -119,7 +124,6 @@ public class Channel implements Runnable {
     public static Semaphore DELETE_PERMIT = new Semaphore(2, true);
     // A cached thread pool executor that executes recovery tasks and destination chain tasks
     private ExecutorService channelExecutor;
-    private Thread queueThread;
     private Set<Thread> dispatchThreads = new HashSet<Thread>();
     private boolean shuttingDown = false;
 
@@ -655,8 +659,13 @@ public class Channel implements Runnable {
 
                 // start up the worker thread that will process queued messages
                 if (!sourceConnector.isRespondAfterProcessing()) {
-                    queueThread = new Thread(Channel.this);
-                    queueThread.start();
+                    int processingThreads = ((SourceConnectorPropertiesInterface) sourceConnector.getConnectorProperties()).getSourceConnectorProperties().getProcessingThreads();
+                    queueThreads.clear();
+                    for (int i = 1; i <= processingThreads; i++) {
+                        Thread queueThread = new Thread(Channel.this);
+                        queueThread.start();
+                        queueThreads.put(queueThread.getId(), queueThread);
+                    }
                 }
 
                 if (connectorsToStart == null || connectorsToStart.contains(0)) {
@@ -737,8 +746,10 @@ public class Channel implements Runnable {
             }
         }
 
-        if (queueThread != null) {
-            queueThread.interrupt();
+        if (MapUtils.isNotEmpty(queueThreads)) {
+            for (Thread queueThread : queueThreads.values()) {
+                queueThread.interrupt();
+            }
         }
 
         // Interrupt any dispatch threads that are currently processing
@@ -958,8 +969,11 @@ public class Channel implements Runnable {
             ThreadUtils.checkInterruptedStatus();
         }
 
-        if (queueThread != null) {
-            queueThread.join();
+        if (MapUtils.isNotEmpty(queueThreads)) {
+            for (Thread queueThread : queueThreads.values()) {
+                queueThread.join();
+            }
+            queueThreads.clear();
         }
 
         channelExecutor.shutdown();
@@ -981,8 +995,10 @@ public class Channel implements Runnable {
             }
         }
 
-        if (queueThread != null) {
-            queueThread.interrupt();
+        if (MapUtils.isNotEmpty(queueThreads)) {
+            for (Thread queueThread : queueThreads.values()) {
+                queueThread.interrupt();
+            }
         }
 
         // Interrupt any dispatch threads that are currently processing
@@ -1399,7 +1415,7 @@ public class Channel implements Runnable {
     public void releaseProcessLock() {
         processLock.release();
     }
-    
+
     public void obtainAllProcessLockPermits() throws InterruptedException {
         processLock.acquireAll();
     }
@@ -1578,12 +1594,12 @@ public class Channel implements Runnable {
             if (sourceMessage.getSourceMap().containsKey(Constants.DESTINATION_SET_KEY)) {
                 metaDataIds = (Collection<Integer>) sourceMessage.getSourceMap().get(Constants.DESTINATION_SET_KEY);
             }
-            
+
             List<DestinationChain> destinationChains = new ArrayList<DestinationChain>();
-            
+
             for (DestinationChainProvider chainProvider : destinationChainProviders) {
                 DestinationChain chain = chainProvider.getChain();
-                
+
                 // The order of the enabledMetaDataId list needs to be based on the chain order.
                 // We do not use ListUtils here because there is no official guarantee of order.
                 if (metaDataIds != null) {
@@ -1623,7 +1639,7 @@ public class Channel implements Runnable {
 
                     destinationMessages.put(metaDataId, message);
                 }
-                
+
                 destinationChains.add(chain);
             }
 
@@ -1752,17 +1768,25 @@ public class Channel implements Runnable {
         ThreadUtils.checkInterruptedStatus();
         ConnectorMessage sourceMessage = sourceQueue.poll(timeout, TimeUnit.MILLISECONDS);
 
-        while (sourceMessage != null && !stopSourceQueue) {
-            try {
-                process(sourceMessage, true);
-            } catch (RuntimeException e) {
-                logger.error("An error occurred in channel " + name + " (" + channelId + ") while processing message ID " + sourceMessage.getMessageId() + " from the source queue", e);
-                eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, sourceMessage.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, sourceConnector.getSourceName(), null, e.getMessage(), e));
-                sourceQueue.invalidate(false, false);
-                Thread.sleep(Constants.SOURCE_QUEUE_ERROR_SLEEP_TIME);
-            }
+        try {
+            while (sourceMessage != null && !stopSourceQueue) {
+                try {
+                    process(sourceMessage, true);
+                    sourceQueue.finish(sourceMessage);
+                } catch (RuntimeException e) {
+                    logger.error("An error occurred in channel " + name + " (" + channelId + ") while processing message ID " + sourceMessage.getMessageId() + " from the source queue", e);
+                    eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, sourceMessage.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, sourceConnector.getSourceName(), null, e.getMessage(), e));
+                    sourceQueue.finish(sourceMessage);
+                    sourceQueue.invalidate(false, false);
+                    Thread.sleep(Constants.SOURCE_QUEUE_ERROR_SLEEP_TIME);
+                }
 
-            sourceMessage = sourceQueue.poll();
+                sourceMessage = sourceQueue.poll();
+            }
+        } finally {
+            if (sourceMessage != null) {
+                sourceQueue.finish(sourceMessage);
+            }
         }
     }
 
