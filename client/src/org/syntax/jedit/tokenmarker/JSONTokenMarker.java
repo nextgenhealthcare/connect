@@ -143,6 +143,11 @@ public class JSONTokenMarker extends TokenMarker {
                     case Token.COMMENT1:
                         if (!Character.isLetter(c)) {
                             resetState(states);
+                            if (c == '}' || c == ']') {
+                                if (states.peek() != null) {
+                                    states.pop();
+                                }
+                            }
                             if (!doKeyword(line, i, c)) {
                                 token = Token.NULL;
                                 addToken(i1 - lastOffset, token);
