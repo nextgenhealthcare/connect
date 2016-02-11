@@ -327,8 +327,10 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             logger.debug("received HTTP request");
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.CONNECTED));
             DispatchResult dispatchResult = null;
+            String originalThreadName = Thread.currentThread().getName();
 
             try {
+                Thread.currentThread().setName("HTTP Receiver Thread on " + getChannel().getName() + " (" + getChannelId() + ") < " + originalThreadName);
                 Map<String, Object> sourceMap = new HashMap<String, Object>();
                 Object messageContent = null;
 
@@ -378,6 +380,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                 }
             } finally {
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+                Thread.currentThread().setName(originalThreadName);
             }
             baseRequest.setHandled(true);
         }
@@ -600,8 +603,11 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             if (!baseRequest.getMethod().equalsIgnoreCase(HttpMethod.GET.asString())) {
                 return;
             }
+            
+            String originalThreadName = Thread.currentThread().getName();
 
             try {
+                Thread.currentThread().setName("HTTP Receiver Thread on " + getChannel().getName() + " (" + getChannelId() + ") < " + originalThreadName);
                 HttpRequestMessage requestMessage = createRequestMessage(baseRequest, true);
 
                 String contextPath = URLDecoder.decode(requestMessage.getContextPath(), "US-ASCII");
@@ -710,6 +716,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                 servletResponse.setContentType(ContentType.TEXT_PLAIN.toString());
                 servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                 servletResponse.getOutputStream().write(ExceptionUtils.getStackTrace(t).getBytes());
+            } finally {
+                Thread.currentThread().setName(originalThreadName);
             }
 
             baseRequest.setHandled(true);

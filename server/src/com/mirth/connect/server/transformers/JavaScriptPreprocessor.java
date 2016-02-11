@@ -94,12 +94,12 @@ public class JavaScriptPreprocessor implements PreProcessor {
         private ConnectorMessage message;
 
         public JavaScriptPreProcessorTask(MirthContextFactory contextFactory, ConnectorMessage message) {
-            super(contextFactory);
+            super(contextFactory, "Preprocessor", channel.getChannelId(), channel.getName());
             this.message = message;
         }
 
         @Override
-        public Object call() throws Exception {
+        public Object doCall() throws Exception {
             return JavaScriptUtil.executePreprocessorScripts(this, message, channel.getSourceConnector().getDestinationIdMap());
         }
     }

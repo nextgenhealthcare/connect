@@ -158,11 +158,11 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     private class SelectTask extends JavaScriptTask<Object> {
 
         public SelectTask(MirthContextFactory contextFactory) {
-            super(contextFactory);
+            super(contextFactory, connector.getConnectorProperties().getName() + " Select", connector);
         }
 
         @Override
-        public Object call() throws Exception {
+        public Object doCall() throws Exception {
             try {
                 Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId(), connector.getChannel().getName());
                 return JavaScriptUtil.executeScript(this, selectScriptId, scope, connector.getChannelId(), "Source");
@@ -177,13 +177,13 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         private ConnectorMessage mergedConnectorMessage;
 
         public UpdateTask(MirthContextFactory contextFactory, Map<String, Object> resultMap, ConnectorMessage mergedConnectorMessage) {
-            super(contextFactory);
+            super(contextFactory, connector.getConnectorProperties().getName() + " Update", connector);
             this.resultMap = resultMap;
             this.mergedConnectorMessage = mergedConnectorMessage;
         }
 
         @Override
-        public Object call() throws Exception {
+        public Object doCall() throws Exception {
             try {
                 Scriptable scope = null;
 

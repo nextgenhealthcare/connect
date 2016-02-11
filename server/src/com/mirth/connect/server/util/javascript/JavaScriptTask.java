@@ -17,17 +17,78 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 
+import com.mirth.connect.donkey.server.channel.Connector;
+import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public abstract class JavaScriptTask<T> implements Callable<T> {
 
     private Logger logger = Logger.getLogger(JavaScriptTask.class);
     private MirthContextFactory contextFactory;
+    private String threadName;
     private Context context;
     private boolean contextCreated = false;
 
-    public JavaScriptTask(MirthContextFactory contextFactory) {
+    public JavaScriptTask(MirthContextFactory contextFactory, String name) {
+        this(contextFactory, name, null, null);
+    }
+
+    public JavaScriptTask(MirthContextFactory contextFactory, String name, String channelId, String channelName) {
+        this(contextFactory, name, channelId, channelName, null, null);
+    }
+
+    public JavaScriptTask(MirthContextFactory contextFactory, SourceConnector sourceConnector) {
+        this(contextFactory, sourceConnector.getConnectorProperties().getName(), sourceConnector);
+    }
+
+    public JavaScriptTask(MirthContextFactory contextFactory, String name, SourceConnector sourceConnector) {
+        this(contextFactory, name, sourceConnector.getChannelId(), sourceConnector.getChannel().getName(), sourceConnector.getMetaDataId(), null);
+    }
+
+    public JavaScriptTask(MirthContextFactory contextFactory, DestinationConnector destinationConnector) {
+        this(contextFactory, destinationConnector.getConnectorProperties().getName(), destinationConnector.getChannelId(), destinationConnector.getChannel().getName(), destinationConnector.getMetaDataId(), destinationConnector.getDestinationName());
+    }
+
+    public JavaScriptTask(MirthContextFactory contextFactory, Connector connector) {
+        this(contextFactory, connector.getConnectorProperties().getName(), connector);
+    }
+
+    public JavaScriptTask(MirthContextFactory contextFactory, String name, Connector connector) {
+        this(contextFactory);
+        if (connector instanceof SourceConnector) {
+            init(name, connector.getChannelId(), connector.getChannel().getName(), connector.getMetaDataId(), null);
+        } else {
+            init(name, connector.getChannelId(), connector.getChannel().getName(), connector.getMetaDataId(), ((DestinationConnector) connector).getDestinationName());
+        }
+    }
+
+    private JavaScriptTask(MirthContextFactory contextFactory, String name, String channelId, String channelName, Integer metaDataId, String destinationName) {
+        this(contextFactory);
+        init(name, channelId, channelName, metaDataId, destinationName);
+    }
+
+    private JavaScriptTask(MirthContextFactory contextFactory) {
         this.contextFactory = contextFactory;
+    }
+
+    private void init(String name, String channelId, String channelName, Integer metaDataId, String destinationName) {
+        StringBuilder builder = new StringBuilder(name).append(" JavaScript Task");
+        if (StringUtils.isNotEmpty(channelName)) {
+            builder.append(" on ").append(channelName);
+            if (StringUtils.isNotEmpty(channelId)) {
+                builder.append(" (").append(channelId).append(')');
+            }
+
+            if (metaDataId != null && metaDataId > 0) {
+                builder.append(',');
+                if (StringUtils.isNotEmpty(destinationName)) {
+                    builder.append(' ').append(destinationName);
+                }
+                builder.append(" (").append(metaDataId).append(')');
+            }
+        }
+        threadName = builder.toString();
     }
 
     public MirthContextFactory getContextFactory() {
@@ -40,6 +101,19 @@ public abstract class JavaScriptTask<T> implements Callable<T> {
 
     protected Context getContext() {
         return context;
+    }
+
+    public abstract T doCall() throws Exception;
+
+    @Override
+    public final T call() throws Exception {
+        String originalThreadName = Thread.currentThread().getName();
+        try {
+            Thread.currentThread().setName(threadName + " < " + originalThreadName);
+            return doCall();
+        } finally {
+            Thread.currentThread().setName(originalThreadName);
+        }
     }
 
     public Object executeScript(Script compiledScript, Scriptable scope) throws InterruptedException {

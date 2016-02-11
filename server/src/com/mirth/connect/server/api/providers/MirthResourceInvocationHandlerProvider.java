@@ -49,165 +49,174 @@ public class MirthResourceInvocationHandlerProvider implements ResourceMethodInv
         return new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if (proxy instanceof MirthServlet) {
-                    try {
-                        MirthServlet mirthServlet = (MirthServlet) proxy;
+                String originalThreadName = Thread.currentThread().getName();
 
-                        Map<Method, MethodInfo> methodMap = infoMap.get(proxy.getClass());
-                        if (methodMap == null) {
-                            methodMap = new ConcurrentHashMap<Method, MethodInfo>();
-                            infoMap.put(mirthServlet.getClass(), methodMap);
-                        }
+                try {
+                    if (proxy instanceof MirthServlet) {
+                        try {
+                            MirthServlet mirthServlet = (MirthServlet) proxy;
 
-                        MethodInfo methodInfo = methodMap.get(method);
-                        if (methodInfo == null) {
-                            methodInfo = new MethodInfo();
-                            methodMap.put(method, methodInfo);
-                        }
-
-                        Operation operation = methodInfo.getOperation();
-                        if (operation == null) {
-                            /*
-                             * Get the operation from the MirthOperation annotation present on the
-                             * interface method.
-                             */
-                            Class<?> clazz = proxy.getClass();
-
-                            while (clazz != null && operation == null) {
-                                for (Class<?> interfaceClass : clazz.getInterfaces()) {
-                                    if (BaseServletInterface.class.isAssignableFrom(interfaceClass)) {
-                                        operation = OperationUtil.getOperation(interfaceClass, method);
-                                        if (operation != null) {
-                                            methodInfo.setOperation(operation);
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                clazz = clazz.getSuperclass();
-                            }
-                        }
-                        mirthServlet.setOperation(operation);
-
-                        /*
-                         * If a DontCheckAuthorized annotation is present on the server
-                         * implementation method, then no auditing is done now and the servlet is
-                         * expected to call checkUserAuthorized. Two other optional annotations
-                         * determine whether the channel/user ID should be used in the authorization
-                         * check.
-                         */
-                        Boolean checkAuthorized = methodInfo.getCheckAuthorized();
-                        if (checkAuthorized == null) {
-                            checkAuthorized = true;
-
-                            Method matchingMethod = mirthServlet.getClass().getMethod(method.getName(), method.getParameterTypes());
-                            if (matchingMethod != null) {
-                                checkAuthorized = matchingMethod.getAnnotation(DontCheckAuthorized.class) == null;
-                                methodInfo.setCheckAuthorizedChannelId(matchingMethod.getAnnotation(CheckAuthorizedChannelId.class));
-                                methodInfo.setCheckAuthorizedUserId(matchingMethod.getAnnotation(CheckAuthorizedUserId.class));
+                            Map<Method, MethodInfo> methodMap = infoMap.get(proxy.getClass());
+                            if (methodMap == null) {
+                                methodMap = new ConcurrentHashMap<Method, MethodInfo>();
+                                infoMap.put(mirthServlet.getClass(), methodMap);
                             }
 
-                            methodInfo.setCheckAuthorized(checkAuthorized);
-                        }
+                            MethodInfo methodInfo = methodMap.get(method);
+                            if (methodInfo == null) {
+                                methodInfo = new MethodInfo();
+                                methodMap.put(method, methodInfo);
+                            }
 
-                        if (checkAuthorized) {
-                            /*
-                             * We need to know what parameter index the channel/user ID resides at
-                             * so we can correctly include it with the authorization request.
-                             */
-                            Integer channelIdIndex = methodInfo.getChannelIdIndex();
-                            Integer userIdIndex = methodInfo.getUserIdIndex();
+                            Operation operation = methodInfo.getOperation();
+                            if (operation == null) {
+                                /*
+                                 * Get the operation from the MirthOperation annotation present on
+                                 * the interface method.
+                                 */
+                                Class<?> clazz = proxy.getClass();
 
-                            if (args.length > 0) {
-                                List<String> paramNames = methodInfo.getParamNames();
-                                if (paramNames == null) {
-                                    paramNames = new ArrayList<String>();
-                                    List<Integer> notFoundIndicies = new ArrayList<Integer>();
-
-                                    /*
-                                     * The Param annotation lets us know at runtime the name to use
-                                     * when adding entries into the parameter map, which will
-                                     * eventually be stored in the event logs.
-                                     */
-                                    int count = 0;
-                                    for (Annotation[] paramAnnotations : method.getParameterAnnotations()) {
-                                        boolean found = false;
-                                        for (Annotation annotation : paramAnnotations) {
-                                            if (annotation instanceof Param) {
-                                                Param param = (Param) annotation;
-                                                // Set the name to null if we're not including it in the parameter map
-                                                paramNames.add(param.excludeFromAudit() ? null : param.value());
-                                                found = true;
+                                while (clazz != null && operation == null) {
+                                    for (Class<?> interfaceClass : clazz.getInterfaces()) {
+                                        if (BaseServletInterface.class.isAssignableFrom(interfaceClass)) {
+                                            operation = OperationUtil.getOperation(interfaceClass, method);
+                                            if (operation != null) {
+                                                methodInfo.setOperation(operation);
                                                 break;
                                             }
                                         }
-                                        if (!found) {
-                                            notFoundIndicies.add(count);
-                                            paramNames.add(null);
-                                        }
-                                        count++;
                                     }
 
-                                    // For each parameter name that wasn't found, replace it with a default name to use in the parameter map
-                                    if (CollectionUtils.isNotEmpty(notFoundIndicies)) {
-                                        for (Integer index : notFoundIndicies) {
-                                            paramNames.set(index, getDefaultParamName(paramNames));
-                                        }
-                                    }
-
-                                    methodInfo.setParamNames(paramNames);
-                                }
-
-                                // Add all arguments to the parameter map, except those that had excludeFromAudit enabled.
-                                for (int i = 0; i < args.length; i++) {
-                                    String paramName = paramNames.get(i);
-                                    if (paramName != null) {
-                                        mirthServlet.addToParameterMap(paramNames.get(i), args[i]);
-                                    }
-                                }
-
-                                if (channelIdIndex == null) {
-                                    channelIdIndex = -1;
-                                    if (methodInfo.getCheckAuthorizedChannelId() != null) {
-                                        channelIdIndex = paramNames.indexOf(methodInfo.getCheckAuthorizedChannelId().paramName());
-                                    }
-                                    methodInfo.setChannelIdIndex(channelIdIndex);
-                                }
-
-                                if (userIdIndex == null) {
-                                    userIdIndex = -1;
-                                    if (methodInfo.getCheckAuthorizedUserId() != null) {
-                                        userIdIndex = paramNames.indexOf(methodInfo.getCheckAuthorizedUserId().paramName());
-                                    }
-                                    methodInfo.setUserIdIndex(channelIdIndex);
+                                    clazz = clazz.getSuperclass();
                                 }
                             }
+                            mirthServlet.setOperation(operation);
 
-                            // Authorize the request
-                            if (channelIdIndex != null && channelIdIndex >= 0) {
-                                mirthServlet.checkUserAuthorized((String) args[channelIdIndex]);
-                            } else if (userIdIndex != null && userIdIndex >= 0) {
-                                mirthServlet.checkUserAuthorized((Integer) args[userIdIndex], methodInfo.getCheckAuthorizedUserId().auditCurrentUser());
-                            } else {
-                                mirthServlet.checkUserAuthorized();
+                            // Set thread name based on the servlet class and operation name
+                            Thread.currentThread().setName(mirthServlet.getClass().getSimpleName() + " Thread (" + operation.getDisplayName() + ") < " + originalThreadName);
+
+                            /*
+                             * If a DontCheckAuthorized annotation is present on the server
+                             * implementation method, then no auditing is done now and the servlet
+                             * is expected to call checkUserAuthorized. Two other optional
+                             * annotations determine whether the channel/user ID should be used in
+                             * the authorization check.
+                             */
+                            Boolean checkAuthorized = methodInfo.getCheckAuthorized();
+                            if (checkAuthorized == null) {
+                                checkAuthorized = true;
+
+                                Method matchingMethod = mirthServlet.getClass().getMethod(method.getName(), method.getParameterTypes());
+                                if (matchingMethod != null) {
+                                    checkAuthorized = matchingMethod.getAnnotation(DontCheckAuthorized.class) == null;
+                                    methodInfo.setCheckAuthorizedChannelId(matchingMethod.getAnnotation(CheckAuthorizedChannelId.class));
+                                    methodInfo.setCheckAuthorizedUserId(matchingMethod.getAnnotation(CheckAuthorizedUserId.class));
+                                }
+
+                                methodInfo.setCheckAuthorized(checkAuthorized);
                             }
-                        }
-                    } catch (Throwable t) {
-                        if (!(t instanceof WebApplicationException)) {
-                            t = new MirthApiException(t);
-                        }
-                        throw new InvocationTargetException(t);
-                    }
-                }
 
-                try {
-                    return method.invoke(proxy, args);
-                } catch (InvocationTargetException e) {
-                    if (e.getCause() instanceof WebApplicationException) {
-                        throw e;
-                    } else {
-                        throw new InvocationTargetException(new MirthApiException(e.getCause()));
+                            if (checkAuthorized) {
+                                /*
+                                 * We need to know what parameter index the channel/user ID resides
+                                 * at so we can correctly include it with the authorization request.
+                                 */
+                                Integer channelIdIndex = methodInfo.getChannelIdIndex();
+                                Integer userIdIndex = methodInfo.getUserIdIndex();
+
+                                if (args.length > 0) {
+                                    List<String> paramNames = methodInfo.getParamNames();
+                                    if (paramNames == null) {
+                                        paramNames = new ArrayList<String>();
+                                        List<Integer> notFoundIndicies = new ArrayList<Integer>();
+
+                                        /*
+                                         * The Param annotation lets us know at runtime the name to
+                                         * use when adding entries into the parameter map, which
+                                         * will eventually be stored in the event logs.
+                                         */
+                                        int count = 0;
+                                        for (Annotation[] paramAnnotations : method.getParameterAnnotations()) {
+                                            boolean found = false;
+                                            for (Annotation annotation : paramAnnotations) {
+                                                if (annotation instanceof Param) {
+                                                    Param param = (Param) annotation;
+                                                    // Set the name to null if we're not including it in the parameter map
+                                                    paramNames.add(param.excludeFromAudit() ? null : param.value());
+                                                    found = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!found) {
+                                                notFoundIndicies.add(count);
+                                                paramNames.add(null);
+                                            }
+                                            count++;
+                                        }
+
+                                        // For each parameter name that wasn't found, replace it with a default name to use in the parameter map
+                                        if (CollectionUtils.isNotEmpty(notFoundIndicies)) {
+                                            for (Integer index : notFoundIndicies) {
+                                                paramNames.set(index, getDefaultParamName(paramNames));
+                                            }
+                                        }
+
+                                        methodInfo.setParamNames(paramNames);
+                                    }
+
+                                    // Add all arguments to the parameter map, except those that had excludeFromAudit enabled.
+                                    for (int i = 0; i < args.length; i++) {
+                                        String paramName = paramNames.get(i);
+                                        if (paramName != null) {
+                                            mirthServlet.addToParameterMap(paramNames.get(i), args[i]);
+                                        }
+                                    }
+
+                                    if (channelIdIndex == null) {
+                                        channelIdIndex = -1;
+                                        if (methodInfo.getCheckAuthorizedChannelId() != null) {
+                                            channelIdIndex = paramNames.indexOf(methodInfo.getCheckAuthorizedChannelId().paramName());
+                                        }
+                                        methodInfo.setChannelIdIndex(channelIdIndex);
+                                    }
+
+                                    if (userIdIndex == null) {
+                                        userIdIndex = -1;
+                                        if (methodInfo.getCheckAuthorizedUserId() != null) {
+                                            userIdIndex = paramNames.indexOf(methodInfo.getCheckAuthorizedUserId().paramName());
+                                        }
+                                        methodInfo.setUserIdIndex(channelIdIndex);
+                                    }
+                                }
+
+                                // Authorize the request
+                                if (channelIdIndex != null && channelIdIndex >= 0) {
+                                    mirthServlet.checkUserAuthorized((String) args[channelIdIndex]);
+                                } else if (userIdIndex != null && userIdIndex >= 0) {
+                                    mirthServlet.checkUserAuthorized((Integer) args[userIdIndex], methodInfo.getCheckAuthorizedUserId().auditCurrentUser());
+                                } else {
+                                    mirthServlet.checkUserAuthorized();
+                                }
+                            }
+                        } catch (Throwable t) {
+                            if (!(t instanceof WebApplicationException)) {
+                                t = new MirthApiException(t);
+                            }
+                            throw new InvocationTargetException(t);
+                        }
                     }
+
+                    try {
+                        return method.invoke(proxy, args);
+                    } catch (InvocationTargetException e) {
+                        if (e.getCause() instanceof WebApplicationException) {
+                            throw e;
+                        } else {
+                            throw new InvocationTargetException(new MirthApiException(e.getCause()));
+                        }
+                    }
+                } finally {
+                    Thread.currentThread().setName(originalThreadName);
                 }
             }
         };

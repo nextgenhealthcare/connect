@@ -363,7 +363,7 @@ public class TcpDispatcher extends DestinationConnector {
     private void startThread(final String socketKey) {
         disposeThreadQuietly(socketKey);
 
-        Thread thread = new Thread() {
+        Thread thread = new Thread("TCP Dispatcher Send Timeout Thread for key " + socketKey) {
             @Override
             public void run() {
                 try {

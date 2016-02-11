@@ -227,8 +227,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
             // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
             queue.invalidate(true, true);
 
-            for (int i = 0; i < destinationConnectorProperties.getThreadCount(); i++) {
+            for (int i = 1; i <= destinationConnectorProperties.getThreadCount(); i++) {
                 Thread thread = new Thread(this);
+                thread.setName("Destination Queue Thread " + i + " on " + channel.getName() + " (" + getChannelId() + "), " + destinationName + " (" + getMetaDataId() + ")");
                 thread.start();
                 queueThreads.put(thread.getId(), thread);
             }

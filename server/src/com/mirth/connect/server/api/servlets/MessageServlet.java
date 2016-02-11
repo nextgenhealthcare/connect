@@ -93,7 +93,7 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
         };
 
         // Process the message on a new thread so the client is not waiting for it to complete.
-        new Thread(processTask).start();
+        new Thread(processTask, "Message Process Thread < " + Thread.currentThread().getName()).start();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
         };
 
         // Process the message on a new thread so the client is not waiting for it to complete.
-        new Thread(processTask).start();
+        new Thread(processTask, "Message Process Thread < " + Thread.currentThread().getName()).start();
     }
 
     @Override
@@ -213,7 +213,7 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
         };
 
         // Process the message on a new thread so the client is not waiting for it to complete.
-        new Thread(reprocessTask).start();
+        new Thread(reprocessTask, "Message Reprocess Thread < " + Thread.currentThread().getName()).start();
     }
 
     @Override

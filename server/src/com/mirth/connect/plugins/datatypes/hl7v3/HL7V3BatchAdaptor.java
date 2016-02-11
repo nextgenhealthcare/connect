@@ -113,9 +113,9 @@ public class HL7V3BatchAdaptor extends BatchAdaptor {
                     }
                 }
 
-                String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory) {
+                String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "HL7 v3 Batch Adaptor", sourceConnector) {
                     @Override
-                    public String call() throws Exception {
+                    public String doCall() throws Exception {
                         Script compiledScript = CompiledScriptCache.getInstance().getCompiledScript(batchScriptId);
 
                         if (compiledScript == null) {

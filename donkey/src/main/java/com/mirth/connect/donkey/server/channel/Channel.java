@@ -663,6 +663,7 @@ public class Channel implements Runnable {
                     queueThreads.clear();
                     for (int i = 1; i <= processingThreads; i++) {
                         Thread queueThread = new Thread(Channel.this);
+                        queueThread.setName("Source Queue Thread " + i + " on " + name + " (" + channelId + ")");
                         queueThread.start();
                         queueThreads.put(queueThread.getId(), queueThread);
                     }
@@ -1128,6 +1129,7 @@ public class Channel implements Runnable {
         }
 
         Thread currentThread = Thread.currentThread();
+        String originalThreadName = currentThread.getName();
         boolean lockAcquired = false;
         Long persistedMessageId = null;
 
@@ -1138,6 +1140,12 @@ public class Channel implements Runnable {
                 } else {
                     throw new ChannelException(true);
                 }
+            }
+
+            if (StringUtils.contains(originalThreadName, channelId)) {
+                currentThread.setName("Channel Dispatch Thread < " + originalThreadName);
+            } else {
+                currentThread.setName("Channel Dispatch Thread on " + name + " (" + channelId + ") < " + originalThreadName);
             }
 
             DonkeyDao dao = null;
@@ -1236,6 +1244,7 @@ public class Channel implements Runnable {
             synchronized (dispatchThreads) {
                 dispatchThreads.remove(currentThread);
             }
+            currentThread.setName(originalThreadName);
         }
     }
 
@@ -1665,7 +1674,9 @@ public class Channel implements Runnable {
 
                 for (int i = 0; i <= enabledChains.size() - 2; i++) {
                     try {
-                        destinationChainTasks.add(channelExecutor.submit(enabledChains.get(i)));
+                        DestinationChain chain = enabledChains.get(i);
+                        chain.setName("Destination Chain Thread " + (i + 1) + " on " + name + " (" + channelId + ")");
+                        destinationChainTasks.add(channelExecutor.submit(chain));
                     } catch (RejectedExecutionException e) {
                         Thread.currentThread().interrupt();
                         throw new InterruptedException();
@@ -1676,7 +1687,9 @@ public class Channel implements Runnable {
 
                 // Always call the last chain directly rather than submitting it as a Future
                 try {
-                    connectorMessages = enabledChains.get(enabledChains.size() - 1).call();
+                    DestinationChain chain = enabledChains.get(enabledChains.size() - 1);
+                    chain.setName("Destination Chain Thread " + enabledChains.size() + " on " + name + " (" + channelId + ")");
+                    connectorMessages = chain.call();
                 } catch (Throwable t) {
                     handleDestinationChainThrowable(t);
                 }

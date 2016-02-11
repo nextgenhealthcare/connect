@@ -125,8 +125,11 @@ public class JmsReceiver extends SourceConnector {
             DispatchResult dispatchResult = null;
 
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
+            String originalThreadName = Thread.currentThread().getName();
 
             try {
+                Thread.currentThread().setName("JMS Receiver Thread on " + getChannel().getName() + " (" + getChannelId() + ") < " + originalThreadName);
+
                 try {
                     rawMessage = jmsMessageToRawMessage(message);
                     messageId = rawMessage.getOriginalMessageId();
@@ -176,6 +179,7 @@ public class JmsReceiver extends SourceConnector {
                 }
             } finally {
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+                Thread.currentThread().setName(originalThreadName);
             }
         }
 

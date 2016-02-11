@@ -31,10 +31,12 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
     private ConnectorMessage message;
     private List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
     private Logger logger = Logger.getLogger(getClass());
+    private String name;
 
     public DestinationChain(DestinationChainProvider chainProvider) {
         this.chainProvider = chainProvider;
         enabledMetaDataIds = new ArrayList<Integer>(chainProvider.getMetaDataIds());
+        name = "Destination Chain Thread on " + chainProvider.getChannelId();
     }
 
     public void setMessage(ConnectorMessage message) {
@@ -49,8 +51,22 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
         this.enabledMetaDataIds = enabledMetaDataIds;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public List<ConnectorMessage> call() throws InterruptedException {
+        String originalThreadName = Thread.currentThread().getName();
+        try {
+            Thread.currentThread().setName(name + " < " + originalThreadName);
+            return doCall();
+        } finally {
+            Thread.currentThread().setName(originalThreadName);
+        }
+    }
+
+    private List<ConnectorMessage> doCall() throws InterruptedException {
         List<ConnectorMessage> messages = new ArrayList<ConnectorMessage>();
         ConnectorMessage message = this.message;
         int startMetaDataId = enabledMetaDataIds.indexOf(message.getMetaDataId());
@@ -99,7 +115,13 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
 
                                 // If the message status is QUEUED, send it to the destination connector
                                 if (message.getStatus() == Status.QUEUED) {
-                                    destinationConnector.process(dao, message, previousStatus);
+                                    String originalThreadName = Thread.currentThread().getName();
+                                    try {
+                                        Thread.currentThread().setName(destinationConnector.getConnectorProperties().getName() + " Process Thread on " + destinationConnector.getChannel().getName() + " (" + chainProvider.getChannelId() + "), " + destinationConnector.getDestinationName() + " (" + metaDataId + ")");
+                                        destinationConnector.process(dao, message, previousStatus);
+                                    } finally {
+                                        Thread.currentThread().setName(originalThreadName);
+                                    }
                                 } else if (message.getStatus() == Status.ERROR && message.getSent() == null) {
                                     // If an error occurred in the filter/transformer, don't proceed with the rest of the chain
                                     stopChain = true;

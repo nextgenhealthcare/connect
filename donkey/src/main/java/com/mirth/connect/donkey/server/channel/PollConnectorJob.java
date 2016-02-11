@@ -28,31 +28,35 @@ public class PollConnectorJob implements InterruptableJob {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-    	boolean locked = false;
-    	if (!lock.isLocked()) {
-    	    synchronized (lock) {
-    	        if (!lock.isLocked()) {
-    	            lock.lock();
-    	            locked = true;
-    	        }
-    	    }
-    	}
-    	
-    	if(locked) {
-	        try {
-	            if (!pollConnector.isTerminated()) {
-	                thread = Thread.currentThread();
-	
-	                try {
-	                    pollConnector.poll();
-	                } catch (InterruptedException e) {
-	                    Thread.currentThread().interrupt();
-	                }
-	            }
-	        } finally {
-	            lock.unlock();
-	        }
-    	}
+        boolean locked = false;
+        if (!lock.isLocked()) {
+            synchronized (lock) {
+                if (!lock.isLocked()) {
+                    lock.lock();
+                    locked = true;
+                }
+            }
+        }
+
+        if (locked) {
+            try {
+                if (!pollConnector.isTerminated()) {
+                    thread = Thread.currentThread();
+                    String originalThreadName = thread.getName();
+
+                    try {
+                        thread.setName(pollConnector.getConnectorProperties().getName() + " Polling Thread on " + pollConnector.getChannel().getName() + " (" + pollConnector.getChannelId() + ") < " + originalThreadName);
+                        pollConnector.poll();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    } finally {
+                        thread.setName(originalThreadName);
+                    }
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
     @Override

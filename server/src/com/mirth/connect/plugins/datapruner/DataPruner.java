@@ -203,7 +203,7 @@ public class DataPruner implements Runnable {
         status.setStartTime(Calendar.getInstance());
 
         logger.debug("Triggering data pruner task");
-        pruneThread = new Thread(this);
+        pruneThread = new Thread(this, "Data Pruner Thread");
         pruneThread.start();
 
         return true;

@@ -114,9 +114,9 @@ public class EDIBatchAdaptor extends BatchAdaptor {
                     }
                 }
 
-                String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory) {
+                String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "EDI/X12 Batch Adaptor", sourceConnector) {
                     @Override
-                    public String call() throws Exception {
+                    public String doCall() throws Exception {
                         Script compiledScript = CompiledScriptCache.getInstance().getCompiledScript(batchScriptId);
 
                         if (compiledScript == null) {

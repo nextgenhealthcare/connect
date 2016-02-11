@@ -18,7 +18,7 @@ import com.mirth.connect.donkey.server.event.EventType;
 
 public abstract class EventListener implements Runnable {
 
-    private Thread workerThread = new Thread(this);
+    private Thread workerThread = new Thread(this, getClass().getSimpleName() + " Consumer Thread");
     protected BlockingQueue<Event> queue = new LinkedBlockingQueue<Event>();
 
     public EventListener() {

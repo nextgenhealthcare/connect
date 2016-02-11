@@ -55,12 +55,12 @@ public class JavaScriptAuthenticator extends Authenticator {
         private RequestInfo request;
 
         public JavaScriptAuthenticatorTask(RequestInfo request) throws Exception {
-            super(provider.getContextFactory());
+            super(provider.getContextFactory(), provider.getConnector().getConnectorProperties().getName() + " Authenticator", provider.getConnector());
             this.request = request;
         }
 
         @Override
-        public AuthenticationResult call() throws Exception {
+        public AuthenticationResult doCall() throws Exception {
             Script compiledScript = compiledScriptCache.getCompiledScript(provider.getScriptId());
 
             if (compiledScript == null) {

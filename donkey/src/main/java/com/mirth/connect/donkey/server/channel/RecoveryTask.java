@@ -36,6 +36,17 @@ public class RecoveryTask implements Callable<Void> {
 
     @Override
     public Void call() throws Exception {
+        String originalThreadName = Thread.currentThread().getName();
+
+        try {
+            Thread.currentThread().setName("Recovery Task Thread on " + channel.getName() + " (" + channel.getChannelId() + ") < " + originalThreadName);
+            return doCall();
+        } finally {
+            Thread.currentThread().setName(originalThreadName);
+        }
+    }
+
+    private Void doCall() throws Exception {
         StorageSettings storageSettings = channel.getStorageSettings();
         Long maxMessageId = null;
         // The number of messages that were attempted to be recovered
@@ -256,6 +267,7 @@ public class RecoveryTask implements Callable<Void> {
 
                             chain.setEnabledMetaDataIds(enabledMetaDataIds);
                             chain.setMessage(connectorMessage);
+                            chain.setName("Recovery Task Destination Chain Thread on " + channel.getName() + " (" + channel.getChannelId() + ")");
                             List<ConnectorMessage> recoveredConnectorMessages = chain.call();
 
                             /*
@@ -313,6 +325,7 @@ public class RecoveryTask implements Callable<Void> {
 
                     chain.setEnabledMetaDataIds(enabledMetaDataIds);
                     chain.setMessage(pendingConnectorMessage);
+                    chain.setName("Recovery Task Destination Chain Thread on " + channel.getName() + " (" + channel.getChannelId() + ")");
                     chain.call();
 
                     break;

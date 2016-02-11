@@ -113,9 +113,9 @@ public class RawBatchAdaptor extends BatchAdaptor {
                     }
                 }
 
-                String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory) {
+                String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "Raw Batch Adaptor", sourceConnector) {
                     @Override
-                    public String call() throws Exception {
+                    public String doCall() throws Exception {
                         String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
                         Script compiledScript = CompiledScriptCache.getInstance().getCompiledScript(batchScriptId);
 

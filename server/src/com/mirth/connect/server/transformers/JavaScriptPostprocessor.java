@@ -95,12 +95,12 @@ public class JavaScriptPostprocessor implements PostProcessor {
         private Message message;
 
         public JavaScriptPostProcessorTask(MirthContextFactory contextFactory, Message message) {
-            super(contextFactory);
+            super(contextFactory, "Postprocessor", channel.getChannelId(), channel.getName());
             this.message = message;
         }
 
         @Override
-        public Object call() throws Exception {
+        public Object doCall() throws Exception {
             return JavaScriptUtil.executePostprocessorScripts(this, message);
         }
     }

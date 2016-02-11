@@ -239,8 +239,11 @@ public class WebServiceReceiver extends SourceConnector {
     public String processData(RawMessage rawMessage) {
         String response = null;
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
+        String originalThreadName = Thread.currentThread().getName();
 
         try {
+            Thread.currentThread().setName("Web Service Receiver Thread on " + getChannel().getName() + " (" + getChannelId() + ") < " + originalThreadName);
+            
             if (isProcessBatch()) {
                 try {
                     if (rawMessage.isBinary()) {
@@ -281,6 +284,7 @@ public class WebServiceReceiver extends SourceConnector {
         } finally {
             // TODO find a way to call this after the response was sent
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+            Thread.currentThread().setName(originalThreadName);
         }
         return response;
     }

@@ -149,11 +149,11 @@ public class JavaScriptReceiver extends PollConnector {
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {
 
         public JavaScriptReceiverTask(MirthContextFactory contextFactory) {
-            super(contextFactory);
+            super(contextFactory, JavaScriptReceiver.this);
         }
 
         @Override
-        public Object call() throws Exception {
+        public Object doCall() throws Exception {
             try {
                 Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), Logger.getLogger("js-connector"), getChannelId(), getChannel().getName());
                 return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), "Source");

@@ -120,12 +120,12 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
         private ConnectorMessage message;
 
         public FilterTransformerTask(MirthContextFactory contextFactory, ConnectorMessage message) {
-            super(contextFactory);
+            super(contextFactory, (connector instanceof SourceConnector ? "Source" : "Destination") + " Filter/Transformer", connector);
             this.message = message;
         }
 
         @Override
-        public FilterTransformerResult call() throws Exception {
+        public FilterTransformerResult doCall() throws Exception {
             Logger scriptLogger = Logger.getLogger("filter");
             // Use an array to store the phase, otherwise java and javascript end up referencing two different objects.
             String[] phase = { new String() };

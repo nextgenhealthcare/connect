@@ -39,7 +39,9 @@ public class MirthDcmRcv extends DcmRcv {
         BasicDicomObject fileMetaInformation = new BasicDicomObject();
         fileMetaInformation.initFileMetaInformation(cuid, iuid, tsuid);
 
+        String originalThreadName = Thread.currentThread().getName();
         try {
+            Thread.currentThread().setName("DICOM Receiver Thread on " + sourceConnector.getChannel().getName() + " (" + sourceConnector.getChannelId() + ") < " + originalThreadName);
             baos = new ByteArrayOutputStream();
             bos = new BufferedOutputStream(baos);
             dos = new DicomOutputStream(bos);
@@ -49,12 +51,12 @@ public class MirthDcmRcv extends DcmRcv {
             dos.close();
 
             byte[] dicomMessage = baos.toByteArray();
-            
+
             // Allow the stream buffers to be garbage collected before the message is processed.
             bos = null;
             baos = null;
             DispatchResult dispatchResult = null;
-            
+
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(new RawMessage(dicomMessage));
             } finally {
@@ -64,6 +66,7 @@ public class MirthDcmRcv extends DcmRcv {
         } catch (Exception e) {
             logger.error(e);
         } finally {
+            Thread.currentThread().setName(originalThreadName);
             // Let the dispose take care of closing the socket
             IOUtils.closeQuietly(baos);
             IOUtils.closeQuietly(bos);

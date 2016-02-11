@@ -110,6 +110,7 @@ public class Mirth extends Thread {
     }
 
     public void run() {
+        Thread.currentThread().setName("Main Server Thread");
         initializeLogging();
 
         if (initResources()) {
@@ -413,6 +414,7 @@ public class Mirth extends Thread {
 
     private class ShutdownHook extends Thread {
         public void run() {
+            Thread.currentThread().setName("Shutdown Hook Thread");
             shutdown();
 
             for (Thread thread : shutdownHooks) {

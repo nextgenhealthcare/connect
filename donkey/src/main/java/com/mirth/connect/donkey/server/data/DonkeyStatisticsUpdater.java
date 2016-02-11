@@ -32,6 +32,7 @@ public class DonkeyStatisticsUpdater extends Thread implements StatisticsUpdater
             updateInterval = DEFAULT_UPDATE_INTERVAL;
         }
         this.updateInterval = updateInterval;
+        setName("Statistics Updater Thread");
     }
 
     public void setDaoFactory(DonkeyDaoFactory daoFactory) {
