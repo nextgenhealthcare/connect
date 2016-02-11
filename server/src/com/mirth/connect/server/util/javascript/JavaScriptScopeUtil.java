@@ -191,6 +191,10 @@ public class JavaScriptScopeUtil {
         add("DatabaseConnectionFactory", scope, new DatabaseConnectionFactory((MirthContextFactory) ((MirthContext) context).getFactory()));
     }
 
+    private static void addContextFactory(Scriptable scope, Context context) {
+        add("contextFactory", scope, new com.mirth.connect.server.userutil.ContextFactory((MirthContextFactory) ((MirthContext) context).getFactory()));
+    }
+
     // Status enum builder
     private static void addStatusValues(Scriptable scope) {
         for (Status status : Status.values()) {
@@ -209,6 +213,7 @@ public class JavaScriptScopeUtil {
         addConfigurationMap(scope);
         addGlobalMap(scope);
         addDatabaseConnectionFactory(scope, context);
+        addContextFactory(scope, context);
         return scope;
     }
 

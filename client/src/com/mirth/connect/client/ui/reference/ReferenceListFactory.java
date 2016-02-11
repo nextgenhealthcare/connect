@@ -422,6 +422,7 @@ public class ReferenceListFactory {
         addReference(new VariableReference(CONTEXT_GLOBAL, null, "VMRouter", "An instance of VMRouter that can be used to dispatch messages to other channels.", "router"));
         addReference(new VariableReference(CONTEXT_CONNECTOR, null, "TemplateValueReplacer", "An instance of TemplateValueReplacer that can be used to perform Velocity template replacement.", "replacer"));
         addReference(new VariableReference(CONTEXT_BATCH, null, "Batch Reader", "In a JavaScript batch script, this BufferedReader object is used to read the incoming data stream.", "reader"));
+        addReference(new VariableReference(CONTEXT_GLOBAL, null, "JavaScript Context Factory", "This object can be used to retrieve the resource IDs and classloaders used by the current JavaScript context.", "contextFactory"));
 
         addReference(new FunctionReference(CONTEXT_GLOBAL, null, null, "Get Map Value", "Returns the value of the key if it exists in any map.", null, new CodeTemplateFunctionDefinition("$", new Parameters("key", "String", "The key of the entry to retrieve."), "Object", "The value, or null if no value exists.")));
         addReference(new FunctionReference(CONTEXT_GLOBAL, null, null, "Get Configuration Map Value", "Get a value from the configuration map.", null, new CodeTemplateFunctionDefinition("$cfg", new Parameters("key", "String", "The key of the entry to retrieve."), "Object", "The value contained in the map, or null if no value exists.")));
@@ -568,6 +569,7 @@ public class ReferenceListFactory {
         aliasMap.put("com.mirth.connect.server.userutil.AlertSender", Collections.singletonList("alerts"));
         aliasMap.put("com.mirth.connect.server.userutil.VMRouter", Collections.singletonList("router"));
         aliasMap.put("com.mirth.connect.server.userutil.DestinationSet", Collections.singletonList("destinationSet"));
+        aliasMap.put("com.mirth.connect.server.userutil.ContextFactory", Collections.singletonList("contextFactory"));
         aliasMap.put("java.util.HashMap", Arrays.asList(new String[] { "connectorMap",
                 "channelMap", "sourceMap", "globalMap", "configurationMap", "globalChannelMap",
                 "responseMap" }));
