@@ -34,6 +34,7 @@ import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
@@ -177,7 +178,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         } else {
             serverNameField.setText("");
         }
-        
+
         if (serverSettings.getSmtpHost() != null) {
             smtpHostField.setText(serverSettings.getSmtpHost());
         } else {
@@ -267,7 +268,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     /** Saves the current settings from the settings form */
     public ServerSettings getServerSettings() {
         ServerSettings serverSettings = new ServerSettings();
-        
+
         serverSettings.setServerName(serverNameField.getText());
 
         serverSettings.setClearGlobalMap(clearGlobalMapYesRadio.isSelected());
@@ -371,6 +372,11 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     } catch (ClientException e) {
                         getFrame().alertThrowable(SettingsPanelServer.this, e);
                         return null;
+                    }
+
+                    // Update resource names
+                    for (Channel channel : configuration.getChannels()) {
+                        getFrame().updateResourceNames(channel, configuration.getResourceProperties().getList());
                     }
 
                     configuration.setDate(backupDate);

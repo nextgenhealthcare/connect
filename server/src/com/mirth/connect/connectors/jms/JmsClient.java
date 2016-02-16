@@ -75,9 +75,9 @@ public class JmsClient implements ExceptionListener {
         this.intervalMillis = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getReconnectIntervalMillis(), connector.getChannelId(), connector.getChannel().getName()));
 
         if (connectorProperties instanceof SourceConnectorPropertiesInterface) {
-            resourceIds = ((SourceConnectorPropertiesInterface) connectorProperties).getSourceConnectorProperties().getResourceIds();
+            resourceIds = ((SourceConnectorPropertiesInterface) connectorProperties).getSourceConnectorProperties().getResourceIds().keySet();
         } else if (connectorProperties instanceof DestinationConnectorPropertiesInterface) {
-            resourceIds = ((DestinationConnectorPropertiesInterface) connectorProperties).getDestinationConnectorProperties().getResourceIds();
+            resourceIds = ((DestinationConnectorPropertiesInterface) connectorProperties).getDestinationConnectorProperties().getResourceIds().keySet();
         }
     }
 

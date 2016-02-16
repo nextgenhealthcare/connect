@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -54,7 +53,7 @@ public class ChannelDependenciesDialog extends MirthDialog {
         return saved;
     }
 
-    public Map<Integer, Set<String>> getSelectedResourceIds() {
+    public Map<Integer, Map<String, String>> getSelectedResourceIds() {
         return resourcesPanel.getSelectedResourceIds();
     }
 

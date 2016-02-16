@@ -107,7 +107,9 @@ import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
 import com.mirth.connect.client.ui.components.rsta.ac.js.MirthJavaScriptLanguageSupport;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
 import com.mirth.connect.donkey.model.channel.DeployedState;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
@@ -130,6 +132,7 @@ import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
@@ -480,6 +483,12 @@ public class Frame extends JXFrame {
 
         // Refresh code templates after extensions have been loaded
         codeTemplatePanel.doRefreshCodeTemplates(false);
+
+        // Refresh resources
+        if (settingsPane == null) {
+            settingsPane = new SettingsPane();
+        }
+        ((SettingsPanelResources) settingsPane.getSettingsPanel(SettingsPanelResources.TAB_NAME)).doRefresh();
 
         // DEBUGGING THE UIDefaults:
 
@@ -3530,6 +3539,9 @@ public class Frame extends JXFrame {
             importChannel.getCodeTemplateLibraries().clear();
         }
 
+        // Update resource names
+        updateResourceNames(importChannel);
+
         /*
          * Update the channel if we're overwriting an imported channel, if we're not showing alerts
          * (dragging/dropping multiple channels), or if we're working with an invalid channel.
@@ -3635,6 +3647,9 @@ public class Frame extends JXFrame {
                 addCodeTemplateLibrariesToChannel(channel);
             }
         }
+
+        // Update resource names
+        updateResourceNames(channel);
 
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String channelXML = serializer.serialize(channel);
@@ -3749,6 +3764,9 @@ public class Frame extends JXFrame {
                 if (exportFile.exists()) {
                     exportCollisionCount++;
                 }
+
+                // Update resource names
+                updateResourceNames(channel);
             }
 
             try {
@@ -3981,6 +3999,9 @@ public class Frame extends JXFrame {
         }
 
         Connector connector = channelEditPanel.exportSelectedConnector();
+
+        // Update resource names
+        updateResourceNames(connector);
 
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String connectorXML = serializer.serialize(connector);
@@ -5178,6 +5199,78 @@ public class Frame extends JXFrame {
                 alertError(this, "The imported object(s) are not of the expected class: " + expectedClass.getSimpleName());
             } else {
                 alertError(this, "One or more imported objects were skipped, because they are not of the expected class: " + expectedClass.getSimpleName());
+            }
+        }
+    }
+
+    public List<ResourceProperties> getResources() {
+        if (settingsPane == null) {
+            settingsPane = new SettingsPane();
+        }
+        SettingsPanelResources resourcesPanel = (SettingsPanelResources) settingsPane.getSettingsPanel(SettingsPanelResources.TAB_NAME);
+        List<ResourceProperties> resourceProperties = resourcesPanel.getCachedResources();
+        if (resourceProperties == null) {
+            resourcesPanel.refresh();
+            resourceProperties = resourcesPanel.getCachedResources();
+        }
+        return resourceProperties;
+    }
+
+    public void updateResourceNames(Channel channel) {
+        updateResourceNames(channel, getResources());
+    }
+
+    public void updateResourceNames(Channel channel, List<ResourceProperties> resourceProperties) {
+        if (!(channel instanceof InvalidChannel)) {
+            updateResourceNames(channel.getProperties().getResourceIds(), resourceProperties);
+            updateResourceNames(channel.getSourceConnector(), resourceProperties);
+            for (Connector destinationConnector : channel.getDestinationConnectors()) {
+                updateResourceNames(destinationConnector, resourceProperties);
+            }
+        }
+    }
+
+    public void updateResourceNames(Connector connector) {
+        updateResourceNames(connector, getResources());
+    }
+
+    private void updateResourceNames(Connector connector, List<ResourceProperties> resourceProperties) {
+        if (connector.getProperties() instanceof SourceConnectorPropertiesInterface) {
+            updateResourceNames(((SourceConnectorPropertiesInterface) connector.getProperties()).getSourceConnectorProperties().getResourceIds(), resourceProperties);
+        } else {
+            updateResourceNames(((DestinationConnectorPropertiesInterface) connector.getProperties()).getDestinationConnectorProperties().getResourceIds(), resourceProperties);
+        }
+    }
+
+    private void updateResourceNames(Map<String, String> resourceIds, List<ResourceProperties> resourceProperties) {
+        if (resourceProperties != null) {
+            Set<String> invalidIds = new HashSet<String>(resourceIds.keySet());
+
+            // First update the names of all resources currently in the map
+            for (ResourceProperties resource : resourceProperties) {
+                if (resourceIds.containsKey(resource.getId())) {
+                    resourceIds.put(resource.getId(), resource.getName());
+                    // If the resource ID was found it's not invalid
+                    invalidIds.remove(resource.getId());
+                }
+            }
+
+            /*
+             * Iterate through all resource IDs that weren't found in the current list of resources.
+             * If there's a resource with a different ID but the same name as a particular entry,
+             * then replace the entry with the correct ID/name.
+             */
+            for (String invalidId : invalidIds) {
+                String resourceName = resourceIds.get(invalidId);
+                if (StringUtils.isNotBlank(resourceName)) {
+                    for (ResourceProperties resource : resourceProperties) {
+                        // Replace if the names are equal and the resource ID isn't already contained in the map
+                        if (resource.getName().equals(resourceName) && !resourceIds.containsKey(resource.getId())) {
+                            resourceIds.put(resource.getId(), resourceName);
+                            resourceIds.remove(invalidId);
+                        }
+                    }
+                }
             }
         }
     }

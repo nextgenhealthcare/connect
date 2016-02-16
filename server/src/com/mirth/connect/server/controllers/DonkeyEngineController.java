@@ -769,8 +769,8 @@ public class DonkeyEngineController implements EngineController {
 
         Channel channel = new Channel();
 
-        channel.setResourceIds(channelModel.getProperties().getResourceIds());
-        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channelModel.getProperties().getResourceIds());
+        channel.setResourceIds(channelModel.getProperties().getResourceIds().keySet());
+        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channelModel.getProperties().getResourceIds().keySet());
         channel.setContextFactoryId(contextFactory.getId());
 
         Map<String, Integer> destinationIdMap = new LinkedHashMap<String, Integer>();
@@ -849,10 +849,10 @@ public class DonkeyEngineController implements EngineController {
 
     protected SerializerProvider createSerializerProvider(com.mirth.connect.model.Channel channelModel) {
         final Map<Integer, Set<String>> resourceIdMap = new HashMap<Integer, Set<String>>();
-        resourceIdMap.put(null, channelModel.getProperties().getResourceIds());
-        resourceIdMap.put(0, ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties().getResourceIds());
+        resourceIdMap.put(null, channelModel.getProperties().getResourceIds().keySet());
+        resourceIdMap.put(0, ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties().getResourceIds().keySet());
         for (com.mirth.connect.model.Connector destinationConnector : channelModel.getDestinationConnectors()) {
-            resourceIdMap.put(destinationConnector.getMetaDataId(), ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().getResourceIds());
+            resourceIdMap.put(destinationConnector.getMetaDataId(), ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().getResourceIds().keySet());
         }
 
         return new SerializerProvider() {
@@ -989,7 +989,7 @@ public class DonkeyEngineController implements EngineController {
         SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) connectorProperties).getSourceConnectorProperties();
         sourceConnector.setRespondAfterProcessing(sourceConnectorProperties.isRespondAfterProcessing());
 
-        sourceConnector.setResourceIds(sourceConnectorProperties.getResourceIds());
+        sourceConnector.setResourceIds(sourceConnectorProperties.getResourceIds().keySet());
 
         DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(connectorModel.getTransformer().getInboundDataType());
         DataTypeProperties dataTypeProperties = connectorModel.getTransformer().getInboundProperties();
@@ -1140,7 +1140,7 @@ public class DonkeyEngineController implements EngineController {
 
         DestinationConnectorProperties destinationConnectorProperties = ((DestinationConnectorPropertiesInterface) connectorProperties).getDestinationConnectorProperties();
 
-        destinationConnector.setResourceIds(destinationConnectorProperties.getResourceIds());
+        destinationConnector.setResourceIds(destinationConnectorProperties.getResourceIds().keySet());
         destinationConnector.setFilterTransformerExecutor(createFilterTransformerExecutor(destinationConnector, connectorModel, destinationIdMap));
 
         destinationConnector.setDestinationName(connectorModel.getName());
@@ -1444,7 +1444,7 @@ public class DonkeyEngineController implements EngineController {
                 MirthContextFactory contextFactory;
 
                 try {
-                    contextFactory = contextFactoryController.getContextFactory(channelModel.getProperties().getResourceIds());
+                    contextFactory = contextFactoryController.getContextFactory(channelModel.getProperties().getResourceIds().keySet());
                 } catch (Exception e) {
                     throw new DeployException("Failed to deploy channel " + channelId + ".", e);
                 }

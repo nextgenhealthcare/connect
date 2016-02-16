@@ -18,10 +18,9 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
@@ -70,29 +69,29 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
     private static final int PROPERTIES_COLUMN = 1;
     private static final int TYPE_COLUMN = 2;
 
-    private Map<Integer, Set<String>> selectedResourceIds;
+    private Map<Integer, Map<String, String>> selectedResourceIds;
 
     public LibraryResourcesPanel(final ChannelDependenciesDialog parent, Channel channel) {
-        selectedResourceIds = new HashMap<Integer, Set<String>>();
+        selectedResourceIds = new HashMap<Integer, Map<String, String>>();
 
-        Set<String> channelResourceIds = channel.getProperties().getResourceIds();
+        Map<String, String> channelResourceIds = channel.getProperties().getResourceIds();
         if (channelResourceIds == null) {
-            channelResourceIds = new LinkedHashSet<String>();
+            channelResourceIds = new LinkedHashMap<String, String>();
         }
-        selectedResourceIds.put(null, new LinkedHashSet<String>(channelResourceIds));
+        selectedResourceIds.put(null, new LinkedHashMap<String, String>(channelResourceIds));
 
-        Set<String> sourceResourceIds = ((SourceConnectorPropertiesInterface) channel.getSourceConnector().getProperties()).getSourceConnectorProperties().getResourceIds();
+        Map<String, String> sourceResourceIds = ((SourceConnectorPropertiesInterface) channel.getSourceConnector().getProperties()).getSourceConnectorProperties().getResourceIds();
         if (sourceResourceIds == null) {
-            sourceResourceIds = new LinkedHashSet<String>();
+            sourceResourceIds = new LinkedHashMap<String, String>();
         }
-        selectedResourceIds.put(channel.getSourceConnector().getMetaDataId(), new LinkedHashSet<String>(sourceResourceIds));
+        selectedResourceIds.put(channel.getSourceConnector().getMetaDataId(), new LinkedHashMap<String, String>(sourceResourceIds));
 
         for (Connector destinationConnector : channel.getDestinationConnectors()) {
-            Set<String> destinationResourceIds = ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().getResourceIds();
+            Map<String, String> destinationResourceIds = ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().getResourceIds();
             if (destinationResourceIds == null) {
-                destinationResourceIds = new LinkedHashSet<String>();
+                destinationResourceIds = new LinkedHashMap<String, String>();
             }
-            selectedResourceIds.put(destinationConnector.getMetaDataId(), new LinkedHashSet<String>(destinationResourceIds));
+            selectedResourceIds.put(destinationConnector.getMetaDataId(), new LinkedHashMap<String, String>(destinationResourceIds));
         }
 
         initComponents(channel);
@@ -130,6 +129,12 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
                         data[i][PROPERTIES_COLUMN] = properties;
                         data[i][TYPE_COLUMN] = properties.getType();
                         i++;
+
+                        for (Map<String, String> resourceIds : selectedResourceIds.values()) {
+                            if (resourceIds.containsKey(properties.getId())) {
+                                resourceIds.put(properties.getId(), properties.getName());
+                            }
+                        }
                     }
 
                     ((RefreshTableModel) resourceTable.getModel()).refreshDataVector(data);
@@ -151,7 +156,7 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
         worker.execute();
     }
 
-    public Map<Integer, Set<String>> getSelectedResourceIds() {
+    public Map<Integer, Map<String, String>> getSelectedResourceIds() {
         return selectedResourceIds;
     }
 
@@ -281,7 +286,7 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
                 boolean allChildrenChecked = true;
                 boolean allChildrenUnchecked = true;
                 for (Enumeration<? extends MutableTreeTableNode> en = node.children(); en.hasMoreElements();) {
-                    if (selectedResourceIds.get(((ConnectorEntry) en.nextElement().getUserObject()).metaDataId).contains(properties.getId())) {
+                    if (selectedResourceIds.get(((ConnectorEntry) en.nextElement().getUserObject()).metaDataId).containsKey(properties.getId())) {
                         allChildrenUnchecked = false;
                     } else {
                         allChildrenChecked = false;
@@ -300,7 +305,7 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
             resourceTable.setEnabled(node.getParent().equals(treeTable.getTreeTableModel().getRoot()));
             for (int row = 0; row < resourceTable.getRowCount(); row++) {
                 LibraryProperties properties = (LibraryProperties) resourceTable.getModel().getValueAt(row, PROPERTIES_COLUMN);
-                resourceTable.getModel().setValueAt(selectedResourceIds.get(entry.metaDataId).contains(properties.getId()), row, SELECTED_COLUMN);
+                resourceTable.getModel().setValueAt(selectedResourceIds.get(entry.metaDataId).containsKey(properties.getId()), row, SELECTED_COLUMN);
             }
         }
     }
@@ -419,7 +424,7 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
 
                     if (plugin == null || child.transportName == null || !ArrayUtils.contains(plugin.getUnselectableTransportNames(), child.transportName)) {
                         if (selected) {
-                            selectedResourceIds.get(child.metaDataId).add(properties.getId());
+                            selectedResourceIds.get(child.metaDataId).put(properties.getId(), properties.getName());
                         } else {
                             selectedResourceIds.get(child.metaDataId).remove(properties.getId());
                         }
@@ -427,7 +432,7 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
                 }
             } else {
                 if (selected) {
-                    selectedResourceIds.get(entry.metaDataId).add(properties.getId());
+                    selectedResourceIds.get(entry.metaDataId).put(properties.getId(), properties.getName());
                 } else {
                     selectedResourceIds.get(entry.metaDataId).remove(properties.getId());
                 }
@@ -462,7 +467,7 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
                     boolean allUnchecked = true;
 
                     for (Enumeration<? extends MutableTreeTableNode> en = node.children(); en.hasMoreElements();) {
-                        if (selectedResourceIds.get(((ConnectorEntry) en.nextElement().getUserObject()).metaDataId).contains(props.getId())) {
+                        if (selectedResourceIds.get(((ConnectorEntry) en.nextElement().getUserObject()).metaDataId).containsKey(props.getId())) {
                             allUnchecked = false;
                         } else {
                             allChecked = false;
@@ -477,7 +482,7 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
                         newValue = null;
                     }
                 } else {
-                    newValue = selectedResourceIds.get(entry.metaDataId).contains(props.getId());
+                    newValue = selectedResourceIds.get(entry.metaDataId).containsKey(props.getId());
                 }
 
                 resourceTable.getModel().setValueAt(newValue, row, SELECTED_COLUMN);

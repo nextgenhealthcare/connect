@@ -86,6 +86,10 @@ public class SettingsPane extends javax.swing.JPanel {
         return currentSettingsPanel;
     }
 
+    public AbstractSettingsPanel getSettingsPanel(String tabName) {
+        return settingsPanelMap.get(tabName);
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

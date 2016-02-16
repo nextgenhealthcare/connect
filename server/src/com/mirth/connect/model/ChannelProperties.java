@@ -12,6 +12,7 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
     private Integer pruneMetaDataDays;
     private Integer pruneContentDays;
     private boolean archiveEnabled;
-    private Set<String> resourceIds;
+    private Map<String, String> resourceIds;
 
     public ChannelProperties() {
         clearGlobalChannelMap = true;
@@ -56,8 +57,8 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
         metaDataColumns = new ArrayList<MetaDataColumn>();
         attachmentProperties = AttachmentHandlerType.NONE.getDefaultProperties();
         archiveEnabled = true;
-        resourceIds = new LinkedHashSet<String>();
-        resourceIds.add(ResourceProperties.DEFAULT_RESOURCE_ID);
+        resourceIds = new LinkedHashMap<String, String>();
+        resourceIds.put(ResourceProperties.DEFAULT_RESOURCE_ID, ResourceProperties.DEFAULT_RESOURCE_NAME);
     }
 
     public boolean isClearGlobalChannelMap() {
@@ -172,11 +173,11 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
         this.archiveEnabled = archiveEnabled;
     }
 
-    public Set<String> getResourceIds() {
+    public Map<String, String> getResourceIds() {
         return resourceIds;
     }
 
-    public void setResourceIds(Set<String> resourceIds) {
+    public void setResourceIds(Map<String, String> resourceIds) {
         this.resourceIds = resourceIds;
     }
 
@@ -207,7 +208,23 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
     }
 
     @Override
-    public void migrate3_4_0(DonkeyElement element) {}
+    public void migrate3_4_0(DonkeyElement element) {
+        DonkeyElement resourceIdsElement = element.getChildElement("resourceIds");
+        List<DonkeyElement> resourceIdsList = resourceIdsElement.getChildElements();
+        resourceIdsElement.removeChildren();
+        resourceIdsElement.setAttribute("class", "linked-hash-map");
+
+        for (DonkeyElement resourceId : resourceIdsList) {
+            DonkeyElement entry = resourceIdsElement.addChildElement("entry");
+            String resourceIdText = resourceId.getTextContent();
+            entry.addChildElement("string", resourceIdText);
+            if (resourceIdText.equals("Default Resource")) {
+                entry.addChildElement("string", "[Default Resource]");
+            } else {
+                entry.addChildElement("string");
+            }
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

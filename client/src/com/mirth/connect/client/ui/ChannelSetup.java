@@ -19,7 +19,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -106,7 +105,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private static final int SCRIPTS_TAB_INDEX = 3;
 
     public Channel currentChannel;
-    public Map<Integer, Set<String>> resourceIds = new HashMap<Integer, Set<String>>();
+    public Map<Integer, Map<String, String>> resourceIds = new HashMap<Integer, Map<String, String>>();
     public int lastModelIndex = -1;
     public TransformerPane transformerPane = new TransformerPane();
     public FilterPane filterPane = new FilterPane();
@@ -693,9 +692,14 @@ public class ChannelSetup extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
         model.setRowCount(0);
 
-        ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(Collections.singleton(ResourceProperties.DEFAULT_RESOURCE_ID));
+        Map<String, String> sourceResourceIds = new LinkedHashMap<String, String>();
+        sourceResourceIds.put(ResourceProperties.DEFAULT_RESOURCE_ID, ResourceProperties.DEFAULT_RESOURCE_NAME);
+        ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(sourceResourceIds);
+
         for (Connector destinationConnector : currentChannel.getDestinationConnectors()) {
-            ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().setResourceIds(Collections.singleton(ResourceProperties.DEFAULT_RESOURCE_ID));
+            Map<String, String> destinationResourceIds = new LinkedHashMap<String, String>();
+            destinationResourceIds.put(ResourceProperties.DEFAULT_RESOURCE_ID, ResourceProperties.DEFAULT_RESOURCE_NAME);
+            ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().setResourceIds(destinationResourceIds);
         }
         setResourceIds();
     }
@@ -704,7 +708,7 @@ public class ChannelSetup extends javax.swing.JPanel {
      * Update the resource map with values from the current channel model.
      */
     private void setResourceIds() {
-        resourceIds = new HashMap<Integer, Set<String>>();
+        resourceIds = new HashMap<Integer, Map<String, String>>();
         resourceIds.put(null, currentChannel.getProperties().getResourceIds());
         if (currentChannel.getSourceConnector() != null && currentChannel.getSourceConnector().getProperties() != null) {
             resourceIds.put(0, ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().getResourceIds());
@@ -720,16 +724,16 @@ public class ChannelSetup extends javax.swing.JPanel {
      * Update resources in the current channel model with values from the cached map.
      */
     private void updateResourceIds() {
-        Set<String> sourceResourceIds = resourceIds.get(0);
+        Map<String, String> sourceResourceIds = resourceIds.get(0);
         if (sourceResourceIds == null) {
-            sourceResourceIds = new LinkedHashSet<String>();
+            sourceResourceIds = new LinkedHashMap<String, String>();
         }
         ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(sourceResourceIds);
 
         for (Connector destinationConnector : currentChannel.getDestinationConnectors()) {
-            Set<String> destinationResourceIds = resourceIds.get(destinationConnector.getMetaDataId());
+            Map<String, String> destinationResourceIds = resourceIds.get(destinationConnector.getMetaDataId());
             if (destinationResourceIds == null) {
-                destinationResourceIds = new LinkedHashSet<String>();
+                destinationResourceIds = new LinkedHashMap<String, String>();
             }
             ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().setResourceIds(destinationResourceIds);
         }
@@ -1276,6 +1280,9 @@ public class ChannelSetup extends javax.swing.JPanel {
         saveMetaDataColumns();
         saveMessageStorage(messageStorageMode);
         saveMessagePruning();
+
+        // Update resource names
+        parent.updateResourceNames(currentChannel);
 
         for (ChannelTabPlugin channelTabPlugin : LoadedExtensions.getInstance().getChannelTabPlugins().values()) {
             channelTabPlugin.getChannelTabPanel().save(currentChannel);
@@ -3134,7 +3141,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             changeConnectorType(destinationConnector, true);
             destinationConnector.setName(name);
 
-            Set<String> destinationResourceIds = resourceIds.get(destinationConnector.getMetaDataId());
+            Map<String, String> destinationResourceIds = resourceIds.get(destinationConnector.getMetaDataId());
 
             ConnectorProperties props = destinationConnectorPanel.getDefaults();
             if (destinationResourceIds != null) {
@@ -3316,6 +3323,9 @@ public class ChannelSetup extends javax.swing.JPanel {
                 return;
             }
         }
+
+        // Update resource names
+        parent.updateResourceNames(connector);
 
         loadingChannel = true;
 
