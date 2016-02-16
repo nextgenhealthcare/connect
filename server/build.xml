@@ -148,12 +148,16 @@
 		<jar destfile="${connectors.doc}/doc-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/doc/DocumentDispatcherProperties.class" />
 			<include name="com/mirth/connect/connectors/doc/DocumentConnectorServletInterface.class" />
+			<include name="com/mirth/connect/connectors/doc/PageSize.class" />
+			<include name="com/mirth/connect/connectors/doc/Unit.class" />
 		</jar>
 		<jar destfile="${connectors.doc}/doc-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/doc/**" />
 				<exclude name="com/mirth/connect/connectors/doc/DocumentDispatcherProperties.class" />
 				<exclude name="com/mirth/connect/connectors/doc/DocumentConnectorServletInterface.class" />
+				<exclude name="com/mirth/connect/connectors/doc/PageSize.class" />
+				<exclude name="com/mirth/connect/connectors/doc/Unit.class" />
 			</fileset>
 		</jar>
 

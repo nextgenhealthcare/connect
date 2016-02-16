@@ -9,33 +9,54 @@
 
 package com.mirth.connect.connectors.doc;
 
-import javax.swing.SwingWorker;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthComboBox;
+import com.mirth.connect.client.ui.components.MirthPasswordField;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthTextField;
+import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.ContextType;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class DocumentWriter extends ConnectorSettingsPanel {
 
     private Frame parent;
+    private boolean pageSizeUpdating;
 
     public DocumentWriter() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-    }
-
-    private void updateFileEnabled(boolean enable) {
-        fileNameField.setEnabled(enable);
-        jLabel2.setEnabled(enable);
-        directoryField.setEnabled(enable);
-        jLabel1.setEnabled(enable);
-        testConnection.setEnabled(enable);
+        initLayout();
     }
 
     @Override
@@ -50,25 +71,30 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         properties.setHost(directoryField.getText().replace('\\', '/'));
         properties.setOutputPattern(fileNameField.getText());
 
-        if (pdf.isSelected()) {
+        if (documentTypePDFRadio.isSelected()) {
             properties.setDocumentType(DocumentDispatcherProperties.DOCUMENT_TYPE_PDF);
         } else {
             properties.setDocumentType(DocumentDispatcherProperties.DOCUMENT_TYPE_RTF);
         }
 
-        properties.setEncrypt(passwordYes.isSelected());
+        properties.setEncrypt(encryptedYesRadio.isSelected());
 
         String writeToOption = "FILE";
-        if (attachmentRadioButton.isSelected()) {
+        if (outputAttachmentRadioButton.isSelected()) {
             writeToOption = "ATTACHMENT";
-        } else if (bothRadioButton.isSelected()) {
+        } else if (outputBothRadioButton.isSelected()) {
             writeToOption = "BOTH";
         }
 
         properties.setOutput(writeToOption);
 
         properties.setPassword(new String(passwordField.getPassword()));
-        properties.setTemplate(fileContentsTextPane.getText());
+
+        properties.setPageWidth(pageSizeWidthField.getText());
+        properties.setPageHeight(pageSizeHeightField.getText());
+        properties.setPageUnit((Unit) pageSizeUnitComboBox.getSelectedItem());
+
+        properties.setTemplate(templateTextArea.getText());
 
         return properties;
     }
@@ -81,37 +107,46 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         fileNameField.setText(props.getOutputPattern());
 
         if (props.isEncrypt()) {
-            passwordYes.setSelected(true);
-            passwordYesActionPerformed(null);
+            encryptedYesRadio.setSelected(true);
+            encryptedYesActionPerformed();
         } else {
-            passwordNo.setSelected(true);
-            passwordNoActionPerformed(null);
+            encryptedNoRadio.setSelected(true);
+            encryptedNoActionPerformed();
         }
 
-        fileRadioButton.setSelected(true);
+        outputFileRadioButton.setSelected(true);
 
         String writeToOptions = props.getOutput();
         if (StringUtils.isNotBlank(writeToOptions)) {
             if (writeToOptions.equalsIgnoreCase("BOTH")) {
-                bothRadioButton.setSelected(true);
+                outputBothRadioButton.setSelected(true);
             } else if (writeToOptions.equalsIgnoreCase("ATTACHMENT")) {
-                attachmentRadioButton.setSelected(true);
+                outputAttachmentRadioButton.setSelected(true);
             }
 
             updateFileEnabled(!writeToOptions.equalsIgnoreCase("ATTACHMENT"));
         }
 
         if (props.getDocumentType().equals(DocumentDispatcherProperties.DOCUMENT_TYPE_PDF)) {
-            pdf.setSelected(true);
-            pdfActionPerformed(null);
+            documentTypePDFRadio.setSelected(true);
+            documentTypePDFRadioActionPerformed();
         } else {
-            rtf.setSelected(true);
-            rtfActionPerformed(null);
+            documentTypeRTFRadio.setSelected(true);
+            documentTypeRTFRadioActionPerformed();
         }
 
         passwordField.setText(props.getPassword());
 
-        fileContentsTextPane.setText(props.getTemplate());
+        pageSizeUpdating = true;
+        pageSizeWidthField.setText(props.getPageWidth());
+        pageSizeWidthField.setCaretPosition(0);
+        pageSizeHeightField.setText(props.getPageHeight());
+        pageSizeHeightField.setCaretPosition(0);
+        pageSizeUnitComboBox.setSelectedItem(props.getPageUnit());
+        pageSizeUpdating = false;
+        updatePageSizeComboBox();
+
+        templateTextArea.setText(props.getTemplate());
     }
 
     @Override
@@ -125,13 +160,13 @@ public class DocumentWriter extends ConnectorSettingsPanel {
 
         boolean valid = true;
 
-        if (!attachmentRadioButton.isSelected() && props.getHost().length() == 0) {
+        if (!outputAttachmentRadioButton.isSelected() && props.getHost().length() == 0) {
             valid = false;
             if (highlight) {
                 directoryField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (!attachmentRadioButton.isSelected() && props.getOutputPattern().length() == 0) {
+        if (!outputAttachmentRadioButton.isSelected() && props.getOutputPattern().length() == 0) {
             valid = false;
             if (highlight) {
                 fileNameField.setBackground(UIConstants.INVALID_COLOR);
@@ -140,7 +175,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         if (props.getTemplate().length() == 0) {
             valid = false;
             if (highlight) {
-                fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
+                templateTextArea.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         if (props.isEncrypt()) {
@@ -151,6 +186,18 @@ public class DocumentWriter extends ConnectorSettingsPanel {
                 }
             }
         }
+        if (StringUtils.isBlank(props.getPageWidth()) || NumberUtils.toDouble(props.getPageWidth(), 1) <= 0) {
+            valid = false;
+            if (highlight) {
+                pageSizeWidthField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        if (StringUtils.isBlank(props.getPageHeight()) || NumberUtils.toDouble(props.getPageHeight(), 1) <= 0) {
+            valid = false;
+            if (highlight) {
+                pageSizeHeightField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
 
         return valid;
     }
@@ -159,332 +206,333 @@ public class DocumentWriter extends ConnectorSettingsPanel {
     public void resetInvalidProperties() {
         directoryField.setBackground(null);
         fileNameField.setBackground(null);
-        fileContentsTextPane.setBackground(null);
+        templateTextArea.setBackground(null);
         passwordField.setBackground(null);
+        pageSizeWidthField.setBackground(null);
+        pageSizeHeightField.setBackground(null);
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        setBackground(UIConstants.BACKGROUND_COLOR);
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
-        buttonGroup3 = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        directoryField = new com.mirth.connect.client.ui.components.MirthTextField();
-        fileNameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        passwordYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        passwordNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        encryptedLabel = new javax.swing.JLabel();
-        passwordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
-        passwordLabel = new javax.swing.JLabel();
-        fileContentsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        jLabel5 = new javax.swing.JLabel();
-        pdf = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        rtf = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        testConnection = new javax.swing.JButton();
-        outputLabel = new javax.swing.JLabel();
-        fileRadioButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        attachmentRadioButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        bothRadioButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        outputLabel = new JLabel("Output:");
+        ButtonGroup outputButtonGroup = new ButtonGroup();
 
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        outputFileRadioButton = new MirthRadioButton("File");
+        outputFileRadioButton.setBackground(getBackground());
+        outputFileRadioButton.setToolTipText("Write the contents to a file.");
+        outputFileRadioButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                updateFileEnabled(true);
+            }
+        });
+        outputButtonGroup.add(outputFileRadioButton);
 
-        jLabel1.setText("Directory:");
+        outputAttachmentRadioButton = new MirthRadioButton("Attachment");
+        outputAttachmentRadioButton.setBackground(getBackground());
+        outputAttachmentRadioButton.setToolTipText("<html>Write the contents to an attachment. The destination's response message will contain the<br>attachment Id and can be used in subsequent connectors to include the attachment.</html>");
+        outputAttachmentRadioButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                updateFileEnabled(false);
+            }
+        });
+        outputButtonGroup.add(outputAttachmentRadioButton);
 
-        jLabel2.setText("File Name:");
+        outputBothRadioButton = new MirthRadioButton("Both");
+        outputBothRadioButton.setBackground(getBackground());
+        outputBothRadioButton.setToolTipText("<html>Write the contents to a file and an attachment. The destination's response message will contain<br>the attachment Id and can be used in subsequent connectors to include the attachment.</html>");
+        outputBothRadioButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                updateFileEnabled(true);
+            }
+        });
+        outputButtonGroup.add(outputBothRadioButton);
 
-        jLabel3.setText("Template:");
+        directoryLabel = new JLabel("Directory:");
 
+        directoryField = new MirthTextField();
         directoryField.setToolTipText("The directory (folder) where the generated file should be written.");
 
+        testConnectionButton = new JButton("Test Write");
+        testConnectionButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                testConnection();
+            }
+        });
+
+        fileNameLabel = new JLabel("File Name:");
+        fileNameField = new MirthTextField();
         fileNameField.setToolTipText("The file name to give to the generated file.");
 
-        passwordYes.setBackground(new java.awt.Color(255, 255, 255));
-        passwordYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(passwordYes);
-        passwordYes.setText("Yes");
-        passwordYes.setToolTipText("If Document Type PDF is selected, generated documents can optionally be encrypted.");
-        passwordYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        passwordYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                passwordYesActionPerformed(evt);
+        documentTypeLabel = new JLabel("Document Type:");
+        ButtonGroup documentTypeButtonGroup = new ButtonGroup();
+
+        documentTypePDFRadio = new MirthRadioButton("PDF");
+        documentTypePDFRadio.setBackground(getBackground());
+        documentTypePDFRadio.setToolTipText("The type of document to be created for each message.");
+        documentTypePDFRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                documentTypePDFRadioActionPerformed();
             }
         });
+        documentTypeButtonGroup.add(documentTypePDFRadio);
 
-        passwordNo.setBackground(new java.awt.Color(255, 255, 255));
-        passwordNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(passwordNo);
-        passwordNo.setText("No");
-        passwordNo.setToolTipText("If Document Type PDF is selected, generated documents can optionally be encrypted.");
-        passwordNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        passwordNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                passwordNoActionPerformed(evt);
+        documentTypeRTFRadio = new MirthRadioButton("RTF");
+        documentTypeRTFRadio.setBackground(getBackground());
+        documentTypeRTFRadio.setToolTipText("The type of document to be created for each message.");
+        documentTypeRTFRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                documentTypeRTFRadioActionPerformed();
             }
         });
+        documentTypeButtonGroup.add(documentTypeRTFRadio);
 
-        encryptedLabel.setText("Encrypted:");
+        encryptedLabel = new JLabel("Encrypted:");
+        ButtonGroup encryptedButtonGroup = new ButtonGroup();
 
+        encryptedYesRadio = new MirthRadioButton("Yes");
+        encryptedYesRadio.setBackground(getBackground());
+        encryptedYesRadio.setToolTipText("If Document Type PDF is selected, generated documents can optionally be encrypted.");
+        encryptedYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                encryptedYesActionPerformed();
+            }
+        });
+        encryptedButtonGroup.add(encryptedYesRadio);
+
+        encryptedNoRadio = new MirthRadioButton("No");
+        encryptedNoRadio.setBackground(getBackground());
+        encryptedNoRadio.setToolTipText("If Document Type PDF is selected, generated documents can optionally be encrypted.");
+        encryptedNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                encryptedNoActionPerformed();
+            }
+        });
+        encryptedButtonGroup.add(encryptedNoRadio);
+
+        passwordLabel = new JLabel("Password:");
+        passwordField = new MirthPasswordField();
         passwordField.setToolTipText("If Encrypted Yes is selected, enter the password to be used to later view the document here.");
 
-        passwordLabel.setText("Password:");
+        pageSizeLabel = new JLabel("Page Size:");
+        pageSizeXLabel = new JLabel("×");
 
-        fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        jLabel5.setText("Document Type:");
-
-        pdf.setBackground(new java.awt.Color(255, 255, 255));
-        pdf.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(pdf);
-        pdf.setText("PDF");
-        pdf.setToolTipText("The type of document to be created for each message.");
-        pdf.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        pdf.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pdfActionPerformed(evt);
-            }
-        });
-
-        rtf.setBackground(new java.awt.Color(255, 255, 255));
-        rtf.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(rtf);
-        rtf.setText("RTF");
-        rtf.setToolTipText("The type of document to be created for each message.");
-        rtf.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        rtf.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rtfActionPerformed(evt);
-            }
-        });
-
-        testConnection.setText("Test Write");
-        testConnection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                testConnectionActionPerformed(evt);
-            }
-        });
-
-        outputLabel.setBackground(new java.awt.Color(255, 255, 255));
-        outputLabel.setText("Output:");
-
-        fileRadioButton.setBackground(new java.awt.Color(255, 255, 255));
-        buttonGroup3.add(fileRadioButton);
-        fileRadioButton.setText("File");
-        fileRadioButton.setToolTipText("Write the contents to a file.");
-        fileRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileRadioButtonActionPerformed(evt);
-            }
-        });
-
-        attachmentRadioButton.setBackground(new java.awt.Color(255, 255, 255));
-        buttonGroup3.add(attachmentRadioButton);
-        attachmentRadioButton.setText("Attachment");
-        attachmentRadioButton.setToolTipText("<html>Write the contents to an attachment. The destination's response message will contain the<br>attachment Id and can be used in subsequent connectors to include the attachment.</html>");
-        attachmentRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                attachmentRadioButtonActionPerformed(evt);
-            }
-        });
-
-        bothRadioButton.setBackground(new java.awt.Color(255, 255, 255));
-        buttonGroup3.add(bothRadioButton);
-        bothRadioButton.setText("Both");
-        bothRadioButton.setToolTipText("<html>Write the contents to a file and an attachment. The destination's response message will contain<br>the attachment Id and can be used in subsequent connectors to include the attachment.</html>");
-        bothRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bothRadioButtonActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel1)
-                    .addComponent(encryptedLabel)
-                    .addComponent(passwordLabel)
-                    .addComponent(jLabel3)
-                    .addComponent(outputLabel)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(passwordYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(passwordNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(pdf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(rtf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(testConnection))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(fileRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(attachmentRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(bothRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 92, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(outputLabel)
-                    .addComponent(fileRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(attachmentRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bothRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(testConnection)
-                    .addComponent(jLabel1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(pdf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(rtf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(encryptedLabel)
-                    .addComponent(passwordYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passwordNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passwordLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
-                    .addComponent(jLabel3)))
-        );
-    }// </editor-fold>//GEN-END:initComponents
-
-    private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-        final String workingId = parent.startWorking("Testing connection...");
-
-        SwingWorker worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-
-                try {
-                    ConnectionTestResponse response = parent.mirthClient.getServlet(DocumentConnectorServletInterface.class).testWrite(parent.channelEditPanel.currentChannel.getId(), parent.channelEditPanel.currentChannel.getName(), ((DocumentDispatcherProperties) getProperties()).getHost());
-
-                    if (response == null) {
-                        throw new ClientException("Failed to invoke service.");
-                    } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
-                        parent.alertInformation(parent, response.getMessage());
-                    } else {
-                        parent.alertWarning(parent, response.getMessage());
-                    }
-
-                    return null;
-                } catch (ClientException e) {
-                    parent.alertError(parent, e.getMessage());
-                    return null;
-                }
+        DocumentListener pageSizeDocumentListener = new DocumentListener() {
+            @Override
+            public void removeUpdate(DocumentEvent evt) {
+                updatePageSizeComboBox();
             }
 
-            public void done() {
-                parent.stopWorking(workingId);
+            @Override
+            public void insertUpdate(DocumentEvent evt) {
+                updatePageSizeComboBox();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent evt) {
+                updatePageSizeComboBox();
             }
         };
 
-        worker.execute();
-    }//GEN-LAST:event_testConnectionActionPerformed
+        pageSizeWidthField = new MirthTextField();
+        pageSizeWidthField.getDocument().addDocumentListener(pageSizeDocumentListener);
+        pageSizeWidthField.setToolTipText("<html>The width of the page. The units for the width<br/>are determined by the drop-down menu to the right.<br/>When rendering PDFs, a minimum of 26mm is enforced.</html>");
 
-    private void fileRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileRadioButtonActionPerformed
-        updateFileEnabled(true);
-    }//GEN-LAST:event_fileRadioButtonActionPerformed
+        pageSizeHeightField = new MirthTextField();
+        pageSizeHeightField.getDocument().addDocumentListener(pageSizeDocumentListener);
+        pageSizeHeightField.setToolTipText("<html>The height of the page. The units for the height<br/>are determined by the drop-down menu to the right.<br/>When rendering PDFs, a minimum of 26mm is enforced.</html>");
 
-    private void attachmentRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attachmentRadioButtonActionPerformed
-        updateFileEnabled(false);
-    }//GEN-LAST:event_attachmentRadioButtonActionPerformed
+        pageSizeUnitComboBox = new MirthComboBox<Unit>();
+        pageSizeUnitComboBox.setModel(new DefaultComboBoxModel<Unit>(Unit.values()));
+        pageSizeUnitComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                updatePageSizeComboBox();
+            }
+        });
+        pageSizeUnitComboBox.setToolTipText("The units to use for the page width and height.");
 
-    private void bothRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bothRadioButtonActionPerformed
-        updateFileEnabled(true);
-    }//GEN-LAST:event_bothRadioButtonActionPerformed
+        pageSizeComboBox = new MirthComboBox<PageSize>();
+        pageSizeComboBox.setModel(new DefaultComboBoxModel<PageSize>(ArrayUtils.subarray(PageSize.values(), 0, PageSize.values().length - 1)));
+        pageSizeComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                pageSizeComboBoxActionPerformed();
+            }
+        });
+        pageSizeComboBox.setToolTipText("Select a standard page size to use, or enter a custom page size.");
 
-    private void pdfActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_pdfActionPerformed
-    {// GEN-HEADEREND:event_pdfActionPerformed
-        if (passwordYes.isSelected()) {
-            passwordYesActionPerformed(null);
+        templateLabel = new JLabel("HTML Template:");
+        templateTextArea = new MirthRTextScrollPane(ContextType.DESTINATION_DISPATCHER, false, SyntaxConstants.SYNTAX_STYLE_HTML, false);
+        templateTextArea.setBorder(BorderFactory.createEtchedBorder());
+    }
+
+    private void initLayout() {
+        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, gap 6", "[]12[]", "[]4[]6[]4[]4[]4[]6[]6[]"));
+
+        add(outputLabel, "right");
+        add(outputFileRadioButton, "split 3");
+        add(outputAttachmentRadioButton);
+        add(outputBothRadioButton);
+        add(directoryLabel, "newline, right");
+        add(directoryField, "w 200!, split 2");
+        add(testConnectionButton, "gapbefore 6");
+        add(fileNameLabel, "newline, right");
+        add(fileNameField, "w 200!");
+        add(documentTypeLabel, "newline, right");
+        add(documentTypePDFRadio, "split 2");
+        add(documentTypeRTFRadio);
+        add(encryptedLabel, "newline, right");
+        add(encryptedYesRadio, "split 2");
+        add(encryptedNoRadio);
+        add(passwordLabel, "newline, right");
+        add(passwordField, "w 124!");
+        add(pageSizeLabel, "newline, right");
+        add(pageSizeWidthField, "w 54!, split 5");
+        add(pageSizeXLabel);
+        add(pageSizeHeightField, "w 54!");
+        add(pageSizeUnitComboBox, "gapbefore 6");
+        add(pageSizeComboBox, "gapbefore 6");
+        add(templateLabel, "newline, right, top");
+        add(templateTextArea, "grow, push");
+    }
+
+    private void testConnection() {
+        ResponseHandler handler = new ResponseHandler() {
+            @Override
+            public void handle(Object response) {
+                ConnectionTestResponse connectionTestResponse = (ConnectionTestResponse) response;
+
+                if (connectionTestResponse == null) {
+                    parent.alertError(parent, "Failed to invoke service.");
+                } else if (connectionTestResponse.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                    parent.alertInformation(parent, connectionTestResponse.getMessage());
+                } else {
+                    parent.alertWarning(parent, connectionTestResponse.getMessage());
+                }
+            }
+        };
+
+        try {
+            getServlet(DocumentConnectorServletInterface.class, "Testing file write...", "Error testing file write: ", handler).testWrite(getChannelId(), getChannelName(), ((DocumentDispatcherProperties) getProperties()).getHost());
+        } catch (ClientException e) {
+            // Should not happen
+        }
+    }
+
+    private void updateFileEnabled(boolean enable) {
+        fileNameLabel.setEnabled(enable);
+        fileNameField.setEnabled(enable);
+        directoryLabel.setEnabled(enable);
+        directoryField.setEnabled(enable);
+        testConnectionButton.setEnabled(enable);
+    }
+
+    private void documentTypePDFRadioActionPerformed() {
+        if (encryptedYesRadio.isSelected()) {
+            encryptedYesActionPerformed();
         } else {
-            passwordNoActionPerformed(null);
+            encryptedNoActionPerformed();
         }
 
         encryptedLabel.setEnabled(true);
-        passwordYes.setEnabled(true);
-        passwordNo.setEnabled(true);
-    }// GEN-LAST:event_pdfActionPerformed
+        encryptedYesRadio.setEnabled(true);
+        encryptedNoRadio.setEnabled(true);
+    }
 
-    private void rtfActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_rtfActionPerformed
-    {// GEN-HEADEREND:event_rtfActionPerformed
+    private void documentTypeRTFRadioActionPerformed() {
         encryptedLabel.setEnabled(false);
-        passwordYes.setEnabled(false);
-        passwordNo.setEnabled(false);
-        passwordNoActionPerformed(null);
-    }// GEN-LAST:event_rtfActionPerformed
+        encryptedYesRadio.setEnabled(false);
+        encryptedNoRadio.setEnabled(false);
+        encryptedNoActionPerformed();
+    }
 
-    private void passwordNoActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_passwordNoActionPerformed
-        passwordLabel.setEnabled(false);
-        passwordField.setEnabled(false);
-    }// GEN-LAST:event_passwordNoActionPerformed
-
-    private void passwordYesActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_passwordYesActionPerformed
+    private void encryptedYesActionPerformed() {
         passwordLabel.setEnabled(true);
         passwordField.setEnabled(true);
-    }// GEN-LAST:event_passwordYesActionPerformed
+    }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.mirth.connect.client.ui.components.MirthRadioButton attachmentRadioButton;
-    private com.mirth.connect.client.ui.components.MirthRadioButton bothRadioButton;
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.ButtonGroup buttonGroup3;
-    private com.mirth.connect.client.ui.components.MirthTextField directoryField;
-    private javax.swing.JLabel encryptedLabel;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
-    private com.mirth.connect.client.ui.components.MirthTextField fileNameField;
-    private com.mirth.connect.client.ui.components.MirthRadioButton fileRadioButton;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel outputLabel;
-    private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
-    private javax.swing.JLabel passwordLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton passwordNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton passwordYes;
-    private com.mirth.connect.client.ui.components.MirthRadioButton pdf;
-    private com.mirth.connect.client.ui.components.MirthRadioButton rtf;
-    private javax.swing.JButton testConnection;
-    // End of variables declaration//GEN-END:variables
+    private void encryptedNoActionPerformed() {
+        passwordLabel.setEnabled(false);
+        passwordField.setEnabled(false);
+    }
+
+    private void updatePageSizeComboBox() {
+        if (pageSizeUpdating) {
+            return;
+        }
+        pageSizeUpdating = true;
+
+        try {
+            double width = Double.parseDouble(pageSizeWidthField.getText());
+            double height = Double.parseDouble(pageSizeHeightField.getText());
+            Unit unit = (Unit) pageSizeUnitComboBox.getSelectedItem();
+
+            PageSize matchingPageSize = null;
+            for (PageSize pageSize : PageSize.values()) {
+                if (pageSize != PageSize.CUSTOM && pageSize.getWidth(unit) == width && pageSize.getHeight(unit) == height) {
+                    matchingPageSize = pageSize;
+                    break;
+                }
+            }
+
+            if (matchingPageSize != null) {
+                pageSizeComboBox.setModel(new DefaultComboBoxModel<PageSize>(ArrayUtils.subarray(PageSize.values(), 0, PageSize.values().length - 1)));
+                pageSizeComboBox.setSelectedItem(matchingPageSize);
+                pageSizeUpdating = false;
+                return;
+            }
+        } catch (Exception e) {
+        }
+
+        pageSizeComboBox.setModel(new DefaultComboBoxModel<PageSize>(PageSize.values()));
+        pageSizeComboBox.setSelectedItem(PageSize.CUSTOM);
+        pageSizeUpdating = false;
+    }
+
+    private void pageSizeComboBoxActionPerformed() {
+        if (pageSizeUpdating) {
+            return;
+        }
+        pageSizeUpdating = true;
+
+        PageSize pageSize = (PageSize) pageSizeComboBox.getSelectedItem();
+        if (pageSize != PageSize.CUSTOM) {
+            pageSizeComboBox.setModel(new DefaultComboBoxModel<PageSize>(ArrayUtils.subarray(PageSize.values(), 0, PageSize.values().length - 1)));
+            pageSizeComboBox.setSelectedItem(pageSize);
+            pageSizeWidthField.setText(String.valueOf(new BigDecimal(pageSize.getWidth()).setScale(2, RoundingMode.DOWN)));
+            pageSizeWidthField.setCaretPosition(0);
+            pageSizeHeightField.setText(String.valueOf(new BigDecimal(pageSize.getHeight()).setScale(2, RoundingMode.DOWN)));
+            pageSizeHeightField.setCaretPosition(0);
+            pageSizeUnitComboBox.setSelectedItem(pageSize.getUnit());
+        }
+
+        pageSizeUpdating = false;
+    }
+
+    private JLabel outputLabel;
+    private JRadioButton outputFileRadioButton;
+    private JRadioButton outputAttachmentRadioButton;
+    private JRadioButton outputBothRadioButton;
+    private JLabel directoryLabel;
+    private JTextField directoryField;
+    private JButton testConnectionButton;
+    private JLabel fileNameLabel;
+    private JTextField fileNameField;
+    private JLabel documentTypeLabel;
+    private JRadioButton documentTypePDFRadio;
+    private JRadioButton documentTypeRTFRadio;
+    private JLabel encryptedLabel;
+    private JRadioButton encryptedYesRadio;
+    private JRadioButton encryptedNoRadio;
+    private JLabel passwordLabel;
+    private JPasswordField passwordField;
+    private JLabel pageSizeLabel;
+    private JTextField pageSizeWidthField;
+    private JLabel pageSizeXLabel;
+    private JTextField pageSizeHeightField;
+    private JComboBox<Unit> pageSizeUnitComboBox;
+    private JComboBox<PageSize> pageSizeComboBox;
+    private JLabel templateLabel;
+    private MirthRTextScrollPane templateTextArea;
 }

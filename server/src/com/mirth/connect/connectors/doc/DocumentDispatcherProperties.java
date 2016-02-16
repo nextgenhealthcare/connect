@@ -30,6 +30,9 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
     private boolean encrypt;
     private String output;
     private String password;
+    private String pageWidth;
+    private String pageHeight;
+    private Unit pageUnit;
     private String template;
 
     public static final String DOCUMENT_TYPE_PDF = "pdf";
@@ -44,6 +47,9 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         this.documentType = DOCUMENT_TYPE_PDF;
         this.encrypt = false;
         this.password = "";
+        this.pageWidth = "8.5";
+        this.pageHeight = "11";
+        this.pageUnit = Unit.INCHES;
         this.template = "";
         this.output = OUTPUT_TYPE;
     }
@@ -57,6 +63,9 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         documentType = props.getDocumentType();
         encrypt = props.isEncrypt();
         password = props.getPassword();
+        pageWidth = props.getPageWidth();
+        pageHeight = props.getPageHeight();
+        pageUnit = props.getPageUnit();
         template = props.getTemplate();
         output = props.getOutput();
     }
@@ -107,6 +116,30 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
 
     public void setTemplate(String template) {
         this.template = template;
+    }
+
+    public String getPageWidth() {
+        return pageWidth;
+    }
+
+    public void setPageWidth(String pageWidth) {
+        this.pageWidth = pageWidth;
+    }
+
+    public String getPageHeight() {
+        return pageHeight;
+    }
+
+    public void setPageHeight(String pageHeight) {
+        this.pageHeight = pageHeight;
+    }
+
+    public Unit getPageUnit() {
+        return pageUnit;
+    }
+
+    public void setPageUnit(Unit pageUnit) {
+        this.pageUnit = pageUnit;
     }
 
     public String getOutput() {
@@ -214,7 +247,17 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
     public void migrate3_3_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_4_0(DonkeyElement element) {}
+    public void migrate3_4_0(DonkeyElement element) {
+        if (element.getChildElement("documentType").getTextContent().equals("rtf")) {
+            element.addChildElement("pageWidth", "210");
+            element.addChildElement("pageHeight", "297");
+            element.addChildElement("pageUnit", "MM");
+        } else {
+            element.addChildElement("pageWidth", "8.5");
+            element.addChildElement("pageHeight", "11");
+            element.addChildElement("pageUnit", "INCHES");
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

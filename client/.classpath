@@ -12,6 +12,8 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/dimse/DICOMReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/DocumentConnectorServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/DocumentDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/PageSize"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/Unit"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SchemeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SftpSchemeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileReceiverProperties"/>

@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,7 +33,9 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.xhtmlrenderer.resource.FSEntityResolver;
 import org.xml.sax.InputSource;
 
+import com.lowagie.text.Rectangle;
 import com.lowagie.text.html.HtmlParser;
+import com.lowagie.text.rtf.RtfBasicElement;
 import com.lowagie.text.rtf.RtfWriter2;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -47,12 +50,16 @@ import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.util.Base64Util;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DocumentDispatcher extends DestinationConnector {
+
+    private static final Pattern PAGE_SIZE_PATTERN = Pattern.compile("@page\\s*\\{[\\s\\S]*?size\\s*:[\\s\\S]*?\\}");
+
     private Logger logger = Logger.getLogger(this.getClass());
     private DocumentDispatcherProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
@@ -81,12 +88,14 @@ public class DocumentDispatcher extends DestinationConnector {
 
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
-        DocumentDispatcherProperties documentDispatcherProperties = (DocumentDispatcherProperties) connectorProperties;
+        DocumentDispatcherProperties props = (DocumentDispatcherProperties) connectorProperties;
 
-        documentDispatcherProperties.setHost(replacer.replaceValues(documentDispatcherProperties.getHost(), connectorMessage));
-        documentDispatcherProperties.setOutputPattern(replacer.replaceValues(documentDispatcherProperties.getOutputPattern(), connectorMessage));
-        documentDispatcherProperties.setPassword(replacer.replaceValues(documentDispatcherProperties.getPassword(), connectorMessage));
-        documentDispatcherProperties.setTemplate(replacer.replaceValues(documentDispatcherProperties.getTemplate(), connectorMessage));
+        props.setHost(replacer.replaceValues(props.getHost(), connectorMessage));
+        props.setOutputPattern(replacer.replaceValues(props.getOutputPattern(), connectorMessage));
+        props.setPassword(replacer.replaceValues(props.getPassword(), connectorMessage));
+        props.setTemplate(replacer.replaceValues(props.getTemplate(), connectorMessage));
+        props.setPageWidth(replacer.replaceValues(props.getPageWidth(), connectorMessage));
+        props.setPageHeight(replacer.replaceValues(props.getPageHeight(), connectorMessage));
     }
 
     @Override
@@ -163,7 +172,7 @@ public class DocumentDispatcher extends DestinationConnector {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         if (documentDispatcherProperties.getDocumentType().toLowerCase().equals("pdf")) {
-            createPDF(new StringReader(stringContents), outputStream);
+            createPDF(new StringReader(stringContents), outputStream, documentDispatcherProperties);
 
             boolean encrypt = documentDispatcherProperties.isEncrypt();
             String password = documentDispatcherProperties.getPassword();
@@ -175,7 +184,7 @@ public class DocumentDispatcher extends DestinationConnector {
                 encryptPDF(inputStream, outputStream, password);
             }
         } else if (documentDispatcherProperties.getDocumentType().toLowerCase().equals("rtf")) {
-            createRTF(new ByteArrayInputStream(stringContents.getBytes()), outputStream);
+            createRTF(new ByteArrayInputStream(stringContents.getBytes()), outputStream, documentDispatcherProperties);
         }
 
         if (StringUtils.isBlank(documentDispatcherProperties.getOutput()) || !documentDispatcherProperties.getOutput().equalsIgnoreCase("attachment")) {
@@ -202,12 +211,47 @@ public class DocumentDispatcher extends DestinationConnector {
         return null;
     }
 
-    private void createPDF(Reader reader, OutputStream outputStream) throws Exception {
+    private void createPDF(Reader reader, OutputStream outputStream, DocumentDispatcherProperties props) throws Exception {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         builder.setEntityResolver(FSEntityResolver.instance());
         org.w3c.dom.Document doc = builder.parse(new InputSource(reader));
 
         try {
+            try {
+                DonkeyElement element = new DonkeyElement(doc.getDocumentElement());
+                DonkeyElement head = element.addChildElementIfNotExists("head");
+                DonkeyElement style = head.addChildElementIfNotExists("style");
+
+                double width = Double.parseDouble(props.getPageWidth());
+                double height = Double.parseDouble(props.getPageHeight());
+                Unit unit = props.getPageUnit();
+
+                if (!PAGE_SIZE_PATTERN.matcher(style.getTextContent()).find()) {
+                    // This uses a CSS3 selector, so we can't use twips as a unit.
+                    if (unit == Unit.TWIPS) {
+                        width = unit.convertTo(width, Unit.MM);
+                        height = unit.convertTo(height, Unit.MM);
+                        unit = Unit.MM;
+                    }
+
+                    /*
+                     * Flying Saucer has problems rendering sizes less than 26mm, so we just make
+                     * that the minimum. That's the size of ISO-216 A10 anyway and I doubt anyone is
+                     * going to want sizes smaller than that.
+                     */
+                    double min = Unit.MM.convertTo(26, unit);
+                    width = Math.max(width, min);
+                    height = Math.max(height, min);
+
+                    StringBuilder pageSelector = new StringBuilder("@page { size: ");
+                    pageSelector.append(String.format("%f", width)).append(unit).append(' ');
+                    pageSelector.append(String.format("%f", height)).append(unit).append("; }\n");
+                    pageSelector.append(style.getTextContent());
+                    style.setTextContent(pageSelector.toString());
+                }
+            } catch (Exception e) {
+            }
+
             ITextRenderer renderer = new ITextRenderer();
             renderer.setDocument(doc, null);
 
@@ -249,7 +293,7 @@ public class DocumentDispatcher extends DestinationConnector {
         }
     }
 
-    private void createRTF(InputStream inputStream, OutputStream outputStream) throws Exception {
+    private void createRTF(InputStream inputStream, OutputStream outputStream, DocumentDispatcherProperties props) throws Exception {
         com.lowagie.text.Document document = null;
 
         try {
@@ -259,6 +303,27 @@ public class DocumentDispatcher extends DestinationConnector {
             RtfWriter2.getInstance(document, outputStream);
 
             document.open();
+
+            try {
+                double width = Double.parseDouble(props.getPageWidth());
+                double height = Double.parseDouble(props.getPageHeight());
+                Unit unit = props.getPageUnit();
+
+                /*
+                 * The version of iText being used only accepts points, so we need to convert to
+                 * twips first and then convert to points (1 point = 20 twips).
+                 */
+                if (unit != Unit.TWIPS) {
+                    width = unit.convertTo(width, Unit.TWIPS);
+                    height = unit.convertTo(height, Unit.TWIPS);
+                    unit = Unit.TWIPS;
+                }
+                width = Math.max(width, 1);
+                height = Math.max(height, 1);
+                document.setPageSize(new Rectangle((float) (Math.round(width) / RtfBasicElement.TWIPS_FACTOR), (float) (Math.round(height) / RtfBasicElement.TWIPS_FACTOR)));
+            } catch (Exception e) {
+            }
+
             HtmlParser parser = new HtmlParser();
             parser.go(document, inputStream);
         } finally {

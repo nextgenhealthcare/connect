@@ -20,10 +20,9 @@ import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 
 /**
- * Mirth's implementation of the JComboBox. Adds enabling of the save button in
- * parent.
+ * Mirth's implementation of the JComboBox. Adds enabling of the save button in parent.
  */
-public class MirthComboBox extends javax.swing.JComboBox {
+public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
 
     private Frame parent;
     private boolean autoResizeDropdown = false;
