@@ -237,13 +237,25 @@ public class WebServiceReceiver extends SourceConnector {
     }
 
     public String processData(RawMessage rawMessage) {
-        String response = null;
+        DispatchResult dispatchResult = processDataAndGetDispatchResult(rawMessage);
+        if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
+            return dispatchResult.getSelectedResponse().getMessage();
+        }
+        return null;
+    }
+
+    public DispatchResult processDataAndGetDispatchResult(String message) {
+        return processDataAndGetDispatchResult(new RawMessage(message));
+    }
+
+    public DispatchResult processDataAndGetDispatchResult(RawMessage rawMessage) {
+        DispatchResult dispatchResult = null;
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
         String originalThreadName = Thread.currentThread().getName();
 
         try {
             Thread.currentThread().setName("Web Service Receiver Thread on " + getChannel().getName() + " (" + getChannelId() + ") < " + originalThreadName);
-            
+
             if (isProcessBatch()) {
                 try {
                     if (rawMessage.isBinary()) {
@@ -255,24 +267,15 @@ public class WebServiceReceiver extends SourceConnector {
                     ResponseHandler responseHandler = new SimpleResponseHandler();
                     dispatchBatchMessage(batchRawMessage, responseHandler);
 
-                    DispatchResult dispatchResult = responseHandler.getResultForResponse();
-                    if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
-                        response = dispatchResult.getSelectedResponse().getMessage();
-                    }
+                    dispatchResult = responseHandler.getResultForResponse();
                 } catch (BatchMessageException e) {
                     logger.error("Error processing batch message", e);
                     eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), rawMessage.getOriginalMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error processing batch message", e));
                 }
             } else {
-                DispatchResult dispatchResult = null;
-
                 try {
                     dispatchResult = dispatchRawMessage(rawMessage);
                     dispatchResult.setAttemptedResponse(true);
-
-                    if (dispatchResult.getSelectedResponse() != null) {
-                        response = dispatchResult.getSelectedResponse().getMessage();
-                    }
                 } catch (ChannelException e) {
                     // TODO auto-generate an error response?
                 } finally {
@@ -286,7 +289,8 @@ public class WebServiceReceiver extends SourceConnector {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
             Thread.currentThread().setName(originalThreadName);
         }
-        return response;
+
+        return dispatchResult;
     }
 
     public void setServer(HttpServer server) {
