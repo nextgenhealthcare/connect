@@ -191,15 +191,14 @@ public abstract class SourceConnector extends Connector {
 
         return channel.dispatchRawMessage(rawMessage, false);
     }
-
-    public void dispatchBatchMessage(BatchRawMessage batchRawMessage, ResponseHandler responseHandler) throws BatchMessageException {
-        dispatchBatchMessage(batchRawMessage, responseHandler, null);
+    public Boolean dispatchBatchMessage(BatchRawMessage batchRawMessage, ResponseHandler responseHandler) throws BatchMessageException {
+        return dispatchBatchMessage(batchRawMessage, responseHandler, null);
     }
 
-    public void dispatchBatchMessage(BatchRawMessage batchRawMessage, ResponseHandler responseHandler, Collection<Integer> destinationMetaDataIds) throws BatchMessageException {
+    public Boolean dispatchBatchMessage(BatchRawMessage batchRawMessage, ResponseHandler responseHandler, Collection<Integer> destinationMetaDataIds) throws BatchMessageException {
         // Prevent new batches from starting if the connector is stopping
         if (getCurrentState() == DeployedState.STOPPING) {
-            return;
+            return null;
         }
 
         // Throw an error if a new batch arrives when the connector is stopped
@@ -215,6 +214,7 @@ public abstract class SourceConnector extends Connector {
         }
 
         BatchAdaptor batchAdaptor = null;
+        boolean messagesExist = false;
         // Attempt to start the batch. It will not start if the batch adaptor factory is in the process of being stopped
         if (batchAdaptorFactory.startBatch()) {
             try {
@@ -228,6 +228,7 @@ public abstract class SourceConnector extends Connector {
                 String message;
                 // Get the next message for this batch
                 while ((message = batchAdaptor.getMessage()) != null) {
+                    messagesExist = true;
                     // Create a copy of the source map for this message
                     Map<String, Object> sourceMap = new HashMap<String, Object>(batchRawMessage.getSourceMap());
 
@@ -283,6 +284,8 @@ public abstract class SourceConnector extends Connector {
                 }
             }
         }
+
+        return messagesExist;
     }
 
     /**

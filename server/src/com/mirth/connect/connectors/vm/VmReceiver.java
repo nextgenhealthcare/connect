@@ -63,10 +63,10 @@ public class VmReceiver extends SourceConnector {
     }
 
     @Override
-    public void dispatchBatchMessage(BatchRawMessage batchRawMessage, ResponseHandler responseHandler) throws BatchMessageException {
+    public Boolean dispatchBatchMessage(BatchRawMessage batchRawMessage, ResponseHandler responseHandler) throws BatchMessageException {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
         try {
-            super.dispatchBatchMessage(batchRawMessage, responseHandler);
+            return super.dispatchBatchMessage(batchRawMessage, responseHandler);
         } finally {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
         }
