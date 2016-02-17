@@ -209,6 +209,7 @@ public class ServerMigrator extends Migrator {
             case V3_2_2: return new Migrate3_2_2();
             case V3_3_0: return new Migrate3_3_0();
             case V3_3_1: return null;
+            case V3_3_2: return null;
             case V3_4_0: return null;
         } // @formatter:on
 
@@ -245,7 +246,7 @@ public class ServerMigrator extends Migrator {
             updateVersion(Version.getLatest());
         }
     }
-    
+
     private Version getCurrentVersion() throws MigrationException {
         Statement statement = null;
         ResultSet resultSet = null;
