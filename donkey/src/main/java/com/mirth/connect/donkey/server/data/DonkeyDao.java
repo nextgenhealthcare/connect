@@ -100,7 +100,7 @@ public interface DonkeyDao {
 
     public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent);
 
-    public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId);
+    public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds);
 
     public int getConnectorMessageCount(String channelId, String serverId, int metaDataId, Status status);
 

@@ -1469,8 +1469,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#getMessageContent
      */
     @Override
-    public Message getMessageContent(String channelId, Long messageId) throws ClientException {
-        return getServlet(MessageServletInterface.class).getMessageContent(channelId, messageId);
+    public Message getMessageContent(String channelId, Long messageId, List<Integer> metaDataIds) throws ClientException {
+        return getServlet(MessageServletInterface.class).getMessageContent(channelId, messageId, metaDataIds);
     }
 
     /**

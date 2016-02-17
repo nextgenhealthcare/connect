@@ -269,7 +269,7 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId) {
+    public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds) {
         return new HashMap<Integer, ConnectorMessage>();
     }
 

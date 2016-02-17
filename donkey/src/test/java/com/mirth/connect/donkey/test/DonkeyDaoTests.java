@@ -1541,7 +1541,7 @@ public class DonkeyDaoTests {
 
                 try {
                     dao = daoFactory.getDao();
-                    connectorMessages = dao.getConnectorMessages(channel.getChannelId(), processedMessage.getMessageId());
+                    connectorMessages = dao.getConnectorMessages(channel.getChannelId(), processedMessage.getMessageId(), null);
                 } finally {
                     TestUtils.close(dao);
                 }

@@ -163,6 +163,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private ExecutorService executor;
     private List<Future<Void>> prettyPrintWorkers = new ArrayList<Future<Void>>();
 
+    private List<Integer> selectedMetaDataIds;
+
     /**
      * Constructs the new message browser and sets up its default information/layout
      */
@@ -293,6 +295,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
     public void loadChannel(String channelId, Map<Integer, String> connectors, List<MetaDataColumn> metaDataColumns, List<Integer> selectedMetaDataIds, boolean isChannelDeployed) {
         this.isChannelDeployed = isChannelDeployed;
+        this.selectedMetaDataIds = selectedMetaDataIds;
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 1, 1, isChannelDeployed);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 8, isChannelDeployed);
 
@@ -529,6 +532,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
 
         advancedSearchPopup.applySelectionsToFilter(messageFilter);
+        selectedMetaDataIds = messageFilter.getIncludedMetaDataIds();
 
         if (messageFilter.getMaxMessageId() == null) {
             try {
@@ -1659,7 +1663,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     // If the message is not in the cache, retrieve it from the server
                     if (message == null) {
                         try {
-                            message = parent.mirthClient.getMessageContent(channelId, messageId);
+                            message = parent.mirthClient.getMessageContent(channelId, messageId, selectedMetaDataIds);
                             // If the message was not found (ie. it may have been deleted during the request), do nothing
                             if (message == null || message.getConnectorMessages().size() == 0) {
                                 clearDescription("Could not retrieve message content. The message may have been deleted.");

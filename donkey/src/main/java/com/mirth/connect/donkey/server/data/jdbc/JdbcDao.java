@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -93,7 +94,6 @@ public class JdbcDao implements DonkeyDao {
         this.totalStats = totalStats;
         this.statsServerId = statsServerId;
         encryptor = donkey.getEncryptor();
-
         alwaysDecrypt.addAll(Arrays.asList(ContentType.getMapTypes()));
         alwaysDecrypt.addAll(Arrays.asList(ContentType.getErrorTypes()));
 
@@ -691,7 +691,7 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void deleteMessageStatistics(String channelId, long messageId, Set<Integer> metaDataIds) {
-        Map<Integer, ConnectorMessage> connectorMessages = getConnectorMessages(channelId, messageId);
+        Map<Integer, ConnectorMessage> connectorMessages = getConnectorMessages(channelId, messageId, new ArrayList<Integer>(metaDataIds));
         ConnectorMessage sourceMessage = connectorMessages.get(0);
 
         /*
@@ -1573,11 +1573,19 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId) {
+    public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds) {
         ResultSet resultSet = null;
 
         try {
-            PreparedStatement statement = prepareStatement("getConnectorMessagesByMessageId", channelId);
+            boolean includeMetaDataIds = CollectionUtils.isNotEmpty(metaDataIds);
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("localChannelId", getLocalChannelId(channelId));
+
+            if (includeMetaDataIds) {
+                params.put("metaDataIds", StringUtils.join(metaDataIds, ','));
+            }
+
+            PreparedStatement statement = connection.prepareStatement(querySource.getQuery(includeMetaDataIds ? "getConnectorMessagesByMessageIdAndMetaDataIds" : "getConnectorMessagesByMessageId", params));
             statement.setLong(1, messageId);
             resultSet = statement.executeQuery();
 

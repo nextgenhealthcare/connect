@@ -37,7 +37,7 @@ public abstract class MessageController {
 
     public abstract Long getMessageCount(MessageFilter filter, Channel channel);
 
-    public abstract Message getMessageContent(String channelId, Long messageId);
+    public abstract Message getMessageContent(String channelId, Long messageId, List<Integer> metaDataIds);
 
     public abstract List<Attachment> getMessageAttachmentIds(String channelId, Long messageId);
 

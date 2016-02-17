@@ -552,11 +552,11 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId) {
+    public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getConnectorMessages(channelId, messageId);
+            return dao.getConnectorMessages(channelId, messageId, metaDataIds);
         } finally {
             timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
         }

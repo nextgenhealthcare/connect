@@ -83,7 +83,8 @@ public interface MessageServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getMessageContent", display = "Get message content", permission = Permissions.MESSAGES_VIEW, type = ExecuteType.ASYNC)
     public Message getMessageContent(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
-            @Param("messageId") @ApiParam(value = "The ID of the message.", required = true) @PathParam("messageId") Long messageId) throws ClientException;
+            @Param("messageId") @ApiParam(value = "The ID of the message.", required = true) @PathParam("messageId") Long messageId,
+            @Param("metaDataIds") @ApiParam(value = "The metadata IDs of the connectors.") @QueryParam("metaDataId") List<Integer> metaDataIds) throws ClientException;
     // @formatter:on
 
     @GET

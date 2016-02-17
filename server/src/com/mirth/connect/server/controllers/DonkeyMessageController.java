@@ -224,7 +224,7 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public Message getMessageContent(String channelId, Long messageId) {
+    public Message getMessageContent(String channelId, Long messageId, List<Integer> metaDataIds) {
         DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
@@ -238,7 +238,7 @@ public class DonkeyMessageController extends MessageController {
                 message.setChannelId(channelId);
             }
 
-            Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, messageId);
+            Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, messageId, metaDataIds);
 
             for (Entry<Integer, ConnectorMessage> connectorMessageEntry : connectorMessages.entrySet()) {
                 Integer metaDataId = connectorMessageEntry.getKey();

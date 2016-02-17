@@ -118,8 +118,8 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
 
     @Override
     @CheckAuthorizedChannelId
-    public Message getMessageContent(String channelId, Long messageId) {
-        return messageController.getMessageContent(channelId, messageId);
+    public Message getMessageContent(String channelId, Long messageId, List<Integer> metaDataIds) {
+        return messageController.getMessageContent(channelId, messageId, metaDataIds);
     }
 
     @Override
