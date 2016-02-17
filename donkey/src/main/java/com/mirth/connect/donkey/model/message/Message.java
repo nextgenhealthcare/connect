@@ -10,7 +10,10 @@
 package com.mirth.connect.donkey.model.message;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -131,7 +134,19 @@ public class Message implements Serializable {
                 channelMap.putAll(sourceConnectorMessage.getChannelMap());
             }
 
-            for (ConnectorMessage connectorMessage : connectorMessages.values()) {
+            List<ConnectorMessage> orderedConnectorMessages = new ArrayList<ConnectorMessage>(connectorMessages.values());
+            Collections.sort(orderedConnectorMessages, new Comparator<ConnectorMessage>() {
+                @Override
+                public int compare(ConnectorMessage m1, ConnectorMessage m2) {
+                    if (m1.getChainId() == m2.getChainId()) {
+                        return m1.getOrderId() - m2.getOrderId();
+                    } else {
+                        return m1.getChainId() - m2.getChainId();
+                    }
+                }
+            });
+
+            for (ConnectorMessage connectorMessage : orderedConnectorMessages) {
                 if (connectorMessage.getMetaDataId() > 0) {
                     if (sourceMap == null) {
                         sourceMap = connectorMessage.getSourceMap();
