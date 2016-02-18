@@ -50,19 +50,30 @@ public abstract class ChannelTask implements Callable<Void> {
 
     @Override
     public final Void call() throws Exception {
-        if (handler == null) {
-            handler = new ChannelTaskHandler();
-        }
-
+        String originalThreadName = Thread.currentThread().getName();
         try {
-            handler.taskStarted(channelId, metaDataId);
-            execute();
-            handler.taskCompleted(channelId, metaDataId);
-        } catch (Exception e) {
-            handler.taskErrored(channelId, metaDataId, e);
-        }
+            if (metaDataId != null) {
+                Thread.currentThread().setName("Channel " + getClass().getSimpleName() + " Thread on (" + channelId + ") connector (" + metaDataId + ") < " + originalThreadName);
+            } else {
+                Thread.currentThread().setName("Channel " + getClass().getSimpleName() + " Thread on (" + channelId + ") < " + originalThreadName);
+            }
 
-        return null;
+            if (handler == null) {
+                handler = new ChannelTaskHandler();
+            }
+
+            try {
+                handler.taskStarted(channelId, metaDataId);
+                execute();
+                handler.taskCompleted(channelId, metaDataId);
+            } catch (Exception e) {
+                handler.taskErrored(channelId, metaDataId, e);
+            }
+
+            return null;
+        } finally {
+            Thread.currentThread().setName(originalThreadName);
+        }
     }
 
     public abstract Void execute() throws Exception;
