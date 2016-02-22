@@ -99,10 +99,11 @@ public class DigestAuthenticator extends Authenticator {
             String lastToken = null;
             while (tokenizer.hasMoreTokens()) {
                 String token = tokenizer.nextToken();
-                if (token.length() == 1) {
-                    if (StringUtils.startsWith(token, "=")) {
+                char c;
+                if (token.length() == 1 && ((c = token.charAt(0)) == '=' || c == ',' || c == ' ')) {
+                    if (c == '=') {
                         directive = lastToken;
-                    } else if (StringUtils.startsWith(token, ",")) {
+                    } else if (c == ',') {
                         directive = null;
                     }
                 } else {
@@ -178,14 +179,22 @@ public class DigestAuthenticator extends Authenticator {
                     throw new Exception("Username missing.");
                 } else if (StringUtils.isBlank(realm)) {
                     throw new Exception("Realm missing.");
-                } else if (StringUtils.isBlank(uri)) {
+                } else if (uri == null) {
                     throw new Exception("URI missing.");
                 } else if (StringUtils.isBlank(response)) {
                     throw new Exception("Response digest missing.");
-                } else if (!StringUtils.equalsIgnoreCase(properties.getRealm(), realm)) {
+                }
+
+                String requestURI = request.getRequestURI();
+                // Allow empty URI to match "/"
+                if (StringUtils.isEmpty(uri) && StringUtils.equals(requestURI, "/")) {
+                    requestURI = "";
+                }
+
+                if (!StringUtils.equalsIgnoreCase(properties.getRealm(), realm)) {
                     throw new Exception("Realm \"" + realm + "\" does not match expected realm \"" + properties.getRealm() + "\".");
-                } else if (!StringUtils.equalsIgnoreCase(request.getRequestURI(), uri)) {
-                    throw new Exception("URI \"" + uri + "\" does not match the request URI \"" + request.getRequestURI() + "\".");
+                } else if (!StringUtils.equalsIgnoreCase(requestURI, uri)) {
+                    throw new Exception("URI \"" + uri + "\" does not match the request URI \"" + requestURI + "\".");
                 } else if (!StringUtils.equals(opaque, nonceOpaque)) {
                     throw new Exception("Opaque value \"" + opaque + "\" does not match the expected value \"" + properties.getOpaque() + "\".");
                 }
