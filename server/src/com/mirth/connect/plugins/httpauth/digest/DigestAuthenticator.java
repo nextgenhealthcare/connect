@@ -58,7 +58,7 @@ public class DigestAuthenticator extends Authenticator {
     private static final String OPAQUE = "opaque";
     private static final String STALE = "stale";
 
-    private static final int MAX_NONCE_AGE = 60 * 1000 * 1000 * 1000;
+    private static final long MAX_NONCE_AGE = 60L * 1000L * 1000L * 1000L;
     private static final int MAX_NONCE_COUNT = 1024;
 
     private Logger logger = Logger.getLogger(getClass());
