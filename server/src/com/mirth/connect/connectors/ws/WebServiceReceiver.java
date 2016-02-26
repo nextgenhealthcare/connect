@@ -9,7 +9,8 @@
 
 package com.mirth.connect.connectors.ws;
 
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.handler.Handler;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.NameValuePair;
@@ -329,8 +331,14 @@ public class WebServiceReceiver extends SourceConnector {
 
                 EntityProvider entityProvider = new EntityProvider() {
                     @Override
-                    public InputStream getEntity() {
-                        return exch.getRequestBody();
+                    public byte[] getEntity() throws IOException {
+                        byte[] entity = (byte[]) exch.getAttribute(ATTRIBUTE_NAME);
+                        if (entity == null) {
+                            entity = IOUtils.toByteArray(exch.getRequestBody());
+                            exch.setAttribute(ATTRIBUTE_NAME, entity);
+                            exch.setStreams(new ByteArrayInputStream(entity), exch.getResponseBody());
+                        }
+                        return entity;
                     }
                 };
 

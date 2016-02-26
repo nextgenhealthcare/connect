@@ -10,7 +10,6 @@
 package com.mirth.connect.plugins.httpauth;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -111,7 +110,9 @@ public class RequestInfo {
     }
 
     public interface EntityProvider {
-        public InputStream getEntity() throws IOException;
+        public static final String ATTRIBUTE_NAME = "Cached Entity";
+
+        public byte[] getEntity() throws IOException;
     }
 
     public void populateMap(Map<String, Object> map) {

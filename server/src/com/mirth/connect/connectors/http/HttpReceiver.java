@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -540,6 +541,14 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
         if (!ignorePayload) {
             InputStream requestInputStream = request.getInputStream();
+            // If a security handler already consumed the entity, get it from the request attribute instead
+            try {
+                byte[] entity = (byte[]) request.getAttribute(EntityProvider.ATTRIBUTE_NAME);
+                if (entity != null) {
+                    requestInputStream = new ByteArrayInputStream(entity);
+                }
+            } catch (Exception e) {
+            }
 
             // If the request is GZIP encoded, uncompress the content
             List<String> contentEncodingList = requestMessage.getCaseInsensitiveHeaders().get(HTTP.CONTENT_ENCODING);
@@ -603,7 +612,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             if (!baseRequest.getMethod().equalsIgnoreCase(HttpMethod.GET.asString())) {
                 return;
             }
-            
+
             String originalThreadName = Thread.currentThread().getName();
 
             try {
@@ -877,8 +886,13 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
                 EntityProvider entityProvider = new EntityProvider() {
                     @Override
-                    public InputStream getEntity() throws IOException {
-                        return req.getInputStream();
+                    public byte[] getEntity() throws IOException {
+                        byte[] entity = (byte[]) req.getAttribute(ATTRIBUTE_NAME);
+                        if (entity == null) {
+                            entity = IOUtils.toByteArray(req.getInputStream());
+                            req.setAttribute(ATTRIBUTE_NAME, entity);
+                        }
+                        return entity;
                     }
                 };
 

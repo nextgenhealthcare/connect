@@ -360,6 +360,8 @@ public class DigestAuthenticator extends Authenticator {
                 while ((len = IOUtils.read(is, buffer, 0, buffer.length)) > 0) {
                     md.update(buffer, 0, len);
                 }
+            } else if (parts[i] instanceof byte[]) {
+                md.update((byte[]) parts[i]);
             } else {
                 md.update(String.valueOf(parts[i]).getBytes(StandardCharsets.ISO_8859_1));
             }
