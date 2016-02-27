@@ -34,14 +34,14 @@ public interface ChannelGroupServletInterface extends BaseServletInterface {
     @GET
     @Path("/")
     @ApiOperation("Retrieve a list of all channel groups, or multiple channel groups by ID.")
-    @MirthOperation(name = "getChannelGroups", display = "Get channel groups", permission = Permissions.CHANNELS_VIEW)
+    @MirthOperation(name = "getChannelGroups", display = "Get channel groups", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<ChannelGroup> getChannelGroups(@Param("channelGroupIds") @ApiParam(value = "The IDs of the channel groups to retrieve. If absent, all groups will be retrieved.") @QueryParam("channelGroupId") Set<String> channelGroupIds) throws ClientException;
 
     @POST
     @Path("/_bulkUpdate")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation("Updates existing channel groups.")
-    @MirthOperation(name = "updateChannelGroups", display = "Update existing channel groups.", permission = Permissions.CHANNELS_MANAGE, type = ExecuteType.SYNC)
+    @MirthOperation(name = "updateChannelGroups", display = "Update existing channel groups.", permission = Permissions.CHANNELS_MANAGE)
     public boolean updateChannelGroups(// @formatter:off
             @Param("channelGroups") @ApiParam(value = "The channel group object to update or create.") @FormDataParam("channelGroups") Set<ChannelGroup> channelGroups,
             @Param("removedChannelGroupIds") @ApiParam(value = "All channel group IDs known to be removed.") @FormDataParam("removedChannelGroupIds") Set<String> removedChannelGroupIds,
