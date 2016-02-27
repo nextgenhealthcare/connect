@@ -233,7 +233,7 @@ public class ChannelPanel extends AbstractFramePanel {
         };
         tabPane.addChangeListener(changeListener);
 
-        channelScrollPane.setComponentPopupMenu(parent.channelPopupMenu);
+        channelScrollPane.setComponentPopupMenu(channelPopupMenu);
 
         ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
 
@@ -1984,7 +1984,7 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     private void setAllTaskVisibility(boolean visible) {
-        parent.setVisibleTasks(channelTasks, channelPopupMenu, 2, -1, visible);
+        parent.setVisibleTasks(channelTasks, channelPopupMenu, 2, TASK_CHANNEL_VIEW_MESSAGES, visible);
     }
 
     public void updateChannelStatuses(List<ChannelSummary> changedChannels) {
@@ -2364,7 +2364,7 @@ public class ChannelPanel extends AbstractFramePanel {
                     channelTable.setRowSelectionInterval(row, row);
                 }
             }
-            parent.channelPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+            channelPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
 
@@ -3324,7 +3324,7 @@ public class ChannelPanel extends AbstractFramePanel {
         }
     }
 
-    private JXTaskPane channelTasks;
+    public JXTaskPane channelTasks;
     public JPopupMenu channelPopupMenu;
 
     private JSplitPane splitPane;

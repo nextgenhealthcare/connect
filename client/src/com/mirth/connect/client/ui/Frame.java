@@ -173,8 +173,6 @@ public class Frame extends JXFrame {
     // Task panes and popup menus
     public JXTaskPane viewPane;
     public JXTaskPane otherPane;
-    public JXTaskPane channelTasks;
-    public JPopupMenu channelPopupMenu;
     public JXTaskPane dashboardTasks;
     public JPopupMenu dashboardPopupMenu;
     public JXTaskPane eventTasks;
