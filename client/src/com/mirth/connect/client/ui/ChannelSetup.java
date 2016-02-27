@@ -111,6 +111,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     public FilterPane filterPane = new FilterPane();
 
     private Frame parent;
+    private String saveGroupId;
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
     private boolean channelValidationFailed = false;
@@ -616,6 +617,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         channelValidationFailed = false;
         lastModelIndex = -1;
         currentChannel = channel;
+        saveGroupId = null;
         setResourceIds();
 
 //        PropertyVerifier.checkConnectorProperties(currentChannel, parent.getConnectorMetaData());
@@ -640,10 +642,11 @@ public class ChannelSetup extends javax.swing.JPanel {
     /**
      * Adds a new channel that is passed in and then sets the overall panel to edit that channel.
      */
-    public void addChannel(Channel channel) {
+    public void addChannel(Channel channel, String groupId) {
         loadingChannel = true;
         lastModelIndex = -1;
         currentChannel = channel;
+        saveGroupId = groupId;
 
         sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getSourceConnectors().keySet().toArray()));
         destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
@@ -1293,10 +1296,10 @@ public class ChannelSetup extends javax.swing.JPanel {
         try {
             // Will throw exception if the connection died or there was an exception
             // saving the channel, skipping the rest of this code.
-            updated = parent.updateChannel(currentChannel, parent.channelStatuses.containsKey(currentChannel.getId()));
+            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()));
 
             try {
-                currentChannel = (Channel) SerializationUtils.clone(parent.channelStatuses.get(currentChannel.getId()).getChannel());
+                currentChannel = (Channel) SerializationUtils.clone(parent.channelPanel.getCachedChannelStatuses().get(currentChannel.getId()).getChannel());
 
                 if (parent.currentContentPage == transformerPane) {
                     if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
@@ -1325,6 +1328,10 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         sourceConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
         destinationConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
+        
+        if (updated && saveGroupId != null) {
+            parent.channelPanel.addChannelToGroup(currentChannel.getId(), saveGroupId);
+        }
 
         return updated;
     }

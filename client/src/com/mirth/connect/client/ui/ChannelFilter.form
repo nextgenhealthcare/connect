@@ -113,7 +113,7 @@
             </Component>
           </SubComponents>
         </Container>
-        <Component class="com.mirth.connect.client.ui.components.MirthButton" name="okButton">
+        <Component class="javax.swing.JButton" name="okButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="OK"/>
           </Properties>
@@ -121,7 +121,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="okButtonActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthButton" name="cancelButton">
+        <Component class="javax.swing.JButton" name="cancelButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Cancel"/>
           </Properties>
@@ -129,7 +129,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cancelButtonActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthButton" name="invertButton">
+        <Component class="javax.swing.JButton" name="invertButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Invert Selection"/>
             <Property name="enabled" type="boolean" value="false"/>
@@ -138,7 +138,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="invertButtonActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="enableFilterCheckbox">
+        <Component class="javax.swing.JCheckBox" name="enableFilterCheckbox">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>

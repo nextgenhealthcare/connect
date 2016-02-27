@@ -234,7 +234,7 @@ public class ChannelWizard extends MirthDialog {
 
     private void skipWizardButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_skipWizardButtonActionPerformed
     {//GEN-HEADEREND:event_skipWizardButtonActionPerformed
-        parent.createNewChannel();
+        parent.channelPanel.createNewChannel();
         this.dispose();
     }//GEN-LAST:event_skipWizardButtonActionPerformed
 

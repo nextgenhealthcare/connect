@@ -58,6 +58,7 @@ import com.mirth.connect.client.core.Operation.ExecuteType;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.providers.MetaDataSearchParamConverterProvider.MetaDataSearch;
 import com.mirth.connect.client.core.api.servlets.AlertServletInterface;
+import com.mirth.connect.client.core.api.servlets.ChannelGroupServletInterface;
 import com.mirth.connect.client.core.api.servlets.ChannelServletInterface;
 import com.mirth.connect.client.core.api.servlets.ChannelStatisticsServletInterface;
 import com.mirth.connect.client.core.api.servlets.ChannelStatusServletInterface;
@@ -80,6 +81,7 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelSummary;
@@ -116,7 +118,7 @@ import com.mirth.connect.util.ConnectionTestResponse;
 import com.mirth.connect.util.MirthSSLUtil;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
-public class Client implements UserServletInterface, ConfigurationServletInterface, ChannelServletInterface, ChannelStatusServletInterface, ChannelStatisticsServletInterface, EngineServletInterface, MessageServletInterface, EventServletInterface, AlertServletInterface, CodeTemplateServletInterface, DatabaseTaskServletInterface, UsageServletInterface, ExtensionServletInterface {
+public class Client implements UserServletInterface, ConfigurationServletInterface, ChannelServletInterface, ChannelGroupServletInterface, ChannelStatusServletInterface, ChannelStatisticsServletInterface, EngineServletInterface, MessageServletInterface, EventServletInterface, AlertServletInterface, CodeTemplateServletInterface, DatabaseTaskServletInterface, UsageServletInterface, ExtensionServletInterface {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private ServerConnection serverConnection;
@@ -934,6 +936,37 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
         getServlet(ChannelServletInterface.class).removeChannels(channelIds);
     }
 
+    /**
+     * Retrieves all channel groups.
+     * 
+     * @see ChannelGroupServletInterface#getChannelGroups
+     */
+    public List<ChannelGroup> getAllChannelGroups() throws ClientException {
+        return getServlet(ChannelGroupServletInterface.class).getChannelGroups(null);
+    }
+
+    /**
+     * Retrieves selected channel groups.
+     * 
+     * @see ChannelGroupServletInterface#getChannelGroups
+     */
+    @Override
+    public List<ChannelGroup> getChannelGroups(Set<String> channelGroupIds) throws ClientException {
+        return getServlet(ChannelGroupServletInterface.class).getChannelGroups(channelGroupIds);
+    }
+
+    /**
+     * Updates channel groups.
+     * 
+     * @throws ClientException
+     * 
+     * @see ChannelGroupServletInterface#updateChannelGroups
+     */
+    @Override
+    public boolean updateChannelGroups(Set<ChannelGroup> channelGroups, Set<String> removedChannelGroupIds, boolean override) throws ClientException {
+        return getServlet(ChannelGroupServletInterface.class).updateChannelGroups(channelGroups, removedChannelGroupIds, override);
+    }
+
     /**************************
      * Channel Status Servlet *
      **************************/
@@ -969,7 +1002,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
-     * Returns the channel status list for specific channel IDs.Undeployed channels are not included.
+     * Returns the channel status list for specific channel IDs.Undeployed channels are not
+     * included.
      * 
      * @see ChannelStatusServletInterface#getChannelStatusList
      */
@@ -978,7 +1012,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
-     * Returns the channel status list for specific channel IDs. With option to include undeployed channels.
+     * Returns the channel status list for specific channel IDs. With option to include undeployed
+     * channels.
      * 
      * @see ChannelStatusServletInterface#getChannelStatusList
      */
@@ -1262,33 +1297,35 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * 
      * @see ChannelStatisticsServletInterface#getStatistics
      */
-    
+
     public List<ChannelStatistics> getStatistics() throws ClientException {
         return getServlet(ChannelStatisticsServletInterface.class).getStatistics(null, false, null, null, false);
     }
-    
+
     /**
      * Returns the individual statistics for channels. Has option to include undeployed channels.
      * 
      * @see ChannelStatisticsServletInterface#getStatistics
      */
-    
+
     public List<ChannelStatistics> getStatistics(boolean includeUndeployed) throws ClientException {
         return getServlet(ChannelStatisticsServletInterface.class).getStatistics(null, includeUndeployed, null, null, false);
     }
-    
+
     /**
-     * Returns the individual statistics for channels. Has option to include undeployed channels and to aggregate stats.
+     * Returns the individual statistics for channels. Has option to include undeployed channels and
+     * to aggregate stats.
      * 
      * @see ChannelStatisticsServletInterface#getStatistics
      */
-    
+
     public List<ChannelStatistics> getStatistics(boolean includeUndeployed, boolean aggregateStats) throws ClientException {
         return getServlet(ChannelStatisticsServletInterface.class).getStatistics(null, includeUndeployed, null, null, aggregateStats);
     }
-    
+
     /**
-     * Returns the individual statistics for channels supplied. Has option to include undeployed channels, aggregate stats, and also include OR exclude connectors.
+     * Returns the individual statistics for channels supplied. Has option to include undeployed
+     * channels, aggregate stats, and also include OR exclude connectors.
      * 
      * @see ChannelStatisticsServletInterface#getStatistics
      */

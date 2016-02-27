@@ -57,6 +57,10 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
         codeTemplateLibraries = new ArrayList<CodeTemplateLibrary>();
     }
 
+    public Channel(String id) {
+        this.id = id;
+    }
+
     @Override
     public String getId() {
         return this.id;

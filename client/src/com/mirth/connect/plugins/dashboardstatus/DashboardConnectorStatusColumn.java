@@ -22,6 +22,7 @@ import com.mirth.connect.client.ui.CellData;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.ImageCellRenderer;
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 
@@ -65,6 +66,11 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     @Override
     public int getMinWidth() {
         return 104;
+    }
+
+    @Override
+    public Object getTableData(ChannelGroup group) {
+        return new CellData(null, "");
     }
 
     @Override

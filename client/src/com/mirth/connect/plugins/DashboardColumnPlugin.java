@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.swing.table.TableCellRenderer;
 
+import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.DashboardStatus;
 
 public abstract class DashboardColumnPlugin extends ClientPlugin {
@@ -23,8 +24,10 @@ public abstract class DashboardColumnPlugin extends ClientPlugin {
 
     public abstract String getColumnHeader();
 
+    public abstract Object getTableData(ChannelGroup group);
+
     public abstract Object getTableData(String channelId);
-    
+
     public abstract Object getTableData(String channelId, Integer metaDataId);
 
     public abstract TableCellRenderer getCellRenderer();

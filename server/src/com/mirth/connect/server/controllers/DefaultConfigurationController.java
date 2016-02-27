@@ -86,6 +86,7 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.data.DonkeyStatisticsUpdater;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.DatabaseSettings;
@@ -279,12 +280,12 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             passwordRequirements = PasswordRequirementsChecker.getInstance().loadPasswordRequirements(mirthConfig);
-            
+
             apiBypassword = mirthConfig.getString(API_BYPASSWORD);
             if (StringUtils.isNotBlank(apiBypassword)) {
                 apiBypassword = new String(Base64.decodeBase64(apiBypassword), "US-ASCII");
             }
-            
+
             statsUpdateInterval = NumberUtils.toInt(mirthConfig.getString(STATS_UPDATE_INTERVAL), DonkeyStatisticsUpdater.DEFAULT_UPDATE_INTERVAL);
 
             // Check for configuration map properties
@@ -511,7 +512,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public boolean isStartupDeploy() {
         return startupDeploy;
     }
-    
+
     @Override
     public int getStatsUpdateInterval() {
         return statsUpdateInterval;
@@ -536,6 +537,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 
         ServerConfiguration serverConfiguration = new ServerConfiguration();
+        serverConfiguration.setChannelGroups(channelController.getChannelGroups(null));
         serverConfiguration.setChannels(channelController.getChannels(null));
         serverConfiguration.setAlerts(alertController.getAlerts());
         serverConfiguration.setCodeTemplateLibraries(codeTemplateController.getLibraries(null, true));
@@ -574,6 +576,10 @@ public class DefaultConfigurationController extends ConfigurationController {
          * is being restored.
          */
         synchronized (engineController) {
+            if (serverConfiguration.getChannelGroups() != null) {
+                channelController.updateChannelGroups(new HashSet<ChannelGroup>(serverConfiguration.getChannelGroups()), new HashSet<String>(), true);
+            }
+
             if (serverConfiguration.getChannels() != null) {
                 // Undeploy all channels before updating or removing them
                 engineController.undeployChannels(engineController.getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
@@ -765,12 +771,12 @@ public class DefaultConfigurationController extends ConfigurationController {
     public PasswordRequirements getPasswordRequirements() {
         return passwordRequirements;
     }
-    
+
     @Override
     public boolean isBypasswordEnabled() {
         return StringUtils.isNotBlank(apiBypassword);
     }
-    
+
     @Override
     public boolean checkBypassword(String password) {
         return isBypasswordEnabled() && StringUtils.equals(password, apiBypassword);

@@ -16,7 +16,9 @@ import java.io.File;
 import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JTable;
 import javax.swing.TransferHandler;
+import javax.swing.table.TableModel;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,8 +35,13 @@ public abstract class MirthTableTransferHandler extends TransferHandler {
 
     @Override
     protected Transferable createTransferable(JComponent c) {
-        MirthTable table = (MirthTable) c;
-        int[] rows = table.getSelectedModelRows();
+        TableModel model = ((JTable) c).getModel();
+        int[] rows;
+        if (c instanceof MirthTreeTable) {
+            rows = ((MirthTreeTable) c).getSelectedModelRows();
+        } else {
+            rows = ((MirthTable) c).getSelectedModelRows();
+        }
 
         // Don't put anything on the clipboard if no rows are selected
         if (rows.length == 0) {
@@ -44,12 +51,12 @@ public abstract class MirthTableTransferHandler extends TransferHandler {
         StringBuilder builder = new StringBuilder();
 
         for (int i = 0; i < rows.length; i++) {
-            builder.append(table.getModel().getValueAt(rows[i], primaryColumnIndex));
+            builder.append(model.getValueAt(rows[i], primaryColumnIndex));
 
-            String secondaryValue = String.valueOf(table.getModel().getValueAt(rows[i], secondaryColumnIndex));
+            String secondaryValue = String.valueOf(model.getValueAt(rows[i], secondaryColumnIndex));
             if (StringUtils.isNotBlank(secondaryValue)) {
                 builder.append(" (");
-                builder.append(table.getModel().getValueAt(rows[i], secondaryColumnIndex));
+                builder.append(model.getValueAt(rows[i], secondaryColumnIndex));
                 builder.append(")");
             }
 

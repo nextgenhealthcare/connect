@@ -436,7 +436,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         public Void doInBackground() {
                             try {
                                 getFrame().mirthClient.setServerConfiguration(configuration, deployChannelsCheckBox.isSelected());
-                                getFrame().clearChannelCache();
+                                getFrame().channelPanel.clearChannelCache();
                                 doRefresh();
                                 getFrame().alertInformation(SettingsPanelServer.this, "Your configuration was successfully restored.");
                                 updateAlerts = true;

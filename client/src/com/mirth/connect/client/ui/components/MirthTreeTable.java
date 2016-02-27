@@ -23,6 +23,7 @@ import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.table.TableColumnModelExt;
+import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import com.mirth.connect.client.ui.AbstractDashboardTableNode;
 import com.mirth.connect.client.ui.Mirth;
@@ -611,7 +613,14 @@ public class MirthTreeTable extends SortableTreeTable {
         int[] selectedRows = this.getSelectedModelRows();
 
         for (int i = 0; i < selectedRows.length; i++) {
-            nodes.add((AbstractDashboardTableNode) this.getPathForRow(selectedRows[i]).getLastPathComponent());
+            AbstractDashboardTableNode node = (AbstractDashboardTableNode) this.getPathForRow(selectedRows[i]).getLastPathComponent();
+            if (node.isGroupNode()) {
+                for (Enumeration<? extends MutableTreeTableNode> channelNodes = node.children(); channelNodes.hasMoreElements();) {
+                    nodes.add((AbstractDashboardTableNode) channelNodes.nextElement());
+                }
+            } else {
+                nodes.add(node);
+            }
         }
 
         return nodes;

@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.client.ui.codetemplate;
+package com.mirth.connect.client.ui.components;
 
 import java.awt.Component;
 import java.awt.Insets;
@@ -15,6 +15,8 @@ import java.awt.Insets;
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
+
+import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
 
 public class ChannelsTableCellRenderer extends JCheckBox implements TableCellRenderer {
     @Override

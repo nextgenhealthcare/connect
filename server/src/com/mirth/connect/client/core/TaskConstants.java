@@ -78,19 +78,26 @@ public class TaskConstants {
 
     // Channel Tasks
     public static final String CHANNEL_REFRESH = "doRefreshChannels";
+    public static final String CHANNEL_SAVE = "doSaveGroups";
     public static final String CHANNEL_REDEPLOY_ALL = "doRedeployAll";
     public static final String CHANNEL_DEPLOY = "doDeployChannel";
     public static final String CHANNEL_EDIT_GLOBAL_SCRIPTS = "doEditGlobalScripts";
     public static final String CHANNEL_EDIT_CODE_TEMPLATES = "doEditCodeTemplates";
-    public static final String CHANNEL_NEW = "doNewChannel";
-    public static final String CHANNEL_IMPORT = "doImport";
-    public static final String CHANNEL_EXPORT_ALL = "doExportAll";
-    public static final String CHANNEL_EXPORT = "doExportChannel";
-    public static final String CHANNEL_DELETE = "doDeleteChannel";
+    public static final String CHANNEL_NEW_GROUP = "doNewGroup";
+    public static final String CHANNEL_NEW_CHANNEL = "doNewChannel";
+    public static final String CHANNEL_IMPORT_GROUP = "doImportGroup";
+    public static final String CHANNEL_IMPORT_CHANNEL = "doImportChannel";
+    public static final String CHANNEL_EXPORT_ALL_GROUPS = "doExportAllGroups";
+    public static final String CHANNEL_EXPORT_ALL_CHANNELS = "doExportAllChannels";
+    public static final String CHANNEL_EXPORT_GROUP = "doExportGroup";
+    public static final String CHANNEL_EXPORT_CHANNEL = "doExportChannel";
+    public static final String CHANNEL_DELETE_GROUP = "doDeleteGroup";
+    public static final String CHANNEL_DELETE_CHANNEL = "doDeleteChannel";
     public static final String CHANNEL_CLONE = "doCloneChannel";
     public static final String CHANNEL_EDIT = "doEditChannel";
     public static final String CHANNEL_ENABLE = "doEnableChannel";
     public static final String CHANNEL_DISABLE = "doDisableChannel";
+    public static final String CHANNEL_VIEW_MESSAGES = "doViewMessages";
 
     // Channel Edit Tasks
     public static final String CHANNEL_EDIT_SAVE = "doSaveChannel";

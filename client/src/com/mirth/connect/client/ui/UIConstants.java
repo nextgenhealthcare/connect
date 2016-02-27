@@ -129,6 +129,7 @@ public class UIConstants {
     public static final ImageIcon ICON_BULLET_BLACK = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png"));
     public static final ImageIcon ICON_CHANNEL = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/server.png"));
     public static final ImageIcon ICON_CONNECTOR = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/connect.png"));
+    public static final ImageIcon ICON_GROUP = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/server_database.png"));
     // for events
     public static final ImageIcon ICON_INFORMATION = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png"));
     public static final ImageIcon ICON_WARNING = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error.png"));

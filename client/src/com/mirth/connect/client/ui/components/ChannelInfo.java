@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.client.ui.codetemplate;
+package com.mirth.connect.client.ui.components;
 
 public class ChannelInfo {
     private String name;

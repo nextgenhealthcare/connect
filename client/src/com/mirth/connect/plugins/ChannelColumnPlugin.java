@@ -14,6 +14,7 @@ import java.util.List;
 import javax.swing.table.TableCellRenderer;
 
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelGroup;
 
 public abstract class ChannelColumnPlugin extends ClientPlugin {
 
@@ -22,6 +23,8 @@ public abstract class ChannelColumnPlugin extends ClientPlugin {
     }
 
     public abstract String getColumnHeader();
+
+    public abstract Object getTableData(ChannelGroup group);
 
     public abstract Object getTableData(Channel channel);
 

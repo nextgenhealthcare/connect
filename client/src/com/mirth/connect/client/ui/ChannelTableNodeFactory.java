@@ -9,11 +9,11 @@
 
 package com.mirth.connect.client.ui;
 
-import com.mirth.connect.model.DashboardStatus;
+import com.mirth.connect.model.ChannelStatus;
 
-public interface DashboardTableNodeFactory {
+public interface ChannelTableNodeFactory {
 
-    public AbstractDashboardTableNode createNode(ChannelGroupStatus groupStatus);
+    public AbstractChannelTableNode createNode(ChannelGroupStatus groupStatus);
 
-    public AbstractDashboardTableNode createNode(String channelId, DashboardStatus status);
+    public AbstractChannelTableNode createNode(ChannelStatus channelStatus);
 }

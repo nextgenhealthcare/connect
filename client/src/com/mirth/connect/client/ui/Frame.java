@@ -69,8 +69,6 @@ import javax.swing.border.LineBorder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.SerializationException;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.log4j.Logger;
@@ -96,13 +94,13 @@ import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.client.core.VersionMismatchException;
+import com.mirth.connect.client.ui.DashboardPanel.TableState;
 import com.mirth.connect.client.ui.alert.AlertEditPanel;
 import com.mirth.connect.client.ui.alert.AlertPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
-import com.mirth.connect.client.ui.codetemplate.CodeTemplateImportDialog;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
 import com.mirth.connect.client.ui.components.rsta.ac.js.MirthJavaScriptLanguageSupport;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
@@ -111,17 +109,10 @@ import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInte
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.util.DonkeyElement;
-import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatus;
-import com.mirth.connect.model.ChannelSummary;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateLibrary;
-import com.mirth.connect.model.CodeTemplateLibrarySaveResult;
-import com.mirth.connect.model.CodeTemplateLibrarySaveResult.CodeTemplateUpdateResult;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
@@ -141,10 +132,8 @@ import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
-import com.mirth.connect.model.util.ImportConverter3_0_0;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
-import com.mirth.connect.plugins.TaskPlugin;
 import com.mirth.connect.util.MigrationUtil;
 
 /**
@@ -168,7 +157,6 @@ public class Frame extends JXFrame {
     public ExtensionManagerPanel extensionsPanel = null;
     public JXTaskPaneContainer taskPaneContainer;
     public List<DashboardStatus> status = null;
-    public Map<String, ChannelStatus> channelStatuses = null;
     public List<User> users = null;
     public ActionManager manager = ActionManager.getInstance();
     public JPanel contentPanel;
@@ -214,7 +202,7 @@ public class Frame extends JXFrame {
     private boolean connectionError;
     private ArrayList<CharsetEncodingInformation> availableCharsetEncodings = null;
     private List<String> charsetEncodings = null;
-    private boolean isEditingChannel = false;
+    public boolean isEditingChannel = false;
     private boolean isEditingAlert = false;
     private LinkedHashMap<String, String> workingStatuses = new LinkedHashMap<String, String>();
     public LinkedHashMap<String, String> dataTypeToDisplayName;
@@ -240,7 +228,6 @@ public class Frame extends JXFrame {
         LanguageSupportFactory.get().addLanguageSupport(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, MirthJavaScriptLanguageSupport.class.getName());
 
         rightContainer = new JXTitledPanel();
-        channelStatuses = new HashMap<String, ChannelStatus>();
         channelTagInfo = new ChannelTagInfo();
         deployedChannelTagInfo = new ChannelTagInfo();
 
@@ -398,6 +385,8 @@ public class Frame extends JXFrame {
         loadExtensionMetaData();
         // Re-initialize the controller every time the frame is setup
         AuthorizationControllerFactory.getAuthorizationController().initialize();
+        channelPanel = new ChannelPanel();
+        channelPanel.retrieveGroups();
         codeTemplatePanel = new CodeTemplatePanel(this);
         initializeExtensions();
 
@@ -612,12 +601,12 @@ public class Frame extends JXFrame {
      * Changes the current content page to the Channel Editor with the new channel specified as the
      * loaded one.
      */
-    public void setupChannel(Channel channel) {
+    public void setupChannel(Channel channel, String groupId) {
         setBold(viewPane, UIConstants.ERROR_CONSTANT);
         setCurrentContentPage(channelEditPanel);
         setFocus(channelEditTasks);
         setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 0, false);
-        channelEditPanel.addChannel(channel);
+        channelEditPanel.addChannel(channel, groupId);
     }
 
     /**
@@ -721,7 +710,6 @@ public class Frame extends JXFrame {
      */
     private void makePaneContainer() {
         createViewPane();
-        createChannelPane();
         createChannelEditPane();
         createDashboardPane();
         createEventPane();
@@ -745,11 +733,6 @@ public class Frame extends JXFrame {
         // Alert Edit Pane
         setVisibleTasks(alertEditTasks, alertEditPopupMenu, 0, 0, false);
         setVisibleTasks(alertEditTasks, alertEditPopupMenu, 1, 1, true);
-
-        // Channel Pane
-        setVisibleTasks(channelTasks, channelPopupMenu, 0, -1, true);
-        setVisibleTasks(channelTasks, channelPopupMenu, 1, 2, false);
-        setVisibleTasks(channelTasks, channelPopupMenu, 7, -1, false);
 
         // Channel Edit Pane
         setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 15, false);
@@ -847,37 +830,6 @@ public class Frame extends JXFrame {
 
         setNonFocusable(alertEditTasks);
         taskPaneContainer.add(alertEditTasks);
-    }
-
-    /**
-     * Creates the channel task pane.
-     */
-    private void createChannelPane() {
-        // Create Channel Tasks Pane
-        channelTasks = new JXTaskPane();
-        channelPopupMenu = new JPopupMenu();
-        channelTasks.setTitle("Channel Tasks");
-        channelTasks.setName(TaskConstants.CHANNEL_KEY);
-        channelTasks.setFocusable(false);
-
-        addTask(TaskConstants.CHANNEL_REFRESH, "Refresh", "Refresh the list of channels.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_REDEPLOY_ALL, "Redeploy All", "Undeploy all channels and deploy all currently enabled channels.", "A", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_DEPLOY, "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_EDIT_GLOBAL_SCRIPTS, "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/script_edit.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_EDIT_CODE_TEMPLATES, "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_edit.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_NEW, "New Channel", "Create a new channel.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_add.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_IMPORT, "Import Channel", "Import a channel from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_EXPORT_ALL, "Export All Channels", "Export all of the channels to XML files.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_EXPORT, "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_DELETE, "Delete Channel", "Delete the currently selected channel.", "L", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_delete.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_CLONE, "Clone Channel", "Clone the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_copy.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_EDIT, "Edit Channel", "Edit the currently selected channel.", "I", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_edit.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_ENABLE, "Enable Channel", "Enable the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.CHANNEL_DISABLE, "Disable Channel", "Disable the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")), channelTasks, channelPopupMenu);
-        addTask(TaskConstants.DASHBOARD_SHOW_MESSAGES, "View Messages", "Show the messages for the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_stack.png")), channelTasks, channelPopupMenu);
-
-        setNonFocusable(channelTasks);
-        taskPaneContainer.add(channelTasks);
     }
 
     /**
@@ -1473,7 +1425,11 @@ public class Frame extends JXFrame {
      * A prompt to ask the user if he would like to save the changes made before leaving the page.
      */
     public boolean confirmLeave() {
-        if ((currentContentPage == channelEditPanel || currentContentPage == channelEditPanel.transformerPane || currentContentPage == channelEditPanel.filterPane) && isSaveEnabled()) {
+        if (currentContentPage == channelPanel && isSaveEnabled()) {
+            if (!channelPanel.confirmLeave()) {
+                return false;
+            }
+        } else if ((currentContentPage == channelEditPanel || currentContentPage == channelEditPanel.transformerPane || currentContentPage == channelEditPanel.filterPane) && isSaveEnabled()) {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the channel changes?");
             if (option == JOptionPane.YES_OPTION) {
                 if (!channelEditPanel.saveChanges()) {
@@ -1535,7 +1491,7 @@ public class Frame extends JXFrame {
                 return false;
             }
         }
-        retrieveChannels();
+        channelPanel.retrieveChannels();
 
         return true;
     }
@@ -1790,53 +1746,12 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Checks to see if the passed in channel id already exists
-     */
-    public boolean checkChannelId(String id) {
-        for (ChannelStatus channelStatus : channelStatuses.values()) {
-            if (channelStatus.getChannel().getId().equalsIgnoreCase(id)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Checks to see if the passed in channel name already exists
-     */
-    public boolean checkChannelName(String name, String id) {
-        if (name.equals("")) {
-            alertWarning(this, "Channel name cannot be empty.");
-            return false;
-        }
-
-        if (name.length() > 40) {
-            alertWarning(this, "Channel name cannot be longer than 40 characters.");
-            return false;
-        }
-
-        Pattern alphaNumericPattern = Pattern.compile("^[a-zA-Z_0-9\\-\\s]*$");
-        Matcher matcher = alphaNumericPattern.matcher(name);
-
-        if (!matcher.find()) {
-            alertWarning(this, "Channel name cannot have special characters besides hyphen, underscore, and space.");
-            return false;
-        }
-
-        for (ChannelStatus channelStatus : channelStatuses.values()) {
-            if (channelStatus.getChannel().getName().equalsIgnoreCase(name) && !channelStatus.getChannel().getId().equals(id)) {
-                alertWarning(this, "Channel \"" + name + "\" already exists.");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Enables the save button for needed page.
      */
     public void setSaveEnabled(boolean enabled) {
-        if (currentContentPage == channelEditPanel) {
+        if (currentContentPage == channelPanel) {
+            channelPanel.setSaveEnabled(enabled);
+        } else if (currentContentPage == channelEditPanel) {
             setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 0, enabled);
         } else if (channelEditPanel != null && currentContentPage == channelEditPanel.transformerPane) {
             channelEditPanel.transformerPane.modified = enabled;
@@ -1859,7 +1774,9 @@ public class Frame extends JXFrame {
     public boolean isSaveEnabled() {
         boolean enabled = false;
 
-        if (currentContentPage == channelEditPanel) {
+        if (currentContentPage == channelPanel) {
+            enabled = channelPanel.isSaveEnabled();
+        } else if (currentContentPage == channelEditPanel) {
             enabled = channelEditTasks.getContentPane().getComponent(0).isVisible();
         } else if (channelEditPanel != null && currentContentPage == channelEditPanel.transformerPane) {
             enabled = channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPanel.transformerPane.modified;
@@ -1919,31 +1836,11 @@ public class Frame extends JXFrame {
     }
 
     public void doShowChannel() {
-        if (channelPanel == null) {
-            channelPanel = new ChannelPanel();
-        }
-
         if (!confirmLeave()) {
             return;
         }
 
-        setBold(viewPane, 1);
-        setPanelName("Channels");
-        setCurrentContentPage(channelPanel);
-
-        List<JXTaskPane> taskPanes = new ArrayList<JXTaskPane>();
-        taskPanes.add(channelTasks);
-
-        for (TaskPlugin plugin : LoadedExtensions.getInstance().getTaskPlugins().values()) {
-            JXTaskPane taskPane = plugin.getTaskPane();
-            if (taskPane != null) {
-                taskPanes.add(taskPane);
-            }
-        }
-
-        setFocus(taskPanes.toArray(new JXTaskPane[taskPanes.size()]), true, true);
-
-        doRefreshChannels();
+        channelPanel.switchPanel();
     }
 
     public void doShowUsers() {
@@ -2087,138 +1984,6 @@ public class Frame extends JXFrame {
         channelEditPanel.moveDestinationUp();
     }
 
-    public void doNewChannel() {
-        if (LoadedExtensions.getInstance().getSourceConnectors().size() == 0 || LoadedExtensions.getInstance().getDestinationConnectors().size() == 0) {
-            alertError(this, "You must have at least one source connector and one destination connector installed.");
-            return;
-        }
-
-        // The channel wizard will call createNewChannel() or create a channel
-        // from a wizard.
-        new ChannelWizard();
-    }
-
-    public void createNewChannel() {
-        Channel channel = new Channel();
-
-        try {
-            channel.setId(mirthClient.getGuid());
-        } catch (ClientException e) {
-            alertThrowable(this, e);
-        }
-
-        channel.setName("");
-        setupChannel(channel);
-    }
-
-    public void doEditChannel() {
-        if (isEditingChannel) {
-            return;
-        } else {
-            isEditingChannel = true;
-        }
-
-        List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-        if (selectedChannels.size() > 1) {
-            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
-        } else if (selectedChannels.size() == 0) {
-            JOptionPane.showMessageDialog(Frame.this, "Channel no longer exists.");
-        } else {
-            try {
-                Channel channel = selectedChannels.get(0);
-
-                if (channel instanceof InvalidChannel) {
-                    InvalidChannel invalidChannel = (InvalidChannel) channel;
-                    Throwable cause = invalidChannel.getCause();
-                    alertThrowable(this, cause, "Channel \"" + channel.getName() + "\" is invalid and cannot be edited. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
-                } else {
-                    editChannel((Channel) SerializationUtils.clone(channel));
-                }
-            } catch (SerializationException e) {
-                alertThrowable(this, e);
-            }
-        }
-        isEditingChannel = false;
-    }
-
-    private String getMissingExtensions(InvalidChannel channel) {
-        Set<String> missingConnectors = new HashSet<String>();
-        Set<String> missingDataTypes = new HashSet<String>();
-
-        try {
-            DonkeyElement channelElement = new DonkeyElement(((InvalidChannel) channel).getChannelXml());
-
-            checkConnectorForMissingExtensions(channelElement.getChildElement("sourceConnector"), true, missingConnectors, missingDataTypes);
-
-            DonkeyElement destinationConnectors = channelElement.getChildElement("destinationConnectors");
-            if (destinationConnectors != null) {
-                for (DonkeyElement destinationConnector : destinationConnectors.getChildElements()) {
-                    checkConnectorForMissingExtensions(destinationConnector, false, missingConnectors, missingDataTypes);
-                }
-            }
-        } catch (DonkeyElementException e) {
-        }
-
-        StringBuilder builder = new StringBuilder();
-
-        if (!missingConnectors.isEmpty()) {
-            builder.append("\n\nYour Mirth Connect installation is missing required connectors for this channel:\n     ");
-            builder.append(StringUtils.join(missingConnectors.toArray(), "\n     "));
-            builder.append("\n\n");
-        }
-
-        if (!missingDataTypes.isEmpty()) {
-            if (missingConnectors.isEmpty()) {
-                builder.append("\n\n");
-            }
-            builder.append("Your Mirth Connect installation is missing required data types for this channel:\n     ");
-            builder.append(StringUtils.join(missingDataTypes.toArray(), "\n     "));
-            builder.append("\n\n");
-        }
-
-        return builder.toString();
-    }
-
-    private void checkConnectorForMissingExtensions(DonkeyElement connector, boolean source, Set<String> missingConnectors, Set<String> missingDataTypes) {
-        if (connector != null) {
-            DonkeyElement transportName = connector.getChildElement("transportName");
-            // Check for 2.x-specific connectors
-            transportName.setTextContent(ImportConverter3_0_0.convertTransportName(transportName.getTextContent()));
-
-            if (transportName != null) {
-                if (source && !LoadedExtensions.getInstance().getSourceConnectors().containsKey(transportName.getTextContent())) {
-                    missingConnectors.add(transportName.getTextContent());
-                } else if (!source && !LoadedExtensions.getInstance().getDestinationConnectors().containsKey(transportName.getTextContent())) {
-                    missingConnectors.add(transportName.getTextContent());
-                }
-            }
-
-            checkTransformerForMissingExtensions(connector.getChildElement("transformer"), missingDataTypes);
-            if (!source) {
-                checkTransformerForMissingExtensions(connector.getChildElement("responseTransformer"), missingDataTypes);
-            }
-        }
-    }
-
-    private void checkTransformerForMissingExtensions(DonkeyElement transformer, Set<String> missingDataTypes) {
-        if (transformer != null) {
-            // Check for 2.x-specific data types
-            missingDataTypes.addAll(ImportConverter3_0_0.getMissingDataTypes(transformer, LoadedExtensions.getInstance().getDataTypePlugins().keySet()));
-
-            DonkeyElement inboundDataType = transformer.getChildElement("inboundDataType");
-
-            if (inboundDataType != null && !LoadedExtensions.getInstance().getDataTypePlugins().containsKey(inboundDataType.getTextContent())) {
-                missingDataTypes.add(inboundDataType.getTextContent());
-            }
-
-            DonkeyElement outboundDataType = transformer.getChildElement("outboundDataType");
-
-            if (outboundDataType != null && !LoadedExtensions.getInstance().getDataTypePlugins().containsKey(outboundDataType.getTextContent())) {
-                missingDataTypes.add(outboundDataType.getTextContent());
-            }
-        }
-    }
-
     public void doEditGlobalScripts() {
         if (globalScriptsPanel == null) {
             globalScriptsPanel = new GlobalScriptsPanel();
@@ -2328,149 +2093,6 @@ public class Frame extends JXFrame {
         return true;
     }
 
-    public void doDeleteChannel() {
-        final List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-        if (selectedChannels.size() == 0) {
-            return;
-        }
-
-        if (!alertOption(this, "Are you sure you want to delete the selected channel(s)?\nAny selected deployed channel(s) will first be undeployed.")) {
-            return;
-        }
-
-        final String workingId = startWorking("Deleting channel...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                Set<String> channelIds = new HashSet<String>(selectedChannels.size());
-                for (Channel channel : selectedChannels) {
-                    channelIds.add(channel.getId());
-                }
-
-                try {
-                    mirthClient.removeChannels(channelIds);
-                } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
-                }
-
-                return null;
-            }
-
-            public void done() {
-                doRefreshChannels();
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
-    }
-
-    public void doRefreshChannels() {
-        doRefreshChannels(true);
-    }
-
-    public void doRefreshChannels(boolean queue) {
-        final List<String> selectedChannelIds = new ArrayList<String>();
-
-        for (Channel channel : channelPanel.getSelectedChannels()) {
-            selectedChannelIds.add(channel.getId());
-        }
-
-        QueuingSwingWorkerTask<Void, Void> task = new QueuingSwingWorkerTask<Void, Void>("doRefreshChannels", "Loading channels...") {
-            @Override
-            public Void doInBackground() {
-                retrieveChannels();
-                return null;
-            }
-
-            @Override
-            public void done() {
-                channelPanel.updateChannelTable(new ArrayList<ChannelStatus>(channelStatuses.values()));
-
-                setVisibleTasks(channelTasks, channelPopupMenu, 1, 2, false);
-                setVisibleTasks(channelTasks, channelPopupMenu, 7, -1, false);
-
-                if (channelStatuses.size() > 0) {
-                    if (!getChannelTagInfo(false).isEnabled()) {
-                        setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
-                    }
-
-                    setVisibleTasks(channelTasks, channelPopupMenu, 7, 7, true);
-                }
-
-                channelPanel.setSelectedChannels(selectedChannelIds);
-            }
-        };
-
-        new QueuingSwingWorker<Void, Void>(task, queue).executeDelegate();
-    }
-
-    private Map<String, ChannelHeader> getChannelHeaders() {
-        Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
-
-        for (ChannelStatus channelStatus : channelStatuses.values()) {
-            Channel channel = channelStatus.getChannel();
-            channelHeaders.put(channel.getId(), new ChannelHeader(channel.getRevision(), channelStatus.getDeployedDate(), channelStatus.isCodeTemplatesChanged()));
-        }
-
-        return channelHeaders;
-    }
-
-    public void retrieveChannels() {
-        try {
-            updateChannelStatuses(mirthClient.getChannelSummary(getChannelHeaders(), false));
-        } catch (ClientException e) {
-            alertThrowable(this, e);
-        }
-    }
-
-    public void updateChannelStatuses(List<ChannelSummary> changedChannels) {
-        for (ChannelSummary channelSummary : changedChannels) {
-            String channelId = channelSummary.getChannelId();
-
-            if (channelSummary.isDeleted()) {
-                channelStatuses.remove(channelId);
-            } else {
-                ChannelStatus channelStatus = channelStatuses.get(channelId);
-                if (channelStatus == null) {
-                    channelStatus = new ChannelStatus();
-                    channelStatuses.put(channelId, channelStatus);
-                }
-
-                /*
-                 * If the status coming back from the server is for an entirely new channel, the
-                 * Channel object should never be null.
-                 */
-                if (channelSummary.getChannelStatus().getChannel() != null) {
-                    channelStatus.setChannel(channelSummary.getChannelStatus().getChannel());
-                }
-
-                if (channelSummary.isUndeployed()) {
-                    channelStatus.setDeployedDate(null);
-                    channelStatus.setDeployedRevisionDelta(null);
-                    channelStatus.setCodeTemplatesChanged(false);
-                } else {
-                    if (channelSummary.getChannelStatus().getDeployedDate() != null) {
-                        channelStatus.setDeployedDate(channelSummary.getChannelStatus().getDeployedDate());
-                        channelStatus.setDeployedRevisionDelta(channelSummary.getChannelStatus().getDeployedRevisionDelta());
-                    }
-
-                    channelStatus.setCodeTemplatesChanged(channelSummary.getChannelStatus().isCodeTemplatesChanged());
-                }
-
-                channelStatus.setLocalChannelId(channelSummary.getChannelStatus().getLocalChannelId());
-            }
-        }
-
-        updateChannelTags(false);
-    }
-
-    public void clearChannelCache() {
-        channelStatuses = new HashMap<String, ChannelStatus>();
-        updateChannelTags(false);
-    }
-
     public synchronized void increaseSafeErrorFailCount(String safeErrorKey) {
         int safeErrorFailCount = getSafeErrorFailCount(safeErrorKey) + 1;
         this.safeErrorFailCountMap.put(safeErrorKey, safeErrorFailCount);
@@ -2497,6 +2119,8 @@ public class Frame extends JXFrame {
             @Override
             public Void doInBackground() {
                 try {
+                    channelPanel.retrieveGroups();
+
                     for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
                         plugin.tableUpdate(status);
                     }
@@ -2539,15 +2163,19 @@ public class Frame extends JXFrame {
             public void process(List<DashboardStatus> chunks) {
                 logger.debug("Processing chunk: " + (chunks != null ? chunks.size() : "null"));
                 if (chunks != null) {
+                    TableState tableState = dashboardPanel.getCurrentTableState();
                     dashboardPanel.updateTableChannelNodes(chunks);
+                    dashboardPanel.updateTableState(tableState);
                 }
             }
 
             @Override
             public void done() {
                 if (status != null) {
+                    TableState tableState = dashboardPanel.getCurrentTableState();
                     updateChannelTags(true);
-                    dashboardPanel.finishUpdatingTable(status);
+                    dashboardPanel.finishUpdatingTable(status, channelPanel.getCachedGroupStatuses().values());
+                    dashboardPanel.updateTableState(tableState);
                 }
             }
         };
@@ -2837,121 +2465,6 @@ public class Frame extends JXFrame {
         channelEditPanel.disableDestination();
     }
 
-    public void doEnableChannel() {
-        final List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-        if (selectedChannels.size() == 0) {
-            alertWarning(this, "Channel no longer exists.");
-            return;
-        }
-
-        final Set<String> channelIds = new HashSet<String>();
-        Set<Channel> failedChannels = new HashSet<Channel>();
-        String firstValidationMessage = null;
-
-        for (Iterator<Channel> it = selectedChannels.iterator(); it.hasNext();) {
-            Channel channel = it.next();
-            String validationMessage = null;
-
-            if (channel instanceof InvalidChannel) {
-                failedChannels.add(channel);
-                it.remove();
-            } else if ((validationMessage = channelEditPanel.checkAllForms(channel)) != null) {
-                if (firstValidationMessage == null) {
-                    firstValidationMessage = validationMessage;
-                }
-
-                failedChannels.add(channel);
-                it.remove();
-            } else {
-                channelIds.add(channel.getId());
-            }
-        }
-
-        if (!channelIds.isEmpty()) {
-            final String workingId = startWorking("Enabling channel...");
-
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                public Void doInBackground() {
-                    for (Channel channel : selectedChannels) {
-                        channel.setEnabled(true);
-                    }
-
-                    try {
-                        mirthClient.setChannelEnabled(channelIds, true);
-                    } catch (ClientException e) {
-                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
-                    }
-                    return null;
-                }
-
-                public void done() {
-                    doRefreshChannels();
-                    stopWorking(workingId);
-                }
-            };
-
-            worker.execute();
-        }
-
-        if (!failedChannels.isEmpty()) {
-            if (failedChannels.size() == 1) {
-                Channel channel = failedChannels.iterator().next();
-
-                if (channel instanceof InvalidChannel) {
-                    InvalidChannel invalidChannel = (InvalidChannel) channel;
-                    Throwable cause = invalidChannel.getCause();
-                    alertThrowable(this, cause, "Channel \"" + invalidChannel.getName() + "\" is invalid and cannot be enabled. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
-                } else {
-                    alertCustomError(this, firstValidationMessage, CustomErrorDialog.ERROR_ENABLING_CHANNEL);
-                }
-            } else {
-                String message = "The following channels are invalid or not configured properly:\n\n";
-                for (Channel channel : failedChannels) {
-                    message += "    " + channel.getName() + " (" + channel.getId() + ")\n";
-                }
-                alertError(this, message);
-            }
-        }
-    }
-
-    public void doDisableChannel() {
-        final List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-        if (selectedChannels.size() == 0) {
-            alertWarning(this, "Channel no longer exists.");
-            return;
-        }
-
-        final String workingId = startWorking("Disabling channels...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                Set<String> channelIds = new HashSet<String>();
-
-                for (Channel channel : selectedChannels) {
-                    if (!(channel instanceof InvalidChannel)) {
-                        channel.setEnabled(false);
-                        channelIds.add(channel.getId());
-                    }
-                }
-
-                try {
-                    mirthClient.setChannelEnabled(channelIds, false);
-                } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
-                }
-                return null;
-            }
-
-            public void done() {
-                doRefreshChannels();
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
-    }
-
     public void doNewUser() {
         new UserDialog(null);
     }
@@ -3052,60 +2565,6 @@ public class Frame extends JXFrame {
         }
     }
 
-    public void doRedeployAll() {
-        if (!alertOption(this, "Are you sure you want to redeploy all channels?")) {
-            return;
-        }
-
-        final String workingId = startWorking("Deploying channels...");
-        dashboardPanel.deselectRows(false);
-        doShowDashboard();
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                try {
-                    mirthClient.redeployAllChannels();
-                } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
-                }
-                return null;
-            }
-
-            public void done() {
-                stopWorking(workingId);
-                doRefreshStatuses(true);
-            }
-        };
-
-        worker.execute();
-    }
-
-    public void doDeployChannel() {
-        List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-        if (selectedChannels.size() == 0) {
-            alertWarning(this, "Channel no longer exists.");
-            return;
-        }
-
-        // Only deploy enabled channels
-        final Set<String> selectedEnabledChannelIds = new LinkedHashSet<String>();
-        boolean channelDisabled = false;
-        for (Channel channel : selectedChannels) {
-            if (channel.isEnabled()) {
-                selectedEnabledChannelIds.add(channel.getId());
-            } else {
-                channelDisabled = true;
-            }
-        }
-
-        if (channelDisabled) {
-            alertWarning(this, "Disabled channels will not be deployed.");
-        }
-
-        deployChannel(selectedEnabledChannelIds);
-    }
-
     public void doDeployFromChannelView() {
         String channelId = channelEditPanel.currentChannel.getId();
 
@@ -3125,7 +2584,7 @@ public class Frame extends JXFrame {
             }
         }
 
-        ChannelStatus channelStatus = channelStatuses.get(channelId);
+        ChannelStatus channelStatus = channelPanel.getCachedChannelStatuses().get(channelId);
         if (channelStatus == null) {
             alertWarning(this, "The channel cannot be found and will not be deployed.");
             return;
@@ -3139,7 +2598,7 @@ public class Frame extends JXFrame {
         deployChannel(Collections.singleton(channelId));
     }
 
-    private void deployChannel(final Set<String> selectedChannelIds) {
+    public void deployChannel(final Set<String> selectedChannelIds) {
         if (CollectionUtils.isNotEmpty(selectedChannelIds)) {
             String plural = (selectedChannelIds.size() > 1) ? "s" : "";
             final String workingId = startWorking("Deploying channel" + plural + "...");
@@ -3231,7 +2690,9 @@ public class Frame extends JXFrame {
     }
 
     public boolean changesHaveBeenMade() {
-        if (channelEditPanel != null && currentContentPage == channelEditPanel) {
+        if (currentContentPage == channelPanel) {
+            return channelPanel.changesHaveBeenMade();
+        } else if (channelEditPanel != null && currentContentPage == channelEditPanel) {
             return channelEditTasks.getContentPane().getComponent(0).isVisible();
         } else if (channelEditPanel != null && currentContentPage == channelEditPanel.transformerPane) {
             return channelEditPanel.transformerPane.modified;
@@ -3303,12 +2764,12 @@ public class Frame extends JXFrame {
          * object) will return null, and the resulting block will pull down the channelStatus for
          * the given id.
          */
-        ChannelStatus channelStatus = channelStatuses.get(id);
+        ChannelStatus channelStatus = channelPanel.getCachedChannelStatuses().get(id);
         if (channelStatus == null) {
             try {
                 Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
                 channelHeaders.put(id, new ChannelHeader(channelRevision, null, true));
-                updateChannelStatuses(mirthClient.getChannelSummary(channelHeaders, true));
+                channelPanel.updateChannelStatuses(mirthClient.getChannelSummary(channelHeaders, true));
             } catch (ClientException e) {
                 alertThrowable(PlatformUI.MIRTH_FRAME, e);
             }
@@ -3417,410 +2878,8 @@ public class Frame extends JXFrame {
         channelEditPanel.doValidate();
     }
 
-    public void doImport() {
-        String content = browseForFileString("XML");
-
-        if (content != null) {
-            importChannel(content, true);
-        }
-    }
-
-    public void importChannel(String content, boolean showAlerts) {
-        if (showAlerts && !promptObjectMigration(content, "channel")) {
-            return;
-        }
-
-        boolean overwrite = false;
-        Channel importChannel = null;
-
-        try {
-            importChannel = ObjectXMLSerializer.getInstance().deserialize(content, Channel.class);
-        } catch (Exception e) {
-            if (showAlerts) {
-                alertThrowable(this, e, "Invalid channel file:\n" + e.getMessage());
-            }
-
-            return;
-        }
-
-        try {
-            String channelName = importChannel.getName();
-            String tempId = mirthClient.getGuid();
-
-            // Check to see that the channel name doesn't already exist.
-            if (!checkChannelName(channelName, tempId)) {
-                if (!alertOption(this, "Would you like to overwrite the existing channel?  Choose 'No' to create a new channel.")) {
-                    importChannel.setRevision(0);
-
-                    do {
-                        channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.", channelName);
-                        if (channelName == null) {
-                            return;
-                        }
-                    } while (!checkChannelName(channelName, tempId));
-
-                    importChannel.setName(channelName);
-                    setIdAndUpdateLibraries(importChannel, tempId);
-                } else {
-                    overwrite = true;
-
-                    for (ChannelStatus channelStatus : channelStatuses.values()) {
-                        Channel channel = channelStatus.getChannel();
-                        if (channel.getName().equalsIgnoreCase(channelName)) {
-                            // If overwriting, use the old revision number and id
-                            importChannel.setRevision(channel.getRevision());
-                            setIdAndUpdateLibraries(importChannel, channel.getId());
-                        }
-                    }
-                }
-            } else {
-                // Start the revision number over for a new channel
-                importChannel.setRevision(0);
-
-                // If the channel name didn't already exist, make sure
-                // the id doesn't exist either.
-                if (!checkChannelId(importChannel.getId())) {
-                    setIdAndUpdateLibraries(importChannel, tempId);
-                }
-
-            }
-
-            channelStatuses.put(importChannel.getId(), new ChannelStatus(importChannel));
-            updateChannelTags(false);
-        } catch (ClientException e) {
-            alertThrowable(this, e);
-        }
-
-        // Import code templates / libraries if applicable
-        removeInvalidItems(importChannel.getCodeTemplateLibraries(), CodeTemplateLibrary.class);
-        if (!(importChannel instanceof InvalidChannel) && !importChannel.getCodeTemplateLibraries().isEmpty()) {
-            boolean importLibraries;
-            String importChannelCodeTemplateLibraries = Preferences.userNodeForPackage(Mirth.class).get("importChannelCodeTemplateLibraries", null);
-
-            if (importChannelCodeTemplateLibraries == null) {
-                JCheckBox alwaysChooseCheckBox = new JCheckBox("Always choose this option by default in the future (may be changed in the Administrator settings)");
-                Object[] params = new Object[] {
-                        "Channel \"" + importChannel.getName() + "\" has code template libraries included with it. Would you like to import them?",
-                        alwaysChooseCheckBox };
-                int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-                if (result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
-                    importLibraries = result == JOptionPane.YES_OPTION;
-                    if (alwaysChooseCheckBox.isSelected()) {
-                        Preferences.userNodeForPackage(Mirth.class).putBoolean("importChannelCodeTemplateLibraries", importLibraries);
-                    }
-                } else {
-                    return;
-                }
-            } else {
-                importLibraries = Boolean.parseBoolean(importChannelCodeTemplateLibraries);
-            }
-
-            if (importLibraries) {
-                CodeTemplateImportDialog dialog = new CodeTemplateImportDialog(this, importChannel.getCodeTemplateLibraries(), false, true);
-
-                if (dialog.wasSaved()) {
-                    CodeTemplateLibrarySaveResult updateSummary = codeTemplatePanel.attemptUpdate(dialog.getUpdatedLibraries(), new HashMap<String, CodeTemplateLibrary>(), dialog.getUpdatedCodeTemplates(), new HashMap<String, CodeTemplate>(), true, null, null);
-
-                    if (updateSummary == null || updateSummary.isOverrideNeeded() || !updateSummary.isLibrariesSuccess()) {
-                        return;
-                    } else {
-                        for (CodeTemplateUpdateResult result : updateSummary.getCodeTemplateResults().values()) {
-                            if (!result.isSuccess()) {
-                                return;
-                            }
-                        }
-                    }
-
-                    codeTemplatePanel.doRefreshCodeTemplates();
-                }
-            }
-
-            importChannel.getCodeTemplateLibraries().clear();
-        }
-
-        // Update resource names
-        updateResourceNames(importChannel);
-
-        /*
-         * Update the channel if we're overwriting an imported channel, if we're not showing alerts
-         * (dragging/dropping multiple channels), or if we're working with an invalid channel.
-         */
-        if (overwrite || !showAlerts || importChannel instanceof InvalidChannel) {
-            try {
-                updateChannel(importChannel, overwrite);
-
-                if (importChannel instanceof InvalidChannel && showAlerts) {
-                    InvalidChannel invalidChannel = (InvalidChannel) importChannel;
-                    Throwable cause = invalidChannel.getCause();
-                    alertThrowable(this, cause, "Channel \"" + importChannel.getName() + "\" is invalid. " + getMissingExtensions(invalidChannel) + " Original cause:\n" + cause.getMessage());
-                }
-            } catch (Exception e) {
-                channelStatuses.remove(importChannel.getId());
-                updateChannelTags(false);
-                alertThrowable(this, e);
-                return;
-            } finally {
-                doRefreshChannels();
-            }
-        }
-
-        if (showAlerts) {
-            final Channel importChannelFinal = importChannel;
-            final boolean overwriteFinal = overwrite;
-
-            /*
-             * MIRTH-2048 - This is a hack to fix the memory access error that only occurs on OS X.
-             * The block of code that edits the channel needs to be invoked later so that the screen
-             * does not change before the drag/drop action of a channel finishes.
-             */
-            SwingUtilities.invokeLater(new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        editChannel(importChannelFinal);
-                        setSaveEnabled(!overwriteFinal);
-                    } catch (Exception e) {
-                        channelStatuses.remove(importChannelFinal.getId());
-                        updateChannelTags(false);
-                        alertError(PlatformUI.MIRTH_FRAME, "Channel had an unknown problem. Channel import aborted.");
-                        channelEditPanel = new ChannelSetup();
-                        doShowChannel();
-                    }
-                }
-
-            });
-        }
-    }
-
-    private void setIdAndUpdateLibraries(Channel channel, String newChannelId) {
-        for (CodeTemplateLibrary library : channel.getCodeTemplateLibraries()) {
-            library.getEnabledChannelIds().remove(channel.getId());
-            library.getEnabledChannelIds().add(newChannelId);
-        }
-        channel.setId(newChannelId);
-    }
-
     public boolean doExportChannel() {
-        if (changesHaveBeenMade()) {
-            if (alertOption(this, "This channel has been modified. You must save the channel changes before you can export. Would you like to save them now?")) {
-                if (!channelEditPanel.saveChanges()) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-
-            setSaveEnabled(false);
-        }
-
-        Channel channel;
-        if (currentContentPage == channelEditPanel || currentContentPage == channelEditPanel.filterPane || currentContentPage == channelEditPanel.transformerPane) {
-            channel = channelEditPanel.currentChannel;
-        } else {
-            List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-            if (selectedChannels.size() > 1) {
-                exportChannels(selectedChannels);
-                return true;
-            }
-            channel = selectedChannels.get(0);
-        }
-
-        // Add code template libraries if necessary
-        if (channelHasLinkedCodeTemplates(channel)) {
-            boolean addLibraries = true;
-            String exportChannelCodeTemplateLibraries = Preferences.userNodeForPackage(Mirth.class).get("exportChannelCodeTemplateLibraries", null);
-
-            if (exportChannelCodeTemplateLibraries == null) {
-                ExportChannelLibrariesDialog dialog = new ExportChannelLibrariesDialog(channel);
-                if (dialog.getResult() == JOptionPane.NO_OPTION) {
-                    addLibraries = false;
-                } else if (dialog.getResult() != JOptionPane.YES_OPTION) {
-                    return false;
-                }
-            } else {
-                addLibraries = Boolean.parseBoolean(exportChannelCodeTemplateLibraries);
-            }
-
-            if (addLibraries) {
-                addCodeTemplateLibrariesToChannel(channel);
-            }
-        }
-
-        // Update resource names
-        updateResourceNames(channel);
-
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        String channelXML = serializer.serialize(channel);
-        // Reset the libraries on the cached channel
-        channel.getCodeTemplateLibraries().clear();
-
-        return exportFile(channelXML, channel.getName(), "XML", "Channel");
-    }
-
-    private boolean channelHasLinkedCodeTemplates(Channel channel) {
-        return channelHasLinkedCodeTemplates(Collections.singletonList(channel));
-    }
-
-    private boolean channelHasLinkedCodeTemplates(List<Channel> channels) {
-        for (Channel channel : channels) {
-            for (CodeTemplateLibrary library : codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
-                if (library.getEnabledChannelIds().contains(channel.getId()) || (library.isIncludeNewChannels() && !library.getDisabledChannelIds().contains(channel.getId()))) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private void addCodeTemplateLibrariesToChannel(Channel channel) {
-        List<CodeTemplateLibrary> channelLibraries = new ArrayList<CodeTemplateLibrary>();
-
-        for (CodeTemplateLibrary library : codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
-            if (library.getEnabledChannelIds().contains(channel.getId()) || (library.isIncludeNewChannels() && !library.getDisabledChannelIds().contains(channel.getId()))) {
-                library = new CodeTemplateLibrary(library);
-
-                List<CodeTemplate> codeTemplates = new ArrayList<CodeTemplate>();
-                for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
-                    codeTemplate = codeTemplatePanel.getCachedCodeTemplates().get(codeTemplate.getId());
-                    if (codeTemplate != null) {
-                        codeTemplates.add(codeTemplate);
-                    }
-                }
-
-                library.setCodeTemplates(codeTemplates);
-                channelLibraries.add(library);
-            }
-        }
-
-        channel.setCodeTemplateLibraries(channelLibraries);
-    }
-
-    public void doExportAll() {
-        if (!channelStatuses.isEmpty()) {
-            List<Channel> selectedChannels = new ArrayList<Channel>();
-            for (ChannelStatus channelStatus : channelStatuses.values()) {
-                selectedChannels.add(channelStatus.getChannel());
-            }
-            exportChannels(selectedChannels);
-        }
-    }
-
-    private void exportChannels(List<Channel> channelList) {
-        if (channelHasLinkedCodeTemplates(channelList)) {
-            boolean addLibraries;
-            String exportChannelCodeTemplateLibraries = Preferences.userNodeForPackage(Mirth.class).get("exportChannelCodeTemplateLibraries", null);
-
-            if (exportChannelCodeTemplateLibraries == null) {
-                JCheckBox alwaysChooseCheckBox = new JCheckBox("Always choose this option by default in the future (may be changed in the Administrator settings)");
-                Object[] params = new Object[] {
-                        "<html>One or more channels has code template libraries linked to them.<br/>Do you wish to include these libraries in each respective channel export?</html>",
-                        alwaysChooseCheckBox };
-                int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-                if (result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
-                    addLibraries = result == JOptionPane.YES_OPTION;
-                    if (alwaysChooseCheckBox.isSelected()) {
-                        Preferences.userNodeForPackage(Mirth.class).putBoolean("exportChannelCodeTemplateLibraries", addLibraries);
-                    }
-                } else {
-                    return;
-                }
-            } else {
-                addLibraries = Boolean.parseBoolean(exportChannelCodeTemplateLibraries);
-            }
-
-            if (addLibraries) {
-                for (Channel channel : channelList) {
-                    addCodeTemplateLibrariesToChannel(channel);
-                }
-            }
-        }
-
-        JFileChooser exportFileChooser = new JFileChooser();
-        exportFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-        File currentDir = new File(userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists()) {
-            exportFileChooser.setCurrentDirectory(currentDir);
-        }
-
-        int returnVal = exportFileChooser.showSaveDialog(this);
-        File exportFile = null;
-        File exportDirectory = null;
-        String exportPath = "/";
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
-
-            int exportCollisionCount = 0;
-            exportDirectory = exportFileChooser.getSelectedFile();
-            exportPath = exportDirectory.getAbsolutePath();
-
-            for (Channel channel : channelList) {
-                exportFile = new File(exportPath + "/" + channel.getName() + ".xml");
-
-                if (exportFile.exists()) {
-                    exportCollisionCount++;
-                }
-
-                // Update resource names
-                updateResourceNames(channel);
-            }
-
-            try {
-                int exportCount = 0;
-
-                boolean overwriteAll = false;
-                boolean skipAll = false;
-                for (int i = 0, size = channelList.size(); i < size; i++) {
-                    Channel channel = channelList.get(i);
-                    exportFile = new File(exportPath + "/" + channel.getName() + ".xml");
-
-                    boolean fileExists = exportFile.exists();
-                    if (fileExists) {
-                        if (!overwriteAll && !skipAll) {
-                            if (exportCollisionCount == 1) {
-                                if (!alertOption(this, "The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?")) {
-                                    continue;
-                                }
-                            } else {
-                                ConflictOption conflictStatus = alertConflict(PlatformUI.MIRTH_FRAME, "<html>The file " + channel.getName() + ".xml already exists.<br>Would you like to overwrite it?</html>", exportCollisionCount);
-
-                                if (conflictStatus == ConflictOption.YES_APPLY_ALL) {
-                                    overwriteAll = true;
-                                } else if (conflictStatus == ConflictOption.NO) {
-                                    exportCollisionCount--;
-                                    continue;
-                                } else if (conflictStatus == ConflictOption.NO_APPLY_ALL) {
-                                    skipAll = true;
-                                    continue;
-                                }
-                            }
-                        }
-                        exportCollisionCount--;
-                    }
-
-                    if (!fileExists || !skipAll) {
-                        String channelXML = ObjectXMLSerializer.getInstance().serialize(channel);
-                        FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
-                        exportCount++;
-                    }
-                }
-
-                if (exportCount > 0) {
-                    alertInformation(this, exportCount + " files were written successfully to " + exportPath + ".");
-                }
-            } catch (IOException ex) {
-                alertError(this, "File could not be written.");
-            }
-        }
-
-        // Reset the libraries on the cached channels
-        for (Channel channel : channelList) {
-            channel.getCodeTemplateLibraries().clear();
-        }
+        return channelPanel.doExportChannel();
     }
 
     /**
@@ -4016,52 +3075,6 @@ public class Frame extends JXFrame {
         exportFile(connectorXML, fileName, "XML", "Connector");
     }
 
-    public void doCloneChannel() {
-        List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-        if (selectedChannels.size() > 1) {
-            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
-            return;
-        }
-
-        Channel channel = selectedChannels.get(0);
-
-        if (channel instanceof InvalidChannel) {
-            InvalidChannel invalidChannel = (InvalidChannel) channel;
-            Throwable cause = invalidChannel.getCause();
-            alertThrowable(this, cause, "Channel \"" + channel.getName() + "\" is invalid and cannot be cloned. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
-            return;
-        }
-
-        try {
-            channel = (Channel) SerializationUtils.clone(channel);
-        } catch (SerializationException e) {
-            alertThrowable(this, e);
-            return;
-        }
-
-        try {
-            channel.setRevision(0);
-            channel.setId(mirthClient.getGuid());
-        } catch (ClientException e) {
-            alertThrowable(this, e);
-        }
-
-        String channelName = channel.getName();
-        do {
-            channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.", channelName);
-            if (channelName == null) {
-                return;
-            }
-        } while (!checkChannelName(channelName, channel.getId()));
-
-        channel.setName(channelName);
-        channelStatuses.put(channel.getId(), new ChannelStatus(channel));
-        updateChannelTags(false);
-
-        editChannel(channel);
-        setSaveEnabled(true);
-    }
-
     public void doRefreshMessages() {
         messageBrowser.refresh(null, true);
     }
@@ -4100,13 +3113,13 @@ public class Frame extends JXFrame {
          * object) will return null, and the resulting block will pull down the channelStatus for
          * the given id.
          */
-        ChannelStatus channelStatus = channelStatuses.get(channelId);
+        ChannelStatus channelStatus = channelPanel.getCachedChannelStatuses().get(channelId);
         if (channelStatus == null) {
             try {
                 Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
                 channelHeaders.put(channelId, new ChannelHeader(0, null, true));
-                updateChannelStatuses(mirthClient.getChannelSummary(channelHeaders, true));
-                channelStatus = channelStatuses.get(channelId);
+                channelPanel.updateChannelStatuses(mirthClient.getChannelSummary(channelHeaders, true));
+                channelStatus = channelPanel.getCachedChannelStatuses().get(channelId);
             } catch (ClientException e) {
                 alertThrowable(PlatformUI.MIRTH_FRAME, e);
             }
@@ -4172,7 +3185,7 @@ public class Frame extends JXFrame {
                 }
             }
         }
-        
+
         removeMessagesDialog.init(channelIds, restartCheckboxEnabled);
         removeMessagesDialog.setLocationRelativeTo(this);
         removeMessagesDialog.setVisible(true);
@@ -4322,8 +3335,8 @@ public class Frame extends JXFrame {
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
-                if (channelStatuses == null || channelStatuses.values().size() == 0) {
-                    retrieveChannels();
+                if (channelPanel.getCachedChannelStatuses() == null || channelPanel.getCachedChannelStatuses().values().size() == 0) {
+                    channelPanel.retrieveChannels();
                 }
 
                 return null;
@@ -4586,8 +3599,8 @@ public class Frame extends JXFrame {
     }
 
     public void doNewAlert() throws ClientException {
-        AlertInfo alertInfo = mirthClient.getAlertInfo(getChannelHeaders());
-        updateChannelStatuses(alertInfo.getChangedChannels());
+        AlertInfo alertInfo = mirthClient.getAlertInfo(channelPanel.getChannelHeaders());
+        channelPanel.updateChannelStatuses(alertInfo.getChangedChannels());
         setupAlert(alertInfo.getProtocolOptions());
     }
 
@@ -4605,13 +3618,13 @@ public class Frame extends JXFrame {
             JOptionPane.showMessageDialog(Frame.this, "Alert no longer exists.");
         } else {
             try {
-                AlertInfo alertInfo = mirthClient.getAlertInfo(selectedAlertIds.get(0), getChannelHeaders());
+                AlertInfo alertInfo = mirthClient.getAlertInfo(selectedAlertIds.get(0), channelPanel.getChannelHeaders());
 
                 if (alertInfo.getModel() == null) {
                     JOptionPane.showMessageDialog(Frame.this, "Alert no longer exists.");
                     doRefreshAlerts(true);
                 } else {
-                    updateChannelStatuses(alertInfo.getChangedChannels());
+                    channelPanel.updateChannelStatuses(alertInfo.getChangedChannels());
                     editAlert(alertInfo.getModel(), alertInfo.getProtocolOptions());
                 }
             } catch (ClientException e) {
@@ -5023,7 +4036,9 @@ public class Frame extends JXFrame {
 
     public void doContextSensitiveSave() {
         if (canSave) {
-            if (currentContentPage == channelEditPanel) {
+            if (currentContentPage == channelPanel) {
+                channelPanel.doContextSensitiveSave();
+            } else if (currentContentPage == channelEditPanel) {
                 doSaveChannel();
             } else if (currentContentPage == channelEditPanel.filterPane) {
                 doSaveChannel();
@@ -5107,6 +4122,37 @@ public class Frame extends JXFrame {
         return acceleratorKeyPressed;
     }
 
+    /**
+     * Checks to see if the passed in channel name already exists
+     */
+    public boolean checkChannelName(String name, String id) {
+        if (name.equals("")) {
+            alertWarning(this, "Channel name cannot be empty.");
+            return false;
+        }
+
+        if (name.length() > 40) {
+            alertWarning(this, "Channel name cannot be longer than 40 characters.");
+            return false;
+        }
+
+        Pattern alphaNumericPattern = Pattern.compile("^[a-zA-Z_0-9\\-\\s]*$");
+        Matcher matcher = alphaNumericPattern.matcher(name);
+
+        if (!matcher.find()) {
+            alertWarning(this, "Channel name cannot have special characters besides hyphen, underscore, and space.");
+            return false;
+        }
+
+        for (ChannelStatus channelStatus : channelPanel.getCachedChannelStatuses().values()) {
+            if (channelStatus.getChannel().getName().equalsIgnoreCase(name) && !channelStatus.getChannel().getId().equals(id)) {
+                alertWarning(this, "Channel \"" + name + "\" already exists.");
+                return false;
+            }
+        }
+        return true;
+    }
+
     public ChannelTagInfo getChannelTagInfo(boolean deployed) {
         ChannelTagInfo channelTagInfo = deployed ? deployedChannelTagInfo : this.channelTagInfo;
 
@@ -5124,7 +4170,7 @@ public class Frame extends JXFrame {
         }
     }
 
-    private void updateChannelTags(boolean deployed) {
+    public void updateChannelTags(boolean deployed) {
         ChannelTagInfo channelTagInfo;
         Set<String> tags = new HashSet<String>();
 
@@ -5135,7 +4181,7 @@ public class Frame extends JXFrame {
             }
         } else {
             channelTagInfo = this.channelTagInfo;
-            for (ChannelStatus channelStatus : channelStatuses.values()) {
+            for (ChannelStatus channelStatus : channelPanel.getCachedChannelStatuses().values()) {
                 tags.addAll(channelStatus.getChannel().getProperties().getTags());
             }
         }

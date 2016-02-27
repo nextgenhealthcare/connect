@@ -98,6 +98,9 @@ import com.mirth.connect.client.ui.QueuingSwingWorkerTask;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.ChannelInfo;
+import com.mirth.connect.client.ui.components.ChannelsTableCellEditor;
+import com.mirth.connect.client.ui.components.ChannelsTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
@@ -128,8 +131,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     public static final int TEMPLATE_REVISION_COLUMN = 4;
     public static final int TEMPLATE_LAST_MODIFIED_COLUMN = 5;
 
+    public static final String NEW_CHANNELS = "[New Channels]";
+
     static final int TEMPLATE_NUM_COLUMNS = 6;
-    static final String NEW_CHANNELS = "[New Channels]";
 
     private static final int LIBRARY_CHANNELS_NAME_COLUMN = 0;
     private static final int LIBRARY_CHANNELS_ID_COLUMN = 1;
@@ -231,12 +235,12 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
     @Override
     public void switchPanel() {
-        Object[][] data = new Object[parent.channelStatuses.size() + 1][2];
+        Object[][] data = new Object[parent.channelPanel.getCachedChannelStatuses().size() + 1][2];
         data[0][0] = new ChannelInfo(NEW_CHANNELS, false);
         data[0][1] = NEW_CHANNELS;
         int row = 1;
 
-        for (ChannelStatus channelStatus : parent.channelStatuses.values()) {
+        for (ChannelStatus channelStatus : parent.channelPanel.getCachedChannelStatuses().values()) {
             data[row][0] = new ChannelInfo(channelStatus.getChannel().getName(), false);
             data[row][1] = channelStatus.getChannel().getId();
             row++;

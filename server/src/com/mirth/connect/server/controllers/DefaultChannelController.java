@@ -12,6 +12,7 @@ package com.mirth.connect.server.controllers;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
 
@@ -32,6 +34,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
@@ -50,6 +53,7 @@ public class DefaultChannelController extends ChannelController {
 
     private ChannelCache channelCache = new ChannelCache();
     private DeployedChannelCache deployedChannelCache = new DeployedChannelCache();
+    private Cache<ChannelGroup> channelGroupCache = new Cache<ChannelGroup>("Channel Group", "Channel.getChannelGroupRevision", "Channel.getChannelGroup");
     private Donkey donkey;
 
     private static ChannelController instance = null;
@@ -275,7 +279,7 @@ public class DefaultChannelController extends ChannelController {
             throw firstCause;
         }
     }
-    
+
     @Override
     public synchronized void setChannelInitialState(Set<String> channelIds, ServerEventContext context, DeployedState initialState) throws ControllerException {
         /*
@@ -285,7 +289,7 @@ public class DefaultChannelController extends ChannelController {
         if (initialState != DeployedState.STARTED && initialState != DeployedState.PAUSED && initialState != DeployedState.STOPPED) {
             throw new ControllerException("Cannot set initial state to " + initialState);
         }
-        
+
         ControllerException firstCause = null;
         List<Channel> cachedChannels = getChannels(channelIds);
 
@@ -556,7 +560,7 @@ public class DefaultChannelController extends ChannelController {
     public Statistics getTotalStatisticsFromStorage(String serverId) {
         return com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getTotalStatisticsFromStorage(serverId);
     }
-    
+
     @Override
     public int getConnectorMessageCount(String channelId, String serverId, int metaDataId, Status status) {
         return com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getConnectorMessageCount(channelId, serverId, metaDataId, status);
@@ -575,6 +579,169 @@ public class DefaultChannelController extends ChannelController {
     @Override
     public List<Channel> getDeployedChannels(Set<String> channelIds) {
         return deployedChannelCache.getDeployedChannels(channelIds);
+    }
+
+    @Override
+    public List<ChannelGroup> getChannelGroups(Set<String> channelGroupIds) {
+        Map<String, ChannelGroup> channelGroupMap = channelGroupCache.getAllItems();
+
+        List<ChannelGroup> channelGroups = new ArrayList<ChannelGroup>();
+
+        if (channelGroupIds == null) {
+            channelGroups.addAll(channelGroupMap.values());
+        } else {
+            for (String groupId : channelGroupIds) {
+                if (channelGroupMap.containsKey(groupId)) {
+                    channelGroups.add(channelGroupMap.get(groupId));
+                } else {
+                    logger.error("Cannot find channel group, it may have been removed: " + groupId);
+                }
+            }
+        }
+
+        return channelGroups;
+    }
+
+    @Override
+    public synchronized boolean updateChannelGroups(Set<ChannelGroup> channelGroups, Set<String> removedChannelGroupIds, boolean override) throws ControllerException {
+        // If override is disabled, first check all channel groups to make sure they haven't been modified already
+        if (!override) {
+            Map<String, ChannelGroup> channelGroupMap = channelGroupCache.getAllItems();
+
+            for (ChannelGroup group : channelGroups) {
+                ChannelGroup matchingGroup = channelGroupMap.get(group.getId());
+
+                if (matchingGroup != null) {
+                    if (!EqualsBuilder.reflectionEquals(group, matchingGroup, "lastModified", "revision")) {
+                        /*
+                         * If it's not a new group, and its version is different from the one in the
+                         * database (in case it has been changed on the server since the client
+                         * started modifying it), and override is not enabled, then don't allow the
+                         * update
+                         */
+                        if (!group.getRevision().equals(matchingGroup.getRevision())) {
+                            return false;
+                        }
+                    }
+
+                    // If a matching group was found, always remove it from the map
+                    channelGroupMap.remove(group.getId());
+                }
+            }
+
+            // Remove any groups that were expected to be removed
+            for (String removedChannelGroupId : removedChannelGroupIds) {
+                channelGroupMap.remove(removedChannelGroupId);
+            }
+
+            // If any groups are left, the client is out of sync
+            if (!channelGroupMap.isEmpty()) {
+                return false;
+            }
+        }
+
+        Map<String, ChannelGroup> channelGroupMap = channelGroupCache.getAllItems();
+        Map<String, String> channelIdMap = new HashMap<String, String>();
+        List<ChannelGroup> groupsToRemove = new ArrayList<ChannelGroup>(channelGroupMap.values());
+        Set<String> groupNames = new HashSet<String>();
+        Set<String> unchangedGroupIds = new HashSet<String>();
+
+        for (ChannelGroup group : channelGroups) {
+            if (StringUtils.equals(group.getId(), ChannelGroup.DEFAULT_ID) || StringUtils.equals(group.getName(), ChannelGroup.DEFAULT_NAME)) {
+                String errorMessage = "Channel groups cannot have the same ID or name as the default group.";
+                logger.error(errorMessage);
+                throw new ControllerException(errorMessage);
+            }
+
+            for (Channel channel : group.getChannels()) {
+                // Make sure this group's channels aren't contained in any other group
+                if (channelIdMap.put(channel.getId(), group.getId()) != null) {
+                    String errorMessage = "Channel \"" + channel.getId() + "\" belongs to more than one group.";
+                    logger.error(errorMessage);
+                    throw new ControllerException(errorMessage);
+                }
+            }
+
+            /*
+             * Channels are stored separately in the database. Only the channel ID is needed when
+             * storing the group.
+             */
+            group.replaceChannelsWithIds();
+
+            // Make sure there isn't another group with the same name
+            if (!groupNames.add(group.getName())) {
+                String errorMessage = "There is already a channel group with the name " + group.getName();
+                logger.error(errorMessage);
+                throw new ControllerException(errorMessage);
+            }
+
+            ChannelGroup matchingGroup = channelGroupMap.get(group.getId());
+
+            if (matchingGroup != null) {
+                if (EqualsBuilder.reflectionEquals(group, matchingGroup, "lastModified", "revision")) {
+                    unchangedGroupIds.add(group.getId());
+                } else {
+                    /*
+                     * If it's not a new group, and its version is different from the one in the
+                     * database (in case it has been changed on the server since the client started
+                     * modifying it), and override is not enabled, then don't allow the update
+                     */
+                    if (!group.getRevision().equals(matchingGroup.getRevision()) && !override) {
+                        return false;
+                    } else {
+                        group.setRevision(matchingGroup.getRevision() + 1);
+                    }
+                }
+
+                // Either way, this group is not being removed
+                groupsToRemove.remove(matchingGroup);
+            } else {
+                // Always start at revision 1 for new groups
+                group.setRevision(1);
+            }
+        }
+
+        // Remove groups
+        for (ChannelGroup group : groupsToRemove) {
+            try {
+                SqlConfig.getSqlSessionManager().delete("Channel.deleteChannelGroup", group.getId());
+
+                // TODO: Add this to mapper
+                if (DatabaseUtil.statementExists("Channel.vacuumChannelGroupTable")) {
+                    SqlConfig.getSqlSessionManager().update("Channel.vacuumChannelGroupTable");
+                }
+            } catch (Exception e) {
+                throw new ControllerException(e);
+            }
+        }
+
+        // Insert or update groups
+        for (ChannelGroup group : channelGroups) {
+            if (!unchangedGroupIds.contains(group.getId())) {
+                try {
+                    group.setLastModified(Calendar.getInstance());
+
+                    Map<String, Object> params = new HashMap<String, Object>();
+                    params.put("id", group.getId());
+                    params.put("name", group.getName());
+                    params.put("revision", group.getRevision());
+                    params.put("channelGroup", group);
+
+                    // If its a new group, insert it, otherwise, update it
+                    if (channelGroupCache.getCachedItemById(group.getId()) == null) {
+                        logger.debug("Inserting channel group");
+                        SqlConfig.getSqlSessionManager().insert("Channel.insertChannelGroup", params);
+                    } else {
+                        logger.debug("Updating channel group");
+                        SqlConfig.getSqlSessionManager().update("Channel.updateChannelGroup", params);
+                    }
+                } catch (Exception e) {
+                    throw new ControllerException(e);
+                }
+            }
+        }
+
+        return true;
     }
 
     // ---------- CHANNEL CACHE ----------

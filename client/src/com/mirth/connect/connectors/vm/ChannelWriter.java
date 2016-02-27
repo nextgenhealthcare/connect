@@ -164,7 +164,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         String selectedChannelName = "None";
 
-        for (ChannelStatus channelStatus : parent.channelStatuses.values()) {
+        for (ChannelStatus channelStatus : parent.channelPanel.getCachedChannelStatuses().values()) {
             Channel channel = channelStatus.getChannel();
             if (props.getChannelId().equalsIgnoreCase(channel.getId())) {
                 selectedChannelName = channel.getName();

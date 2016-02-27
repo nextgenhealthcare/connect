@@ -11,13 +11,20 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -25,32 +32,47 @@ import java.util.Map;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ChannelFilter.ChannelFilterSaveTask;
+import com.mirth.connect.client.ui.components.IconButton;
+import com.mirth.connect.client.ui.components.IconToggleButton;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.donkey.model.channel.DeployedState;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
@@ -58,7 +80,7 @@ import com.mirth.connect.plugins.DashboardPanelPlugin;
 import com.mirth.connect.plugins.DashboardTabPlugin;
 import com.mirth.connect.plugins.DashboardTablePlugin;
 
-public class DashboardPanel extends javax.swing.JPanel {
+public class DashboardPanel extends JPanel {
 
     private static final String STATUS_COLUMN_NAME = "Status";
     private static final String NAME_COLUMN_NAME = "Name";
@@ -93,10 +115,8 @@ public class DashboardPanel extends javax.swing.JPanel {
         haltableStates.add(DeployedState.UNKNOWN);
 
         initComponents();
-        statusPane.setDoubleBuffered(true);
-        split.setBottomComponent(null);
-        split.setDividerSize(0);
-        split.setOneTouchExpandable(true);
+        initLayout();
+
         loadTabPlugins();
         ChangeListener changeListener = new ChangeListener() {
 
@@ -109,7 +129,7 @@ public class DashboardPanel extends javax.swing.JPanel {
                 }
             }
         };
-        tabs.addChangeListener(changeListener);
+        tabPane.addChangeListener(changeListener);
 
         defaultVisibleColumns = new LinkedHashSet<String>();
 
@@ -117,20 +137,34 @@ public class DashboardPanel extends javax.swing.JPanel {
         loadTablePlugins();
 
         this.setDoubleBuffered(true);
+
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("dashboardGroupViewEnabled", true)) {
+            tableModeGroupsButton.setSelected(true);
+            tableModeGroupsButton.setContentFilled(true);
+            tableModeChannelsButton.setContentFilled(false);
+            model.setGroupModeEnabled(true);
+        } else {
+            tableModeChannelsButton.setSelected(true);
+            tableModeChannelsButton.setContentFilled(true);
+            tableModeGroupsButton.setContentFilled(false);
+            model.setGroupModeEnabled(false);
+        }
     }
 
     public void loadTabPlugins() {
         if (LoadedExtensions.getInstance().getDashboardTabPlugins().size() > 0) {
             for (DashboardTabPlugin plugin : LoadedExtensions.getInstance().getDashboardTabPlugins().values()) {
                 if (plugin.getTabComponent() != null) {
-                    tabs.addTab(plugin.getPluginPointName(), plugin.getTabComponent());
+                    tabPane.addTab(plugin.getPluginPointName(), plugin.getTabComponent());
                 }
             }
 
-            split.setBottomComponent(tabs);
-            split.setDividerSize(6);
-            split.setDividerLocation(3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT) / 5);
-            split.setResizeWeight(0.5);
+            splitPane.setBottomComponent(tabPane);
+            splitPane.setDividerSize(6);
+            splitPane.setDividerLocation(3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT) / 5);
+            splitPane.setResizeWeight(0.5);
         }
     }
 
@@ -138,13 +172,13 @@ public class DashboardPanel extends javax.swing.JPanel {
         pluginContainerPanel.setLayout(new MigLayout("fillx, insets 0 0 0 0", "[grow,fill]", "[grow,fill]"));
 
         for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
-            for (JComponent component : plugin.getToolbarComponents(statusTable)) {
+            for (JComponent component : plugin.getToolbarComponents(dashboardTable)) {
                 pluginContainerPanel.add(component, "grow");
             }
         }
 
         for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
-            plugin.onDashboardInit(statusTable);
+            plugin.onDashboardInit(dashboardTable);
         }
 
         repaint();
@@ -182,7 +216,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     }
 
     private DashboardTabPlugin getCurrentTabPlugin() {
-        return LoadedExtensions.getInstance().getDashboardTabPlugins().get(tabs.getTitleAt(tabs.getSelectedIndex()));
+        return LoadedExtensions.getInstance().getDashboardTabPlugins().get(tabPane.getTitleAt(tabPane.getSelectedIndex()));
     }
 
     /**
@@ -210,50 +244,65 @@ public class DashboardPanel extends javax.swing.JPanel {
         model.setNodeFactory(new DefaultDashboardTableNodeFactory());
 
         for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
-            statusTable = plugin.getTable();
+            dashboardTable = plugin.getTable();
 
-            if (statusTable != null) {
+            if (dashboardTable != null) {
                 break;
             }
         }
 
         defaultVisibleColumns.addAll(columns);
 
-        if (statusTable == null) {
-            statusTable = new MirthTreeTable("dashboardPanel", defaultVisibleColumns);
+        if (dashboardTable == null) {
+            dashboardTable = new MirthTreeTable("dashboardPanel", defaultVisibleColumns);
         }
 
-        statusTable.setColumnFactory(new DashboardTableColumnFactory());
-        statusTable.setTreeTableModel(model);
-        statusTable.setLeafIcon(UIConstants.ICON_CONNECTOR);
-        statusTable.setOpenIcon(UIConstants.ICON_CHANNEL);
-        statusTable.setClosedIcon(UIConstants.ICON_CHANNEL);
-        statusTable.setDoubleBuffered(true);
-        statusTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        statusTable.setHorizontalScrollEnabled(true);
-        statusTable.packTable(UIConstants.COL_MARGIN);
-        statusTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        statusTable.setOpaque(true);
-        statusTable.setRowSelectionAllowed(true);
-        statusTable.setSortable(true);
-        statusTable.putClientProperty("JTree.lineStyle", "Horizontal");
-        statusTable.setAutoCreateColumnsFromModel(false);
-        statusTable.setShowGrid(true, true);
-        statusTable.restoreColumnPreferences();
-        statusTable.setMirthColumnControlEnabled(true);
+        dashboardTable.setColumnFactory(new DashboardTableColumnFactory());
+        dashboardTable.setTreeTableModel(model);
+        dashboardTable.setDoubleBuffered(true);
+        dashboardTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        dashboardTable.setHorizontalScrollEnabled(true);
+        dashboardTable.packTable(UIConstants.COL_MARGIN);
+        dashboardTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        dashboardTable.setOpaque(true);
+        dashboardTable.setRowSelectionAllowed(true);
+        dashboardTable.setSortable(true);
+        dashboardTable.putClientProperty("JTree.lineStyle", "Horizontal");
+        dashboardTable.setAutoCreateColumnsFromModel(false);
+        dashboardTable.setShowGrid(true, true);
+        dashboardTable.restoreColumnPreferences();
+        dashboardTable.setMirthColumnControlEnabled(true);
 
-        // TODO: try using a custom tree cell renderer to set custom icons on connectors, so that we can display a chain icon to indicate that a destination waits for the previous one
-        // http://www.java.net/forum/topic/javadesktop/java-desktop-technologies/swinglabs/jxtreetable-custom-icons-node
-//        statusTable.setTreeCellRenderer(new DefaultTreeRenderer(new IconValue() {
-//            @Override
-//            public Icon getIcon(Object value) {
-//                return UIConstants.ICON_CHANNEL;
-//            }
-//        }));
+        dashboardTable.setTreeCellRenderer(new DefaultTreeCellRenderer() {
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+                JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
-        statusPane.setViewportView(statusTable);
+                TreePath path = dashboardTable.getPathForRow(row);
+                if (path != null) {
+                    AbstractDashboardTableNode node = ((AbstractDashboardTableNode) path.getLastPathComponent());
+                    if (node.isGroupNode()) {
+                        setIcon(UIConstants.ICON_GROUP);
+                    } else {
+                        DashboardStatus status = node.getDashboardStatus();
+                        if (status.getStatusType() == StatusType.CHANNEL) {
+                            setIcon(UIConstants.ICON_CHANNEL);
+                        } else {
+                            setIcon(UIConstants.ICON_CONNECTOR);
+                        }
+                    }
+                }
 
-        statusTable.addMouseListener(new MouseAdapter() {
+                return label;
+            }
+        });
+        dashboardTable.setLeafIcon(UIConstants.ICON_CONNECTOR);
+        dashboardTable.setOpenIcon(UIConstants.ICON_CHANNEL);
+        dashboardTable.setClosedIcon(UIConstants.ICON_CHANNEL);
+
+        dashboardTableScrollPane.setViewportView(dashboardTable);
+
+        dashboardTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent event) {
                 checkSelectionAndPopupMenu(event);
@@ -266,18 +315,23 @@ public class DashboardPanel extends javax.swing.JPanel {
 
             @Override
             public void mouseClicked(MouseEvent event) {
-                int clickedRow = statusTable.rowAtPoint(new Point(event.getX(), event.getY()));
+                int clickedRow = dashboardTable.rowAtPoint(new Point(event.getX(), event.getY()));
                 if (clickedRow == -1) {
                     return;
                 }
 
-                if (event.getClickCount() >= 2 && statusTable.getSelectedRowCount() == 1 && statusTable.getSelectedRow() == clickedRow) {
+                TreePath path = dashboardTable.getPathForRow(clickedRow);
+                if (path != null && ((AbstractDashboardTableNode) path.getLastPathComponent()).isGroupNode()) {
+                    return;
+                }
+
+                if (event.getClickCount() >= 2 && dashboardTable.getSelectedRowCount() == 1 && dashboardTable.getSelectedRow() == clickedRow) {
                     parent.doShowMessages();
                 }
             }
         });
 
-        statusTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        dashboardTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent event) {
                 /*
                  * MIRTH-3199: Only update the panel plugin if the selection is finished. This does
@@ -299,7 +353,7 @@ public class DashboardPanel extends javax.swing.JPanel {
      * rows if no row was selected.
      */
     private void checkSelectionAndPopupMenu(MouseEvent event) {
-        TreePath path = statusTable.getPathForLocation(event.getX(), event.getY());
+        TreePath path = dashboardTable.getPathForLocation(event.getX(), event.getY());
 
         /*
          * On mouse events we don't need to update the dashboard panel plugins. They will already
@@ -314,7 +368,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
 
         if (event.isPopupTrigger()) {
-            TreeSelectionModel selectionModel = statusTable.getTreeSelectionModel();
+            TreeSelectionModel selectionModel = dashboardTable.getTreeSelectionModel();
 
             if (!selectionModel.isPathSelected(path)) {
                 deselectRows(false);
@@ -360,14 +414,15 @@ public class DashboardPanel extends javax.swing.JPanel {
         // Stores all channel ids that have their channel node selected.
         Set<String> selectedChannelNodes = new HashSet<String>();
 
-        List<AbstractDashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
+        List<AbstractDashboardTableNode> selectedNodes = dashboardTable.getSelectedNodes();
         for (AbstractDashboardTableNode node : selectedNodes) {
-
-            selectedChannelIds.add(node.getChannelId());
-            if (node.getStatus().getStatusType() == StatusType.CHANNEL) {
-                selectedChannelNodes.add(node.getChannelId());
-            } else if (!selectedChannelNodes.contains(node.getChannelId())) {
-                useChannelOptions = false;
+            if (!node.isGroupNode()) {
+                selectedChannelIds.add(node.getChannelId());
+                if (node.getDashboardStatus().getStatusType() == StatusType.CHANNEL) {
+                    selectedChannelNodes.add(node.getChannelId());
+                } else if (!selectedChannelNodes.contains(node.getChannelId())) {
+                    useChannelOptions = false;
+                }
             }
 
             if (selectedChannelIds.size() > 1) {
@@ -376,65 +431,67 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
 
         for (AbstractDashboardTableNode node : selectedNodes) {
-            DashboardStatus status = node.getStatus();
-            StatusType statusType = status.getStatusType();
+            if (!node.isGroupNode()) {
+                DashboardStatus status = node.getDashboardStatus();
+                StatusType statusType = status.getStatusType();
 
-            if (useChannelOptions) {
-                if (statusType == StatusType.CHANNEL) {
+                if (useChannelOptions) {
+                    if (statusType == StatusType.CHANNEL) {
+
+                        switch (status.getState()) {
+                            case STARTED:
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 6, 7, true);
+                                break;
+                            case PAUSED:
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 7, 7, true);
+                                break;
+                            case STOPPED:
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 1, true);
+                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, true);
+                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 9, 9, true);
+
+                        if (isHaltable(node)) {
+                            // Hide tasks that can not be performed on a channel that is haltable
+                            if (status.getState() == DeployedState.DEPLOYING || status.getState() == DeployedState.UNDEPLOYING) {
+                                // If the channel is still deploying or undeploying, don't show anything except refresh
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 9, false);
+                            } else {
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, false);
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 9, false);
+                            }
+
+                            if (singleChannel) {
+                                // Show the halt task only if a single channel is selected
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 8, 8, true);
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                } else if (selectedChannelNodes.size() == 0) {
+                    AbstractDashboardTableNode channelNode = (AbstractDashboardTableNode) node.getParent();
+                    if (channelNode.getDashboardStatus().getState() != DeployedState.STARTED && channelNode.getDashboardStatus().getState() != DeployedState.PAUSED) {
+                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 10, 11, false);
+                        break;
+                    }
 
                     switch (status.getState()) {
                         case STARTED:
-                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 6, 7, true);
-                            break;
-                        case PAUSED:
-                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
-                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 7, 7, true);
+                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 11, 11, true);
                             break;
                         case STOPPED:
-                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
+                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 10, 10, true);
                             break;
                         default:
                             break;
                     }
-
-                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 1, true);
-                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, true);
-                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 9, 9, true);
-
-                    if (isHaltable(node)) {
-                        // Hide tasks that can not be performed on a channel that is haltable
-                        if (status.getState() == DeployedState.DEPLOYING || status.getState() == DeployedState.UNDEPLOYING) {
-                            // If the channel is still deploying or undeploying, don't show anything except refresh
-                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 9, false);
-                        } else {
-                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, false);
-                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 9, false);
-                        }
-
-                        if (singleChannel) {
-                            // Show the halt task only if a single channel is selected
-                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 8, 8, true);
-                        } else {
-                            break;
-                        }
-                    }
-                }
-            } else if (selectedChannelNodes.size() == 0) {
-                AbstractDashboardTableNode channelNode = (AbstractDashboardTableNode) node.getParent();
-                if (channelNode.getStatus().getState() != DeployedState.STARTED && channelNode.getStatus().getState() != DeployedState.PAUSED) {
-                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 10, 11, false);
-                    break;
-                }
-
-                switch (status.getState()) {
-                    case STARTED:
-                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 11, 11, true);
-                        break;
-                    case STOPPED:
-                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 10, 10, true);
-                        break;
-                    default:
-                        break;
                 }
             }
         }
@@ -459,7 +516,7 @@ public class DashboardPanel extends javax.swing.JPanel {
      * @return
      */
     private boolean isHaltable(AbstractDashboardTableNode node) {
-        DeployedState nodeState = node.getStatus().getState();
+        DeployedState nodeState = node.getDashboardStatus().getState();
 
         if (haltableStates.contains(nodeState)) {
             return true;
@@ -489,60 +546,153 @@ public class DashboardPanel extends javax.swing.JPanel {
             intermediateStatuses = filteredStatuses;
         }
 
-        DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
         model.setStatuses(intermediateStatuses);
         model.setShowLifetimeStats(showLifetimeStatsButton.isSelected());
 
         updateTableHighlighting();
     }
 
-    public synchronized void finishUpdatingTable(List<DashboardStatus> finishedStatuses) {
+    public synchronized void finishUpdatingTable(List<DashboardStatus> finishedStatuses, Collection<ChannelGroupStatus> channelGroupStatuses) {
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
         ChannelTagInfo channelTagInfo = parent.getChannelTagInfo(true);
 
-        if (channelTagInfo.isEnabled()) {
-            List<DashboardStatus> filteredStatuses = new ArrayList<DashboardStatus>();
+        int totalChannelCount = finishedStatuses.size();
+        int totalGroupCount = channelGroupStatuses.size();
+        List<DashboardStatus> filteredDashboardStatuses = new ArrayList<DashboardStatus>();
+        List<ChannelGroupStatus> filteredGroupStatuses = new ArrayList<ChannelGroupStatus>();
 
+        if (channelTagInfo.isEnabled()) {
             for (DashboardStatus currentStatus : finishedStatuses) {
                 if (channelTagInfo.isEnabled() && CollectionUtils.containsAny(channelTagInfo.getVisibleTags(), currentStatus.getTags())) {
-                    filteredStatuses.add(currentStatus);
+                    filteredDashboardStatuses.add(currentStatus);
                 }
             }
 
-            tagsLabel.setText(filteredStatuses.size() + " of " + finishedStatuses.size() + " Deployed Channels (" + StringUtils.join(channelTagInfo.getVisibleTags(), ", ") + ")");
-            finishedStatuses = filteredStatuses;
-        } else {
-            tagsLabel.setText(finishedStatuses.size() + " Deployed Channels");
+            finishedStatuses = filteredDashboardStatuses;
         }
 
-        DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
         model.finishStatuses(finishedStatuses);
         model.setShowLifetimeStats(showLifetimeStatsButton.isSelected());
 
         // The ListSelectionListener is not notified that the tree table model has changed so we must update the menu items manually.
         // If we switch everything to use a TreeSelectionListener then we should remove this.
-        if (statusTable.getSelectedRowCount() == 0) {
+        if (dashboardTable.getSelectedRowCount() == 0) {
             deselectRows(true);
         } else {
             updatePopupMenu(true);
         }
         updateTableHighlighting();
+
+        if (channelTagInfo.isEnabled()) {
+            Map<String, DashboardStatus> statusMap = new HashMap<String, DashboardStatus>();
+            for (DashboardStatus status : parent.status) {
+                statusMap.put(status.getChannelId(), status);
+            }
+
+            for (ChannelGroupStatus groupStatus : channelGroupStatuses) {
+                ChannelGroup group = groupStatus.getGroup();
+
+                boolean addGroupStatus = false;
+                for (Channel channel : group.getChannels()) {
+                    DashboardStatus dashboardStatus = statusMap.get(channel.getId());
+
+                    if (dashboardStatus != null && CollectionUtils.containsAny(channelTagInfo.getVisibleTags(), dashboardStatus.getTags())) {
+                        addGroupStatus = true;
+                        break;
+                    }
+                }
+
+                if (addGroupStatus) {
+                    filteredGroupStatuses.add(groupStatus);
+                }
+            }
+
+            model.setGroupStatuses(filteredGroupStatuses);
+        } else {
+            model.setGroupStatuses(channelGroupStatuses);
+        }
+
+        updateTagsLabel(totalGroupCount, filteredGroupStatuses.size(), totalChannelCount, filteredDashboardStatuses.size());
+    }
+
+    private void updateTagsLabel(int totalGroupCount, int visibleGroupCount, int totalChannelCount, int visibleChannelCount) {
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
+        ChannelTagInfo channelTagInfo = parent.getChannelTagInfo(true);
+
+        if (channelTagInfo.isEnabled()) {
+            StringBuilder builder = new StringBuilder();
+
+            if (model.isGroupModeEnabled()) {
+                if (totalGroupCount == visibleGroupCount) {
+                    builder.append(totalGroupCount);
+                } else {
+                    builder.append(visibleGroupCount).append(" of ").append(totalGroupCount);
+                }
+
+                builder.append(" Group");
+                if (totalGroupCount != 1) {
+                    builder.append('s');
+                }
+
+                if (totalGroupCount != visibleGroupCount) {
+                    builder.append(" (").append(totalGroupCount - visibleGroupCount).append(" filtered)");
+                }
+                builder.append(", ");
+            }
+
+            if (totalChannelCount == visibleChannelCount) {
+                builder.append(totalChannelCount);
+            } else {
+                builder.append(visibleChannelCount).append(" of ").append(totalChannelCount);
+            }
+
+            builder.append(" Deployed Channel");
+            if (totalChannelCount != 1) {
+                builder.append('s');
+            }
+
+            if (totalChannelCount != visibleChannelCount) {
+                builder.append(" (").append(totalChannelCount - visibleChannelCount).append(" filtered)");
+            }
+
+            builder.append(" (");
+            for (Iterator<String> it = channelTagInfo.getVisibleTags().iterator(); it.hasNext();) {
+                builder.append(it.next());
+                if (it.hasNext()) {
+                    builder.append(", ");
+                }
+            }
+            builder.append(')');
+
+            tagsLabel.setText(builder.toString());
+        } else if (model.isGroupModeEnabled()) {
+            tagsLabel.setText(totalGroupCount + " Groups, " + totalChannelCount + " Deployed Channels");
+        } else {
+            tagsLabel.setText(totalChannelCount + " Deployed Channels");
+        }
+    }
+
+    public void updateTableState(TableState tableState) {
+        restoreTableState(tableState);
+        updatePopupMenu(false);
     }
 
     public synchronized void updateTableHighlighting() {
         // MIRTH-2301
         // Since we are using addHighlighter here instead of using setHighlighters, we need to remove the old ones first.
-        statusTable.setHighlighters();
+        dashboardTable.setHighlighters();
 
         // Add the highlighters. Always add the error highlighter.
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-            statusTable.addHighlighter(highlighter);
+            dashboardTable.addHighlighter(highlighter);
         }
 
         HighlightPredicate queuedHighlighterPredicate = new HighlightPredicate() {
             public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-                if (adapter.column == statusTable.getColumnViewIndex(QUEUED_COLUMN_NAME)) {
-                    Long value = (Long) statusTable.getValueAt(adapter.row, adapter.column);
+                if (adapter.column == dashboardTable.getColumnViewIndex(QUEUED_COLUMN_NAME)) {
+                    Long value = (Long) dashboardTable.getValueAt(adapter.row, adapter.column);
 
                     if (value != null && value.longValue() > 0) {
                         return true;
@@ -552,13 +702,13 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         };
 
-        statusTable.addHighlighter(new ColorHighlighter(queuedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
+        dashboardTable.addHighlighter(new ColorHighlighter(queuedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
 
         HighlightPredicate errorHighlighterPredicate = new HighlightPredicate() {
 
             public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-                if (adapter.column == statusTable.getColumnViewIndex(ERROR_COLUMN_NAME)) {
-                    Long value = (Long) statusTable.getValueAt(adapter.row, adapter.column);
+                if (adapter.column == dashboardTable.getColumnViewIndex(ERROR_COLUMN_NAME)) {
+                    Long value = (Long) dashboardTable.getValueAt(adapter.row, adapter.column);
 
                     if (value != null && value.longValue() > 0) {
                         return true;
@@ -569,22 +719,25 @@ public class DashboardPanel extends javax.swing.JPanel {
         };
 
         Highlighter errorHighlighter = new ColorHighlighter(errorHighlighterPredicate, Color.PINK, Color.BLACK, Color.PINK, Color.BLACK);
-        statusTable.addHighlighter(errorHighlighter);
+        dashboardTable.addHighlighter(errorHighlighter);
 
         HighlightPredicate revisionDeltaHighlighterPredicate = new HighlightPredicate() {
             public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-                if (adapter.column == statusTable.getColumnViewIndex(DEPLOYED_REVISION_DELTA_COLUMN_NAME)) {
-                    Integer value = (Integer) statusTable.getValueAt(adapter.row, adapter.column);
+                if (adapter.column == dashboardTable.getColumnViewIndex(DEPLOYED_REVISION_DELTA_COLUMN_NAME)) {
+                    Integer value = (Integer) dashboardTable.getValueAt(adapter.row, adapter.column);
 
                     if (value != null && value.intValue() > 0) {
                         return true;
                     }
 
-                    TreePath path = statusTable.getPathForRow(adapter.row);
+                    TreePath path = dashboardTable.getPathForRow(adapter.row);
                     if (path != null) {
-                        DashboardStatus status = ((DashboardTableNode) path.getLastPathComponent()).getStatus();
-                        if (status.getCodeTemplatesChanged() != null && status.getCodeTemplatesChanged()) {
-                            return true;
+                        AbstractDashboardTableNode dashboardTableNode = (AbstractDashboardTableNode) path.getLastPathComponent();
+                        if (!dashboardTableNode.isGroupNode()) {
+                            DashboardStatus status = dashboardTableNode.getDashboardStatus();
+                            if (status.getCodeTemplatesChanged() != null && status.getCodeTemplatesChanged()) {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -592,15 +745,15 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         };
 
-        statusTable.addHighlighter(new ColorHighlighter(revisionDeltaHighlighterPredicate, new Color(255, 204, 0), Color.BLACK, new Color(255, 204, 0), Color.BLACK));
+        dashboardTable.addHighlighter(new ColorHighlighter(revisionDeltaHighlighterPredicate, new Color(255, 204, 0), Color.BLACK, new Color(255, 204, 0), Color.BLACK));
 
         HighlightPredicate lastDeployedHighlighterPredicate = new HighlightPredicate() {
             public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-                if (adapter.column == statusTable.getColumnViewIndex(LAST_DEPLOYED_COLUMN_NAME)) {
+                if (adapter.column == dashboardTable.getColumnViewIndex(LAST_DEPLOYED_COLUMN_NAME)) {
                     Calendar checkAfter = Calendar.getInstance();
                     checkAfter.add(Calendar.MINUTE, -2);
 
-                    Object value = statusTable.getValueAt(adapter.row, adapter.column);
+                    Object value = dashboardTable.getValueAt(adapter.row, adapter.column);
 
                     if (value != null && value instanceof Calendar && ((Calendar) value).after(checkAfter)) {
                         return true;
@@ -610,7 +763,7 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         };
 
-        statusTable.addHighlighter(new ColorHighlighter(lastDeployedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
+        dashboardTable.addHighlighter(new ColorHighlighter(lastDeployedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
     }
 
     /**
@@ -618,10 +771,12 @@ public class DashboardPanel extends javax.swing.JPanel {
      */
     public synchronized List<DashboardStatus> getSelectedStatuses() {
         List<DashboardStatus> selectedStatuses = new ArrayList<DashboardStatus>();
-        List<AbstractDashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
+        List<AbstractDashboardTableNode> selectedNodes = dashboardTable.getSelectedNodes();
 
         for (AbstractDashboardTableNode node : selectedNodes) {
-            selectedStatuses.add(node.getStatus());
+            if (!node.isGroupNode()) {
+                selectedStatuses.add(node.getDashboardStatus());
+            }
         }
 
         return selectedStatuses;
@@ -629,14 +784,14 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     public synchronized Set<DashboardStatus> getSelectedChannelStatuses() {
         Set<DashboardStatus> selectedStatuses = new HashSet<DashboardStatus>();
-        List<AbstractDashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
+        List<AbstractDashboardTableNode> selectedNodes = dashboardTable.getSelectedNodes();
 
         for (TreeTableNode treeNode : selectedNodes) {
             while (treeNode != null && treeNode instanceof AbstractDashboardTableNode) {
                 AbstractDashboardTableNode node = (AbstractDashboardTableNode) treeNode;
-                if (node.getStatus().getStatusType() == StatusType.CHANNEL) {
-                    if (!selectedStatuses.contains(node.getStatus())) {
-                        selectedStatuses.add(node.getStatus());
+                if (!node.isGroupNode() && node.getDashboardStatus().getStatusType() == StatusType.CHANNEL) {
+                    if (!selectedStatuses.contains(node.getDashboardStatus())) {
+                        selectedStatuses.add(node.getDashboardStatus());
                     }
 
                     break;
@@ -651,11 +806,13 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     public synchronized List<DashboardStatus> getSelectedStatusesRecursive() {
         List<DashboardStatus> selectedStatuses = new ArrayList<DashboardStatus>();
-        List<AbstractDashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
+        List<AbstractDashboardTableNode> selectedNodes = dashboardTable.getSelectedNodes();
 
         for (AbstractDashboardTableNode node : selectedNodes) {
-            selectedStatuses.add(node.getStatus());
-            selectedStatuses.addAll(getAllChildStatuses(node.getStatus()));
+            if (!node.isGroupNode()) {
+                selectedStatuses.add(node.getDashboardStatus());
+                selectedStatuses.addAll(getAllChildStatuses(node.getDashboardStatus()));
+            }
         }
 
         return selectedStatuses;
@@ -677,33 +834,43 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     public Map<Integer, String> getDestinationConnectorNames(String channelId) {
         Map<Integer, String> destinationConnectors = new LinkedHashMap<Integer, String>();
-        DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
         TreeTableNode root = model.getRoot();
         int channelCount = model.getChildCount(root);
 
         for (int i = 0; i < channelCount; i++) {
-            AbstractDashboardTableNode channelNode = (AbstractDashboardTableNode) root.getChildAt(i);
+            AbstractDashboardTableNode node = (AbstractDashboardTableNode) root.getChildAt(i);
 
-            if (channelNode.getStatus().getChannelId() == channelId) {
-                int connectorCount = channelNode.getChildCount();
-
-                for (int j = 0; j < connectorCount; j++) {
-                    AbstractDashboardTableNode connectorNode = (AbstractDashboardTableNode) channelNode.getChildAt(j);
-                    DashboardStatus status = connectorNode.getStatus();
-                    Integer metaDataId = status.getMetaDataId();
-
-                    if (metaDataId > 0) {
-                        destinationConnectors.put(metaDataId, status.getName());
-                    }
+            if (node.isGroupNode()) {
+                for (Enumeration<? extends MutableTreeTableNode> channelNodes = node.children(); channelNodes.hasMoreElements();) {
+                    populateDestinationConnectorNames(channelId, (AbstractDashboardTableNode) channelNodes.nextElement(), destinationConnectors);
                 }
+            } else {
+                populateDestinationConnectorNames(channelId, node, destinationConnectors);
             }
         }
 
         return destinationConnectors;
     }
 
+    private void populateDestinationConnectorNames(String channelId, AbstractDashboardTableNode channelNode, Map<Integer, String> destinationConnectors) {
+        if (channelNode.getDashboardStatus().getChannelId() == channelId) {
+            int connectorCount = channelNode.getChildCount();
+
+            for (int j = 0; j < connectorCount; j++) {
+                AbstractDashboardTableNode connectorNode = (AbstractDashboardTableNode) channelNode.getChildAt(j);
+                DashboardStatus status = connectorNode.getDashboardStatus();
+                Integer metaDataId = status.getMetaDataId();
+
+                if (metaDataId > 0) {
+                    destinationConnectors.put(metaDataId, status.getName());
+                }
+            }
+        }
+    }
+
     public void deselectRows(boolean loadPanelPlugin) {
-        statusTable.clearSelection();
+        dashboardTable.clearSelection();
         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, -1, false);
 
         if (loadPanelPlugin) {
@@ -721,99 +888,127 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     private static class DefaultDashboardTableNodeFactory implements DashboardTableNodeFactory {
         @Override
+        public AbstractDashboardTableNode createNode(ChannelGroupStatus groupStatus) {
+            return new DashboardTableNode(groupStatus);
+        }
+
+        @Override
         public AbstractDashboardTableNode createNode(String channelId, DashboardStatus status) {
             return new DashboardTableNode(channelId, status);
         }
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form. WARNING: Do NOT
-     * modify this code. The content of this method is always regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        splitPane.setOneTouchExpandable(true);
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        split = new javax.swing.JSplitPane();
-        jPanel1 = new javax.swing.JPanel();
-        statusPane = new javax.swing.JScrollPane();
-        statusTable = null;
-        controlPanel = new javax.swing.JPanel();
-        showCurrentStatsButton = new javax.swing.JRadioButton();
-        showLifetimeStatsButton = new javax.swing.JRadioButton();
-        showLabel = new javax.swing.JLabel();
-        tagsLabel = new javax.swing.JLabel();
-        tagFilterButton = new com.mirth.connect.client.ui.components.IconButton();
-        pluginContainerPanel = new javax.swing.JPanel();
-        tabs = new javax.swing.JTabbedPane();
+        topPanel = new JPanel();
+        topPanel.setBackground(UIConstants.BACKGROUND_COLOR);
 
-        split.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        split.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        dashboardTable = null;
+        dashboardTableScrollPane = new JScrollPane();
+        dashboardTableScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        dashboardTableScrollPane.setViewportView(dashboardTable);
+        dashboardTableScrollPane.setDoubleBuffered(true);
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        controlPanel = new JPanel();
+        controlPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(164, 164, 164)));
+        controlPanel.setPreferredSize(new Dimension(100, 20));
 
-        statusPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        statusPane.setViewportView(statusTable);
-
-        controlPanel.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(164, 164, 164)));
-        controlPanel.setPreferredSize(new java.awt.Dimension(100, 20));
-
-        buttonGroup1.add(showCurrentStatsButton);
-        showCurrentStatsButton.setSelected(true);
-        showCurrentStatsButton.setText("Current Statistics");
-        showCurrentStatsButton.setToolTipText("Show the statistics accumulated since the last time the statistics were reset");
-        showCurrentStatsButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                showCurrentStatsButtonActionPerformed(evt);
-            }
-        });
-
-        buttonGroup1.add(showLifetimeStatsButton);
-        showLifetimeStatsButton.setText("Lifetime Statistics");
-        showLifetimeStatsButton.setToolTipText("Show the statistics accumulated over the entire lifetime of the channel");
-        showLifetimeStatsButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                showLifetimeStatsButtonActionPerformed(evt);
-            }
-        });
-
-        showLabel.setText("Show:");
-
-        tagFilterButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirth/connect/client/ui/images/wrench.png"))); // NOI18N
+        tagFilterButton = new IconButton();
+        tagFilterButton.setIcon(new ImageIcon(getClass().getResource("/com/mirth/connect/client/ui/images/wrench.png"))); // NOI18N
         tagFilterButton.setToolTipText("Show Channel Filter");
-        tagFilterButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tagFilterButtonActionPerformed(evt);
+        tagFilterButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                tagFilterButtonActionPerformed();
             }
         });
 
-        pluginContainerPanel.setLayout(null);
+        tagsLabel = new JLabel();
 
-        javax.swing.GroupLayout controlPanelLayout = new javax.swing.GroupLayout(controlPanel);
-        controlPanel.setLayout(controlPanelLayout);
-        controlPanelLayout.setHorizontalGroup(controlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(controlPanelLayout.createSequentialGroup().addContainerGap().addComponent(tagFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(tagsLabel).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(showLabel).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(showCurrentStatsButton).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(showLifetimeStatsButton).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(pluginContainerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)));
-        controlPanelLayout.setVerticalGroup(controlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(tagsLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(tagFilterButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(pluginContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, controlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(showLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(showCurrentStatsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(showLifetimeStatsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)));
+        showLabel = new JLabel("Show:");
+        ButtonGroup showStatsButtonGroup = new ButtonGroup();
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(statusPane, javax.swing.GroupLayout.DEFAULT_SIZE, 758, Short.MAX_VALUE).addComponent(controlPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 758, Short.MAX_VALUE));
-        jPanel1Layout.setVerticalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup().addComponent(statusPane, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(controlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)));
+        showCurrentStatsButton = new JRadioButton("Current Statistics");
+        showCurrentStatsButton.setSelected(true);
+        showCurrentStatsButton.setToolTipText("Show the statistics accumulated since the last time the statistics were reset");
+        showCurrentStatsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                showCurrentStatsButtonActionPerformed();
+            }
+        });
+        showStatsButtonGroup.add(showCurrentStatsButton);
 
-        split.setTopComponent(jPanel1);
-        split.setRightComponent(tabs);
+        showLifetimeStatsButton = new JRadioButton("Lifetime Statistics");
+        showLifetimeStatsButton.setToolTipText("Show the statistics accumulated over the entire lifetime of the channel");
+        showLifetimeStatsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                showLifetimeStatsButtonActionPerformed();
+            }
+        });
+        showStatsButtonGroup.add(showLifetimeStatsButton);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(split));
-        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(split, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE));
-    }// </editor-fold>//GEN-END:initComponents
+        pluginContainerPanel = new JPanel();
 
-    private void showCurrentStatsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCurrentStatsButtonActionPerformed
-        DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
+        tableModeLabel = new JLabel("Table View:");
+        ButtonGroup tableModeButtonGroup = new ButtonGroup();
+
+        tableModeGroupsButton = new IconToggleButton(UIConstants.ICON_GROUP);
+        tableModeGroupsButton.setToolTipText("Groups");
+        tableModeGroupsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                switchTableMode(true);
+            }
+        });
+        tableModeButtonGroup.add(tableModeGroupsButton);
+
+        tableModeChannelsButton = new IconToggleButton(UIConstants.ICON_CHANNEL);
+        tableModeChannelsButton.setToolTipText("Channels");
+        tableModeChannelsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                switchTableMode(false);
+            }
+        });
+        tableModeButtonGroup.add(tableModeChannelsButton);
+
+        tabPane = new JTabbedPane();
+
+        splitPane.setTopComponent(topPanel);
+        splitPane.setBottomComponent(tabPane);
+    }
+
+    private void initLayout() {
+        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 0"));
+
+        topPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 0"));
+        topPanel.add(dashboardTableScrollPane, "grow, push");
+
+        controlPanel.setLayout(new MigLayout("insets 0 12 0 12, novisualpadding, hidemode 3, fill, gap 12"));
+        controlPanel.add(tagFilterButton);
+        controlPanel.add(tagsLabel, "left, growx, push");
+        controlPanel.add(showLabel, "right, split 4, gapafter 12");
+        controlPanel.add(showCurrentStatsButton);
+        controlPanel.add(showLifetimeStatsButton);
+
+        pluginContainerPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3"));
+        controlPanel.add(pluginContainerPanel);
+
+        controlPanel.add(tableModeLabel, "right, split 3, gapafter 12");
+        controlPanel.add(tableModeGroupsButton, "gapafter 0");
+        controlPanel.add(tableModeChannelsButton);
+        topPanel.add(controlPanel, "newline, growx");
+
+        add(splitPane, "grow, push");
+    }
+
+    private void showCurrentStatsButtonActionPerformed() {
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
         showLifetimeStats = false;
         model.setShowLifetimeStats(showLifetimeStats);
-        if (statusTable.getSelectedRowCount() == 0) {
+        if (dashboardTable.getSelectedRowCount() == 0) {
             deselectRows(false);
         } else {
             updatePopupMenu(false);
@@ -821,13 +1016,13 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         // TODO: updateTableHighlighting() is called to force the table to refresh, there is probably a more direct way to do this
         updateTableHighlighting();
-    }//GEN-LAST:event_showCurrentStatsButtonActionPerformed
+    }
 
-    private void showLifetimeStatsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showLifetimeStatsButtonActionPerformed
-        DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
+    private void showLifetimeStatsButtonActionPerformed() {
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
         showLifetimeStats = true;
         model.setShowLifetimeStats(showLifetimeStats);
-        if (statusTable.getSelectedRowCount() == 0) {
+        if (dashboardTable.getSelectedRowCount() == 0) {
             deselectRows(false);
         } else {
             updatePopupMenu(false);
@@ -835,9 +1030,9 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         // TODO: updateTableHighlighting() is called to force the table to refresh, there is probably a more direct way to do this
         updateTableHighlighting();
-    }//GEN-LAST:event_showLifetimeStatsButtonActionPerformed
+    }
 
-    private void tagFilterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tagFilterButtonActionPerformed
+    private void tagFilterButtonActionPerformed() {
         new ChannelFilter(parent.getChannelTagInfo(true), new ChannelFilterSaveTask() {
             @Override
             public void save(ChannelTagInfo channelTagInfo) {
@@ -845,21 +1040,241 @@ public class DashboardPanel extends javax.swing.JPanel {
                 parent.doRefreshStatuses(true);
             }
         });
-    }//GEN-LAST:event_tagFilterButtonActionPerformed
+    }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JPanel controlPanel;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel pluginContainerPanel;
-    private javax.swing.JRadioButton showCurrentStatsButton;
-    private javax.swing.JLabel showLabel;
-    private javax.swing.JRadioButton showLifetimeStatsButton;
-    private javax.swing.JSplitPane split;
-    private javax.swing.JScrollPane statusPane;
-    private com.mirth.connect.client.ui.components.MirthTreeTable statusTable;
-    private javax.swing.JTabbedPane tabs;
-    private com.mirth.connect.client.ui.components.IconButton tagFilterButton;
-    private javax.swing.JLabel tagsLabel;
-    // End of variables declaration//GEN-END:variables
+    private void switchTableMode(boolean groupModeEnabled) {
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
+        if (model.isGroupModeEnabled() != groupModeEnabled) {
+            Preferences.userNodeForPackage(Mirth.class).putBoolean("dashboardGroupViewEnabled", groupModeEnabled);
+
+            if (groupModeEnabled) {
+                tableModeChannelsButton.setContentFilled(false);
+            } else {
+                tableModeGroupsButton.setContentFilled(false);
+            }
+
+            TableState tableState = getCurrentTableState();
+            model.setGroupModeEnabled(groupModeEnabled);
+            restoreTableState(tableState);
+            updatePopupMenu(false);
+
+            int totalGroupCount = parent.channelPanel.getCachedGroupStatuses().size();
+            int totalChannelCount = parent.status.size();
+
+            ChannelTagInfo channelTagInfo = parent.getChannelTagInfo(true);
+            if (channelTagInfo.isEnabled()) {
+                int visibleGroupCount = 0;
+                int visibleChannelCount = 0;
+
+                if (model.isGroupModeEnabled()) {
+                    for (Enumeration<? extends MutableTreeTableNode> groupNodes = ((MutableTreeTableNode) model.getRoot()).children(); groupNodes.hasMoreElements();) {
+                        visibleGroupCount++;
+                        visibleChannelCount += ((MutableTreeTableNode) groupNodes.nextElement()).getChildCount();
+                    }
+                } else {
+                    visibleChannelCount = ((MutableTreeTableNode) model.getRoot()).getChildCount();
+                }
+
+                updateTagsLabel(totalGroupCount, visibleGroupCount, totalChannelCount, visibleChannelCount);
+            } else {
+                updateTagsLabel(totalGroupCount, totalGroupCount, totalChannelCount, totalChannelCount);
+            }
+        }
+    }
+
+    public TableState getCurrentTableState() {
+        Set<String> selectedIds = new HashSet<String>();
+        Map<String, Set<Integer>> selectedConnectors = new HashMap<String, Set<Integer>>();
+        Set<String> expandedIds = new HashSet<String>();
+        Set<String> collapsedIds = new HashSet<String>();
+
+        int[] selectedRows = dashboardTable.getSelectedModelRows();
+        for (int row : selectedRows) {
+            AbstractDashboardTableNode node = (AbstractDashboardTableNode) dashboardTable.getPathForRow(row).getLastPathComponent();
+
+            if (node.isGroupNode()) {
+                selectedIds.add(node.getGroupStatus().getGroup().getId());
+            } else {
+                DashboardStatus status = node.getDashboardStatus();
+
+                if (status.getStatusType() == StatusType.CHANNEL) {
+                    selectedIds.add(status.getChannelId());
+                } else if (status.getStatusType() == StatusType.SOURCE_CONNECTOR || status.getStatusType() == StatusType.DESTINATION_CONNECTOR) {
+                    Set<Integer> selectedMetaDataIds = selectedConnectors.get(status.getChannelId());
+                    if (selectedMetaDataIds == null) {
+                        selectedMetaDataIds = new HashSet<Integer>();
+                        selectedConnectors.put(status.getChannelId(), selectedMetaDataIds);
+                    }
+                    selectedMetaDataIds.add(status.getMetaDataId());
+                }
+            }
+        }
+
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
+        MutableTreeTableNode root = (MutableTreeTableNode) model.getRoot();
+
+        if (root != null) {
+            if (model.isGroupModeEnabled()) {
+                for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
+                    AbstractDashboardTableNode groupNode = (AbstractDashboardTableNode) groupNodes.nextElement();
+
+                    if (dashboardTable.isExpanded(new TreePath(new Object[] { root, groupNode }))) {
+                        expandedIds.add(groupNode.getGroupStatus().getGroup().getId());
+                    } else if (groupNode.getChildCount() > 0) {
+                        collapsedIds.add(groupNode.getGroupStatus().getGroup().getId());
+                    }
+
+                    addChannelNodeExpansionStates(groupNode, expandedIds, collapsedIds);
+                }
+            } else {
+                addChannelNodeExpansionStates(root, expandedIds, collapsedIds);
+            }
+        }
+
+        return new TableState(selectedIds, selectedConnectors, expandedIds, collapsedIds);
+    }
+
+    private void addChannelNodeExpansionStates(MutableTreeTableNode parent, Set<String> expandedIds, Set<String> collapsedIds) {
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
+
+        for (Enumeration<? extends MutableTreeTableNode> channelNodes = parent.children(); channelNodes.hasMoreElements();) {
+            AbstractDashboardTableNode channelNode = (AbstractDashboardTableNode) channelNodes.nextElement();
+
+            if (dashboardTable.isExpanded(new TreePath(model.getPathToRoot(channelNode)))) {
+                expandedIds.add(channelNode.getChannelId());
+            } else {
+                collapsedIds.add(channelNode.getChannelId());
+            }
+        }
+    }
+
+    private void restoreTableState(TableState tableState) {
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
+        MutableTreeTableNode root = (MutableTreeTableNode) model.getRoot();
+
+        if (model.isGroupModeEnabled()) {
+            for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
+                AbstractDashboardTableNode groupNode = (AbstractDashboardTableNode) groupNodes.nextElement();
+                String groupId = groupNode.getGroupStatus().getGroup().getId();
+
+                if (tableState.getExpandedIds().contains(groupId) || !tableState.getCollapsedIds().contains(groupId)) {
+                    dashboardTable.expandPath(new TreePath(new Object[] { root, groupNode }));
+                } else if (tableState.getCollapsedIds().contains(groupId)) {
+                    dashboardTable.collapsePath(new TreePath(new Object[] { root, groupNode }));
+                }
+
+                setChannelNodeExpansionStates(groupNode, tableState);
+            }
+        } else {
+            setChannelNodeExpansionStates(root, tableState);
+        }
+
+        final List<TreePath> selectionPaths = new ArrayList<TreePath>();
+
+        if (model.isGroupModeEnabled()) {
+            for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
+                AbstractDashboardTableNode groupNode = (AbstractDashboardTableNode) groupNodes.nextElement();
+
+                if (tableState.getSelectedIds().contains(groupNode.getGroupStatus().getGroup().getId())) {
+                    selectionPaths.add(new TreePath(new Object[] { root, groupNode }));
+                }
+
+                selectChannelNodes(groupNode, tableState, selectionPaths);
+            }
+        } else {
+            selectChannelNodes(root, tableState, selectionPaths);
+        }
+
+        dashboardTable.getTreeSelectionModel().setSelectionPaths(selectionPaths.toArray(new TreePath[selectionPaths.size()]));
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                dashboardTable.getTreeSelectionModel().setSelectionPaths(selectionPaths.toArray(new TreePath[selectionPaths.size()]));
+            }
+        });
+    }
+
+    private void setChannelNodeExpansionStates(MutableTreeTableNode parent, TableState tableState) {
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
+
+        for (Enumeration<? extends MutableTreeTableNode> channelNodes = parent.children(); channelNodes.hasMoreElements();) {
+            AbstractDashboardTableNode channelNode = (AbstractDashboardTableNode) channelNodes.nextElement();
+            String channelId = channelNode.getChannelId();
+
+            if (tableState.getExpandedIds().contains(channelId)) {
+                dashboardTable.expandPath(new TreePath(model.getPathToRoot(channelNode)));
+            } else if (tableState.getCollapsedIds().contains(channelId)) {
+                dashboardTable.collapsePath(new TreePath(model.getPathToRoot(channelNode)));
+            }
+        }
+    }
+
+    private void selectChannelNodes(MutableTreeTableNode parent, TableState tableState, List<TreePath> selectionPaths) {
+        DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
+
+        for (Enumeration<? extends MutableTreeTableNode> channelNodes = parent.children(); channelNodes.hasMoreElements();) {
+            AbstractDashboardTableNode channelNode = (AbstractDashboardTableNode) channelNodes.nextElement();
+
+            if (tableState.getSelectedIds().contains(channelNode.getChannelId())) {
+                selectionPaths.add(new TreePath(model.getPathToRoot(channelNode)));
+            }
+
+            for (Enumeration<? extends MutableTreeTableNode> connectorNodes = channelNode.children(); connectorNodes.hasMoreElements();) {
+                AbstractDashboardTableNode connectorNode = (AbstractDashboardTableNode) connectorNodes.nextElement();
+
+                if (tableState.getSelectedConnectors().containsKey(connectorNode.getChannelId()) && tableState.getSelectedConnectors().get(connectorNode.getChannelId()).contains(connectorNode.getDashboardStatus().getMetaDataId())) {
+                    selectionPaths.add(new TreePath(model.getPathToRoot(connectorNode)));
+                }
+            }
+        }
+    }
+
+    public class TableState {
+        private Set<String> selectedIds = new HashSet<String>();
+        private Map<String, Set<Integer>> selectedConnectors = new HashMap<String, Set<Integer>>();
+        private Set<String> expandedIds = new HashSet<String>();
+        private Set<String> collapsedIds = new HashSet<String>();
+
+        public TableState(Set<String> selectedIds, Map<String, Set<Integer>> selectedConnectors, Set<String> expandedIds, Set<String> collapsedIds) {
+            this.selectedIds = selectedIds;
+            this.selectedConnectors = selectedConnectors;
+            this.expandedIds = expandedIds;
+            this.collapsedIds = collapsedIds;
+        }
+
+        public Set<String> getSelectedIds() {
+            return selectedIds;
+        }
+
+        public Map<String, Set<Integer>> getSelectedConnectors() {
+            return selectedConnectors;
+        }
+
+        public Set<String> getExpandedIds() {
+            return expandedIds;
+        }
+
+        public Set<String> getCollapsedIds() {
+            return collapsedIds;
+        }
+    }
+
+    private JSplitPane splitPane;
+
+    private JPanel topPanel;
+    public MirthTreeTable dashboardTable;
+    private JScrollPane dashboardTableScrollPane;
+
+    private JPanel controlPanel;
+    private IconButton tagFilterButton;
+    private JLabel tagsLabel;
+    private JLabel showLabel;
+    private JRadioButton showCurrentStatsButton;
+    private JRadioButton showLifetimeStatsButton;
+    private JPanel pluginContainerPanel;
+    private JLabel tableModeLabel;
+    private IconToggleButton tableModeGroupsButton;
+    private IconToggleButton tableModeChannelsButton;
+
+    private JTabbedPane tabPane;
 }

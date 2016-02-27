@@ -34,6 +34,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("serverConfiguration")
 public class ServerConfiguration implements Serializable, Migratable {
     private String date;
+    private List<ChannelGroup> channelGroups = null;
     private List<Channel> channels = null;
     private List<User> users = null;
     private List<AlertModel> alerts = null;
@@ -50,6 +51,14 @@ public class ServerConfiguration implements Serializable, Migratable {
 
     public void setAlerts(List<AlertModel> alerts) {
         this.alerts = alerts;
+    }
+
+    public List<ChannelGroup> getChannelGroups() {
+        return channelGroups;
+    }
+
+    public void setChannelGroups(List<ChannelGroup> channelGroups) {
+        this.channelGroups = channelGroups;
     }
 
     public List<Channel> getChannels() {

@@ -96,10 +96,10 @@ public class ChannelFilter extends MirthDialog {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         filterTable = new com.mirth.connect.client.ui.components.ItemSelectionTable();
-        okButton = new com.mirth.connect.client.ui.components.MirthButton();
-        cancelButton = new com.mirth.connect.client.ui.components.MirthButton();
-        invertButton = new com.mirth.connect.client.ui.components.MirthButton();
-        enableFilterCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        okButton = new javax.swing.JButton();
+        cancelButton = new javax.swing.JButton();
+        invertButton = new javax.swing.JButton();
+        enableFilterCheckbox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Channel Filter");
@@ -235,12 +235,12 @@ public class ChannelFilter extends MirthDialog {
     }//GEN-LAST:event_invertButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.mirth.connect.client.ui.components.MirthButton cancelButton;
-    private com.mirth.connect.client.ui.components.MirthCheckBox enableFilterCheckbox;
+    private javax.swing.JButton cancelButton;
+    private javax.swing.JCheckBox enableFilterCheckbox;
     private com.mirth.connect.client.ui.components.ItemSelectionTable filterTable;
-    private com.mirth.connect.client.ui.components.MirthButton invertButton;
+    private javax.swing.JButton invertButton;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private com.mirth.connect.client.ui.components.MirthButton okButton;
+    private javax.swing.JButton okButton;
     // End of variables declaration//GEN-END:variables
 }

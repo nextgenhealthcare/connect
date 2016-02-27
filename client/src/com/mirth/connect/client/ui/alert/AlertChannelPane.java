@@ -174,11 +174,11 @@ public class AlertChannelPane extends JPanel {
     }
 
     public void setChannels(AlertChannels alertChannels, boolean includeConnectors) {
-        if (PlatformUI.MIRTH_FRAME.channelStatuses != null) {
+        if (PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelStatuses() != null) {
             TreeMap<String, Channel> channelMap = new TreeMap<String, Channel>(String.CASE_INSENSITIVE_ORDER);
 
             // Sort the channels by channel name
-            for (ChannelStatus channelStatus : PlatformUI.MIRTH_FRAME.channelStatuses.values()) {
+            for (ChannelStatus channelStatus : PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelStatuses().values()) {
                 Channel channel = channelStatus.getChannel();
                 channelMap.put(channel.getName(), channel);
             }
