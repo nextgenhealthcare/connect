@@ -415,19 +415,25 @@ public class DashboardPanel extends JPanel {
         Set<String> selectedChannelNodes = new HashSet<String>();
 
         List<AbstractDashboardTableNode> selectedNodes = dashboardTable.getSelectedNodes();
-        for (AbstractDashboardTableNode node : selectedNodes) {
-            if (!node.isGroupNode()) {
-                selectedChannelIds.add(node.getChannelId());
-                if (node.getDashboardStatus().getStatusType() == StatusType.CHANNEL) {
-                    selectedChannelNodes.add(node.getChannelId());
-                } else if (!selectedChannelNodes.contains(node.getChannelId())) {
-                    useChannelOptions = false;
+
+        if (selectedNodes.size() > 0) {
+            for (AbstractDashboardTableNode node : selectedNodes) {
+                if (!node.isGroupNode()) {
+                    selectedChannelIds.add(node.getChannelId());
+                    if (node.getDashboardStatus().getStatusType() == StatusType.CHANNEL) {
+                        selectedChannelNodes.add(node.getChannelId());
+                    } else if (!selectedChannelNodes.contains(node.getChannelId())) {
+                        useChannelOptions = false;
+                    }
+                }
+
+                if (selectedChannelIds.size() > 1) {
+                    singleChannel = false;
                 }
             }
-
-            if (selectedChannelIds.size() > 1) {
-                singleChannel = false;
-            }
+        } else {
+            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 2, 2, false);
+            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 4, 4, false);
         }
 
         for (AbstractDashboardTableNode node : selectedNodes) {
@@ -1185,7 +1191,6 @@ public class DashboardPanel extends JPanel {
             selectChannelNodes(root, tableState, selectionPaths);
         }
 
-        dashboardTable.getTreeSelectionModel().setSelectionPaths(selectionPaths.toArray(new TreePath[selectionPaths.size()]));
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

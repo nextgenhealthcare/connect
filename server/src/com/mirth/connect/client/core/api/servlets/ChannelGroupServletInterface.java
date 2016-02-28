@@ -40,8 +40,8 @@ public interface ChannelGroupServletInterface extends BaseServletInterface {
     @POST
     @Path("/_bulkUpdate")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @ApiOperation("Updates existing channel groups.")
-    @MirthOperation(name = "updateChannelGroups", display = "Update existing channel groups.", permission = Permissions.CHANNELS_MANAGE)
+    @ApiOperation("Updates all channel groups in one request.")
+    @MirthOperation(name = "updateChannelGroups", display = "Update channel groups", permission = Permissions.CHANNELS_MANAGE)
     public boolean updateChannelGroups(// @formatter:off
             @Param("channelGroups") @ApiParam(value = "The channel group object to update or create.") @FormDataParam("channelGroups") Set<ChannelGroup> channelGroups,
             @Param("removedChannelGroupIds") @ApiParam(value = "All channel group IDs known to be removed.") @FormDataParam("removedChannelGroupIds") Set<String> removedChannelGroupIds,

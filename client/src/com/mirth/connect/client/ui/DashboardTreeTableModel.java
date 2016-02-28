@@ -291,11 +291,6 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
             tableGroupNodes.add(groupNode);
         }
 
-        if (defaultGroupNode == null) {
-            defaultGroupNode = addDefaultGroupNode();
-            tableGroupNodes.add(defaultGroupNode);
-        }
-
         List<AbstractDashboardTableNode> groupNodesToRemove = new ArrayList<AbstractDashboardTableNode>();
 
         for (AbstractDashboardTableNode groupNode : tableGroupNodes) {
@@ -317,6 +312,10 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
                         AbstractDashboardTableNode channelNode = groupNode.getChannelNode(channel.getId());
                         if (channelNode != null) {
                             removeNodeFromParent(channelNode);
+
+                            if (defaultGroupNode == null) {
+                                defaultGroupNode = addDefaultGroupNode();
+                            }
                             insertNodeInto(channelNode, defaultGroupNode);
                         }
                     }
@@ -338,6 +337,9 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
                     AbstractDashboardTableNode channelNode = groupNode.getChannelNode(channel.getId());
                     if (channelNode != null) {
                         removeNodeFromParent(channelNode);
+                        if (defaultGroupNode == null) {
+                            defaultGroupNode = addDefaultGroupNode();
+                        }
                         insertNodeInto(channelNode, defaultGroupNode);
                     }
                 }
@@ -354,6 +356,9 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
 
             for (Channel channel : groupStatus.getGroup().getChannels()) {
                 // Move channel into the group
+                if (defaultGroupNode == null) {
+                    defaultGroupNode = addDefaultGroupNode();
+                }
                 AbstractDashboardTableNode channelNode = defaultGroupNode.getChannelNode(channel.getId());
                 if (channelNode != null) {
                     removeNodeFromParent(channelNode);
@@ -428,9 +433,6 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
                     break;
                 }
             }
-            if (defaultGroupNode == null) {
-                defaultGroupNode = addDefaultGroupNode();
-            }
 
             for (DashboardStatus status : statuses) {
                 AbstractDashboardTableNode groupNode = groupNodeMap.get(status.getChannelId());
@@ -438,6 +440,9 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
                     add(Collections.singleton(status), groupNode);
                     groupNode.updateGroupNode();
                 } else {
+                    if (defaultGroupNode == null) {
+                        defaultGroupNode = addDefaultGroupNode();
+                    }
                     add(Collections.singleton(status), defaultGroupNode);
                     defaultGroupNode.updateGroupNode();
                 }
