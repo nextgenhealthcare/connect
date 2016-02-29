@@ -65,6 +65,12 @@
 		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'CHANNEL', 0)}
 	</select>
 	
+	<select id='getChannelGroup' parameterType="String" resultType="com.mirth.connect.model.ChannelGroup">
+		SELECT CHANNEL_GROUP
+		FROM CHANNEL_GROUP
+		WHERE ID = #{value}
+	</select>
+	
 	<select id='getChannelGroupRevision' resultMap='group-revision-data'>
 		SELECT ID, REVISION
 		FROM CHANNEL_GROUP WITH UR
