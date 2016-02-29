@@ -67,17 +67,17 @@
 	
 	<select id='getChannelGroupRevision' resultMap='group-revision-data'>
 		SELECT ID, REVISION
-		FROM CHANNEL_GROUPS WITH UR
+		FROM CHANNEL_GROUP WITH UR
 	</select>
 	
 	<insert id='insertChannelGroup' parameterType='map'>
 		INSERT INTO
-		CHANNEL_GROUPS (ID, NAME, REVISION, CHANNEL_GROUP)
+		CHANNEL_GROUP (ID, NAME, REVISION, CHANNEL_GROUP)
 		VALUES (#{id}, #{name}, #{revision}, #{channelGroup})
 	</insert>
 	
 	<update id="updateChannelGroup" parameterType="map">
-		UPDATE CHANNEL_GROUPS
+		UPDATE CHANNEL_GROUP
 		SET NAME = #{name},
 		REVISION = #{revision},
 		CHANNEL_GROUP = #{channelGroup}
@@ -85,7 +85,7 @@
 	</update>
 	
 	<delete id='deleteChannelGroup' parameterType='String'>
-		DELETE FROM CHANNEL_GROUPS
+		DELETE FROM CHANNEL_GROUP
 		<where>
 			<if test='value != null'>ID=#{value}</if>
 		</where>
