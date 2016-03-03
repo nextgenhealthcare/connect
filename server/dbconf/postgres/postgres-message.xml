@@ -364,7 +364,15 @@
 	
 	<delete id="pruneMessageContent" parameterType="map">
 		DELETE FROM D_MC${localChannelId} M
-		
+		<include refid="pruneWhere" />
+	</delete>
+	
+	<delete id="pruneAttachments" parameterType="map">
+		DELETE FROM D_MA${localChannelId} M
+		<include refid="pruneWhere" />
+	</delete>
+	
+	<sql id="pruneWhere">
 		<where>
 			<if test="includeMessageList != null">
 				MESSAGE_ID IN (${includeMessageList})
@@ -378,7 +386,7 @@
 				AND MESSAGE_ID <![CDATA[ >= ]]> #{minMessageId}
 			</if>
 		</where>
-	</delete>
+	</sql>
 
 	<select id="getMessagesToPrune" parameterType="map" resultMap="pruner-message-map">
 		SELECT

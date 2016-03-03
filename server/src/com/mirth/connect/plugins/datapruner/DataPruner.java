@@ -660,6 +660,10 @@ public class DataPruner implements Runnable {
 
     private void runDeleteQueries(Map<String, Object> params, boolean contentOnly, PruneResult result) {
         if (contentOnly) {
+            if (DatabaseUtil.statementExists("Message.pruneAttachments")) {
+                runDelete("Message.pruneAttachments", params);
+            }
+            
             result.numContentPruned += runDelete("Message.pruneMessageContent", params);
         } else {
             if (DatabaseUtil.statementExists("Message.pruneAttachments")) {
