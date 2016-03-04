@@ -716,6 +716,7 @@ public class ChannelPanel extends AbstractFramePanel {
             @Override
             public void run() {
                 channelTable.getTreeSelectionModel().setSelectionPath(path);
+                groupNameField.selectAll();
             }
         });
     }
@@ -2394,6 +2395,9 @@ public class ChannelPanel extends AbstractFramePanel {
                 }
             }
         }
+
+        groupNameField.requestFocus();
+        groupNameField.setCaretPosition(groupNameField.getText().length());
     }
 
     public boolean isGroupSelected() {
