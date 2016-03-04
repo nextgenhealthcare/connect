@@ -433,9 +433,9 @@ public class ChannelPanel extends AbstractFramePanel {
                 if (channelNodeFound && !allDisabled) {
                     setTaskVisible(TASK_CHANNEL_DEPLOY);
                 }
+                setTaskVisible(TASK_CHANNEL_EXPORT_GROUP);
 
-                if (!includesDefaultGroup) {
-                    setTaskVisible(TASK_CHANNEL_EXPORT_GROUP);
+                if (!includesDefaultGroup && !parent.getChannelTagInfo(false).isEnabled()) {
                     setTaskVisible(TASK_CHANNEL_DELETE_GROUP);
                 }
             } else if (allChannels) {
@@ -863,118 +863,121 @@ public class ChannelPanel extends AbstractFramePanel {
             }
         }
 
-        ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
-        AbstractChannelTableNode importGroupNode = null;
+        if (!StringUtils.equals(importGroup.getId(), ChannelGroup.DEFAULT_ID)) {
+            ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
+            AbstractChannelTableNode importGroupNode = null;
 
-        String groupName = importGroup.getName();
-        String tempId;
-        try {
-            tempId = parent.mirthClient.getGuid();
-        } catch (ClientException e) {
-            tempId = UUID.randomUUID().toString();
-        }
+            String groupName = importGroup.getName();
+            String tempId;
+            try {
+                tempId = parent.mirthClient.getGuid();
+            } catch (ClientException e) {
+                tempId = UUID.randomUUID().toString();
+            }
 
-        // Check to see that the channel name doesn't already exist.
-        if (!checkGroupName(groupName)) {
-            if (!parent.alertOption(parent, "Would you like to overwrite the existing group?  Choose 'No' to create a new group.")) {
+            // Check to see that the channel name doesn't already exist.
+            if (!checkGroupName(groupName)) {
+                if (!parent.alertOption(parent, "Would you like to overwrite the existing group?  Choose 'No' to create a new group.")) {
+                    importGroup.setRevision(0);
+
+                    do {
+                        groupName = JOptionPane.showInputDialog(this, "Please enter a new name for the group.", groupName);
+                        if (groupName == null) {
+                            return;
+                        }
+                    } while (!checkGroupName(groupName));
+
+                    importGroup.setId(tempId);
+                    importGroup.setName(groupName);
+                } else {
+                    MutableTreeTableNode root = (MutableTreeTableNode) model.getRoot();
+                    for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
+                        AbstractChannelTableNode groupNode = (AbstractChannelTableNode) groupNodes.nextElement();
+
+                        if (StringUtils.equals(groupNode.getGroupStatus().getGroup().getName(), groupName)) {
+                            importGroupNode = groupNode;
+                        }
+                    }
+                }
+            } else {
+                // Start the revision number over for a new channel group
                 importGroup.setRevision(0);
 
-                do {
-                    groupName = JOptionPane.showInputDialog(this, "Please enter a new name for the group.", groupName);
-                    if (groupName == null) {
-                        return;
+                // If the channel name didn't already exist, make sure
+                // the id doesn't exist either.
+                if (!checkGroupId(importGroup.getId())) {
+                    importGroup.setId(tempId);
+                }
+            }
+
+            Set<ChannelGroup> channelGroups = new HashSet<ChannelGroup>();
+            Set<String> removedChannelGroupIds = new HashSet<String>(groupStatuses.keySet());
+            removedChannelGroupIds.remove(ChannelGroup.DEFAULT_ID);
+
+            MutableTreeTableNode root = (MutableTreeTableNode) channelTable.getTreeTableModel().getRoot();
+            if (root == null) {
+                return;
+            }
+
+            for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
+                ChannelGroup group = ((AbstractChannelTableNode) groupNodes.nextElement()).getGroupStatus().getGroup();
+
+                if (!StringUtils.equals(group.getId(), ChannelGroup.DEFAULT_ID)) {
+                    // If the current group is the one we're overwriting, merge the channels
+                    if (importGroupNode != null && StringUtils.equals(group.getId(), importGroupNode.getGroupStatus().getGroup().getId())) {
+                        group = importGroup;
+
+                        Set<String> channelIds = new HashSet<String>();
+                        for (Channel channel : group.getChannels()) {
+                            channelIds.add(channel.getId());
+                        }
+
+                        // Add the imported channels
+                        for (Channel channel : successfulChannels) {
+                            channelIds.add(channel.getId());
+                        }
+
+                        List<Channel> channels = new ArrayList<Channel>();
+                        for (String channelId : channelIds) {
+                            channels.add(new Channel(channelId));
+                        }
+                        group.setChannels(channels);
                     }
-                } while (!checkGroupName(groupName));
 
-                importGroup.setId(tempId);
-                importGroup.setName(groupName);
-            } else {
-                MutableTreeTableNode root = (MutableTreeTableNode) model.getRoot();
-                for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
-                    AbstractChannelTableNode groupNode = (AbstractChannelTableNode) groupNodes.nextElement();
+                    channelGroups.add(group);
+                    removedChannelGroupIds.remove(group.getId());
+                }
+            }
 
-                    if (StringUtils.equals(groupNode.getGroupStatus().getGroup().getName(), groupName)) {
-                        importGroupNode = groupNode;
+            if (importGroupNode == null) {
+                List<Channel> channels = new ArrayList<Channel>();
+                for (Channel channel : successfulChannels) {
+                    channels.add(new Channel(channel.getId()));
+                }
+                importGroup.setChannels(channels);
+
+                channelGroups.add(importGroup);
+                removedChannelGroupIds.remove(importGroup.getId());
+            }
+
+            Set<String> channelIds = new HashSet<String>();
+            for (Channel channel : importGroup.getChannels()) {
+                channelIds.add(channel.getId());
+            }
+
+            for (ChannelGroup group : channelGroups) {
+                if (group != importGroup) {
+                    for (Iterator<Channel> channels = group.getChannels().iterator(); channels.hasNext();) {
+                        if (!channelIds.add(channels.next().getId())) {
+                            channels.remove();
+                        }
                     }
                 }
             }
-        } else {
-            // Start the revision number over for a new channel group
-            importGroup.setRevision(0);
 
-            // If the channel name didn't already exist, make sure
-            // the id doesn't exist either.
-            if (!checkGroupId(importGroup.getId())) {
-                importGroup.setId(tempId);
-            }
+            attemptUpdate(channelGroups, removedChannelGroupIds, false);
         }
 
-        Set<ChannelGroup> channelGroups = new HashSet<ChannelGroup>();
-        Set<String> removedChannelGroupIds = new HashSet<String>(groupStatuses.keySet());
-        removedChannelGroupIds.remove(ChannelGroup.DEFAULT_ID);
-
-        MutableTreeTableNode root = (MutableTreeTableNode) channelTable.getTreeTableModel().getRoot();
-        if (root == null) {
-            return;
-        }
-
-        for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
-            ChannelGroup group = ((AbstractChannelTableNode) groupNodes.nextElement()).getGroupStatus().getGroup();
-
-            if (!StringUtils.equals(group.getId(), ChannelGroup.DEFAULT_ID)) {
-                // If the current group is the one we're overwriting, merge the channels
-                if (importGroupNode != null && StringUtils.equals(group.getId(), importGroupNode.getGroupStatus().getGroup().getId())) {
-                    group = importGroup;
-
-                    Set<String> channelIds = new HashSet<String>();
-                    for (Channel channel : group.getChannels()) {
-                        channelIds.add(channel.getId());
-                    }
-
-                    // Add the imported channels
-                    for (Channel channel : successfulChannels) {
-                        channelIds.add(channel.getId());
-                    }
-
-                    List<Channel> channels = new ArrayList<Channel>();
-                    for (String channelId : channelIds) {
-                        channels.add(new Channel(channelId));
-                    }
-                    group.setChannels(channels);
-                }
-
-                channelGroups.add(group);
-                removedChannelGroupIds.remove(group.getId());
-            }
-        }
-
-        if (importGroupNode == null) {
-            List<Channel> channels = new ArrayList<Channel>();
-            for (Channel channel : successfulChannels) {
-                channels.add(new Channel(channel.getId()));
-            }
-            importGroup.setChannels(channels);
-
-            channelGroups.add(importGroup);
-            removedChannelGroupIds.remove(importGroup.getId());
-        }
-
-        Set<String> channelIds = new HashSet<String>();
-        for (Channel channel : importGroup.getChannels()) {
-            channelIds.add(channel.getId());
-        }
-
-        for (ChannelGroup group : channelGroups) {
-            if (group != importGroup) {
-                for (Iterator<Channel> channels = group.getChannels().iterator(); channels.hasNext();) {
-                    if (!channelIds.add(channels.next().getId())) {
-                        channels.remove();
-                    }
-                }
-            }
-        }
-
-        attemptUpdate(channelGroups, removedChannelGroupIds, false);
         if (synchronous) {
             retrieveChannels();
             updateModel(getCurrentTableState());
@@ -1445,25 +1448,12 @@ public class ChannelPanel extends AbstractFramePanel {
             return false;
         }
 
-        for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
-            AbstractChannelTableNode groupNode = (AbstractChannelTableNode) groupNodes.nextElement();
-            if (groupNode.isGroupNode()) {
-                if (StringUtils.equals(groupNode.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID) && groupNode.getChildCount() > 0) {
-                    if (!parent.alertOption(parent, "The default group will not be exported. Do you wish to continue?")) {
-                        return false;
-                    }
-                }
-            }
-        }
-
         List<ChannelGroup> groups = new ArrayList<ChannelGroup>();
 
         for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
             AbstractChannelTableNode groupNode = (AbstractChannelTableNode) groupNodes.nextElement();
             if (groupNode.isGroupNode()) {
-                if (!StringUtils.equals(groupNode.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
-                    groups.add(new ChannelGroup(groupNode.getGroupStatus().getGroup()));
-                }
+                groups.add(new ChannelGroup(groupNode.getGroupStatus().getGroup()));
             }
         }
 
@@ -1488,16 +1478,7 @@ public class ChannelPanel extends AbstractFramePanel {
             for (int row : rows) {
                 AbstractChannelTableNode groupNode = (AbstractChannelTableNode) channelTable.getPathForRow(row).getLastPathComponent();
                 if (groupNode.isGroupNode()) {
-                    if (StringUtils.equals(groupNode.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
-                        if (rows.length == 1) {
-                            parent.alertError(parent, "The default group cannot be exported.");
-                            return false;
-                        } else if (!parent.alertOption(parent, "The default group will not be exported. Do you wish to continue?")) {
-                            return false;
-                        }
-                    } else {
-                        groups.add(new ChannelGroup(groupNode.getGroupStatus().getGroup()));
-                    }
+                    groups.add(new ChannelGroup(groupNode.getGroupStatus().getGroup()));
                 }
             }
 
@@ -1579,7 +1560,7 @@ public class ChannelPanel extends AbstractFramePanel {
     private boolean exportGroup(ChannelGroup group) {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String groupXML = serializer.serialize(group);
-        return parent.exportFile(groupXML, group.getName(), "XML", "Channel");
+        return parent.exportFile(groupXML, group.getName().replaceAll("[^a-zA-Z_0-9\\-\\s]", ""), "XML", "Channel group");
     }
 
     private boolean exportGroups(List<ChannelGroup> groups) {
@@ -1604,7 +1585,7 @@ public class ChannelPanel extends AbstractFramePanel {
             exportPath = exportDirectory.getAbsolutePath();
 
             for (ChannelGroup group : groups) {
-                exportFile = new File(exportPath + "/" + group.getName() + ".xml");
+                exportFile = new File(exportPath + "/" + group.getName().replaceAll("[^a-zA-Z_0-9\\-\\s]", "") + ".xml");
 
                 if (exportFile.exists()) {
                     exportCollisionCount++;
@@ -1618,17 +1599,18 @@ public class ChannelPanel extends AbstractFramePanel {
                 boolean skipAll = false;
                 for (int i = 0, size = groups.size(); i < size; i++) {
                     ChannelGroup group = groups.get(i);
-                    exportFile = new File(exportPath + "/" + group.getName() + ".xml");
+                    String groupName = group.getName().replaceAll("[^a-zA-Z_0-9\\-\\s]", "");
+                    exportFile = new File(exportPath + "/" + groupName + ".xml");
 
                     boolean fileExists = exportFile.exists();
                     if (fileExists) {
                         if (!overwriteAll && !skipAll) {
                             if (exportCollisionCount == 1) {
-                                if (!parent.alertOption(parent, "The file " + group.getName() + ".xml already exists.  Would you like to overwrite it?")) {
+                                if (!parent.alertOption(parent, "The file " + groupName + ".xml already exists.  Would you like to overwrite it?")) {
                                     continue;
                                 }
                             } else {
-                                ConflictOption conflictStatus = parent.alertConflict(parent, "<html>The file " + group.getName() + ".xml already exists.<br>Would you like to overwrite it?</html>", exportCollisionCount);
+                                ConflictOption conflictStatus = parent.alertConflict(parent, "<html>The file " + groupName + ".xml already exists.<br>Would you like to overwrite it?</html>", exportCollisionCount);
 
                                 if (conflictStatus == ConflictOption.YES_APPLY_ALL) {
                                     overwriteAll = true;
