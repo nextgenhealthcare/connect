@@ -11,7 +11,7 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,36 +41,32 @@ import java.util.prefs.Preferences;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -82,6 +78,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
@@ -96,15 +94,9 @@ import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.ChannelFilter.ChannelFilterSaveTask;
 import com.mirth.connect.client.ui.Frame.ConflictOption;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplateImportDialog;
-import com.mirth.connect.client.ui.components.ChannelInfo;
 import com.mirth.connect.client.ui.components.ChannelTableTransferHandler;
-import com.mirth.connect.client.ui.components.ChannelsTableCellEditor;
-import com.mirth.connect.client.ui.components.ChannelsTableCellRenderer;
 import com.mirth.connect.client.ui.components.IconButton;
 import com.mirth.connect.client.ui.components.IconToggleButton;
-import com.mirth.connect.client.ui.components.MirthFieldConstraints;
-import com.mirth.connect.client.ui.components.MirthTable;
-import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -152,30 +144,30 @@ public class ChannelPanel extends AbstractFramePanel {
             DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME,
             LAST_DEPLOYED_COLUMN_NAME, LAST_MODIFIED_COLUMN_NAME };
 
-    private static final int GROUP_CHANNELS_NAME_COLUMN = 0;
-    private static final int GROUP_CHANNELS_ID_COLUMN = 1;
-
     private static final int TASK_CHANNEL_REFRESH = 0;
-    private static final int TASK_CHANNEL_SAVE = 1;
-    private static final int TASK_CHANNEL_REDEPLOY_ALL = 2;
-    private static final int TASK_CHANNEL_DEPLOY = 3;
-    private static final int TASK_CHANNEL_EDIT_GLOBAL_SCRIPTS = 4;
-    private static final int TASK_CHANNEL_EDIT_CODE_TEMPLATES = 5;
-    private static final int TASK_CHANNEL_NEW_GROUP = 6;
-    private static final int TASK_CHANNEL_NEW_CHANNEL = 7;
-    private static final int TASK_CHANNEL_IMPORT_GROUP = 8;
-    private static final int TASK_CHANNEL_IMPORT_CHANNEL = 9;
-    private static final int TASK_CHANNEL_EXPORT_ALL_GROUPS = 10;
-    private static final int TASK_CHANNEL_EXPORT_ALL_CHANNELS = 11;
-    private static final int TASK_CHANNEL_EXPORT_GROUP = 12;
-    private static final int TASK_CHANNEL_EXPORT_CHANNEL = 13;
-    private static final int TASK_CHANNEL_DELETE_GROUP = 14;
-    private static final int TASK_CHANNEL_DELETE_CHANNEL = 15;
-    private static final int TASK_CHANNEL_CLONE = 16;
-    private static final int TASK_CHANNEL_EDIT = 17;
-    private static final int TASK_CHANNEL_ENABLE = 18;
-    private static final int TASK_CHANNEL_DISABLE = 19;
-    private static final int TASK_CHANNEL_VIEW_MESSAGES = 20;
+    private static final int TASK_CHANNEL_REDEPLOY_ALL = 1;
+    private static final int TASK_CHANNEL_DEPLOY = 2;
+    private static final int TASK_CHANNEL_EDIT_GLOBAL_SCRIPTS = 3;
+    private static final int TASK_CHANNEL_EDIT_CODE_TEMPLATES = 4;
+    private static final int TASK_CHANNEL_NEW_CHANNEL = 5;
+    private static final int TASK_CHANNEL_IMPORT_CHANNEL = 6;
+    private static final int TASK_CHANNEL_EXPORT_ALL_CHANNELS = 7;
+    private static final int TASK_CHANNEL_EXPORT_CHANNEL = 8;
+    private static final int TASK_CHANNEL_DELETE_CHANNEL = 9;
+    private static final int TASK_CHANNEL_CLONE = 10;
+    private static final int TASK_CHANNEL_EDIT = 11;
+    private static final int TASK_CHANNEL_ENABLE = 12;
+    private static final int TASK_CHANNEL_DISABLE = 13;
+    private static final int TASK_CHANNEL_VIEW_MESSAGES = 14;
+
+    private static final int TASK_GROUP_SAVE = 0;
+    private static final int TASK_GROUP_ASSIGN_CHANNEL = 1;
+    private static final int TASK_GROUP_NEW_GROUP = 2;
+    private static final int TASK_GROUP_EDIT_DETAILS = 3;
+    private static final int TASK_GROUP_IMPORT_GROUP = 4;
+    private static final int TASK_GROUP_EXPORT_ALL_GROUPS = 5;
+    private static final int TASK_GROUP_EXPORT_GROUP = 6;
+    private static final int TASK_GROUP_DELETE_GROUP = 7;
 
     private Frame parent;
 
@@ -196,20 +188,14 @@ public class ChannelPanel extends AbstractFramePanel {
         channelTable.setComponentPopupMenu(channelPopupMenu);
 
         parent.addTask(TaskConstants.CHANNEL_REFRESH, "Refresh", "Refresh the list of channels.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), channelTasks, channelPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_SAVE, "Save Group Changes", "Save all changes made to channel groups.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_REDEPLOY_ALL, "Redeploy All", "Undeploy all channels and deploy all currently enabled channels.", "A", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_DEPLOY, "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EDIT_GLOBAL_SCRIPTS, "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/script_edit.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EDIT_CODE_TEMPLATES, "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_edit.png")), channelTasks, channelPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_NEW_GROUP, "New Group", "Create a new channel group.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_add.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_NEW_CHANNEL, "New Channel", "Create a new channel.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_add.png")), channelTasks, channelPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_IMPORT_GROUP, "Import Group", "Import a channel from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_IMPORT_CHANNEL, "Import Channel", "Import a channel from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), channelTasks, channelPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_EXPORT_ALL_GROUPS, "Export All Groups", "Export all of the channel groups to XML files.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EXPORT_ALL_CHANNELS, "Export All Channels", "Export all of the channels to XML files.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_EXPORT_GROUP, "Export Group", "Export the currently selected channel group to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EXPORT_CHANNEL, "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_DELETE_GROUP, "Delete Group", "Delete the currently selected channel group.", "L", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_delete.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_DELETE_CHANNEL, "Delete Channel", "Delete the currently selected channel.", "L", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_delete.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_CLONE, "Clone Channel", "Clone the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_copy.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EDIT, "Edit Channel", "Edit the currently selected channel.", "I", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_edit.png")), channelTasks, channelPopupMenu, this);
@@ -219,6 +205,25 @@ public class ChannelPanel extends AbstractFramePanel {
 
         parent.setNonFocusable(channelTasks);
         parent.taskPaneContainer.add(channelTasks, parent.taskPaneContainer.getComponentCount() - 1);
+
+        groupTasks = new JXTaskPane();
+        groupTasks.setTitle("Group Tasks");
+        groupTasks.setName(TaskConstants.CHANNEL_GROUP_KEY);
+        groupTasks.setFocusable(false);
+
+        groupPopupMenu = new JPopupMenu();
+
+        parent.addTask(TaskConstants.CHANNEL_GROUP_SAVE, "Save Group Changes", "Save all changes made to channel groups.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")), groupTasks, groupPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_GROUP_ASSIGN_CHANNEL, "Assign To Group", "Create a new channel group.", "A", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), groupTasks, groupPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_GROUP_NEW_GROUP, "New Group", "Create a new channel group.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_add.png")), groupTasks, groupPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_GROUP_EDIT_DETAILS, "Edit Group Details", "Create a new channel group.", "E", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_edit.png")), groupTasks, groupPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_GROUP_EXPORT_ALL_GROUPS, "Export All Groups", "Export all of the channel groups to XML files.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), groupTasks, groupPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_GROUP_IMPORT_GROUP, "Import Group", "Import a channel from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), groupTasks, groupPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_GROUP_EXPORT_GROUP, "Export Group", "Export the currently selected channel group to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), groupTasks, groupPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_GROUP_DELETE_GROUP, "Delete Group", "Delete the currently selected channel group.", "L", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_delete.png")), groupTasks, groupPopupMenu, this);
+
+        parent.setNonFocusable(groupTasks);
+        parent.taskPaneContainer.add(groupTasks, parent.taskPaneContainer.getComponentCount() - 1);
 
         loadPanelPlugins();
         switchBottomPane();
@@ -255,8 +260,25 @@ public class ChannelPanel extends AbstractFramePanel {
 
     @Override
     public void switchPanel() {
+        boolean groupViewEnabled = Preferences.userNodeForPackage(Mirth.class).getBoolean("channelGroupViewEnabled", true);
+        switchTableMode(groupViewEnabled);
+
+        if (groupViewEnabled) {
+            tableModeGroupsButton.setSelected(true);
+            tableModeGroupsButton.setContentFilled(true);
+            tableModeChannelsButton.setContentFilled(false);
+        } else {
+            tableModeChannelsButton.setSelected(true);
+            tableModeChannelsButton.setContentFilled(true);
+            tableModeGroupsButton.setContentFilled(false);
+        }
+
         List<JXTaskPane> taskPanes = new ArrayList<JXTaskPane>();
         taskPanes.add(channelTasks);
+
+        if (groupViewEnabled) {
+            taskPanes.add(groupTasks);
+        }
 
         for (TaskPlugin plugin : LoadedExtensions.getInstance().getTaskPlugins().values()) {
             JXTaskPane taskPane = plugin.getTaskPane();
@@ -276,12 +298,12 @@ public class ChannelPanel extends AbstractFramePanel {
 
     @Override
     public boolean isSaveEnabled() {
-        return channelTasks.getContentPane().getComponent(TASK_CHANNEL_SAVE).isVisible();
+        return groupTasks.getContentPane().getComponent(TASK_GROUP_SAVE).isVisible();
     }
 
     @Override
     public void setSaveEnabled(boolean enabled) {
-        setTaskVisibility(TASK_CHANNEL_SAVE, enabled);
+        setGroupTaskVisibility(TASK_GROUP_SAVE, enabled);
     }
 
     @Override
@@ -364,23 +386,31 @@ public class ChannelPanel extends AbstractFramePanel {
     private void updateTasks() {
         int[] rows = channelTable.getSelectedModelRows();
         ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
+        boolean filterEnabled = parent.getChannelTagInfo(false).isEnabled();
+        boolean saveEnabled = isSaveEnabled();
 
         setAllTaskVisibility(false);
 
-        setTaskVisible(TASK_CHANNEL_REFRESH);
-        setTaskVisible(TASK_CHANNEL_REDEPLOY_ALL);
-        setTaskVisible(TASK_CHANNEL_EDIT_GLOBAL_SCRIPTS);
-        setTaskVisible(TASK_CHANNEL_EDIT_CODE_TEMPLATES);
-        setTaskVisible(TASK_CHANNEL_NEW_CHANNEL);
-        setTaskVisible(TASK_CHANNEL_IMPORT_CHANNEL);
+        setChannelTaskVisible(TASK_CHANNEL_REFRESH);
+        setChannelTaskVisible(TASK_CHANNEL_REDEPLOY_ALL);
+        setChannelTaskVisible(TASK_CHANNEL_EDIT_GLOBAL_SCRIPTS);
+        setChannelTaskVisible(TASK_CHANNEL_EDIT_CODE_TEMPLATES);
+        setChannelTaskVisible(TASK_CHANNEL_NEW_CHANNEL);
+        setChannelTaskVisible(TASK_CHANNEL_IMPORT_CHANNEL);
         if (model.isGroupModeEnabled()) {
-            if (!parent.getChannelTagInfo(false).isEnabled()) {
-                setTaskVisible(TASK_CHANNEL_NEW_GROUP);
-                setTaskVisible(TASK_CHANNEL_IMPORT_GROUP);
+            if (!filterEnabled) {
+                setGroupTaskVisible(TASK_GROUP_NEW_GROUP);
+
+                if (!saveEnabled) {
+                    setGroupTaskVisible(TASK_GROUP_IMPORT_GROUP);
+                }
             }
-            setTaskVisible(TASK_CHANNEL_EXPORT_ALL_GROUPS);
+
+            if (!saveEnabled) {
+                setGroupTaskVisible(TASK_GROUP_EXPORT_ALL_GROUPS);
+            }
         } else {
-            setTaskVisible(TASK_CHANNEL_EXPORT_ALL_CHANNELS);
+            setChannelTaskVisible(TASK_CHANNEL_EXPORT_ALL_CHANNELS);
         }
 
         if (rows.length > 0) {
@@ -422,36 +452,46 @@ public class ChannelPanel extends AbstractFramePanel {
 
             if (!allGroups || channelNodeFound) {
                 if (!allDisabled) {
-                    setTaskVisible(TASK_CHANNEL_DISABLE);
+                    setChannelTaskVisible(TASK_CHANNEL_DISABLE);
                 }
                 if (!allEnabled) {
-                    setTaskVisible(TASK_CHANNEL_ENABLE);
+                    setChannelTaskVisible(TASK_CHANNEL_ENABLE);
                 }
             }
 
             if (allGroups) {
-                if (channelNodeFound && !allDisabled) {
-                    setTaskVisible(TASK_CHANNEL_DEPLOY);
+                if (rows.length == 1 && !includesDefaultGroup && !filterEnabled) {
+                    setGroupTaskVisible(TASK_GROUP_EDIT_DETAILS);
                 }
-                setTaskVisible(TASK_CHANNEL_EXPORT_GROUP);
+
+                if (channelNodeFound && !allDisabled) {
+                    setChannelTaskVisible(TASK_CHANNEL_DEPLOY);
+                }
+
+                if (!saveEnabled) {
+                    setGroupTaskVisible(TASK_GROUP_EXPORT_GROUP);
+                }
 
                 if (!includesDefaultGroup && !parent.getChannelTagInfo(false).isEnabled()) {
-                    setTaskVisible(TASK_CHANNEL_DELETE_GROUP);
+                    setGroupTaskVisible(TASK_GROUP_DELETE_GROUP);
                 }
             } else if (allChannels) {
                 if (!allDisabled) {
-                    setTaskVisible(TASK_CHANNEL_DEPLOY);
+                    setChannelTaskVisible(TASK_CHANNEL_DEPLOY);
                 }
-                setTaskVisible(TASK_CHANNEL_EXPORT_CHANNEL);
-                setTaskVisible(TASK_CHANNEL_DELETE_CHANNEL);
+                if (!filterEnabled && model.isGroupModeEnabled()) {
+                    setGroupTaskVisible(TASK_GROUP_ASSIGN_CHANNEL);
+                }
+                setChannelTaskVisible(TASK_CHANNEL_EXPORT_CHANNEL);
+                setChannelTaskVisible(TASK_CHANNEL_DELETE_CHANNEL);
 
                 if (rows.length == 1) {
-                    setTaskVisible(TASK_CHANNEL_CLONE);
-                    setTaskVisible(TASK_CHANNEL_EDIT);
-                    setTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
+                    setChannelTaskVisible(TASK_CHANNEL_CLONE);
+                    setChannelTaskVisible(TASK_CHANNEL_EDIT);
+                    setChannelTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
                 }
             } else {
-                setTaskVisible(TASK_CHANNEL_DEPLOY);
+                setChannelTaskVisible(TASK_CHANNEL_DEPLOY);
             }
         }
     }
@@ -701,24 +741,21 @@ public class ChannelPanel extends AbstractFramePanel {
             return;
         }
 
-        String name;
-        int index = 1;
-        do {
-            name = "Group " + index++;
-        } while (!checkGroupName(name));
+        GroupDetailsDialog dialog = new GroupDetailsDialog(true);
 
-        AbstractChannelTableNode groupNode = model.addNewGroup(new ChannelGroup(name, ""));
+        if (dialog.wasSaved()) {
+            AbstractChannelTableNode groupNode = model.addNewGroup(new ChannelGroup(dialog.getGroupName(), dialog.getGroupDescription()));
 
-        parent.setSaveEnabled(true);
+            parent.setSaveEnabled(true);
 
-        final TreePath path = new TreePath(new Object[] { root, groupNode });
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                channelTable.getTreeSelectionModel().setSelectionPath(path);
-                groupNameField.selectAll();
-            }
-        });
+            final TreePath path = new TreePath(new Object[] { root, groupNode });
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    channelTable.getTreeSelectionModel().setSelectionPath(path);
+                }
+            });
+        }
     }
 
     private boolean checkGroupId(String id) {
@@ -737,18 +774,116 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     private boolean checkGroupName(String name) {
+        return checkGroupName(name, true);
+    }
+
+    private boolean checkGroupName(String name, boolean includeSelectedRow) {
         MutableTreeTableNode root = (MutableTreeTableNode) channelTable.getTreeTableModel().getRoot();
         if (root == null) {
             return false;
         }
 
         for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
-            if (StringUtils.equals(((AbstractChannelTableNode) groupNodes.nextElement()).getGroupStatus().getGroup().getName(), name)) {
+            AbstractChannelTableNode groupNode = (AbstractChannelTableNode) groupNodes.nextElement();
+
+            if (!includeSelectedRow && channelTable.getSelectedRow() != -1) {
+                AbstractChannelTableNode selectedNode = (AbstractChannelTableNode) channelTable.getPathForRow(channelTable.getSelectedRow()).getLastPathComponent();
+                if (selectedNode.isGroupNode() && selectedNode.getGroupStatus().getGroup().getId().equals(groupNode.getGroupStatus().getGroup().getId())) {
+                    continue;
+                }
+            }
+
+            if (StringUtils.equals(groupNode.getGroupStatus().getGroup().getName(), name)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    public void doAssignChannelToGroup() {
+        ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
+        int[] rows = channelTable.getSelectedModelRows();
+
+        if (model.isGroupModeEnabled() && rows.length > 0) {
+            for (int row : rows) {
+                if (((AbstractChannelTableNode) channelTable.getPathForRow(row).getLastPathComponent()).isGroupNode()) {
+                    return;
+                }
+            }
+
+            GroupAssignmentDialog dialog = new GroupAssignmentDialog();
+
+            if (dialog.wasSaved()) {
+                AbstractChannelTableNode groupNode = null;
+                for (Enumeration<? extends MutableTreeTableNode> groupNodes = ((MutableTreeTableNode) model.getRoot()).children(); groupNodes.hasMoreElements();) {
+                    AbstractChannelTableNode node = (AbstractChannelTableNode) groupNodes.nextElement();
+                    if (StringUtils.equals(node.getGroupStatus().getGroup().getId(), dialog.getSelectedGroupId())) {
+                        groupNode = node;
+                        break;
+                    }
+                }
+
+                if (groupNode != null) {
+                    TableState tableState = getCurrentTableState();
+                    tableState.getExpandedGroupIds().add(groupNode.getGroupStatus().getGroup().getId());
+
+                    ListSelectionListener[] listeners = ((DefaultListSelectionModel) channelTable.getSelectionModel()).getListSelectionListeners();
+                    for (ListSelectionListener listener : listeners) {
+                        channelTable.getSelectionModel().removeListSelectionListener(listener);
+                    }
+
+                    try {
+                        List<AbstractChannelTableNode> channelNodes = new ArrayList<AbstractChannelTableNode>();
+                        for (int row : rows) {
+                            channelNodes.add((AbstractChannelTableNode) channelTable.getPathForRow(row).getLastPathComponent());
+                        }
+                        for (AbstractChannelTableNode channelNode : channelNodes) {
+                            model.addChannelToGroup(groupNode, channelNode.getChannelStatus().getChannel().getId());
+                        }
+                        channelTable.expandPath(new TreePath(new Object[] {
+                                channelTable.getTreeTableModel().getRoot(), groupNode }));
+
+                        parent.setSaveEnabled(true);
+                    } finally {
+                        for (ListSelectionListener listener : listeners) {
+                            channelTable.getSelectionModel().addListSelectionListener(listener);
+                        }
+
+                        restoreTableState(tableState);
+                    }
+                }
+            }
+        }
+    }
+
+    public void doEditGroupDetails() {
+        if (parent.getChannelTagInfo(false).isEnabled()) {
+            return;
+        }
+
+        ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
+        MutableTreeTableNode root = (MutableTreeTableNode) model.getRoot();
+        if (root == null) {
+            return;
+        }
+
+        int[] rows = channelTable.getSelectedModelRows();
+
+        if (rows.length == 1) {
+            AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(rows[0]).getLastPathComponent();
+
+            if (node.isGroupNode() && !StringUtils.equals(node.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
+                GroupDetailsDialog dialog = new GroupDetailsDialog(false);
+
+                if (dialog.wasSaved()) {
+                    channelTable.getTreeTableModel().setValueAt(new ChannelTableNameEntry(dialog.getGroupName()), node, NAME_COLUMN_NUMBER);
+                    channelTable.getTreeTableModel().setValueAt(dialog.getGroupDescription(), node, DESCRIPTION_COLUMN_NUMBER);
+
+                    parent.setSaveEnabled(true);
+                }
+            }
+        }
     }
 
     public void doNewChannel() {
@@ -1958,16 +2093,25 @@ public class ChannelPanel extends AbstractFramePanel {
         return DEFAULT_COLUMNS.length;
     }
 
-    private void setTaskVisible(int task) {
-        setTaskVisibility(task, true);
+    private void setChannelTaskVisible(int task) {
+        setChannelTaskVisibility(task, true);
     }
 
-    private void setTaskVisibility(int task, boolean visible) {
+    private void setChannelTaskVisibility(int task, boolean visible) {
         parent.setVisibleTasks(channelTasks, channelPopupMenu, task, task, visible);
     }
 
+    private void setGroupTaskVisible(int task) {
+        setGroupTaskVisibility(task, true);
+    }
+
+    private void setGroupTaskVisibility(int task, boolean visible) {
+        parent.setVisibleTasks(groupTasks, groupPopupMenu, task, task, visible);
+    }
+
     private void setAllTaskVisibility(boolean visible) {
-        parent.setVisibleTasks(channelTasks, channelPopupMenu, 2, TASK_CHANNEL_VIEW_MESSAGES, visible);
+        parent.setVisibleTasks(channelTasks, channelPopupMenu, 1, TASK_CHANNEL_VIEW_MESSAGES, visible);
+        parent.setVisibleTasks(groupTasks, groupPopupMenu, 1, TASK_GROUP_DELETE_GROUP, visible);
     }
 
     public void updateChannelStatuses(List<ChannelSummary> changedChannels) {
@@ -2132,17 +2276,7 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     private void switchBottomPane() {
-        if (isGroupSelected() && !isChannelSelected()) {
-            if (channelTable.getSelectedModelRows().length == 1) {
-                splitPane.setBottomComponent(groupSettingsPanel);
-                splitPane.setDividerSize(6);
-                splitPane.setDividerLocation(3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT) / 5);
-                splitPane.setResizeWeight(0.5);
-            } else {
-                splitPane.setBottomComponent(null);
-                splitPane.setDividerSize(0);
-            }
-        } else if (LoadedExtensions.getInstance().getChannelPanelPlugins().size() > 0) {
+        if (LoadedExtensions.getInstance().getChannelPanelPlugins().size() > 0) {
             splitPane.setBottomComponent(tabPane);
             splitPane.setDividerSize(6);
             splitPane.setDividerLocation(3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT) / 5);
@@ -2208,16 +2342,6 @@ public class ChannelPanel extends AbstractFramePanel {
         ChannelTagInfo channelTagInfo = parent.getChannelTagInfo(false);
         List<ChannelStatus> filteredChannelStatuses = new ArrayList<ChannelStatus>();
         int enabled = 0;
-
-        // Update group channels table
-        Object[][] data = new Object[channelStatuses.size()][2];
-        int row = 0;
-        for (ChannelStatus channelStatus : channelStatuses.values()) {
-            data[row][0] = new ChannelInfo(channelStatus.getChannel().getName(), false);
-            data[row][1] = channelStatus.getChannel().getId();
-            row++;
-        }
-        ((RefreshTableModel) groupChannelsTable.getModel()).refreshDataVector(data);
 
         for (ChannelStatus channelStatus : channelStatuses.values()) {
             Channel channel = channelStatus.getChannel();
@@ -2346,8 +2470,15 @@ public class ChannelPanel extends AbstractFramePanel {
                 if (!channelTable.isRowSelected(row)) {
                     channelTable.setRowSelectionInterval(row, row);
                 }
+
+                if (((AbstractChannelTableNode) channelTable.getPathForRow(row).getLastPathComponent()).isGroupNode()) {
+                    groupPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                } else {
+                    channelPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                }
+            } else {
+                channelPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
-            channelPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
 
@@ -2364,40 +2495,6 @@ public class ChannelPanel extends AbstractFramePanel {
 
             updateCurrentPluginPanel();
         }
-
-        groupNameField.setEditable(true);
-        groupDescriptionScrollPane.setBackground(null);
-        groupDescriptionScrollPane.getTextArea().setEditable(true);
-        groupChannelsSelectAllLabel.setEnabled(true);
-        groupChannelsDeselectAllLabel.setEnabled(true);
-        groupChannelsTable.setEnabled(true);
-        groupWarningLabel.setVisible(false);
-
-        switchBottomPane();
-
-        if (rows.length == 1) {
-            AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(rows[0]).getLastPathComponent();
-            if (node.isGroupNode()) {
-                setGroupProperties(node.getGroupStatus().getGroup());
-
-                if (StringUtils.equals(node.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID) || parent.getChannelTagInfo(false).isEnabled()) {
-                    groupNameField.setEditable(false);
-                    groupDescriptionScrollPane.getTextArea().setEditable(false);
-                    groupDescriptionScrollPane.setBackground(new Color(204, 204, 204));
-                    groupDescriptionScrollPane.getTextArea().setEditable(false);
-                    groupChannelsDeselectAllLabel.setEnabled(false);
-
-                    if (parent.getChannelTagInfo(false).isEnabled()) {
-                        groupChannelsSelectAllLabel.setEnabled(false);
-                        groupChannelsTable.setEnabled(false);
-                        groupWarningLabel.setVisible(true);
-                    }
-                }
-            }
-        }
-
-        groupNameField.requestFocus();
-        groupNameField.setCaretPosition(groupNameField.getText().length());
     }
 
     public boolean isGroupSelected() {
@@ -2470,40 +2567,6 @@ public class ChannelPanel extends AbstractFramePanel {
         @Override
         public AbstractChannelTableNode createNode(ChannelStatus channelStatus) {
             return new ChannelTableNode(channelStatus);
-        }
-    }
-
-    private void setGroupProperties(ChannelGroup group) {
-        groupNameField.setText(group.getName());
-        groupNameField.setCaretPosition(0);
-        groupDescriptionScrollPane.setText(group.getDescription());
-        groupDescriptionScrollPane.getTextArea().setCaretPosition(0);
-
-        TableModelListener[] listeners = ((RefreshTableModel) groupChannelsTable.getModel()).getTableModelListeners();
-        for (TableModelListener listener : listeners) {
-            groupChannelsTable.getModel().removeTableModelListener(listener);
-        }
-
-        try {
-            for (int row = 0; row < groupChannelsTable.getModel().getRowCount(); row++) {
-                ChannelInfo channelInfo = (ChannelInfo) groupChannelsTable.getModel().getValueAt(row, GROUP_CHANNELS_NAME_COLUMN);
-                String channelId = (String) groupChannelsTable.getModel().getValueAt(row, GROUP_CHANNELS_ID_COLUMN);
-
-                boolean found = false;
-                for (Channel channel : group.getChannels()) {
-                    if (StringUtils.equals(channel.getId(), channelId)) {
-                        found = true;
-                        break;
-                    }
-                }
-                channelInfo.setEnabled(found);
-
-                groupChannelsTable.getModel().setValueAt(channelInfo, row, GROUP_CHANNELS_NAME_COLUMN);
-            }
-        } finally {
-            for (TableModelListener listener : listeners) {
-                groupChannelsTable.getModel().addTableModelListener(listener);
-            }
         }
     }
 
@@ -2714,13 +2777,13 @@ public class ChannelPanel extends AbstractFramePanel {
                     return;
                 }
 
-                AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(row).getLastPathComponent();
-                if (node.isGroupNode()) {
-                    return;
-                }
-
                 if (evt.getClickCount() >= 2) {
-                    doEditChannel();
+                    AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(row).getLastPathComponent();
+                    if (node.isGroupNode()) {
+                        doEditGroupDetails();
+                    } else {
+                        doEditChannel();
+                    }
                 }
             }
         });
@@ -2825,7 +2888,6 @@ public class ChannelPanel extends AbstractFramePanel {
 
         tagsLabel = new JLabel();
 
-        tableModeLabel = new JLabel("Table View:");
         ButtonGroup tableModeButtonGroup = new ButtonGroup();
 
         tableModeGroupsButton = new IconToggleButton(UIConstants.ICON_GROUP);
@@ -2852,282 +2914,6 @@ public class ChannelPanel extends AbstractFramePanel {
         });
         tableModeButtonGroup.add(tableModeChannelsButton);
 
-        groupSettingsPanel = new JPanel();
-        groupSettingsPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-
-        groupSettingsLeftPanel = new JPanel();
-        groupSettingsLeftPanel.setBackground(groupSettingsPanel.getBackground());
-
-        groupNameLabel = new JLabel("Name:");
-        groupNameField = new MirthTextField();
-        groupNameField.setDocument(new MirthFieldConstraints(255, false, false, false) {
-            @Override
-            public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
-                if (str == null) {
-                    return;
-                }
-
-                if (!testName(getText(0, offset) + str + getText(offset, getLength() - offset))) {
-                    return;
-                }
-
-                super.insertString(offset, str, attr);
-            }
-
-            @Override
-            public void remove(int offs, int len) throws BadLocationException {
-                if (!testName(getText(0, offs) + getText(offs + len, getLength() - offs - len))) {
-                    return;
-                }
-
-                super.remove(offs, len);
-            }
-
-            private boolean testName(String name) {
-                if (StringUtils.isBlank(name)) {
-                    return true;
-                }
-
-                String selectedGroupId = null;
-                int row = channelTable.getSelectedModelIndex();
-                if (row >= 0) {
-                    AbstractChannelTableNode selectedNode = (AbstractChannelTableNode) channelTable.getPathForRow(row).getLastPathComponent();
-                    if (selectedNode.isGroupNode()) {
-                        selectedGroupId = selectedNode.getGroupStatus().getGroup().getId();
-                    }
-                }
-
-                for (Enumeration<? extends MutableTreeTableNode> groupNodes = ((MutableTreeTableNode) channelTable.getTreeTableModel().getRoot()).children(); groupNodes.hasMoreElements();) {
-                    AbstractChannelTableNode groupNode = (AbstractChannelTableNode) groupNodes.nextElement();
-                    if (groupNode.isGroupNode()) {
-                        String groupId = groupNode.getGroupStatus().getGroup().getId();
-                        if (!StringUtils.equals(groupId, selectedGroupId) && StringUtils.equals(groupNode.getGroupStatus().getGroup().getName(), name)) {
-                            return false;
-                        }
-                    }
-                }
-
-                return true;
-            }
-        });
-
-        groupNameField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void removeUpdate(DocumentEvent evt) {
-                updateName(evt);
-            }
-
-            @Override
-            public void insertUpdate(DocumentEvent evt) {
-                updateName(evt);
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent evt) {
-                updateName(evt);
-            }
-
-            private void updateName(DocumentEvent evt) {
-                int[] rows = channelTable.getSelectedModelRows();
-
-                if (rows.length == 1) {
-                    AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(rows[0]).getLastPathComponent();
-                    if (node.isGroupNode() && !StringUtils.equals(node.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
-                        try {
-                            channelTable.getTreeTableModel().setValueAt(new ChannelTableNameEntry(evt.getDocument().getText(0, evt.getDocument().getLength())), node, NAME_COLUMN_NUMBER);
-                        } catch (BadLocationException e) {
-                        }
-                    }
-                }
-            }
-        });
-
-        groupWarningLabel = new JLabel("Disable the channel filter to edit group properties.");
-        groupWarningLabel.setForeground(Color.RED);
-
-        groupDescriptionLabel = new JLabel("Description:");
-        groupDescriptionScrollPane = new MirthRTextScrollPane(null, false, SyntaxConstants.SYNTAX_STYLE_NONE, false);
-        groupDescriptionScrollPane.getTextArea().getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void removeUpdate(DocumentEvent evt) {
-                updateDescription(evt);
-            }
-
-            @Override
-            public void insertUpdate(DocumentEvent evt) {
-                updateDescription(evt);
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent evt) {
-                updateDescription(evt);
-            }
-
-            private void updateDescription(DocumentEvent evt) {
-                int[] rows = channelTable.getSelectedModelRows();
-
-                if (rows.length == 1) {
-                    AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(rows[0]).getLastPathComponent();
-                    if (node.isGroupNode() && !StringUtils.equals(node.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
-                        try {
-                            channelTable.getTreeTableModel().setValueAt(evt.getDocument().getText(0, evt.getDocument().getLength()), node, DESCRIPTION_COLUMN_NUMBER);
-                        } catch (BadLocationException e) {
-                        }
-                    }
-                }
-            }
-        });
-
-        groupSettingsRightPanel = new JPanel();
-        groupSettingsRightPanel.setBackground(groupSettingsPanel.getBackground());
-
-        groupChannelsLabel = new JLabel("<html><b>Channels</b></html>");
-        groupChannelsLabel.setForeground(new Color(64, 64, 64));
-
-        groupChannelsSelectAllLabel = new JLabel("<html><u>Select All</u></html>");
-        groupChannelsSelectAllLabel.setForeground(Color.BLUE);
-        groupChannelsSelectAllLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        groupChannelsSelectAllLabel.addMouseListener(new MouseAdapter() {
-            public void mouseReleased(MouseEvent evt) {
-                if (evt.getComponent().isEnabled()) {
-                    for (int row = 0; row < groupChannelsTable.getRowCount(); row++) {
-                        ChannelInfo channelInfo = (ChannelInfo) groupChannelsTable.getValueAt(row, GROUP_CHANNELS_NAME_COLUMN);
-                        groupChannelsTable.setValueAt(new ChannelInfo(channelInfo.getName(), true), row, GROUP_CHANNELS_NAME_COLUMN);
-                    }
-                    groupChannelsTable.updateUI();
-                    setSaveEnabled(true);
-                }
-            }
-        });
-
-        groupChannelsDeselectAllLabel = new JLabel("<html><u>Deselect All</u></html>");
-        groupChannelsDeselectAllLabel.setForeground(Color.BLUE);
-        groupChannelsDeselectAllLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        groupChannelsDeselectAllLabel.addMouseListener(new MouseAdapter() {
-            public void mouseReleased(MouseEvent evt) {
-                if (evt.getComponent().isEnabled()) {
-                    int[] rows = channelTable.getSelectedModelRows();
-                    if (rows.length == 1) {
-                        AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(rows[0]).getLastPathComponent();
-                        if (node.isGroupNode() && StringUtils.equals(node.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
-                            return;
-                        }
-                    }
-
-                    for (int row = 0; row < groupChannelsTable.getRowCount(); row++) {
-                        ChannelInfo channelInfo = (ChannelInfo) groupChannelsTable.getValueAt(row, GROUP_CHANNELS_NAME_COLUMN);
-                        groupChannelsTable.setValueAt(new ChannelInfo(channelInfo.getName(), false), row, GROUP_CHANNELS_NAME_COLUMN);
-                    }
-                    setSaveEnabled(true);
-                }
-            }
-        });
-
-        groupChannelsFilterLabel = new JLabel("Filter:");
-        groupChannelsFilterField = new JTextField();
-        groupChannelsFilterField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void removeUpdate(DocumentEvent evt) {
-                groupChannelsTable.getRowSorter().allRowsChanged();
-            }
-
-            @Override
-            public void insertUpdate(DocumentEvent evt) {
-                groupChannelsTable.getRowSorter().allRowsChanged();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent evt) {
-                groupChannelsTable.getRowSorter().allRowsChanged();
-            }
-        });
-
-        groupChannelsTable = new MirthTable();
-        groupChannelsTable.setModel(new RefreshTableModel(new Object[] { "Name", "Id" }, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                int[] rows = channelTable.getSelectedModelRows();
-                if (rows.length == 1) {
-                    AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(rows[0]).getLastPathComponent();
-                    if (node.isGroupNode() && StringUtils.equals(node.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
-                        if (((ChannelInfo) groupChannelsTable.getValueAt(row, GROUP_CHANNELS_NAME_COLUMN)).isEnabled()) {
-                            return false;
-                        }
-                    }
-                }
-                return super.isCellEditable(row, column);
-            }
-        });
-
-        groupChannelsTable.setDragEnabled(false);
-        groupChannelsTable.setRowSelectionAllowed(false);
-        groupChannelsTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        groupChannelsTable.setFocusable(false);
-        groupChannelsTable.setOpaque(true);
-        groupChannelsTable.getTableHeader().setReorderingAllowed(false);
-        groupChannelsTable.setEditable(true);
-
-        groupChannelsTable.setRowFilter(new RowFilter<TableModel, Integer>() {
-            @Override
-            public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
-                String name = entry.getStringValue(GROUP_CHANNELS_NAME_COLUMN);
-                return StringUtils.containsIgnoreCase(name, StringUtils.trim(groupChannelsFilterField.getText()));
-            }
-        });
-
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            groupChannelsTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
-        }
-
-        groupChannelsTable.getColumnExt(GROUP_CHANNELS_NAME_COLUMN).setCellRenderer(new ChannelsTableCellRenderer());
-        groupChannelsTable.getColumnExt(GROUP_CHANNELS_NAME_COLUMN).setCellEditor(new ChannelsTableCellEditor());
-
-        // Hide ID column
-        groupChannelsTable.getColumnExt(GROUP_CHANNELS_ID_COLUMN).setVisible(false);
-
-        groupChannelsTable.getModel().addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent evt) {
-                if (evt.getFirstRow() >= 0 && evt.getLastRow() <= groupChannelsTable.getModel().getRowCount()) {
-                    ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
-
-                    int[] rows = channelTable.getSelectedModelRows();
-                    if (rows.length == 1) {
-                        final AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(rows[0]).getLastPathComponent();
-
-                        if (node.isGroupNode()) {
-                            ListSelectionListener[] listeners = ((DefaultListSelectionModel) channelTable.getSelectionModel()).getListSelectionListeners();
-                            for (ListSelectionListener listener : listeners) {
-                                channelTable.getSelectionModel().removeListSelectionListener(listener);
-                            }
-
-                            try {
-                                for (int row = evt.getFirstRow(); row <= evt.getLastRow(); row++) {
-                                    ChannelInfo channelInfo = (ChannelInfo) groupChannelsTable.getModel().getValueAt(row, GROUP_CHANNELS_NAME_COLUMN);
-                                    String channelId = (String) groupChannelsTable.getModel().getValueAt(row, GROUP_CHANNELS_ID_COLUMN);
-
-                                    if (channelInfo.isEnabled()) {
-                                        model.addChannelToGroup(node, channelId);
-                                    } else {
-                                        model.removeChannelFromGroup(node, channelId);
-                                    }
-                                }
-
-                                channelTable.expandPath(new TreePath(new Object[] {
-                                        channelTable.getTreeTableModel().getRoot(), node }));
-                            } finally {
-                                for (ListSelectionListener listener : listeners) {
-                                    channelTable.getSelectionModel().addListSelectionListener(listener);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        groupChannelsScrollPane = new JScrollPane(groupChannelsTable);
-
         tabPane = new JTabbedPane();
 
         splitPane.setTopComponent(topPanel);
@@ -3143,30 +2929,9 @@ public class ChannelPanel extends AbstractFramePanel {
         filterPanel.setLayout(new MigLayout("insets 0 12 0 12, novisualpadding, hidemode 3, fill, gap 12"));
         filterPanel.add(tagsFilterButton);
         filterPanel.add(tagsLabel, "left, growx, push");
-        filterPanel.add(tableModeLabel, "right, split 3, gapafter 12");
-        filterPanel.add(tableModeGroupsButton, "gapafter 0");
+        filterPanel.add(tableModeGroupsButton, "right, split 2, gapafter 0");
         filterPanel.add(tableModeChannelsButton);
         topPanel.add(filterPanel, "newline, growx");
-
-        groupSettingsPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
-
-        groupSettingsLeftPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill", "[]13[]"));
-        groupSettingsLeftPanel.add(groupNameLabel, "right");
-        groupSettingsLeftPanel.add(groupNameField, "w 300!, split 2");
-        groupSettingsLeftPanel.add(groupWarningLabel, "gapbefore 12");
-        groupSettingsLeftPanel.add(groupDescriptionLabel, "newline, top, right");
-        groupSettingsLeftPanel.add(groupDescriptionScrollPane, "grow, push, w :400, h 100:100");
-        groupSettingsPanel.add(groupSettingsLeftPanel, "grow, push");
-
-        groupSettingsRightPanel.setLayout(new MigLayout("insets 12 0 12 12, novisualpadding, hidemode 3, fill", "", "[][][grow]"));
-        groupSettingsRightPanel.add(groupChannelsLabel, "left");
-        groupSettingsRightPanel.add(groupChannelsSelectAllLabel, "right, split 3");
-        groupSettingsRightPanel.add(new JLabel("|"));
-        groupSettingsRightPanel.add(groupChannelsDeselectAllLabel);
-        groupSettingsRightPanel.add(groupChannelsFilterLabel, "newline, split 2, sx");
-        groupSettingsRightPanel.add(groupChannelsFilterField, "growx");
-        groupSettingsRightPanel.add(groupChannelsScrollPane, "newline, grow, h 100:100, sx");
-        groupSettingsPanel.add(groupSettingsRightPanel, "grow, w 220!");
 
         add(splitPane, "grow, push");
     }
@@ -3186,19 +2951,35 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     private boolean switchTableMode(boolean groupModeEnabled) {
+        return switchTableMode(groupModeEnabled, true);
+    }
+
+    private boolean switchTableMode(boolean groupModeEnabled, boolean promptSave) {
         ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
         if (model.isGroupModeEnabled() != groupModeEnabled) {
-            if (isSaveEnabled() && !promptSave(true)) {
+            if (promptSave && isSaveEnabled() && !promptSave(true)) {
                 return false;
             }
 
             Preferences.userNodeForPackage(Mirth.class).putBoolean("channelGroupViewEnabled", groupModeEnabled);
 
+            List<JXTaskPane> taskPanes = new ArrayList<JXTaskPane>();
+            taskPanes.add(channelTasks);
+
             if (groupModeEnabled) {
                 tableModeChannelsButton.setContentFilled(false);
+                taskPanes.add(groupTasks);
             } else {
                 tableModeGroupsButton.setContentFilled(false);
             }
+
+            for (TaskPlugin plugin : LoadedExtensions.getInstance().getTaskPlugins().values()) {
+                JXTaskPane taskPane = plugin.getTaskPane();
+                if (taskPane != null) {
+                    taskPanes.add(taskPane);
+                }
+            }
+            parent.setFocus(taskPanes.toArray(new JXTaskPane[taskPanes.size()]), true, true);
 
             TableState tableState = getCurrentTableState();
             model.setGroupModeEnabled(groupModeEnabled);
@@ -3310,8 +3091,216 @@ public class ChannelPanel extends AbstractFramePanel {
         }
     }
 
+    private class GroupDetailsDialog extends MirthDialog {
+
+        private boolean saved = false;
+        private boolean newGroup;
+
+        public GroupDetailsDialog(boolean newGroup) {
+            super(parent, true);
+            this.newGroup = newGroup;
+
+            initComponents();
+            initLayout();
+
+            if (newGroup) {
+                String name;
+                int index = 1;
+                do {
+                    name = "Group " + index++;
+                } while (!checkGroupName(name));
+
+                groupNameField.setText(name);
+                groupNameField.requestFocus();
+                groupNameField.selectAll();
+            } else {
+                AbstractChannelTableNode selectedNode = (AbstractChannelTableNode) channelTable.getPathForRow(channelTable.getSelectedRow()).getLastPathComponent();
+                groupNameField.setText(selectedNode.getGroupStatus().getGroup().getName());
+                groupDescriptionScrollPane.setText(selectedNode.getGroupStatus().getGroup().getDescription());
+
+                groupNameField.requestFocus();
+                groupNameField.setCaretPosition(groupNameField.getDocument().getLength());
+            }
+
+            setPreferredSize(new Dimension(600, 375));
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            setTitle("Channel Group Details");
+            pack();
+            setLocationRelativeTo(parent);
+            setVisible(true);
+        }
+
+        public boolean wasSaved() {
+            return saved;
+        }
+
+        public String getGroupName() {
+            return groupNameField.getText();
+        }
+
+        public String getGroupDescription() {
+            return groupDescriptionScrollPane.getText();
+        }
+
+        private void initComponents() {
+            setBackground(UIConstants.BACKGROUND_COLOR);
+            getContentPane().setBackground(getBackground());
+
+            containerPanel = new JPanel();
+            containerPanel.setBackground(getBackground());
+            containerPanel.setBorder(BorderFactory.createTitledBorder("Group Settings"));
+
+            groupNameLabel = new JLabel("Name:");
+            groupNameField = new JTextField();
+
+            groupDescriptionLabel = new JLabel("Description:");
+            groupDescriptionScrollPane = new MirthRTextScrollPane(null, false, SyntaxConstants.SYNTAX_STYLE_NONE, false);
+            groupDescriptionScrollPane.setSaveEnabled(false);
+
+            separator = new JSeparator(SwingConstants.HORIZONTAL);
+
+            okButton = new JButton("OK");
+            okButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    String name = groupNameField.getText();
+
+                    if (StringUtils.isBlank(name)) {
+                        groupNameField.setBackground(UIConstants.INVALID_COLOR);
+                        parent.alertError(GroupDetailsDialog.this, "Group name cannot be blank.");
+                        return;
+                    }
+
+                    if (!checkGroupName(name, newGroup)) {
+                        groupNameField.setBackground(UIConstants.INVALID_COLOR);
+                        parent.alertError(GroupDetailsDialog.this, "Group name is already in use.");
+                        return;
+                    }
+
+                    saved = true;
+                    dispose();
+                }
+            });
+
+            cancelButton = new JButton("Cancel");
+            cancelButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    dispose();
+                }
+            });
+        }
+
+        private void initLayout() {
+            setLayout(new MigLayout("insets 8, novisualpadding, hidemode 3, fill"));
+
+            containerPanel.setLayout(new MigLayout("insets 8, novisualpadding, hidemode 3, fill, gap 12 6"));
+            containerPanel.add(groupNameLabel, "right");
+            containerPanel.add(groupNameField, "w 200!");
+            containerPanel.add(groupDescriptionLabel, "newline, top, right");
+            containerPanel.add(groupDescriptionScrollPane, "grow, push");
+            add(containerPanel, "grow, push");
+
+            add(separator, "newline, growx");
+            add(okButton, "newline, w 48!, right, split 2");
+            add(cancelButton, "w 48!");
+        }
+
+        private JPanel containerPanel;
+        private JLabel groupNameLabel;
+        private JTextField groupNameField;
+        private JLabel groupDescriptionLabel;
+        private MirthRTextScrollPane groupDescriptionScrollPane;
+        private JSeparator separator;
+        private JButton okButton;
+        private JButton cancelButton;
+    }
+
+    private class GroupAssignmentDialog extends MirthDialog {
+
+        private boolean saved = false;
+
+        public GroupAssignmentDialog() {
+            super(parent, true);
+
+            initComponents();
+            initLayout();
+
+            setPreferredSize(new Dimension(282, 113));
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            setTitle("Channel Group Assignment");
+            pack();
+            setLocationRelativeTo(parent);
+            setVisible(true);
+        }
+
+        public boolean wasSaved() {
+            return saved;
+        }
+
+        public String getSelectedGroupId() {
+            return ((Pair<String, String>) groupComboBox.getSelectedItem()).getLeft();
+        }
+
+        private void initComponents() {
+            setBackground(UIConstants.BACKGROUND_COLOR);
+            getContentPane().setBackground(getBackground());
+
+            groupComboBox = new JComboBox<Pair<String, String>>();
+            List<Pair<String, String>> groups = new ArrayList<Pair<String, String>>();
+            for (Enumeration<? extends MutableTreeTableNode> groupNodes = ((MutableTreeTableNode) channelTable.getTreeTableModel().getRoot()).children(); groupNodes.hasMoreElements();) {
+                ChannelGroup group = ((AbstractChannelTableNode) groupNodes.nextElement()).getGroupStatus().getGroup();
+
+                groups.add(new MutablePair<String, String>(group.getId(), group.getName()) {
+                    @Override
+                    public String toString() {
+                        return getRight();
+                    }
+                });
+            }
+            groupComboBox.setModel(new DefaultComboBoxModel<Pair<String, String>>(groups.toArray(new Pair[groups.size()])));
+            groupComboBox.setSelectedIndex(0);
+
+            separator = new JSeparator(SwingConstants.HORIZONTAL);
+
+            okButton = new JButton("OK");
+            okButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    saved = true;
+                    dispose();
+                }
+            });
+
+            cancelButton = new JButton("Cancel");
+            cancelButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    dispose();
+                }
+            });
+        }
+
+        private void initLayout() {
+            setLayout(new MigLayout("insets 8, novisualpadding, hidemode 3, fill"));
+
+            add(new JLabel("Choose the group to assign the selected channel(s) to."));
+            add(groupComboBox, "newline, growx");
+            add(separator, "newline, growx");
+            add(okButton, "newline, w 48!, right, split 2");
+            add(cancelButton, "w 48!");
+        }
+
+        private JComboBox<Pair<String, String>> groupComboBox;
+        private JSeparator separator;
+        private JButton okButton;
+        private JButton cancelButton;
+    }
+
     public JXTaskPane channelTasks;
     public JPopupMenu channelPopupMenu;
+    public JXTaskPane groupTasks;
+    public JPopupMenu groupPopupMenu;
 
     private JSplitPane splitPane;
     private JPanel topPanel;
@@ -3320,25 +3309,8 @@ public class ChannelPanel extends AbstractFramePanel {
     private JPanel filterPanel;
     private JButton tagsFilterButton;
     private JLabel tagsLabel;
-    private JLabel tableModeLabel;
     private IconToggleButton tableModeGroupsButton;
     private IconToggleButton tableModeChannelsButton;
-
-    private JPanel groupSettingsPanel;
-    private JPanel groupSettingsLeftPanel;
-    private JLabel groupNameLabel;
-    private JTextField groupNameField;
-    private JLabel groupWarningLabel;
-    private JLabel groupDescriptionLabel;
-    private MirthRTextScrollPane groupDescriptionScrollPane;
-    private JPanel groupSettingsRightPanel;
-    private JLabel groupChannelsLabel;
-    private JLabel groupChannelsSelectAllLabel;
-    private JLabel groupChannelsDeselectAllLabel;
-    private JLabel groupChannelsFilterLabel;
-    private JTextField groupChannelsFilterField;
-    private MirthTable groupChannelsTable;
-    private JScrollPane groupChannelsScrollPane;
 
     private JTabbedPane tabPane;
 }

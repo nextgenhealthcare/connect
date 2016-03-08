@@ -41,10 +41,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -140,7 +142,7 @@ public class DashboardPanel extends JPanel {
 
         DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("dashboardGroupViewEnabled", true)) {
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("channelGroupViewEnabled", true)) {
             tableModeGroupsButton.setSelected(true);
             tableModeGroupsButton.setContentFilled(true);
             tableModeChannelsButton.setContentFilled(false);
@@ -217,6 +219,21 @@ public class DashboardPanel extends JPanel {
 
     private DashboardTabPlugin getCurrentTabPlugin() {
         return LoadedExtensions.getInstance().getDashboardTabPlugins().get(tabPane.getTitleAt(tabPane.getSelectedIndex()));
+    }
+
+    public void switchPanel() {
+        boolean groupViewEnabled = Preferences.userNodeForPackage(Mirth.class).getBoolean("channelGroupViewEnabled", true);
+        switchTableMode(groupViewEnabled);
+
+        if (groupViewEnabled) {
+            tableModeGroupsButton.setSelected(true);
+            tableModeGroupsButton.setContentFilled(true);
+            tableModeChannelsButton.setContentFilled(false);
+        } else {
+            tableModeChannelsButton.setSelected(true);
+            tableModeChannelsButton.setContentFilled(true);
+            tableModeGroupsButton.setContentFilled(false);
+        }
     }
 
     /**
@@ -933,7 +950,6 @@ public class DashboardPanel extends JPanel {
 
         tagsLabel = new JLabel();
 
-        showLabel = new JLabel("Show:");
         ButtonGroup showStatsButtonGroup = new ButtonGroup();
 
         showCurrentStatsButton = new JRadioButton("Current Statistics");
@@ -957,7 +973,8 @@ public class DashboardPanel extends JPanel {
 
         pluginContainerPanel = new JPanel();
 
-        tableModeLabel = new JLabel("Table View:");
+        controlSeparator = new JSeparator(SwingConstants.VERTICAL);
+
         ButtonGroup tableModeButtonGroup = new ButtonGroup();
 
         tableModeGroupsButton = new IconToggleButton(UIConstants.ICON_GROUP);
@@ -995,14 +1012,13 @@ public class DashboardPanel extends JPanel {
         controlPanel.setLayout(new MigLayout("insets 0 12 0 12, novisualpadding, hidemode 3, fill, gap 12"));
         controlPanel.add(tagFilterButton);
         controlPanel.add(tagsLabel, "left, growx, push");
-        controlPanel.add(showLabel, "right, split 4, gapafter 12");
-        controlPanel.add(showCurrentStatsButton);
+        controlPanel.add(showCurrentStatsButton, "right, split 3");
         controlPanel.add(showLifetimeStatsButton);
 
         pluginContainerPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3"));
         controlPanel.add(pluginContainerPanel);
 
-        controlPanel.add(tableModeLabel, "right, split 3, gapafter 12");
+        controlPanel.add(controlSeparator, "right, split 3, h 18!, gapbefore 0, gapafter 12");
         controlPanel.add(tableModeGroupsButton, "gapafter 0");
         controlPanel.add(tableModeChannelsButton);
         topPanel.add(controlPanel, "newline, growx");
@@ -1051,7 +1067,7 @@ public class DashboardPanel extends JPanel {
     private void switchTableMode(boolean groupModeEnabled) {
         DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
         if (model.isGroupModeEnabled() != groupModeEnabled) {
-            Preferences.userNodeForPackage(Mirth.class).putBoolean("dashboardGroupViewEnabled", groupModeEnabled);
+            Preferences.userNodeForPackage(Mirth.class).putBoolean("channelGroupViewEnabled", groupModeEnabled);
 
             if (groupModeEnabled) {
                 tableModeChannelsButton.setContentFilled(false);
@@ -1273,11 +1289,10 @@ public class DashboardPanel extends JPanel {
     private JPanel controlPanel;
     private IconButton tagFilterButton;
     private JLabel tagsLabel;
-    private JLabel showLabel;
     private JRadioButton showCurrentStatsButton;
     private JRadioButton showLifetimeStatsButton;
     private JPanel pluginContainerPanel;
-    private JLabel tableModeLabel;
+    private JSeparator controlSeparator;
     private IconToggleButton tableModeGroupsButton;
     private IconToggleButton tableModeChannelsButton;
 

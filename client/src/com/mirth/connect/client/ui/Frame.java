@@ -1825,6 +1825,8 @@ public class Frame extends JXFrame {
             return;
         }
 
+        dashboardPanel.switchPanel();
+
         setBold(viewPane, 0);
         setPanelName("Dashboard");
         setCurrentContentPage(dashboardPanel);
