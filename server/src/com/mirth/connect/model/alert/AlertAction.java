@@ -47,6 +47,15 @@ public class AlertAction implements Migratable, Purgable {
     }
 
     @Override
+    public String toString(){
+    	StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getName()).append('[');
+        builder.append("protocol=").append(protocol).append(", ");
+        builder.append("recipient=").append(recipient).append(']');
+        return builder.toString();
+    }
+    
+    @Override
     public void migrate3_0_1(DonkeyElement element) {}
 
     @Override

@@ -118,4 +118,16 @@ public class RawMessage implements Serializable {
         this.rawBytes = null;
         this.rawData = null;
     }
+    
+    @Override
+    public String toString(){
+    	StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getName()).append('[');
+        builder.append("overwrite=").append(overwrite).append(", ");
+        builder.append("imported=").append(imported).append(", ");
+        builder.append("originalMessageId=").append(originalMessageId).append(", ");
+        builder.append("destinationMetaDataIds=").append(destinationMetaDataIds).append(", ");
+        builder.append("binary=").append(binary).append(']');
+        return builder.toString();
+    }
 }

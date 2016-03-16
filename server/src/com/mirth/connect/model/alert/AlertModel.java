@@ -87,6 +87,19 @@ public class AlertModel implements Migratable, Purgable {
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
+    
+    @Override
+    public String toString(){
+    	StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getName()).append('[');
+        builder.append("id=").append(id).append(", ");
+        builder.append("name=").append(name).append(", ");
+        builder.append("enabled=").append(enabled).append(", ");
+        builder.append("trigger=").append(trigger).append(", ");
+        builder.append("actionGroups=").append(actionGroups).append(", ");
+        builder.append("properties=").append(properties).append(']');
+        return builder.toString();
+    }
 
     @Override
     public void migrate3_0_1(DonkeyElement element) {}

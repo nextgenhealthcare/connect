@@ -11,7 +11,10 @@ package com.mirth.connect.util.messagewriter;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.model.CalendarToStringStyle;
 
 public class MessageWriterOptions implements Serializable {
     private ContentType contentType;
@@ -145,5 +148,10 @@ public class MessageWriterOptions implements Serializable {
      */
     public void setCompressFormat(String compressFormat) {
         this.compressFormat = compressFormat;
+    }
+    
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
     }
 }

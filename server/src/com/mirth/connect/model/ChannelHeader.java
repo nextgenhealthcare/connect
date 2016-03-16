@@ -50,4 +50,14 @@ public class ChannelHeader implements Serializable {
     public void setCodeTemplatesChanged(boolean codeTemplatesChanged) {
         this.codeTemplatesChanged = codeTemplatesChanged;
     }
+    
+    @Override
+    public String toString(){
+    	StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getName()).append('[');
+        builder.append("revision=").append(revision).append(", ");
+        builder.append("deployedDate=").append(deployedDate).append(", ");
+        builder.append("codeTemplatesChanged=").append(codeTemplatesChanged).append(']');
+        return builder.toString();
+    }
 }

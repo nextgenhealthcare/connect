@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import javax.swing.text.DateFormatter;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -32,7 +33,7 @@ import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverConfiguration")
-public class ServerConfiguration implements Serializable, Migratable {
+public class ServerConfiguration implements Serializable, Migratable, Auditable {
     private String date;
     private List<ChannelGroup> channelGroups = null;
     private List<Channel> channels = null;
@@ -131,6 +132,23 @@ public class ServerConfiguration implements Serializable, Migratable {
 
     public void setResourceProperties(ResourcePropertiesList resourceProperties) {
         this.resourceProperties = resourceProperties;
+    }
+
+    @Override
+    public String toAuditString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getName()).append('[');
+        builder.append("serverName=").append(serverSettings.getServerName()).append(", ");
+        builder.append("date=").append(date).append(", ");
+        builder.append("Number of channels=").append(CollectionUtils.size(channels)).append(", ");
+        builder.append("Number of channel groups=").append(CollectionUtils.size(channelGroups)).append(", ");
+        builder.append("Number of users=").append(CollectionUtils.size(users)).append(", ");
+        builder.append("Number of alerts=").append(CollectionUtils.size(alerts)).append(", ");
+        if (resourceProperties != null) {
+            builder.append("Number of resource properties=").append(CollectionUtils.size(resourceProperties.getList())).append(", ");
+        }
+        builder.append("Number of code template libraries=").append(CollectionUtils.size(codeTemplateLibraries)).append(']');
+        return builder.toString();
     }
 
     @Override

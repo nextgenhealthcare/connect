@@ -54,6 +54,16 @@ public class AlertActionGroup implements Migratable, Purgable {
     public void setTemplate(String template) {
         this.template = template;
     }
+    
+    @Override
+    public String toString(){
+    	StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getName()).append('[');
+        builder.append("actions=").append(actions).append(", ");
+        builder.append("subject=").append(subject).append(", ");
+        builder.append("template=").append(template).append(']');
+        return builder.toString();
+    }
 
     @Override
     public void migrate3_0_1(DonkeyElement element) {}
