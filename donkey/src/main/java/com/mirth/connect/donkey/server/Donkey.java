@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
+import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.DonkeyStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.jdbc.DBCPConnectionPool;
@@ -69,6 +70,18 @@ public class Donkey {
         this.donkeyConfiguration = donkeyConfiguration;
 
         initDaoFactory();
+
+        DonkeyDao dao = null;
+        try {
+            dao = daoFactory.getDao();
+            dao.checkAndCreateChannelTables();
+
+            dao.commit();
+        } finally {
+            if (dao != null) {
+                dao.close();
+            }
+        }
 
         // load channel statistics into memory
         ChannelController.getInstance().loadStatistics(donkeyConfiguration.getServerId());

@@ -376,6 +376,17 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
+    public void checkAndCreateChannelTables() {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            dao.checkAndCreateChannelTables();
+        } finally {
+            timer.log("checkOrCreateChannelTables", System.currentTimeMillis() - startTime);
+        }
+    }
+
+    @Override
     public void removeChannel(String channelId) {
         long startTime = System.currentTimeMillis();
 

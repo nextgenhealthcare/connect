@@ -74,6 +74,8 @@ public interface DonkeyDao {
 
     public void createChannel(String channelId, long localChannelId);
 
+    public void checkAndCreateChannelTables();
+
     public void removeChannel(String channelId);
 
     public void addMetaDataColumn(String channelId, MetaDataColumn metaDataColumn);

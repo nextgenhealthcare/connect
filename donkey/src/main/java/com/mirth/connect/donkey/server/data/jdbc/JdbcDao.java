@@ -1759,6 +1759,56 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
+    public void checkAndCreateChannelTables() {
+        Map<String, Long> channelIds = getLocalChannelIds();
+        Map<String, String> channelTablesMap = new LinkedHashMap<String, String>();
+        for (Long localChannelId : channelIds.values()) {
+            channelTablesMap.put("d_m" + localChannelId, "createMessageTable");
+            channelTablesMap.put("d_mm" + localChannelId, "createConnectorMessageTable");
+            channelTablesMap.put("d_mc" + localChannelId, "createMessageContentTable");
+            channelTablesMap.put("d_mcm" + localChannelId, "createMessageCustomMetaDataTable");
+            channelTablesMap.put("d_ma" + localChannelId, "createMessageAttachmentTable");
+            channelTablesMap.put("d_ms" + localChannelId, "createMessageStatisticsTable");
+            channelTablesMap.put("d_msq" + localChannelId, "createMessageSequence");
+        }
+
+        ResultSet rs = null;
+        try {
+            DatabaseMetaData dbMetaData = connection.getMetaData();
+            rs = dbMetaData.getTables(null, null, "%", null);
+
+            while (rs.next()) {
+                channelTablesMap.remove(rs.getString("TABLE_NAME").toLowerCase());
+            }
+        } catch (Exception e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            if (rs != null) {
+                close(rs);
+            }
+        }
+
+        for (Entry<String, String> entry : channelTablesMap.entrySet()) {
+            Statement initSequenceStatement = null;
+            try {
+                Long localChannelId = Long.parseLong(entry.getKey().replaceAll("[^0-9]", ""));
+                Map<String, Object> values = new HashMap<String, Object>();
+                values.put("localChannelId", localChannelId);
+                createTable(entry.getValue(), values);
+
+                if (entry.getKey().toLowerCase().contains("d_msq") && querySource.queryExists("initMessageSequence")) {
+                    initSequenceStatement = connection.createStatement();
+                    initSequenceStatement.executeUpdate(querySource.getQuery("initMessageSequence", values));
+                }
+            } catch (Exception e) {
+                throw new DonkeyDaoException(e);
+            } finally {
+                close(initSequenceStatement);
+            }
+        }
+    }
+
+    @Override
     public void resetStatistics(String channelId, Integer metaDataId, Set<Status> statuses) {
         logger.debug(channelId + ": resetting statistics" + (metaDataId == null ? "" : (" for metadata id " + metaDataId)));
         PreparedStatement statement = null;

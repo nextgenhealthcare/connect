@@ -308,6 +308,11 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
+    public void checkAndCreateChannelTables() {
+        tasks.add(new DaoTask(DaoTaskType.CHECK_CHANNEL_TABLES, new Object[] {}));
+    }
+
+    @Override
     public void removeChannel(String channelId) {
         tasks.add(new DaoTask(DaoTaskType.REMOVE_CHANNEL, new Object[] { channelId }));
     }
