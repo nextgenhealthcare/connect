@@ -362,12 +362,6 @@ public class ServerConnection implements Connector {
         StatusLine statusLine = response.getStatusLine();
         int statusCode = statusLine.getStatusCode();
 
-        if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
-            throw new UnauthorizedException(statusLine.toString());
-        } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
-            throw new ForbiddenException(statusLine.toString());
-        }
-
         ClientResponse responseContext = new ClientResponse(Statuses.from(statusCode), request);
 
         MultivaluedMap<String, String> headerMap = new MultivaluedHashMap<String, String>();
@@ -379,6 +373,20 @@ public class ServerConnection implements Connector {
         HttpEntity responseEntity = response.getEntity();
         if (responseEntity != null) {
             responseContext.setEntityStream(new EntityInputStreamWrapper(response, responseEntity.getContent(), sync));
+        }
+
+        if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+            if (responseContext.hasEntity()) {
+                try {
+                    Object entity = responseContext.readEntity(Object.class);
+                    throw new UnauthorizedException(statusLine.toString(), entity);
+                } catch (ProcessingException e) {
+                }
+            } else {
+                throw new UnauthorizedException(statusLine.toString());
+            }
+        } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
+            throw new ForbiddenException(statusLine.toString());
         }
 
         if (statusCode >= 400) {

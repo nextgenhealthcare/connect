@@ -10,7 +10,19 @@
 package com.mirth.connect.client.core;
 
 public class UnauthorizedException extends ClientException {
+
+    private Object response;
+
     public UnauthorizedException(String message) {
+        this(message, null);
+    }
+
+    public UnauthorizedException(String message, Object response) {
         super(message);
+        this.response = response;
+    }
+
+    public Object getResponse() {
+        return response;
     }
 }

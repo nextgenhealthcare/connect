@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ConnectServiceUtil;
+import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -418,6 +419,14 @@ public class LoginPanel extends javax.swing.JFrame {
                         loginStatus = client.login(username.getText(), String.valueOf(password.getPassword()));
                     } catch (ClientException ex) {
                         ex.printStackTrace();
+
+                        if (ex instanceof UnauthorizedException) {
+                            UnauthorizedException e2 = (UnauthorizedException) ex;
+                            if (e2.getResponse() != null && e2.getResponse() instanceof LoginStatus) {
+                                loginStatus = (LoginStatus) e2.getResponse();
+                            }
+                        }
+
                         // Leave loginStatus null, the error message will be set to the default
                     }
 
