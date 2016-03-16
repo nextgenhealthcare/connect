@@ -109,7 +109,7 @@ public class JdbcDao implements DonkeyDao {
     public void setDecryptData(boolean decryptData) {
         this.decryptData = decryptData;
     }
-    
+
     @Override
     public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
         this.statisticsUpdater = statisticsUpdater;
@@ -1929,7 +1929,7 @@ public class JdbcDao implements DonkeyDao {
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }
-        
+
         if (statisticsUpdater != null) {
             statisticsUpdater.update(transactionStats);
         }
@@ -2127,6 +2127,7 @@ public class JdbcDao implements DonkeyDao {
                 responseDate.setTimeInMillis(responseDateTimestamp.getTime());
             }
 
+            connectorMessage.setChannelName(getDeployedChannelName(channelId));
             connectorMessage.setMessageId(messageId);
             connectorMessage.setMetaDataId(metaDataId);
             connectorMessage.setChannelId(channelId);
@@ -2656,5 +2657,10 @@ public class JdbcDao implements DonkeyDao {
         } else {
             return channel.getLocalChannelId();
         }
+    }
+
+    protected String getDeployedChannelName(String channelId) {
+        Channel channel = donkey.getDeployedChannels().get(channelId);
+        return channel != null ? channel.getName() : "";
     }
 }
