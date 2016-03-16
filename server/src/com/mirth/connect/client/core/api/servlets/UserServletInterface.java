@@ -51,7 +51,7 @@ public interface UserServletInterface extends BaseServletInterface {
     @MirthOperation(name = "login", display = "Login")
     public LoginStatus login(// @formatter:off
             @Param("username") @ApiParam(value = "The username to login with.", required = true, defaultValue = "admin") @FormParam("username") String username,
-            @Param("password") @ApiParam(value = "The password to login with.", required = true, defaultValue = "admin") @FormParam("password") String password) throws ClientException;
+            @Param(value = "password", excludeFromAudit = true) @ApiParam(value = "The password to login with.", required = true, defaultValue = "admin") @FormParam("password") String password) throws ClientException;
     // @formatter:on
 
     @POST
@@ -98,7 +98,7 @@ public interface UserServletInterface extends BaseServletInterface {
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation("Checks the password against the configured password policies.")
     @MirthOperation(name = "checkUserPassword", display = "Check a password against requirements.", permission = Permissions.USERS_MANAGE)
-    public List<String> checkUserPassword(@Param("plainPassword") @ApiParam(value = "The plaintext password to check.", required = true) String plainPassword) throws ClientException;
+    public List<String> checkUserPassword(@Param(value = "plainPassword", excludeFromAudit = true) @ApiParam(value = "The plaintext password to check.", required = true) String plainPassword) throws ClientException;
 
     @PUT
     @Path("/{userId}/password")
@@ -107,7 +107,7 @@ public interface UserServletInterface extends BaseServletInterface {
     @MirthOperation(name = "updateUserPassword", display = "Update a user's password", permission = Permissions.USERS_MANAGE)
     public List<String> updateUserPassword(// @formatter:off
             @Param("userId") @ApiParam(value = "The unique ID of the user to update the password for.", required = true) @PathParam("userId") Integer userId,
-            @Param("plainPassword") @ApiParam(value = "The plaintext password to update with.", required = true) String plainPassword) throws ClientException;
+            @Param(value = "plainPassword", excludeFromAudit = true) @ApiParam(value = "The plaintext password to update with.", required = true) String plainPassword) throws ClientException;
     // @formatter:on
 
     @DELETE
