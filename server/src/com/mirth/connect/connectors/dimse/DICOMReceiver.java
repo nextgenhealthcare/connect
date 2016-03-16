@@ -29,6 +29,7 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.MirthSSLUtil;
 
 public class DICOMReceiver extends SourceConnector {
@@ -36,6 +37,7 @@ public class DICOMReceiver extends SourceConnector {
     private DICOMReceiverProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private DcmRcv dcmrcv;
 
     @Override
@@ -51,8 +53,8 @@ public class DICOMReceiver extends SourceConnector {
     @Override
     public void onStart() throws ConnectorTaskException {
         try {
-            dcmrcv.setPort(NumberUtils.toInt(connectorProperties.getListenerConnectorProperties().getPort()));
-            dcmrcv.setHostname(connectorProperties.getListenerConnectorProperties().getHost());
+            dcmrcv.setPort(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getLocalPort(), getChannelId(), getChannel().getName())));
+            dcmrcv.setHostname(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId(), getChannel().getName()));
             dcmrcv.setAEtitle("DCMRCV");
 
             String[] only_def_ts = { UID.ImplicitVRLittleEndian };
@@ -60,8 +62,9 @@ public class DICOMReceiver extends SourceConnector {
             String[] native_ts = { UID.ImplicitVRLittleEndian };
             String[] non_retired_ts = { UID.ImplicitVRLittleEndian };
 
-            if (StringUtils.isNotBlank(connectorProperties.getDest())) {
-                dcmrcv.setDestination(connectorProperties.getDest());
+            String destination = replacer.replaceValues(connectorProperties.getDest(), getChannelId(), getChannel().getName());
+            if (StringUtils.isNotBlank(destination)) {
+                dcmrcv.setDestination(destination);
             }
 
             if (connectorProperties.isDefts()) {
@@ -76,8 +79,9 @@ public class DICOMReceiver extends SourceConnector {
                 dcmrcv.setTransferSyntax(non_retired_ts);
             }
 
-            if (StringUtils.isNotBlank(connectorProperties.getApplicationEntity())) {
-                dcmrcv.setAEtitle(connectorProperties.getApplicationEntity());
+            String aeTitle = replacer.replaceValues(connectorProperties.getApplicationEntity(), getChannelId(), getChannel().getName());
+            if (StringUtils.isNotBlank(aeTitle)) {
+                dcmrcv.setAEtitle(aeTitle);
             }
 
             //TODO Allow variables
@@ -157,24 +161,29 @@ public class DICOMReceiver extends SourceConnector {
                     dcmrcv.setTlsAES_128_CBC();
                 }
 
-                if (StringUtils.isNotBlank(connectorProperties.getTrustStore())) {
-                    dcmrcv.setTrustStoreURL(connectorProperties.getTrustStore());
+                String trustStore = replacer.replaceValues(connectorProperties.getTrustStore(), getChannelId(), getChannel().getName());
+                if (StringUtils.isNotBlank(trustStore)) {
+                    dcmrcv.setTrustStoreURL(trustStore);
                 }
 
-                if (StringUtils.isNotBlank(connectorProperties.getTrustStorePW())) {
-                    dcmrcv.setTrustStorePassword(connectorProperties.getTrustStorePW());
+                String trustStorePW = replacer.replaceValues(connectorProperties.getTrustStorePW(), getChannelId(), getChannel().getName());
+                if (StringUtils.isNotBlank(trustStorePW)) {
+                    dcmrcv.setTrustStorePassword(trustStorePW);
                 }
 
-                if (StringUtils.isNotBlank(connectorProperties.getKeyPW())) {
-                    dcmrcv.setKeyPassword(connectorProperties.getKeyPW());
+                String keyPW = replacer.replaceValues(connectorProperties.getKeyPW(), getChannelId(), getChannel().getName());
+                if (StringUtils.isNotBlank(keyPW)) {
+                    dcmrcv.setKeyPassword(keyPW);
                 }
 
-                if (StringUtils.isNotBlank(connectorProperties.getKeyStore())) {
-                    dcmrcv.setKeyStoreURL(connectorProperties.getKeyStore());
+                String keyStore = replacer.replaceValues(connectorProperties.getKeyStore(), getChannelId(), getChannel().getName());
+                if (StringUtils.isNotBlank(keyStore)) {
+                    dcmrcv.setKeyStoreURL(keyStore);
                 }
 
-                if (StringUtils.isNotBlank(connectorProperties.getKeyStorePW())) {
-                    dcmrcv.setKeyStorePassword(connectorProperties.getKeyStorePW());
+                String keyStorePW = replacer.replaceValues(connectorProperties.getKeyStorePW(), getChannelId(), getChannel().getName());
+                if (StringUtils.isNotBlank(keyStorePW)) {
+                    dcmrcv.setKeyStorePassword(keyStorePW);
                 }
 
                 dcmrcv.setTlsNeedClientAuth(connectorProperties.isNoClientAuth());

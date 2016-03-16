@@ -84,7 +84,27 @@ public class DICOMDispatcher extends DestinationConnector {
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
         DICOMDispatcherProperties dicomDispatcherProperties = (DICOMDispatcherProperties) connectorProperties;
 
+        dicomDispatcherProperties.setHost(replacer.replaceValues(dicomDispatcherProperties.getHost(), connectorMessage));
+        dicomDispatcherProperties.setPort(replacer.replaceValues(dicomDispatcherProperties.getPort(), connectorMessage));
+
+        dicomDispatcherProperties.setLocalHost(replacer.replaceValues(dicomDispatcherProperties.getLocalHost(), connectorMessage));
+        dicomDispatcherProperties.setLocalPort(replacer.replaceValues(dicomDispatcherProperties.getLocalPort(), connectorMessage));
+
+        dicomDispatcherProperties.setApplicationEntity(replacer.replaceValues(dicomDispatcherProperties.getApplicationEntity(), connectorMessage));
+        dicomDispatcherProperties.setLocalApplicationEntity(replacer.replaceValues(dicomDispatcherProperties.getLocalApplicationEntity(), connectorMessage));
+
+        dicomDispatcherProperties.setUsername(replacer.replaceValues(dicomDispatcherProperties.getUsername(), connectorMessage));
+        dicomDispatcherProperties.setPasscode(replacer.replaceValues(dicomDispatcherProperties.getPasscode(), connectorMessage));
+
         dicomDispatcherProperties.setTemplate(replacer.replaceValues(dicomDispatcherProperties.getTemplate(), connectorMessage));
+
+        dicomDispatcherProperties.setKeyStore(replacer.replaceValues(dicomDispatcherProperties.getKeyStore(), connectorMessage));
+        dicomDispatcherProperties.setKeyStorePW(replacer.replaceValues(dicomDispatcherProperties.getKeyStorePW(), connectorMessage));
+
+        dicomDispatcherProperties.setTrustStore(replacer.replaceValues(dicomDispatcherProperties.getTrustStore(), connectorMessage));
+        dicomDispatcherProperties.setTrustStorePW(replacer.replaceValues(dicomDispatcherProperties.getTrustStorePW(), connectorMessage));
+
+        dicomDispatcherProperties.setKeyPW(replacer.replaceValues(dicomDispatcherProperties.getKeyPW(), connectorMessage));
     }
 
     @Override
