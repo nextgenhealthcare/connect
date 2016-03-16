@@ -170,12 +170,12 @@ public class ChannelGroup implements Serializable, Migratable, Purgable, Cacheab
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(getClass().getName()).append(']');
+        builder.append(getClass().getName()).append('[');
         builder.append("id=").append(id).append(", ");
         builder.append("name=").append(name).append(", ");
         builder.append("revision=").append(revision).append(", ");
         builder.append("lastModified=").append(lastModified).append(", ");
-        builder.append("description=").append(description).append(", ");
+        builder.append("description=").append(description).append(']');
         return builder.toString();
     }
 
