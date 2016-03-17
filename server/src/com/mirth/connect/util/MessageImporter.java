@@ -140,30 +140,36 @@ public class MessageImporter {
             String line;
             StringBuilder serializedMessage = new StringBuilder();
             boolean enteredMessage = true;
+            int depth = 0;
 
             while ((line = reader.readLine()) != null) {
                 ThreadUtils.checkInterruptedStatus();
 
-                if (line.equals(OPEN_ELEMENT)) {
+                if (StringUtils.contains(line, OPEN_ELEMENT)) {
+                    depth++;
                     enteredMessage = true;
                 }
 
                 if (enteredMessage) {
                     serializedMessage.append(line);
 
-                    if (line.equals(CLOSE_ELEMENT)) {
-                        Message message = serializer.deserialize(serializedMessage.toString(), Message.class);
-                        serializedMessage.delete(0, serializedMessage.length());
-                        enteredMessage = false;
-                        result[0]++;
+                    if (StringUtils.contains(line, CLOSE_ELEMENT)) {
+                        if (depth == 1) {
+                            Message message = serializer.deserialize(serializedMessage.toString(), Message.class);
+                            serializedMessage.delete(0, serializedMessage.length());
+                            enteredMessage = false;
+                            result[0]++;
 
-                        try {
-                            if (messageWriter.write(message)) {
-                                result[1]++;
+                            try {
+                                if (messageWriter.write(message)) {
+                                    result[1]++;
+                                }
+                            } catch (MessageWriterException e) {
+                                logger.error("Failed to write message", e);
                             }
-                        } catch (MessageWriterException e) {
-                            logger.error("Failed to write message", e);
                         }
+
+                        depth--;
                     }
                 }
             }
@@ -171,16 +177,16 @@ public class MessageImporter {
             IOUtils.closeQuietly(reader);
         }
     }
-    
+
     public static class MessageImportException extends Exception {
         public MessageImportException(String message) {
             super(message);
         }
-        
+
         public MessageImportException(Throwable cause) {
             super(cause);
         }
-        
+
         public MessageImportException(String message, Throwable cause) {
             super(message, cause);
         }
