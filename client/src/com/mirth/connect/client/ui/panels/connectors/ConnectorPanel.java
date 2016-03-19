@@ -289,6 +289,16 @@ public class ConnectorPanel extends JPanel {
     public ConnectorProperties getDefaults() {
         ConnectorProperties properties = getConnectorSettingsPanel().getDefaults();
 
+        if (properties instanceof SourceConnectorPropertiesInterface) {
+            if (((SourceConnectorPropertiesInterface) properties).getSourceConnectorProperties().getQueueBufferSize() == 0) {
+                ((SourceConnectorPropertiesInterface) properties).getSourceConnectorProperties().setQueueBufferSize(channelSetup.defaultQueueBufferSize);
+            }
+        } else if (properties instanceof DestinationConnectorPropertiesInterface) {
+            if (((DestinationConnectorPropertiesInterface) properties).getDestinationConnectorProperties().getQueueBufferSize() == 0) {
+                ((DestinationConnectorPropertiesInterface) properties).getDestinationConnectorProperties().setQueueBufferSize(channelSetup.defaultQueueBufferSize);
+            }
+        }
+
         Set<ConnectorPluginProperties> connectorPluginProperties = new HashSet<ConnectorPluginProperties>();
 
         for (ConnectorPropertiesPlugin connectorPropertiesPlugin : LoadedExtensions.getInstance().getConnectorPropertiesPlugins().values()) {
@@ -345,7 +355,7 @@ public class ConnectorPanel extends JPanel {
             }
         }
     }
-    
+
     ResponseHandler getResponseHandler(final ResponseHandler delegate, final Method method) {
         return new ResponseHandler() {
             @Override
