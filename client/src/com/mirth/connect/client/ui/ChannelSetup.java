@@ -1331,6 +1331,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         
         if (updated && saveGroupId != null) {
             parent.channelPanel.addChannelToGroup(currentChannel.getId(), saveGroupId);
+            saveGroupId = null;
         }
 
         return updated;
