@@ -31,6 +31,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -163,7 +164,7 @@ public class DonkeyEngineController implements EngineController {
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
-    private int queueBufferSize = Constants.DEFAULT_QUEUE_BUFFER_SIZE;
+    private AtomicInteger queueBufferSize = new AtomicInteger(Constants.DEFAULT_QUEUE_BUFFER_SIZE);
     private Map<String, ExecutorService> engineExecutors = new ConcurrentHashMap<String, ExecutorService>();
     private Set<Channel> deployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
     private Set<Channel> undeployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
@@ -179,8 +180,8 @@ public class DonkeyEngineController implements EngineController {
         logger.debug("starting donkey engine");
 
         Integer queueBufferSize = configurationController.getServerSettings().getQueueBufferSize();
-        if (queueBufferSize != null) {
-            this.queueBufferSize = queueBufferSize;
+        if (queueBufferSize != null && queueBufferSize > 0) {
+            this.queueBufferSize.set(queueBufferSize);
         }
 
         final Encryptor encryptor = configurationController.getEncryptor();
@@ -247,6 +248,15 @@ public class DonkeyEngineController implements EngineController {
         }
 
         if (CollectionUtils.isNotEmpty(deployTasks)) {
+            // Update the default queue buffer size on deploy
+            try {
+                Integer queueBufferSize = configurationController.getServerSettings().getQueueBufferSize();
+                if (queueBufferSize != null && queueBufferSize > 0) {
+                    this.queueBufferSize.set(queueBufferSize);
+                }
+            } catch (ControllerException e) {
+            }
+
             executeGlobalDeployScript();
             executeChannelPluginOnDeploy(context);
             waitForTasks(submitTasks(deployTasks, handler));
@@ -791,14 +801,16 @@ public class DonkeyEngineController implements EngineController {
         channel.setResponseSelector(new ResponseSelector(channel.getSourceConnector().getInboundDataType()));
         channel.setMessageMaps(new MirthMessageMaps(channelId));
 
-        SourceQueue sourceQueue = new SourceQueue();
-        sourceQueue.setBufferCapacity(queueBufferSize);
-        channel.setSourceQueue(sourceQueue);
+        SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties();
+        channel.getResponseSelector().setRespondFromName(sourceConnectorProperties.getResponseVariable());
 
-        if (channelModel.getSourceConnector().getProperties() instanceof SourceConnectorPropertiesInterface) {
-            SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties();
-            channel.getResponseSelector().setRespondFromName(sourceConnectorProperties.getResponseVariable());
+        SourceQueue sourceQueue = new SourceQueue();
+        if (sourceConnectorProperties.getQueueBufferSize() > 0) {
+            sourceQueue.setBufferCapacity(sourceConnectorProperties.getQueueBufferSize());
+        } else {
+            sourceQueue.setBufferCapacity(queueBufferSize.get());
         }
+        channel.setSourceQueue(sourceQueue);
 
         channel.setProcessLock(getChannelProcessLock(channelModel));
 
@@ -1159,8 +1171,14 @@ public class DonkeyEngineController implements EngineController {
         destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(destinationConnector, connectorModel, destinationIdMap));
 
         DestinationQueue queue = new DestinationQueue(destinationConnectorProperties.getThreadAssignmentVariable(), destinationConnectorProperties.getThreadCount(), destinationConnectorProperties.isRegenerateTemplate(), destinationConnector.getSerializer(), destinationConnector.getMessageMaps());
-        queue.setBufferCapacity(queueBufferSize);
         queue.setRotate(destinationConnector.isQueueRotate());
+
+        if (destinationConnectorProperties.getQueueBufferSize() > 0) {
+            queue.setBufferCapacity(destinationConnectorProperties.getQueueBufferSize());
+        } else {
+            queue.setBufferCapacity(queueBufferSize.get());
+        }
+
         destinationConnector.setQueue(queue);
 
         return destinationConnector;

@@ -79,6 +79,7 @@ import com.mirth.connect.model.InvalidConnectorPluginProperties;
 import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.Rule;
+import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
@@ -106,6 +107,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     public Channel currentChannel;
     public Map<Integer, Map<String, String>> resourceIds = new HashMap<Integer, Map<String, String>>();
+    public int defaultQueueBufferSize = 1000;
     public int lastModelIndex = -1;
     public TransformerPane transformerPane = new TransformerPane();
     public FilterPane filterPane = new FilterPane();
@@ -625,6 +627,14 @@ public class ChannelSetup extends javax.swing.JPanel {
         sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getSourceConnectors().keySet().toArray()));
         destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
 
+        try {
+            ServerSettings serverSettings = parent.mirthClient.getServerSettings();
+            if (serverSettings.getQueueBufferSize() != null && serverSettings.getQueueBufferSize() > 0) {
+                defaultQueueBufferSize = serverSettings.getQueueBufferSize();
+            }
+        } catch (ClientException e) {
+        }
+
         loadChannelInfo();
         makeDestinationTable(false);
         saveDestinationPanel();
@@ -676,14 +686,19 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         currentChannel.setSourceConnector(sourceConnector);
         setLastModified();
-        loadChannelInfo();
-        makeDestinationTable(true);
 
         try {
-            currentChannel.getProperties().setMetaDataColumns(parent.mirthClient.getServerSettings().getDefaultMetaDataColumns());
+            ServerSettings serverSettings = parent.mirthClient.getServerSettings();
+            currentChannel.getProperties().setMetaDataColumns(serverSettings.getDefaultMetaDataColumns());
+            if (serverSettings.getQueueBufferSize() != null && serverSettings.getQueueBufferSize() > 0) {
+                defaultQueueBufferSize = serverSettings.getQueueBufferSize();
+            }
         } catch (ClientException e) {
             parent.alertThrowable(parent, e, "Error loading default metadata columns: " + e.getMessage());
         }
+
+        loadChannelInfo();
+        makeDestinationTable(true);
         updateMetaDataTable();
 
         setDestinationVariableList();

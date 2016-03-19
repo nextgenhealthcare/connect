@@ -75,6 +75,7 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
     private boolean firstResponse;
     private int processingThreads;
     private Map<String, String> resourceIds;
+    private int queueBufferSize;
 
     public SourceConnectorProperties() {
         this(RESPONSE_NONE);
@@ -88,6 +89,7 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
         this.processingThreads = 1;
         this.resourceIds = new LinkedHashMap<String, String>();
         resourceIds.put("Default Resource", "[Default Resource]");
+        this.queueBufferSize = 0;
     }
 
     public String getResponseVariable() {
@@ -136,6 +138,14 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
 
     public void setResourceIds(Map<String, String> resourceIds) {
         this.resourceIds = resourceIds;
+    }
+
+    public int getQueueBufferSize() {
+        return queueBufferSize;
+    }
+
+    public void setQueueBufferSize(int queueBufferSize) {
+        this.queueBufferSize = queueBufferSize;
     }
 
     public boolean equals(Object obj) {
@@ -196,6 +206,7 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
         purgedProperties.put("firstResponse", firstResponse);
         purgedProperties.put("processingThreads", processingThreads);
         purgedProperties.put("resourceIdsCount", resourceIds.size());
+        purgedProperties.put("queueBufferSize", queueBufferSize);
         return purgedProperties;
     }
 }

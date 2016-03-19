@@ -46,11 +46,13 @@ public abstract class ConnectorMessageQueue {
     }
 
     public synchronized void setBufferCapacity(int bufferCapacity) {
-        if (bufferCapacity < this.bufferCapacity) {
-            buffer.clear();
-        }
+        if (bufferCapacity > 0) {
+            if (bufferCapacity < this.bufferCapacity) {
+                buffer.clear();
+            }
 
-        this.bufferCapacity = bufferCapacity;
+            this.bufferCapacity = bufferCapacity;
+        }
     }
 
     public ConnectorMessageQueueDataSource getDataSource() {

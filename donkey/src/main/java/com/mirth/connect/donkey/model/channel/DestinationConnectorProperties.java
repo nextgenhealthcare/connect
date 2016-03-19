@@ -33,6 +33,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
     private String threadAssignmentVariable;
     private boolean validateResponse;
     private Map<String, String> resourceIds;
+    private int queueBufferSize;
 
     public DestinationConnectorProperties() {
         this(false);
@@ -51,6 +52,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         this.validateResponse = validateResponse;
         this.resourceIds = new LinkedHashMap<String, String>();
         resourceIds.put("Default Resource", "[Default Resource]");
+        this.queueBufferSize = 0;
     }
 
     public DestinationConnectorProperties(DestinationConnectorProperties props) {
@@ -65,6 +67,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         threadAssignmentVariable = props.getThreadAssignmentVariable();
         validateResponse = props.isValidateResponse();
         resourceIds = new LinkedHashMap<String, String>(props.getResourceIds());
+        queueBufferSize = props.getQueueBufferSize();
     }
 
     public boolean isQueueEnabled() {
@@ -155,6 +158,14 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         this.resourceIds = resourceIds;
     }
 
+    public int getQueueBufferSize() {
+        return queueBufferSize;
+    }
+
+    public void setQueueBufferSize(int queueBufferSize) {
+        this.queueBufferSize = queueBufferSize;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
@@ -213,6 +224,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         purgedProperties.put("threadCount", threadCount);
         purgedProperties.put("validateResponse", validateResponse);
         purgedProperties.put("resourceIdsCount", resourceIds.size());
+        purgedProperties.put("queueBufferSize", queueBufferSize);
         return purgedProperties;
     }
 }

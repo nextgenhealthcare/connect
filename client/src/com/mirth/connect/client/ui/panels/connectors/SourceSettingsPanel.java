@@ -30,6 +30,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
@@ -96,6 +97,12 @@ public class SourceSettingsPanel extends JPanel {
             sourceQueueComboBox.setSelectedIndex(0);
         } else {
             sourceQueueComboBox.setSelectedIndex(1);
+        }
+
+        if (properties.getQueueBufferSize() > 0) {
+            queueBufferSizeField.setText(String.valueOf(properties.getQueueBufferSize()));
+        } else {
+            queueBufferSizeField.setText(String.valueOf(channelSetup.defaultQueueBufferSize));
         }
 
         processBatchLabel.setEnabled(propertiesInterface.canBatch());
@@ -224,8 +231,12 @@ public class SourceSettingsPanel extends JPanel {
 
         if (sourceQueueComboBox.getSelectedIndex() == 0) {
             responseComboBox.setModel(new DefaultComboBoxModel(queueOffRespondFromNames.toArray()));
+            queueBufferSizeLabel.setEnabled(false);
+            queueBufferSizeField.setEnabled(false);
         } else {
             responseComboBox.setModel(new DefaultComboBoxModel(queueOnRespondFromNames.toArray()));
+            queueBufferSizeLabel.setEnabled(true);
+            queueBufferSizeField.setEnabled(true);
         }
 
         setSelectedItem(selectedItem);
@@ -238,6 +249,8 @@ public class SourceSettingsPanel extends JPanel {
 
     public void fillProperties(SourceConnectorPropertiesInterface propertiesInterface) {
         SourceConnectorProperties properties = propertiesInterface.getSourceConnectorProperties();
+
+        properties.setQueueBufferSize(NumberUtils.toInt(queueBufferSizeField.getText()));
 
         if (responseComboBox.getSelectedItem() instanceof Entry) {
             properties.setResponseVariable(((Entry<String, String>) responseComboBox.getSelectedItem()).getKey());
@@ -257,6 +270,11 @@ public class SourceSettingsPanel extends JPanel {
         SourceConnectorProperties properties = propertiesInterface.getSourceConnectorProperties();
 
         boolean valid = true;
+
+        if (properties.getQueueBufferSize() <= 0) {
+            queueBufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+            valid = false;
+        }
 
         if (properties.getProcessingThreads() <= 0) {
             processingThreadsField.setBackground(UIConstants.INVALID_COLOR);
@@ -302,6 +320,7 @@ public class SourceSettingsPanel extends JPanel {
     }
 
     public void resetInvalidProperties() {
+        queueBufferSizeField.setBackground(null);
         processingThreadsField.setBackground(null);
     }
 
@@ -336,6 +355,11 @@ public class SourceSettingsPanel extends JPanel {
 
         queueWarningLabel = new JLabel("Queuing is not supported by the current message storage mode.");
         queueWarningLabel.setForeground(Color.RED);
+
+        queueBufferSizeLabel = new JLabel("Queue Buffer Size:");
+        queueBufferSizeField = new JTextField();
+        queueBufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        queueBufferSizeField.setToolTipText("<html>The buffer size for the source queue.<br/>Up to this many connector messages may<br/>be held in memory at once when queuing.</html>");
 
         responseLabel = new JLabel("Response:");
 
@@ -395,8 +419,10 @@ public class SourceSettingsPanel extends JPanel {
         add(sourceQueueLabel, "right");
         add(sourceQueueComboBox, "split");
         add(queueWarningLabel, "gapbefore 12");
+        add(queueBufferSizeLabel, "newline, right");
+        add(queueBufferSizeField, "w 50!");
         add(responseLabel, "newline, right");
-        add(responseComboBox);
+        add(responseComboBox, "w 226:");
         add(processBatchLabel, "newline, right");
         add(processBatchYesRadio, "split");
         add(processBatchNoRadio);
@@ -426,6 +452,8 @@ public class SourceSettingsPanel extends JPanel {
     private JLabel sourceQueueLabel;
     private MirthComboBox sourceQueueComboBox;
     private JLabel queueWarningLabel;
+    private JLabel queueBufferSizeLabel;
+    private JTextField queueBufferSizeField;
     private JLabel responseLabel;
     private MirthComboBox responseComboBox;
     private JLabel processBatchLabel;

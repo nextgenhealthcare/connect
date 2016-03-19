@@ -56,6 +56,7 @@ public class DestinationSettingsPanel extends JPanel {
     private int retryIntervalMillis;
     private int threadCount;
     private String threadAssignmentVariable;
+    private int queueBufferSize;
 
     public DestinationSettingsPanel() {
         initComponents();
@@ -88,6 +89,12 @@ public class DestinationSettingsPanel extends JPanel {
         retryIntervalMillis = properties.getRetryIntervalMillis();
         threadCount = properties.getThreadCount();
         threadAssignmentVariable = properties.getThreadAssignmentVariable();
+
+        if (properties.getQueueBufferSize() > 0) {
+            queueBufferSize = properties.getQueueBufferSize();
+        } else {
+            queueBufferSize = channelSetup.defaultQueueBufferSize;
+        }
 
         validateResponseLabel.setEnabled(propertiesInterface.canValidateResponse());
         validateResponseYesRadio.setEnabled(propertiesInterface.canValidateResponse());
@@ -123,6 +130,7 @@ public class DestinationSettingsPanel extends JPanel {
         properties.setThreadCount(threadCount);
         properties.setThreadAssignmentVariable(threadAssignmentVariable);
         properties.setValidateResponse(validateResponseYesRadio.isSelected());
+        properties.setQueueBufferSize(queueBufferSize);
     }
 
     public boolean checkProperties(DestinationConnectorPropertiesInterface propertiesInterface, boolean highlight) {
@@ -334,6 +342,9 @@ public class DestinationSettingsPanel extends JPanel {
             queueThreadsField.setEnabled(queueEnabled);
             threadAssignmentVariableLabel.setEnabled(queueEnabled && threadCount > 1);
             threadAssignmentVariableField.setEnabled(queueEnabled && threadCount > 1);
+            queueBufferSizeLabel.setEnabled(queueEnabled);
+            queueBufferSizeField.setEnabled(queueEnabled);
+            queueBufferSizeField.setText(String.valueOf(queueBufferSize));
         }
 
         private boolean saveProperties() {
@@ -358,6 +369,11 @@ public class DestinationSettingsPanel extends JPanel {
                 queueThreadsField.setBackground(UIConstants.INVALID_COLOR);
             }
 
+            if (NumberUtils.toInt(queueBufferSizeField.getText()) <= 0) {
+                queueBufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+                errors += "Queue buffer size must be greater than zero.\n";
+            }
+
             if (StringUtils.isNotBlank(errors)) {
                 PlatformUI.MIRTH_FRAME.alertError(this, errors);
                 return false;
@@ -370,6 +386,7 @@ public class DestinationSettingsPanel extends JPanel {
             retryIntervalMillis = NumberUtils.toInt(retryIntervalField.getText(), 0);
             threadCount = NumberUtils.toInt(queueThreadsField.getText(), 1);
             threadAssignmentVariable = threadAssignmentVariableField.getText();
+            queueBufferSize = NumberUtils.toInt(queueBufferSizeField.getText());
 
             updateAdvancedSettingsLabel();
             PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
@@ -377,11 +394,10 @@ public class DestinationSettingsPanel extends JPanel {
         }
 
         private void initComponents() {
-            setLayout(new MigLayout("insets 8, novisualpadding, hidemode 3, fill", "", "[grow][][]"));
             setBackground(UIConstants.BACKGROUND_COLOR);
             getContentPane().setBackground(getBackground());
 
-            containerPanel = new JPanel(new MigLayout("insets 8, novisualpadding, hidemode 3, fill", "[]13[grow]", "[][][][][][][grow]"));
+            containerPanel = new JPanel();
             containerPanel.setBackground(getBackground());
             containerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "Advanced Queue Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
@@ -493,6 +509,11 @@ public class DestinationSettingsPanel extends JPanel {
             threadAssignmentVariableField = new JTextField();
             threadAssignmentVariableField.setToolTipText("<html>When using multiple queue threads, this map variable<br/>determines how to assign messages to specific threads.<br/>If rotation is disabled, messages with the same thread<br/>assignment value will always be processed in order.</html>");
 
+            queueBufferSizeLabel = new JLabel("Queue Buffer Size:");
+            queueBufferSizeField = new JTextField();
+            queueBufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
+            queueBufferSizeField.setToolTipText("<html>The buffer size for the destination queue.<br/>Up to this many connector messages may<br/>be held in memory at once when queuing.</html>");
+
             okButton = new JButton("OK");
             okButton.addActionListener(new ActionListener() {
                 @Override
@@ -513,6 +534,9 @@ public class DestinationSettingsPanel extends JPanel {
         }
 
         private void initLayout() {
+            setLayout(new MigLayout("insets 8, novisualpadding, hidemode 3, fill", "", "[grow][][]"));
+
+            containerPanel.setLayout(new MigLayout("insets 8, novisualpadding, hidemode 3, fill", "[]13[grow]", "[][][][][][][][][grow]"));
             containerPanel.add(retryCountLabel, "right");
             containerPanel.add(retryCountField, "w 75!");
             containerPanel.add(retryIntervalLabel, "newline, right");
@@ -530,6 +554,8 @@ public class DestinationSettingsPanel extends JPanel {
             containerPanel.add(queueThreadsField, "w 75!");
             containerPanel.add(threadAssignmentVariableLabel, "newline, right");
             containerPanel.add(threadAssignmentVariableField, "w 75!");
+            containerPanel.add(queueBufferSizeLabel, "newline, right");
+            containerPanel.add(queueBufferSizeField, "w 75!");
             add(containerPanel, "grow, push");
 
             add(new JSeparator(), "newline, growx, sx");
@@ -579,6 +605,8 @@ public class DestinationSettingsPanel extends JPanel {
         private JTextField queueThreadsField;
         private JLabel threadAssignmentVariableLabel;
         private JTextField threadAssignmentVariableField;
+        private JLabel queueBufferSizeLabel;
+        private JTextField queueBufferSizeField;
         private JButton okButton;
         private JButton cancelButton;
     }

@@ -820,7 +820,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         clearGlobalMapNoRadio.setToolTipText("Toggles clearing the global map when redeploying all channels.");
         clearGlobalMapNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        queueBufferSizeLabel.setText("Queue Buffer Size:");
+        queueBufferSizeLabel.setText("Default Queue Buffer Size:");
 
         defaultMetaDataLabel.setText("Default Metadata Columns:");
 
@@ -842,7 +842,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         defaultMetaDataVersionCheckBox.setToolTipText("<html>If checked, the Version metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
         defaultMetaDataVersionCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        queueBufferSizeField.setToolTipText("The buffer size for source and destination queues.");
+        queueBufferSizeField.setToolTipText("The default source/destination queue buffer size to use for new channels.");
 
         javax.swing.GroupLayout channelPanelLayout = new javax.swing.GroupLayout(channelPanel);
         channelPanel.setLayout(channelPanelLayout);

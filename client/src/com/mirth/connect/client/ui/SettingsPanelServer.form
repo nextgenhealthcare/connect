@@ -615,7 +615,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="queueBufferSizeLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Queue Buffer Size:"/>
+            <Property name="text" type="java.lang.String" value="Default Queue Buffer Size:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="defaultMetaDataLabel">
@@ -676,7 +676,7 @@
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queueBufferSizeField">
           <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="The buffer size for source and destination queues."/>
+            <Property name="toolTipText" type="java.lang.String" value="The default source/destination queue buffer size to use for new channels."/>
           </Properties>
         </Component>
       </SubComponents>
