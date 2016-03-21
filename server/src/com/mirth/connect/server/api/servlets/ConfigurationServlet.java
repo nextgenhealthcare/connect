@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,6 +32,7 @@ import com.mirth.connect.client.core.api.servlets.ConfigurationServletInterface;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LibraryProperties;
@@ -114,9 +116,9 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
         properties.put("version", configurationController.getServerVersion());
         properties.put("date", configurationController.getBuildDate());
         properties.put("database", configurationController.getDatabaseType());
-        
+
         properties.put("channelCount", channelController.getChannelIds().size());
-        
+
         Map<String, String> plugins = new HashMap<String, String>();
 
         for (MetaData plugin : extensionController.getPluginMetaData().values()) {
@@ -322,5 +324,15 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
         } catch (Exception e) {
             throw new MirthApiException(e);
         }
+    }
+
+    @Override
+    public Set<ChannelDependency> getChannelDependencies() {
+        return configurationController.getChannelDependencies();
+    }
+
+    @Override
+    public void setChannelDependencies(Set<ChannelDependency> dependencies) {
+        configurationController.setChannelDependencies(dependencies);
     }
 }

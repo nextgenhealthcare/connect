@@ -86,6 +86,7 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.data.DonkeyStatisticsUpdater;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
@@ -112,6 +113,8 @@ import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.ChannelDependencyException;
+import com.mirth.connect.util.ChannelDependencyGraph;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 import com.mirth.connect.util.MigrationUtil;
@@ -124,6 +127,7 @@ import com.mirth.connect.util.MirthSSLUtil;
 public class DefaultConfigurationController extends ConfigurationController {
     public static final String PROPERTIES_CORE = "core";
     public static final String PROPERTIES_RESOURCES = "resources";
+    public static final String PROPERTIES_DEPENDENCIES = "channelDependencies";
     public static final String SECRET_KEY_ALIAS = "encryption";
 
     private Logger logger = Logger.getLogger(this.getClass());
@@ -891,6 +895,33 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public void setResources(String resources) {
         saveProperty(PROPERTIES_CORE, PROPERTIES_RESOURCES, resources);
+    }
+
+    @Override
+    public Set<ChannelDependency> getChannelDependencies() {
+        String dependenciesXml = getProperty(PROPERTIES_CORE, PROPERTIES_DEPENDENCIES);
+        Set<ChannelDependency> dependencies;
+
+        if (StringUtils.isNotBlank(dependenciesXml)) {
+            dependencies = ObjectXMLSerializer.getInstance().deserialize(dependenciesXml, Set.class);
+        } else {
+            dependencies = new HashSet<ChannelDependency>();
+            setChannelDependencies(dependencies);
+        }
+
+        return dependencies;
+    }
+
+    @Override
+    public void setChannelDependencies(Set<ChannelDependency> dependencies) {
+        try {
+            new ChannelDependencyGraph(dependencies);
+        } catch (ChannelDependencyException e) {
+            logger.error("Error saving channel dependencies: " + e.getMessage(), e);
+            return;
+        }
+
+        saveProperty(PROPERTIES_CORE, PROPERTIES_DEPENDENCIES, ObjectXMLSerializer.getInstance().serialize(dependencies));
     }
 
     @Override

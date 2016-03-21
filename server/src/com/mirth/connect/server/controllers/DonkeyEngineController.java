@@ -120,6 +120,7 @@ import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.channel.ChannelFuture;
 import com.mirth.connect.server.channel.ChannelTask;
 import com.mirth.connect.server.channel.ChannelTaskHandler;
+import com.mirth.connect.server.channel.DelegateErrorTaskHandler;
 import com.mirth.connect.server.channel.LoggingTaskHandler;
 import com.mirth.connect.server.channel.MirthMessageMaps;
 import com.mirth.connect.server.channel.MirthMetaDataReplacer;
@@ -131,11 +132,16 @@ import com.mirth.connect.server.transformers.JavaScriptInitializationException;
 import com.mirth.connect.server.transformers.JavaScriptPostprocessor;
 import com.mirth.connect.server.transformers.JavaScriptPreprocessor;
 import com.mirth.connect.server.transformers.JavaScriptResponseTransformer;
+import com.mirth.connect.server.util.ChannelDependencyServerUtil;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
+import com.mirth.connect.util.ChannelDependencyException;
+import com.mirth.connect.util.ChannelDependencyGraph;
+import com.mirth.connect.util.ChannelDependencyUtil;
+import com.mirth.connect.util.ChannelDependencyUtil.OrderedChannels;
 
 public class DonkeyEngineController implements EngineController {
     private static EngineController instance = null;
@@ -230,24 +236,91 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public void deployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler) {
-        List<ChannelTask> deployTasks = new ArrayList<ChannelTask>();
-        List<ChannelTask> undeployTasks = new ArrayList<ChannelTask>();
+        List<ChannelTask> unorderedUndeployTasks = new ArrayList<ChannelTask>();
+        List<ChannelTask> unorderedDeployTasks = new ArrayList<ChannelTask>();
+        List<List<ChannelTask>> orderedUndeployTasks = new ArrayList<List<ChannelTask>>();
+        List<List<ChannelTask>> orderedDeployTasks = new ArrayList<List<ChannelTask>>();
+        boolean hasUndeployTasks = false;
+        boolean hasDeployTasks = false;
 
-        for (String channelId : channelIds) {
-            if (isDeployed(channelId)) {
-                undeployTasks.add(new UndeployTask(channelId, context));
-            }
-
-            deployTasks.add(new DeployTask(channelId, null, null, context));
+        Set<String> unorderedIds;
+        List<Set<String>> orderedIds;
+        ChannelDependencyGraph dependencyGraph;
+        try {
+            dependencyGraph = ChannelDependencyServerUtil.getDependencyGraph();
+            OrderedChannels orderedChannels = ChannelDependencyUtil.getOrderedChannels(channelIds, dependencyGraph);
+            unorderedIds = orderedChannels.getUnorderedIds();
+            orderedIds = orderedChannels.getOrderedIds();
+        } catch (ChannelDependencyException e) {
+            // Should never happen
+            logger.error("Error deploying channels: " + e.getMessage(), e);
+            return;
         }
 
-        if (CollectionUtils.isNotEmpty(undeployTasks)) {
-            waitForTasks(submitTasks(undeployTasks, handler));
+        // Add all unordered undeploy/deploy tasks
+        for (String channelId : unorderedIds) {
+            if (isDeployed(channelId)) {
+                unorderedUndeployTasks.add(new UndeployTask(channelId, context));
+                hasUndeployTasks = true;
+            }
+
+            unorderedDeployTasks.add(new DeployTask(channelId, null, null, context));
+            hasDeployTasks = true;
+        }
+
+        if (CollectionUtils.isNotEmpty(orderedIds)) {
+            // Add ordered undeploy/deploy tasks one tier at a time
+            for (Set<String> set : orderedIds) {
+                List<ChannelTask> undeployTasks = new ArrayList<ChannelTask>();
+                List<ChannelTask> deployTasks = new ArrayList<ChannelTask>();
+
+                for (String channelId : set) {
+                    if (isDeployed(channelId)) {
+                        undeployTasks.add(new UndeployTask(channelId, context));
+                        hasUndeployTasks = true;
+                    }
+
+                    deployTasks.add(new DeployTask(channelId, null, null, context));
+                    hasDeployTasks = true;
+                }
+
+                // Add a tier for the ordered undeploy tasks if any were needed
+                if (!undeployTasks.isEmpty()) {
+                    orderedUndeployTasks.add(undeployTasks);
+                }
+
+                /*
+                 * Add a tier for deploy tasks, but in reverse order. The dependency channels should
+                 * be deployed before the dependent ones.
+                 */
+                orderedDeployTasks.add(0, deployTasks);
+            }
+        }
+
+        if (hasUndeployTasks) {
+            // First submit undeploy tasks for all unordered channels; don't wait for them yet.
+            List<ChannelFuture> unorderedUndeployFutures = null;
+            if (CollectionUtils.isNotEmpty(unorderedUndeployTasks)) {
+                unorderedUndeployFutures = submitTasks(unorderedUndeployTasks, handler);
+            }
+
+            // Submit and wait for all ordered undeploy tasks, one tier at a time.
+            if (CollectionUtils.isNotEmpty(orderedUndeployTasks)) {
+                for (List<ChannelTask> taskList : orderedUndeployTasks) {
+                    waitForTasks(submitTasks(taskList, handler));
+                }
+            }
+
+            // Wait for any unordered undeploy tasks submitted previously
+            if (CollectionUtils.isNotEmpty(unorderedUndeployFutures)) {
+                waitForTasks(unorderedUndeployFutures);
+            }
+
             executeChannelPluginOnUndeploy(context);
             executeGlobalUndeployScript();
         }
 
-        if (CollectionUtils.isNotEmpty(deployTasks)) {
+        if (hasDeployTasks) {
             // Update the default queue buffer size on deploy
             try {
                 Integer queueBufferSize = configurationController.getServerSettings().getQueueBufferSize();
@@ -259,20 +332,120 @@ public class DonkeyEngineController implements EngineController {
 
             executeGlobalDeployScript();
             executeChannelPluginOnDeploy(context);
-            waitForTasks(submitTasks(deployTasks, handler));
+
+            // First submit deploy tasks for all unordered channels; don't wait for them yet.
+            List<ChannelFuture> unorderedDeployFutures = null;
+            if (CollectionUtils.isNotEmpty(unorderedDeployTasks)) {
+                unorderedDeployFutures = submitTasks(unorderedDeployTasks, handler);
+            }
+
+            // Submit and wait for all ordered deploy tasks, one tier at a time.
+            if (CollectionUtils.isNotEmpty(orderedDeployTasks)) {
+                for (int i = 0; i < orderedDeployTasks.size(); i++) {
+                    List<ChannelTask> taskList = orderedDeployTasks.get(i);
+                    DelegateErrorTaskHandler orderedHandler = new DelegateErrorTaskHandler(handler);
+                    waitForTasks(submitTasks(taskList, orderedHandler));
+
+                    if (orderedHandler.isErrored()) {
+                        // Don't allow dependent channels in higher tiers to deploy
+                        Map<String, Exception> errorMap = orderedHandler.getErrorMap();
+
+                        // Get all dependent IDs of any channel that failed to deploy
+                        Set<String> dependentIdsToRemove = new HashSet<String>();
+                        for (String channelId : errorMap.keySet()) {
+                            Set<String> ids = dependencyGraph.getNode(channelId).getAllDependentElements();
+
+                            if (CollectionUtils.isNotEmpty(ids)) {
+                                logger.error("Channel " + channelId + " failed to deploy. The following dependent channels will not be deployed:\n\t" + StringUtils.join(ids, "\n\t"));
+                                dependentIdsToRemove.addAll(ids);
+                            }
+                        }
+
+                        if (CollectionUtils.isNotEmpty(dependentIdsToRemove)) {
+                            // Iterate through the remaining tiers
+                            for (int j = i + 1; j < orderedDeployTasks.size(); j++) {
+                                List<ChannelTask> nextTaskList = orderedDeployTasks.get(j);
+
+                                // Remove any channel task associated with one of the IDs to remove
+                                for (Iterator<ChannelTask> it = nextTaskList.iterator(); it.hasNext();) {
+                                    ChannelTask task = it.next();
+                                    if (dependentIdsToRemove.contains(task.getChannelId())) {
+                                        it.remove();
+                                    }
+                                }
+
+                                // If there are no channel tasks left in the list, remove this tier altogether
+                                if (CollectionUtils.isEmpty(nextTaskList)) {
+                                    orderedDeployTasks.remove(j);
+                                    j--;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Wait for any unordered deploy tasks submitted previously
+            if (CollectionUtils.isNotEmpty(unorderedDeployFutures)) {
+                waitForTasks(unorderedDeployFutures);
+            }
         }
     }
 
     @Override
     public void undeployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler) {
-        List<ChannelTask> undeployTasks = new ArrayList<ChannelTask>();
+        List<ChannelTask> unorderedUndeployTasks = new ArrayList<ChannelTask>();
+        List<List<ChannelTask>> orderedUndeployTasks = new ArrayList<List<ChannelTask>>();
 
-        for (String channelId : channelIds) {
-            undeployTasks.add(new UndeployTask(channelId, context));
+        Set<String> unorderedIds;
+        List<Set<String>> orderedIds;
+        try {
+            OrderedChannels orderedChannels = ChannelDependencyServerUtil.getOrderedChannels(channelIds);
+            unorderedIds = orderedChannels.getUnorderedIds();
+            orderedIds = orderedChannels.getOrderedIds();
+        } catch (ChannelDependencyException e) {
+            // Should never happen
+            logger.error("Error undeploying channels: " + e.getMessage(), e);
+            return;
         }
 
-        if (CollectionUtils.isNotEmpty(undeployTasks)) {
-            waitForTasks(submitTasks(undeployTasks, handler));
+        // Add all unordered undeploy tasks
+        for (String channelId : unorderedIds) {
+            unorderedUndeployTasks.add(new UndeployTask(channelId, context));
+        }
+
+        if (CollectionUtils.isNotEmpty(orderedIds)) {
+            // Add ordered undeploy tasks one tier at a time
+            for (Set<String> set : orderedIds) {
+                List<ChannelTask> undeployTasks = new ArrayList<ChannelTask>();
+
+                for (String channelId : set) {
+                    undeployTasks.add(new UndeployTask(channelId, context));
+                }
+
+                orderedUndeployTasks.add(undeployTasks);
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(unorderedUndeployTasks) || CollectionUtils.isNotEmpty(orderedUndeployTasks)) {
+            // First submit undeploy tasks for all unordered channels; don't wait for them yet.
+            List<ChannelFuture> unorderedUndeployFutures = null;
+            if (CollectionUtils.isNotEmpty(unorderedUndeployTasks)) {
+                unorderedUndeployFutures = submitTasks(unorderedUndeployTasks, handler);
+            }
+
+            // Submit and wait for all ordered undeploy tasks, one tier at a time.
+            if (CollectionUtils.isNotEmpty(orderedUndeployTasks)) {
+                for (List<ChannelTask> taskList : orderedUndeployTasks) {
+                    waitForTasks(submitTasks(taskList, handler));
+                }
+            }
+
+            // Wait for any unordered undeploy tasks submitted previously
+            if (CollectionUtils.isNotEmpty(unorderedUndeployFutures)) {
+                waitForTasks(unorderedUndeployFutures);
+            }
+
             executeChannelPluginOnUndeploy(context);
             executeGlobalUndeployScript();
         }
@@ -287,22 +460,136 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public void startChannels(Set<String> channelIds, ChannelTaskHandler handler) {
-        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.START), handler));
+        executeChannelStatusTasks(channelIds, handler, StatusTask.START);
     }
 
     @Override
     public void stopChannels(Set<String> channelIds, ChannelTaskHandler handler) {
-        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.STOP), handler));
+        executeChannelStatusTasks(channelIds, handler, StatusTask.STOP);
     }
 
     @Override
     public void pauseChannels(Set<String> channelIds, ChannelTaskHandler handler) {
-        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.PAUSE), handler));
+        executeChannelStatusTasks(channelIds, handler, StatusTask.PAUSE);
     }
 
     @Override
     public void resumeChannels(Set<String> channelIds, ChannelTaskHandler handler) {
-        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.RESUME), handler));
+        executeChannelStatusTasks(channelIds, handler, StatusTask.RESUME);
+    }
+
+    private void executeChannelStatusTasks(Set<String> channelIds, ChannelTaskHandler handler, StatusTask task) {
+        List<ChannelTask> unorderedTasks = new ArrayList<ChannelTask>();
+        List<List<ChannelTask>> orderedTasks = new ArrayList<List<ChannelTask>>();
+
+        Set<String> unorderedIds;
+        List<Set<String>> orderedIds;
+        ChannelDependencyGraph dependencyGraph;
+        try {
+            dependencyGraph = ChannelDependencyServerUtil.getDependencyGraph();
+            OrderedChannels orderedChannels = ChannelDependencyUtil.getOrderedChannels(channelIds, dependencyGraph);
+            unorderedIds = orderedChannels.getUnorderedIds();
+            orderedIds = orderedChannels.getOrderedIds();
+        } catch (ChannelDependencyException e) {
+            // Should never happen
+            logger.error("Error executing channel tasks: " + e.getMessage(), e);
+            return;
+        }
+
+        // Add all unordered tasks
+        for (String channelId : unorderedIds) {
+            unorderedTasks.add(new ChannelStatusTask(channelId, task));
+        }
+
+        if (CollectionUtils.isNotEmpty(orderedIds)) {
+            // Add all ordered tasks, one tier at a time
+            for (Set<String> set : orderedIds) {
+                List<ChannelTask> tasks = new ArrayList<ChannelTask>();
+
+                for (String channelId : set) {
+                    tasks.add(new ChannelStatusTask(channelId, task));
+                }
+
+                /*
+                 * For the start/resume tasks add the tier in reverse order. The dependency channels
+                 * should be started/resumed before the dependent ones.
+                 */
+                if (task == StatusTask.START || task == StatusTask.RESUME) {
+                    orderedTasks.add(0, tasks);
+                } else if (task == StatusTask.STOP || task == StatusTask.PAUSE) {
+                    orderedTasks.add(tasks);
+                }
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(unorderedTasks) || CollectionUtils.isNotEmpty(orderedTasks)) {
+            // First submit tasks for all unordered channels; don't wait for them yet.
+            List<ChannelFuture> unorderedFutures = null;
+            if (CollectionUtils.isNotEmpty(unorderedTasks)) {
+                unorderedFutures = submitTasks(unorderedTasks, handler);
+            }
+
+            // Submit and wait for all ordered tasks, one tier at a time.
+            if (CollectionUtils.isNotEmpty(orderedTasks)) {
+                for (int i = 0; i < orderedTasks.size(); i++) {
+                    List<ChannelTask> taskList = orderedTasks.get(i);
+                    DelegateErrorTaskHandler orderedHandler = new DelegateErrorTaskHandler(handler);
+                    waitForTasks(submitTasks(taskList, orderedHandler));
+
+                    if (orderedHandler.isErrored()) {
+                        // Don't allow dependent/dependency channel tasks in higher tiers to execute
+                        Map<String, Exception> errorMap = orderedHandler.getErrorMap();
+
+                        Set<String> idsToRemove = new HashSet<String>();
+                        for (String channelId : errorMap.keySet()) {
+                            if (task == StatusTask.START || task == StatusTask.RESUME) {
+                                // Get all dependent IDs of any channel that failed to start/resume
+                                Set<String> ids = dependencyGraph.getNode(channelId).getAllDependentElements();
+
+                                if (CollectionUtils.isNotEmpty(ids)) {
+                                    logger.error("Channel " + channelId + " failed to " + task.toString().toLowerCase() + ". The following dependent channels will not be " + (task == StatusTask.START ? "started" : "resumed") + ":\n\t" + StringUtils.join(ids, "\n\t"));
+                                    idsToRemove.addAll(ids);
+                                }
+                            } else if (task == StatusTask.STOP || task == StatusTask.PAUSE) {
+                                // Get all dependency IDs of any channel that failed to stop/pause
+                                Set<String> ids = dependencyGraph.getNode(channelId).getAllDependencyElements();
+
+                                if (CollectionUtils.isNotEmpty(ids)) {
+                                    logger.error("Channel " + channelId + " failed to " + task.toString().toLowerCase() + ". The following dependency channels will not be " + (task == StatusTask.STOP ? "stopped" : "paused") + ":\n\t" + StringUtils.join(ids, "\n\t"));
+                                    idsToRemove.addAll(ids);
+                                }
+                            }
+                        }
+
+                        if (CollectionUtils.isNotEmpty(idsToRemove)) {
+                            // Iterate through the remaining tiers
+                            for (int j = i + 1; j < orderedTasks.size(); j++) {
+                                List<ChannelTask> nextTaskList = orderedTasks.get(j);
+
+                                // Remove any channel task associated with one of the IDs to remove
+                                for (Iterator<ChannelTask> it = nextTaskList.iterator(); it.hasNext();) {
+                                    ChannelTask channelTask = it.next();
+                                    if (idsToRemove.contains(channelTask.getChannelId())) {
+                                        it.remove();
+                                    }
+                                }
+
+                                // If there are no channel tasks left in the list, remove this tier altogether
+                                if (CollectionUtils.isEmpty(nextTaskList)) {
+                                    orderedTasks.remove(j);
+                                    j--;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Wait for any unordered tasks submitted previously
+            if (CollectionUtils.isNotEmpty(unorderedFutures)) {
+                waitForTasks(unorderedFutures);
+            }
+        }
     }
 
     @Override
@@ -1270,16 +1557,6 @@ public class DonkeyEngineController implements EngineController {
 
         // Remove the executor since it has been shutdown. If another task comes in for this channel Id, a new executor will be created.
         engineExecutors.remove(channelId);
-    }
-
-    private List<ChannelTask> buildChannelStatusTasks(Set<String> channelIds, StatusTask task) {
-        List<ChannelTask> tasks = new ArrayList<ChannelTask>();
-
-        for (String channelId : channelIds) {
-            tasks.add(new ChannelStatusTask(channelId, task));
-        }
-
-        return tasks;
     }
 
     private List<ChannelTask> buildConnectorStatusTasks(Map<String, List<Integer>> connectorInfo, StatusTask task) {

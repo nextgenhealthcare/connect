@@ -81,6 +81,7 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatistics;
@@ -771,6 +772,26 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     @Override
     public void reloadResource(String resourceId) throws ClientException {
         getServlet(ConfigurationServletInterface.class).reloadResource(resourceId);
+    }
+
+    /**
+     * Returns all channel dependencies for the server.
+     * 
+     * @see ConfigurationServletInterface#getChannelDependencies
+     */
+    @Override
+    public Set<ChannelDependency> getChannelDependencies() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getChannelDependencies();
+    }
+
+    /**
+     * Updates all channel dependencies for the server.
+     * 
+     * @see ConfigurationServletInterface#setChannelDependencies
+     */
+    @Override
+    public void setChannelDependencies(Set<ChannelDependency> dependencies) throws ClientException {
+        getServlet(ConfigurationServletInterface.class).setChannelDependencies(dependencies);
     }
 
     /*******************

@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -35,6 +36,7 @@ import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.donkey.model.channel.DeployedState;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PasswordRequirements;
@@ -225,4 +227,16 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @ApiOperation("Reloads a resource and all libraries associated with it.")
     @MirthOperation(name = "reloadResource", display = "Reload resource", permission = Permissions.RESOURCES_RELOAD, type = ExecuteType.ASYNC)
     public void reloadResource(@Param("resourceId") @ApiParam(value = "The unique ID of the resource to reload.", required = true) @PathParam("resourceId") String resourceId) throws ClientException;
+
+    @GET
+    @Path("/channelDependencies")
+    @ApiOperation("Returns all channel dependencies for the server.")
+    @MirthOperation(name = "getChannelDependencies", display = "Get channel dependencies", auditable = false)
+    public Set<ChannelDependency> getChannelDependencies() throws ClientException;
+
+    @PUT
+    @Path("/channelDependencies")
+    @ApiOperation("Updates all channel dependencies for the server.")
+    @MirthOperation(name = "setChannelDependencies", display = "Set channel dependencies", permission = Permissions.CHANNELS_MANAGE)
+    public void setChannelDependencies(Set<ChannelDependency> dependencies) throws ClientException;
 }

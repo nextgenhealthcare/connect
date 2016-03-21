@@ -73,7 +73,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
@@ -92,6 +92,7 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.ChannelFilter.ChannelFilterSaveTask;
+import com.mirth.connect.client.ui.Frame.ChannelTask;
 import com.mirth.connect.client.ui.Frame.ConflictOption;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplateImportDialog;
 import com.mirth.connect.client.ui.components.ChannelTableTransferHandler;
@@ -99,9 +100,11 @@ import com.mirth.connect.client.ui.components.IconButton;
 import com.mirth.connect.client.ui.components.IconToggleButton;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
+import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatus;
@@ -110,12 +113,16 @@ import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.CodeTemplateLibrarySaveResult;
 import com.mirth.connect.model.CodeTemplateLibrarySaveResult.CodeTemplateUpdateResult;
+import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.ImportConverter3_0_0;
 import com.mirth.connect.plugins.ChannelColumnPlugin;
 import com.mirth.connect.plugins.ChannelPanelPlugin;
 import com.mirth.connect.plugins.TaskPlugin;
+import com.mirth.connect.util.ChannelDependencyException;
+import com.mirth.connect.util.ChannelDependencyGraph;
+import com.mirth.connect.util.DirectedAcyclicGraphNode;
 
 public class ChannelPanel extends AbstractFramePanel {
 
@@ -173,6 +180,7 @@ public class ChannelPanel extends AbstractFramePanel {
 
     private Map<String, ChannelStatus> channelStatuses = new LinkedHashMap<String, ChannelStatus>();
     private Map<String, ChannelGroupStatus> groupStatuses = new LinkedHashMap<String, ChannelGroupStatus>();
+    private Set<ChannelDependency> channelDependencies = new HashSet<ChannelDependency>();
 
     public ChannelPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -356,6 +364,10 @@ public class ChannelPanel extends AbstractFramePanel {
         return groupStatuses;
     }
 
+    public Set<ChannelDependency> getCachedChannelDependencies() {
+        return channelDependencies;
+    }
+
     public void doRefreshChannels() {
         doRefreshChannels(true);
     }
@@ -508,6 +520,15 @@ public class ChannelPanel extends AbstractFramePanel {
         try {
             updateChannelStatuses(parent.mirthClient.getChannelSummary(getChannelHeaders(), false));
             updateChannelGroups(parent.mirthClient.getAllChannelGroups());
+            channelDependencies = parent.mirthClient.getChannelDependencies();
+        } catch (ClientException e) {
+            parent.alertThrowable(parent, e);
+        }
+    }
+
+    public void retrieveDependencies() {
+        try {
+            channelDependencies = parent.mirthClient.getChannelDependencies();
         } catch (ClientException e) {
             parent.alertThrowable(parent, e);
         }
@@ -711,7 +732,68 @@ public class ChannelPanel extends AbstractFramePanel {
             parent.alertWarning(parent, "Disabled channels will not be deployed.");
         }
 
+        // If there are any channel dependencies, decide if we need to warn the user on deploy.
+        try {
+            ChannelDependencyGraph channelDependencyGraph = new ChannelDependencyGraph(channelDependencies);
+
+            Set<String> deployedChannelIds = new HashSet<String>();
+            if (parent.status != null) {
+                for (DashboardStatus dashboardStatus : parent.status) {
+                    deployedChannelIds.add(dashboardStatus.getChannelId());
+                }
+            }
+
+            // For each selected channel, add any dependent/dependency channels as necessary
+            Set<String> channelIdsToDeploy = new HashSet<String>();
+            for (String channelId : selectedEnabledChannelIds) {
+                addChannelToDeploySet(channelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
+            }
+
+            // If additional channels were added to the set, we need to prompt the user
+            if (!CollectionUtils.subtract(channelIdsToDeploy, selectedEnabledChannelIds).isEmpty()) {
+                ChannelDependenciesWarningDialog dialog = new ChannelDependenciesWarningDialog(ChannelTask.DEPLOY, channelDependencies, selectedEnabledChannelIds, channelIdsToDeploy);
+                if (dialog.getResult() == JOptionPane.OK_OPTION) {
+                    if (dialog.isIncludeOtherChannels()) {
+                        selectedEnabledChannelIds.addAll(channelIdsToDeploy);
+                    }
+                } else {
+                    return;
+                }
+            }
+        } catch (ChannelDependencyException e) {
+            // Should never happen
+            e.printStackTrace();
+        }
+
         parent.deployChannel(selectedEnabledChannelIds);
+    }
+
+    private void addChannelToDeploySet(String channelId, ChannelDependencyGraph channelDependencyGraph, Set<String> deployedChannelIds, Set<String> channelIdsToDeploy) {
+        if (!channelIdsToDeploy.add(channelId)) {
+            return;
+        }
+
+        DirectedAcyclicGraphNode<String> node = channelDependencyGraph.getNode(channelId);
+
+        if (node != null) {
+            for (String dependentChannelId : node.getDirectDependentElements()) {
+                ChannelStatus channelStatus = channelStatuses.get(dependentChannelId);
+
+                // Only add the dependent channel if it's enabled and currently deployed
+                if (channelStatus != null && channelStatus.getChannel().isEnabled() && deployedChannelIds.contains(dependentChannelId)) {
+                    addChannelToDeploySet(dependentChannelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
+                }
+            }
+
+            for (String dependencyChannelId : node.getDirectDependencyElements()) {
+                ChannelStatus channelStatus = channelStatuses.get(dependencyChannelId);
+
+                // Only add the dependency channel it it's enabled
+                if (channelStatus != null && channelStatus.getChannel().isEnabled()) {
+                    addChannelToDeploySet(dependencyChannelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
+                }
+            }
+        }
     }
 
     public void doEditGlobalScripts() {

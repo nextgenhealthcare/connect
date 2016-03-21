@@ -24,6 +24,7 @@ import net.miginfocom.swing.MigLayout;
 
 import com.mirth.connect.client.ui.codetemplate.CodeTemplateLibrariesPanel;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel.UpdateSwingWorker;
+import com.mirth.connect.client.ui.dependencies.ChannelDependenciesPanel;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
@@ -88,6 +89,10 @@ public class ChannelDependenciesDialog extends MirthDialog {
         codeTemplateLibrariesContainerPanel.setBackground(getBackground());
         codeTemplateLibrariesPanel = new CodeTemplateLibrariesPanel(this, channel);
 
+        dependenciesContainerPanel = new JPanel();
+        dependenciesContainerPanel.setBackground(getBackground());
+        dependenciesPanel = new ChannelDependenciesPanel(this, channel);
+
         bottomPanel = new JPanel();
         bottomPanel.setBackground(getBackground());
         separator = new JSeparator();
@@ -125,6 +130,10 @@ public class ChannelDependenciesDialog extends MirthDialog {
         resourcesContainerPanel.add(resourcesPanel, "grow");
         tabPane.add("Library Resources", resourcesContainerPanel);
 
+        dependenciesContainerPanel.setLayout(new MigLayout("insets 12 12 0 12, novisualpadding, hidemode 3, fill"));
+        dependenciesContainerPanel.add(dependenciesPanel, "grow");
+        tabPane.add("Deploy/Start Dependencies", dependenciesContainerPanel);
+
         containerPanel.add(tabPane, "grow, push");
         add(containerPanel, "grow, push");
 
@@ -138,6 +147,10 @@ public class ChannelDependenciesDialog extends MirthDialog {
     }
 
     private void okButtonActionPerformed() {
+        if (!dependenciesPanel.saveChanges()) {
+            return;
+        }
+
         Map<String, CodeTemplateLibrary> libraryMap = codeTemplateLibrariesPanel.getLibraryMap();
         if (!PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().equals(libraryMap)) {
             if (!PlatformUI.MIRTH_FRAME.alertOption(this, "You've made changes to code template libraries, which will be saved now. Are you sure you wish to continue?")) {
@@ -169,6 +182,8 @@ public class ChannelDependenciesDialog extends MirthDialog {
     private LibraryResourcesPanel resourcesPanel;
     private JPanel codeTemplateLibrariesContainerPanel;
     private CodeTemplateLibrariesPanel codeTemplateLibrariesPanel;
+    private JPanel dependenciesContainerPanel;
+    private ChannelDependenciesPanel dependenciesPanel;
 
     private JPanel bottomPanel;
     private JSeparator separator;

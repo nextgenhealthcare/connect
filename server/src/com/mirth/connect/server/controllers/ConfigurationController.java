@@ -14,12 +14,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import com.mirth.commons.encryption.Digester;
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
@@ -257,9 +259,9 @@ public abstract class ConfigurationController extends Controller {
      * @return the password requriements
      */
     public abstract PasswordRequirements getPasswordRequirements();
-    
+
     public abstract boolean isBypasswordEnabled();
-    
+
     public abstract boolean checkBypassword(String password);
 
     // status
@@ -304,6 +306,10 @@ public abstract class ConfigurationController extends Controller {
     public abstract String getResources();
 
     public abstract void setResources(String resources);
+
+    public abstract Set<ChannelDependency> getChannelDependencies();
+
+    public abstract void setChannelDependencies(Set<ChannelDependency> dependencies);
 
     public abstract ConnectionTestResponse sendTestEmail(Properties properties) throws Exception;
 }

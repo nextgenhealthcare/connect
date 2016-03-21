@@ -103,6 +103,7 @@ import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
 import com.mirth.connect.client.ui.components.rsta.ac.js.MirthJavaScriptLanguageSupport;
+import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
@@ -134,6 +135,9 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
+import com.mirth.connect.util.ChannelDependencyException;
+import com.mirth.connect.util.ChannelDependencyGraph;
+import com.mirth.connect.util.DirectedAcyclicGraphNode;
 import com.mirth.connect.util.MigrationUtil;
 
 /**
@@ -385,6 +389,7 @@ public class Frame extends JXFrame {
         AuthorizationControllerFactory.getAuthorizationController().initialize();
         channelPanel = new ChannelPanel();
         channelPanel.retrieveGroups();
+        channelPanel.retrieveDependencies();
         codeTemplatePanel = new CodeTemplatePanel(this);
         initializeExtensions();
 
@@ -2120,6 +2125,7 @@ public class Frame extends JXFrame {
             public Void doInBackground() {
                 try {
                     channelPanel.retrieveGroups();
+                    channelPanel.retrieveDependencies();
 
                     for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
                         plugin.tableUpdate(status);
@@ -2190,6 +2196,10 @@ public class Frame extends JXFrame {
             return;
         }
 
+        if (!getStatusesWithDependencies(selectedStatuses, ChannelTask.START_RESUME)) {
+            return;
+        }
+
         final String workingId = startWorking("Starting or resuming channels...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -2233,6 +2243,10 @@ public class Frame extends JXFrame {
         final Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
 
         if (selectedStatuses.size() == 0) {
+            return;
+        }
+
+        if (!getStatusesWithDependencies(selectedStatuses, ChannelTask.STOP)) {
             return;
         }
 
@@ -2306,6 +2320,10 @@ public class Frame extends JXFrame {
         final Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
 
         if (selectedChannelStatuses.size() == 0) {
+            return;
+        }
+
+        if (!getStatusesWithDependencies(selectedChannelStatuses, ChannelTask.PAUSE)) {
             return;
         }
 
@@ -2627,10 +2645,122 @@ public class Frame extends JXFrame {
         }
     }
 
+    public enum ChannelTask {
+        DEPLOY("deploy", "(re)deployed", true), UNDEPLOY("undeploy", "undeployed", false), START_RESUME(
+                "start/resume", "started or resumed", true), STOP("stop", "stopped", false), PAUSE(
+                "pause", "paused", false);
+
+        private String value;
+        private String futurePassive;
+        private boolean forwardOrder;
+
+        private ChannelTask(String value, String futurePassive, boolean forwardOrder) {
+            this.value = value;
+            this.futurePassive = futurePassive;
+            this.forwardOrder = forwardOrder;
+        }
+
+        public String getFuturePassive() {
+            return futurePassive;
+        }
+
+        public boolean isForwardOrder() {
+            return forwardOrder;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    /**
+     * Adds dependent/dependency dashboard statuses to the given set, based on the type of task
+     * being performed.
+     */
+    private boolean getStatusesWithDependencies(Set<DashboardStatus> selectedDashboardStatuses, ChannelTask task) {
+        try {
+            ChannelDependencyGraph channelDependencyGraph = new ChannelDependencyGraph(channelPanel.getCachedChannelDependencies());
+            Set<String> selectedChannelIds = new HashSet<String>();
+            Set<String> channelIdsToHandle = new HashSet<String>();
+
+            Map<String, DashboardStatus> statusMap = new HashMap<String, DashboardStatus>();
+            for (DashboardStatus dashboardStatus : status) {
+                statusMap.put(dashboardStatus.getChannelId(), dashboardStatus);
+            }
+
+            // For each selected channel, add any dependent/dependency channels as necessary
+            for (DashboardStatus dashboardStatus : selectedDashboardStatuses) {
+                selectedChannelIds.add(dashboardStatus.getChannelId());
+                addChannelToTaskSet(dashboardStatus.getChannelId(), channelDependencyGraph, statusMap, channelIdsToHandle, task);
+            }
+
+            // If additional channels were added to the set, we need to prompt the user
+            if (!CollectionUtils.subtract(channelIdsToHandle, selectedChannelIds).isEmpty()) {
+                ChannelDependenciesWarningDialog dialog = new ChannelDependenciesWarningDialog(task, channelPanel.getCachedChannelDependencies(), selectedChannelIds, channelIdsToHandle);
+                if (dialog.getResult() == JOptionPane.OK_OPTION) {
+                    if (dialog.isIncludeOtherChannels()) {
+                        for (String channelId : channelIdsToHandle) {
+                            selectedDashboardStatuses.add(statusMap.get(channelId));
+                        }
+                    }
+                } else {
+                    return false;
+                }
+            }
+        } catch (ChannelDependencyException e) {
+            // Should never happen
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+    private void addChannelToTaskSet(String channelId, ChannelDependencyGraph channelDependencyGraph, Map<String, DashboardStatus> statusMap, Set<String> channelIdsToHandle, ChannelTask task) {
+        if (!channelIdsToHandle.add(channelId)) {
+            return;
+        }
+
+        DirectedAcyclicGraphNode<String> node = channelDependencyGraph.getNode(channelId);
+
+        if (node != null) {
+            if (task.isForwardOrder()) {
+                // Add dependency channels for the start/resume task.
+                for (String dependencyChannelId : node.getDirectDependencyElements()) {
+                    // Only add the dependency channel if it's currently deployed and not already started.
+                    if (statusMap.containsKey(dependencyChannelId)) {
+                        DashboardStatus dashboardStatus = statusMap.get(dependencyChannelId);
+                        if (dashboardStatus.getState() != DeployedState.STARTED) {
+                            addChannelToTaskSet(dependencyChannelId, channelDependencyGraph, statusMap, channelIdsToHandle, task);
+                        }
+                    }
+                }
+            } else {
+                // Add dependent channels for the undeploy/stop/pause tasks.
+                for (String dependentChannelId : node.getDirectDependentElements()) {
+                    /*
+                     * Only add the dependent channel if it's currently deployed, and it's not
+                     * already stopped/paused (depending on the task being performed).
+                     */
+                    if (statusMap.containsKey(dependentChannelId)) {
+                        DashboardStatus dashboardStatus = statusMap.get(dependentChannelId);
+                        if (task == ChannelTask.UNDEPLOY || task == ChannelTask.STOP && dashboardStatus.getState() != DeployedState.STOPPED || task == ChannelTask.PAUSE && dashboardStatus.getState() != DeployedState.PAUSED && dashboardStatus.getState() != DeployedState.STOPPED) {
+                            addChannelToTaskSet(dependentChannelId, channelDependencyGraph, statusMap, channelIdsToHandle, task);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public void doUndeployChannel() {
         final Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
 
         if (selectedChannelStatuses.size() == 0) {
+            return;
+        }
+
+        if (!getStatusesWithDependencies(selectedChannelStatuses, ChannelTask.UNDEPLOY)) {
             return;
         }
 

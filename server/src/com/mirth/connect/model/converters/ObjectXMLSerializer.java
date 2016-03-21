@@ -22,6 +22,7 @@ import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 import com.mirth.connect.model.ArchiveMetaData;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelProperties;
@@ -78,6 +79,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         AlertStatus.class,
         ArchiveMetaData.class,
         Channel.class,
+        ChannelDependency.class,
         ChannelGroup.class,
         ChannelHeader.class,
         ChannelProperties.class,
