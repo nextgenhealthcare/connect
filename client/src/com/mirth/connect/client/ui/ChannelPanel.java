@@ -269,7 +269,7 @@ public class ChannelPanel extends AbstractFramePanel {
     @Override
     public void switchPanel() {
         boolean groupViewEnabled = Preferences.userNodeForPackage(Mirth.class).getBoolean("channelGroupViewEnabled", true);
-        switchTableMode(groupViewEnabled);
+        switchTableMode(groupViewEnabled, false);
 
         if (groupViewEnabled) {
             tableModeGroupsButton.setSelected(true);
