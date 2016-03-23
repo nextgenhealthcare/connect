@@ -53,7 +53,7 @@ public class DICOMReceiver extends SourceConnector {
     @Override
     public void onStart() throws ConnectorTaskException {
         try {
-            dcmrcv.setPort(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getLocalPort(), getChannelId(), getChannel().getName())));
+            dcmrcv.setPort(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId(), getChannel().getName())));
             dcmrcv.setHostname(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId(), getChannel().getName()));
             dcmrcv.setAEtitle("DCMRCV");
 
