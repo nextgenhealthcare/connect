@@ -107,7 +107,14 @@
 		SELECT MESSAGE_ID AS MESSAGE_ID, ID AS METADATA_ID,
 		<choose>
 			<when test="textSearch != null">
-				CASE WHEN CONNECTOR_NAME LIKE '%' || #{textSearch} || '%' THEN 1
+				<choose>
+					<when test="textSearchRegex == null || textSearchRegex == false">
+						CASE WHEN CONNECTOR_NAME LIKE '%' || #{textSearch} || '%' THEN 1
+					</when>
+					<otherwise>
+						CASE WHEN REGEXP_LIKE(CONNECTOR_NAME, #{textSearch}) THEN 1
+					</otherwise>
+				</choose>
 				ELSE 0
 				END
 			</when>
@@ -185,7 +192,14 @@
 				AND 
 				
 				<foreach item="column" collection="textSearchMetaDataColumns" open="(" separator=" OR " close=")">
-					"${column}" LIKE '%' || #{textSearch} || '%'
+					<choose>
+						<when test="textSearchRegex == null || textSearchRegex == false">
+							"${column}" LIKE '%' || #{textSearch} || '%'
+						</when>
+						<otherwise>
+							REGEXP_LIKE("${column}", #{textSearch})
+						</otherwise>
+					</choose>
 				</foreach>
 			</if>
 			
@@ -269,7 +283,14 @@
 				AND CONTENT_TYPE = #{contentType}
 			</if>
 			<foreach item="content" collection="contents">
-				AND CONTENT LIKE '%' || #{content} || '%'
+				<choose>
+					<when test="textSearchRegex == null || textSearchRegex == false">
+						AND CONTENT LIKE '%' || #{content} || '%'
+					</when>
+					<otherwise>
+						AND REGEXP_LIKE(CONTENT, #{content})
+					</otherwise>
+				</choose>
 			</foreach>
 		</where>
 	</select>

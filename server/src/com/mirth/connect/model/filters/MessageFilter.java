@@ -41,6 +41,7 @@ public class MessageFilter implements Serializable {
     private Calendar startDate;
     private Calendar endDate;
     private String textSearch;
+    private Boolean textSearchRegex;
     private Set<Status> statuses;
     private List<Integer> includedMetaDataIds;
     private List<Integer> excludedMetaDataIds;
@@ -108,7 +109,15 @@ public class MessageFilter implements Serializable {
     public void setTextSearch(String textSearch) {
         this.textSearch = textSearch;
     }
+    
+    public Boolean getTextSearchRegex(){
+        return this.textSearchRegex;
+    }
 
+    public void setTextSearchRegex(Boolean textSearchRegex){
+        this.textSearchRegex = textSearchRegex;
+    }
+    
     public Set<Status> getStatuses() {
         return statuses;
     }

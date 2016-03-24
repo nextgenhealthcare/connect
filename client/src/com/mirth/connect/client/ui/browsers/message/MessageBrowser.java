@@ -264,6 +264,10 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         });
 
+        if (!Arrays.asList("postgres", "oracle", "mysql").contains(PlatformUI.SERVER_DATABASE)) {
+            regexTextSearchCheckBox.setEnabled(false);
+        }
+
         this.addAncestorListener(new AncestorListener() {
 
             @Override
@@ -487,6 +491,10 @@ public class MessageBrowser extends javax.swing.JPanel {
             messageFilter.setTextSearchMetaDataColumns(textSearchMetaDataColumns);
         }
 
+        if (regexTextSearchCheckBox.isSelected()) {
+            messageFilter.setTextSearchRegex(true);
+        }
+
         // set status
         Set<Status> statuses = new HashSet<Status>();
 
@@ -520,9 +528,11 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         if (StringUtils.isNotEmpty(textSearch) && Preferences.userNodeForPackage(Mirth.class).getBoolean("textSearchWarning", true)) {
             JCheckBox dontShowTextSearchWarningCheckBox = new JCheckBox("Don't show this message again in the future");
-            Object[] params = new Object[] {
-                    "<html>Text searching may take a long time, depending on the amount of messages being searched.<br/>Are you sure you want to proceed?</html>",
-                    dontShowTextSearchWarningCheckBox };
+
+            String textSearchWarning = "<html>Text searching may take a long time, depending on the amount of messages being searched.<br/>Are you sure you want to proceed?</html>";
+            String textRegexSearchWarning = "<html>Regular expression pattern matching may take a long time and be a costly operation, depending on the amount of messages being searched.<br/>Are you sure you want to proceed?</html>";
+            String searchWarning = (regexTextSearchCheckBox.isSelected()) ? textRegexSearchWarning : textSearchWarning;
+            Object[] params = new Object[] { searchWarning, dontShowTextSearchWarningCheckBox };
             int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             Preferences.userNodeForPackage(Mirth.class).putBoolean("textSearchWarning", !dontShowTextSearchWarningCheckBox.isSelected());
 
@@ -1818,7 +1828,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     content = responseObject.getMessage();
                 }
             } else {
-            	processedResponseStatusTextArea.setText("");
+                processedResponseStatusTextArea.setText("");
                 processedResponseStatusTextArea.setCaretPosition(0);
                 content = processedResponseMessage.getContent();
             }
@@ -2159,6 +2169,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         allDayCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         mirthDatePicker2 = new com.mirth.connect.client.ui.components.MirthDatePicker();
         nextPageButton = new javax.swing.JButton();
+        regexTextSearchCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
 
         jList1.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -2347,7 +2358,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(responseLabel)
                 .addGap(3, 3, 3)
-                .addComponent(ResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE))
+                .addComponent(ResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         MessagesCardPane.add(ResponseTextPane, "Response");
@@ -2389,7 +2400,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(processedResponseLabel)
                 .addGap(3, 3, 3)
-                .addComponent(ProcessedResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE))
+                .addComponent(ProcessedResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         MessagesCardPane.add(ProcessedResponseTextPane, "Processed Response");
@@ -2670,6 +2681,10 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         });
 
+        regexTextSearchCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        regexTextSearchCheckBox.setText("Regex");
+        regexTextSearchCheckBox.setToolTipText("<html> Search all message content for a match to the regular expression pattern.<br/> Regex matching could be a very costly operation and should be used with<br/> caution, specially with large amount of messages. Any message content<br/> that was encrypted by this channel will not be searchable. Only supported<br/> on PostgreSQL, Oracle and MySQL databases.</html> ");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -2702,7 +2717,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(regexTextSearchCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -2712,7 +2728,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                         .addComponent(statusBoxReceived, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(statusBoxFiltered, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(117, 117, 117)
                 .addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -2759,7 +2775,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                                 .addGap(7, 7, 7)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(textSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(textSearchLabel)))
+                                    .addComponent(textSearchLabel)
+                                    .addComponent(regexTextSearchCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -3019,6 +3036,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JLabel processedResponseLabel;
     private javax.swing.JLabel processedResponseStatusLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea processedResponseStatusTextArea;
+    private com.mirth.connect.client.ui.components.MirthCheckBox regexTextSearchCheckBox;
     private javax.swing.JButton resetButton;
     private javax.swing.JLabel responseLabel;
     private javax.swing.JLabel responseStatusLabel;

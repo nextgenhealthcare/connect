@@ -420,7 +420,7 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="responseLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="ResponseTextArea" pref="37" max="32767" attributes="0"/>
+                                  <Component id="ResponseTextArea" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -508,7 +508,7 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="processedResponseLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="ProcessedResponseTextArea" pref="37" max="32767" attributes="0"/>
+                                  <Component id="ProcessedResponseTextArea" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -839,6 +839,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="allDayCheckBox" min="-2" max="-2" attributes="0"/>
                       <Component id="filterButton" alignment="0" min="-2" pref="63" max="-2" attributes="0"/>
+                      <Component id="regexTextSearchCheckBox" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -851,7 +852,7 @@
                           <Component id="statusBoxTransformed" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="117" max="-2" attributes="0"/>
                   <Component id="lastSearchCriteriaPane" pref="0" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
@@ -906,6 +907,7 @@
                                   <Group type="103" groupAlignment="3" attributes="0">
                                       <Component id="textSearchField" alignment="3" min="-2" max="-2" attributes="0"/>
                                       <Component id="textSearchLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="regexTextSearchCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
@@ -1244,6 +1246,15 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="nextPageButtonActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="regexTextSearchCheckBox">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Regex"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt; Search all message content for a match to the regular expression pattern.&lt;br/&gt; Regex matching could be a very costly operation and should be used with&lt;br/&gt; caution, specially with large amount of messages. Any message content&lt;br/&gt; that was encrypted by this channel will not be searchable. Only supported&lt;br/&gt; on PostgreSQL, Oracle and MySQL databases.&lt;/html&gt; "/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>

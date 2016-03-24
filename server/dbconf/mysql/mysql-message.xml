@@ -108,7 +108,14 @@
 		SELECT MESSAGE_ID AS MESSAGE_ID, ID AS METADATA_ID,
 		<choose>
 			<when test="textSearch != null">
-				CASE WHEN CONNECTOR_NAME LIKE CONCAT('%', #{textSearch}, '%') THEN TRUE
+				<choose>
+					<when test="textSearchRegex == null || textSearchRegex == false">
+						CASE WHEN CONNECTOR_NAME LIKE CONCAT('%', #{textSearch}, '%') THEN TRUE
+					</when>
+					<otherwise>
+						CASE WHEN CONNECTOR_NAME REGEXP #{textSearch} THEN TRUE
+					</otherwise>
+				</choose>
 				ELSE FALSE
 				END
 			</when>
@@ -186,7 +193,14 @@
 				AND 
 				
 				<foreach item="column" collection="textSearchMetaDataColumns" open="(" separator=" OR " close=")">
-					"${column}" LIKE CONCAT('%', #{textSearch}, '%')
+					<choose>
+						<when test="textSearchRegex == null || textSearchRegex == false">
+							"${column}" LIKE CONCAT('%', #{textSearch}, '%')
+						</when>
+						<otherwise>
+							"${column}" REGEXP #{textSearch} 
+						</otherwise>
+					</choose>
 				</foreach>
 			</if>
 			
@@ -276,7 +290,14 @@
 				AND CONTENT_TYPE = #{contentType}
 			</if>
 			<foreach item="content" collection="contents">
-				AND CONTENT LIKE CONCAT('%', #{content}, '%')
+				<choose>
+					<when test="textSearchRegex == null || textSearchRegex == false">
+						AND CONTENT LIKE CONCAT('%', #{content}, '%')
+					</when>
+					<otherwise>
+						AND CONTENT REGEXP #{content}
+					</otherwise>
+				</choose>
 			</foreach>
 		</where>
 	</select>

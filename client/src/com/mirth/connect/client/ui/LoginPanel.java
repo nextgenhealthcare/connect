@@ -442,6 +442,17 @@ public class LoginPanel extends javax.swing.JFrame {
                         } catch (ClientException e) {
                             PlatformUI.SERVER_NAME = null;
                         }
+                        
+                        try {
+                            String database = (String) client.getAbout().get("database");
+                            if (!StringUtils.isBlank(database)) {
+                                PlatformUI.SERVER_DATABASE = database;
+                            } else {
+                                PlatformUI.SERVER_DATABASE = null;
+                            }
+                        } catch (ClientException e) {
+                            PlatformUI.SERVER_DATABASE = null;
+                        }
 
                         PlatformUI.USER_NAME = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username.getText());
                         setStatus("Authenticated...");

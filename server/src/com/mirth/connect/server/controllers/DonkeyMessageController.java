@@ -115,6 +115,7 @@ public class DonkeyMessageController extends MessageController {
         params.put("attachment", filter.getAttachment());
         params.put("error", filter.getError());
         params.put("textSearch", filter.getTextSearch());
+        params.put("textSearchRegex", filter.getTextSearchRegex());
 
         return params;
     }
@@ -810,7 +811,7 @@ public class DonkeyMessageController extends MessageController {
                 }
                 if (searchText) {
                     // Perform the text search
-                    searchText(session, new HashMap<String, Object>(contentParams), potentialMessages, textMessages, filter.getTextSearch(), filter.getTextSearchMetaDataColumns());
+                    searchText(session, new HashMap<String, Object>(contentParams), potentialMessages, textMessages, filter.getTextSearchRegex(), filter.getTextSearch(), filter.getTextSearchMetaDataColumns());
 
                     if (tempMessages == null) {
                         /*
@@ -994,9 +995,10 @@ public class DonkeyMessageController extends MessageController {
         }
     }
 
-    private void searchText(SqlSession session, Map<String, Object> params, Map<Long, MessageSearchResult> potentialMessages, Map<Long, MessageSearchResult> textMessages, String text, List<String> textSearchMetaDataColumns) {
+    private void searchText(SqlSession session, Map<String, Object> params, Map<Long, MessageSearchResult> potentialMessages, Map<Long, MessageSearchResult> textMessages, Boolean textSearchRegex, String text, List<String> textSearchMetaDataColumns) {
         params.put("contents", Collections.singletonList(text));
         params.put("textSearch", text);
+        params.put("textSearchRegex", textSearchRegex);
         params.put("textSearchMetaDataColumns", textSearchMetaDataColumns);
         List<MessageTextResult> results;
 
