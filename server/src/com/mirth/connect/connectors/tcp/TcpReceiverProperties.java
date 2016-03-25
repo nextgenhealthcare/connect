@@ -9,10 +9,13 @@
 
 package com.mirth.connect.connectors.tcp;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
@@ -51,6 +54,7 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     private int respondOnNewConnection;
     private String responseAddress;
     private String responsePort;
+    private Set<ConnectorPluginProperties> responseConnectorPluginProperties;
 
     public TcpReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("6661");
@@ -208,6 +212,14 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         this.responsePort = responsePort;
     }
 
+    public Set<ConnectorPluginProperties> getResponseConnectorPluginProperties() {
+        return responseConnectorPluginProperties;
+    }
+
+    public void setResponseConnectorPluginProperties(Set<ConnectorPluginProperties> responseConnectorPluginProperties) {
+        this.responseConnectorPluginProperties = responseConnectorPluginProperties;
+    }
+
     @Override
     public String getProtocol() {
         return PROTOCOL;
@@ -296,6 +308,13 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         purgedProperties.put("dataTypeBinary", dataTypeBinary);
         purgedProperties.put("charsetEncoding", charsetEncoding);
         purgedProperties.put("respondOnNewConnection", respondOnNewConnection);
+        if (responseConnectorPluginProperties != null) {
+            Set<Map<String, Object>> purgedPluginProperties = new HashSet<Map<String, Object>>();
+            for (ConnectorPluginProperties cpp : responseConnectorPluginProperties) {
+                purgedPluginProperties.add(cpp.getPurgedProperties());
+            }
+            purgedProperties.put("responseConnectorPluginProperties", purgedPluginProperties);
+        }
         return purgedProperties;
     }
 }

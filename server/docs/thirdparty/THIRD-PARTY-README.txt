@@ -39,6 +39,8 @@ the MPL version 1.1 (see MPL-1.1.txt). The source code is also available under
 the same license terms.
 
 	dcm4che 2.0.28 (source code can be downloaded at: http://www.dcm4che.org/)
+	DcmRcv and DcmSnd were modified to allow overriding of the network
+	connections.
 
 	HAPI 1.1 (source code can be downloaded at: http://hl7api.sourceforge.net/)
 

@@ -17,7 +17,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketImpl;
 
-public class StateAwareSocket extends Socket {
+import org.apache.commons.lang3.StringUtils;
+
+public class StateAwareSocket extends Socket implements StateAwareSocketInterface {
 
     protected BufferedInputStream bis = null;
 
@@ -46,20 +48,28 @@ public class StateAwareSocket extends Socket {
     }
 
     /**
-     * The only (portable) way in Java to detect that the remote host has closed
-     * the connection is to attempt to read from the connection and see if you
-     * get -1. We use the mark() and reset() feature of BufferedInputStream to
-     * nondestructively peek into the stream to check for this. Warning: since
-     * we've started consuming data, anyone reading from this socket must now
-     * use our BIS and not create their own from getInputStream().
+     * The only (portable) way in Java to detect that the remote host has closed the connection is
+     * to attempt to read from the connection and see if you get -1. We use the mark() and reset()
+     * feature of BufferedInputStream to nondestructively peek into the stream to check for this.
+     * Warning: since we've started consuming data, anyone reading from this socket must now use our
+     * BIS and not create their own from getInputStream().
      * 
      * @return true if the remote end has closed its side of this socket
      */
+    @Override
     public boolean remoteSideHasClosed() throws IOException {
         if (isClosed()) {
             return true;
         }
-        int oldTimeout = getSoTimeout();
+        int oldTimeout;
+        try {
+            oldTimeout = getSoTimeout();
+        } catch (IOException e) {
+            if (StringUtils.containsIgnoreCase(e.getMessage(), "Socket Closed")) {
+                return true;
+            }
+            throw e;
+        }
         setSoTimeout(100);
         getInputStream().mark(1);
         try {

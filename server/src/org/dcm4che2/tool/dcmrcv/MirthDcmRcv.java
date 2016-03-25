@@ -11,9 +11,12 @@ import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.dcm4che2.io.DicomOutputStream;
 import org.dcm4che2.net.Association;
+import org.dcm4che2.net.Device;
 import org.dcm4che2.net.DicomServiceException;
+import org.dcm4che2.net.NetworkConnection;
 import org.dcm4che2.net.PDVInputStream;
 
+import com.mirth.connect.connectors.dimse.DICOMConfiguration;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
@@ -22,10 +25,26 @@ import com.mirth.connect.donkey.server.channel.SourceConnector;
 public class MirthDcmRcv extends DcmRcv {
     private Logger logger = Logger.getLogger(this.getClass());
     private SourceConnector sourceConnector;
+    private DICOMConfiguration dicomConfiguration;
 
-    public MirthDcmRcv(SourceConnector sourceConnector) {
-        super("DCMRCV");
+    public MirthDcmRcv(SourceConnector sourceConnector, DICOMConfiguration dicomConfiguration) {
+        super("DCMRCV", false);
         this.sourceConnector = sourceConnector;
+        this.dicomConfiguration = dicomConfiguration;
+        init();
+    }
+
+    public Device getDevice() {
+        return device;
+    }
+
+    public NetworkConnection getNetworkConnection() {
+        return nc;
+    }
+
+    @Override
+    protected NetworkConnection createNetworkConnection() {
+        return dicomConfiguration.createNetworkConnection();
     }
 
     @Override

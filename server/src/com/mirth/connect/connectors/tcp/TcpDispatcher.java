@@ -13,6 +13,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +40,7 @@ import com.mirth.connect.donkey.util.ThreadUtils;
 import com.mirth.connect.model.transmission.batch.DefaultBatchStreamReader;
 import com.mirth.connect.plugins.BasicModeProvider;
 import com.mirth.connect.plugins.TransmissionModeProvider;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -49,10 +51,12 @@ public class TcpDispatcher extends DestinationConnector {
 
     private Logger logger = Logger.getLogger(this.getClass());
     protected TcpDispatcherProperties connectorProperties;
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    private Map<String, StateAwareSocket> connectedSockets;
+    private TcpConfiguration configuration = null;
+    private Map<String, Socket> connectedSockets;
     private Map<String, Thread> timeoutThreads;
 
     private int sendTimeout;
@@ -87,7 +91,23 @@ public class TcpDispatcher extends DestinationConnector {
             throw new ConnectorTaskException("Unable to find transmission mode plugin: " + pluginPointName);
         }
 
-        connectedSockets = new ConcurrentHashMap<String, StateAwareSocket>();
+        // load the default configuration
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "tcpConfigurationClass");
+
+        try {
+            configuration = (TcpConfiguration) Class.forName(configurationClass).newInstance();
+        } catch (Throwable t) {
+            logger.trace("could not find custom configuration class, using default");
+            configuration = new DefaultTcpConfiguration();
+        }
+
+        try {
+            configuration.configureConnectorDeploy(this);
+        } catch (Exception e) {
+            throw new ConnectorTaskException(e);
+        }
+
+        connectedSockets = new ConcurrentHashMap<String, Socket>();
         timeoutThreads = new ConcurrentHashMap<String, Thread>();
         sendTimeout = NumberUtils.toInt(connectorProperties.getSendTimeout());
         responseTimeout = NumberUtils.toInt(connectorProperties.getResponseTimeout());
@@ -178,7 +198,7 @@ public class TcpDispatcher extends DestinationConnector {
             socketKey += tcpDispatcherProperties.getLocalAddress() + tcpDispatcherProperties.getLocalPort();
         }
 
-        StateAwareSocket socket = null;
+        Socket socket = null;
         Thread timeoutThread = null;
 
         try {
@@ -198,7 +218,7 @@ public class TcpDispatcher extends DestinationConnector {
             }
 
             // Initialize a new socket if our current one is invalid, the remote side has closed, or keep connection open is false
-            if (!tcpDispatcherProperties.isKeepConnectionOpen() || socket == null || socket.isClosed() || (tcpDispatcherProperties.isCheckRemoteHost() && socket.remoteSideHasClosed())) {
+            if (!tcpDispatcherProperties.isKeepConnectionOpen() || socket == null || socket.isClosed() || (tcpDispatcherProperties.isCheckRemoteHost() && socket instanceof StateAwareSocketInterface && ((StateAwareSocketInterface) socket).remoteSideHasClosed())) {
                 closeSocketQuietly(socketKey);
 
                 logger.debug("Creating new socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
@@ -206,9 +226,9 @@ public class TcpDispatcher extends DestinationConnector {
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.CONNECTING, info));
 
                 if (tcpDispatcherProperties.isOverrideLocalBinding()) {
-                    socket = SocketUtil.createSocket(tcpDispatcherProperties.getLocalAddress(), NumberUtils.toInt(tcpDispatcherProperties.getLocalPort()));
+                    socket = SocketUtil.createSocket(configuration, tcpDispatcherProperties.getLocalAddress(), NumberUtils.toInt(tcpDispatcherProperties.getLocalPort()));
                 } else {
-                    socket = SocketUtil.createSocket();
+                    socket = SocketUtil.createSocket(configuration);
                 }
 
                 ThreadUtils.checkInterruptedStatus();
@@ -338,7 +358,7 @@ public class TcpDispatcher extends DestinationConnector {
     }
 
     private void closeSocket(String socketKey) throws IOException {
-        StateAwareSocket socket = connectedSockets.get(socketKey);
+        Socket socket = connectedSockets.get(socketKey);
         if (socket != null) {
             boolean wasOpen = !socket.isClosed();
             try {

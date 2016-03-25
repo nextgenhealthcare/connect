@@ -210,13 +210,15 @@ public class DcmRcv {
             UID.SiemensCSANonImageStorage,
             UID.Dcm4cheAttributesModificationNotificationSOPClass };
 
-    private final Executor executor;
+    private final String name;
 
-    private final Device device;
+    private Executor executor;
+
+    protected Device device;
 
     private final NetworkApplicationEntity ae = new NetworkApplicationEntity();
 
-    private final NetworkConnection nc = new NetworkConnection();
+    protected NetworkConnection nc;
 
     private final StorageSCP storageSCP = new StorageSCP(this, CUIDS);
 
@@ -277,6 +279,18 @@ public class DcmRcv {
     }
 
     public DcmRcv(String name) {
+        this(name, true);
+    }
+
+    public DcmRcv(String name, boolean init) {
+        this.name = name;
+        if (init) {
+            init();
+        }
+    }
+
+    protected void init() {
+        nc = createNetworkConnection();
         device = new Device(name);
         executor = new NewThreadExecutor(name);
         device.setNetworkApplicationEntity(ae);
@@ -286,6 +300,10 @@ public class DcmRcv {
         ae.register(new VerificationService());
         ae.register(storageSCP);
         ae.register(stgcmtSCP);
+    }
+
+    protected NetworkConnection createNetworkConnection() {
+        return new NetworkConnection();
     }
 
     public final void setAEtitle(String aet) {

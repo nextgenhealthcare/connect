@@ -5,7 +5,9 @@
 	<mirthVersion>3.4.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides advanced authentication support for HTTP-based source connectors.</description>
-	<serverClasses/>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.httpauth.HttpAuthServicePlugin</string>
+	</serverClasses>
 	<clientClasses>
 		<string weight="-100">com.mirth.connect.plugins.httpauth.HttpAuthConnectorPropertiesPlugin</string>
 	</clientClasses>

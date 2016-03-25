@@ -304,7 +304,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="keepConnectionOpenNoRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="remoteAddressField">
+    <Component class="com.mirth.connect.client.ui.components.MirthIconTextField" name="remoteAddressField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The DNS domain name or IP address on which to connect.&lt;/html&gt;"/>
       </Properties>

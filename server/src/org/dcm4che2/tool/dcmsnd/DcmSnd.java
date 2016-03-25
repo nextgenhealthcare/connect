@@ -169,21 +169,23 @@ public class DcmSnd extends StorageCommitmentService {
     private static final String DCM4CHEE_URI_REFERENCED_TS_UID =
             "1.2.40.0.13.1.1.2.4.94";
 
-    private final Executor executor;
+    private final String name;
+
+    private Executor executor;
 
     private final NetworkApplicationEntity remoteAE = new NetworkApplicationEntity();
 
     private NetworkApplicationEntity remoteStgcmtAE;
 
-    private final NetworkConnection remoteConn = new NetworkConnection();
+    protected NetworkConnection remoteConn;
 
-    private final NetworkConnection remoteStgcmtConn = new NetworkConnection();
+    protected NetworkConnection remoteStgcmtConn;
 
-    private final Device device;
+    protected Device device;
 
     private final NetworkApplicationEntity ae = new NetworkApplicationEntity();
 
-    private final NetworkConnection conn = new NetworkConnection();
+    protected NetworkConnection conn;
 
     private final Map<String, Set<String>> as2ts = new HashMap<String, Set<String>>();
 
@@ -232,6 +234,21 @@ public class DcmSnd extends StorageCommitmentService {
     }
 
     public DcmSnd(String name) {
+        this(name, true);
+    }
+
+    public DcmSnd(String name, boolean init) {
+        this.name = name;
+        if (init) {
+            init();
+        }
+    }
+
+    protected void init() {
+        conn = createNetworkConnection();
+        remoteConn = createNetworkConnection();
+        remoteStgcmtConn = createNetworkConnection();
+
         device = new Device(name);
         executor = new NewThreadExecutor(name);
         remoteAE.setInstalled(true);
@@ -245,6 +262,10 @@ public class DcmSnd extends StorageCommitmentService {
         ae.setAssociationAcceptor(true);
         ae.register(this);
         ae.setAETitle(name);
+    }
+
+    protected NetworkConnection createNetworkConnection() {
+        return new NetworkConnection();
     }
 
     public final void setLocalHost(String hostname) {

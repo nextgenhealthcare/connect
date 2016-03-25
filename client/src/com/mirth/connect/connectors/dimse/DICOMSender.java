@@ -9,15 +9,18 @@
 
 package com.mirth.connect.connectors.dimse;
 
+import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.Connector.Mode;
 
 public class DICOMSender extends ConnectorSettingsPanel {
 
     private Frame parent;
+    private boolean tlsComponentsEnabled = true;
 
     public DICOMSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -46,8 +49,8 @@ public class DICOMSender extends ConnectorSettingsPanel {
         properties.setKeyStore(keyStoreField.getText());
         properties.setKeyStorePW(keyStorePasswordField.getText());
 
-        properties.setNoClientAuth(noclientauthYes.isSelected());
-        properties.setNossl2(nossl2Yes.isSelected());
+        properties.setNoClientAuth(clientAuthenticationYesRadio.isSelected());
+        properties.setNossl2(acceptSSLv2YesRadio.isSelected());
         properties.setPasscode(passcodeField.getText());
         properties.setPdv1(pdv1Yes.isSelected());
         if (lowPriority.isSelected()) {
@@ -68,17 +71,17 @@ public class DICOMSender extends ConnectorSettingsPanel {
         properties.setSosndbuf(sosndbufField.getText());
         properties.setStgcmt(stgcmtYes.isSelected());
         properties.setTcpDelay(tcpdelayYes.isSelected());
-        if (tlsaes.isSelected()) {
+        if (tlsAESRadio.isSelected()) {
             properties.setTls("aes");
-        } else if (tls3des.isSelected()) {
+        } else if (tls3DESRadio.isSelected()) {
             properties.setTls("3des");
-        } else if (tlswithout.isSelected()) {
+        } else if (tlsWithoutRadio.isSelected()) {
             properties.setTls("without");
         } else {
             properties.setTls("notls");
         }
-        properties.setTrustStore(truststoreField.getText());
-        properties.setTrustStorePW(truststorepwField.getText());
+        properties.setTrustStore(trustStoreField.getText());
+        properties.setTrustStorePW(trustStorePasswordField.getText());
         properties.setTs1(ts1Yes.isSelected());
         properties.setUidnegrsp(uidnegrspYes.isSelected());
 
@@ -114,21 +117,21 @@ public class DICOMSender extends ConnectorSettingsPanel {
         soclosedelayField.setText(props.getSoCloseDelay());
         sorcvbufField.setText(props.getSorcvbuf());
         sosndbufField.setText(props.getSosndbuf());
-        truststoreField.setText(props.getTrustStore());
-        truststorepwField.setText(props.getTrustStorePW());
+        trustStoreField.setText(props.getTrustStore());
+        trustStorePasswordField.setText(props.getTrustStorePW());
         usernameField.setText(props.getUsername());
         applicationEntityField.setText(props.getApplicationEntity());
         localApplicationEntityField.setText(props.getLocalApplicationEntity());
 
         if (props.isNoClientAuth()) {
-            noclientauthYes.setSelected(true);
+            clientAuthenticationYesRadio.setSelected(true);
         } else {
-            noclientauthNo.setSelected(true);
+            clientAuthenticationNoRadio.setSelected(true);
         }
         if (props.isNossl2()) {
-            nossl2Yes.setSelected(true);
+            acceptSSLv2YesRadio.setSelected(true);
         } else {
-            nossl2No.setSelected(true);
+            acceptSSLv2NoRadio.setSelected(true);
         }
         if (props.isPdv1()) {
             pdv1Yes.setSelected(true);
@@ -153,17 +156,17 @@ public class DICOMSender extends ConnectorSettingsPanel {
             tcpdelayNo.setSelected(true);
         }
         if (props.getTls().equals("aes")) {
-            tlsaes.setSelected(true);
-            tlsaesActionPerformed(null);
+            tlsAESRadio.setSelected(true);
+            tlsAESRadioActionPerformed(null);
         } else if (props.getTls().equals("3des")) {
-            tls3des.setSelected(true);
-            tls3desActionPerformed(null);
+            tls3DESRadio.setSelected(true);
+            tls3DESRadioActionPerformed(null);
         } else if (props.getTls().equals("without")) {
-            tlswithout.setSelected(true);
-            tlswithoutActionPerformed(null);
+            tlsWithoutRadio.setSelected(true);
+            tlsWithoutRadioActionPerformed(null);
         } else {
-            tlsno.setSelected(true);
-            tlsnoActionPerformed(null);
+            tlsNoRadio.setSelected(true);
+            tlsNoRadioActionPerformed(null);
         }
         if (props.isTs1()) {
             ts1Yes.setSelected(true);
@@ -213,10 +216,55 @@ public class DICOMSender extends ConnectorSettingsPanel {
     @Override
     public void resetInvalidProperties() {
         listenerAddressField.setBackground(null);
+        decorateConnectorType();
         listenerPortField.setBackground(null);
         fileContentsTextPane.setBackground(null);
     }
 
+    @Override
+    public ConnectorTypeDecoration getConnectorTypeDecoration() {
+        return new ConnectorTypeDecoration(Mode.DESTINATION);
+    }
+
+    @Override
+    public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
+        if (connectorTypeDecoration != null) {
+            listenerAddressField.setIcon(connectorTypeDecoration.getIcon());
+            listenerAddressField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
+            listenerAddressField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
+            listenerAddressField.setBackground(connectorTypeDecoration.getHighlightColor());
+        }
+    }
+
+    public void enableTLSComponents() {
+        tlsComponentsEnabled = true;
+        tlsLabel.setEnabled(true);
+        tls3DESRadio.setEnabled(true);
+        tlsAESRadio.setEnabled(true);
+        tlsWithoutRadio.setEnabled(true);
+        tlsNoRadio.setEnabled(true);
+        if (tls3DESRadio.isSelected()) {
+            tls3DESRadioActionPerformed(null);
+        } else if (tlsAESRadio.isSelected()) {
+            tlsAESRadioActionPerformed(null);
+        } else if (tlsWithoutRadio.isSelected()) {
+            tlsWithoutRadioActionPerformed(null);
+        } else {
+            tlsNoRadioActionPerformed(null);
+        }
+    }
+
+    public void disableTLSComponents() {
+        tlsComponentsEnabled = false;
+        tlsLabel.setEnabled(false);
+        tls3DESRadio.setEnabled(false);
+        tlsAESRadio.setEnabled(false);
+        tlsWithoutRadio.setEnabled(false);
+        tlsNoRadio.setEnabled(false);
+        tlsNoRadioActionPerformed(null);
+    }
+
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -240,7 +288,7 @@ public class DICOMSender extends ConnectorSettingsPanel {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         listenerPortField = new com.mirth.connect.client.ui.components.MirthTextField();
-        listenerAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
+        listenerAddressField = new com.mirth.connect.client.ui.components.MirthIconTextField();
         fileContentsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         jLabel3 = new javax.swing.JLabel();
         accepttoField = new com.mirth.connect.client.ui.components.MirthTextField();
@@ -255,18 +303,18 @@ public class DICOMSender extends ConnectorSettingsPanel {
         highPriority = new com.mirth.connect.client.ui.components.MirthRadioButton();
         mediumPriority = new com.mirth.connect.client.ui.components.MirthRadioButton();
         lowPriority = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        jLabel9 = new javax.swing.JLabel();
+        keyStorePasswordLabel = new javax.swing.JLabel();
         keyStorePasswordField = new com.mirth.connect.client.ui.components.MirthTextField();
-        jLabel10 = new javax.swing.JLabel();
+        keyStoreLabel = new javax.swing.JLabel();
         keyStoreField = new com.mirth.connect.client.ui.components.MirthTextField();
-        jLabel11 = new javax.swing.JLabel();
+        keyPasswordLabel = new javax.swing.JLabel();
         keyPasswordField = new com.mirth.connect.client.ui.components.MirthTextField();
-        jLabel12 = new javax.swing.JLabel();
-        noclientauthYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        noclientauthNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        jLabel13 = new javax.swing.JLabel();
-        nossl2Yes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        nossl2No = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        clientAuthenticationLabel = new javax.swing.JLabel();
+        clientAuthenticationYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        clientAuthenticationNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        acceptSSLv2Label = new javax.swing.JLabel();
+        acceptSSLv2YesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        acceptSSLv2NoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel14 = new javax.swing.JLabel();
         usernameField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel15 = new javax.swing.JLabel();
@@ -298,21 +346,21 @@ public class DICOMSender extends ConnectorSettingsPanel {
         jLabel27 = new javax.swing.JLabel();
         tcpdelayYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         tcpdelayNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        jLabel28 = new javax.swing.JLabel();
-        tlswithout = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        tls3des = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        tlsaes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        jLabel29 = new javax.swing.JLabel();
-        truststoreField = new com.mirth.connect.client.ui.components.MirthTextField();
-        jLabel30 = new javax.swing.JLabel();
-        truststorepwField = new com.mirth.connect.client.ui.components.MirthTextField();
+        tlsLabel = new javax.swing.JLabel();
+        tlsWithoutRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        tls3DESRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        tlsAESRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        trustStoreLabel = new javax.swing.JLabel();
+        trustStoreField = new com.mirth.connect.client.ui.components.MirthTextField();
+        trustStorePasswordLabel = new javax.swing.JLabel();
+        trustStorePasswordField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel31 = new javax.swing.JLabel();
         ts1Yes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         ts1No = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel32 = new javax.swing.JLabel();
         uidnegrspYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         uidnegrspNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        tlsno = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        tlsNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         applicationEntityField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel33 = new javax.swing.JLabel();
         jLabel34 = new javax.swing.JLabel();
@@ -377,51 +425,51 @@ public class DICOMSender extends ConnectorSettingsPanel {
         lowPriority.setToolTipText("Priority of the C-STORE operation, MEDIUM by default.");
         lowPriority.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel9.setText("Keystore Password:");
+        keyStorePasswordLabel.setText("Keystore Password:");
 
         keyStorePasswordField.setToolTipText("Password for keystore file.");
 
-        jLabel10.setText("Keystore:");
+        keyStoreLabel.setText("Keystore:");
 
         keyStoreField.setToolTipText("File path or URL of P12 or JKS keystore, resource:tls/test_sys_2.p12 by default.");
 
-        jLabel11.setText("Key Password:");
+        keyPasswordLabel.setText("Key Password:");
 
         keyPasswordField.setToolTipText("Password for accessing the key in the keystore, keystore password by default.");
 
-        jLabel12.setText("Client Authentication TLS:");
+        clientAuthenticationLabel.setText("Client Authentication TLS:");
 
-        noclientauthYes.setBackground(new java.awt.Color(255, 255, 255));
-        noclientauthYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        clientAuthTLSButtonGroup.add(noclientauthYes);
-        noclientauthYes.setSelected(true);
-        noclientauthYes.setText("Yes");
-        noclientauthYes.setToolTipText("Enable client authentification for TLS.");
-        noclientauthYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        clientAuthenticationYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        clientAuthenticationYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        clientAuthTLSButtonGroup.add(clientAuthenticationYesRadio);
+        clientAuthenticationYesRadio.setSelected(true);
+        clientAuthenticationYesRadio.setText("Yes");
+        clientAuthenticationYesRadio.setToolTipText("Enable client authentification for TLS.");
+        clientAuthenticationYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        noclientauthNo.setBackground(new java.awt.Color(255, 255, 255));
-        noclientauthNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        clientAuthTLSButtonGroup.add(noclientauthNo);
-        noclientauthNo.setText("No");
-        noclientauthNo.setToolTipText("Enable client authentification for TLS.");
-        noclientauthNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        clientAuthenticationNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        clientAuthenticationNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        clientAuthTLSButtonGroup.add(clientAuthenticationNoRadio);
+        clientAuthenticationNoRadio.setText("No");
+        clientAuthenticationNoRadio.setToolTipText("Enable client authentification for TLS.");
+        clientAuthenticationNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel13.setText("Accept ssl v2 TLS handshake:");
+        acceptSSLv2Label.setText("Accept ssl v2 TLS handshake:");
 
-        nossl2Yes.setBackground(new java.awt.Color(255, 255, 255));
-        nossl2Yes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        nossl2ButtonGroup.add(nossl2Yes);
-        nossl2Yes.setSelected(true);
-        nossl2Yes.setText("Yes");
-        nossl2Yes.setToolTipText("Enable acceptance of SSLv2Hello TLS handshake.");
-        nossl2Yes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        acceptSSLv2YesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        acceptSSLv2YesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        nossl2ButtonGroup.add(acceptSSLv2YesRadio);
+        acceptSSLv2YesRadio.setSelected(true);
+        acceptSSLv2YesRadio.setText("Yes");
+        acceptSSLv2YesRadio.setToolTipText("Enable acceptance of SSLv2Hello TLS handshake.");
+        acceptSSLv2YesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        nossl2No.setBackground(new java.awt.Color(255, 255, 255));
-        nossl2No.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        nossl2ButtonGroup.add(nossl2No);
-        nossl2No.setText("No");
-        nossl2No.setToolTipText("Enable acceptance of SSLv2Hello TLS handshake.");
-        nossl2No.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        acceptSSLv2NoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        acceptSSLv2NoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        nossl2ButtonGroup.add(acceptSSLv2NoRadio);
+        acceptSSLv2NoRadio.setText("No");
+        acceptSSLv2NoRadio.setToolTipText("Enable acceptance of SSLv2Hello TLS handshake.");
+        acceptSSLv2NoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel14.setText("User Name:");
 
@@ -518,51 +566,51 @@ public class DICOMSender extends ConnectorSettingsPanel {
         tcpdelayNo.setToolTipText("Set TCP_NODELAY socket option to false, true by default.");
         tcpdelayNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel28.setText("TLS:");
+        tlsLabel.setText("TLS:");
 
-        tlswithout.setBackground(new java.awt.Color(255, 255, 255));
-        tlswithout.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        tlsButtonGroup.add(tlswithout);
-        tlswithout.setText("Without");
-        tlswithout.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
-        tlswithout.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        tlswithout.addActionListener(new java.awt.event.ActionListener() {
+        tlsWithoutRadio.setBackground(new java.awt.Color(255, 255, 255));
+        tlsWithoutRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        tlsButtonGroup.add(tlsWithoutRadio);
+        tlsWithoutRadio.setText("Without");
+        tlsWithoutRadio.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
+        tlsWithoutRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        tlsWithoutRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tlswithoutActionPerformed(evt);
+                tlsWithoutRadioActionPerformed(evt);
             }
         });
 
-        tls3des.setBackground(new java.awt.Color(255, 255, 255));
-        tls3des.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        tlsButtonGroup.add(tls3des);
-        tls3des.setText("3DES");
-        tls3des.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
-        tls3des.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        tls3des.addActionListener(new java.awt.event.ActionListener() {
+        tls3DESRadio.setBackground(new java.awt.Color(255, 255, 255));
+        tls3DESRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        tlsButtonGroup.add(tls3DESRadio);
+        tls3DESRadio.setText("3DES");
+        tls3DESRadio.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
+        tls3DESRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        tls3DESRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tls3desActionPerformed(evt);
+                tls3DESRadioActionPerformed(evt);
             }
         });
 
-        tlsaes.setBackground(new java.awt.Color(255, 255, 255));
-        tlsaes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        tlsButtonGroup.add(tlsaes);
-        tlsaes.setText("AES");
-        tlsaes.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
-        tlsaes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        tlsaes.addActionListener(new java.awt.event.ActionListener() {
+        tlsAESRadio.setBackground(new java.awt.Color(255, 255, 255));
+        tlsAESRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        tlsButtonGroup.add(tlsAESRadio);
+        tlsAESRadio.setText("AES");
+        tlsAESRadio.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
+        tlsAESRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        tlsAESRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tlsaesActionPerformed(evt);
+                tlsAESRadioActionPerformed(evt);
             }
         });
 
-        jLabel29.setText("Trust Store:");
+        trustStoreLabel.setText("Trust Store:");
 
-        truststoreField.setToolTipText("File path or URL of JKS truststore, resource:tls/mesa_certs.jks by default.");
+        trustStoreField.setToolTipText("File path or URL of JKS truststore, resource:tls/mesa_certs.jks by default.");
 
-        jLabel30.setText("Trust Store Password:");
+        trustStorePasswordLabel.setText("Trust Store Password:");
 
-        truststorepwField.setToolTipText("Password for truststore file.");
+        trustStorePasswordField.setToolTipText("Password for truststore file.");
 
         jLabel31.setText("Default Presentation Syntax:");
 
@@ -598,16 +646,16 @@ public class DICOMSender extends ConnectorSettingsPanel {
         uidnegrspNo.setToolTipText("Request positive User Identity Negotation response, only effective with option -username.");
         uidnegrspNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        tlsno.setBackground(new java.awt.Color(255, 255, 255));
-        tlsno.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        tlsButtonGroup.add(tlsno);
-        tlsno.setSelected(true);
-        tlsno.setText("No TLS");
-        tlsno.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
-        tlsno.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        tlsno.addActionListener(new java.awt.event.ActionListener() {
+        tlsNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        tlsNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        tlsButtonGroup.add(tlsNoRadio);
+        tlsNoRadio.setSelected(true);
+        tlsNoRadio.setText("No TLS");
+        tlsNoRadio.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
+        tlsNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        tlsNoRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tlsnoActionPerformed(evt);
+                tlsNoRadioActionPerformed(evt);
             }
         });
 
@@ -653,12 +701,12 @@ public class DICOMSender extends ConnectorSettingsPanel {
                     .addComponent(jLabel7)
                     .addComponent(jLabel27)
                     .addComponent(jLabel31)
-                    .addComponent(jLabel28)
-                    .addComponent(jLabel12)
-                    .addComponent(jLabel13)
-                    .addComponent(jLabel10)
-                    .addComponent(jLabel29)
-                    .addComponent(jLabel11)
+                    .addComponent(tlsLabel)
+                    .addComponent(clientAuthenticationLabel)
+                    .addComponent(acceptSSLv2Label)
+                    .addComponent(keyStoreLabel)
+                    .addComponent(trustStoreLabel)
+                    .addComponent(keyPasswordLabel)
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -667,32 +715,32 @@ public class DICOMSender extends ConnectorSettingsPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(keyStoreField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(truststoreField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(trustStoreField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel9, javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel30, javax.swing.GroupLayout.Alignment.TRAILING))
+                                    .addComponent(keyStorePasswordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(trustStorePasswordLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(keyStorePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(truststorepwField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(trustStorePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addComponent(keyPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(nossl2Yes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(acceptSSLv2YesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nossl2No, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(acceptSSLv2NoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(noclientauthYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(clientAuthenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(noclientauthNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(clientAuthenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(tls3des, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(tls3DESRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(tlsaes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(tlsAESRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(tlswithout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(tlsWithoutRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(tlsno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(tlsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(ts1Yes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -883,21 +931,21 @@ public class DICOMSender extends ConnectorSettingsPanel {
                             .addComponent(ts1No, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel28)
-                            .addComponent(tls3des, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(tlsaes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(tlswithout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(tlsno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(tlsLabel)
+                            .addComponent(tls3DESRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tlsAESRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tlsWithoutRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tlsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel12)
-                            .addComponent(noclientauthYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(noclientauthNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(clientAuthenticationLabel)
+                            .addComponent(clientAuthenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(clientAuthenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel13)
-                            .addComponent(nossl2Yes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(nossl2No, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(acceptSSLv2Label)
+                            .addComponent(acceptSSLv2YesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(acceptSSLv2NoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(sorcvbufField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -908,19 +956,19 @@ public class DICOMSender extends ConnectorSettingsPanel {
                             .addComponent(jLabel6))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
+                    .addComponent(keyStoreLabel)
                     .addComponent(keyStoreField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel9)
+                    .addComponent(keyStorePasswordLabel)
                     .addComponent(keyStorePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel29)
-                    .addComponent(truststoreField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel30)
-                    .addComponent(truststorepwField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(trustStoreLabel)
+                    .addComponent(trustStoreField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(trustStorePasswordLabel)
+                    .addComponent(trustStorePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel11)
+                    .addComponent(keyPasswordLabel)
                     .addComponent(keyPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -931,84 +979,93 @@ public class DICOMSender extends ConnectorSettingsPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
-    private void tlsnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlsnoActionPerformed
+    private void tlsNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlsNoRadioActionPerformed
         // disable
+        clientAuthenticationLabel.setEnabled(false);
+        clientAuthenticationYesRadio.setEnabled(false);
+        clientAuthenticationNoRadio.setEnabled(false);
+        acceptSSLv2Label.setEnabled(false);
+        acceptSSLv2YesRadio.setEnabled(false);
+        acceptSSLv2NoRadio.setEnabled(false);
+        keyStoreLabel.setEnabled(false);
         keyStoreField.setEnabled(false);
-        keyPasswordField.setEnabled(false);
+        keyStorePasswordLabel.setEnabled(false);
         keyStorePasswordField.setEnabled(false);
-        truststoreField.setEnabled(false);
-        truststorepwField.setEnabled(false);
-        nossl2No.setEnabled(false);
-        nossl2Yes.setEnabled(false);
-        noclientauthNo.setEnabled(false);
-        noclientauthYes.setEnabled(false);
-        jLabel12.setEnabled(false);
-        jLabel13.setEnabled(false);
-        jLabel9.setEnabled(false);
-        jLabel30.setEnabled(false);
-        jLabel10.setEnabled(false);
-        jLabel29.setEnabled(false);
-        jLabel11.setEnabled(false);
+        trustStoreLabel.setEnabled(false);
+        trustStoreField.setEnabled(false);
+        trustStorePasswordLabel.setEnabled(false);
+        trustStorePasswordField.setEnabled(false);
+        keyPasswordLabel.setEnabled(false);
+        keyPasswordField.setEnabled(false);
+    }//GEN-LAST:event_tlsNoRadioActionPerformed
 
-    }//GEN-LAST:event_tlsnoActionPerformed
-
-    private void tls3desActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tls3desActionPerformed
+    private void tls3DESRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tls3DESRadioActionPerformed
+        if (!tlsComponentsEnabled) {
+            return;
+        }
+        clientAuthenticationLabel.setEnabled(true);
+        clientAuthenticationYesRadio.setEnabled(true);
+        clientAuthenticationNoRadio.setEnabled(true);
+        acceptSSLv2Label.setEnabled(true);
+        acceptSSLv2YesRadio.setEnabled(true);
+        acceptSSLv2NoRadio.setEnabled(true);
+        keyStoreLabel.setEnabled(true);
         keyStoreField.setEnabled(true);
-        keyPasswordField.setEnabled(true);
+        keyStorePasswordLabel.setEnabled(true);
         keyStorePasswordField.setEnabled(true);
-        truststoreField.setEnabled(true);
-        truststorepwField.setEnabled(true);
-        nossl2No.setEnabled(true);
-        nossl2Yes.setEnabled(true);
-        noclientauthNo.setEnabled(true);
-        noclientauthYes.setEnabled(true);
-        jLabel12.setEnabled(true);
-        jLabel13.setEnabled(true);
-        jLabel9.setEnabled(true);
-        jLabel30.setEnabled(true);
-        jLabel10.setEnabled(true);
-        jLabel29.setEnabled(true);
-        jLabel11.setEnabled(true);
-    }//GEN-LAST:event_tls3desActionPerformed
+        trustStoreLabel.setEnabled(true);
+        trustStoreField.setEnabled(true);
+        trustStorePasswordLabel.setEnabled(true);
+        trustStorePasswordField.setEnabled(true);
+        keyPasswordLabel.setEnabled(true);
+        keyPasswordField.setEnabled(true);
+    }//GEN-LAST:event_tls3DESRadioActionPerformed
 
-    private void tlsaesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlsaesActionPerformed
+    private void tlsAESRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlsAESRadioActionPerformed
+        if (!tlsComponentsEnabled) {
+            return;
+        }
+        clientAuthenticationLabel.setEnabled(true);
+        clientAuthenticationYesRadio.setEnabled(true);
+        clientAuthenticationNoRadio.setEnabled(true);
+        acceptSSLv2Label.setEnabled(true);
+        acceptSSLv2YesRadio.setEnabled(true);
+        acceptSSLv2NoRadio.setEnabled(true);
+        keyStoreLabel.setEnabled(true);
         keyStoreField.setEnabled(true);
-        keyPasswordField.setEnabled(true);
+        keyStorePasswordLabel.setEnabled(true);
         keyStorePasswordField.setEnabled(true);
-        truststoreField.setEnabled(true);
-        truststorepwField.setEnabled(true);
-        nossl2No.setEnabled(true);
-        nossl2Yes.setEnabled(true);
-        noclientauthNo.setEnabled(true);
-        noclientauthYes.setEnabled(true);
-        jLabel12.setEnabled(true);
-        jLabel13.setEnabled(true);
-        jLabel9.setEnabled(true);
-        jLabel30.setEnabled(true);
-        jLabel10.setEnabled(true);
-        jLabel29.setEnabled(true);
-        jLabel11.setEnabled(true);
-    }//GEN-LAST:event_tlsaesActionPerformed
+        trustStoreLabel.setEnabled(true);
+        trustStoreField.setEnabled(true);
+        trustStorePasswordLabel.setEnabled(true);
+        trustStorePasswordField.setEnabled(true);
+        keyPasswordLabel.setEnabled(true);
+        keyPasswordField.setEnabled(true);
+    }//GEN-LAST:event_tlsAESRadioActionPerformed
 
-    private void tlswithoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlswithoutActionPerformed
+    private void tlsWithoutRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlsWithoutRadioActionPerformed
+        if (!tlsComponentsEnabled) {
+            return;
+        }
+        clientAuthenticationLabel.setEnabled(true);
+        clientAuthenticationYesRadio.setEnabled(true);
+        clientAuthenticationNoRadio.setEnabled(true);
+        acceptSSLv2Label.setEnabled(true);
+        acceptSSLv2YesRadio.setEnabled(true);
+        acceptSSLv2NoRadio.setEnabled(true);
+        keyStoreLabel.setEnabled(true);
         keyStoreField.setEnabled(true);
-        keyPasswordField.setEnabled(true);
+        keyStorePasswordLabel.setEnabled(true);
         keyStorePasswordField.setEnabled(true);
-        truststoreField.setEnabled(true);
-        truststorepwField.setEnabled(true);
-        nossl2No.setEnabled(true);
-        nossl2Yes.setEnabled(true);
-        noclientauthNo.setEnabled(true);
-        noclientauthYes.setEnabled(true);
-        jLabel12.setEnabled(true);
-        jLabel13.setEnabled(true);
-        jLabel9.setEnabled(true);
-        jLabel30.setEnabled(true);
-        jLabel10.setEnabled(true);
-        jLabel29.setEnabled(true);
-        jLabel11.setEnabled(true);
-    }//GEN-LAST:event_tlswithoutActionPerformed
+        trustStoreLabel.setEnabled(true);
+        trustStoreField.setEnabled(true);
+        trustStorePasswordLabel.setEnabled(true);
+        trustStorePasswordField.setEnabled(true);
+        keyPasswordLabel.setEnabled(true);
+        keyPasswordField.setEnabled(true);
+    }//GEN-LAST:event_tlsWithoutRadioActionPerformed
 
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionNoActionPerformed
@@ -1019,20 +1076,22 @@ public class DICOMSender extends ConnectorSettingsPanel {
     }// GEN-LAST:event_ackOnNewConnection   YesActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel acceptSSLv2Label;
+    private com.mirth.connect.client.ui.components.MirthRadioButton acceptSSLv2NoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton acceptSSLv2YesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField accepttoField;
     private com.mirth.connect.client.ui.components.MirthTextField applicationEntityField;
     private com.mirth.connect.client.ui.components.MirthTextField asyncField;
     private com.mirth.connect.client.ui.components.MirthTextField bufsizeField;
     private javax.swing.ButtonGroup clientAuthTLSButtonGroup;
+    private javax.swing.JLabel clientAuthenticationLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton clientAuthenticationNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton clientAuthenticationYesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField connecttoField;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
     private javax.swing.ButtonGroup filrefButtonGroup;
     private com.mirth.connect.client.ui.components.MirthRadioButton highPriority;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
@@ -1048,10 +1107,7 @@ public class DICOMSender extends ConnectorSettingsPanel {
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
-    private javax.swing.JLabel jLabel28;
-    private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel30;
     private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel32;
     private javax.swing.JLabel jLabel33;
@@ -1063,11 +1119,13 @@ public class DICOMSender extends ConnectorSettingsPanel {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private com.mirth.connect.client.ui.components.MirthTextField keyPasswordField;
+    private javax.swing.JLabel keyPasswordLabel;
     private com.mirth.connect.client.ui.components.MirthTextField keyStoreField;
+    private javax.swing.JLabel keyStoreLabel;
     private com.mirth.connect.client.ui.components.MirthTextField keyStorePasswordField;
-    private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
+    private javax.swing.JLabel keyStorePasswordLabel;
+    private com.mirth.connect.client.ui.components.MirthIconTextField listenerAddressField;
     private com.mirth.connect.client.ui.components.MirthTextField listenerPortField;
     private com.mirth.connect.client.ui.components.MirthTextField localAddressField;
     private com.mirth.connect.client.ui.components.MirthTextField localApplicationEntityField;
@@ -1075,11 +1133,7 @@ public class DICOMSender extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthRadioButton lowPriority;
     private com.mirth.connect.client.ui.components.MirthRadioButton mediumPriority;
     private javax.swing.ButtonGroup noclientauthButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton noclientauthNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton noclientauthYes;
     private javax.swing.ButtonGroup nossl2ButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton nossl2No;
-    private com.mirth.connect.client.ui.components.MirthRadioButton nossl2Yes;
     private com.mirth.connect.client.ui.components.MirthTextField passcodeField;
     private javax.swing.ButtonGroup pdv1ButtonGroup;
     private com.mirth.connect.client.ui.components.MirthRadioButton pdv1No;
@@ -1100,13 +1154,16 @@ public class DICOMSender extends ConnectorSettingsPanel {
     private javax.swing.ButtonGroup tcpdelayButtonGroup;
     private com.mirth.connect.client.ui.components.MirthRadioButton tcpdelayNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton tcpdelayYes;
-    private com.mirth.connect.client.ui.components.MirthRadioButton tls3des;
+    private com.mirth.connect.client.ui.components.MirthRadioButton tls3DESRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton tlsAESRadio;
     private javax.swing.ButtonGroup tlsButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton tlsaes;
-    private com.mirth.connect.client.ui.components.MirthRadioButton tlsno;
-    private com.mirth.connect.client.ui.components.MirthRadioButton tlswithout;
-    private com.mirth.connect.client.ui.components.MirthTextField truststoreField;
-    private com.mirth.connect.client.ui.components.MirthTextField truststorepwField;
+    private javax.swing.JLabel tlsLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton tlsNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton tlsWithoutRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField trustStoreField;
+    private javax.swing.JLabel trustStoreLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField trustStorePasswordField;
+    private javax.swing.JLabel trustStorePasswordLabel;
     private javax.swing.ButtonGroup ts1ButtonGroup;
     private com.mirth.connect.client.ui.components.MirthRadioButton ts1No;
     private com.mirth.connect.client.ui.components.MirthRadioButton ts1Yes;

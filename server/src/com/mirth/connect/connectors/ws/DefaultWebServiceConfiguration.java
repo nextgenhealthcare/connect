@@ -13,8 +13,9 @@ import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.ssl.SSLContexts;
 
 import com.mirth.connect.donkey.server.channel.Connector;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -35,7 +36,7 @@ public class DefaultWebServiceConfiguration implements WebServiceConfiguration {
             sslContext = SSLContexts.createSystemDefault();
             enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols());
             enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites());
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, enabledProtocols, enabledCipherSuites, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, enabledProtocols, enabledCipherSuites, NoopHostnameVerifier.INSTANCE);
             ((WebServiceDispatcher) connector).getSocketFactoryRegistry().register("https", sslConnectionSocketFactory);
         }
     }

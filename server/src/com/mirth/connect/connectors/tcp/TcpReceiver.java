@@ -16,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -65,6 +66,7 @@ import com.mirth.connect.model.transmission.batch.DefaultBatchStreamReader;
 import com.mirth.connect.plugins.BasicModeProvider;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.TransmissionModeProvider;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
@@ -78,13 +80,15 @@ public class TcpReceiver extends SourceConnector {
     private static final int DEFAULT_BACKLOG = 256;
 
     private Logger logger = Logger.getLogger(this.getClass());
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     protected TcpReceiverProperties connectorProperties;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    private StateAwareServerSocket serverSocket;
-    private StateAwareSocket clientSocket;
-    private StateAwareSocket recoveryResponseSocket;
+    private TcpConfiguration configuration = null;
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
+    private Socket recoveryResponseSocket;
     private Thread thread;
     private ExecutorService executor;
     private Set<Future<Throwable>> results = new HashSet<Future<Throwable>>();
@@ -104,6 +108,22 @@ public class TcpReceiver extends SourceConnector {
 
         if (connectorProperties.isDataTypeBinary() && isProcessBatch()) {
             throw new ConnectorTaskException("Batch processing is not supported for binary data.");
+        }
+
+        // load the default configuration
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "tcpConfigurationClass");
+
+        try {
+            configuration = (TcpConfiguration) Class.forName(configurationClass).newInstance();
+        } catch (Throwable t) {
+            logger.trace("could not find custom configuration class, using default");
+            configuration = new DefaultTcpConfiguration();
+        }
+
+        try {
+            configuration.configureConnectorDeploy(this);
+        } catch (Exception e) {
+            throw new ConnectorTaskException(e);
         }
 
         maxConnections = NumberUtils.toInt(connectorProperties.getMaxConnections());
@@ -165,7 +185,7 @@ public class TcpReceiver extends SourceConnector {
             @Override
             public void run() {
                 while (getCurrentState() == DeployedState.STARTED) {
-                    StateAwareSocket socket = null;
+                    Socket socket = null;
 
                     if (connectorProperties.isServerMode()) {
                         // Server mode; wait to accept a client socket on the ServerSocket
@@ -183,9 +203,9 @@ public class TcpReceiver extends SourceConnector {
                         try {
                             logger.debug("Initiating for new client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
                             if (connectorProperties.isOverrideLocalBinding()) {
-                                socket = SocketUtil.createSocket(getLocalAddress(), getLocalPort());
+                                socket = SocketUtil.createSocket(configuration, getLocalAddress(), getLocalPort());
                             } else {
-                                socket = SocketUtil.createSocket();
+                                socket = SocketUtil.createSocket(configuration);
                             }
                             clientSocket = socket;
                             SocketUtil.connectSocket(socket, getRemoteAddress(), getRemotePort(), timeout);
@@ -483,24 +503,24 @@ public class TcpReceiver extends SourceConnector {
     }
 
     protected class TcpReader implements Callable<Throwable>, BatchMessageReceiver {
-        private StateAwareSocket socket = null;
-        private StateAwareSocket responseSocket = null;
+        private Socket socket = null;
+        private Socket responseSocket = null;
         private AtomicBoolean reading = null;
         private AtomicBoolean canRead = null;
         private StreamHandler streamHandler = null;
 
-        public TcpReader(StateAwareSocket socket) throws SocketException {
+        public TcpReader(Socket socket) throws SocketException {
             this.socket = socket;
             initSocket(socket);
             reading = new AtomicBoolean(false);
             canRead = new AtomicBoolean(true);
         }
 
-        public StateAwareSocket getSocket() {
+        public Socket getSocket() {
             return socket;
         }
 
-        public StateAwareSocket getResponseSocket() {
+        public Socket getResponseSocket() {
             return responseSocket;
         }
 
@@ -522,7 +542,7 @@ public class TcpReceiver extends SourceConnector {
 
             try {
                 Thread.currentThread().setName("TCP Receiver Thread on " + getChannel().getName() + " (" + getChannelId() + ") < " + originalThreadName);
-                
+
                 while (!done && getCurrentState() == DeployedState.STARTED) {
                     ThreadUtils.checkInterruptedStatus();
                     streamHandler = null;
@@ -799,10 +819,10 @@ public class TcpReceiver extends SourceConnector {
 
     private class TcpResponseHandler extends ResponseHandler {
 
-        private StateAwareSocket responseSocket = null;
+        private Socket responseSocket = null;
         private StreamHandler streamHandler = null;
 
-        public TcpResponseHandler(StateAwareSocket responseSocket, StreamHandler streamHandler) {
+        public TcpResponseHandler(Socket responseSocket, StreamHandler streamHandler) {
             this.responseSocket = responseSocket;
             this.streamHandler = streamHandler;
         }
@@ -870,9 +890,9 @@ public class TcpReceiver extends SourceConnector {
                 }
 
                 if (isLoopback) {
-                    serverSocket = new StateAwareServerSocket(port, backlog);
+                    serverSocket = configuration.createServerSocket(port, backlog);
                 } else {
-                    serverSocket = new StateAwareServerSocket(port, backlog, hostAddress);
+                    serverSocket = configuration.createServerSocket(port, backlog, hostAddress);
                 }
                 success = true;
             } catch (BindException e) {
@@ -889,12 +909,12 @@ public class TcpReceiver extends SourceConnector {
         }
     }
 
-    private StateAwareSocket createResponseSocket() throws IOException {
+    private Socket createResponseSocket() throws IOException {
         logger.debug("Creating response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-        return SocketUtil.createSocket();
+        return SocketUtil.createResponseSocket(configuration);
     }
 
-    private void connectResponseSocket(StateAwareSocket responseSocket, StreamHandler streamHandler) throws IOException {
+    private void connectResponseSocket(Socket responseSocket, StreamHandler streamHandler) throws IOException {
         String channelId = getChannelId();
         String channelName = getChannel().getName();
         int responsePort = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getResponsePort(), channelId, channelName));
@@ -904,7 +924,7 @@ public class TcpReceiver extends SourceConnector {
         streamHandler.setOutputStream(bos);
     }
 
-    private void sendResponse(String response, StateAwareSocket responseSocket, StreamHandler streamHandler, boolean newConnection) throws IOException {
+    private void sendResponse(String response, Socket responseSocket, StreamHandler streamHandler, boolean newConnection) throws IOException {
         try {
             if (responseSocket != null && streamHandler != null) {
                 // Send the response
@@ -914,7 +934,7 @@ public class TcpReceiver extends SourceConnector {
                 throw new IOException((responseSocket == null ? "Response socket" : "Stream handler") + " is null.");
             }
         } catch (IOException e) {
-            if (responseSocket != null && responseSocket.remoteSideHasClosed()) {
+            if (responseSocket != null && responseSocket instanceof StateAwareSocketInterface && ((StateAwareSocketInterface) responseSocket).remoteSideHasClosed()) {
                 e = new IOException("Remote socket has closed.");
             }
 
@@ -924,11 +944,11 @@ public class TcpReceiver extends SourceConnector {
         }
     }
 
-    private boolean checkSocket(StateAwareSocket socket) throws IOException {
-        return !connectorProperties.isKeepConnectionOpen() || socket.isClosed() || socket.remoteSideHasClosed();
+    private boolean checkSocket(Socket socket) throws IOException {
+        return !connectorProperties.isKeepConnectionOpen() || socket.isClosed() || (socket instanceof StateAwareSocketInterface && ((StateAwareSocketInterface) socket).remoteSideHasClosed());
     }
 
-    private void closeSocketQuietly(StateAwareSocket socket) {
+    private void closeSocketQuietly(Socket socket) {
         try {
             if (socket != null) {
                 logger.trace("Closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");

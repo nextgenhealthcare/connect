@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.smtp;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.LinkedHashMap;
@@ -17,24 +19,39 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.CharsetEncodingInformation;
+import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthComboBox;
+import com.mirth.connect.client.ui.components.MirthIconTextField;
+import com.mirth.connect.client.ui.components.MirthPasswordField;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class SmtpSender extends ConnectorSettingsPanel {
@@ -58,8 +75,10 @@ public class SmtpSender extends ConnectorSettingsPanel {
     public SmtpSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        initToolTips();
+        initLayout();
 
-        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
+        parent.setupCharsetEncodingForConnector(charsetEncodingComboBox);
     }
 
     @Override
@@ -94,7 +113,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         properties.setFrom(fromField.getText());
         properties.setSubject(subjectField.getText());
 
-        properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
+        properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingComboBox));
 
         properties.setHtml(htmlYes.isSelected());
 
@@ -113,10 +132,10 @@ public class SmtpSender extends ConnectorSettingsPanel {
         smtpPortField.setText(props.getSmtpPort());
         if (props.isOverrideLocalBinding()) {
             overrideLocalBindingYesRadio.setSelected(true);
-            overrideLocalBindingYesRadioActionPerformed(null);
+            overrideLocalBindingYesRadioActionPerformed();
         } else {
             overrideLocalBindingNoRadio.setSelected(true);
-            overrideLocalBindingNoRadioActionPerformed(null);
+            overrideLocalBindingNoRadioActionPerformed();
         }
 
         localAddressField.setText(props.getLocalAddress());
@@ -132,10 +151,10 @@ public class SmtpSender extends ConnectorSettingsPanel {
         }
 
         if (props.isAuthentication()) {
-            useAuthenticationYesActionPerformed(null);
+            useAuthenticationYesActionPerformed();
             useAuthenticationYes.setSelected(true);
         } else {
-            useAuthenticationNoActionPerformed(null);
+            useAuthenticationNoActionPerformed();
             useAuthenticationNo.setSelected(true);
         }
 
@@ -145,7 +164,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         fromField.setText(props.getFrom());
         subjectField.setText(props.getSubject());
 
-        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharsetEncoding());
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingComboBox, props.getCharsetEncoding());
 
         if (props.isHtml()) {
             htmlYes.setSelected(true);
@@ -240,10 +259,26 @@ public class SmtpSender extends ConnectorSettingsPanel {
     @Override
     public void resetInvalidProperties() {
         smtpHostField.setBackground(null);
+        decorateConnectorType();
         smtpPortField.setBackground(null);
         sendTimeoutField.setBackground(null);
         toField.setBackground(null);
         fromField.setBackground(null);
+    }
+
+    @Override
+    public ConnectorTypeDecoration getConnectorTypeDecoration() {
+        return new ConnectorTypeDecoration(Mode.DESTINATION);
+    }
+
+    @Override
+    public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
+        if (connectorTypeDecoration != null) {
+            smtpHostField.setIcon(connectorTypeDecoration.getIcon());
+            smtpHostField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
+            smtpHostField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
+            smtpHostField.setBackground(connectorTypeDecoration.getHighlightColor());
+        }
     }
 
     private void setHeaders(Map<String, String> headers) {
@@ -258,7 +293,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
             i++;
         }
 
-        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+        headersTable.setModel(new DefaultTableModel(tableData, new String[] {
                 HEADERS_NAME_COLUMN_NAME, HEADERS_VALUE_COLUMN_NAME }) {
 
             boolean[] canEdit = new boolean[] { true, true };
@@ -368,7 +403,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
             tableData[i][ATTACHMENTS_MIME_TYPE_COLUMN] = attachments.get(i).getMimeType();
         }
 
-        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+        attachmentsTable.setModel(new DefaultTableModel(tableData, new String[] {
                 ATTACHMENTS_NAME_COLUMN_NAME, ATTACHMENTS_CONTENT_COLUMN_NAME,
                 ATTACHMENTS_MIME_TYPE_COLUMN_NAME }) {
 
@@ -519,467 +554,259 @@ public class SmtpSender extends ConnectorSettingsPanel {
         return "";
     }
 
-    // @formatter:off
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        setBackground(UIConstants.BACKGROUND_COLOR);
 
-        htmlButtonGroup = new javax.swing.ButtonGroup();
-        secureButtonGroup = new javax.swing.ButtonGroup();
-        useAuthenticationButtonGroup = new javax.swing.ButtonGroup();
-        overrideLocalBindingButtonGroup = new javax.swing.ButtonGroup();
-        smtpHostLabel = new javax.swing.JLabel();
-        smtpPortLabel = new javax.swing.JLabel();
-        usernameLabel = new javax.swing.JLabel();
-        passwordLabel = new javax.swing.JLabel();
-        toLabel = new javax.swing.JLabel();
-        subjectLabel = new javax.swing.JLabel();
-        bodyLabel = new javax.swing.JLabel();
-        usernameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        smtpPortField = new com.mirth.connect.client.ui.components.MirthTextField();
-        sendTimeoutLabel = new javax.swing.JLabel();
-        sendTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
-        smtpHostField = new com.mirth.connect.client.ui.components.MirthTextField();
-        toField = new com.mirth.connect.client.ui.components.MirthTextField();
-        subjectField = new com.mirth.connect.client.ui.components.MirthTextField();
-        passwordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
-        fromLabel = new javax.swing.JLabel();
-        fromField = new com.mirth.connect.client.ui.components.MirthTextField();
-        bodyTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        htmlLabel = new javax.swing.JLabel();
-        htmlYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        htmlNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        attachmentsLabel = new javax.swing.JLabel();
-        attachmentsPane = new javax.swing.JScrollPane();
-        attachmentsTable = new com.mirth.connect.client.ui.components.MirthTable();
-        newAttachmentButton = new javax.swing.JButton();
-        deleteAttachmentButton = new javax.swing.JButton();
-        encryptionLabel = new javax.swing.JLabel();
-        encryptionNone = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        encryptionTls = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        encryptionSsl = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        useAuthenticationYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        useAuthenticationLabel = new javax.swing.JLabel();
-        useAuthenticationNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        sendTestEmailButton = new javax.swing.JButton();
-        headersPane = new javax.swing.JScrollPane();
-        headersTable = new com.mirth.connect.client.ui.components.MirthTable();
-        newHeaderButton = new javax.swing.JButton();
-        deleteHeaderButton = new javax.swing.JButton();
-        headersLabel = new javax.swing.JLabel();
-        charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        charsetEncodingLabel = new javax.swing.JLabel();
-        keepConnectionOpenLabel1 = new javax.swing.JLabel();
-        overrideLocalBindingYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        overrideLocalBindingNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        localAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
-        localPortField = new com.mirth.connect.client.ui.components.MirthTextField();
-        localPortLabel = new javax.swing.JLabel();
-        localAddressLabel = new javax.swing.JLabel();
+        smtpHostLabel = new JLabel("SMTP Host:");
+        smtpHostField = new MirthIconTextField();
 
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        sendTestEmailButton = new JButton("Send Test Email");
+        sendTestEmailButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                sendTestEmailButtonActionPerformed();
+            }
+        });
 
-        smtpHostLabel.setText("SMTP Host:");
+        smtpPortLabel = new JLabel("SMTP Port:");
+        smtpPortField = new MirthTextField();
 
-        smtpPortLabel.setText("SMTP Port:");
+        overrideLocalBindingLabel = new JLabel("Override Local Binding:");
+        ButtonGroup overrideLocalBindingButtonGroup = new ButtonGroup();
 
-        usernameLabel.setText("Username:");
+        overrideLocalBindingYesRadio = new MirthRadioButton("Yes");
+        overrideLocalBindingYesRadio.setBackground(getBackground());
+        overrideLocalBindingYesRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                overrideLocalBindingYesRadioActionPerformed();
+            }
+        });
+        overrideLocalBindingButtonGroup.add(overrideLocalBindingYesRadio);
 
-        passwordLabel.setText("Password:");
+        overrideLocalBindingNoRadio = new MirthRadioButton("No");
+        overrideLocalBindingNoRadio.setBackground(getBackground());
+        overrideLocalBindingNoRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                overrideLocalBindingNoRadioActionPerformed();
+            }
+        });
+        overrideLocalBindingButtonGroup.add(overrideLocalBindingNoRadio);
 
-        toLabel.setText("To:");
+        localAddressLabel = new JLabel("Local Address:");
+        localAddressField = new MirthTextField();
 
-        subjectLabel.setText("Subject:");
+        localPortLabel = new JLabel("Local Port:");
+        localPortField = new MirthTextField();
 
-        bodyLabel.setText("Body:");
+        sendTimeoutLabel = new JLabel("Send Timeout (ms):");
+        sendTimeoutField = new MirthTextField();
 
-        usernameField.setToolTipText("If the SMTP server requires authentication to send a message, enter the username here.");
+        encryptionLabel = new JLabel("Encryption:");
+        ButtonGroup encryptionButtonGroup = new ButtonGroup();
 
+        encryptionNone = new MirthRadioButton("None");
+        encryptionNone.setBackground(getBackground());
+        encryptionButtonGroup.add(encryptionNone);
+
+        encryptionTls = new MirthRadioButton("STARTTLS");
+        encryptionTls.setBackground(getBackground());
+        encryptionButtonGroup.add(encryptionTls);
+
+        encryptionSsl = new MirthRadioButton("SSL");
+        encryptionSsl.setBackground(getBackground());
+        encryptionButtonGroup.add(encryptionSsl);
+
+        useAuthenticationLabel = new JLabel("Use Authentication:");
+        ButtonGroup useAuthenticationButtonGroup = new ButtonGroup();
+
+        useAuthenticationYes = new MirthRadioButton("Yes");
+        useAuthenticationYes.setBackground(getBackground());
+        useAuthenticationYes.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                useAuthenticationYesActionPerformed();
+            }
+        });
+        useAuthenticationButtonGroup.add(useAuthenticationYes);
+
+        useAuthenticationNo = new MirthRadioButton("No");
+        useAuthenticationNo.setBackground(getBackground());
+        useAuthenticationNo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                useAuthenticationNoActionPerformed();
+            }
+        });
+        useAuthenticationButtonGroup.add(useAuthenticationNo);
+
+        usernameLabel = new JLabel("Username:");
+        usernameField = new MirthTextField();
+
+        passwordLabel = new JLabel("Password:");
+        passwordField = new MirthPasswordField();
+
+        toLabel = new JLabel("To:");
+        toField = new MirthTextField();
+
+        fromLabel = new JLabel("From:");
+        fromField = new MirthTextField();
+
+        subjectLabel = new JLabel("Subject:");
+        subjectField = new MirthTextField();
+
+        charsetEncodingLabel = new JLabel("Charset Encoding:");
+        charsetEncodingComboBox = new MirthComboBox<CharsetEncodingInformation>();
+
+        htmlLabel = new JLabel("HTML Body:");
+        ButtonGroup htmlButtonGroup = new ButtonGroup();
+
+        htmlYes = new MirthRadioButton("Yes");
+        htmlYes.setBackground(getBackground());
+        htmlButtonGroup.add(htmlYes);
+
+        htmlNo = new MirthRadioButton("No");
+        htmlNo.setBackground(getBackground());
+        htmlButtonGroup.add(htmlNo);
+
+        bodyLabel = new JLabel("Body:");
+        bodyTextPane = new MirthSyntaxTextArea();
+        bodyTextPane.setBorder(BorderFactory.createEtchedBorder());
+
+        headersLabel = new JLabel("Headers:");
+
+        headersTable = new MirthTable();
+        headersPane = new JScrollPane(headersTable);
+
+        newHeaderButton = new JButton("New");
+        newHeaderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                newHeaderButtonActionPerformed();
+            }
+        });
+
+        deleteHeaderButton = new JButton("Delete");
+        deleteHeaderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                deleteHeaderButtonActionPerformed();
+            }
+        });
+
+        attachmentsLabel = new JLabel("Attachments:");
+
+        attachmentsTable = new MirthTable();
+        attachmentsPane = new JScrollPane(attachmentsTable);
+
+        newAttachmentButton = new JButton("New");
+        newAttachmentButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                newAttachmentButtonActionPerformed();
+            }
+        });
+
+        deleteAttachmentButton = new JButton("Delete");
+        deleteAttachmentButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                deleteAttachmentButtonActionPerformed();
+            }
+        });
+    }
+
+    private void initToolTips() {
+        smtpHostField.setToolTipText("<html>Enter the DNS domain name or IP address of the SMTP server to use to send the email messages.<br>Note that sending email to an SMTP server that is not expecting it may result in the IP of the box running Mirth being added to the server's \"blacklist.\"</html>");
         smtpPortField.setToolTipText("<html>The port number of the SMTP server to send the email message to.<br>Generally, the default port of 25 is used.</html>");
 
-        sendTimeoutLabel.setText("Send Timeout (ms):");
-
-        sendTimeoutField.setToolTipText("<html>Enter the number of milliseconds for the SMTP socket connection timeout.</html>");
-
-        smtpHostField.setToolTipText("<html>Enter the DNS domain name or IP address of the SMTP server to use to send the email messages.<br>Note that sending email to an SMTP server that is not expecting it may result in the IP of the box running Mirth being added to the server's \"blacklist.\"</html>");
-
-        toField.setToolTipText("The name of the mailbox (person, usually) to which the email should be sent.");
-
-        subjectField.setToolTipText("The text that should appear as the subject of the email, as seen by the receiver's email client.");
-
-        passwordField.setToolTipText("If the SMTP server requires authentication to send a message, enter the password here.");
-
-        fromLabel.setText("From:");
-
-        fromField.setToolTipText("The name that should appear as the \"From address\" in the email.");
-
-        bodyTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        htmlLabel.setText("HTML Body:");
-
-        htmlYes.setBackground(new java.awt.Color(255, 255, 255));
-        htmlYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        htmlButtonGroup.add(htmlYes);
-        htmlYes.setText("Yes");
-        htmlYes.setToolTipText("Selects whether HTML tags can be used in the email message body.");
-        htmlYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        htmlNo.setBackground(new java.awt.Color(255, 255, 255));
-        htmlNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        htmlButtonGroup.add(htmlNo);
-        htmlNo.setText("No");
-        htmlNo.setToolTipText("Selects whether HTML tags can be used in the email message body.");
-        htmlNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        attachmentsLabel.setText("Attachments:");
-
-        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Name", "Content", "MIME type"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
-        attachmentsTable.setToolTipText("");
-        attachmentsPane.setViewportView(attachmentsTable);
-
-        newAttachmentButton.setText("New");
-        newAttachmentButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newAttachmentButtonActionPerformed(evt);
-            }
-        });
-
-        deleteAttachmentButton.setText("Delete");
-        deleteAttachmentButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteAttachmentButtonActionPerformed(evt);
-            }
-        });
-
-        encryptionLabel.setText("Encryption:");
-
-        encryptionNone.setBackground(new java.awt.Color(255, 255, 255));
-        encryptionNone.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        secureButtonGroup.add(encryptionNone);
-        encryptionNone.setText("None");
-        encryptionNone.setToolTipText("Selects whether STARTTLS or SSL should be used for optional connection security.");
-        encryptionNone.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        encryptionTls.setBackground(new java.awt.Color(255, 255, 255));
-        encryptionTls.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        secureButtonGroup.add(encryptionTls);
-        encryptionTls.setText("STARTTLS");
-        encryptionTls.setToolTipText("Selects whether STARTTLS or SSL should be used for optional connection security.");
-        encryptionTls.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        encryptionSsl.setBackground(new java.awt.Color(255, 255, 255));
-        encryptionSsl.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        secureButtonGroup.add(encryptionSsl);
-        encryptionSsl.setText("SSL");
-        encryptionSsl.setToolTipText("Selects whether STARTTLS or SSL should be used for optional connection security.");
-        encryptionSsl.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        useAuthenticationYes.setBackground(new java.awt.Color(255, 255, 255));
-        useAuthenticationYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        useAuthenticationButtonGroup.add(useAuthenticationYes);
-        useAuthenticationYes.setText("Yes");
-        useAuthenticationYes.setToolTipText("Use SMTP authentication.");
-        useAuthenticationYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        useAuthenticationYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                useAuthenticationYesActionPerformed(evt);
-            }
-        });
-
-        useAuthenticationLabel.setText("Use Authentication:");
-
-        useAuthenticationNo.setBackground(new java.awt.Color(255, 255, 255));
-        useAuthenticationNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        useAuthenticationButtonGroup.add(useAuthenticationNo);
-        useAuthenticationNo.setText("No");
-        useAuthenticationNo.setToolTipText("Do not use SMTP authentication.");
-        useAuthenticationNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        useAuthenticationNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                useAuthenticationNoActionPerformed(evt);
-            }
-        });
-
-        sendTestEmailButton.setText("Send Test Email");
-        sendTestEmailButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sendTestEmailButtonActionPerformed(evt);
-            }
-        });
-
-        headersTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Name", "Value"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
-        headersTable.setToolTipText("");
-        headersPane.setViewportView(headersTable);
-
-        newHeaderButton.setText("New");
-        newHeaderButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newHeaderButtonActionPerformed(evt);
-            }
-        });
-
-        deleteHeaderButton.setText("Delete");
-        deleteHeaderButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteHeaderButtonActionPerformed(evt);
-            }
-        });
-
-        headersLabel.setText("Headers:");
-
-        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
-        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding used by the sender of the message,<br> or Default to assume the default character set encoding for the JVM running Mirth.</html>");
-
-        charsetEncodingLabel.setText("Charset Encoding:");
-
-        keepConnectionOpenLabel1.setText("Override Local Binding:");
-
-        overrideLocalBindingYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        overrideLocalBindingYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        overrideLocalBindingButtonGroup.add(overrideLocalBindingYesRadio);
-        overrideLocalBindingYesRadio.setText("Yes");
-        overrideLocalBindingYesRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default value picked by the Socket class.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
-        overrideLocalBindingYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        overrideLocalBindingYesRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                overrideLocalBindingYesRadioActionPerformed(evt);
-            }
-        });
-
-        overrideLocalBindingNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        overrideLocalBindingNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        overrideLocalBindingButtonGroup.add(overrideLocalBindingNoRadio);
-        overrideLocalBindingNoRadio.setText("No");
-        overrideLocalBindingNoRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default value picked by the Socket class.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
-        overrideLocalBindingNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        overrideLocalBindingNoRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                overrideLocalBindingNoRadioActionPerformed(evt);
-            }
-        });
+        String toolTipText = "<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default value picked by the Socket class.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>";
+        overrideLocalBindingYesRadio.setToolTipText(toolTipText);
+        overrideLocalBindingNoRadio.setToolTipText(toolTipText);
 
         localAddressField.setToolTipText("<html>The local address that the client socket will be bound to, if Override Local Binding is set to Yes.<br/></html>");
-
         localPortField.setToolTipText("<html>The local port that the client socket will be bound to, if Override Local Binding is set to Yes.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
+        sendTimeoutField.setToolTipText("<html>Enter the number of milliseconds for the SMTP socket connection timeout.</html>");
 
-        localPortLabel.setText("Local Port:");
+        toolTipText = "Selects whether STARTTLS or SSL should be used for optional connection security.";
+        encryptionNone.setToolTipText(toolTipText);
+        encryptionTls.setToolTipText(toolTipText);
+        encryptionSsl.setToolTipText(toolTipText);
 
-        localAddressLabel.setText("Local Address:");
+        useAuthenticationYes.setToolTipText("Use SMTP authentication.");
+        useAuthenticationNo.setToolTipText("Do not use SMTP authentication.");
+        usernameField.setToolTipText("If the SMTP server requires authentication to send a message, enter the username here.");
+        passwordField.setToolTipText("If the SMTP server requires authentication to send a message, enter the password here.");
+        toField.setToolTipText("The name of the mailbox (person, usually) to which the email should be sent.");
+        fromField.setToolTipText("The name that should appear as the \"From address\" in the email.");
+        subjectField.setToolTipText("The text that should appear as the subject of the email, as seen by the receiver's email client.");
+        charsetEncodingComboBox.setToolTipText("<html>Select the character set encoding used by the sender of the message,<br> or Default to assume the default character set encoding for the JVM running Mirth.</html>");
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(localPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(localAddressLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fromLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(useAuthenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sendTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(htmlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(charsetEncodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(headersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(keepConnectionOpenLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(attachmentsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(encryptionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(smtpHostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(toLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(smtpPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(bodyLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(subjectLabel, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(headersPane, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(attachmentsPane))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(newHeaderButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(deleteHeaderButton))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(newAttachmentButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(deleteAttachmentButton))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(useAuthenticationYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(useAuthenticationNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(htmlYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(htmlNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(subjectField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(fromField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(toField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(sendTestEmailButton))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(encryptionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(encryptionTls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(encryptionSsl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(smtpHostLabel)
-                    .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sendTestEmailButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(smtpPortLabel)
-                    .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(keepConnectionOpenLabel1)
-                    .addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(localAddressLabel)
-                    .addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(localPortLabel)
-                    .addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sendTimeoutLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(encryptionLabel)
-                    .addComponent(encryptionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(encryptionTls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(encryptionSsl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(useAuthenticationYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(useAuthenticationNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(useAuthenticationLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameLabel)
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passwordLabel)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(toLabel)
-                    .addComponent(toField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(fromLabel)
-                    .addComponent(fromField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(subjectLabel)
-                    .addComponent(subjectField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(charsetEncodingLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(htmlLabel)
-                    .addComponent(htmlYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(htmlNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
-                    .addComponent(bodyLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(headersPane, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(newHeaderButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteHeaderButton))
-                    .addComponent(headersLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(attachmentsLabel)
-                    .addComponent(attachmentsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(newAttachmentButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteAttachmentButton)))
-                .addContainerGap())
-        );
-    }// </editor-fold>//GEN-END:initComponents
-    // @formatter:on
+        toolTipText = "Selects whether HTML tags can be used in the email message body.";
+        htmlYes.setToolTipText(toolTipText);
+        htmlNo.setToolTipText(toolTipText);
+    }
 
-    private void newAttachmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newAttachmentButtonActionPerformed
+    private void initLayout() {
+        setLayout(new MigLayout("insets 0 8 0 8, novisualpadding, hidemode 3, gap 12 6", "[][]6[]", "[][]4[]4[][][]4[]4[]4[][][][][][]4[]4[][][]"));
+
+        add(smtpHostLabel, "right");
+        add(smtpHostField, "w 200!, sx, split 2");
+        add(sendTestEmailButton, "gapbefore 6");
+        add(smtpPortLabel, "newline, right");
+        add(smtpPortField, "w 50!, sx");
+        add(overrideLocalBindingLabel, "newline, right");
+        add(overrideLocalBindingYesRadio, "split 2");
+        add(overrideLocalBindingNoRadio);
+        add(localAddressLabel, "newline, right");
+        add(localAddressField, "w 200!, sx");
+        add(localPortLabel, "newline, right");
+        add(localPortField, "w 50!, sx");
+        add(sendTimeoutLabel, "newline, right");
+        add(sendTimeoutField, "w 75!, sx");
+        add(encryptionLabel, "newline, right");
+        add(encryptionNone, "split 3");
+        add(encryptionTls);
+        add(encryptionSsl);
+        add(useAuthenticationLabel, "newline, right");
+        add(useAuthenticationYes, "split 2");
+        add(useAuthenticationNo);
+        add(usernameLabel, "newline, right");
+        add(usernameField, "w 125!, sx");
+        add(passwordLabel, "newline, right");
+        add(passwordField, "w 125!, sx");
+        add(toLabel, "newline, right");
+        add(toField, "w 200!, sx");
+        add(fromLabel, "newline, right");
+        add(fromField, "w 200!, sx");
+        add(subjectLabel, "newline, right");
+        add(subjectField, "w 250!, sx");
+        add(charsetEncodingLabel, "newline, right");
+        add(charsetEncodingComboBox);
+        add(htmlLabel, "newline, right");
+        add(htmlYes, "split 2");
+        add(htmlNo);
+        add(bodyLabel, "newline, top, right");
+        add(bodyTextPane, "grow, push, sx, h 89:");
+        add(headersLabel, "newline, top, right");
+        add(headersPane, "growx, pushx, span 2, h 85!");
+        add(newHeaderButton, "top, flowy, split 2, w 44!");
+        add(deleteHeaderButton, "w 44!");
+        add(attachmentsLabel, "newline, top, right");
+        add(attachmentsPane, "growx, pushx, span 2, h 85!");
+        add(newAttachmentButton, "top, flowy, split 2, w 44!");
+        add(deleteAttachmentButton, "w 44!");
+    }
+
+    private void newAttachmentButtonActionPerformed() {
         ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] {
                 getNewUniqueName(attachmentsTable), "" });
         attachmentsTable.setRowSelectionInterval(attachmentsTable.getRowCount() - 1, attachmentsTable.getRowCount() - 1);
         parent.setSaveEnabled(true);
-    }//GEN-LAST:event_newAttachmentButtonActionPerformed
+    }
 
-    private void deleteAttachmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteAttachmentButtonActionPerformed
+    private void deleteAttachmentButtonActionPerformed() {
         if (getSelectedRow(attachmentsTable) != -1 && !attachmentsTable.isEditing()) {
             ((DefaultTableModel) attachmentsTable.getModel()).removeRow(getSelectedRow(attachmentsTable));
 
@@ -995,25 +822,25 @@ public class SmtpSender extends ConnectorSettingsPanel {
 
             parent.setSaveEnabled(true);
         }
-    }//GEN-LAST:event_deleteAttachmentButtonActionPerformed
+    }
 
-    private void useAuthenticationYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationYesActionPerformed
+    private void useAuthenticationYesActionPerformed() {
         usernameLabel.setEnabled(true);
         usernameField.setEnabled(true);
 
         passwordLabel.setEnabled(true);
         passwordField.setEnabled(true);
-    }//GEN-LAST:event_useAuthenticationYesActionPerformed
+    }
 
-    private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationNoActionPerformed
+    private void useAuthenticationNoActionPerformed() {
         usernameLabel.setEnabled(false);
         usernameField.setEnabled(false);
 
         passwordLabel.setEnabled(false);
         passwordField.setEnabled(false);
-    }//GEN-LAST:event_useAuthenticationNoActionPerformed
+    }
 
-    private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendTestEmailButtonActionPerformed
+    private void sendTestEmailButtonActionPerformed() {
         if (!checkProperties(getProperties(), true)) {
             parent.alertCustomError(this.parent, errors, "Please fix the following errors before sending a test email:");
             return;
@@ -1038,16 +865,16 @@ public class SmtpSender extends ConnectorSettingsPanel {
         } catch (ClientException e) {
             // Should not happen
         }
-    }//GEN-LAST:event_sendTestEmailButtonActionPerformed
+    }
 
-    private void newHeaderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newHeaderButtonActionPerformed
+    private void newHeaderButtonActionPerformed() {
         ((DefaultTableModel) headersTable.getModel()).addRow(new Object[] {
                 getNewUniqueName(headersTable), "" });
         headersTable.setRowSelectionInterval(headersTable.getRowCount() - 1, headersTable.getRowCount() - 1);
         parent.setSaveEnabled(true);
-    }//GEN-LAST:event_newHeaderButtonActionPerformed
+    }
 
-    private void deleteHeaderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteHeaderButtonActionPerformed
+    private void deleteHeaderButtonActionPerformed() {
         if (getSelectedRow(headersTable) != -1 && !headersTable.isEditing()) {
             ((DefaultTableModel) headersTable.getModel()).removeRow(getSelectedRow(headersTable));
 
@@ -1063,74 +890,68 @@ public class SmtpSender extends ConnectorSettingsPanel {
 
             parent.setSaveEnabled(true);
         }
-    }//GEN-LAST:event_deleteHeaderButtonActionPerformed
+    }
 
-    private void overrideLocalBindingYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideLocalBindingYesRadioActionPerformed
+    private void overrideLocalBindingYesRadioActionPerformed() {
         localAddressField.setEnabled(true);
         localAddressLabel.setEnabled(true);
         localPortField.setEnabled(true);
         localPortLabel.setEnabled(true);
-    }//GEN-LAST:event_overrideLocalBindingYesRadioActionPerformed
+    }
 
-    private void overrideLocalBindingNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideLocalBindingNoRadioActionPerformed
+    private void overrideLocalBindingNoRadioActionPerformed() {
         localAddressField.setEnabled(false);
         localAddressLabel.setEnabled(false);
         localPortField.setEnabled(false);
         localPortLabel.setEnabled(false);
-    }//GEN-LAST:event_overrideLocalBindingNoRadioActionPerformed
+    }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel attachmentsLabel;
-    private javax.swing.JScrollPane attachmentsPane;
-    private com.mirth.connect.client.ui.components.MirthTable attachmentsTable;
-    private javax.swing.JLabel bodyLabel;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea bodyTextPane;
-    private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
-    private javax.swing.JLabel charsetEncodingLabel;
-    private javax.swing.JButton deleteAttachmentButton;
-    private javax.swing.JButton deleteHeaderButton;
-    private javax.swing.JLabel encryptionLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton encryptionNone;
-    private com.mirth.connect.client.ui.components.MirthRadioButton encryptionSsl;
-    private com.mirth.connect.client.ui.components.MirthRadioButton encryptionTls;
-    private com.mirth.connect.client.ui.components.MirthTextField fromField;
-    private javax.swing.JLabel fromLabel;
-    private javax.swing.JLabel headersLabel;
-    private javax.swing.JScrollPane headersPane;
-    private com.mirth.connect.client.ui.components.MirthTable headersTable;
-    private javax.swing.ButtonGroup htmlButtonGroup;
-    private javax.swing.JLabel htmlLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton htmlNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton htmlYes;
-    private javax.swing.JLabel keepConnectionOpenLabel1;
-    private com.mirth.connect.client.ui.components.MirthTextField localAddressField;
-    private javax.swing.JLabel localAddressLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField localPortField;
-    private javax.swing.JLabel localPortLabel;
-    private javax.swing.JButton newAttachmentButton;
-    private javax.swing.JButton newHeaderButton;
-    private javax.swing.ButtonGroup overrideLocalBindingButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingYesRadio;
-    private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
-    private javax.swing.JLabel passwordLabel;
-    private javax.swing.ButtonGroup secureButtonGroup;
-    private javax.swing.JButton sendTestEmailButton;
-    private com.mirth.connect.client.ui.components.MirthTextField sendTimeoutField;
-    private javax.swing.JLabel sendTimeoutLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField smtpHostField;
-    private javax.swing.JLabel smtpHostLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField smtpPortField;
-    private javax.swing.JLabel smtpPortLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField subjectField;
-    private javax.swing.JLabel subjectLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField toField;
-    private javax.swing.JLabel toLabel;
-    private javax.swing.ButtonGroup useAuthenticationButtonGroup;
-    private javax.swing.JLabel useAuthenticationLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton useAuthenticationNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton useAuthenticationYes;
-    private com.mirth.connect.client.ui.components.MirthTextField usernameField;
-    private javax.swing.JLabel usernameLabel;
-    // End of variables declaration//GEN-END:variables
+    private JLabel smtpHostLabel;
+    private MirthIconTextField smtpHostField;
+    private JButton sendTestEmailButton;
+    private JLabel smtpPortLabel;
+    private MirthTextField smtpPortField;
+    private JLabel overrideLocalBindingLabel;
+    private MirthRadioButton overrideLocalBindingYesRadio;
+    private MirthRadioButton overrideLocalBindingNoRadio;
+    private JLabel localAddressLabel;
+    private MirthTextField localAddressField;
+    private JLabel localPortLabel;
+    private MirthTextField localPortField;
+    private JLabel sendTimeoutLabel;
+    private MirthTextField sendTimeoutField;
+    public JLabel encryptionLabel;
+    public MirthRadioButton encryptionNone;
+    public MirthRadioButton encryptionTls;
+    public MirthRadioButton encryptionSsl;
+    private JLabel useAuthenticationLabel;
+    private MirthRadioButton useAuthenticationYes;
+    private MirthRadioButton useAuthenticationNo;
+    private JLabel usernameLabel;
+    private MirthTextField usernameField;
+    private JLabel passwordLabel;
+    private MirthPasswordField passwordField;
+    private JLabel toLabel;
+    private MirthTextField toField;
+    private JLabel fromLabel;
+    private MirthTextField fromField;
+    private JLabel subjectLabel;
+    private MirthTextField subjectField;
+    private JLabel charsetEncodingLabel;
+    private MirthComboBox<CharsetEncodingInformation> charsetEncodingComboBox;
+    private JLabel htmlLabel;
+    private MirthRadioButton htmlYes;
+    private MirthRadioButton htmlNo;
+    private JLabel bodyLabel;
+    private MirthSyntaxTextArea bodyTextPane;
+    private JLabel headersLabel;
+    private MirthTable headersTable;
+    private JScrollPane headersPane;
+    private JButton newHeaderButton;
+    private JButton deleteHeaderButton;
+    private JLabel attachmentsLabel;
+    private MirthTable attachmentsTable;
+    private JScrollPane attachmentsPane;
+    private JButton newAttachmentButton;
+    private JButton deleteAttachmentButton;
 }

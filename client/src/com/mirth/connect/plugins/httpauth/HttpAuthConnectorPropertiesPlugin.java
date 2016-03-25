@@ -10,12 +10,20 @@
 package com.mirth.connect.plugins.httpauth;
 
 import com.mirth.connect.client.ui.AbstractConnectorPropertiesPanel;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.converters.PluginPropertiesConverter;
 import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
+import com.mirth.connect.plugins.httpauth.oauth2.OAuth2HttpAuthProperties;
+import com.thoughtworks.xstream.XStream;
 
 public class HttpAuthConnectorPropertiesPlugin extends ConnectorPropertiesPlugin {
 
     public HttpAuthConnectorPropertiesPlugin(String pluginName) {
         super(pluginName);
+
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+        XStream xstream = serializer.getXStream();
+        xstream.registerLocalConverter(OAuth2HttpAuthProperties.class, "connectorPluginProperties", new PluginPropertiesConverter(serializer.getNormalizedVersion(), xstream.getMapper()));
     }
 
     @Override

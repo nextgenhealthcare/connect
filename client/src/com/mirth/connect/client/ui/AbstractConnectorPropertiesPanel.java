@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorPanel;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 
 public abstract class AbstractConnectorPropertiesPanel extends JPanel {
@@ -32,7 +33,7 @@ public abstract class AbstractConnectorPropertiesPanel extends JPanel {
      * Sets all of the current data in the plugin's form to the data in the properties object
      * parameter.
      */
-    public abstract void setProperties(ConnectorPluginProperties properties, Mode mode, String transportName);
+    public abstract void setProperties(ConnectorProperties connectorProperties, ConnectorPluginProperties properties, Mode mode, String transportName);
 
     /**
      * Gets all of the default connector plugin properties
@@ -59,6 +60,12 @@ public abstract class AbstractConnectorPropertiesPanel extends JPanel {
      * layout.
      */
     public abstract Component[][] getLayoutComponents();
+
+    /**
+     * Sets all appropriate components to be enabled or disabled. Even if true is passed in, not all
+     * components may actually be enabled.
+     */
+    public abstract void setLayoutComponentsEnabled(boolean enabled);
 
     /**
      * Sets the ConnectorPanel associated with this plugin properties-specific panel.

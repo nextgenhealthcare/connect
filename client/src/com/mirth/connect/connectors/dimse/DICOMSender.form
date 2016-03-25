@@ -71,12 +71,12 @@
                   <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel27" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel31" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel28" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel12" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel13" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel29" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="tlsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="clientAuthenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="acceptSSLv2Label" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="keyStoreLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="trustStoreLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="keyPasswordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -86,38 +86,38 @@
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="keyStoreField" min="-2" pref="150" max="-2" attributes="1"/>
-                                  <Component id="truststoreField" min="-2" pref="150" max="-2" attributes="1"/>
+                                  <Component id="trustStoreField" min="-2" pref="150" max="-2" attributes="1"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel30" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="keyStorePasswordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="trustStorePasswordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="keyStorePasswordField" min="-2" pref="75" max="-2" attributes="1"/>
-                                  <Component id="truststorepwField" min="-2" pref="75" max="-2" attributes="1"/>
+                                  <Component id="trustStorePasswordField" min="-2" pref="75" max="-2" attributes="1"/>
                               </Group>
                           </Group>
                           <Component id="keyPasswordField" min="-2" pref="150" max="-2" attributes="0"/>
                           <Group type="102" attributes="0">
-                              <Component id="nossl2Yes" min="-2" max="-2" attributes="0"/>
+                              <Component id="acceptSSLv2YesRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="nossl2No" min="-2" max="-2" attributes="0"/>
+                              <Component id="acceptSSLv2NoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
-                              <Component id="noclientauthYes" min="-2" max="-2" attributes="0"/>
+                              <Component id="clientAuthenticationYesRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="noclientauthNo" min="-2" max="-2" attributes="0"/>
+                              <Component id="clientAuthenticationNoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
-                              <Component id="tls3des" min="-2" max="-2" attributes="0"/>
+                              <Component id="tls3DESRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="tlsaes" min="-2" max="-2" attributes="0"/>
+                              <Component id="tlsAESRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="tlswithout" min="-2" max="-2" attributes="0"/>
+                              <Component id="tlsWithoutRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="tlsno" min="-2" max="-2" attributes="0"/>
+                              <Component id="tlsNoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
                               <Component id="ts1Yes" min="-2" max="-2" attributes="1"/>
@@ -360,23 +360,23 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel28" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="tls3des" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="tlsaes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="tlswithout" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="tlsno" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tlsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tls3DESRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tlsAESRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tlsWithoutRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tlsNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="noclientauthYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="noclientauthNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="clientAuthenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="clientAuthenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="clientAuthenticationNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="nossl2Yes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="nossl2No" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="acceptSSLv2Label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="acceptSSLv2YesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="acceptSSLv2NoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
@@ -393,21 +393,21 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keyStoreLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="keyStoreField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keyStorePasswordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="keyStorePasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel29" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="truststoreField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel30" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="truststorepwField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="trustStoreLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="trustStoreField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="trustStorePasswordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="trustStorePasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keyPasswordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="keyPasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -439,7 +439,7 @@
         <Property name="toolTipText" type="java.lang.String" value="Remote PORT to send to."/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerAddressField">
+    <Component class="com.mirth.connect.client.ui.components.MirthIconTextField" name="listenerAddressField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Remote IP to send to."/>
       </Properties>
@@ -567,7 +567,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel9">
+    <Component class="javax.swing.JLabel" name="keyStorePasswordLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Keystore Password:"/>
       </Properties>
@@ -577,7 +577,7 @@
         <Property name="toolTipText" type="java.lang.String" value="Password for keystore file."/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel10">
+    <Component class="javax.swing.JLabel" name="keyStoreLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Keystore:"/>
       </Properties>
@@ -587,7 +587,7 @@
         <Property name="toolTipText" type="java.lang.String" value="File path or URL of P12 or JKS keystore, resource:tls/test_sys_2.p12 by default."/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel11">
+    <Component class="javax.swing.JLabel" name="keyPasswordLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Key Password:"/>
       </Properties>
@@ -597,12 +597,12 @@
         <Property name="toolTipText" type="java.lang.String" value="Password for accessing the key in the keystore, keystore password by default."/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel12">
+    <Component class="javax.swing.JLabel" name="clientAuthenticationLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Client Authentication TLS:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="noclientauthYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="clientAuthenticationYesRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -623,7 +623,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="noclientauthNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="clientAuthenticationNoRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -643,12 +643,12 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel13">
+    <Component class="javax.swing.JLabel" name="acceptSSLv2Label">
       <Properties>
         <Property name="text" type="java.lang.String" value="Accept ssl v2 TLS handshake:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="nossl2Yes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="acceptSSLv2YesRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -669,7 +669,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="nossl2No">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="acceptSSLv2NoRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -937,12 +937,12 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel28">
+    <Component class="javax.swing.JLabel" name="tlsLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="TLS:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlswithout">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlsWithoutRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -962,10 +962,10 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlswithoutActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlsWithoutRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tls3des">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tls3DESRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -985,10 +985,10 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tls3desActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tls3DESRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlsaes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlsAESRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -1008,25 +1008,25 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlsaesActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlsAESRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel29">
+    <Component class="javax.swing.JLabel" name="trustStoreLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Trust Store:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="truststoreField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="trustStoreField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="File path or URL of JKS truststore, resource:tls/mesa_certs.jks by default."/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel30">
+    <Component class="javax.swing.JLabel" name="trustStorePasswordLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Trust Store Password:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="truststorepwField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="trustStorePasswordField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Password for truststore file."/>
       </Properties>
@@ -1123,7 +1123,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlsno">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlsNoRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -1144,7 +1144,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlsnoActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlsNoRadioActionPerformed"/>
       </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="applicationEntityField">

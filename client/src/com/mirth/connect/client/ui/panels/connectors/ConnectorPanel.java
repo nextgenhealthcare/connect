@@ -101,6 +101,10 @@ public class ConnectorPanel extends JPanel {
         return null;
     }
 
+    public Map<String, AbstractConnectorPropertiesPanel> getConnectorPluginPropertiesPanels() {
+        return connectorPropertiesPanels;
+    }
+
     public ConnectorProperties getProperties() {
         ConnectorSettingsPanel connectorSettingsPanel = getConnectorSettingsPanel();
 
@@ -179,7 +183,7 @@ public class ConnectorPanel extends JPanel {
 
                     if (connectorPluginPropertiesPanel != null) {
                         connectorPluginPropertiesPanel.resetInvalidProperties();
-                        connectorPluginPropertiesPanel.setProperties(connectorPluginProperties, mode, properties.getName());
+                        connectorPluginPropertiesPanel.setProperties(properties, connectorPluginProperties, mode, properties.getName());
                         addedPluginProperties.add(connectorPluginProperties.getName());
                     }
                 }
@@ -193,7 +197,7 @@ public class ConnectorPanel extends JPanel {
             if (connectorPropertiesPlugin.isSupported(properties.getName()) && !addedPluginProperties.contains(pluginPropertiesName)) {
                 AbstractConnectorPropertiesPanel connectorPluginPropertiesPanel = connectorPropertiesPanels.get(pluginPropertiesName);
                 connectorPluginPropertiesPanel.resetInvalidProperties();
-                connectorPluginPropertiesPanel.setProperties(connectorPluginPropertiesPanel.getDefaults(), mode, properties.getName());
+                connectorPluginPropertiesPanel.setProperties(properties, connectorPluginPropertiesPanel.getDefaults(), mode, properties.getName());
             }
         }
     }

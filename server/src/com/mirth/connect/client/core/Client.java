@@ -794,6 +794,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
         getServlet(ConfigurationServletInterface.class).setChannelDependencies(dependencies);
     }
 
+    /**
+     * Returns a map containing all supported and enabled TLS protocols and cipher suites.
+     * 
+     * @see ConfigurationServletInterface#getProtocolsAndCipherSuites
+     */
+    @Override
+    public Map<String, String[]> getProtocolsAndCipherSuites() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getProtocolsAndCipherSuites();
+    }
+
     /*******************
      * Channel Servlet *
      *******************/

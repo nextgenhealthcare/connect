@@ -9,16 +9,10 @@
 
 package com.mirth.connect.connectors.dimse;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.UID;
-import org.dcm4che2.tool.dcmrcv.DcmRcv;
 import org.dcm4che2.tool.dcmrcv.MirthDcmRcv;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -30,7 +24,6 @@ import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.MirthSSLUtil;
 
 public class DICOMReceiver extends SourceConnector {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -38,13 +31,30 @@ public class DICOMReceiver extends SourceConnector {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private DcmRcv dcmrcv;
+    private DICOMConfiguration configuration = null;
+    private MirthDcmRcv dcmrcv;
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (DICOMReceiverProperties) getConnectorProperties();
 
-        dcmrcv = new MirthDcmRcv(this);
+        // load the default configuration
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "dicomConfigurationClass");
+
+        try {
+            configuration = (DICOMConfiguration) Class.forName(configurationClass).newInstance();
+        } catch (Throwable t) {
+            logger.trace("could not find custom configuration class, using default");
+            configuration = new DefaultDICOMConfiguration();
+        }
+
+        try {
+            configuration.configureConnectorDeploy(this);
+        } catch (Exception e) {
+            throw new ConnectorTaskException(e);
+        }
+
+        dcmrcv = new MirthDcmRcv(this, configuration);
     }
 
     @Override
@@ -150,62 +160,7 @@ public class DICOMReceiver extends SourceConnector {
 
             dcmrcv.initTransferCapability();
 
-            // connection tls settings
-
-            if (!StringUtils.equals(connectorProperties.getTls(), "notls")) {
-                if (connectorProperties.getTls().equals("without")) {
-                    dcmrcv.setTlsWithoutEncyrption();
-                } else if (connectorProperties.getTls().equals("3des")) {
-                    dcmrcv.setTls3DES_EDE_CBC();
-                } else if (connectorProperties.getTls().equals("aes")) {
-                    dcmrcv.setTlsAES_128_CBC();
-                }
-
-                String trustStore = replacer.replaceValues(connectorProperties.getTrustStore(), getChannelId(), getChannel().getName());
-                if (StringUtils.isNotBlank(trustStore)) {
-                    dcmrcv.setTrustStoreURL(trustStore);
-                }
-
-                String trustStorePW = replacer.replaceValues(connectorProperties.getTrustStorePW(), getChannelId(), getChannel().getName());
-                if (StringUtils.isNotBlank(trustStorePW)) {
-                    dcmrcv.setTrustStorePassword(trustStorePW);
-                }
-
-                String keyPW = replacer.replaceValues(connectorProperties.getKeyPW(), getChannelId(), getChannel().getName());
-                if (StringUtils.isNotBlank(keyPW)) {
-                    dcmrcv.setKeyPassword(keyPW);
-                }
-
-                String keyStore = replacer.replaceValues(connectorProperties.getKeyStore(), getChannelId(), getChannel().getName());
-                if (StringUtils.isNotBlank(keyStore)) {
-                    dcmrcv.setKeyStoreURL(keyStore);
-                }
-
-                String keyStorePW = replacer.replaceValues(connectorProperties.getKeyStorePW(), getChannelId(), getChannel().getName());
-                if (StringUtils.isNotBlank(keyStorePW)) {
-                    dcmrcv.setKeyStorePassword(keyStorePW);
-                }
-
-                dcmrcv.setTlsNeedClientAuth(connectorProperties.isNoClientAuth());
-
-                String[] protocols = configurationController.getHttpsServerProtocols();
-
-                if (connectorProperties.isNossl2()) {
-                    if (ArrayUtils.contains(protocols, "SSLv2Hello")) {
-                        List<String> protocolsList = new ArrayList<String>(Arrays.asList(protocols));
-                        protocolsList.remove("SSLv2Hello");
-                        protocols = protocolsList.toArray(new String[protocolsList.size()]);
-                    }
-                } else if (!ArrayUtils.contains(protocols, "SSLv2Hello")) {
-                    List<String> protocolsList = new ArrayList<String>(Arrays.asList(protocols));
-                    protocolsList.add("SSLv2Hello");
-                    protocols = protocolsList.toArray(new String[protocolsList.size()]);
-                }
-
-                dcmrcv.setTlsProtocol(MirthSSLUtil.getEnabledHttpsProtocols(protocols));
-
-                dcmrcv.initTLS();
-            }
+            configuration.configureDcmRcv(dcmrcv, this, connectorProperties);
 
             // start the DICOM port
             dcmrcv.start();
@@ -239,4 +194,7 @@ public class DICOMReceiver extends SourceConnector {
         finishDispatch(dispatchResult);
     }
 
+    public TemplateValueReplacer getReplacer() {
+        return replacer;
+    }
 }

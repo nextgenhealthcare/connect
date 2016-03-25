@@ -32,11 +32,11 @@ import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public abstract class ConnectorSettingsPanel extends JPanel {
-    
+
     protected ConnectorPanel connectorPanel;
 
     private Map<String, SwingWorker<Object, Void>> workerMap = new ConcurrentHashMap<String, SwingWorker<Object, Void>>();
-    
+
     /**
      * Gets the name of the connector
      */
@@ -116,6 +116,13 @@ public abstract class ConnectorSettingsPanel extends JPanel {
     }
 
     /**
+     * Returns the ConnectorPanel associated with this connector-specific panel.
+     */
+    public final ConnectorPanel getConnectorPanel() {
+        return connectorPanel;
+    }
+
+    /**
      * Sets the ConnectorPanel associated with this connector-specific panel.
      * 
      * @param connectorPanel
@@ -153,7 +160,7 @@ public abstract class ConnectorSettingsPanel extends JPanel {
     public final <T> T getServlet(final Class<T> servletInterface, final String workerDisplayText, final String errorText) {
         return getServlet(servletInterface, workerDisplayText, errorText, null);
     }
-    
+
     public final <T> T getServlet(final Class<T> servletInterface, final String workerDisplayText, final String errorText, final ResponseHandler responseHandler) {
         return getServlet(servletInterface, workerDisplayText, errorText, responseHandler, null);
     }
@@ -224,7 +231,7 @@ public abstract class ConnectorSettingsPanel extends JPanel {
                         }
                     }
                 };
-                
+
                 if (workerId != null) {
                     workerMap.put(workerId, worker);
                 }
@@ -247,7 +254,7 @@ public abstract class ConnectorSettingsPanel extends JPanel {
     public final String getChannelName() {
         return PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getName();
     }
-    
+
     public SwingWorker<Object, Void> getWorker(String workerId) {
         return workerMap.get(workerId);
     }

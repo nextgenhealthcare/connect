@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.tcp;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,12 +21,12 @@ import com.mirth.connect.util.TcpUtil;
 
 public class SocketUtil {
 
-    public static StateAwareSocket createSocket() throws UnknownHostException, IOException {
-        return createSocket(null);
+    public static Socket createSocket(TcpConfiguration configuration) throws UnknownHostException, IOException {
+        return createSocket(configuration, null);
     }
 
-    public static StateAwareSocket createSocket(String localAddr) throws UnknownHostException, IOException {
-        return createSocket(localAddr, 0);
+    public static Socket createSocket(TcpConfiguration configuration, String localAddr) throws UnknownHostException, IOException {
+        return createSocket(configuration, localAddr, 0);
     }
 
     /**
@@ -41,14 +42,14 @@ public class SocketUtil {
      *            - The local port to bind the socket to.
      * @param timeout
      *            - The socket timeout to use when connecting.
-     * @return The bound and connected StateAwareSocket.
+     * @return The bound and connected Socket.
      * @throws UnknownHostException
      *             if the IP address of the host could not be determined
      * @throws IOException
      *             if an I/O error occurs when creating the socket
      */
-    public static StateAwareSocket createSocket(String localAddr, int localPort) throws UnknownHostException, IOException {
-        StateAwareSocket socket = new StateAwareSocket();
+    public static Socket createSocket(TcpConfiguration configuration, String localAddr, int localPort) throws UnknownHostException, IOException {
+        Socket socket = configuration.createSocket();
 
         if (StringUtils.isNotEmpty(localAddr)) {
             InetAddress localAddress = InetAddress.getByName(TcpUtil.getFixedHost(localAddr));
@@ -57,12 +58,16 @@ public class SocketUtil {
 
         return socket;
     }
+    
+    public static Socket createResponseSocket(TcpConfiguration configuration) throws UnknownHostException, IOException {
+        return configuration.createResponseSocket();
+    }
 
-    public static void connectSocket(StateAwareSocket socket, String host, int port, int timeout) throws UnknownHostException, IOException {
+    public static void connectSocket(Socket socket, String host, int port, int timeout) throws UnknownHostException, IOException {
         socket.connect(new InetSocketAddress(InetAddress.getByName(TcpUtil.getFixedHost(host)), port), timeout);
     }
 
-    public static void closeSocket(StateAwareSocket socket) throws IOException {
+    public static void closeSocket(Socket socket) throws IOException {
         if (socket != null) {
             /*
              * MIRTH-2984: The shutdownInput() and shutdownOutput() methods are no longer being
@@ -73,7 +78,7 @@ public class SocketUtil {
         }
     }
 
-    public static String getInetAddress(StateAwareSocket socket) {
+    public static String getInetAddress(Socket socket) {
         String inetAddress = socket == null || socket.getInetAddress() == null ? "" : socket.getInetAddress().toString() + ":" + socket.getPort();
 
         if (inetAddress.startsWith("/")) {
@@ -83,7 +88,7 @@ public class SocketUtil {
         return inetAddress;
     }
 
-    public static String getLocalAddress(StateAwareSocket socket) {
+    public static String getLocalAddress(Socket socket) {
         String localAddress = socket == null || socket.getLocalAddress() == null ? "" : socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
 
         // If addresses begin with a slash "/", remove it.

@@ -10,16 +10,12 @@
 package com.mirth.connect.connectors.dimse;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.dcm4che2.net.UserIdentity;
-import org.dcm4che2.tool.dcmsnd.DcmSnd;
+import org.dcm4che2.tool.dcmsnd.MirthDcmSnd;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -36,7 +32,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
-import com.mirth.connect.util.MirthSSLUtil;
 
 public class DICOMDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -45,27 +40,27 @@ public class DICOMDispatcher extends DestinationConnector {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private String[] protocols;
+    private DICOMConfiguration configuration = null;
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (DICOMDispatcherProperties) getConnectorProperties();
 
-        protocols = configurationController.getHttpsClientProtocols();
+        // load the default configuration
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "dicomConfigurationClass");
 
-        if (connectorProperties.isNossl2()) {
-            if (ArrayUtils.contains(protocols, "SSLv2Hello")) {
-                List<String> protocolsList = new ArrayList<String>(Arrays.asList(protocols));
-                protocolsList.remove("SSLv2Hello");
-                protocols = protocolsList.toArray(new String[protocolsList.size()]);
-            }
-        } else if (!ArrayUtils.contains(protocols, "SSLv2Hello")) {
-            List<String> protocolsList = new ArrayList<String>(Arrays.asList(protocols));
-            protocolsList.add("SSLv2Hello");
-            protocols = protocolsList.toArray(new String[protocolsList.size()]);
+        try {
+            configuration = (DICOMConfiguration) Class.forName(configurationClass).newInstance();
+        } catch (Throwable t) {
+            logger.trace("could not find custom configuration class, using default");
+            configuration = new DefaultDICOMConfiguration();
         }
 
-        protocols = MirthSSLUtil.getEnabledHttpsProtocols(protocols);
+        try {
+            configuration.configureConnectorDeploy(this);
+        } catch (Exception e) {
+            throw new ConnectorTaskException(e);
+        }
     }
 
     @Override
@@ -120,7 +115,7 @@ public class DICOMDispatcher extends DestinationConnector {
         Status responseStatus = Status.QUEUED;
 
         File tempFile = null;
-        DcmSnd dcmSnd = new DcmSnd();
+        MirthDcmSnd dcmSnd = new MirthDcmSnd(configuration);
 
         try {
             tempFile = File.createTempFile("temp", "tmp");
@@ -221,29 +216,7 @@ public class DICOMDispatcher extends DestinationConnector {
             dcmSnd.setStorageCommitment(dicomDispatcherProperties.isStgcmt());
             dcmSnd.setTcpNoDelay(!dicomDispatcherProperties.isTcpDelay());
 
-            if (dicomDispatcherProperties.getTls() != null && !dicomDispatcherProperties.getTls().equals("notls")) {
-                if (dicomDispatcherProperties.getTls().equals("without"))
-                    dcmSnd.setTlsWithoutEncyrption();
-                if (dicomDispatcherProperties.getTls().equals("3des"))
-                    dcmSnd.setTls3DES_EDE_CBC();
-                if (dicomDispatcherProperties.getTls().equals("aes"))
-                    dcmSnd.setTlsAES_128_CBC();
-                if (dicomDispatcherProperties.getTrustStore() != null && !dicomDispatcherProperties.getTrustStore().equals(""))
-                    dcmSnd.setTrustStoreURL(dicomDispatcherProperties.getTrustStore());
-                if (dicomDispatcherProperties.getTrustStorePW() != null && !dicomDispatcherProperties.getTrustStorePW().equals(""))
-                    dcmSnd.setTrustStorePassword(dicomDispatcherProperties.getTrustStorePW());
-                if (dicomDispatcherProperties.getKeyPW() != null && !dicomDispatcherProperties.getKeyPW().equals(""))
-                    dcmSnd.setKeyPassword(dicomDispatcherProperties.getKeyPW());
-                if (dicomDispatcherProperties.getKeyStore() != null && !dicomDispatcherProperties.getKeyStore().equals(""))
-                    dcmSnd.setKeyStoreURL(dicomDispatcherProperties.getKeyStore());
-                if (dicomDispatcherProperties.getKeyStorePW() != null && !dicomDispatcherProperties.getKeyStorePW().equals(""))
-                    dcmSnd.setKeyStorePassword(dicomDispatcherProperties.getKeyStorePW());
-                dcmSnd.setTlsNeedClientAuth(dicomDispatcherProperties.isNoClientAuth());
-
-                dcmSnd.setTlsProtocol(protocols);
-
-                dcmSnd.initTLS();
-            }
+            configuration.configureDcmSnd(dcmSnd, this, dicomDispatcherProperties);
 
             dcmSnd.setOfferDefaultTransferSyntaxInSeparatePresentationContext(dicomDispatcherProperties.isTs1());
             dcmSnd.configureTransferCapability();
@@ -276,5 +249,4 @@ public class DICOMDispatcher extends DestinationConnector {
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
-
 }

@@ -45,6 +45,7 @@ import java.util.UUID;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.net.ssl.SSLSocketFactory;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.codec.binary.Base64;
@@ -1280,8 +1281,15 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         // These have to be set after the authenticator, so that a new mail session isn't created
         ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-        email.getMailSession().getProperties().setProperty("mail.smtp.ssl.protocols", StringUtils.join(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols()), ' '));
-        email.getMailSession().getProperties().setProperty("mail.smtp.ssl.ciphersuites", StringUtils.join(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()), ' '));
+        String protocols = properties.getProperty("protocols", StringUtils.join(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols()), ' '));
+        String cipherSuites = properties.getProperty("cipherSuites", StringUtils.join(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()), ' '));
+        email.getMailSession().getProperties().setProperty("mail.smtp.ssl.protocols", protocols);
+        email.getMailSession().getProperties().setProperty("mail.smtp.ssl.ciphersuites", cipherSuites);
+
+        SSLSocketFactory socketFactory = (SSLSocketFactory) properties.get("socketFactory");
+        if (socketFactory != null) {
+            email.getMailSession().getProperties().put("mail.smtp.ssl.socketFactory", socketFactory);
+        }
 
         email.setSubject("Mirth Connect Test Email");
 

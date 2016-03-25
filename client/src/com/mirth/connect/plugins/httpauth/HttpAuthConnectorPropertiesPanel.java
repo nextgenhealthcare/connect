@@ -43,6 +43,7 @@ import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -64,7 +65,9 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.connectors.http.HttpDispatcherProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.model.InvalidConnectorPluginProperties;
 import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
 import com.mirth.connect.plugins.httpauth.HttpAuthConnectorPluginProperties.AuthType;
 import com.mirth.connect.plugins.httpauth.basic.BasicHttpAuthProperties;
@@ -158,7 +161,9 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             props.setLocationKey(oauth2TokenField.getText());
             props.setVerificationURL(oauth2VerificationURLField.getText());
             if (connectorPropertiesPanel != null) {
-                props.setConnectorPluginProperties(connectorPropertiesPanel.getProperties());
+                Set<ConnectorPluginProperties> connectorPluginProperties = new HashSet<ConnectorPluginProperties>();
+                connectorPluginProperties.add(connectorPropertiesPanel.getProperties());
+                props.setConnectorPluginProperties(connectorPluginProperties);
             }
 
             return props;
@@ -168,15 +173,15 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
     }
 
     @Override
-    public void setProperties(ConnectorPluginProperties properties, Mode mode, String transportName) {
+    public void setProperties(ConnectorProperties connectorProperties, ConnectorPluginProperties properties, Mode mode, String transportName) {
         forceAuthTypeChange = true;
         typeComboBox.setSelectedItem(((HttpAuthConnectorPluginProperties) properties).getAuthType());
         authTypeChanged();
         forceAuthTypeChange = false;
-        setProperties(properties);
+        setProperties(connectorProperties, properties);
     }
 
-    private void setProperties(ConnectorPluginProperties properties) {
+    private void setProperties(ConnectorProperties connectorProperties, ConnectorPluginProperties properties) {
         if (properties instanceof BasicHttpAuthProperties) {
             BasicHttpAuthProperties props = (BasicHttpAuthProperties) properties;
 
@@ -238,11 +243,15 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             oauth2TokenField.setText(props.getLocationKey());
             oauth2VerificationURLField.setText(props.getVerificationURL());
             if (connectorPropertiesPanel != null) {
-                ConnectorPluginProperties connectorPluginPropertes = props.getConnectorPluginProperties();
-                if (connectorPluginPropertes == null) {
-                    connectorPluginPropertes = connectorPropertiesPanel.getDefaults();
+                Set<ConnectorPluginProperties> connectorPluginProperties = props.getConnectorPluginProperties();
+                if (CollectionUtils.isEmpty(connectorPluginProperties)) {
+                    connectorPluginProperties = new HashSet<ConnectorPluginProperties>();
+                    connectorPluginProperties.add(connectorPropertiesPanel.getDefaults());
                 }
-                connectorPropertiesPanel.setProperties(connectorPluginPropertes, Mode.DESTINATION, new HttpDispatcherProperties().getName());
+                ConnectorPluginProperties pluginProperties = connectorPluginProperties.iterator().next();
+                if (!(pluginProperties instanceof InvalidConnectorPluginProperties)) {
+                    connectorPropertiesPanel.setProperties(connectorProperties, pluginProperties, Mode.DESTINATION, new HttpDispatcherProperties().getName());
+                }
             }
         }
     }
@@ -264,7 +273,9 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         } else if (authType == AuthType.OAUTH2_VERIFICATION) {
             OAuth2HttpAuthProperties props = new OAuth2HttpAuthProperties();
             if (connectorPropertiesPanel != null) {
-                props.setConnectorPluginProperties(connectorPropertiesPanel.getDefaults());
+                Set<ConnectorPluginProperties> connectorPluginProperties = new HashSet<ConnectorPluginProperties>();
+                connectorPluginProperties.add(connectorPropertiesPanel.getDefaults());
+                props.setConnectorPluginProperties(connectorPluginProperties);
             }
             return props;
         }
@@ -328,8 +339,12 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             }
 
             if (connectorPropertiesPanel != null && props.getConnectorPluginProperties() != null) {
-                if (!connectorPropertiesPanel.checkProperties(props.getConnectorPluginProperties(), Mode.DESTINATION, new HttpDispatcherProperties().getName(), highlight)) {
-                    valid = false;
+                for (ConnectorPluginProperties pluginProperties : props.getConnectorPluginProperties()) {
+                    if (!(pluginProperties instanceof InvalidConnectorPluginProperties)) {
+                        if (!connectorPropertiesPanel.checkProperties(pluginProperties, Mode.DESTINATION, new HttpDispatcherProperties().getName(), highlight)) {
+                            valid = false;
+                        }
+                    }
                 }
             }
         }
@@ -346,9 +361,13 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         oauth2VerificationURLField.setBackground(null);
     }
 
+    @Override
     public Component[][] getLayoutComponents() {
         return null;
     }
+
+    @Override
+    public void setLayoutComponentsEnabled(boolean enabled) {}
 
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
@@ -907,7 +926,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             }
         }
 
-        setProperties(getDefaultProperties(authType));
+        setProperties(connectorPanel.getDefaults(), getDefaultProperties(authType));
         selectedAuthType = authType;
     }
 

@@ -28,6 +28,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 
+import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.plugins.httpauth.AuthenticationResult;
 import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.RequestInfo;
@@ -55,7 +56,11 @@ public class OAuth2Authenticator extends Authenticator {
         try {
             // Create and configure the client and context 
             RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory());
-            provider.getHttpConfiguration().configureSocketFactoryRegistry(properties.getConnectorPluginProperties(), socketFactoryRegistry);
+            ConnectorPluginProperties pluginProperties = null;
+            if (CollectionUtils.isNotEmpty(properties.getConnectorPluginProperties())) {
+                pluginProperties = properties.getConnectorPluginProperties().iterator().next();
+            }
+            provider.getHttpConfiguration().configureSocketFactoryRegistry(pluginProperties, socketFactoryRegistry);
             BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
             httpClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(SOCKET_TIMEOUT).build());
             client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();

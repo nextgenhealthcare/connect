@@ -10,7 +10,9 @@
 package com.mirth.connect.plugins.httpauth.oauth2;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.plugins.httpauth.HttpAuthConnectorPluginProperties;
@@ -35,7 +37,7 @@ public class OAuth2HttpAuthProperties extends HttpAuthConnectorPluginProperties 
     private TokenLocation tokenLocation;
     private String locationKey;
     private String verificationURL;
-    private ConnectorPluginProperties connectorPluginProperties;
+    private Set<ConnectorPluginProperties> connectorPluginProperties;
 
     public OAuth2HttpAuthProperties() {
         super(AuthType.OAUTH2_VERIFICATION);
@@ -76,11 +78,11 @@ public class OAuth2HttpAuthProperties extends HttpAuthConnectorPluginProperties 
         this.verificationURL = verificationURL;
     }
 
-    public ConnectorPluginProperties getConnectorPluginProperties() {
+    public Set<ConnectorPluginProperties> getConnectorPluginProperties() {
         return connectorPluginProperties;
     }
 
-    public void setConnectorPluginProperties(ConnectorPluginProperties connectorPluginProperties) {
+    public void setConnectorPluginProperties(Set<ConnectorPluginProperties> connectorPluginProperties) {
         this.connectorPluginProperties = connectorPluginProperties;
     }
 
@@ -90,7 +92,11 @@ public class OAuth2HttpAuthProperties extends HttpAuthConnectorPluginProperties 
         purgedProperties.put("authType", getAuthType());
         purgedProperties.put("tokenLocation", tokenLocation);
         if (connectorPluginProperties != null) {
-            purgedProperties.put("connectorPluginProperties", connectorPluginProperties.getPurgedProperties());
+            Set<Map<String, Object>> purgedPluginProperties = new HashSet<Map<String, Object>>();
+            for (ConnectorPluginProperties cpp : connectorPluginProperties) {
+                purgedPluginProperties.add(cpp.getPurgedProperties());
+            }
+            purgedProperties.put("connectorPluginProperties", purgedPluginProperties);
         }
         return purgedProperties;
     }

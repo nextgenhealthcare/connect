@@ -239,4 +239,10 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @ApiOperation("Updates all channel dependencies for the server.")
     @MirthOperation(name = "setChannelDependencies", display = "Set channel dependencies", permission = Permissions.CHANNELS_MANAGE)
     public void setChannelDependencies(Set<ChannelDependency> dependencies) throws ClientException;
+
+    @GET
+    @Path("/protocolsAndCipherSuites")
+    @ApiOperation("Returns a map containing all supported and enabled TLS protocols and cipher suites.")
+    @MirthOperation(name = "getProtocolsAndCipherSuites", display = "Get protocols and cipher suites", type = ExecuteType.ASYNC, auditable = false)
+    public Map<String, String[]> getProtocolsAndCipherSuites() throws ClientException;
 }

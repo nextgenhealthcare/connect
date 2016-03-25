@@ -1,0 +1,16 @@
+<pluginMetaData path="tcp">
+	<name>TCP Connector Service Plugin</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.4.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin is required for correct use of the TCP connectors.</description>
+	<serverClasses>
+		<string>com.mirth.connect.connectors.tcp.TcpServicePlugin</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.connectors.tcp.TcpClientPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="tcp-client.jar" />
+	<library type="SERVER" path="tcp-server.jar" />
+</pluginMetaData>

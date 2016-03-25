@@ -36,7 +36,6 @@ import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
-import com.mirth.connect.util.MirthSSLUtil;
 
 public class SmtpDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -45,18 +44,31 @@ public class SmtpDispatcher extends DestinationConnector {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
 
+    private SmtpConfiguration configuration = null;
     private String charsetEncoding;
-    private String protocols;
-    private String cipherSuites;
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (SmtpDispatcherProperties) getConnectorProperties();
 
+        // load the default configuration
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "smtpConfigurationClass");
+
+        try {
+            configuration = (SmtpConfiguration) Class.forName(configurationClass).newInstance();
+        } catch (Throwable t) {
+            logger.trace("could not find custom configuration class, using default");
+            configuration = new DefaultSmtpConfiguration();
+        }
+
+        try {
+            configuration.configureConnectorDeploy(this);
+        } catch (Exception e) {
+            throw new ConnectorTaskException(e);
+        }
+
         // TODO remove hardcoded HL7v2 reference?
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
-        protocols = StringUtils.join(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols()), ' ');
-        cipherSuites = StringUtils.join(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()), ' ');
     }
 
     @Override
@@ -144,12 +156,8 @@ public class SmtpDispatcher extends DestinationConnector {
                 // Don't set if the value is invalid
             }
 
-            if ("SSL".equalsIgnoreCase(smtpDispatcherProperties.getEncryption())) {
-                email.setSSLOnConnect(true);
-                email.setSslSmtpPort(smtpDispatcherProperties.getSmtpPort());
-            } else if ("TLS".equalsIgnoreCase(smtpDispatcherProperties.getEncryption())) {
-                email.setStartTLSEnabled(true);
-            }
+            // This has to be set before the authenticator because a session shouldn't be created yet
+            configuration.configureEncryption(connectorProperties, email);
 
             if (smtpDispatcherProperties.isAuthentication()) {
                 email.setAuthentication(smtpDispatcherProperties.getUsername(), smtpDispatcherProperties.getPassword());
@@ -157,8 +165,7 @@ public class SmtpDispatcher extends DestinationConnector {
 
             Properties mailProperties = email.getMailSession().getProperties();
             // These have to be set after the authenticator, so that a new mail session isn't created
-            mailProperties.setProperty("mail.smtp.ssl.protocols", protocols);
-            mailProperties.setProperty("mail.smtp.ssl.ciphersuites", cipherSuites);
+            configuration.configureMailProperties(mailProperties);
 
             if (smtpDispatcherProperties.isOverrideLocalBinding()) {
                 mailProperties.setProperty("mail.smtp.localaddress", smtpDispatcherProperties.getLocalAddress());

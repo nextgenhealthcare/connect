@@ -12,6 +12,7 @@ package com.mirth.connect.client.ui;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.util.MirthSSLUtil;
 
 public class LoginPanel extends javax.swing.JFrame {
 
@@ -119,6 +121,7 @@ public class LoginPanel extends javax.swing.JFrame {
         }
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -385,6 +388,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void usernameActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_usernameActionPerformed
     {// GEN-HEADEREND:event_usernameActionPerformed
@@ -442,7 +446,7 @@ public class LoginPanel extends javax.swing.JFrame {
                         } catch (ClientException e) {
                             PlatformUI.SERVER_NAME = null;
                         }
-                        
+
                         try {
                             String database = (String) client.getAbout().get("database");
                             if (!StringUtils.isBlank(database)) {
@@ -452,6 +456,16 @@ public class LoginPanel extends javax.swing.JFrame {
                             }
                         } catch (ClientException e) {
                             PlatformUI.SERVER_DATABASE = null;
+                        }
+
+                        try {
+                            Map<String, String[]> map = client.getProtocolsAndCipherSuites();
+                            PlatformUI.SERVER_HTTPS_SUPPORTED_PROTOCOLS = map.get(MirthSSLUtil.KEY_SUPPORTED_PROTOCOLS);
+                            PlatformUI.SERVER_HTTPS_ENABLED_CLIENT_PROTOCOLS = map.get(MirthSSLUtil.KEY_ENABLED_CLIENT_PROTOCOLS);
+                            PlatformUI.SERVER_HTTPS_ENABLED_SERVER_PROTOCOLS = map.get(MirthSSLUtil.KEY_ENABLED_SERVER_PROTOCOLS);
+                            PlatformUI.SERVER_HTTPS_SUPPORTED_CIPHER_SUITES = map.get(MirthSSLUtil.KEY_SUPPORTED_CIPHER_SUITES);
+                            PlatformUI.SERVER_HTTPS_ENABLED_CIPHER_SUITES = map.get(MirthSSLUtil.KEY_ENABLED_CIPHER_SUITES);
+                        } catch (ClientException e) {
                         }
 
                         PlatformUI.USER_NAME = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username.getText());
@@ -542,6 +556,7 @@ public class LoginPanel extends javax.swing.JFrame {
     public void setStatus(String status) {
         this.status.setText("Please wait: " + status);
     }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;
     private javax.swing.JScrollPane errorPane;

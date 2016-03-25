@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -28,6 +29,7 @@ import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.plugins.BasicModeClientProvider;
 import com.mirth.connect.plugins.TransmissionModeClientProvider;
@@ -259,6 +261,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
             transmissionModeProvider.resetInvalidProperties();
         }
         remoteAddressField.setBackground(null);
+        decorateConnectorType();
         remotePortField.setBackground(null);
         localAddressField.setBackground(null);
         localPortField.setBackground(null);
@@ -266,6 +269,21 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         bufferSizeField.setBackground(null);
         responseTimeoutField.setBackground(null);
         templateTextArea.setBackground(null);
+    }
+
+    @Override
+    public ConnectorTypeDecoration getConnectorTypeDecoration() {
+        return new ConnectorTypeDecoration(Mode.DESTINATION);
+    }
+
+    @Override
+    public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
+        if (connectorTypeDecoration != null) {
+            remoteAddressField.setIcon(connectorTypeDecoration.getIcon());
+            remoteAddressField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
+            remoteAddressField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
+            remoteAddressField.setBackground(connectorTypeDecoration.getHighlightColor());
+        }
     }
 
     @Override
@@ -304,7 +322,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         bufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
         keepConnectionOpenYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         keepConnectionOpenNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        remoteAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
+        remoteAddressField = new com.mirth.connect.client.ui.components.MirthIconTextField();
         responseTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         responseTimeoutLabel = new javax.swing.JLabel();
         charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
@@ -824,7 +842,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     private javax.swing.JLabel queueOnResponseTimeoutLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton queueOnResponseTimeoutNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton queueOnResponseTimeoutYesRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField remoteAddressField;
+    private com.mirth.connect.client.ui.components.MirthIconTextField remoteAddressField;
     private com.mirth.connect.client.ui.components.MirthTextField remotePortField;
     private com.mirth.connect.client.ui.components.MirthTextField responseTimeoutField;
     private javax.swing.JLabel responseTimeoutLabel;

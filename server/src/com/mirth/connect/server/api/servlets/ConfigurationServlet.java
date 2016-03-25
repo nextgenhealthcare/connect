@@ -54,6 +54,7 @@ import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
+import com.mirth.connect.util.MirthSSLUtil;
 
 public class ConfigurationServlet extends MirthServlet implements ConfigurationServletInterface {
 
@@ -334,5 +335,16 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
     @Override
     public void setChannelDependencies(Set<ChannelDependency> dependencies) {
         configurationController.setChannelDependencies(dependencies);
+    }
+
+    @Override
+    public Map<String, String[]> getProtocolsAndCipherSuites() {
+        Map<String, String[]> map = new HashMap<String, String[]>();
+        map.put(MirthSSLUtil.KEY_SUPPORTED_PROTOCOLS, MirthSSLUtil.getSupportedHttpsProtocols());
+        map.put(MirthSSLUtil.KEY_SUPPORTED_CIPHER_SUITES, MirthSSLUtil.getSupportedHttpsCipherSuites());
+        map.put(MirthSSLUtil.KEY_ENABLED_CLIENT_PROTOCOLS, MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols()));
+        map.put(MirthSSLUtil.KEY_ENABLED_SERVER_PROTOCOLS, MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsServerProtocols()));
+        map.put(MirthSSLUtil.KEY_ENABLED_CIPHER_SUITES, MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()));
+        return map;
     }
 }

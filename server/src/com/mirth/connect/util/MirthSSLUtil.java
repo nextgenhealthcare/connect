@@ -16,10 +16,16 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.log4j.Logger;
 
 public class MirthSSLUtil {
+
+    public static final String KEY_SUPPORTED_PROTOCOLS = "supportedProtocols";
+    public static final String KEY_SUPPORTED_CIPHER_SUITES = "supportedCipherSuites";
+    public static final String KEY_ENABLED_CLIENT_PROTOCOLS = "enabledClientProtocols";
+    public static final String KEY_ENABLED_SERVER_PROTOCOLS = "enabledServerProtocols";
+    public static final String KEY_ENABLED_CIPHER_SUITES = "enabledCipherSuites";
 
     public static final String[] DEFAULT_HTTPS_CLIENT_PROTOCOLS = new String[] { "TLSv1.2",
             "TLSv1.1" };
@@ -53,6 +59,14 @@ public class MirthSSLUtil {
             "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" };
 
     private static Logger logger = Logger.getLogger(MirthSSLUtil.class);
+
+    public static String[] getSupportedHttpsProtocols() {
+        return SSLContexts.createDefault().getSupportedSSLParameters().getProtocols();
+    }
+
+    public static String[] getSupportedHttpsCipherSuites() {
+        return SSLContexts.createDefault().getSupportedSSLParameters().getCipherSuites();
+    }
 
     public static String[] getEnabledHttpsProtocols(String[] requestedProtocols) {
         logger.debug("Requested SSL protocols: " + Arrays.toString(requestedProtocols));
