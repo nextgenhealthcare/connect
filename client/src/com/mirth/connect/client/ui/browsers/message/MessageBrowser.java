@@ -370,6 +370,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         mirthDatePicker1.setDate(null);
         mirthDatePicker2.setDate(null);
         textSearchField.setText("");
+        regexTextSearchCheckBox.setSelected(false);
         allDayCheckBox.setSelected(false);
         statusBoxReceived.setSelected(false);
         statusBoxTransformed.setSelected(false);
