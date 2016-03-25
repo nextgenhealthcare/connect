@@ -10,9 +10,11 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.collections.MapUtils;
 
@@ -23,8 +25,6 @@ import com.mirth.connect.model.Auditable;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public abstract class AuthorizationController {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
@@ -58,12 +58,12 @@ public abstract class AuthorizationController {
 
                     // If channelId was one of the params, print out each channel as separate attributes and add the channel name
                     if (key.contains("channelId")) {
-                        Collection<String> collection = null;
+                        Set<String> collection = null;
 
-                        if (value instanceof Collection) {
-                            collection = (Collection<String>) value;
+                        if (value instanceof Set) {
+                            collection = (Set<String>) value;
                         } else if (value instanceof String) {
-                            collection = Collections.singleton(value);
+                            collection = Collections.singleton((String) value);
                         }
 
                         if (collection != null) {
@@ -71,7 +71,7 @@ public abstract class AuthorizationController {
                             for (int i = 0; i < channelIds.length; i++) {
                                 String name = "channel";
                                 if (channelIds.length > 1) {
-                                    name = "channel[" + i + "]";
+                                    name += "[" + i + "]";
                                 }
                                 value = channelController.getChannelById(channelIds[i]);
                                 addAttribute(serverEvent.getAttributes(), name, value);
