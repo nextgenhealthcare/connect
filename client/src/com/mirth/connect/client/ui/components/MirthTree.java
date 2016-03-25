@@ -19,6 +19,7 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
@@ -30,6 +31,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.JXTree;
 
 import com.mirth.connect.client.ui.Frame;
@@ -106,7 +108,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
             if (this.getRoot() != null) {
                 TreeNode tn = this.getRoot();
                 int count = tn.getChildCount();
-                Object[] path = {tn};
+                Object[] path = { tn };
                 int[] childIndices = new int[count];
                 Object[] children = new Object[count];
                 this.fireTreeStructureChanged(tn, path, childIndices, children);
@@ -131,7 +133,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
             ((MirthTreeNode) tn).setFiltered(!passed);
 
             int count = tn.getChildCount();
-            Object[] path = {tn};
+            Object[] path = { tn };
             int[] childIndices = new int[count];
             Object[] children = new Object[count];
 
@@ -268,8 +270,8 @@ public class MirthTree extends JXTree implements DropTargetListener {
     public void dropActionChanged(DropTargetDragEvent dtde) {}
 
     /**
-     * Get the index of a node in relation to other nodes with the same name.
-     * Returns -1 if there isn't an index.
+     * Get the index of a node in relation to other nodes with the same name. Returns -1 if there
+     * isn't an index.
      * 
      * @param node
      * @return
@@ -331,26 +333,73 @@ public class MirthTree extends JXTree implements DropTargetListener {
             node = (MirthTreeNode) node.getParent();
         }
 
-        LinkedList<String> nodeQ = new LinkedList<String>();
+        /*
+         * MIRTH-3196 - We now assign nodes types as we iterate from child to parent to add more
+         * versatility to namespace drag and drop. The drag and drop can drag nodes, attribute or
+         * namespace attributes so the user should be able to correctly do these now. If a node has
+         * a namespace then will wildcard it. If an ancestor of the node has an implicit namespace
+         * then we will also append a wildcard. The only exception to this is if the implicit
+         * namespace is on the root node, we actually set this to the default namespace in
+         * JavaScriptBuilder.
+         */
+
+        LinkedList<PathNode> nodeQ = new LinkedList<PathNode>();
         while (node != null && node.getParent() != null) {
             if (serializationType.equals(SerializationType.JSON) && node.isArrayElement()) {
-                nodeQ.add(String.valueOf(node.getParent().getIndex(node) - 1));
+                nodeQ.add(new PathNode(String.valueOf(node.getParent().getIndex(node) - 1), PathNode.NodeType.ARRAY_CHILD));
             } else {
-                nodeQ.add("'" + node.getValue().replaceAll(" \\(.*\\)", "") + "'");
+
+                PathNode.NodeType type = PathNode.NodeType.OTHER;
+                if (serializationType.equals(SerializationType.XML)) {
+                    type = getXmlNodeType(node);
+                }
+
+                String nodeValue = node.getValue().replaceAll(" \\(.*\\)", "");
+                nodeQ.add(new PathNode(nodeValue, type));
 
                 if (serializationType.equals(SerializationType.XML)) {
                     int parentIndexValue = getIndexOfNode(node);
                     if (parentIndexValue != -1) {
-                        nodeQ.add(nodeQ.size() - 1, String.valueOf(parentIndexValue));
+                        nodeQ.add(nodeQ.size() - 1, new PathNode(String.valueOf(parentIndexValue), PathNode.NodeType.ARRAY_CHILD));
                     }
                 }
             }
-
             node = (MirthTreeNode) node.getParent();
         }
 
+        boolean foundImplicitNamespace = false;
+
         while (!nodeQ.isEmpty()) {
-            sb.append("[" + nodeQ.removeLast() + "]");
+            PathNode nodeValue = nodeQ.removeLast();
+
+            //We start at the parent so if any implicit namespaces are reached then the rest of the nodes should wildcard the namespace
+            boolean includeNamespace = false;
+            PathNode.NodeType type = nodeValue.getType();
+
+            //We don't want to include a wildcard for attributes, ns definitions or array indices
+            if (serializationType.equals(SerializationType.XML) && !Arrays.asList(PathNode.NodeType.XML_ATTRIBUTE, PathNode.NodeType.XMLNS_DEFINITION, PathNode.NodeType.XML_PREFIX_DEFINITION, PathNode.NodeType.ARRAY_CHILD).contains(type)) {
+                if (foundImplicitNamespace) {
+                    includeNamespace = true;
+                } else if (type == PathNode.NodeType.XML_XMLNS_NODE) {
+                    foundImplicitNamespace = true;
+                    includeNamespace = true;
+                } else if (type == PathNode.NodeType.XML_PREFIXED_NODE) {
+                    includeNamespace = true;
+                }
+            }
+
+            if (includeNamespace) {
+                int colonIndex = nodeValue.getValue().indexOf(':') + 1;
+                sb.append(".*::['" + StringUtils.substring(nodeValue.getValue(), colonIndex) + "']");
+            } else if (serializationType.equals(SerializationType.XML) && type == PathNode.NodeType.XMLNS_DEFINITION) {
+                sb.append(".namespace('')");
+            } else if (serializationType.equals(SerializationType.XML) && type == PathNode.NodeType.XML_PREFIX_DEFINITION) {
+                sb.append(".namespace('" + StringUtils.substringAfter(nodeValue.getValue(), "@xmlns:") + "')");
+            } else if (type == PathNode.NodeType.ARRAY_CHILD) {
+                sb.append("[" + nodeValue.getValue() + "]");
+            } else {
+                sb.append("['" + nodeValue.getValue() + "']");
+            }
         }
 
         if (!serializationType.equals(SerializationType.JSON)) {
@@ -358,6 +407,62 @@ public class MirthTree extends JXTree implements DropTargetListener {
         }
 
         return sb;
+    }
+
+    private static class PathNode {
+
+        public enum NodeType {
+            ARRAY_CHILD, XML_PREFIXED_NODE, XML_XMLNS_NODE, XML_PREFIX_DEFINITION, XMLNS_DEFINITION, XML_ATTRIBUTE, OTHER
+        }
+
+        private String value;
+        private NodeType type;
+
+        public PathNode(String value, NodeType type) {
+            this.value = value;
+            this.type = type;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public NodeType getType() {
+            return type;
+        }
+    }
+
+    private static boolean nodeContainImplicitNamespace(MirthTreeNode treeNode) {
+        MirthTreeNode childNode = null;
+        Enumeration<TreeNode> children = treeNode.children();
+        while (children.hasMoreElements()) {
+            childNode = (MirthTreeNode) children.nextElement();
+            if (StringUtils.equals(childNode.getValue().replaceAll(" \\(.*\\)", ""), "@xmlns")) {
+                //this means that the node had a non prefixed namespace defined
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static PathNode.NodeType getXmlNodeType(MirthTreeNode node) {
+        PathNode.NodeType type = null;
+        String nodeValue = node.getValue().replaceAll(" \\(.*\\)", "");
+
+        if (nodeContainImplicitNamespace(node)) {
+            type = PathNode.NodeType.XML_XMLNS_NODE;
+        } else if (StringUtils.startsWith(nodeValue, "@xmlns")) {
+            if (StringUtils.contains(nodeValue, ":")) {
+                type = PathNode.NodeType.XML_PREFIX_DEFINITION;
+            } else {
+                type = PathNode.NodeType.XMLNS_DEFINITION;
+            }
+        } else if (StringUtils.contains(nodeValue, ":")) {
+            type = PathNode.NodeType.XML_PREFIXED_NODE;
+        } else if (StringUtils.contains(nodeValue, "@")) {
+            type = PathNode.NodeType.XML_ATTRIBUTE;
+        }
+        return type;
     }
 
     /**
@@ -371,12 +476,12 @@ public class MirthTree extends JXTree implements DropTargetListener {
 
         MirthTreeNode node = (MirthTreeNode) parent;
         SerializationType serializationType = node.getSerializationType();
-        
+
         // Get the parent if the leaf was actually passed in instead of the parent.
         if (node.isLeaf()) {
             node = (MirthTreeNode) node.getParent();
         }
-        
+
         boolean wasArrayElement = false;
 
         // Stop the loop as soon as the parent or grandparent is null,
@@ -401,7 +506,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
                         parentIndex += parentIndexValue;
                     }
                 }
-                
+
                 // If something has already been added and last node processed wasn't an array element, then prepend it with an "_"
                 if (variable.length() != 0 && !wasArrayElement) {
                     variable = "_" + variable;
