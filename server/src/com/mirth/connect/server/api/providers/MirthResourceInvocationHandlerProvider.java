@@ -22,6 +22,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.glassfish.jersey.server.model.Invocable;
 import org.glassfish.jersey.server.spi.internal.ResourceMethodInvocationHandlerProvider;
 
@@ -212,7 +213,12 @@ public class MirthResourceInvocationHandlerProvider implements ResourceMethodInv
                         if (e.getCause() instanceof WebApplicationException) {
                             throw e;
                         } else {
-                            throw new InvocationTargetException(new MirthApiException(e.getCause()));
+                            Throwable cause = e.getCause();
+                            if (cause instanceof PersistenceException) {
+                                throw new InvocationTargetException(new MirthApiException(new com.mirth.connect.client.core.api.PersistenceException(cause.getMessage())));
+                            } else {
+                                throw new InvocationTargetException(new MirthApiException(cause));
+                            }
                         }
                     }
                 } finally {

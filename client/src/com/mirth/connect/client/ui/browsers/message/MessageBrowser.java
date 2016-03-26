@@ -833,8 +833,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                     if (enableCountButton) {
                         countButton.setEnabled(true);
                     }
-                    filterButton.setEnabled(true);
                 }
+                filterButton.setEnabled(true);
                 parent.stopWorking(workingId);
             }
         };

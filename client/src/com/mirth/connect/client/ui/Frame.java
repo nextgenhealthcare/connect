@@ -70,6 +70,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.log4j.Logger;
 import org.fife.rsta.ac.LanguageSupportFactory;
@@ -1297,11 +1298,11 @@ public class Frame extends JXFrame {
                 }
             }
 
-            for (StackTraceElement element : t.getStackTrace()) {
+            for (String stackFrame : ExceptionUtils.getStackFrames(t)) {
                 if (StringUtils.isNotEmpty(message)) {
                     message += '\n';
                 }
-                message += element.toString();
+                message += StringUtils.trim(stackFrame);
             }
         }
 
