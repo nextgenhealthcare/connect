@@ -395,7 +395,9 @@ public class MirthTree extends JXTree implements DropTargetListener {
                 sb.append(".namespace('')");
             } else if (serializationType.equals(SerializationType.XML) && type == PathNode.NodeType.XML_PREFIX_DEFINITION) {
                 sb.append(".namespace('" + StringUtils.substringAfter(nodeValue.getValue(), "@xmlns:") + "')");
-            } else if (type == PathNode.NodeType.ARRAY_CHILD) {
+            } else if(type == PathNode.NodeType.XML_PREFIXED_ATTRIBUTE){
+                sb.append(".@*::['" + StringUtils.substringAfter(nodeValue.getValue(), ":") + "']");
+            }else if (type == PathNode.NodeType.ARRAY_CHILD) {
                 sb.append("[" + nodeValue.getValue() + "]");
             } else {
                 sb.append("['" + nodeValue.getValue() + "']");
@@ -412,7 +414,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
     private static class PathNode {
 
         public enum NodeType {
-            ARRAY_CHILD, XML_PREFIXED_NODE, XML_XMLNS_NODE, XML_PREFIX_DEFINITION, XMLNS_DEFINITION, XML_ATTRIBUTE, OTHER
+            ARRAY_CHILD, XML_PREFIXED_NODE, XML_XMLNS_NODE, XML_PREFIX_DEFINITION, XMLNS_DEFINITION, XML_ATTRIBUTE, XML_PREFIXED_ATTRIBUTE, OTHER
         }
 
         private String value;
@@ -457,10 +459,14 @@ public class MirthTree extends JXTree implements DropTargetListener {
             } else {
                 type = PathNode.NodeType.XMLNS_DEFINITION;
             }
+        } else if (StringUtils.contains(nodeValue, "@")) {
+            if (StringUtils.contains(nodeValue, ":")) {
+                type = PathNode.NodeType.XML_PREFIXED_ATTRIBUTE;
+            } else {
+                type = PathNode.NodeType.XML_ATTRIBUTE;
+            }
         } else if (StringUtils.contains(nodeValue, ":")) {
             type = PathNode.NodeType.XML_PREFIXED_NODE;
-        } else if (StringUtils.contains(nodeValue, "@")) {
-            type = PathNode.NodeType.XML_ATTRIBUTE;
         }
         return type;
     }
