@@ -11,6 +11,7 @@ package com.mirth.connect.connectors.dimse;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -455,9 +456,33 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements De
     public String toFormattedString() {
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
-        builder.append("HOST: ");
+        builder.append("REMOTE ADDRESS: ");
         builder.append(host + ":" + port);
         builder.append(newLine);
+
+        if (StringUtils.isNotBlank(localHost)) {
+            builder.append("LOCAL ADDRESS: ");
+            builder.append(localHost + ":" + localPort);
+            builder.append(newLine);
+        }
+
+        if (StringUtils.isNotBlank(applicationEntity)) {
+            builder.append("REMOTE APPLICATION ENTITY: ");
+            builder.append(applicationEntity);
+            builder.append(newLine);
+        }
+
+        if (StringUtils.isNotBlank(localApplicationEntity)) {
+            builder.append("LOCAL APPLICATION ENTITY: ");
+            builder.append(localApplicationEntity);
+            builder.append(newLine);
+        }
+
+        if (StringUtils.isNotBlank(username)) {
+            builder.append("USERNAME: ");
+            builder.append(username);
+            builder.append(newLine);
+        }
 
         builder.append(newLine);
         builder.append("[CONTENT]");
