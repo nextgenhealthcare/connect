@@ -186,7 +186,7 @@ public class MirthResourceInvocationHandlerProvider implements ResourceMethodInv
                                         if (methodInfo.getCheckAuthorizedUserId() != null) {
                                             userIdIndex = paramNames.indexOf(methodInfo.getCheckAuthorizedUserId().paramName());
                                         }
-                                        methodInfo.setUserIdIndex(channelIdIndex);
+                                        methodInfo.setUserIdIndex(userIdIndex);
                                     }
                                 }
 

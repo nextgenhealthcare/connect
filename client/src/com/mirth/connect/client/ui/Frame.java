@@ -481,7 +481,10 @@ public class Frame extends JXFrame {
         if (settingsPane == null) {
             settingsPane = new SettingsPane();
         }
-        ((SettingsPanelResources) settingsPane.getSettingsPanel(SettingsPanelResources.TAB_NAME)).doRefresh();
+        SettingsPanelResources resourcesPanel = (SettingsPanelResources) settingsPane.getSettingsPanel(SettingsPanelResources.TAB_NAME);
+        if (resourcesPanel != null) {
+            resourcesPanel.doRefresh();
+        }
 
         // DEBUGGING THE UIDefaults:
 

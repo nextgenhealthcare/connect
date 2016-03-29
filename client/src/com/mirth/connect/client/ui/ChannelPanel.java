@@ -512,7 +512,7 @@ public class ChannelPanel extends AbstractFramePanel {
         try {
             updateChannelGroups(parent.mirthClient.getAllChannelGroups());
         } catch (ClientException e) {
-            parent.alertThrowable(parent, e);
+            parent.alertThrowable(parent, e, false);
         }
     }
 
