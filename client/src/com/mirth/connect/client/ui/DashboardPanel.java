@@ -1081,7 +1081,7 @@ public class DashboardPanel extends JPanel {
             updatePopupMenu(false);
 
             int totalGroupCount = parent.channelPanel.getCachedGroupStatuses().size();
-            int totalChannelCount = parent.status.size();
+            int totalChannelCount = parent.status != null ? parent.status.size() : 0;
 
             ChannelTagInfo channelTagInfo = parent.getChannelTagInfo(true);
             if (channelTagInfo.isEnabled()) {
