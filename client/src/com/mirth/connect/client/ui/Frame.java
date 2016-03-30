@@ -2893,22 +2893,6 @@ public class Frame extends JXFrame {
             }
         }
 
-        /*
-         * If the user has not yet navigated to channels at this point, the cache (channelStatuses
-         * object) will return null, and the resulting block will pull down the channelStatus for
-         * the given id.
-         */
-        ChannelStatus channelStatus = channelPanel.getCachedChannelStatuses().get(id);
-        if (channelStatus == null) {
-            try {
-                Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
-                channelHeaders.put(id, new ChannelHeader(channelRevision, null, true));
-                channelPanel.updateChannelStatuses(mirthClient.getChannelSummary(channelHeaders, true));
-            } catch (ClientException e) {
-                alertThrowable(PlatformUI.MIRTH_FRAME, e);
-            }
-        }
-
         setBold(viewPane, -1);
         setPanelName("Channel Messages - " + channelName);
         setCurrentContentPage(messageBrowser);
