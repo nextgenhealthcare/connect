@@ -65,6 +65,7 @@ public class MirthJavaScriptTokenMaker extends JavaScriptTokenMaker {
         extraTokens.put("channelId", blueTokenType);
         extraTokens.put("channelName", blueTokenType);
         extraTokens.put("replacer", purpleTokenType);
+        extraTokens.put("contextFactory", blueTokenType);
 
         extraTokens.put("createSegment", functionTokenType);
         extraTokens.put("createSegmentAfter", functionTokenType);
