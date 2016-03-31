@@ -121,11 +121,14 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
         DonkeyElement usernamesElement = element.removeChild("usernames");
         DonkeyElement passwordsElement = element.removeChild("passwords");
 
-        if (usernamesElement != null && passwordsElement != null) {
-            DonkeyElement authPropertiesElement = element.getChildElement("pluginProperties").addChildElement("com.mirth.connect.plugins.httpauth.basic.BasicHttpAuthProperties");
+        if (usernamesElement != null && usernamesElement.hasChildNodes() && passwordsElement != null && passwordsElement.hasChildNodes()) {
+            DonkeyElement authPropertiesElement = element.addChildElementIfNotExists("pluginProperties").addChildElement("com.mirth.connect.plugins.httpauth.basic.BasicHttpAuthProperties");
             authPropertiesElement.setAttribute("version", "3.4.0");
             authPropertiesElement.addChildElement("authType", "BASIC");
-            authPropertiesElement.addChildElement("realm", "/services/" + element.getChildElement("serviceName").getTextContent());
+
+            DonkeyElement serviceNameElement = element.getChildElement("serviceName");
+            String serviceName = serviceNameElement != null ? serviceNameElement.getTextContent() : "Mirth";
+            authPropertiesElement.addChildElement("realm", "/services/" + serviceName);
 
             DonkeyElement credentialsElement = authPropertiesElement.addChildElement("credentials");
             credentialsElement.setAttribute("class", "linked-hash-map");
