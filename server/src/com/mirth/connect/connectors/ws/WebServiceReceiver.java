@@ -102,9 +102,11 @@ public class WebServiceReceiver extends SourceConnector {
             throw new ConnectorTaskException(e);
         }
 
-        for (ConnectorPluginProperties pluginProperties : connectorProperties.getPluginProperties()) {
-            if (pluginProperties instanceof HttpAuthConnectorPluginProperties) {
-                authProps = (HttpAuthConnectorPluginProperties) pluginProperties;
+        if (connectorProperties.getPluginProperties() != null) {
+            for (ConnectorPluginProperties pluginProperties : connectorProperties.getPluginProperties()) {
+                if (pluginProperties instanceof HttpAuthConnectorPluginProperties) {
+                    authProps = (HttpAuthConnectorPluginProperties) pluginProperties;
+                }
             }
         }
 

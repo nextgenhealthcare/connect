@@ -166,9 +166,11 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             binaryMimeTypesArray = StringUtils.split(replacedBinaryMimeTypes.replaceAll("\\s*,\\s*", ",").trim(), ',');
         }
 
-        for (ConnectorPluginProperties pluginProperties : connectorProperties.getPluginProperties()) {
-            if (pluginProperties instanceof HttpAuthConnectorPluginProperties) {
-                authProps = (HttpAuthConnectorPluginProperties) pluginProperties;
+        if (connectorProperties.getPluginProperties() != null) {
+            for (ConnectorPluginProperties pluginProperties : connectorProperties.getPluginProperties()) {
+                if (pluginProperties instanceof HttpAuthConnectorPluginProperties) {
+                    authProps = (HttpAuthConnectorPluginProperties) pluginProperties;
+                }
             }
         }
 
