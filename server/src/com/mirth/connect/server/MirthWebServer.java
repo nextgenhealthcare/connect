@@ -223,6 +223,7 @@ public class MirthWebServer extends Server {
         // Create the webstart servlet handler
         ServletContextHandler servletContextHandler = new ServletContextHandler();
         servletContextHandler.setContextPath(contextPath);
+        servletContextHandler.addFilter(new FilterHolder(new MethodFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
         servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart.jnlp");
         servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart");
         servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart/extensions/*");
@@ -323,6 +324,7 @@ public class MirthWebServer extends Server {
         apiServletContextHandler.setSessionHandler(new SessionHandler());
         apiServletContextHandler.setContextPath(contextPath + baseAPI + apiPath);
         apiServletContextHandler.addFilter(new FilterHolder(new ApiOriginFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+        apiServletContextHandler.addFilter(new FilterHolder(new MethodFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
         setConnectorNames(apiServletContextHandler, apiAllowHTTP);
 
         ApiProviders apiProviders = getApiProviders(apiVersion);
