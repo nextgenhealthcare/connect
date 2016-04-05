@@ -69,9 +69,11 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
     private static final int PROPERTIES_COLUMN = 1;
     private static final int TYPE_COLUMN = 2;
 
+    private ChannelDependenciesDialog parent;
     private Map<Integer, Map<String, String>> selectedResourceIds;
 
-    public LibraryResourcesPanel(final ChannelDependenciesDialog parent, Channel channel) {
+    public LibraryResourcesPanel(ChannelDependenciesDialog parent, Channel channel) {
+        this.parent = parent;
         selectedResourceIds = new HashMap<Integer, Map<String, String>>();
 
         Map<String, String> channelResourceIds = channel.getProperties().getResourceIds();
@@ -96,7 +98,9 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
 
         initComponents(channel);
         initLayout();
+    }
 
+    public void initialize() {
         final String workingId = PlatformUI.MIRTH_FRAME.startWorking("Loading library resources...");
 
         SwingWorker<List<LibraryProperties>, Void> worker = new SwingWorker<List<LibraryProperties>, Void>() {

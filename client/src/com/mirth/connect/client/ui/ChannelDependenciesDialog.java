@@ -47,6 +47,10 @@ public class ChannelDependenciesDialog extends MirthDialog {
         setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
 
         okButton.setEnabled(false);
+
+        resourcesPanel.initialize();
+        codeTemplateLibrariesPanel.initialize();
+
         setVisible(true);
     }
 

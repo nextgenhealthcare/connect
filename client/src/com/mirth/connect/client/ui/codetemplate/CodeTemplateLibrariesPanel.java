@@ -68,14 +68,18 @@ import com.mirth.connect.util.MirthXmlUtil;
 
 public class CodeTemplateLibrariesPanel extends JPanel {
 
+    private ChannelDependenciesDialog parent;
     private Map<String, CodeTemplateLibrary> libraryMap = new HashMap<String, CodeTemplateLibrary>();
     private String channelId;
 
-    public CodeTemplateLibrariesPanel(final ChannelDependenciesDialog parent, Channel channel) {
+    public CodeTemplateLibrariesPanel(ChannelDependenciesDialog parent, Channel channel) {
+        this.parent = parent;
         this.channelId = channel.getId();
         initComponents(channel);
         initLayout();
+    }
 
+    public void initialize() {
         PlatformUI.MIRTH_FRAME.codeTemplatePanel.doRefreshCodeTemplates(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
