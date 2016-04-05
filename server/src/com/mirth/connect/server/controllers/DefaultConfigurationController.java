@@ -914,7 +914,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public void setChannelDependencies(Set<ChannelDependency> dependencies) {
+    public synchronized void setChannelDependencies(Set<ChannelDependency> dependencies) {
         try {
             new ChannelDependencyGraph(dependencies);
         } catch (ChannelDependencyException e) {

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
@@ -457,6 +459,21 @@ public class DefaultChannelController extends ChannelController {
             // invoke the channel plugins
             for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
                 channelPlugin.remove(channel, context);
+            }
+
+            // Remove any dependencies that were tied to this channel
+            ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+            Set<ChannelDependency> dependencies = configurationController.getChannelDependencies();
+            boolean dependenciesChanged = false;
+            for (Iterator<ChannelDependency> it = dependencies.iterator(); it.hasNext();) {
+                ChannelDependency dependency = it.next();
+                if (channel.getId().equals(dependency.getDependentId()) || channel.getId().equals(dependency.getDependencyId())) {
+                    it.remove();
+                    dependenciesChanged = true;
+                }
+            }
+            if (dependenciesChanged) {
+                configurationController.setChannelDependencies(dependencies);
             }
         } catch (Exception e) {
             throw new ControllerException(e);
