@@ -382,9 +382,8 @@ public class ServerConnection implements Connector {
                     throw new UnauthorizedException(statusLine.toString(), entity);
                 } catch (ProcessingException e) {
                 }
-            } else {
-                throw new UnauthorizedException(statusLine.toString());
             }
+            throw new UnauthorizedException(statusLine.toString());
         } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
             throw new ForbiddenException(statusLine.toString());
         }
