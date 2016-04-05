@@ -412,6 +412,8 @@ public class LoginPanel extends javax.swing.JFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
+                boolean errorOccurred = false;
+
                 try {
                     String server = serverName.getText();
                     client = new Client(server, PlatformUI.HTTPS_PROTOCOLS, PlatformUI.HTTPS_CIPHER_SUITES);
@@ -517,20 +519,27 @@ public class LoginPanel extends javax.swing.JFrame {
 
                         PlatformUI.MIRTH_FRAME.sendUsageStatistics();
                     } else {
+                        errorOccurred = true;
                         if (loginStatus != null) {
                             errorTextArea.setText(loginStatus.getMessage());
                         } else {
                             errorTextArea.setText(ERROR_MESSAGE);
                         }
-                        errorPane.setVisible(true);
-                        loggingIn.setVisible(false);
-                        loginMain.setVisible(true);
-                        loginProgress.setIndeterminate(false);
-                        password.grabFocus();
                     }
                 } catch (Throwable t) {
+                    errorOccurred = true;
+                    errorTextArea.setText(ERROR_MESSAGE);
                     t.printStackTrace();
                 }
+
+                if (errorOccurred) {
+                    errorPane.setVisible(true);
+                    loggingIn.setVisible(false);
+                    loginMain.setVisible(true);
+                    loginProgress.setIndeterminate(false);
+                    password.grabFocus();
+                }
+
                 return null;
             }
 

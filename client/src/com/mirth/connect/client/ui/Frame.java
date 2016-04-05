@@ -376,7 +376,7 @@ public class Frame extends JXFrame {
     /**
      * Called to set up this main window frame.
      */
-    public void setupFrame(Client mirthClient) {
+    public void setupFrame(Client mirthClient) throws ClientException {
 
         LoginPanel login = LoginPanel.getInstance();
 
@@ -385,7 +385,13 @@ public class Frame extends JXFrame {
 
         this.mirthClient = mirthClient;
         login.setStatus("Loading extensions...");
-        loadExtensionMetaData();
+        try {
+            loadExtensionMetaData();
+        } catch (ClientException e) {
+            alertError(this, "Unable to load extensions.");
+            throw e;
+        }
+
         // Re-initialize the controller every time the frame is setup
         AuthorizationControllerFactory.getAuthorizationController().initialize();
         channelPanel = new ChannelPanel();
@@ -497,36 +503,32 @@ public class Frame extends JXFrame {
 
     }
 
-    private void loadExtensionMetaData() {
-        try {
-            loadedPlugins = mirthClient.getPluginMetaData();
-            loadedConnectors = mirthClient.getConnectorMetaData();
+    private void loadExtensionMetaData() throws ClientException {
+        loadedPlugins = mirthClient.getPluginMetaData();
+        loadedConnectors = mirthClient.getConnectorMetaData();
 
-            // Register extension JAX-RS providers with the client
-            Set<String> apiProviderPackages = new HashSet<String>();
-            Set<String> apiProviderClasses = new HashSet<String>();
+        // Register extension JAX-RS providers with the client
+        Set<String> apiProviderPackages = new HashSet<String>();
+        Set<String> apiProviderClasses = new HashSet<String>();
 
-            for (Object extensionMetaData : CollectionUtils.union(loadedPlugins.values(), loadedConnectors.values())) {
-                MetaData metaData = (MetaData) extensionMetaData;
-                for (ApiProvider provider : metaData.getApiProviders(Version.getLatest())) {
-                    switch (provider.getType()) {
-                        case SERVLET_INTERFACE_PACKAGE:
-                        case CORE_PACKAGE:
-                            apiProviderPackages.add(provider.getName());
-                            break;
-                        case SERVLET_INTERFACE:
-                        case CORE_CLASS:
-                            apiProviderClasses.add(provider.getName());
-                            break;
-                        default:
-                    }
+        for (Object extensionMetaData : CollectionUtils.union(loadedPlugins.values(), loadedConnectors.values())) {
+            MetaData metaData = (MetaData) extensionMetaData;
+            for (ApiProvider provider : metaData.getApiProviders(Version.getLatest())) {
+                switch (provider.getType()) {
+                    case SERVLET_INTERFACE_PACKAGE:
+                    case CORE_PACKAGE:
+                        apiProviderPackages.add(provider.getName());
+                        break;
+                    case SERVLET_INTERFACE:
+                    case CORE_CLASS:
+                        apiProviderClasses.add(provider.getName());
+                        break;
+                    default:
                 }
             }
-
-            mirthClient.registerApiProviders(apiProviderPackages, apiProviderClasses);
-        } catch (ClientException e) {
-            alertThrowable(this, e, "Unable to load extensions");
         }
+
+        mirthClient.registerApiProviders(apiProviderPackages, apiProviderClasses);
     }
 
     private void initializeExtensions() {
@@ -1240,6 +1242,9 @@ public class Frame extends JXFrame {
         boolean showDialog = true;
 
         if (t != null) {
+            // Always print the stacktrace for troubleshooting purposes
+            t.printStackTrace();
+
             if (t instanceof ExecutionException && t.getCause() != null) {
                 t = t.getCause();
             }
@@ -1781,22 +1786,24 @@ public class Frame extends JXFrame {
     public boolean isSaveEnabled() {
         boolean enabled = false;
 
-        if (currentContentPage == channelPanel) {
-            enabled = channelPanel.isSaveEnabled();
-        } else if (currentContentPage == channelEditPanel) {
-            enabled = channelEditTasks.getContentPane().getComponent(0).isVisible();
-        } else if (channelEditPanel != null && currentContentPage == channelEditPanel.transformerPane) {
-            enabled = channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPanel.transformerPane.modified;
-        } else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane) {
-            enabled = channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPanel.filterPane.modified;
-        } else if (currentContentPage == settingsPane) {
-            enabled = settingsPane.getCurrentSettingsPanel().isSaveEnabled();
-        } else if (alertEditPanel != null && currentContentPage == alertEditPanel) {
-            enabled = alertEditTasks.getContentPane().getComponent(0).isVisible();
-        } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
-            enabled = globalScriptsTasks.getContentPane().getComponent(0).isVisible();
-        } else if (currentContentPage == codeTemplatePanel) {
-            enabled = codeTemplatePanel.isSaveEnabled();
+        if (currentContentPage != null) {
+            if (currentContentPage == channelPanel) {
+                enabled = channelPanel.isSaveEnabled();
+            } else if (currentContentPage == channelEditPanel) {
+                enabled = channelEditTasks.getContentPane().getComponent(0).isVisible();
+            } else if (channelEditPanel != null && currentContentPage == channelEditPanel.transformerPane) {
+                enabled = channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPanel.transformerPane.modified;
+            } else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane) {
+                enabled = channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPanel.filterPane.modified;
+            } else if (currentContentPage == settingsPane) {
+                enabled = settingsPane.getCurrentSettingsPanel().isSaveEnabled();
+            } else if (alertEditPanel != null && currentContentPage == alertEditPanel) {
+                enabled = alertEditTasks.getContentPane().getComponent(0).isVisible();
+            } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
+                enabled = globalScriptsTasks.getContentPane().getComponent(0).isVisible();
+            } else if (currentContentPage == codeTemplatePanel) {
+                enabled = codeTemplatePanel.isSaveEnabled();
+            }
         }
 
         return enabled;

@@ -38,6 +38,7 @@ import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 import com.mirth.connect.client.core.Client;
+import com.mirth.connect.client.core.ClientException;
 
 /**
  * The main mirth class. Sets up the login and then authenticates the login information and sets up
@@ -50,7 +51,7 @@ public class Mirth {
     /**
      * Construct and show the application.
      */
-    public Mirth(Client mirthClient) {
+    public Mirth(Client mirthClient) throws ClientException {
         PlatformUI.MIRTH_FRAME = new Frame();
 
         UIManager.put("Tree.leafIcon", UIConstants.LEAF_ICON);
