@@ -581,9 +581,11 @@ public class DefaultConfigurationController extends ConfigurationController {
          * is being restored.
          */
         synchronized (engineController) {
+            Set<ChannelGroup> channelGroups = new HashSet<ChannelGroup>();
             if (serverConfiguration.getChannelGroups() != null) {
-                channelController.updateChannelGroups(new HashSet<ChannelGroup>(serverConfiguration.getChannelGroups()), new HashSet<String>(), true);
+                channelGroups.addAll(serverConfiguration.getChannelGroups());
             }
+            channelController.updateChannelGroups(channelGroups, new HashSet<String>(), true);
 
             if (serverConfiguration.getChannels() != null) {
                 // Undeploy all channels before updating or removing them
