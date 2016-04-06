@@ -1144,6 +1144,7 @@ public class ChannelPanel extends AbstractFramePanel {
                     // If the current group is the one we're overwriting, merge the channels
                     if (importGroupNode != null && StringUtils.equals(group.getId(), importGroupNode.getGroupStatus().getGroup().getId())) {
                         group = importGroup;
+                        group.setRevision(importGroupNode.getGroupStatus().getGroup().getRevision());
 
                         Set<String> channelIds = new HashSet<String>();
                         for (Channel channel : group.getChannels()) {
