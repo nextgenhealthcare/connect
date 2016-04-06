@@ -655,7 +655,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
     private class ImportCodeTemplateTreeTableNode extends ImportTreeTableNode {
 
-        private CodeTemplateConflicts conflicts;
+        private CodeTemplateConflicts conflicts = new CodeTemplateConflicts();
 
         public ImportCodeTemplateTreeTableNode(String name, String id) {
             super(name, id);
@@ -683,7 +683,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
     private class ImportLibraryTreeTableNode extends ImportTreeTableNode {
 
-        private LibraryConflicts conflicts;
+        private LibraryConflicts conflicts = new LibraryConflicts();
 
         public ImportLibraryTreeTableNode(String name, String id) {
             super(name, id);
