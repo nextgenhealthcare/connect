@@ -2868,7 +2868,7 @@ public class ChannelPanel extends AbstractFramePanel {
                     return;
                 }
 
-                if (evt.getClickCount() >= 2) {
+                if (evt.getClickCount() >= 2 && channelTable.getSelectedRowCount() == 1 && channelTable.getSelectedRow() == row) {
                     AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(row).getLastPathComponent();
                     if (node.isGroupNode()) {
                         doEditGroupDetails();
