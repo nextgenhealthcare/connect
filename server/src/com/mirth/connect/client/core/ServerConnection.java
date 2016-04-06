@@ -53,6 +53,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
@@ -65,6 +66,7 @@ import org.glassfish.jersey.message.internal.OutboundMessageContext;
 import org.glassfish.jersey.message.internal.Statuses;
 
 import com.mirth.connect.client.core.Operation.ExecuteType;
+import com.mirth.connect.util.HttpUtil;
 import com.mirth.connect.util.MirthSSLUtil;
 
 public class ServerConnection implements Connector {
@@ -109,7 +111,10 @@ public class ServerConnection implements Connector {
         httpClientConnectionManager.setDefaultMaxPerRoute(5);
         httpClientConnectionManager.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build());
 
-        client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
+        HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager);
+        HttpUtil.configureClientBuilder(clientBuilder);
+
+        client = clientBuilder.build();
         requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setConnectionRequestTimeout(CONNECT_TIMEOUT).setSocketTimeout(timeout).build();
     }
 

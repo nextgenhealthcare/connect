@@ -81,6 +81,7 @@ import org.apache.http.impl.auth.BasicSchemeFactory;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
@@ -104,6 +105,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
+import com.mirth.connect.util.HttpUtil;
 
 public class WebServiceDispatcher extends DestinationConnector {
 
@@ -298,7 +300,9 @@ public class WebServiceDispatcher extends DestinationConnector {
         if (!uri.getScheme().equalsIgnoreCase("file")) {
             BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
             httpClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build());
-            CloseableHttpClient client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
+            HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager);
+            HttpUtil.configureClientBuilder(clientBuilder);
+            CloseableHttpClient client = clientBuilder.build();
 
             try {
                 clients.add(client);

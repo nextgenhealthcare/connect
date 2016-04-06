@@ -25,6 +25,7 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 
@@ -34,6 +35,7 @@ import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.RequestInfo;
 import com.mirth.connect.plugins.httpauth.oauth2.OAuth2HttpAuthProperties.TokenLocation;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.util.HttpUtil;
 
 public class OAuth2Authenticator extends Authenticator {
 
@@ -63,7 +65,9 @@ public class OAuth2Authenticator extends Authenticator {
             provider.getHttpConfiguration().configureSocketFactoryRegistry(pluginProperties, socketFactoryRegistry);
             BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
             httpClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(SOCKET_TIMEOUT).build());
-            client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
+            HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager);
+            HttpUtil.configureClientBuilder(clientBuilder);
+            client = clientBuilder.build();
 
             HttpClientContext context = HttpClientContext.create();
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(SOCKET_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();

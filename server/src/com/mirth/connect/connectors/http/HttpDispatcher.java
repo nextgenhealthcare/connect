@@ -106,6 +106,7 @@ import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.userutil.MessageHeaders;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
+import com.mirth.connect.util.HttpUtil;
 
 public class HttpDispatcher extends DestinationConnector {
 
@@ -231,6 +232,7 @@ public class HttpDispatcher extends DestinationConnector {
                 BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
                 httpClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(socketTimeout).build());
                 HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager);
+                HttpUtil.configureClientBuilder(clientBuilder);
 
                 if (httpDispatcherProperties.isUseProxyServer()) {
                     clientBuilder.setRoutePlanner(new DynamicProxyRoutePlanner());
