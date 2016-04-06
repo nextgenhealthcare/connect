@@ -456,9 +456,19 @@ public class DefaultChannelController extends ChannelController {
                 SqlConfig.getSqlSessionManager().update("Channel.vacuumChannelTable");
             }
 
-            // invoke the channel plugins
-            for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-                channelPlugin.remove(channel, context);
+            // Update any groups that contained this channel
+            Set<ChannelGroup> groups = new HashSet<ChannelGroup>(channelGroupCache.getAllItems().values());
+            boolean groupsChanged = false;
+            for (ChannelGroup group : groups) {
+                for (Iterator<Channel> it = group.getChannels().iterator(); it.hasNext();) {
+                    if (channel.getId().equals(it.next().getId())) {
+                        it.remove();
+                        groupsChanged = true;
+                    }
+                }
+            }
+            if (groupsChanged) {
+                updateChannelGroups(groups, new HashSet<String>(), true);
             }
 
             // Remove any dependencies that were tied to this channel
@@ -474,6 +484,11 @@ public class DefaultChannelController extends ChannelController {
             }
             if (dependenciesChanged) {
                 configurationController.setChannelDependencies(dependencies);
+            }
+
+            // invoke the channel plugins
+            for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                channelPlugin.remove(channel, context);
             }
         } catch (Exception e) {
             throw new ControllerException(e);
