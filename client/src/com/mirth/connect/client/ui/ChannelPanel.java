@@ -2704,6 +2704,14 @@ public class ChannelPanel extends AbstractFramePanel {
         channelTable.setDropMode(DropMode.ON);
         channelTable.setTransferHandler(new ChannelTableTransferHandler() {
             @Override
+            public boolean canImport(TransferSupport support) {
+                if (isSaveEnabled()) {
+                    return false;
+                }
+                return super.canImport(support);
+            }
+
+            @Override
             public void importFile(final File file, final boolean showAlerts) {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
