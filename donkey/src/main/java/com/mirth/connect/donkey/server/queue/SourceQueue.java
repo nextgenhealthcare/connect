@@ -78,7 +78,13 @@ public class SourceQueue extends ConnectorMessageQueue {
 
     public synchronized void finish(ConnectorMessage connectorMessage) {
         if (connectorMessage != null) {
-            checkedOut.remove(connectorMessage.getMessageId());
+            Long messageId = connectorMessage.getMessageId();
+
+            if (buffer.containsKey(messageId)) {
+                buffer.remove(messageId);
+            }
+
+            checkedOut.remove(messageId);
         }
     }
 
