@@ -271,7 +271,7 @@ public class SourceSettingsPanel extends JPanel {
 
         boolean valid = true;
 
-        if (properties.getQueueBufferSize() <= 0) {
+        if (highlight && properties.getQueueBufferSize() <= 0) {
             queueBufferSizeField.setBackground(UIConstants.INVALID_COLOR);
             valid = false;
         }
