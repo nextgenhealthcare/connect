@@ -54,7 +54,7 @@ public class ChannelDependenciesWarningDialog extends MirthDialog {
         initComponents(task, dependencies, selectedChannelIds, additionalChannelIds);
         initLayout();
 
-        setPreferredSize(new Dimension(307, 207));
+        setPreferredSize(new Dimension(344, 207));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setTitle("Select An Option");
         pack();
@@ -79,7 +79,7 @@ public class ChannelDependenciesWarningDialog extends MirthDialog {
             Collections.reverse(orderedChannelIds);
         }
 
-        descriptionLabel = new JLabel("<html>There are additional channels in the dependency chain.<br/>Channels will be " + task.getFuturePassive() + " in the following order:</html>");
+        descriptionLabel = new JLabel("<html>There are additional channels in the dependency chain.<br/><b>Bolded</b> channels will be " + task.getFuturePassive() + " in the following order:</html>");
 
         channelsPane = new JTextPane();
         channelsPane.setContentType("text/html");
