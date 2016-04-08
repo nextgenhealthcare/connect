@@ -279,6 +279,8 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 "Conflicts", "Id" }));
 
         DefaultMutableTreeTableNode rootNode = new DefaultMutableTreeTableNode();
+        model.setRoot(rootNode);
+        importTreeTable.setTreeTableModel(model);
 
         Set<String> addedCodeTemplateIds = new HashSet<String>();
 
@@ -317,9 +319,6 @@ public class CodeTemplateImportDialog extends MirthDialog {
             }
         }
 
-        model.setRoot(rootNode);
-
-        importTreeTable.setTreeTableModel(model);
         importTreeTable.setOpenIcon(null);
         importTreeTable.setClosedIcon(null);
         importTreeTable.setLeafIcon(null);
