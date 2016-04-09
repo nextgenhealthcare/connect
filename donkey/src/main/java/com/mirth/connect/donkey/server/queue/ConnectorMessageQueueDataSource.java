@@ -12,6 +12,7 @@ package com.mirth.connect.donkey.server.queue;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Status;
@@ -28,6 +29,7 @@ public class ConnectorMessageQueueDataSource {
     private Long maxMessageId = null;
     private Long minMessageId = null;
     private Long rotatedMessageId = null;
+    private ConcurrentHashMap<Long, Boolean> rotateThreadMap;
 
     public ConnectorMessageQueueDataSource(String channelId, String serverId, int metaDataId, Status status, boolean rotate, DonkeyDaoFactory daoFactory) {
         this.channelId = channelId;
@@ -36,6 +38,10 @@ public class ConnectorMessageQueueDataSource {
         this.status = status;
         this.rotate = rotate;
         this.daoFactory = daoFactory;
+
+        if (rotate) {
+            rotateThreadMap = new ConcurrentHashMap<Long, Boolean>();
+        }
     }
 
     public DonkeyDaoFactory getDaoFactory() {
@@ -68,6 +74,10 @@ public class ConnectorMessageQueueDataSource {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public ConcurrentHashMap<Long, Boolean> getRotateThreadMap() {
+        return rotateThreadMap;
     }
 
     public void setLastItem(ConnectorMessage connectorMessage) {
@@ -114,6 +124,13 @@ public class ConnectorMessageQueueDataSource {
                 minMessageId = 0L;
                 maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, serverId, metaDataId, status);
                 connectorMessages = dao.getConnectorMessages(channelId, serverId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
+
+                if (connectorMessages.size() > 0) {
+                    // Update the rotate map for each thread ID so destination connectors know to sleep
+                    for (Long threadId : rotateThreadMap.keySet().toArray(new Long[rotateThreadMap.size()])) {
+                        rotateThreadMap.put(threadId, true);
+                    }
+                }
             }
 
             Map<Long, ConnectorMessage> map = new LinkedHashMap<Long, ConnectorMessage>();

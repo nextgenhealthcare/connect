@@ -549,7 +549,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                          * message was not successful, message rotation is on, and the queue is back
                          * to the oldest message, so wait the retry interval.
                          */
-                        if (connectorMessage.isAttemptedFirst() || (lastMessageId != null && lastMessageId >= connectorMessage.getMessageId())) {
+                        if (connectorMessage.isAttemptedFirst() || lastMessageId != null && (lastMessageId == connectorMessage.getMessageId() || (queue.isRotate() && lastMessageId > connectorMessage.getMessageId() && queue.hasBeenRotated()))) {
                             Thread.sleep(retryIntervalMillis);
                             connectorMessage.setAttemptedFirst(false);
                         }

@@ -97,6 +97,9 @@ public class DestinationQueue extends ConnectorMessageQueue {
         if (queueBuckets > 1) {
             queueThreadIds.clear();
         }
+        if (rotate) {
+            dataSource.getRotateThreadMap().clear();
+        }
     }
 
     public boolean isRotate() {
@@ -108,9 +111,32 @@ public class DestinationQueue extends ConnectorMessageQueue {
     }
 
     public synchronized void registerThreadId() {
+        Long threadId = Thread.currentThread().getId();
+
         if (queueBuckets > 1) {
-            queueThreadIds.add(Thread.currentThread().getId());
+            queueThreadIds.add(threadId);
         }
+
+        if (rotate) {
+            dataSource.getRotateThreadMap().put(threadId, false);
+        }
+    }
+
+    public boolean hasBeenRotated() {
+        if (rotate) {
+            // Check to see if the data source has rotated the queue
+            Long threadId = Thread.currentThread().getId();
+            Boolean rotated = dataSource.getRotateThreadMap().get(threadId);
+            if (rotated == null || rotated) {
+                if (rotated == null) {
+                    rotated = false;
+                }
+                // Update the map, clearing the flag
+                dataSource.getRotateThreadMap().put(threadId, false);
+            }
+            return rotated;
+        }
+        return false;
     }
 
     public synchronized ConnectorMessage acquire() {
@@ -261,7 +287,7 @@ public class DestinationQueue extends ConnectorMessageQueue {
                         }
                     }
                 }
-                
+
                 if (bucket == null) {
                     // Calculate the 32-bit hash, then reduce it to one of the buckets
                     bucket = Math.abs(hashFunction.hashUnencodedChars(groupByValue).asInt() % queueBuckets);
