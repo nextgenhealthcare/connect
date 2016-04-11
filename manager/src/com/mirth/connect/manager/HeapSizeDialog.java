@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * 
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL license a copy of which has
+ * been included with this distribution in the LICENSE.txt file.
+ */
+
 package com.mirth.connect.manager;
 
 import java.awt.Color;
@@ -87,7 +96,7 @@ public class HeapSizeDialog extends JDialog {
         String heapSize = HeapSize.fromDisplayName((String) heapSizeComboBox.getSelectedItem());
         if (StringUtils.isBlank(heapSize)) {
             heapSize = (String) heapSizeComboBox.getSelectedItem();
-            
+
             String[] formattedHeapSize = heapSize.split(" ");
             heapSize = formattedHeapSize[0] + formattedHeapSize[1].toLowerCase().substring(0, 1);
         }
@@ -149,7 +158,7 @@ public class HeapSizeDialog extends JDialog {
         add(cancelButton, "h 22!, w 50!");
     }
 
-    private String formatCustomProperty(String property) {  // This should probably try/catch
+    private String formatCustomProperty(String property) { // This should probably try/catch
         String[] prop = property.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
         String units = String.valueOf(prop[1]);
         if (StringUtils.isNotBlank(units)) {

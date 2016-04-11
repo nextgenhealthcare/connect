@@ -153,7 +153,7 @@
 		</taskdef>
 
 		<header headerFile="${server}/license-header.txt">
-			<fileset dir="${server}" includes="**/*.java" excludes="src/org/**/*.java src/com/mirth/connect/server/logging/LogOutputStream.java" />
+			<fileset dir="${server}" includes="**/*.java" excludes="src/io/**/*.java src/org/**/*.java src/com/mirth/connect/server/logging/LogOutputStream.java" />
 		</header>
 
 		<header headerFile="${server}/license-header.txt">

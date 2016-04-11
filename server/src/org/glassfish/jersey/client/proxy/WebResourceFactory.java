@@ -86,7 +86,6 @@ import org.glassfish.jersey.internal.util.ReflectionHelper;
 import org.glassfish.jersey.media.multipart.Boundary;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.glassfish.jersey.media.multipart.MultiPart;
 
 /**
  * Factory for client-side representation of a resource.
