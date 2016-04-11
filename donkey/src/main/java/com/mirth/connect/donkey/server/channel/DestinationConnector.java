@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -528,6 +529,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         int retryIntervalMillis = destinationConnectorProperties.getRetryIntervalMillis();
         Long lastMessageId = null;
         boolean canAcquire = true;
+        Lock statusUpdateLock = null;
         queue.registerThreadId();
 
         do {
@@ -644,6 +646,18 @@ public abstract class DestinationConnector extends Connector implements Runnable
                             dao.updateErrors(connectorMessage);
                         }
 
+                        /*
+                         * If we're about to commit a non-QUEUED status, we first need to obtain a
+                         * read lock from the queue. This is done so that if something else
+                         * invalidates the queue at the same time, we don't incorrectly decrement
+                         * the size during the release.
+                         */
+                        if (connectorMessage.getStatus() != Status.QUEUED) {
+                            Lock lock = queue.getStatusUpdateLock();
+                            lock.lock();
+                            statusUpdateLock = lock;
+                        }
+
                         ThreadUtils.checkInterruptedStatus();
                         dao.commit(storageSettings.isDurable());
 
@@ -689,6 +703,13 @@ public abstract class DestinationConnector extends Connector implements Runnable
                             canAcquire = true;
                             synchronized (queue) {
                                 queue.release(connectorMessage, true);
+
+                                // Release the read lock now before calling invalidate
+                                if (statusUpdateLock != null) {
+                                    statusUpdateLock.unlock();
+                                    statusUpdateLock = null;
+                                }
+
                                 queue.invalidate(true, false);
                             }
                         } else if (connectorMessage.getStatus() != Status.QUEUED) {
@@ -705,6 +726,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
                              */
                             canAcquire = queue.releaseIfDeleted(connectorMessage);
                         }
+
+                        // Always release the read lock if we obtained it
+                        if (statusUpdateLock != null) {
+                            statusUpdateLock.unlock();
+                            statusUpdateLock = null;
+                        }
                     }
                 } else {
                     /*
@@ -717,6 +744,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 // Stop this thread if it was halted
                 return;
             } catch (Exception e) {
+                // Always release the read lock if we obtained it
+                if (statusUpdateLock != null) {
+                    statusUpdateLock.unlock();
+                    statusUpdateLock = null;
+                }
+
                 logger.warn("Error in queue thread for channel " + channel.getName() + " (" + channel.getChannelId() + ") on destination " + destinationName + ".\n" + ExceptionUtils.getStackTrace(e));
                 try {
                     Thread.sleep(retryIntervalMillis);
@@ -729,6 +762,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 } catch (InterruptedException e1) {
                     // Stop this thread if it was halted
                     return;
+                }
+            } finally {
+                // Always release the read lock if we obtained it
+                if (statusUpdateLock != null) {
+                    statusUpdateLock.unlock();
+                    statusUpdateLock = null;
                 }
             }
         } while (getCurrentState() == DeployedState.STARTED || getCurrentState() == DeployedState.STARTING);

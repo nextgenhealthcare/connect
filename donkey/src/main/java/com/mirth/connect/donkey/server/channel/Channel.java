@@ -79,6 +79,7 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
+import com.mirth.connect.donkey.server.queue.DestinationQueue;
 import com.mirth.connect.donkey.server.queue.SourceQueue;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.MessageMaps;
@@ -424,7 +425,20 @@ public class Channel implements Runnable {
 
         for (DestinationChainProvider chainProvider : destinationChainProviders) {
             for (Integer metaDataId : chainProvider.getMetaDataIds()) {
-                chainProvider.getDestinationConnectors().get(metaDataId).getQueue().invalidate(true, false);
+                DestinationQueue queue = chainProvider.getDestinationConnectors().get(metaDataId).getQueue();
+
+                /*
+                 * Before invalidating first obtain a write lock from the queue. This is done so
+                 * that no queue threads can commit an updated status to the database while the
+                 * invalidation is happening.
+                 */
+                Lock lock = queue.getInvalidationLock();
+                lock.lock();
+                try {
+                    queue.invalidate(true, false);
+                } finally {
+                    lock.unlock();
+                }
             }
         }
     }

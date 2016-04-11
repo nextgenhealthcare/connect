@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,6 +46,24 @@ public class DestinationQueue extends ConnectorMessageQueue {
     private List<Long> queueThreadIds;
     private HashFunction hashFunction;
     private Map<String, Integer> initialThreadAssignmentMap;
+
+    /*
+     * After deleting queued messages, the queue will get invalidated. When a queue thread is
+     * processing a message, there is a short period of time between the point the non-QUEUED status
+     * is committed to the database, and when the connector message is released from the queue. If
+     * the invalidate (and subsequent size update) is done in this period, then the size will be
+     * incorrect after the queue thread releases the connector message.
+     * 
+     * This read/write lock is meant to prevent this. When destination queue threads are about to
+     * commit a non-QUEUED status to the database, they need to obtain a read lock. Multiple threads
+     * can have concurrent read locks.
+     * 
+     * When the queue is invalidated due to messages being deleted, the caller first obtains the
+     * write lock. This will block until all queue threads have released their respective read
+     * locks. Then the invalidation and size update is done, without any queue threads being able to
+     * commit statuses to the database.
+     */
+    private ReentrantReadWriteLock statusUpdateLock = new ReentrantReadWriteLock(true);
 
     public DestinationQueue(String groupBy, int threadCount, boolean regenerateTemplate, Serializer serializer, MessageMaps messageMaps) {
         this.groupBy = StringUtils.defaultString(groupBy);
@@ -88,6 +108,14 @@ public class DestinationQueue extends ConnectorMessageQueue {
         }
 
         return null;
+    }
+
+    public Lock getStatusUpdateLock() {
+        return statusUpdateLock.readLock();
+    }
+
+    public Lock getInvalidationLock() {
+        return statusUpdateLock.writeLock();
     }
 
     @Override
