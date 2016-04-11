@@ -1265,7 +1265,7 @@ public class Frame extends JXFrame {
              */
             if (t instanceof ClientException) {
                 if (t instanceof ForbiddenException || t.getCause() != null && t.getCause() instanceof ForbiddenException) {
-                    message = "You are not authorized to peform this action.\n\n" + message;
+                    message = "You are not authorized to perform this action.\n\n" + message;
                     if (!showMessageOnForbidden) {
                         showDialog = false;
                     }
