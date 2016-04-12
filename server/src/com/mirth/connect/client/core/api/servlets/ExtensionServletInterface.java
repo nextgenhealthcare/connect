@@ -56,10 +56,10 @@ public interface ExtensionServletInterface extends BaseServletInterface {
     public void installExtension(@Param("inputStream") @ApiParam(value = "The extension file to upload.") @FormDataParam("file") InputStream inputStream) throws ClientException;
 
     @POST
-    @Path("/{path}/_uninstall")
+    @Path("/_uninstall")
     @ApiOperation("Uninstalls an extension.")
     @MirthOperation(name = "uninstallExtension", display = "Uninstall extension", permission = Permissions.EXTENSIONS_MANAGE)
-    public void uninstallExtension(@Param("extensionPath") @ApiParam(value = "The path attribute of the extension to uninstall.", required = true) @PathParam("path") String extensionPath) throws ClientException;
+    public void uninstallExtension(@Param("extensionPath") @ApiParam(value = "The path attribute of the extension to uninstall.", required = true) String extensionPath) throws ClientException;
 
     @GET
     @Path("/{extensionName}")
