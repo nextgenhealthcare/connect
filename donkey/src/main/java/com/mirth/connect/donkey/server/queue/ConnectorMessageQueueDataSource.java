@@ -81,7 +81,13 @@ public class ConnectorMessageQueueDataSource {
     }
 
     public void setLastItem(ConnectorMessage connectorMessage) {
-        rotatedMessageId = connectorMessage.getMessageId() + 1;
+        /*
+         * Multiple processing threads can cause the buffer to be out of order, so make sure the
+         * rotation ID is always set to the highest one available.
+         */
+        if (rotatedMessageId == null || connectorMessage.getMessageId() >= rotatedMessageId) {
+            rotatedMessageId = connectorMessage.getMessageId() + 1;
+        }
 
         if (isQueueRotated()) {
             rotateQueue();
@@ -90,6 +96,23 @@ public class ConnectorMessageQueueDataSource {
 
     public void rotateQueue() {
         minMessageId = rotatedMessageId;
+
+        /*
+         * Set the max message ID when the minimum message ID is set for the first time (for the
+         * first message being returned to the queue). This sets an ending point for the current
+         * cycle, and any new messages (with higher message IDs) will not be part of it. When the
+         * queue exhausts all messages in the current cycle, it will start back at the beginning,
+         * and the min/max IDs will be reset, allowing those new messages to be part of the next
+         * cycle.
+         */
+        if (maxMessageId == null) {
+            DonkeyDao dao = getDaoFactory().getDao();
+            try {
+                maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, serverId, metaDataId, status);
+            } finally {
+                dao.close();
+            }
+        }
     }
 
     public boolean isQueueRotated() {
@@ -102,11 +125,11 @@ public class ConnectorMessageQueueDataSource {
         try {
             if (rotate) {
                 minMessageId = 0L;
-                maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, serverId, metaDataId, status);
+                rotatedMessageId = null;
             } else {
                 minMessageId = null;
-                maxMessageId = null;
             }
+            maxMessageId = null;
 
             return dao.getConnectorMessageCount(channelId, serverId, metaDataId, status);
         } finally {
@@ -120,9 +143,16 @@ public class ConnectorMessageQueueDataSource {
         try {
             List<ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, serverId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
 
+            /*
+             * If rotation is on, the last query may not have returned any results because min/max
+             * message IDs were set, indicating that an earlier message was returned to the queue.
+             * If this is the case, reset the min/max messages IDs to start a new rotation cycle. If
+             * a message is returned to the queue again, the min/max IDs will be set at that time.
+             */
             if (rotate && connectorMessages.size() == 0) {
                 minMessageId = 0L;
-                maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, serverId, metaDataId, status);
+                maxMessageId = null;
+                rotatedMessageId = null;
                 connectorMessages = dao.getConnectorMessages(channelId, serverId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
 
                 if (connectorMessages.size() > 0) {
