@@ -184,12 +184,9 @@ public class DestinationQueue extends ConnectorMessageQueue {
                     /*
                      * If connectorMessage is null, it may just mean that all the messages in the
                      * buffer are in buckets for other queue threads. So only go to the database for
-                     * more messages and try again if the buffer is actually empty, or if the buffer
-                     * size is less than the capacity and actual size of the queue. This will ensure
-                     * that we fill the buffer if it would actually result in more messages being
-                     * added to the buffer.
+                     * more messages and try again if the buffer is actually empty.
                      */
-                    if (connectorMessage == null && Math.min(size, getBufferCapacity()) - buffer.size() > 0) {
+                    if (connectorMessage == null && buffer.size() == 0) {
                         if (bufferFilled) {
                             return null;
                         }
