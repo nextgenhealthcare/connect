@@ -249,4 +249,8 @@
 		
 		) A WHERE ROWNUM <![CDATA[ <= ]]> ${limit}
 	</query>
+	
+	<query id="getSequenceMetadata">
+		SELECT SEQUENCE_NAME AS SEQUENCE_NAME FROM ALL_SEQUENCES
+	</query>
 </queries>

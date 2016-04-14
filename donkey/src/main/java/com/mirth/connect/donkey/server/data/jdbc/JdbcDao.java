@@ -1778,7 +1778,29 @@ public class JdbcDao implements DonkeyDao {
             rs = dbMetaData.getTables(null, null, "%", null);
 
             while (rs.next()) {
-                channelTablesMap.remove(rs.getString("TABLE_NAME").toLowerCase());
+                String tableName = rs.getString("TABLE_NAME").toLowerCase();
+                if (channelTablesMap.containsKey(tableName)) {
+                    channelTablesMap.remove(tableName);
+                }
+            }
+            close(rs);
+
+            /*
+             * MIRTH-2851 - Oracle does not return sequences in the DatabaseMetaData.getTables
+             * method. If we dont remove the d_msq sequence from oracle then it will try to recreate
+             * it which will throw an exception. If any database needs an additional query for
+             * sequences then it could just be added for that database.
+             */
+
+            if (querySource.queryExists("getSequenceMetadata")) {
+                Statement statement = connection.createStatement();
+                rs = statement.executeQuery(querySource.getQuery("getSequenceMetadata"));
+                while (rs.next()) {
+                    String sequenceName = rs.getString("SEQUENCE_NAME").toLowerCase();
+                    if (channelTablesMap.containsKey(sequenceName)) {
+                        channelTablesMap.remove(sequenceName);
+                    }
+                }
             }
         } catch (Exception e) {
             throw new DonkeyDaoException(e);
