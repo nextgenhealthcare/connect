@@ -1773,15 +1773,14 @@ public class JdbcDao implements DonkeyDao {
         }
 
         ResultSet rs = null;
+        Statement statement = null;
         try {
             DatabaseMetaData dbMetaData = connection.getMetaData();
             rs = dbMetaData.getTables(null, null, "%", null);
 
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME").toLowerCase();
-                if (channelTablesMap.containsKey(tableName)) {
-                    channelTablesMap.remove(tableName);
-                }
+                channelTablesMap.remove(tableName);
             }
             close(rs);
 
@@ -1793,21 +1792,18 @@ public class JdbcDao implements DonkeyDao {
              */
 
             if (querySource.queryExists("getSequenceMetadata")) {
-                Statement statement = connection.createStatement();
+                statement = connection.createStatement();
                 rs = statement.executeQuery(querySource.getQuery("getSequenceMetadata"));
                 while (rs.next()) {
                     String sequenceName = rs.getString("SEQUENCE_NAME").toLowerCase();
-                    if (channelTablesMap.containsKey(sequenceName)) {
-                        channelTablesMap.remove(sequenceName);
-                    }
+                    channelTablesMap.remove(sequenceName);
                 }
             }
         } catch (Exception e) {
             throw new DonkeyDaoException(e);
         } finally {
-            if (rs != null) {
-                close(rs);
-            }
+            close(rs);
+            close(statement);
         }
 
         for (Entry<String, String> entry : channelTablesMap.entrySet()) {

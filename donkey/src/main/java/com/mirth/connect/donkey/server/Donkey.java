@@ -78,7 +78,7 @@ public class Donkey {
             dao.checkAndCreateChannelTables();
 
             dao.commit();
-        } catch(DonkeyDaoException e){
+        } catch(Exception e){
             logger.error("Count not check and create channel tables on startup", e);
         }finally {
             if (dao != null) {
