@@ -394,7 +394,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         add(pageSizeUnitComboBox, "gapbefore 6");
         add(pageSizeComboBox, "gapbefore 6");
         add(templateLabel, "newline, right, top");
-        add(templateTextArea, "grow, push");
+        add(templateTextArea, "grow, push, w :500, h :150");
     }
 
     private void testConnection() {
