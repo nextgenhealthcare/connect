@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -2705,7 +2706,8 @@ public class ChannelPanel extends AbstractFramePanel {
         channelTable.setTransferHandler(new ChannelTableTransferHandler() {
             @Override
             public boolean canImport(TransferSupport support) {
-                if (isSaveEnabled()) {
+                // Don't allow files to be imported when the save task is enabled 
+                if (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && isSaveEnabled()) {
                     return false;
                 }
                 return super.canImport(support);
