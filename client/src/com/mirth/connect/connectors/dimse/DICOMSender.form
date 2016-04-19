@@ -1174,12 +1174,12 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localAddressField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="Local IP to send to."/>
+        <Property name="toolTipText" type="java.lang.String" value="Local address that the client socket will be bound to."/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localPortField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="Local PORT to send to."/>
+        <Property name="toolTipText" type="java.lang.String" value="Local port that the client socket will be bound to."/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localApplicationEntityField">

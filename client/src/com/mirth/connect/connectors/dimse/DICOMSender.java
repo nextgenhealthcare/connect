@@ -669,9 +669,9 @@ public class DICOMSender extends ConnectorSettingsPanel {
 
         jLabel36.setText("Local Application Entity:");
 
-        localAddressField.setToolTipText("Local IP to send to.");
+        localAddressField.setToolTipText("Local address that the client socket will be bound to.");
 
-        localPortField.setToolTipText("Local PORT to send to.");
+        localPortField.setToolTipText("Local port that the client socket will be bound to.");
 
         localApplicationEntityField.setToolTipText("Local Application Entity");
 
