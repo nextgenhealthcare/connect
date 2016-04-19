@@ -59,6 +59,7 @@ public class FileWriter extends ConnectorSettingsPanel {
         setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, fill, gapy 6", "[right][left]"));
 
         initComponents();
+        initToolTips();
         initLayout();
 
         parent.setupCharsetEncodingForConnector(charsetEncodingComboBox);
@@ -365,7 +366,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         schemeComboBox = new MirthComboBox();
         schemeComboBox.setModel(new DefaultComboBoxModel(new String[] { "file", "ftp", "sftp",
                 "smb", "webdav" }));
-        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, SFTP, Samba share, or WebDAV");
         schemeComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 schemeComboBoxActionPerformed(evt);
@@ -394,16 +394,13 @@ public class FileWriter extends ConnectorSettingsPanel {
         directoryLabel = new JLabel();
         directoryLabel.setText("Directory:");
         directoryField = new MirthTextField();
-        directoryField.setToolTipText("The directory (folder) in which the files to be read can be found.");
 
         hostLabel = new JLabel();
         hostLabel.setText("ftp://");
         hostField = new MirthTextField();
-        hostField.setToolTipText("The name or IP address of the host (computer) on which the files to be read can be found.");
         pathLabel = new JLabel();
         pathLabel.setText("/");
         pathField = new MirthTextField();
-        pathField.setToolTipText("The directory (folder) in which the files to be read can be found.");
 
         fileNameLabel = new JLabel();
         fileNameLabel.setText("File Name:");
@@ -417,7 +414,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         anonymousYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         anonymousYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         anonymousYesRadio.setText("Yes");
-        anonymousYesRadio.setToolTipText("Connects to the file anonymously instead of using a username and password.");
         anonymousYesRadio.setMargin(new Insets(0, 0, 0, 0));
         anonymousYesRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -430,7 +426,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         anonymousNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         anonymousNoRadio.setSelected(true);
         anonymousNoRadio.setText("No");
-        anonymousNoRadio.setToolTipText("Connects to the file using a username and password instead of anonymously.");
         anonymousNoRadio.setMargin(new Insets(0, 0, 0, 0));
         anonymousNoRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -445,17 +440,14 @@ public class FileWriter extends ConnectorSettingsPanel {
         usernameLabel = new JLabel();
         usernameLabel.setText("Username:");
         usernameField = new MirthTextField();
-        usernameField.setToolTipText("The user name used to gain access to the server.");
 
         passwordLabel = new JLabel();
         passwordLabel.setText("Password:");
         passwordField = new MirthPasswordField();
-        passwordField.setToolTipText("The password used to gain access to the server.");
 
         timeoutLabel = new JLabel();
         timeoutLabel.setText("Timeout (ms):");
         timeoutField = new MirthTextField();
-        timeoutField.setToolTipText("The socket timeout (in ms) for connecting to the server.");
 
         secureModeLabel = new JLabel();
         secureModeLabel.setText("Secure Mode:");
@@ -464,7 +456,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         secureModeYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         secureModeYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         secureModeYesRadio.setText("Yes");
-        secureModeYesRadio.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
         secureModeYesRadio.setMargin(new Insets(0, 0, 0, 0));
         secureModeYesRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -477,7 +468,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         secureModeNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         secureModeNoRadio.setSelected(true);
         secureModeNoRadio.setText("No");
-        secureModeNoRadio.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
         secureModeNoRadio.setMargin(new Insets(0, 0, 0, 0));
         secureModeNoRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -496,7 +486,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         passiveModeYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         passiveModeYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         passiveModeYesRadio.setText("Yes");
-        passiveModeYesRadio.setToolTipText("<html>Select Yes to connect to the server in \"passive mode\".<br>Passive mode sometimes allows a connection through a firewall that normal mode does not.</html>");
         passiveModeYesRadio.setMargin(new Insets(0, 0, 0, 0));
 
         passiveModeNoRadio = new MirthRadioButton();
@@ -504,7 +493,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         passiveModeNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         passiveModeNoRadio.setSelected(true);
         passiveModeNoRadio.setText("No");
-        passiveModeNoRadio.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
         passiveModeNoRadio.setMargin(new Insets(0, 0, 0, 0));
 
         passiveModeButtonGroup = new ButtonGroup();
@@ -518,14 +506,12 @@ public class FileWriter extends ConnectorSettingsPanel {
         validateConnectionYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         validateConnectionYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         validateConnectionYesRadio.setText("Yes");
-        validateConnectionYesRadio.setToolTipText("Select Yes to test the connection to the server before each operation.");
         validateConnectionYesRadio.setMargin(new Insets(0, 0, 0, 0));
 
         validateConnectionNoRadio = new MirthRadioButton();
         validateConnectionNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         validateConnectionNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         validateConnectionNoRadio.setText("No");
-        validateConnectionNoRadio.setToolTipText("Select No to skip testing the connection to the server before each operation.");
         validateConnectionNoRadio.setMargin(new Insets(0, 0, 0, 0));
 
         validateConnectionButtonGroup = new ButtonGroup();
@@ -539,7 +525,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         fileExistsAppendRadio.setBackground(new java.awt.Color(255, 255, 255));
         fileExistsAppendRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         fileExistsAppendRadio.setText("Append");
-        fileExistsAppendRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
         fileExistsAppendRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         fileExistsAppendRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -551,7 +536,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         fileExistsOverwriteRadio.setBackground(new java.awt.Color(255, 255, 255));
         fileExistsOverwriteRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         fileExistsOverwriteRadio.setText("Overwrite");
-        fileExistsOverwriteRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
         fileExistsOverwriteRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         fileExistsOverwriteRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -564,7 +548,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         fileExistsErrorRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         fileExistsErrorRadio.setSelected(true);
         fileExistsErrorRadio.setText("Error");
-        fileExistsErrorRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
         fileExistsErrorRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         fileExistsErrorRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -584,7 +567,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         tempFileYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         tempFileYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tempFileYesRadio.setText("Yes");
-        tempFileYesRadio.setToolTipText("<html>If 'yes' is selected, the file contents will first be written to a temp file and then renamed to the specified file name.<br>If 'no' is selected, the file contents will be written directly to the destination file.<br>Using a temp file is not an option if the specified file is being appended to.</html>");
         tempFileYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         tempFileNoRadio = new MirthRadioButton();
@@ -592,7 +574,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         tempFileNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tempFileNoRadio.setSelected(true);
         tempFileNoRadio.setText("No");
-        tempFileNoRadio.setToolTipText("<html>If 'yes' is selected, the file contents will first be written to a temp file and then renamed to the specified file name.<br>If 'no' is selected, the file contents will be written directly to the destination file.<br>Using a temp file is not an option if the specified file is being appended to.</html>");
         tempFileNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         tempFileButtonGroup = new ButtonGroup();
@@ -606,7 +587,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         fileTypeBinary.setBackground(UIConstants.BACKGROUND_COLOR);
         fileTypeBinary.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         fileTypeBinary.setText("Binary");
-        fileTypeBinary.setToolTipText("<html>Select Binary if files contain binary data; the contents will be Base64 encoded before processing.<br>Select Text if files contain text data; the contents will be encoded using the specified character set encoding.</html>");
         fileTypeBinary.setMargin(new Insets(0, 0, 0, 0));
         fileTypeBinary.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -619,7 +599,6 @@ public class FileWriter extends ConnectorSettingsPanel {
         fileTypeText.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         fileTypeText.setSelected(true);
         fileTypeText.setText("Text");
-        fileTypeText.setToolTipText("<html>Select Binary if files contain binary data; the contents will be Base64 encoded before processing.<br>Select Text if files contain text data; the contents will be encoded using the specified character set encoding.</html>");
         fileTypeText.setMargin(new Insets(0, 0, 0, 0));
         fileTypeText.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -637,13 +616,48 @@ public class FileWriter extends ConnectorSettingsPanel {
         charsetEncodingComboBox = new MirthComboBox();
         charsetEncodingComboBox.setModel(new DefaultComboBoxModel(new String[] { "Default",
                 "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
-        charsetEncodingComboBox.setToolTipText("If File Type Text is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file.");
 
         templateLabel = new JLabel();
         templateLabel.setText("Template:");
 
         fileContentsTextPane = new MirthSyntaxTextArea();
         fileContentsTextPane.setBorder(BorderFactory.createEtchedBorder());
+    }
+
+    private void initToolTips() {
+        schemeComboBox.setToolTipText("The basic method used to write files with - file (local filesystem), FTP, SFTP, Samba share, or WebDAV");
+        directoryField.setToolTipText("The directory (folder) to write the files to.");
+        hostField.setToolTipText("The name or IP address of the host (computer) on which the files can be written.");
+        pathField.setToolTipText("The directory (folder) to write the files to.");
+        anonymousYesRadio.setToolTipText("Connects to the file anonymously instead of using a username and password.");
+        anonymousNoRadio.setToolTipText("Connects to the file using a username and password instead of anonymously.");
+        usernameField.setToolTipText("The user name used to gain access to the server.");
+        passwordField.setToolTipText("The password used to gain access to the server.");
+        timeoutField.setToolTipText("The socket timeout (in ms) for connecting to the server.");
+
+        String toolTipText = "<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>";
+        secureModeYesRadio.setToolTipText(toolTipText);
+        secureModeNoRadio.setToolTipText(toolTipText);
+
+        passiveModeYesRadio.setToolTipText("<html>Select Yes to connect to the server in \"passive mode\".<br>Passive mode sometimes allows a connection through a firewall that normal mode does not.</html>");
+        passiveModeNoRadio.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
+        validateConnectionYesRadio.setToolTipText("Select Yes to test the connection to the server before each operation.");
+        validateConnectionNoRadio.setToolTipText("Select No to skip testing the connection to the server before each operation.");
+
+        toolTipText = "<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>";
+        fileExistsAppendRadio.setToolTipText(toolTipText);
+        fileExistsOverwriteRadio.setToolTipText(toolTipText);
+        fileExistsErrorRadio.setToolTipText(toolTipText);
+
+        toolTipText = "<html>If 'yes' is selected, the file contents will first be written to a temp file and then renamed to the specified file name.<br>If 'no' is selected, the file contents will be written directly to the destination file.<br>Using a temp file is not an option if the specified file is being appended to.</html>";
+        tempFileYesRadio.setToolTipText(toolTipText);
+        tempFileNoRadio.setToolTipText(toolTipText);
+
+        toolTipText = "<html>Select Binary if files contain binary data; the contents will be Base64 decoded before being written out.<br>Select Text if files contain text data; the contents will be written out using the specified character set encoding.</html>";
+        fileTypeBinary.setToolTipText(toolTipText);
+        fileTypeText.setToolTipText(toolTipText);
+
+        charsetEncodingComboBox.setToolTipText("If File Type Text is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in writing the contents of each file.");
     }
 
     private void initLayout() {
