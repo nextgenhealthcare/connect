@@ -47,14 +47,14 @@ public class AlertAction implements Migratable, Purgable {
     }
 
     @Override
-    public String toString(){
-    	StringBuilder builder = new StringBuilder();
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
         builder.append(getClass().getName()).append('[');
         builder.append("protocol=").append(protocol).append(", ");
         builder.append("recipient=").append(recipient).append(']');
         return builder.toString();
     }
-    
+
     @Override
     public void migrate3_0_1(DonkeyElement element) {}
 
@@ -78,6 +78,9 @@ public class AlertAction implements Migratable, Purgable {
 
     @Override
     public void migrate3_4_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_5_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

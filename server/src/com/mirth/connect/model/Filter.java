@@ -24,40 +24,40 @@ import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
- * A Filter represents a list of rules which are executed on each message and
- * either accepts or rejects the message.
+ * A Filter represents a list of rules which are executed on each message and either accepts or
+ * rejects the message.
  * 
  */
 
 @XStreamAlias("filter")
 public class Filter implements Serializable, Migratable, Purgable {
-	private List<Rule> rules;
+    private List<Rule> rules;
 
-	public Filter() {
-		this.rules = new ArrayList<Rule>();
-	}
+    public Filter() {
+        this.rules = new ArrayList<Rule>();
+    }
 
-	public List<Rule> getRules() {
-		return this.rules;
-	}
+    public List<Rule> getRules() {
+        return this.rules;
+    }
 
-	public void setRules(List<Rule> rules) {
-		this.rules = rules;
-	}
+    public void setRules(List<Rule> rules) {
+        this.rules = rules;
+    }
 
-	public boolean equals(Object that) {
-		if (this == that) {
-			return true;
-		}
+    public boolean equals(Object that) {
+        if (this == that) {
+            return true;
+        }
 
-		if (!(that instanceof Filter)) {
-			return false;
-		}
+        if (!(that instanceof Filter)) {
+            return false;
+        }
 
-		Filter filter = (Filter) that;
+        Filter filter = (Filter) that;
 
-		return ObjectUtils.equals(this.getRules(), filter.getRules());
-	}
+        return ObjectUtils.equals(this.getRules(), filter.getRules());
+    }
 
     public void migrate3_0_1(DonkeyElement filter) {
         for (DonkeyElement rule : filter.getChildElement("rules").getChildElements()) {
@@ -79,6 +79,9 @@ public class Filter implements Serializable, Migratable, Purgable {
 
     @Override
     public void migrate3_4_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_5_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

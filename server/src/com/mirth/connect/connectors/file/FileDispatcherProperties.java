@@ -349,6 +349,9 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
     public void migrate3_4_0(DonkeyElement element) {}
 
     @Override
+    public void migrate3_5_0(DonkeyElement element) {}
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());

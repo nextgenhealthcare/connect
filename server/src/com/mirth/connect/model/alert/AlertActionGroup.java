@@ -54,10 +54,10 @@ public class AlertActionGroup implements Migratable, Purgable {
     public void setTemplate(String template) {
         this.template = template;
     }
-    
+
     @Override
-    public String toString(){
-    	StringBuilder builder = new StringBuilder();
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
         builder.append(getClass().getName()).append('[');
         builder.append("actions=").append(actions).append(", ");
         builder.append("subject=").append(subject).append(", ");
@@ -82,6 +82,9 @@ public class AlertActionGroup implements Migratable, Purgable {
 
     @Override
     public void migrate3_4_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_5_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

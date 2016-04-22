@@ -87,10 +87,10 @@ public class AlertModel implements Migratable, Purgable {
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
-    
+
     @Override
-    public String toString(){
-    	StringBuilder builder = new StringBuilder();
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
         builder.append(getClass().getName()).append('[');
         builder.append("id=").append(id).append(", ");
         builder.append("name=").append(name).append(", ");
@@ -118,6 +118,9 @@ public class AlertModel implements Migratable, Purgable {
 
     @Override
     public void migrate3_4_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_5_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

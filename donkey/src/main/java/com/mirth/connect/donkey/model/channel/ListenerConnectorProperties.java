@@ -63,4 +63,7 @@ public class ListenerConnectorProperties implements Serializable, Migratable {
 
     @Override
     public void migrate3_4_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_5_0(DonkeyElement element) {}
 }

@@ -93,11 +93,14 @@ public class AttachmentHandlerProperties implements Serializable, Migratable, Pu
     public void migrate3_3_0(DonkeyElement element) {}
 
     @Override
+    public void migrate3_5_0(DonkeyElement element) {}
+
+    @Override
     public void migrate3_4_0(DonkeyElement element) {
         DonkeyElement classNameElement = element.getChildElement("className");
         if (classNameElement != null) {
             String className = classNameElement.getTextContent();
-            
+
             if (StringUtils.equals(className, "com.mirth.connect.server.attachments.DICOMAttachmentHandler")) {
                 classNameElement.setTextContent("com.mirth.connect.server.attachments.dicom.DICOMAttachmentHandlerProvider");
             } else if (StringUtils.equals(className, "com.mirth.connect.server.attachments.JavaScriptAttachmentHandler")) {

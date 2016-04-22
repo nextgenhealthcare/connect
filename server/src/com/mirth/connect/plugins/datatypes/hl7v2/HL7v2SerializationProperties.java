@@ -38,7 +38,7 @@ public class HL7v2SerializationProperties extends SerializationProperties {
         properties.put("stripNamespaces", new DataTypePropertyDescriptor(stripNamespaces, "Strip Namespaces", "Strips namespace definitions from the transformed XML message (applies to Strict Parser only).", PropertyEditorType.BOOLEAN));
         properties.put("segmentDelimiter", new DataTypePropertyDescriptor(segmentDelimiter, "Segment Delimiter", "This is the input delimiter character(s) expected to occur after each segment.", PropertyEditorType.STRING));
         properties.put("convertLineBreaks", new DataTypePropertyDescriptor(convertLineBreaks, "Convert Line Breaks", "Convert all styles of line breaks (CRLF, CR, LF) in the raw message to the segment delimiter. ", PropertyEditorType.BOOLEAN));
-        
+
         return properties;
     }
 
@@ -148,6 +148,9 @@ public class HL7v2SerializationProperties extends SerializationProperties {
 
     @Override
     public void migrate3_4_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_5_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

@@ -35,6 +35,9 @@ public class DICOMDataTypeProperties extends DataTypeProperties {
     public void migrate3_4_0(DonkeyElement element) {}
 
     @Override
+    public void migrate3_5_0(DonkeyElement element) {}
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         return null;
     }
