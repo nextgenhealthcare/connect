@@ -14,6 +14,8 @@ import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -67,11 +69,19 @@ public abstract class ChannelTableTransferHandler extends TransferHandler {
             try {
                 if (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                     List<File> fileList = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                    boolean showAlerts = (fileList.size() == 1);
+                    final boolean showAlerts = (fileList.size() == 1);
 
-                    for (File file : fileList) {
+                    // Submit each import task to a single-threaded executor so they always import one at a time.
+                    Executor executor = Executors.newSingleThreadExecutor();
+
+                    for (final File file : fileList) {
                         if (FilenameUtils.isExtension(file.getName(), "xml")) {
-                            importFile(file, showAlerts);
+                            executor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    importFile(file, showAlerts);
+                                }
+                            });
                         }
                     }
 

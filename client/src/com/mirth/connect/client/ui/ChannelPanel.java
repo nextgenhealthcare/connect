@@ -1074,6 +1074,92 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     public void importGroup(ChannelGroup importGroup, boolean showAlerts, boolean synchronous) {
+        // First consolidate and import code template libraries
+        Map<String, CodeTemplateLibrary> codeTemplateLibraryMap = new LinkedHashMap<String, CodeTemplateLibrary>();
+        Set<String> codeTemplateIds = new HashSet<String>();
+
+        for (Channel channel : importGroup.getChannels()) {
+            if (channel.getCodeTemplateLibraries() != null) {
+                for (CodeTemplateLibrary library : channel.getCodeTemplateLibraries()) {
+                    CodeTemplateLibrary matchingLibrary = codeTemplateLibraryMap.get(library.getId());
+
+                    if (matchingLibrary != null) {
+                        for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                            if (codeTemplateIds.add(codeTemplate.getId())) {
+                                matchingLibrary.getCodeTemplates().add(codeTemplate);
+                            }
+                        }
+                    } else {
+                        matchingLibrary = library;
+                        codeTemplateLibraryMap.put(matchingLibrary.getId(), matchingLibrary);
+
+                        List<CodeTemplate> codeTemplates = new ArrayList<CodeTemplate>();
+                        for (CodeTemplate codeTemplate : matchingLibrary.getCodeTemplates()) {
+                            if (codeTemplateIds.add(codeTemplate.getId())) {
+                                codeTemplates.add(codeTemplate);
+                            }
+                        }
+                        matchingLibrary.setCodeTemplates(codeTemplates);
+                    }
+
+                    // Combine the library enabled / disabled channel IDs
+                    matchingLibrary.getEnabledChannelIds().addAll(library.getEnabledChannelIds());
+                    matchingLibrary.getEnabledChannelIds().add(channel.getId());
+                    matchingLibrary.getDisabledChannelIds().addAll(library.getDisabledChannelIds());
+                    matchingLibrary.getDisabledChannelIds().removeAll(matchingLibrary.getEnabledChannelIds());
+                }
+
+                channel.getCodeTemplateLibraries().clear();
+            }
+        }
+
+        List<CodeTemplateLibrary> codeTemplateLibraries = new ArrayList<CodeTemplateLibrary>(codeTemplateLibraryMap.values());
+
+        parent.removeInvalidItems(codeTemplateLibraries, CodeTemplateLibrary.class);
+        if (CollectionUtils.isNotEmpty(codeTemplateLibraries)) {
+            boolean importLibraries;
+            String importChannelCodeTemplateLibraries = Preferences.userNodeForPackage(Mirth.class).get("importChannelCodeTemplateLibraries", null);
+
+            if (importChannelCodeTemplateLibraries == null) {
+                JCheckBox alwaysChooseCheckBox = new JCheckBox("Always choose this option by default in the future (may be changed in the Administrator settings)");
+                Object[] params = new Object[] {
+                        "Group \"" + importGroup.getName() + "\" has code template libraries included with it. Would you like to import them?",
+                        alwaysChooseCheckBox };
+                int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+                if (result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
+                    importLibraries = result == JOptionPane.YES_OPTION;
+                    if (alwaysChooseCheckBox.isSelected()) {
+                        Preferences.userNodeForPackage(Mirth.class).putBoolean("importChannelCodeTemplateLibraries", importLibraries);
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                importLibraries = Boolean.parseBoolean(importChannelCodeTemplateLibraries);
+            }
+
+            if (importLibraries) {
+                CodeTemplateImportDialog dialog = new CodeTemplateImportDialog(parent, codeTemplateLibraries, false, true);
+
+                if (dialog.wasSaved()) {
+                    CodeTemplateLibrarySaveResult updateSummary = parent.codeTemplatePanel.attemptUpdate(dialog.getUpdatedLibraries(), new HashMap<String, CodeTemplateLibrary>(), dialog.getUpdatedCodeTemplates(), new HashMap<String, CodeTemplate>(), true, null, null);
+
+                    if (updateSummary == null || updateSummary.isOverrideNeeded() || !updateSummary.isLibrariesSuccess()) {
+                        return;
+                    } else {
+                        for (CodeTemplateUpdateResult result : updateSummary.getCodeTemplateResults().values()) {
+                            if (!result.isSuccess()) {
+                                return;
+                            }
+                        }
+                    }
+
+                    parent.codeTemplatePanel.doRefreshCodeTemplates();
+                }
+            }
+        }
+
         List<Channel> successfulChannels = new ArrayList<Channel>();
         for (Channel channel : importGroup.getChannels()) {
             Channel importChannel = importChannel(channel, false, false);
@@ -2715,28 +2801,41 @@ public class ChannelPanel extends AbstractFramePanel {
 
             @Override
             public void importFile(final File file, final boolean showAlerts) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        String fileString = StringUtils.trim(parent.readFileToString(file));
+                try {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run() {
+                            String fileString = StringUtils.trim(parent.readFileToString(file));
 
-                        if (showAlerts && !parent.promptObjectMigration(fileString, "channel or group")) {
-                            return;
-                        }
-
-                        try {
-                            importChannel(ObjectXMLSerializer.getInstance().deserialize(fileString, Channel.class), showAlerts);
-                        } catch (Exception e) {
                             try {
-                                importGroup(ObjectXMLSerializer.getInstance().deserialize(fileString, ChannelGroup.class), showAlerts, !showAlerts);
-                            } catch (Exception e2) {
-                                if (showAlerts) {
-                                    parent.alertThrowable(parent, e, "Invalid channel or group file:\n" + e.getMessage());
+                                // If the table is in channel view, don't allow groups to be imported
+                                ChannelGroup group = ObjectXMLSerializer.getInstance().deserialize(fileString, ChannelGroup.class);
+                                if (group != null && !((ChannelTreeTableModel) channelTable.getTreeTableModel()).isGroupModeEnabled()) {
+                                    return;
+                                }
+                            } catch (Exception e) {
+                            }
+
+                            if (showAlerts && !parent.promptObjectMigration(fileString, "channel or group")) {
+                                return;
+                            }
+
+                            try {
+                                importChannel(ObjectXMLSerializer.getInstance().deserialize(fileString, Channel.class), showAlerts);
+                            } catch (Exception e) {
+                                try {
+                                    importGroup(ObjectXMLSerializer.getInstance().deserialize(fileString, ChannelGroup.class), showAlerts, !showAlerts);
+                                } catch (Exception e2) {
+                                    if (showAlerts) {
+                                        parent.alertThrowable(parent, e, "Invalid channel or group file:\n" + e.getMessage());
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
