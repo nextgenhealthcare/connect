@@ -3394,8 +3394,8 @@ public class ChannelPanel extends AbstractFramePanel {
             add(containerPanel, "grow, push");
 
             add(separator, "newline, growx");
-            add(okButton, "newline, w 48!, right, split 2");
-            add(cancelButton, "w 48!");
+            add(okButton, "newline, w 51!, right, split 2");
+            add(cancelButton, "w 51!");
         }
 
         private JPanel containerPanel;
@@ -3418,7 +3418,7 @@ public class ChannelPanel extends AbstractFramePanel {
             initComponents();
             initLayout();
 
-            setPreferredSize(new Dimension(282, 113));
+            setPreferredSize(new Dimension(337, 118));
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
             setTitle("Channel Group Assignment");
             pack();
@@ -3479,8 +3479,8 @@ public class ChannelPanel extends AbstractFramePanel {
             add(new JLabel("Choose the group to assign the selected channel(s) to."));
             add(groupComboBox, "newline, growx");
             add(separator, "newline, growx");
-            add(okButton, "newline, w 48!, right, split 2");
-            add(cancelButton, "w 48!");
+            add(okButton, "newline, w 51!, right, split 2");
+            add(cancelButton, "w 51!");
         }
 
         private JComboBox<Pair<String, String>> groupComboBox;
