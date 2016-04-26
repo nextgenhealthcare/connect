@@ -21,6 +21,8 @@ import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ForbiddenException;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -35,6 +37,7 @@ public class GlobalMapClient extends DashboardTabPlugin {
 
     private GlobalMapPanel globalMapPanel;
     private Vector<Object> data;
+    private int selectedRow;
 
     public GlobalMapClient(String name) {
         super(name);
@@ -81,6 +84,10 @@ public class GlobalMapClient extends DashboardTabPlugin {
             data = new Vector<Object>();
             Serializer serializer = ObjectXMLSerializer.getInstance();
             Map<String, String> globalMaps = null;
+            
+            selectedRow = 0;
+            String currentlySelectedMap = globalMapPanel.getSelectedMap();
+            String currentlySelectedVar = globalMapPanel.getSelectedVar();
             try {
                 globalMaps = (Map<String, String>) PlatformUI.MIRTH_FRAME.mirthClient.getServlet(GlobalMapServletInterface.class).getAllMaps(channelIds, true);
             } catch (ClientException e) {
@@ -119,11 +126,16 @@ public class GlobalMapClient extends DashboardTabPlugin {
 
                     for (Entry<String, Object> entry : sortedMap.entrySet()) {
                         Vector<Object> row = new Vector<Object>();
+                        String entryKey = StringUtil.valueOf(entry.getKey());
                         row.add(channelName);
-                        row.add(StringUtil.valueOf(entry.getKey()));
+                        row.add(StringUtil.valueOf(entryKey));
                         row.add(StringUtil.valueOf(entry.getValue()));
-
+                        
                         data.add(row);
+                        
+                        if(StringUtils.equals(entryKey, currentlySelectedVar) && StringUtils.equals(channelName, currentlySelectedMap)){
+                            selectedRow = data.size();
+                        }
                     }
                 }
 
@@ -135,11 +147,16 @@ public class GlobalMapClient extends DashboardTabPlugin {
                     for (Entry<String, Object> entry : sortedMap.entrySet()) {
 
                         Vector<Object> row = new Vector<Object>();
+                        String entryKey = StringUtil.valueOf(entry.getKey());
                         row.add("<Global Map>");
-                        row.add(StringUtil.valueOf(entry.getKey()));
+                        row.add(entryKey);
                         row.add(StringUtil.valueOf(entry.getValue()));
 
                         data.add(row);
+                        
+                        if(StringUtils.equals(entryKey, currentlySelectedVar) && StringUtils.equals("<Global Map>", currentlySelectedMap)){
+                            selectedRow = data.size();
+                        }
                     }
                 }
             }
@@ -151,7 +168,7 @@ public class GlobalMapClient extends DashboardTabPlugin {
 
     @Override
     public void update() {
-        globalMapPanel.updateTable(data);
+        globalMapPanel.updateTable(data, selectedRow);
     }
 
     @Override

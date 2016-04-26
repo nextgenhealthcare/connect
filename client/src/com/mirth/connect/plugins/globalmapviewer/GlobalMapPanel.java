@@ -17,8 +17,8 @@ import java.util.prefs.Preferences;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-
-import net.miginfocom.swing.MigLayout;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -29,11 +29,16 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.ViewContentDialog;
 import com.mirth.connect.client.ui.components.MirthTable;
 
+import net.miginfocom.swing.MigLayout;
+
 public class GlobalMapPanel extends JPanel {
 
     public GlobalMapPanel() {
         initComponents();
     }
+
+    private String selectedMap;
+    private String selectedVar;
 
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
@@ -62,6 +67,18 @@ public class GlobalMapPanel extends JPanel {
             }
         });
 
+        mapTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (mapTable.getSelectedRow() != -1) {
+                    selectedMap = (String) mapTable.getValueAt(mapTable.getSelectedRow(), 0);
+                    selectedVar = (String) mapTable.getValueAt(mapTable.getSelectedRow(), 1);
+                } else {
+                    selectedMap = null;
+                    selectedVar = null;
+                }
+            }
+        });
+
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             mapTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
@@ -72,9 +89,22 @@ public class GlobalMapPanel extends JPanel {
         add(mapScrollPane, "grow");
     }
 
-    public synchronized void updateTable(Vector<Object> data) {
+    public synchronized void updateTable(Vector<Object> data, int selectedRow) {
         RefreshTableModel model = (RefreshTableModel) mapTable.getModel();
         model.refreshDataVector(data);
+
+        //Re-select the row that was selected before the new vector was created
+        if (selectedRow > 0 && selectedRow <= mapTable.getRowCount()) {
+            mapTable.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
+        }
+    }
+
+    public String getSelectedMap() {
+        return this.selectedMap;
+    }
+
+    public String getSelectedVar() {
+        return this.selectedVar;
     }
 
     private JXTable mapTable;
