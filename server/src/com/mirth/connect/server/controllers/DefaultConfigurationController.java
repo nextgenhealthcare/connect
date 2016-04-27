@@ -1291,6 +1291,9 @@ public class DefaultConfigurationController extends ConfigurationController {
         SSLSocketFactory socketFactory = (SSLSocketFactory) properties.get("socketFactory");
         if (socketFactory != null) {
             email.getMailSession().getProperties().put("mail.smtp.ssl.socketFactory", socketFactory);
+            if ("SSL".equalsIgnoreCase(encryption)) {
+                email.getMailSession().getProperties().put("mail.smtp.socketFactory", socketFactory);
+            }
         }
 
         email.setSubject("Mirth Connect Test Email");
