@@ -429,9 +429,9 @@ public class ManagerDialog extends JDialog {
         add(new JSeparator(), "newline, growx, sx, gapleft 8, gapright 8");
         add(launchButton, "split, gapleft 8");
         add(heapSizeButton, "w 22!, h 22!, left");
-        add(okButton, "w 50!, gapleft 163");
-        add(cancelButton, "w 50!");
-        add(applyButton, "w 50!");
+        add(okButton, "w 56!, gapleft 145");
+        add(cancelButton, "w 56!");
+        add(applyButton, "w 56!");
     }
 
     private void mirthSupportLinkMouseClicked(MouseEvent evt) {
