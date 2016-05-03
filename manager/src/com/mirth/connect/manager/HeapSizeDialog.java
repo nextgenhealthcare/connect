@@ -154,8 +154,8 @@ public class HeapSizeDialog extends JDialog {
 
         add(panel);
         add(new JSeparator(), "newline, growx, sx");
-        add(okButton, "newline, h 22!, w 50!, sx, right, split");
-        add(cancelButton, "h 22!, w 50!");
+        add(okButton, "newline, h 22!, w 56!, sx, right, split");
+        add(cancelButton, "h 22!, w 56!");
     }
 
     private String formatCustomProperty(String property) { // This should probably try/catch
