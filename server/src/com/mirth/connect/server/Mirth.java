@@ -246,36 +246,37 @@ public class Mirth extends Thread {
         contextFactoryController.initGlobalContextFactory();
 
         try {
-            List<LibraryProperties> libraryResources = new ArrayList<LibraryProperties>();
-            for (ResourceProperties resource : ObjectXMLSerializer.getInstance().deserialize(configurationController.getResources(), ResourcePropertiesList.class).getList()) {
-                if (resource instanceof LibraryProperties) {
-                    libraryResources.add((LibraryProperties) resource);
-                }
-            }
-
-            contextFactoryController.updateResources(libraryResources);
-        } catch (LinkageError e) {
-            logger.warn("Unable to initialize library resources.", e);
-        } catch (Exception e) {
-            logger.warn("Unable to initialize library resources.", e);
-        }
-
-        MirthContextFactory contextFactory;
-        try {
-            contextFactory = contextFactoryController.getGlobalScriptContextFactory();
-        } catch (LinkageError e) {
-            logger.warn("Unable to initialize global script context factory.", e);
-            contextFactory = contextFactoryController.getGlobalContextFactory();
-        } catch (Exception e) {
-            logger.warn("Unable to initialize global script context factory.", e);
-            contextFactory = contextFactoryController.getGlobalContextFactory();
-        }
-        scriptController.compileGlobalScripts(contextFactory);
-
-        try {
             alertController.initAlerts();
 
             configurationController.setStatus(ConfigurationController.STATUS_INITIAL_DEPLOY);
+
+            // Initialize library resources after the above status is set, so that users can login
+            try {
+                List<LibraryProperties> libraryResources = new ArrayList<LibraryProperties>();
+                for (ResourceProperties resource : ObjectXMLSerializer.getInstance().deserialize(configurationController.getResources(), ResourcePropertiesList.class).getList()) {
+                    if (resource instanceof LibraryProperties) {
+                        libraryResources.add((LibraryProperties) resource);
+                    }
+                }
+
+                contextFactoryController.updateResources(libraryResources, true);
+            } catch (LinkageError e) {
+                logger.warn("Unable to initialize library resources.", e);
+            } catch (Exception e) {
+                logger.warn("Unable to initialize library resources.", e);
+            }
+
+            MirthContextFactory contextFactory;
+            try {
+                contextFactory = contextFactoryController.getGlobalScriptContextFactory();
+            } catch (LinkageError e) {
+                logger.warn("Unable to initialize global script context factory.", e);
+                contextFactory = contextFactoryController.getGlobalContextFactory();
+            } catch (Exception e) {
+                logger.warn("Unable to initialize global script context factory.", e);
+                contextFactory = contextFactoryController.getGlobalContextFactory();
+            }
+            scriptController.compileGlobalScripts(contextFactory);
 
             if (configurationController.isStartupDeploy()) {
                 engineController.startupDeploy();

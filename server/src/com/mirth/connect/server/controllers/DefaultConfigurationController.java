@@ -699,7 +699,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                         }
                     }
 
-                    ControllerFactory.getFactory().createContextFactoryController().updateResources(libraryResources);
+                    ControllerFactory.getFactory().createContextFactoryController().updateResources(libraryResources, false);
                 } catch (Exception e) {
                     logger.error("Unable to update libraries: " + e.getMessage(), e);
                 }

@@ -42,7 +42,7 @@ public class DirectoryResourcePlugin implements LibraryPlugin {
     public void stop() {}
 
     @Override
-    public List<URL> getLibraries(LibraryProperties properties) throws Exception {
+    public List<URL> getLibraries(LibraryProperties properties, boolean startup) throws Exception {
         DirectoryResourceProperties props = (DirectoryResourceProperties) properties;
         List<URL> libraries = new ArrayList<URL>();
         File directory = new File(props.getDirectory());
@@ -69,7 +69,7 @@ public class DirectoryResourcePlugin implements LibraryPlugin {
     }
 
     @Override
-    public void update(LibraryProperties properties) throws Exception {}
+    public void update(LibraryProperties properties, boolean startup) throws Exception {}
 
     @Override
     public void remove(LibraryProperties properties) throws Exception {}

@@ -20,7 +20,7 @@ public abstract class ContextFactoryController extends Controller {
 
     public abstract void initGlobalContextFactory();
 
-    public abstract void updateResources(List<LibraryProperties> resources) throws Exception;
+    public abstract void updateResources(List<LibraryProperties> resources, boolean startup) throws Exception;
 
     public abstract MirthContextFactory getGlobalContextFactory();
 
