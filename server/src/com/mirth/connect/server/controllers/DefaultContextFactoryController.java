@@ -64,7 +64,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
     }
 
     @Override
-    public synchronized void updateResources(List<LibraryProperties> resources) throws Exception {
+    public synchronized void updateResources(List<LibraryProperties> resources, boolean startup) throws Exception {
         logger.debug("Updating resources: " + String.valueOf(resources));
         Set<String> resourceIds = new HashSet<String>();
         Set<String> resourceIdsToReload = new HashSet<String>();
@@ -88,7 +88,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
                 LibraryPlugin plugin = (LibraryPlugin) extensionController.getResourcePlugins().get(resource.getPluginPointName());
                 if (plugin != null) {
                     try {
-                        plugin.update(resource);
+                        plugin.update(resource, startup);
                     } catch (Exception e) {
                         logger.warn("Unable to update libraries: " + e.getMessage(), e);
                     }
@@ -128,7 +128,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
             this.globalScriptResourceIds = globalScriptResourceIds;
         }
 
-        reloadResources(resourceIdsToReload);
+        reloadResources(resourceIdsToReload, startup);
     }
 
     @Override
@@ -154,7 +154,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
                     contextFactory = contextFactoryMap.get(libraryResourceIds);
 
                     if (contextFactory == null) {
-                        resetContextFactory(libraryResourceIds);
+                        resetContextFactory(libraryResourceIds, false);
                         contextFactory = contextFactoryMap.get(libraryResourceIds);
                     }
                 }
@@ -168,17 +168,17 @@ public class DefaultContextFactoryController extends ContextFactoryController {
 
     @Override
     public void reloadResource(String resourceId) throws Exception {
-        reloadResources(new HashSet<String>(Collections.singleton(resourceId)));
+        reloadResources(new HashSet<String>(Collections.singleton(resourceId)), false);
     }
 
     @Override
     public List<URL> getLibraries(String resourceId) throws Exception {
-        return getLibraries(new HashSet<String>(Collections.singleton(resourceId)), false);
+        return getLibraries(new HashSet<String>(Collections.singleton(resourceId)), false, false);
     }
 
-    private void reloadResources(Set<String> resourceIds) throws Exception {
+    private void reloadResources(Set<String> resourceIds, boolean startup) throws Exception {
         for (String resourceId : resourceIds) {
-            getLibraries(new HashSet<String>(Collections.singleton(resourceId)), true);
+            getLibraries(new HashSet<String>(Collections.singleton(resourceId)), true, startup);
         }
 
         for (Set<String> libraryResourceIds : contextFactoryMap.keySet().toArray(new Set[contextFactoryMap.size()])) {
@@ -191,15 +191,15 @@ public class DefaultContextFactoryController extends ContextFactoryController {
                 MirthContextFactory contextFactory = contextFactoryMap.get(libraryResourceIds);
 
                 if (contextFactory != null) {
-                    resetContextFactory(libraryResourceIds);
+                    resetContextFactory(libraryResourceIds, startup);
                 }
             }
         }
     }
 
-    private void resetContextFactory(Set<String> libraryResourceIds) throws Exception {
+    private void resetContextFactory(Set<String> libraryResourceIds, boolean startup) throws Exception {
         logger.debug("Resetting context factory: libraryResourceIds=" + String.valueOf(libraryResourceIds));
-        List<URL> libraries = getLibraries(libraryResourceIds, false);
+        List<URL> libraries = getLibraries(libraryResourceIds, false, startup);
 
         MirthContextFactory contextFactory;
 
@@ -221,7 +221,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
         }
     }
 
-    private List<URL> getLibraries(Set<String> libraryResourceIds, boolean reload) throws Exception {
+    private List<URL> getLibraries(Set<String> libraryResourceIds, boolean reload, boolean startup) throws Exception {
         List<URL> libraries = new ArrayList<URL>();
 
         for (Iterator<String> it = libraryResourceIds.iterator(); it.hasNext();) {
@@ -241,7 +241,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
                     LibraryPlugin plugin = (LibraryPlugin) extensionController.getResourcePlugins().get(properties.getPluginPointName());
 
                     if (plugin != null) {
-                        List<URL> loadedLibraries = plugin.getLibraries(properties);
+                        List<URL> loadedLibraries = plugin.getLibraries(properties, startup);
                         libraryCache.put(resourceId, loadedLibraries);
                         libraries.addAll(loadedLibraries);
                         logger.debug("Libraries reloaded for resource " + String.valueOf(properties) + ": " + String.valueOf(loadedLibraries));

@@ -16,9 +16,9 @@ import com.mirth.connect.model.LibraryProperties;
 
 public interface LibraryPlugin extends ResourcePlugin {
 
-    public List<URL> getLibraries(LibraryProperties properties) throws Exception;
+    public List<URL> getLibraries(LibraryProperties properties, boolean startup) throws Exception;
 
-    public void update(LibraryProperties properties) throws Exception;
+    public void update(LibraryProperties properties, boolean startup) throws Exception;
 
     public void remove(LibraryProperties properties) throws Exception;
 }

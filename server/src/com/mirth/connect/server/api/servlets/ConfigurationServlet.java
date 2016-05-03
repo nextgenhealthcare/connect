@@ -309,7 +309,7 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
             @Override
             public void run() {
                 try {
-                    contextFactoryController.updateResources(libraryResources);
+                    contextFactoryController.updateResources(libraryResources, false);
                 } catch (Exception e) {
                     logger.error("Unable to update libraries: " + e.getMessage(), e);
                 }
