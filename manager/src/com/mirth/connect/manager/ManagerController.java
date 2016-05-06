@@ -170,6 +170,7 @@ public class ManagerController {
         }
 
         String errorMessage = null;
+        Client client = null;
 
         try {
             updating = true;
@@ -179,10 +180,10 @@ public class ManagerController {
             } else {
                 String contextPath = getContextPath();
 
-                Client client = new Client(ManagerConstants.CMD_TEST_JETTY_PREFIX + getServerProperties().getString("https.port") + contextPath);
+                client = new Client(ManagerConstants.CMD_TEST_JETTY_PREFIX + getServerProperties().getString("https.port") + contextPath);
 
                 int retriesLeft = 30;
-                long waitTime = 1000;
+                long waitTime = 2000;
                 boolean started = false;
 
                 while (!started && retriesLeft > 0) {
@@ -190,7 +191,9 @@ public class ManagerController {
                     retriesLeft--;
 
                     try {
-                        if (client.getStatus() == 0) {
+                        // 0 - OK, 3 - Initial Deploy
+                        int status = client.getStatus();
+                        if (status == 0 || status == 3) {
                             started = true;
                         }
                     } catch (ClientException e) {
@@ -205,6 +208,10 @@ public class ManagerController {
             // internally
             t.printStackTrace();
             errorMessage = "The Mirth Connect Service could not be started.";
+        } finally {
+            if (client != null) {
+                client.close();
+            }
         }
 
         updating = false;
