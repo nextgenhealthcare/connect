@@ -12,12 +12,13 @@ package com.mirth.connect.connectors.http;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
+
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.ssl.SSLContexts;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.ServerConnector;
 
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
@@ -61,7 +62,7 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
     }
 
     @Override
-    public Map<String, Object> getRequestInformation(Request request) {
+    public Map<String, Object> getRequestInformation(ServletRequest request) {
         return new HashMap<String, Object>();
     }
 }

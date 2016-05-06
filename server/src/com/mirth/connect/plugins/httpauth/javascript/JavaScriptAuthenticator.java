@@ -31,8 +31,6 @@ import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
-import com.mirth.connect.userutil.MessageHeaders;
-import com.mirth.connect.userutil.MessageParameters;
 
 public class JavaScriptAuthenticator extends Authenticator {
 
@@ -70,15 +68,7 @@ public class JavaScriptAuthenticator extends Authenticator {
                     Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, provider.getConnector().getChannelId(), provider.getConnector().getChannel().getName());
 
                     Map<String, Object> sourceMap = new HashMap<String, Object>();
-                    sourceMap.put("remoteAddress", request.getRemoteAddress());
-                    sourceMap.put("remotePort", request.getRemotePort());
-                    sourceMap.put("localAddress", request.getLocalAddress());
-                    sourceMap.put("localPort", request.getLocalPort());
-                    sourceMap.put("method", request.getMethod());
-                    sourceMap.put("uri", request.getRequestURI());
-                    sourceMap.put("protocol", request.getProtocol());
-                    sourceMap.put("headers", new MessageHeaders(request.getHeaders()));
-                    sourceMap.put("parameters", new MessageParameters(request.getQueryParameters()));
+                    request.populateMap(sourceMap);
                     scope.put("sourceMap", scope, Context.javaToJS(new SourceMap(sourceMap), scope));
 
                     for (AuthStatus status : AuthStatus.values()) {
