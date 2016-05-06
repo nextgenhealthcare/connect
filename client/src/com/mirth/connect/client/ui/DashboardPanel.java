@@ -1023,7 +1023,7 @@ public class DashboardPanel extends JPanel {
         controlPanel.add(tableModeChannelsButton);
         topPanel.add(controlPanel, "newline, growx");
 
-        add(splitPane, "grow, push");
+        add(splitPane, "grow, push, h :300");
     }
 
     private void showCurrentStatsButtonActionPerformed() {
