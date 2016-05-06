@@ -898,7 +898,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                     }
                 };
 
-                RequestInfo requestInfo = new RequestInfo(remoteAddress, remotePort, localAddress, localPort, protocol, method, requestURI, headers, queryParameters, entityProvider);
+                RequestInfo requestInfo = new RequestInfo(remoteAddress, remotePort, localAddress, localPort, protocol, method, requestURI, headers, queryParameters, entityProvider, configuration.getRequestInformation(request));
 
                 try {
                     AuthenticationResult result = authenticator.authenticate(requestInfo);

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
 import com.mirth.connect.userutil.MessageHeaders;
@@ -33,8 +34,13 @@ public class RequestInfo {
     private Map<String, List<String>> headers = new CaseInsensitiveMap<String, List<String>>();
     private Map<String, List<String>> queryParameters = new CaseInsensitiveMap<String, List<String>>();
     private EntityProvider entityProvider;
+    private Map<String, Object> extraProperties = new HashMap<String, Object>();
 
     public RequestInfo(String remoteAddress, int remotePort, String localAddress, int localPort, String protocol, String method, String requestURI, Map<String, List<String>> headers, Map<String, List<String>> queryParameters, EntityProvider entityProvider) {
+        this(remoteAddress, remotePort, localAddress, localPort, protocol, method, requestURI, headers, queryParameters, entityProvider, null);
+    }
+
+    public RequestInfo(String remoteAddress, int remotePort, String localAddress, int localPort, String protocol, String method, String requestURI, Map<String, List<String>> headers, Map<String, List<String>> queryParameters, EntityProvider entityProvider, Map<String, Object> extraProperties) {
         this.remoteAddress = remoteAddress;
         this.remotePort = remotePort;
         this.localAddress = localAddress;
@@ -45,6 +51,7 @@ public class RequestInfo {
         setHeaders(headers);
         setQueryParameters(queryParameters);
         this.entityProvider = entityProvider;
+        this.extraProperties = extraProperties;
     }
 
     public String getRemoteAddress() {
@@ -115,6 +122,14 @@ public class RequestInfo {
         public byte[] getEntity() throws IOException;
     }
 
+    public Map<String, Object> getExtraProperties() {
+        return extraProperties;
+    }
+
+    public void setExtraProperties(Map<String, Object> extraProperties) {
+        this.extraProperties = extraProperties;
+    }
+
     public void populateMap(Map<String, Object> map) {
         map.put("remoteAddress", remoteAddress);
         map.put("remotePort", remotePort);
@@ -125,5 +140,9 @@ public class RequestInfo {
         map.put("uri", requestURI);
         map.put("headers", new MessageHeaders(headers));
         map.put("parameters", new MessageParameters(queryParameters));
+
+        if (MapUtils.isNotEmpty(extraProperties)) {
+            map.putAll(extraProperties);
+        }
     }
 }
