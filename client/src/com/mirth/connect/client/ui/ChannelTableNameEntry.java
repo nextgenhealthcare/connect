@@ -40,6 +40,6 @@ public class ChannelTableNameEntry implements Comparable<ChannelTableNameEntry> 
         } else if (StringUtils.equals(entry.getName(), ChannelGroup.DEFAULT_NAME)) {
             return 1;
         }
-        return name.compareTo(entry.getName());
+        return name.compareToIgnoreCase(entry.getName());
     }
 }
