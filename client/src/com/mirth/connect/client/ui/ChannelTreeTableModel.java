@@ -42,6 +42,10 @@ public class ChannelTreeTableModel extends SortableTreeTableModel {
     private boolean groupModeEnabled = true;
     private AtomicBoolean updating = new AtomicBoolean(false);
 
+    public ChannelTreeTableModel() {
+        setSortChildNodes(true);
+    }
+
     public void setNodeFactory(ChannelTableNodeFactory nodeFactory) {
         this.nodeFactory = nodeFactory;
     }

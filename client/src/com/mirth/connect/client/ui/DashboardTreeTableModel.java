@@ -40,6 +40,10 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
     private MutableTreeTableNode groupRoot;
     private MutableTreeTableNode channelRoot;
 
+    public DashboardTreeTableModel() {
+        setSortChildNodes(true);
+    }
+
     public void setNodeFactory(DashboardTableNodeFactory nodeFactory) {
         this.nodeFactory = nodeFactory;
     }
