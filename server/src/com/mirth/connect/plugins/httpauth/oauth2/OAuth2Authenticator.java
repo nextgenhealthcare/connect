@@ -70,7 +70,7 @@ public class OAuth2Authenticator extends Authenticator {
             client = clientBuilder.build();
 
             HttpClientContext context = HttpClientContext.create();
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(SOCKET_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(SOCKET_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).setStaleConnectionCheckEnabled(true).build();
             context.setRequestConfig(requestConfig);
 
             URIBuilder uriBuilder = new URIBuilder(properties.getVerificationURL());
