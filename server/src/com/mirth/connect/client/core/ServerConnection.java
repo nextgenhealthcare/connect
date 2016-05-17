@@ -110,6 +110,8 @@ public class ServerConnection implements Connector {
         PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
         httpClientConnectionManager.setDefaultMaxPerRoute(5);
         httpClientConnectionManager.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build());
+        // MIRTH-3962: The stale connection settings has been deprecated, and this is recommended instead
+        httpClientConnectionManager.setValidateAfterInactivity(5000);
 
         HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager);
         HttpUtil.configureClientBuilder(clientBuilder);

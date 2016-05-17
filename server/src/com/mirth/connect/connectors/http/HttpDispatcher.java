@@ -305,7 +305,7 @@ public class HttpDispatcher extends DestinationConnector {
                 logger.debug("using authentication with credentials: " + credentials);
             }
 
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(socketTimeout).setSocketTimeout(socketTimeout).build();
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(socketTimeout).setSocketTimeout(socketTimeout).setStaleConnectionCheckEnabled(true).build();
             context.setRequestConfig(requestConfig);
 
             // Set proxy information

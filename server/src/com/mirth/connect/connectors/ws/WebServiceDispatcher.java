@@ -322,7 +322,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                     context.setAuthCache(authCache);
                 }
 
-                RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(timeout).setSocketTimeout(timeout).build();
+                RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(timeout).setSocketTimeout(timeout).setStaleConnectionCheckEnabled(true).build();
                 context.setRequestConfig(requestConfig);
 
                 return getWsdl(client, context, dispatchContainer, new HashMap<String, File>(), dispatchContainer.getCurrentWsdlUrl()).toURI().toURL();
