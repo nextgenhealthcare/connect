@@ -52,6 +52,20 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
         return groupModeEnabled;
     }
 
+    public MutableTreeTableNode getGroupRoot() {
+        if (groupRoot == null) {
+            initializeRoot();
+        }
+        return groupRoot;
+    }
+
+    public MutableTreeTableNode getChannelRoot() {
+        if (channelRoot == null) {
+            initializeRoot();
+        }
+        return channelRoot;
+    }
+
     public void setGroupModeEnabled(boolean groupModeEnabled) {
         if (groupModeEnabled != this.groupModeEnabled) {
             this.groupModeEnabled = groupModeEnabled;
