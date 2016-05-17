@@ -170,10 +170,11 @@ public class DonkeyEngineController implements EngineController {
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
-    private AtomicInteger queueBufferSize = new AtomicInteger(Constants.DEFAULT_QUEUE_BUFFER_SIZE);
     private Map<String, ExecutorService> engineExecutors = new ConcurrentHashMap<String, ExecutorService>();
     private Set<Channel> deployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
     private Set<Channel> undeployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
+
+    protected AtomicInteger queueBufferSize = new AtomicInteger(Constants.DEFAULT_QUEUE_BUFFER_SIZE);
 
     private enum StatusTask {
         START, STOP, PAUSE, RESUME
