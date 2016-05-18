@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -25,20 +26,25 @@ import net.miginfocom.swing.MigLayout;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplateLibrariesPanel;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel.UpdateSwingWorker;
 import com.mirth.connect.client.ui.dependencies.ChannelDependenciesPanel;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.Connector;
 
 public class ChannelDependenciesDialog extends MirthDialog {
 
+    private Channel channel;
     private boolean saved;
     private boolean resourcesReady;
     private boolean codeTemplateLibrariesReady;
 
     public ChannelDependenciesDialog(Channel channel) {
         super(PlatformUI.MIRTH_FRAME, true);
+        this.channel = channel;
 
-        initComponents(channel);
+        initComponents();
         initLayout();
         setPreferredSize(new Dimension(450, 434));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -78,7 +84,7 @@ public class ChannelDependenciesDialog extends MirthDialog {
         }
     }
 
-    private void initComponents(Channel channel) {
+    private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
         getContentPane().setBackground(getBackground());
 
@@ -155,8 +161,24 @@ public class ChannelDependenciesDialog extends MirthDialog {
             return;
         }
 
+        boolean resourcesChanged = false;
+        Map<Integer, Map<String, String>> selectedResourceIds = resourcesPanel.getSelectedResourceIds();
+        if (!Objects.equals(channel.getProperties().getResourceIds(), selectedResourceIds.get(null))) {
+            resourcesChanged = true;
+        }
+        if (!Objects.equals(((SourceConnectorPropertiesInterface) channel.getSourceConnector().getProperties()).getSourceConnectorProperties().getResourceIds(), selectedResourceIds.get(channel.getSourceConnector().getMetaDataId()))) {
+            resourcesChanged = true;
+        }
+        for (Connector destinationConnector : channel.getDestinationConnectors()) {
+            if (!Objects.equals(((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().getResourceIds(), selectedResourceIds.get(destinationConnector.getMetaDataId()))) {
+                resourcesChanged = true;
+                break;
+            }
+        }
+        final boolean resourcesChangedFinal = resourcesChanged;
+
         Map<String, CodeTemplateLibrary> libraryMap = codeTemplateLibrariesPanel.getLibraryMap();
-        if (!PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().equals(libraryMap)) {
+        if (codeTemplateLibrariesPanel.wasChanged() && !PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().equals(libraryMap)) {
             if (!PlatformUI.MIRTH_FRAME.alertOption(this, "You've made changes to code template libraries, which will be saved now. Are you sure you wish to continue?")) {
                 return;
             }
@@ -165,13 +187,17 @@ public class ChannelDependenciesDialog extends MirthDialog {
             worker.setActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent evt) {
-                    saved = true;
+                    if (resourcesChangedFinal) {
+                        saved = true;
+                    }
                     dispose();
                 }
             });
             worker.execute();
         } else {
-            saved = true;
+            if (resourcesChangedFinal) {
+                saved = true;
+            }
             dispose();
         }
     }

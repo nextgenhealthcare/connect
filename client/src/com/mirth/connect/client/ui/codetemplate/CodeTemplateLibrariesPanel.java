@@ -71,6 +71,7 @@ public class CodeTemplateLibrariesPanel extends JPanel {
     private ChannelDependenciesDialog parent;
     private Map<String, CodeTemplateLibrary> libraryMap = new HashMap<String, CodeTemplateLibrary>();
     private String channelId;
+    private boolean changed = false;
 
     public CodeTemplateLibrariesPanel(ChannelDependenciesDialog parent, Channel channel) {
         this.parent = parent;
@@ -132,6 +133,10 @@ public class CodeTemplateLibrariesPanel extends JPanel {
 
     public Map<String, CodeTemplateLibrary> getLibraryMap() {
         return libraryMap;
+    }
+
+    public boolean wasChanged() {
+        return changed;
     }
 
     private void initComponents(Channel channel) {
@@ -370,6 +375,13 @@ public class CodeTemplateLibrariesPanel extends JPanel {
             panel.add(filler, "w 13!");
             label = new JLabel();
             panel.add(label, "grow, push");
+
+            checkBox.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    changed = true;
+                }
+            });
         }
 
         @Override
