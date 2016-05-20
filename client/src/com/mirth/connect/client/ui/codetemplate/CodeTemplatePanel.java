@@ -956,6 +956,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     public void doNewCodeTemplate() {
         stopTableEditing();
         updateCurrentNode();
+        updateCurrentNode.set(false);
         setSaveEnabled(true);
         AbstractSortableTreeTableNode parentNode;
 
@@ -988,11 +989,13 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         TreePath selectedPath = new TreePath(model.getPathToRoot(codeTemplateNode));
         selectTemplatePath(selectedPath);
         updateFilterNotification();
+        updateCurrentNode.set(true);
     }
 
     public void doNewLibrary() {
         stopTableEditing();
         updateCurrentNode();
+        updateCurrentNode.set(false);
         setSaveEnabled(true);
 
         String name;
@@ -1022,6 +1025,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             @Override
             public void run() {
                 selectTemplatePath(selectedPath);
+                updateCurrentNode.set(true);
             }
         });
     }
@@ -1245,7 +1249,6 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             if (model.getRoot() != fullModel.getRoot()) {
                 fullModel.removeNodeFromParent(findFullNode((AbstractSortableTreeTableNode) selectedNode));
             }
-            updateCurrentNode.set(true);
 
             if (selectedNodeIndex < parent.getChildCount()) {
                 newSelectedNode = (MutableTreeTableNode) parent.getChildAt(selectedNodeIndex);
@@ -1263,10 +1266,12 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                     @Override
                     public void run() {
                         selectTemplatePath(newSelectedPath);
+                        updateCurrentNode.set(true);
                     }
                 });
             } else {
                 switchSplitPaneComponent(blankPanel);
+                updateCurrentNode.set(true);
             }
 
             updateFilterNotification();
@@ -2347,6 +2352,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     private void updateTemplateFilter(String filter) {
         stopTableEditing();
         updateCurrentNode();
+        updateCurrentNode.set(false);
 
         CodeTemplateTreeTableModel model = (CodeTemplateTreeTableModel) templateTreeTable.getTreeTableModel();
         CodeTemplateRootTreeTableNode root = (CodeTemplateRootTreeTableNode) fullModel.getRoot();
@@ -2362,6 +2368,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         templateTreeTable.expandAll();
         templateTreeTable.clearSelection();
         switchSplitPaneComponent(blankPanel);
+        updateCurrentNode.set(true);
     }
 
     private void updateFilterNotification() {
