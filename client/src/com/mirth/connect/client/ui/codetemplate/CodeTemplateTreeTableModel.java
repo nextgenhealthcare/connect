@@ -16,6 +16,10 @@ import com.mirth.connect.model.CodeTemplate.CodeTemplateType;
 
 public class CodeTemplateTreeTableModel extends SortableTreeTableModel {
 
+    public CodeTemplateTreeTableModel() {
+        setSortChildNodes(true);
+    }
+
     @Override
     public int getHierarchicalColumn() {
         return CodeTemplatePanel.TEMPLATE_NAME_COLUMN;
