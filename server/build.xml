@@ -884,10 +884,12 @@
 		<for param="jarFile" parallel="true" threadCount="${signjar_thread_count}">
 			<fileset dir="${setup.client.lib}" includes="bcp*.jar" />
 			<sequential>
-				<signjar jar="@{jarFile}" alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa" digestalg="SHA1">
-					<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
-					<sysproperty key="jsse.enableSNIExtension" value="false" />
-				</signjar>
+				<retry retrycount="5" retrydelay="1000">
+					<signjar jar="@{jarFile}" alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa" digestalg="SHA1">
+						<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
+						<sysproperty key="jsse.enableSNIExtension" value="false" />
+					</signjar>
+				</retry>
 			</sequential>
 		</for>
 		
@@ -895,10 +897,12 @@
 			<fileset dir="${setup.client.lib}" includes="**/*.jar" excludes="bcp*.jar" />
 			<fileset dir="${setup.extensions}" includes="**/*.jar" />
 			<sequential>
-				<signjar jar="@{jarFile}" alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
-					<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
-					<sysproperty key="jsse.enableSNIExtension" value="false" />
-				</signjar>
+				<retry retrycount="5" retrydelay="1000">
+					<signjar jar="@{jarFile}" alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
+						<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
+						<sysproperty key="jsse.enableSNIExtension" value="false" />
+					</signjar>
+				</retry>
 			</sequential>
 		</for>
 
