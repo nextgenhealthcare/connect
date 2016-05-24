@@ -369,7 +369,7 @@ public class ServerConnection implements Connector {
         StatusLine statusLine = response.getStatusLine();
         int statusCode = statusLine.getStatusCode();
 
-        ClientResponse responseContext = new ClientResponse(Statuses.from(statusCode), request);
+        ClientResponse responseContext = new MirthClientResponse(Statuses.from(statusCode), request);
 
         MultivaluedMap<String, String> headerMap = new MultivaluedHashMap<String, String>();
         for (Header header : response.getAllHeaders()) {
