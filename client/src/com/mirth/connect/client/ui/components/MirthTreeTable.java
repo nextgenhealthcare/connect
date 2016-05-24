@@ -164,6 +164,10 @@ public class MirthTreeTable extends SortableTreeTable {
         setColumnControl(columnControlButton);
     }
 
+    protected void beforeSort() {}
+
+    protected void afterSort() {}
+
     @Override
     public void setSortable(boolean enable) {
         super.setSortable(enable);
@@ -181,6 +185,8 @@ public class MirthTreeTable extends SortableTreeTable {
                             int column = columnModel.getColumn(viewColumn).getModelIndex();
 
                             if (column != -1) {
+                                beforeSort();
+
                                 // Toggle sort order (ascending <-> descending)
                                 SortableTreeTableModel model = (SortableTreeTableModel) getTreeTableModel();
                                 model.setColumnAndToggleSortOrder(column);
@@ -190,6 +196,8 @@ public class MirthTreeTable extends SortableTreeTable {
                                 ((SortableHeaderCellRenderer) getTableHeader().getDefaultRenderer()).setColumnIndex(column);
 
                                 saveSortPreferences(column);
+
+                                afterSort();
                             }
                         }
                     }
