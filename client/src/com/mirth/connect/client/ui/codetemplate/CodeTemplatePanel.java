@@ -1323,6 +1323,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
         templateTreeTable = new MirthTreeTable("CodeTemplate", new HashSet<String>(Arrays.asList(new String[] {
                 "Name", "Description", "Revision", "Last Modified" }))) {
+
+            private TreeTableNode selectedNode;
+
             @Override
             public boolean isCellEditable(int row, int column) {
                 return column == TEMPLATE_NAME_COLUMN;
@@ -1335,6 +1338,33 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                 } else {
                     return super.getCellEditor(row, column);
                 }
+            }
+
+            @Override
+            protected void beforeSort() {
+                updateCurrentNode();
+                updateCurrentNode.set(false);
+
+                int selectedRow = templateTreeTable.getSelectedRow();
+                selectedNode = selectedRow >= 0 ? (TreeTableNode) templateTreeTable.getPathForRow(selectedRow).getLastPathComponent() : null;
+            }
+
+            @Override
+            protected void afterSort() {
+                final TreePath selectedPath = selectPathFromNodeId(selectedNode, (CodeTemplateRootTreeTableNode) templateTreeTable.getTreeTableModel().getRoot());
+                if (selectedPath != null) {
+                    selectTemplatePath(selectedPath);
+                }
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (selectedPath != null) {
+                            selectTemplatePath(selectedPath);
+                        }
+                        updateCurrentNode.set(true);
+                    }
+                });
             }
         };
 
