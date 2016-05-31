@@ -565,6 +565,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         serverConfiguration.setPluginProperties(pluginProperties);
         serverConfiguration.setResourceProperties(ObjectXMLSerializer.getInstance().deserialize(getResources(), ResourcePropertiesList.class));
+        serverConfiguration.setChannelDependencies(getChannelDependencies());
 
         return serverConfiguration;
     }
@@ -703,6 +704,12 @@ public class DefaultConfigurationController extends ConfigurationController {
                 } catch (Exception e) {
                     logger.error("Unable to update libraries: " + e.getMessage(), e);
                 }
+            }
+            
+            if (serverConfiguration.getChannelDependencies() != null) {
+                setChannelDependencies(serverConfiguration.getChannelDependencies());
+            } else {
+                setChannelDependencies(new HashSet<ChannelDependency>());
             }
 
             if (serverConfiguration.getGlobalScripts() != null) {
