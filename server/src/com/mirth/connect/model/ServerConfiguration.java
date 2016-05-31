@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.swing.text.DateFormatter;
@@ -45,6 +46,7 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
     private Map<String, String> globalScripts = null;
     private Map<String, Properties> pluginProperties = null;
     private ResourcePropertiesList resourceProperties = null;
+    private Set<ChannelDependency> channelDependencies = null;
 
     public List<AlertModel> getAlerts() {
         return this.alerts;
@@ -134,6 +136,14 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
         this.resourceProperties = resourceProperties;
     }
 
+    public Set<ChannelDependency> getChannelDependencies() {
+        return channelDependencies;
+    }
+
+    public void setChannelDependencies(Set<ChannelDependency> channelDependencies) {
+        this.channelDependencies = channelDependencies;
+    }
+
     @Override
     public String toAuditString() {
         StringBuilder builder = new StringBuilder();
@@ -147,6 +157,7 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
         if (resourceProperties != null) {
             builder.append("Number of resource properties=").append(CollectionUtils.size(resourceProperties.getList())).append(", ");
         }
+        builder.append("channelDependencies=").append(channelDependencies).append(", ");
         builder.append("Number of code template libraries=").append(CollectionUtils.size(codeTemplateLibraries)).append(']');
         return builder.toString();
     }
