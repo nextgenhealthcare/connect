@@ -151,30 +151,34 @@ public class ChannelDependenciesPanel extends JPanel {
     private void addDependencyNode(MutableTreeTableNode parent, DirectedAcyclicGraphNode<String> node) {
         String channelId = node.getElement();
         String channelName = channelNameMap.get(channelId);
-        MutableTreeTableNode newTreeTableNode = new DefaultMutableTreeTableNode(new ImmutablePair<String, String>(channelId, channelName));
+        if (StringUtils.isNotBlank(channelName)) {
+            MutableTreeTableNode newTreeTableNode = new DefaultMutableTreeTableNode(new ImmutablePair<String, String>(channelId, channelName));
 
-        SortableTreeTableModel model = (SortableTreeTableModel) dependencyTreeTable.getTreeTableModel();
-        model.insertNodeInto(newTreeTableNode, parent);
+            SortableTreeTableModel model = (SortableTreeTableModel) dependencyTreeTable.getTreeTableModel();
+            model.insertNodeInto(newTreeTableNode, parent);
 
-        List<DirectedAcyclicGraphNode<String>> dependencyNodes = new ArrayList<DirectedAcyclicGraphNode<String>>(node.getDirectDependencyNodes());
-        Collections.sort(dependencyNodes, new NodeComparator());
-        for (DirectedAcyclicGraphNode<String> dependencyNode : dependencyNodes) {
-            addDependencyNode(newTreeTableNode, dependencyNode);
+            List<DirectedAcyclicGraphNode<String>> dependencyNodes = new ArrayList<DirectedAcyclicGraphNode<String>>(node.getDirectDependencyNodes());
+            Collections.sort(dependencyNodes, new NodeComparator());
+            for (DirectedAcyclicGraphNode<String> dependencyNode : dependencyNodes) {
+                addDependencyNode(newTreeTableNode, dependencyNode);
+            }
         }
     }
 
     private void addDependentNode(MutableTreeTableNode parent, DirectedAcyclicGraphNode<String> node) {
         String channelId = node.getElement();
         String channelName = channelNameMap.get(channelId);
-        MutableTreeTableNode newTreeTableNode = new DefaultMutableTreeTableNode(new ImmutablePair<String, String>(channelId, channelName));
+        if (StringUtils.isNotBlank(channelName)) {
+            MutableTreeTableNode newTreeTableNode = new DefaultMutableTreeTableNode(new ImmutablePair<String, String>(channelId, channelName));
 
-        SortableTreeTableModel model = (SortableTreeTableModel) dependentTreeTable.getTreeTableModel();
-        model.insertNodeInto(newTreeTableNode, parent);
+            SortableTreeTableModel model = (SortableTreeTableModel) dependentTreeTable.getTreeTableModel();
+            model.insertNodeInto(newTreeTableNode, parent);
 
-        List<DirectedAcyclicGraphNode<String>> dependentNodes = new ArrayList<DirectedAcyclicGraphNode<String>>(node.getDirectDependentNodes());
-        Collections.sort(dependentNodes, new NodeComparator());
-        for (DirectedAcyclicGraphNode<String> dependentNode : dependentNodes) {
-            addDependentNode(newTreeTableNode, dependentNode);
+            List<DirectedAcyclicGraphNode<String>> dependentNodes = new ArrayList<DirectedAcyclicGraphNode<String>>(node.getDirectDependentNodes());
+            Collections.sort(dependentNodes, new NodeComparator());
+            for (DirectedAcyclicGraphNode<String> dependentNode : dependentNodes) {
+                addDependentNode(newTreeTableNode, dependentNode);
+            }
         }
     }
 
@@ -531,7 +535,18 @@ public class ChannelDependenciesPanel extends JPanel {
     private class NodeComparator implements Comparator<DirectedAcyclicGraphNode<String>> {
         @Override
         public int compare(DirectedAcyclicGraphNode<String> o1, DirectedAcyclicGraphNode<String> o2) {
-            return channelNameMap.get(o1.getElement()).compareToIgnoreCase(channelNameMap.get(o2.getElement()));
+            String name1 = channelNameMap.get(o1.getElement());
+            String name2 = channelNameMap.get(o2.getElement());
+
+            if (name1 == null && name2 == null) {
+                return 0;
+            } else if (name1 == null) {
+                return -1;
+            } else if (name2 == null) {
+                return 1;
+            } else {
+                return name1.compareToIgnoreCase(name2);
+            }
         }
     }
 
