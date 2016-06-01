@@ -334,6 +334,7 @@ public class DefaultChannelController extends ChannelController {
     public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
         // Never include code template libraries in the channel stored in the database
         channel.getCodeTemplateLibraries().clear();
+        channel.clearDependencies();
 
         /*
          * Methods that update the channel must be synchronized to ensure the channel cache and

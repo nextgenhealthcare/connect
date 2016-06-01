@@ -15,6 +15,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -48,6 +49,8 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
     private String undeployScript;
     private ChannelProperties properties;
     private List<CodeTemplateLibrary> codeTemplateLibraries;
+    private Set<String> dependentIds;
+    private Set<String> dependencyIds;
 
     public Channel() {
         enabled = true;
@@ -190,6 +193,31 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
 
     public void setCodeTemplateLibraries(List<CodeTemplateLibrary> codeTemplateLibraries) {
         this.codeTemplateLibraries = codeTemplateLibraries;
+    }
+
+    public Set<String> getDependentIds() {
+        return dependentIds;
+    }
+
+    public void setDependentIds(Set<String> dependentIds) {
+        this.dependentIds = dependentIds;
+    }
+
+    public Set<String> getDependencyIds() {
+        return dependencyIds;
+    }
+
+    public void setDependencyIds(Set<String> dependencyIds) {
+        this.dependencyIds = dependencyIds;
+    }
+    
+    public void clearDependencies() {
+        if (dependentIds != null) {
+            dependentIds.clear();
+        }
+        if (dependencyIds != null) {
+            dependencyIds.clear();
+        }
     }
 
     @Override
