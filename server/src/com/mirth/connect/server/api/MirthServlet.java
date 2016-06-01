@@ -344,6 +344,10 @@ public abstract class MirthServlet {
             if (StringUtils.equals(InetAddress.getLocalHost().getHostAddress(), remoteAddr)) {
                 return true;
             }
+        } catch (UnknownHostException e) {
+        }
+
+        try {
             for (InetAddress inetAddress : InetAddress.getAllByName("localhost")) {
                 if (StringUtils.equals(inetAddress.getHostAddress(), remoteAddr)) {
                     return true;
