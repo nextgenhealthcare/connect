@@ -1429,6 +1429,36 @@ public class ChannelPanel extends AbstractFramePanel {
             importChannel.getCodeTemplateLibraries().clear();
         }
 
+        if (CollectionUtils.isNotEmpty(importChannel.getDependentIds()) || CollectionUtils.isNotEmpty(importChannel.getDependencyIds())) {
+            Set<ChannelDependency> channelDependencies = new HashSet<ChannelDependency>(getCachedChannelDependencies());
+
+            if (CollectionUtils.isNotEmpty(importChannel.getDependentIds())) {
+                for (String dependentId : importChannel.getDependentIds()) {
+                    if (StringUtils.isNotBlank(dependentId) && !StringUtils.equals(dependentId, importChannel.getId())) {
+                        channelDependencies.add(new ChannelDependency(dependentId, importChannel.getId()));
+                    }
+                }
+            }
+
+            if (CollectionUtils.isNotEmpty(importChannel.getDependencyIds())) {
+                for (String dependencyId : importChannel.getDependencyIds()) {
+                    if (StringUtils.isNotBlank(dependencyId) && !StringUtils.equals(dependencyId, importChannel.getId())) {
+                        channelDependencies.add(new ChannelDependency(importChannel.getId(), dependencyId));
+                    }
+                }
+            }
+
+            if (!channelDependencies.equals(getCachedChannelDependencies())) {
+                try {
+                    parent.mirthClient.setChannelDependencies(channelDependencies);
+                } catch (ClientException e) {
+                    parent.alertThrowable(parent, e, "Unable to save channel dependencies.");
+                }
+            }
+
+            importChannel.clearDependencies();
+        }
+
         // Update resource names
         parent.updateResourceNames(importChannel);
 
@@ -1565,6 +1595,8 @@ public class ChannelPanel extends AbstractFramePanel {
             }
         }
 
+        addDependenciesToChannel(channel);
+
         // Update resource names
         parent.updateResourceNames(channel);
 
@@ -1572,6 +1604,7 @@ public class ChannelPanel extends AbstractFramePanel {
         String channelXML = serializer.serialize(channel);
         // Reset the libraries on the cached channel
         channel.getCodeTemplateLibraries().clear();
+        channel.clearDependencies();
 
         return parent.exportFile(channelXML, channel.getName(), "XML", "Channel");
     }
@@ -1605,6 +1638,10 @@ public class ChannelPanel extends AbstractFramePanel {
                     addCodeTemplateLibrariesToChannel(channel);
                 }
             }
+        }
+
+        for (Channel channel : channelList) {
+            addDependenciesToChannel(channel);
         }
 
         JFileChooser exportFileChooser = new JFileChooser();
@@ -1689,6 +1726,7 @@ public class ChannelPanel extends AbstractFramePanel {
         // Reset the libraries on the cached channels
         for (Channel channel : channelList) {
             channel.getCodeTemplateLibraries().clear();
+            channel.clearDependencies();
         }
     }
 
@@ -1737,6 +1775,25 @@ public class ChannelPanel extends AbstractFramePanel {
         }
 
         channel.setCodeTemplateLibraries(channelLibraries);
+    }
+
+    private void addDependenciesToChannel(Channel channel) {
+        Set<String> dependentIds = new HashSet<String>();
+        Set<String> dependencyIds = new HashSet<String>();
+        for (ChannelDependency channelDependency : getCachedChannelDependencies()) {
+            if (StringUtils.equals(channelDependency.getDependencyId(), channel.getId())) {
+                dependentIds.add(channelDependency.getDependentId());
+            } else if (StringUtils.equals(channelDependency.getDependentId(), channel.getId())) {
+                dependencyIds.add(channelDependency.getDependencyId());
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(dependentIds)) {
+            channel.setDependentIds(dependentIds);
+        }
+        if (CollectionUtils.isNotEmpty(dependencyIds)) {
+            channel.setDependencyIds(dependencyIds);
+        }
     }
 
     public boolean doExportAllGroups() {
@@ -1844,6 +1901,7 @@ public class ChannelPanel extends AbstractFramePanel {
             // Update resource names
             for (ChannelGroup group : groups) {
                 for (Channel channel : group.getChannels()) {
+                    addDependenciesToChannel(channel);
                     parent.updateResourceNames(channel);
                 }
             }
@@ -1858,6 +1916,7 @@ public class ChannelPanel extends AbstractFramePanel {
             for (ChannelGroup group : groups) {
                 for (Channel channel : group.getChannels()) {
                     channel.getCodeTemplateLibraries().clear();
+                    channel.clearDependencies();
                 }
             }
         }

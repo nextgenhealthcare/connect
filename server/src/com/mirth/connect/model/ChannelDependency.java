@@ -43,6 +43,11 @@ public class ChannelDependency implements Serializable {
     }
 
     @Override
+    public int hashCode() {
+        return dependentId.hashCode() ^ dependencyId.hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }

@@ -62,6 +62,7 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
@@ -1460,9 +1461,12 @@ public class CommandLineInterface {
         String path = arguments[2].getText();
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         List<Channel> channels = client.getAllChannels();
+        Set<ChannelDependency> channelDependencies = client.getChannelDependencies();
+
         if (key == Token.WILDCARD) {
             for (Channel channel : channels) {
                 try {
+                    addDependenciesToChannel(channelDependencies, channel);
                     File fXml = new File(path + channel.getName() + ".xml");
                     out.println("Exporting " + channel.getName());
                     String channelXML = serializer.serialize(channel);
@@ -1479,6 +1483,7 @@ public class CommandLineInterface {
 
             for (Channel channel : channels) {
                 if (skey.equalsIgnoreCase(channel.getName()) != skey.equalsIgnoreCase(channel.getId())) {
+                    addDependenciesToChannel(channelDependencies, channel);
                     out.println("Exporting " + channel.getName());
                     String channelXML = serializer.serialize(channel);
                     try {
@@ -1490,6 +1495,25 @@ public class CommandLineInterface {
                     return;
                 }
             }
+        }
+    }
+
+    private void addDependenciesToChannel(Set<ChannelDependency> channelDependencies, Channel channel) {
+        Set<String> dependentIds = new HashSet<String>();
+        Set<String> dependencyIds = new HashSet<String>();
+        for (ChannelDependency channelDependency : channelDependencies) {
+            if (StringUtils.equals(channelDependency.getDependencyId(), channel.getId())) {
+                dependentIds.add(channelDependency.getDependentId());
+            } else if (StringUtils.equals(channelDependency.getDependentId(), channel.getId())) {
+                dependencyIds.add(channelDependency.getDependencyId());
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(dependentIds)) {
+            channel.setDependentIds(dependentIds);
+        }
+        if (CollectionUtils.isNotEmpty(dependencyIds)) {
+            channel.setDependencyIds(dependencyIds);
         }
     }
 
@@ -1913,8 +1937,43 @@ public class CommandLineInterface {
             }
         }
 
+        importChannelDependencies(importChannel);
+
         client.updateChannel(importChannel, true);
         out.println("Channel '" + channelName + "' imported successfully.");
+    }
+
+    private void importChannelDependencies(Channel importChannel) throws ClientException {
+        if (CollectionUtils.isNotEmpty(importChannel.getDependentIds()) || CollectionUtils.isNotEmpty(importChannel.getDependencyIds())) {
+            Set<ChannelDependency> cachedChannelDependencies = client.getChannelDependencies();
+            Set<ChannelDependency> channelDependencies = new HashSet<ChannelDependency>(cachedChannelDependencies);
+
+            if (CollectionUtils.isNotEmpty(importChannel.getDependentIds())) {
+                for (String dependentId : importChannel.getDependentIds()) {
+                    if (StringUtils.isNotBlank(dependentId) && !StringUtils.equals(dependentId, importChannel.getId())) {
+                        channelDependencies.add(new ChannelDependency(dependentId, importChannel.getId()));
+                    }
+                }
+            }
+
+            if (CollectionUtils.isNotEmpty(importChannel.getDependencyIds())) {
+                for (String dependencyId : importChannel.getDependencyIds()) {
+                    if (StringUtils.isNotBlank(dependencyId) && !StringUtils.equals(dependencyId, importChannel.getId())) {
+                        channelDependencies.add(new ChannelDependency(importChannel.getId(), dependencyId));
+                    }
+                }
+            }
+
+            if (!channelDependencies.equals(cachedChannelDependencies)) {
+                try {
+                    client.setChannelDependencies(channelDependencies);
+                } catch (ClientException e) {
+                    error("Unable to save channel dependencies.", e);
+                }
+            }
+
+            importChannel.clearDependencies();
+        }
     }
 
     private void doImportAlert(File importFile, boolean force) throws ClientException {
