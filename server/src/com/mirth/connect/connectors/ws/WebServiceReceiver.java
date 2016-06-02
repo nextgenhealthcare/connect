@@ -69,6 +69,9 @@ import com.sun.net.httpserver.HttpPrincipal;
 import com.sun.net.httpserver.HttpServer;
 
 public class WebServiceReceiver extends SourceConnector {
+    // This determines how many client requests can queue up while waiting for the server socket to accept
+    private static final int DEFAULT_BACKLOG = 256;
+
     private Logger logger = Logger.getLogger(this.getClass());
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -137,12 +140,19 @@ public class WebServiceReceiver extends SourceConnector {
 
         try {
             configuration.configureReceiver(this);
-            server.bind(new InetSocketAddress(host, port), 5);
+            server.bind(new InetSocketAddress(host, port), DEFAULT_BACKLOG);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error creating HTTP Server.", e);
         }
 
-        executor = Executors.newFixedThreadPool(5);
+        // TODO: Make a max connections property for this
+        int processingThreads = connectorProperties.getSourceConnectorProperties().getProcessingThreads();
+        if (processingThreads < 1) {
+            processingThreads = 1;
+        }
+
+        // Allow more than the channel processing threads so WDSL requests can be accepted even if all processing threads are busy
+        executor = Executors.newFixedThreadPool(processingThreads + 4);
         server.setExecutor(executor);
         server.start();
 
