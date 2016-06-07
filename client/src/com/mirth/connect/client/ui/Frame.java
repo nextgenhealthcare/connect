@@ -400,6 +400,8 @@ public class Frame extends JXFrame {
         codeTemplatePanel = new CodeTemplatePanel(this);
         initializeExtensions();
 
+        channelPanel.initPanelPlugins();
+
         // Load the data type/display name maps now that the extensions have been loaded.
         dataTypeToDisplayName = new LinkedHashMap<String, String>();
         displayNameToDataType = new LinkedHashMap<String, String>();

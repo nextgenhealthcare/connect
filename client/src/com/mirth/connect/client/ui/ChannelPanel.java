@@ -234,9 +234,6 @@ public class ChannelPanel extends AbstractFramePanel {
         parent.setNonFocusable(groupTasks);
         parent.taskPaneContainer.add(groupTasks, parent.taskPaneContainer.getComponentCount() - 1);
 
-        loadPanelPlugins();
-        switchBottomPane();
-
         ChangeListener changeListener = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent changeEvent) {
@@ -2502,6 +2499,11 @@ public class ChannelPanel extends AbstractFramePanel {
                 missingDataTypes.add(outboundDataType.getTextContent());
             }
         }
+    }
+
+    public void initPanelPlugins() {
+        loadPanelPlugins();
+        switchBottomPane();
     }
 
     private void switchBottomPane() {
