@@ -1173,10 +1173,22 @@ public class ImportConverter3_0_0 {
         String endOfMessageBytes;
         if (frameEncodingHex) {
             startOfMessageBytes = stripHexPrefix(oldProperties.getProperty("messageStart", "0B"));
-            endOfMessageBytes = stripHexPrefix(oldProperties.getProperty("messageEnd", "1C")) + stripHexPrefix(oldProperties.getProperty("recordSeparator", "0D"));
+            endOfMessageBytes = stripHexPrefix(oldProperties.getProperty("messageEnd", "1C"));
+
+            String recordSeparator = stripHexPrefix(oldProperties.getProperty("recordSeparator", "0D"));
+            if (!recordSeparator.equals("00")) {
+                endOfMessageBytes += recordSeparator;
+            }
         } else {
             startOfMessageBytes = convertToHexString(oldProperties.getProperty("messageStart", "\u000B"));
-            endOfMessageBytes = convertToHexString(oldProperties.getProperty("messageEnd", "\u001C") + oldProperties.getProperty("recordSeparator", "\r"));
+            endOfMessageBytes = oldProperties.getProperty("messageEnd", "\u001C");
+
+            String recordSeparator = oldProperties.getProperty("recordSeparator", "\r");
+            if (!recordSeparator.equals("\u0000")) {
+                endOfMessageBytes += recordSeparator;
+            }
+
+            endOfMessageBytes = convertToHexString(endOfMessageBytes);
         }
         transmissionModeProperties.addChildElement("startOfMessageBytes").setTextContent(startOfMessageBytes);
         transmissionModeProperties.addChildElement("endOfMessageBytes").setTextContent(endOfMessageBytes);
@@ -1267,10 +1279,22 @@ public class ImportConverter3_0_0 {
         String endOfMessageBytes;
         if (frameEncodingHex) {
             startOfMessageBytes = stripHexPrefix(oldProperties.getProperty("messageStart", "0B"));
-            endOfMessageBytes = stripHexPrefix(oldProperties.getProperty("messageEnd", "1C")) + stripHexPrefix(oldProperties.getProperty("recordSeparator", "0D"));
+            endOfMessageBytes = stripHexPrefix(oldProperties.getProperty("messageEnd", "1C"));
+
+            String recordSeparator = stripHexPrefix(oldProperties.getProperty("recordSeparator", "0D"));
+            if (!recordSeparator.equals("00")) {
+                endOfMessageBytes += recordSeparator;
+            }
         } else {
             startOfMessageBytes = convertToHexString(oldProperties.getProperty("messageStart", "\u000B"));
-            endOfMessageBytes = convertToHexString(oldProperties.getProperty("messageEnd", "\u001C") + oldProperties.getProperty("recordSeparator", "\r"));
+            endOfMessageBytes = oldProperties.getProperty("messageEnd", "\u001C");
+
+            String recordSeparator = oldProperties.getProperty("recordSeparator", "\r");
+            if (!recordSeparator.equals("\u0000")) {
+                endOfMessageBytes += recordSeparator;
+            }
+
+            endOfMessageBytes = convertToHexString(endOfMessageBytes);
         }
         transmissionModeProperties.addChildElement("startOfMessageBytes").setTextContent(startOfMessageBytes);
         transmissionModeProperties.addChildElement("endOfMessageBytes").setTextContent(endOfMessageBytes);
