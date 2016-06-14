@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.dicomviewer;
 
+import ij.gui.ImageWindow;
 import ij.plugin.DICOM;
 
 import java.awt.Dimension;
@@ -42,16 +43,22 @@ public class DICOMViewer extends AttachmentViewer {
             // Otherwise, if dicom.show() is called, it is the title of the dialog. Since we are showing the dialog here, we pass the string we want to use as the title.
             dcm.run("DICOM Image Viewer");
             dcm.show();
-            Dimension dlgSize = dcm.getWindow().getSize();
-            Dimension frmSize = parent.getSize();
-            Point loc = parent.getLocation();
 
-            if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
-                dcm.getWindow().setLocationRelativeTo(null);
+            ImageWindow window = dcm.getWindow();
+
+            if (window != null) {
+                Dimension dlgSize = window.getSize();
+                Dimension frmSize = parent.getSize();
+                Point loc = parent.getLocation();
+
+                if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
+                    dcm.getWindow().setLocationRelativeTo(null);
+                } else {
+                    dcm.getWindow().setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+                }
             } else {
-                dcm.getWindow().setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+                parent.alertError(parent, "Unable to load DICOM attachment.");
             }
-
         } catch (Exception e) {
             parent.alertThrowable(parent, e);
         }

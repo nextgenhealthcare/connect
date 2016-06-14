@@ -28,6 +28,7 @@ public class DICOMAttachmentHandler implements AttachmentHandler {
     private DicomObject dicomObject;
     private DicomElement dicomElement;
     private int index;
+    private String attachmentId;
 
     @Override
     public void initialize(RawMessage message, Channel channel) throws AttachmentException {
@@ -48,6 +49,7 @@ public class DICOMAttachmentHandler implements AttachmentHandler {
 
             dicomObject = DICOMConverter.byteArrayToDicomObject(messageBytes, decode);
             dicomElement = dicomObject.remove(Tag.PixelData);
+            attachmentId = ServerUUIDGenerator.getUUID();
         } catch (Throwable t) {
             throw new AttachmentException(t);
         }
@@ -58,11 +60,14 @@ public class DICOMAttachmentHandler implements AttachmentHandler {
         try {
             if (dicomElement != null) {
                 if (dicomElement.hasItems()) {
-                    if (index < dicomElement.countItems()) {
-                        return new Attachment(ServerUUIDGenerator.getUUID(), dicomElement.getFragment(index++), "DICOM");
+                    int total = dicomElement.countItems();
+                    if (index < total) {
+                        // Add prefix with sequence ID so that fragments will get re-attached in the right order
+                        String fragment = "F" + org.apache.commons.lang3.StringUtils.leftPad(String.valueOf(index), String.valueOf(total).length(), '0') + "-";
+                        return new Attachment(fragment + attachmentId, dicomElement.getFragment(index++), "DICOM");
                     }
                 } else {
-                    Attachment attachment = new Attachment(ServerUUIDGenerator.getUUID(), dicomElement.getBytes(), "DICOM");
+                    Attachment attachment = new Attachment(attachmentId, dicomElement.getBytes(), "DICOM");
                     dicomElement = null;
                     return attachment;
                 }
