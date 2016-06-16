@@ -234,16 +234,6 @@ public class ChannelPanel extends AbstractFramePanel {
         parent.setNonFocusable(groupTasks);
         parent.taskPaneContainer.add(groupTasks, parent.taskPaneContainer.getComponentCount() - 1);
 
-        ChangeListener changeListener = new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent changeEvent) {
-                JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-                int index = sourceTabbedPane.getSelectedIndex();
-                loadPanelPlugin(sourceTabbedPane.getTitleAt(index));
-            }
-        };
-        tabPane.addChangeListener(changeListener);
-
         channelScrollPane.setComponentPopupMenu(channelPopupMenu);
 
         ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
@@ -2504,6 +2494,16 @@ public class ChannelPanel extends AbstractFramePanel {
     public void initPanelPlugins() {
         loadPanelPlugins();
         switchBottomPane();
+
+        ChangeListener changeListener = new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent) {
+                JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+                int index = sourceTabbedPane.getSelectedIndex();
+                loadPanelPlugin(sourceTabbedPane.getTitleAt(index));
+            }
+        };
+        tabPane.addChangeListener(changeListener);
     }
 
     private void switchBottomPane() {
