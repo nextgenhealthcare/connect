@@ -14,11 +14,14 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -200,6 +203,11 @@ public class MirthResourceInvocationHandlerProvider implements ResourceMethodInv
                                 }
                             }
                         } catch (Throwable t) {
+                            Throwable converted = convertThrowable(t, new HashSet<Throwable>());
+                            if (converted != null) {
+                                t = converted;
+                            }
+
                             if (!(t instanceof WebApplicationException)) {
                                 t = new MirthApiException(t);
                             }
@@ -210,22 +218,78 @@ public class MirthResourceInvocationHandlerProvider implements ResourceMethodInv
                     try {
                         return method.invoke(proxy, args);
                     } catch (InvocationTargetException e) {
-                        if (e.getCause() instanceof WebApplicationException) {
-                            throw e;
-                        } else {
-                            Throwable cause = e.getCause();
-                            if (cause instanceof PersistenceException) {
-                                throw new InvocationTargetException(new MirthApiException(new com.mirth.connect.client.core.api.PersistenceException(cause.getMessage())));
-                            } else {
-                                throw new InvocationTargetException(new MirthApiException(cause));
-                            }
+                        Throwable converted = convertThrowable(e, new HashSet<Throwable>());
+                        if (converted != null && converted instanceof InvocationTargetException) {
+                            e = (InvocationTargetException) converted;
                         }
+                        throw e;
                     }
                 } finally {
                     Thread.currentThread().setName(originalThreadName);
                 }
             }
         };
+    }
+
+    private Throwable convertThrowable(Throwable t, Set<Throwable> visited) {
+        // If the target is null or we've already seen it, ignore
+        if (t == null || visited.contains(t)) {
+            return null;
+        }
+        // Add the target to set of visited
+        visited.add(t);
+
+        // Recursively convert the causes
+        Throwable cause = t.getCause();
+        Throwable convertedCause = convertThrowable(cause, visited);
+
+        if (t instanceof PersistenceException) {
+            // Always convert this exception
+            return new com.mirth.connect.client.core.api.PersistenceException(t.getMessage(), convertedCause != null ? convertedCause : cause);
+        } else if (t instanceof WebApplicationException) {
+            // This exception may contain an underlying exception stored in a JAX-RS response
+            Response response = ((WebApplicationException) t).getResponse();
+            Response convertedResponse = null;
+            if (response != null && response.hasEntity()) {
+                Object entity = response.getEntity();
+                if (entity instanceof Throwable) {
+                    Object convertedEntity = convertThrowable((Throwable) entity, visited);
+                    if (convertedEntity != null) {
+                        convertedResponse = Response.fromResponse(response).entity(convertedEntity).build();
+                    }
+                }
+            }
+
+            if (convertedResponse != null) {
+                return new MirthApiException(convertedResponse);
+            } else if (convertedCause != null) {
+                return new MirthApiException(convertedCause);
+            }
+        } else if (t instanceof InvocationTargetException) {
+            // Ensure that this exception always has a cause of WebApplicationException
+            if (convertedCause != null) {
+                if (!(convertedCause instanceof WebApplicationException)) {
+                    convertedCause = new MirthApiException(convertedCause);
+                }
+                return new InvocationTargetException(convertedCause);
+            } else if (cause != null && !(cause instanceof WebApplicationException)) {
+                return new InvocationTargetException(new MirthApiException(cause));
+            }
+        } else if (convertedCause != null) {
+            // Any other types, just construct a new instance with the converted cause
+            try {
+                try {
+                    return t.getClass().getConstructor(String.class, Throwable.class).newInstance(t.getMessage(), convertedCause);
+                } catch (Throwable t2) {
+                    // Ignore and return null
+                }
+                return t.getClass().getConstructor(Throwable.class).newInstance(convertedCause);
+            } catch (Throwable t3) {
+                // Ignore and return null
+            }
+        }
+
+        return null;
     }
 
     private String getDefaultParamName(List<String> paramNames) {
