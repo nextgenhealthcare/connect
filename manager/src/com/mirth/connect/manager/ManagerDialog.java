@@ -447,8 +447,9 @@ public class ManagerDialog extends JDialog {
     }
 
     private void okButtonActionPerformed(ActionEvent evt) {
-        saveProperties();
-        close();
+        if (saveProperties()) {
+            close();
+        }
     }
 
     private void cancelButtonActionPerformed(ActionEvent evt) {
@@ -486,7 +487,7 @@ public class ManagerDialog extends JDialog {
             // If the last selection was not using the default values, then prompt
             // to see if the user wants to continue.
             if (!databaseUrlField.getText().equals(databaseUrls.get(lastSelectedDatabaseType)) || !databaseUsernameField.getText().equals("") || !new String(databasePasswordField.getPassword()).equals("")) {
-                if (!managerController.alertOptionDialog("Changing your database type will clear your database URL, username, and password.\nAre you sure you want to continue?")) {
+                if (!managerController.alertOptionDialog(this, "Changing your database type will clear your database URL, username, and password.\nAre you sure you want to continue?")) {
                     databaseTypeCombobox.setSelectedItem(lastSelectedDatabaseType);
                     return;
                 }
@@ -572,7 +573,21 @@ public class ManagerDialog extends JDialog {
         loading = false;
     }
 
-    public void saveProperties() {
+    public boolean saveProperties() {
+        if (managerController.getServerProperties().getReloadingStrategy().reloadingRequired()) {
+            if (!managerController.alertOptionDialog(this, "Server properties have changed on disk since the manager was opened. Are you sure you wish to overwrite them?")) {
+                return false;
+            }
+            managerController.getServerProperties().reload();
+        }
+
+        if (managerController.getLog4jProperties().getReloadingStrategy().reloadingRequired()) {
+            if (!managerController.alertOptionDialog(this, "Log4j properties have changed on disk since the manager was opened. Are you sure you wish to overwrite them?")) {
+                return false;
+            }
+            managerController.getLog4jProperties().reload();
+        }
+
         managerController.getServerProperties().setProperty(ManagerConstants.SERVER_WEBSTART_PORT, webstartPortField.getText());
         managerController.getServerProperties().setProperty(ManagerConstants.SERVER_ADMINISTRATOR_PORT, adminPortField.getText());
 
@@ -584,7 +599,7 @@ public class ManagerDialog extends JDialog {
         try {
             managerController.getServerProperties().save();
         } catch (ConfigurationException e) {
-            managerController.alertErrorDialog("Error saving " + managerController.getServerProperties().getFile().getPath() + ":\n" + e.getMessage());
+            managerController.alertErrorDialog(this, "Error saving " + managerController.getServerProperties().getFile().getPath() + ":\n" + e.getMessage());
         }
 
         String[] logLevel = managerController.getLog4jProperties().getStringArray(ManagerConstants.LOG4J_MIRTH_LOG_LEVEL);
@@ -605,12 +620,13 @@ public class ManagerDialog extends JDialog {
         try {
             managerController.getLog4jProperties().save();
         } catch (ConfigurationException e) {
-            managerController.alertErrorDialog("Error saving " + managerController.getLog4jProperties().getFile().getPath() + ":\n" + e.getMessage());
+            managerController.alertErrorDialog(this, "Error saving " + managerController.getLog4jProperties().getFile().getPath() + ":\n" + e.getMessage());
         }
 
         managerController.setServiceXmx(serverMemoryField.getText());
 
         setApplyEnabled(false);
+        return true;
     }
 
     private void refreshLogs() {
