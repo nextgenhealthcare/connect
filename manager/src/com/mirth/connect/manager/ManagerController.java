@@ -9,6 +9,7 @@
 
 package com.mirth.connect.manager;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.io.File;
@@ -470,25 +471,37 @@ public class ManagerController {
         PlatformUI.MANAGER_DIALOG.setApplyEnabled(enabled);
     }
 
+    public void alertErrorDialog(String message) {
+        alertErrorDialog(null, message);
+    }
+
     /**
      * Alerts the user with an error dialog with the passed in 'message'
      */
-    public void alertErrorDialog(String message) {
-        JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+    public void alertErrorDialog(Component parent, String message) {
+        JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void alertInformationDialog(String message) {
+        alertInformationDialog(null, message);
     }
 
     /**
      * Alerts the user with an information dialog with the passed in 'message'
      */
-    public void alertInformationDialog(String message) {
-        JOptionPane.showMessageDialog(null, message, "Information", JOptionPane.INFORMATION_MESSAGE);
+    public void alertInformationDialog(Component parent, String message) {
+        JOptionPane.showMessageDialog(parent, message, "Information", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public boolean alertOptionDialog(String message) {
+        return alertOptionDialog(null, message);
     }
 
     /**
      * Alerts the user with a yes/no option with the passed in 'message'
      */
-    public boolean alertOptionDialog(String message) {
-        int option = JOptionPane.showConfirmDialog(null, message, "Select an Option", JOptionPane.YES_NO_OPTION);
+    public boolean alertOptionDialog(Component parent, String message) {
+        int option = JOptionPane.showConfirmDialog(parent, message, "Select an Option", JOptionPane.YES_NO_OPTION);
         if (option == JOptionPane.YES_OPTION) {
             return true;
         } else {

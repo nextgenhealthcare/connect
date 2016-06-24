@@ -26,6 +26,7 @@ import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -246,23 +247,38 @@ public class DefaultConfigurationController extends ConfigurationController {
                 System.setProperty(CHARSET, mirthConfig.getString(CHARSET));
             }
 
-            String httpsClientProtocolsString = mirthConfig.getString(HTTPS_CLIENT_PROTOCOLS);
-            if (StringUtils.isNotBlank(httpsClientProtocolsString)) {
-                httpsClientProtocols = StringUtils.split(httpsClientProtocolsString, ',');
+            String[] httpsClientProtocolsArray = mirthConfig.getStringArray(HTTPS_CLIENT_PROTOCOLS);
+            if (ArrayUtils.isNotEmpty(httpsClientProtocolsArray)) {
+                // Support both comma separated and multiline values
+                List<String> httpsClientProtocolsList = new ArrayList<String>();
+                for (String protocol : httpsClientProtocolsArray) {
+                    httpsClientProtocolsList.addAll(Arrays.asList(StringUtils.split(protocol, ',')));
+                }
+                httpsClientProtocols = httpsClientProtocolsList.toArray(new String[httpsClientProtocolsList.size()]);
             } else {
                 httpsClientProtocols = MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS;
             }
 
-            String httpsServerProtocolsString = mirthConfig.getString(HTTPS_SERVER_PROTOCOLS);
-            if (StringUtils.isNotBlank(httpsServerProtocolsString)) {
-                httpsServerProtocols = StringUtils.split(httpsServerProtocolsString, ',');
+            String[] httpsServerProtocolsArray = mirthConfig.getStringArray(HTTPS_SERVER_PROTOCOLS);
+            if (ArrayUtils.isNotEmpty(httpsServerProtocolsArray)) {
+                // Support both comma separated and multiline values
+                List<String> httpsServerProtocolsList = new ArrayList<String>();
+                for (String protocol : httpsServerProtocolsArray) {
+                    httpsServerProtocolsList.addAll(Arrays.asList(StringUtils.split(protocol, ',')));
+                }
+                httpsServerProtocols = httpsServerProtocolsList.toArray(new String[httpsServerProtocolsList.size()]);
             } else {
                 httpsServerProtocols = MirthSSLUtil.DEFAULT_HTTPS_SERVER_PROTOCOLS;
             }
 
-            String httpsCipherSuitesString = mirthConfig.getString(HTTPS_CIPHER_SUITES);
-            if (StringUtils.isNotBlank(httpsCipherSuitesString)) {
-                httpsCipherSuites = StringUtils.split(httpsCipherSuitesString, ',');
+            String[] httpsCipherSuitesArray = mirthConfig.getStringArray(HTTPS_CIPHER_SUITES);
+            if (ArrayUtils.isNotEmpty(httpsCipherSuitesArray)) {
+                // Support both comma separated and multiline values
+                List<String> httpsCipherSuitesList = new ArrayList<String>();
+                for (String cipherSuite : httpsCipherSuitesArray) {
+                    httpsCipherSuitesList.addAll(Arrays.asList(StringUtils.split(cipherSuite, ',')));
+                }
+                httpsCipherSuites = httpsCipherSuitesList.toArray(new String[httpsCipherSuitesList.size()]);
             } else {
                 httpsCipherSuites = MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES;
             }
@@ -705,7 +721,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                     logger.error("Unable to update libraries: " + e.getMessage(), e);
                 }
             }
-            
+
             if (serverConfiguration.getChannelDependencies() != null) {
                 setChannelDependencies(serverConfiguration.getChannelDependencies());
             } else {
