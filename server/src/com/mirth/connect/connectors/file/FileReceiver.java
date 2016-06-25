@@ -392,14 +392,14 @@ public class FileReceiver extends PollConnector {
 
                     // If the user-specified directory is blank, use the default (file's current directory)
                     if (StringUtils.isNotBlank(destinationDir)) {
-                        destinationDir = replacer.replaceValues(destinationDir, getChannelId(), sourceMap);
+                        destinationDir = replacer.replaceValues(destinationDir, getChannelId(), getChannel().getName(), sourceMap);
                     } else {
                         destinationDir = file.getParent();
                     }
 
                     // If the user-specified filename is blank, use the default (original filename)
                     if (StringUtils.isNotBlank(destinationName)) {
-                        destinationName = replacer.replaceValues(destinationName, getChannelId(), sourceMap);
+                        destinationName = replacer.replaceValues(destinationName, getChannelId(), getChannel().getName(), sourceMap);
                     } else {
                         destinationName = originalFilename;
                     }
