@@ -125,7 +125,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
                 List<FileInfo> result = new ArrayList<FileInfo>(todoFiles.length);
                 for (File f : todoFiles) {
 
-                    if (!f.getName().endsWith(IGNORE) && !isFileIgnored(f) && !(ignoreDot && f.getName().startsWith("."))) {
+                    if (f.isFile() && !f.getName().endsWith(IGNORE) && !isFileIgnored(f) && !(ignoreDot && f.getName().startsWith("."))) {
                         result.add(new FileFileInfo(f));
                     }
                 }

@@ -155,7 +155,7 @@ public class SmbFileConnection implements FileSystemConnection {
                 List<FileInfo> result = new ArrayList<FileInfo>(todoFiles.length);
 
                 for (SmbFile f : todoFiles) {
-                    if (!(ignoreDot && f.getName().startsWith("."))) {
+                    if (f.isFile() && !(ignoreDot && f.getName().startsWith("."))) {
                         result.add(new SmbFileFileInfo(f));
                     }
                 }
@@ -163,7 +163,7 @@ public class SmbFileConnection implements FileSystemConnection {
                 return result;
             }
         } catch (Exception e) {
-            throw new FileConnectorException("Error listing files in dir [" + dir + "] for patthern [" + filenamePattern + "]", e);
+            throw new FileConnectorException("Error listing files in dir [" + dir + "] for pattern [" + filenamePattern + "]", e);
         }
     }
 
