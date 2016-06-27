@@ -143,18 +143,18 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public Long getMessageCount(MessageFilter filter, Channel channel) {
+    public Long getMessageCount(MessageFilter filter, String channelId) {
         if (filter.getIncludedMetaDataIds() != null && filter.getIncludedMetaDataIds().isEmpty() && filter.getExcludedMetaDataIds() == null) {
             return 0L;
         }
 
         long startTime = System.currentTimeMillis();
 
-        FilterOptions filterOptions = new FilterOptions(filter, channel.getChannelId());
+        FilterOptions filterOptions = new FilterOptions(filter, channelId);
         long maxMessageId = filterOptions.getMaxMessageId();
         long minMessageId = filterOptions.getMinMessageId();
 
-        Long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
+        Long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Map<String, Object> params = getBasicParameters(filter, localChannelId);
 
         try {
@@ -461,12 +461,11 @@ public class DonkeyMessageController extends MessageController {
     @Override
     public int exportMessages(final String channelId, final MessageFilter messageFilter, int pageSize, MessageWriterOptions options) throws MessageExportException, InterruptedException {
         final MessageController messageController = this;
-        final EngineController engineController = ControllerFactory.getFactory().createEngineController();
 
         PaginatedList<Message> messageList = new PaginatedList<Message>() {
             @Override
             public Long getItemCount() {
-                return messageController.getMessageCount(messageFilter, engineController.getDeployedChannel(channelId));
+                return messageController.getMessageCount(messageFilter, channelId);
             }
 
             @Override

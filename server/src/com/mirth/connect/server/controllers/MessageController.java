@@ -16,7 +16,6 @@ import java.util.List;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.MessageExporter.MessageExportException;
@@ -35,7 +34,7 @@ public abstract class MessageController {
 
     public abstract List<Message> getMessages(MessageFilter filter, String channelId, Boolean includeContent, Integer offset, Integer limit);
 
-    public abstract Long getMessageCount(MessageFilter filter, Channel channel);
+    public abstract Long getMessageCount(MessageFilter filter, String channelId);
 
     public abstract Message getMessageContent(String channelId, Long messageId, List<Integer> metaDataIds);
 
