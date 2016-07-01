@@ -35,6 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -1165,6 +1166,7 @@ public class Channel implements Runnable {
             DonkeyDao dao = null;
             Message processedMessage = null;
             Response response = null;
+            String responseErrorMessage = null;
             DispatchResult dispatchResult = null;
 
             try {
@@ -1200,7 +1202,11 @@ public class Channel implements Runnable {
                 }
 
                 if (responseSelector.canRespond()) {
-                    response = responseSelector.getResponse(sourceMessage, processedMessage);
+                    try {
+                        response = responseSelector.getResponse(sourceMessage, processedMessage);
+                    } catch (Exception e) {
+                        responseErrorMessage = ExceptionUtils.getStackTrace(e);
+                    }
                 }
             } catch (RuntimeException e) {
                 // TODO determine behavior if this occurs.
@@ -1220,6 +1226,10 @@ public class Channel implements Runnable {
                 // Create the DispatchResult at the very end because lockAcquired might have changed
                 if (persistedMessageId != null) {
                     dispatchResult = new DispatchResult(persistedMessageId, processedMessage, response, sourceConnector.isRespondAfterProcessing(), lockAcquired);
+
+                    if (StringUtils.isNotBlank(responseErrorMessage)) {
+                        dispatchResult.setResponseError(responseErrorMessage);
+                    }
                 }
             }
 

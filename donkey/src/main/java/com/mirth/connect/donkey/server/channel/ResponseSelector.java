@@ -60,7 +60,7 @@ public class ResponseSelector {
      * @param message
      *            The composite message
      */
-    public Response getResponse(ConnectorMessage sourceMessage, Message message) {
+    public Response getResponse(ConnectorMessage sourceMessage, Message message) throws Exception {
         if (respondFromName.equals(SourceConnectorProperties.RESPONSE_AUTO_BEFORE)) {
             // Assume a successful status since we're responding before the message has been processed
             return dataType.getAutoResponder().getResponse(Status.RECEIVED, sourceMessage.getRaw().getContent(), sourceMessage);

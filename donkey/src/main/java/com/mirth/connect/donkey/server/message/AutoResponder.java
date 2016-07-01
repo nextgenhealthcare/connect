@@ -42,7 +42,7 @@ public interface AutoResponder {
      *            statuses).
      * @return The response that should be sent back to the originating system.
      */
-    public Response getResponse(Status status, String message, ConnectorMessage connectorMessage);
+    public Response getResponse(Status status, String message, ConnectorMessage connectorMessage) throws Exception;
 
     /**
      * Returns a response message generated based on the passed inbound message and properties

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -298,16 +299,26 @@ public class RecoveryTask implements Callable<Void> {
 
         if (responseSelector.canRespond()) {
             Response response = null;
+            String responseErrorMessage = null;
 
             /*
              * only put a response in the dispatchResult if a response was not already stored in the
              * source message (which happens when the source queue is enabled)
              */
             if (sourceMessage.getResponse() == null) {
-                response = responseSelector.getResponse(sourceMessage, unfinishedMessage);
+                try {
+                    response = responseSelector.getResponse(sourceMessage, unfinishedMessage);
+                } catch (Exception e) {
+                    responseErrorMessage = ExceptionUtils.getStackTrace(e);
+                }
             }
 
             DispatchResult dispatchResult = new DispatchResult(unfinishedMessage.getMessageId(), unfinishedMessage, response, true, false);
+
+            if (StringUtils.isNotBlank(responseErrorMessage)) {
+                dispatchResult.setResponseError(responseErrorMessage);
+            }
+
             channel.getSourceConnector().handleRecoveredResponse(dispatchResult);
         }
     }

@@ -68,7 +68,7 @@ public class HL7v2AutoResponder implements AutoResponder {
     }
 
     @Override
-    public Response getResponse(Status status, String message, ConnectorMessage connectorMessage) {
+    public Response getResponse(Status status, String message, ConnectorMessage connectorMessage) throws Exception {
         HL7v2ResponseGenerationProperties hl7Properties = getReplacedHL7Properties(connectorMessage);
         return generateACK(status, message, hl7Properties);
     }
@@ -88,7 +88,7 @@ public class HL7v2AutoResponder implements AutoResponder {
         return hl7v2Properties;
     }
 
-    private Response generateACK(Status status, String hl7Message, HL7v2ResponseGenerationProperties hl7v2Properties) {
+    private Response generateACK(Status status, String hl7Message, HL7v2ResponseGenerationProperties hl7v2Properties) throws Exception {
         boolean errorOnly = false;
         boolean always = false;
         boolean successOnly = false;
@@ -185,8 +185,7 @@ public class HL7v2AutoResponder implements AutoResponder {
             logger.debug("HL7v2 " + (nack ? "N" : "") + "ACK successfully generated: " + ACK);
         } catch (Exception e) {
             logger.warn("Error generating HL7v2 ACK.", e);
-            statusMessage = "Error generating HL7v2 ACK.";
-            error = e.getMessage();
+            throw new Exception("Error generating HL7v2 ACK.", e);
         }
 
         return new Response(status, ACK, statusMessage, error);
