@@ -426,6 +426,8 @@ public class DashboardPanel extends JPanel {
         boolean useChannelOptions = true;
         // Indicates if only nodes for a single channel is selected. This is true even if only a connector node is selected.
         boolean singleChannel = true;
+        // Indicates whether any haltable channel states are selected, ignoring syncing
+        boolean containsHaltableNonSyncingState = false;
         // Stores all channel ids that are selected, even if only a channel's connector is selected
         Set<String> selectedChannelIds = new HashSet<String>();
         // Stores all channel ids that have their channel node selected.
@@ -438,6 +440,9 @@ public class DashboardPanel extends JPanel {
                 if (!node.isGroupNode()) {
                     selectedChannelIds.add(node.getChannelId());
                     if (node.getDashboardStatus().getStatusType() == StatusType.CHANNEL) {
+                        if (haltableStates.contains(node.getDashboardStatus().getState()) && node.getDashboardStatus().getState() != DeployedState.SYNCING) {
+                            containsHaltableNonSyncingState = true;
+                        }
                         selectedChannelNodes.add(node.getChannelId());
                     } else if (!selectedChannelNodes.contains(node.getChannelId())) {
                         useChannelOptions = false;
@@ -484,10 +489,15 @@ public class DashboardPanel extends JPanel {
                             // Hide tasks that can not be performed on a channel that is haltable
                             if (status.getState() == DeployedState.DEPLOYING || status.getState() == DeployedState.UNDEPLOYING) {
                                 // If the channel is still deploying or undeploying, don't show anything except refresh
-                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 9, false);
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 8, false);
                             } else {
                                 parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, false);
-                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 9, false);
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 8, false);
+                            }
+
+                            if (containsHaltableNonSyncingState) {
+                                // Disable the undeploy task if there are any haltable states (ignoring syncing)
+                                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 9, 9, false);
                             }
 
                             if (singleChannel) {
