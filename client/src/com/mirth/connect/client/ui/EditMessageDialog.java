@@ -33,11 +33,14 @@ import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
@@ -158,15 +161,21 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
 
         class SourceMapTableCellEditor extends AbstractCellEditor implements TableCellEditor {
             private JTable table;
-            private int column;
+            private Component editingComponent;
             private JTextField textField;
-            private Object originalValue;
-            private String newValue;
+            private JCheckBox checkBox;
 
-            public SourceMapTableCellEditor(JTable table, int column) {
+            private int column;
+            private boolean keyColumn;
+            private Object originalValue;
+            private Object newValue;
+
+            public SourceMapTableCellEditor(JTable table, int column, boolean keyColumn) {
                 super();
                 this.table = table;
                 this.column = column;
+                this.keyColumn = keyColumn;
+
                 textField = new JTextField();
                 textField.addFocusListener(new FocusAdapter() {
                     @Override
@@ -174,6 +183,11 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
                         textField.setCaretPosition(textField.getText().length());
                     }
                 });
+
+                checkBox = new JCheckBox();
+                checkBox.setHorizontalAlignment(SwingConstants.CENTER);
+
+                editingComponent = textField;
             }
 
             @Override
@@ -181,8 +195,17 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
                 if (evt == null) {
                     return false;
                 }
+
                 if (evt instanceof MouseEvent) {
-                    return ((MouseEvent) evt).getClickCount() >= 2;
+                    MouseEvent mouseEvent = (MouseEvent) evt;
+                    int row = table.rowAtPoint(new Point(mouseEvent.getX(), mouseEvent.getY()));
+                    Object obj = table.getValueAt(row, column);
+
+                    if (obj instanceof Boolean) {
+                        return true;
+                    } else {
+                        return mouseEvent.getClickCount() >= 2;
+                    }
                 }
                 return true;
             }
@@ -191,8 +214,18 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
             public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                 originalValue = value;
                 newValue = null;
-                textField.setText(String.valueOf(value));
-                return textField;
+
+                if (value instanceof Boolean) {
+                    editingComponent = checkBox;
+                    checkBox.setSelected((Boolean) value);
+                    checkBox.setForeground(table.getSelectionForeground());
+                    checkBox.setBackground(table.getSelectionBackground());
+                } else {
+                    editingComponent = textField;
+                    textField.setText(String.valueOf(value));
+                }
+
+                return editingComponent;
             }
 
             @Override
@@ -206,33 +239,77 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
 
             @Override
             public boolean stopCellEditing() {
-                if (!valueChanged()) {
+                if (!acceptValue()) {
                     super.cancelCellEditing();
+                } else if (editingComponent == checkBox) {
+                    newValue = checkBox.isSelected();
                 } else {
                     newValue = textField.getText();
                 }
                 return super.stopCellEditing();
             }
 
-            private boolean valueChanged() {
-                String value = textField.getText();
-                if (StringUtils.isBlank(value)) {
-                    return false;
-                }
+            private boolean acceptValue() {
+                if (editingComponent == checkBox) {
+                    return checkBox.isSelected() != (Boolean) originalValue;
+                } else {
+                    String value = textField.getText();
 
-                for (int i = 0; i < table.getRowCount(); i++) {
-                    Object tableValue = table.getValueAt(i, column);
-                    if (tableValue != null && String.valueOf(tableValue).equals(value)) {
-                        return false;
+                    if (keyColumn) {
+                        if (StringUtils.isBlank(value)) {
+                            return false;
+                        }
+
+                        for (int i = 0; i < table.getRowCount(); i++) {
+                            if (value.equals(table.getValueAt(i, column))) {
+                                return false;
+                            }
+                        }
                     }
-                }
 
-                return true;
+                    return !value.equals(originalValue);
+                }
             }
         }
 
-        sourceMapTable.getColumnModel().getColumn(0).setCellEditor(new SourceMapTableCellEditor(sourceMapTable, 0));
-        sourceMapTable.getColumnModel().getColumn(1).setCellEditor(new SourceMapTableCellEditor(sourceMapTable, 1));
+        class SourceMapTableCellRenderer extends DefaultTableCellRenderer {
+            private JTextField textField;
+            private JCheckBox checkBox;
+
+            public SourceMapTableCellRenderer() {
+                textField = new JTextField();
+                textField.setBorder(null);
+
+                checkBox = new JCheckBox();
+                checkBox.setHorizontalAlignment(SwingConstants.CENTER);
+            }
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component component;
+                if (value instanceof Boolean) {
+                    component = checkBox;
+                    checkBox.setSelected((Boolean) value);
+                } else {
+                    component = textField;
+                    textField.setText(String.valueOf(value));
+                }
+
+                if (isSelected) {
+                    component.setForeground(table.getSelectionForeground());
+                    component.setBackground(table.getSelectionBackground());
+                } else {
+                    component.setForeground(table.getForeground());
+                    component.setBackground(table.getBackground());
+                }
+
+                return component;
+            }
+        }
+
+        sourceMapTable.getColumnModel().getColumn(0).setCellEditor(new SourceMapTableCellEditor(sourceMapTable, 0, true));
+        sourceMapTable.getColumnModel().getColumn(1).setCellEditor(new SourceMapTableCellEditor(sourceMapTable, 1, false));
+        sourceMapTable.getColumnModel().getColumn(1).setCellRenderer(new SourceMapTableCellRenderer());
 
         sourceMapScrollPane.setViewportView(sourceMapTable);
         deleteButton.setEnabled(false);
@@ -540,6 +617,10 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
 
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_newButtonActionPerformed
     {//GEN-HEADEREND:event_newButtonActionPerformed
+        if (sourceMapTable.isEditing()) {
+            sourceMapTable.getCellEditor().stopCellEditing();
+        }
+
         ((DefaultTableModel) sourceMapTable.getModel()).addRow(new Object[] { getNewSourceMapKey(),
                 "" });
         sourceMapTable.setRowSelectionInterval(sourceMapTable.getRowCount() - 1, sourceMapTable.getRowCount() - 1);
@@ -575,8 +656,12 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
     }//GEN-LAST:event_closeButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+        if (sourceMapTable.isEditing()) {
+            sourceMapTable.getCellEditor().stopCellEditing();
+        }
+
         int selectedRow = getSelectedRow(sourceMapTable);
-        if (selectedRow != -1 && !sourceMapTable.isEditing()) {
+        if (selectedRow != -1) {
             ((DefaultTableModel) sourceMapTable.getModel()).removeRow(selectedRow);
 
             if (sourceMapTable.getRowCount() > 0) {
