@@ -61,14 +61,14 @@ public class XsltStepPlugin extends TransformerStepPlugin {
             parent.setInvalidVar(true);
             String msg = "The source field cannot be blank.\nPlease enter a new source.\n";
             parent.setRowSelectionInterval(row, row);
-            parent.getParentFrame().alertWarning(parent.parent, msg);
+            alertWarning(msg);
 
         } else if (resultVar == null || resultVar.equals("")) {
 
             parent.setInvalidVar(true);
             String msg = "The result field cannot be blank.\nPlease enter a new result.\n";
             parent.setRowSelectionInterval(row, row);
-            parent.getParentFrame().alertWarning(parent.parent, msg);
+            alertWarning(msg);
 
         } else {
             parent.setInvalidVar(false);
