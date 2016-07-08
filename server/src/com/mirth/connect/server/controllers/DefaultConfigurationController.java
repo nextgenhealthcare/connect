@@ -107,6 +107,8 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.plugins.MergePropertiesInterface;
+import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.mybatis.KeyValuePair;
@@ -701,7 +703,20 @@ public class DefaultConfigurationController extends ConfigurationController {
                 ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
                 for (Entry<String, Properties> pluginEntry : serverConfiguration.getPluginProperties().entrySet()) {
-                    extensionController.setPluginProperties(pluginEntry.getKey(), pluginEntry.getValue());
+                    String pluginName = pluginEntry.getKey();
+                    Properties properties = pluginEntry.getValue();
+
+                    try {
+                        // Allow the plugin to modify the properties first if it needs to
+                        ServicePlugin servicePlugin = extensionController.getServicePlugins().get(pluginName);
+                        if (servicePlugin != null && servicePlugin instanceof MergePropertiesInterface) {
+                            ((MergePropertiesInterface) servicePlugin).modifyPropertiesOnRestore(properties);
+                        }
+
+                        extensionController.setPluginProperties(pluginName, properties);
+                    } catch (Exception e) {
+                        logger.error("Error restoring " + pluginName + " properties.", e);
+                    }
                 }
             }
 
