@@ -9,11 +9,14 @@
 
 package com.mirth.connect.client.ui.components;
 
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 
 public class MirthComboBoxTableCellRenderer implements TableCellRenderer {
@@ -41,20 +44,38 @@ public class MirthComboBoxTableCellRenderer implements TableCellRenderer {
             comboBox.setForeground(table.getForeground());
             comboBox.setBackground(table.getBackground());
         }
-        
+
         for (int i = 0; i < comboBox.getComponentCount(); i++) {
-            if (comboBox.getComponent(i) instanceof AbstractButton) {
-                comboBox.getComponent(i).setBackground(comboBox.getBackground());
+            Component component = comboBox.getComponent(i);
+            component.setBackground(comboBox.getBackground());
+
+            if (component instanceof AbstractButton) {
+                ((AbstractButton) component).setBorderPainted(false);
+            } else if (component instanceof JComponent) {
+                ((JComponent) component).setBorder(new EmptyBorder(0, 3, 0, 0));
+
+                if (isSelected) {
+                    ((JComponent) component).setBackground(table.getSelectionBackground());
+                } else if (row % 2 == 0) {
+                    ((JComponent) component).setBackground(new Color(242, 242, 242));
+                }
             }
         }
-        
+
         if (value != null) {
             comboBox.setSelectedItem(value);
         } else {
             comboBox.setSelectedIndex(-1);
         }
-        
+
         return comboBox;
     }
 
+    public JComboBox getComboBox() {
+        return comboBox;
+    }
+
+    public void setEditable(boolean editable) {
+        comboBox.setEditable(editable);
+    }
 }

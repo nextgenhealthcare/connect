@@ -41,6 +41,7 @@ import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -137,24 +138,29 @@ public class AlertActionPane extends JPanel {
 
         for (Protocol protocol : protocols.values()) {
             if (protocol.hasOptions()) {
-                MirthComboBoxTableCellEditor editor = new MirthComboBoxTableCellEditor(actionTable, protocol.getRecipientNames().toArray(), 1, false, new ActionListener() {
+                MirthComboBoxTableCellEditor editor = new MirthComboBoxTableCellEditor(actionTable, protocol.getRecipientNames().toArray(), 1, true, new ActionListener() {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         JComboBox comboBox = (JComboBox) e.getSource();
                         if (comboBox.isPopupVisible() && actionTable.getCellEditor() != null) {
                             actionTable.getCellEditor().stopCellEditing();
-                            PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
                         }
+                        PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
+
                     }
 
                 });
 
+                editor.setEditable(true);
                 editor.getComboBox().setCanEnableSave(false);
                 editor.getComboBox().setAutoResizeDropdown(true);
 
+                MirthComboBoxTableCellRenderer renderer = new MirthComboBoxTableCellRenderer(protocol.getRecipientNames().toArray());
+                renderer.setEditable(true);
+
                 // Update the recipient column renderer and editor with the current names
-                ((RecipientCellRenderer) actionTable.getColumnExt(RECIPIENT_COLUMN_INDEX).getCellRenderer()).setCellRenderer(protocol.getProtocolName(), new MirthComboBoxTableCellRenderer(protocol.getRecipientNames().toArray()));
+                ((RecipientCellRenderer) actionTable.getColumnExt(RECIPIENT_COLUMN_INDEX).getCellRenderer()).setCellRenderer(protocol.getProtocolName(), renderer);
                 ((RecipientCellEditor) actionTable.getColumnExt(RECIPIENT_COLUMN_NAME).getCellEditor()).setCellEditor(protocol.getProtocolName(), editor);
             }
         }
@@ -198,7 +204,10 @@ public class AlertActionPane extends JPanel {
         public RecipientCellRenderer() {
             for (Protocol protocol : protocols.values()) {
                 if (protocol.hasOptions()) {
-                    cellRenderers.put(protocol.getProtocolName(), new MirthComboBoxTableCellRenderer(new Object[] {}));
+                    MirthComboBoxTableCellRenderer renderer = new MirthComboBoxTableCellRenderer(new Object[] {});
+                    renderer.setEditable(true);
+
+                    cellRenderers.put(protocol.getProtocolName(), renderer);
                 } else {
                     cellRenderers.put(protocol.getProtocolName(), new DefaultTableCellRenderer());
                 }
@@ -226,7 +235,10 @@ public class AlertActionPane extends JPanel {
         public RecipientCellEditor() {
             for (Protocol protocol : protocols.values()) {
                 if (protocol.hasOptions()) {
-                    cellEditors.put(protocol.getProtocolName(), new MirthComboBoxTableCellEditor(actionTable, new Object[] {}, 1, false, null));
+                    MirthComboBoxTableCellEditor editor = new MirthComboBoxTableCellEditor(actionTable, new Object[] {}, 1, false, null);
+                    editor.setEditable(true);
+
+                    cellEditors.put(protocol.getProtocolName(), editor);
                 } else {
                     cellEditors.put(protocol.getProtocolName(), new TextFieldCellEditor() {
                         @Override
@@ -357,7 +369,13 @@ public class AlertActionPane extends JPanel {
                     action.setRecipient(null);
                     break;
                 case RECIPIENT_COLUMN_INDEX:
-                    action.setRecipient(protocols.get(action.getProtocol()).getRecipientIdFromName((String) aValue));
+                    String recipient = protocols.get(action.getProtocol()).getRecipientIdFromName((String) aValue);
+
+                    if (StringUtils.isBlank(recipient)) {
+                        recipient = (String) aValue;
+                    }
+
+                    action.setRecipient(recipient);
                     break;
                 default:
                     break;
@@ -550,17 +568,17 @@ public class AlertActionPane extends JPanel {
         }
 
         String getRecipientIdFromName(String name) {
-            if (options == null) {
-                return name;
-            } else if (name == null) {
+            if (name == null) {
                 return null;
+            } else if (options == null) {
+                return name;
             } else {
                 return ids.get(name);
             }
         }
 
         String getRecipientNameFromId(String id) {
-            if (options == null) {
+            if (options == null || !options.containsKey(id)) {
                 return id;
             } else {
                 return options.get(id);
