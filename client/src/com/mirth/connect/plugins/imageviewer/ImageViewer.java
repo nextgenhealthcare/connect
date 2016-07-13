@@ -59,6 +59,10 @@ public class ImageViewer extends AttachmentViewer {
             ByteArrayInputStream bis = new ByteArrayInputStream(rawData);
 
             image = ImageIO.read(new Base64InputStream(bis));
+            if (image == null) {
+                parent.alertError(parent, "Unable to read image.");
+                return;
+            }
 
             JScrollPane pictureScrollPane = new JScrollPane(new JLabel(new ImageIcon(image)));
             pictureScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);

@@ -52,6 +52,10 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.mozilla.javascript.Context;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.attachments.CustomAttachmentDialog;
+import com.mirth.connect.client.ui.attachments.IdentityAttachmentDialog;
+import com.mirth.connect.client.ui.attachments.JavaScriptAttachmentDialog;
+import com.mirth.connect.client.ui.attachments.RegexAttachmentDialog;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
@@ -1774,7 +1778,9 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     public void showAttachmentPropertiesDialog(AttachmentHandlerType type) {
         AttachmentHandlerProperties attachmentHandlerProperties = currentChannel.getProperties().getAttachmentProperties();
-        if (type.equals(AttachmentHandlerType.REGEX)) {
+        if (type.equals(AttachmentHandlerType.IDENTITY)) {
+            new IdentityAttachmentDialog(attachmentHandlerProperties);
+        } else if (type.equals(AttachmentHandlerType.REGEX)) {
             new RegexAttachmentDialog(attachmentHandlerProperties);
         } else if (type.equals(AttachmentHandlerType.DICOM)) {
 

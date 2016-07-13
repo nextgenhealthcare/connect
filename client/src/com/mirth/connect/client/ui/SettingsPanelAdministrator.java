@@ -124,6 +124,12 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             textSearchWarningNoRadio.setSelected(true);
         }
 
+        if (userPreferences.getBoolean("messageBrowserShowAttachmentTypeDialog", true)) {
+            messageBrowserShowAttachmentTypeDialogYesRadio.setSelected(true);
+        } else {
+            messageBrowserShowAttachmentTypeDialogNoRadio.setSelected(true);
+        }
+
         String importChannelCodeTemplateLibraries = userPreferences.get("importChannelCodeTemplateLibraries", null);
         if (importChannelCodeTemplateLibraries == null) {
             importChannelLibrariesAskRadio.setSelected(true);
@@ -215,6 +221,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             userPreferences.putInt("eventBrowserPageSize", eventBrowserPageSize);
             userPreferences.putBoolean("messageBrowserFormat", formatYesRadio.isSelected());
             userPreferences.putBoolean("textSearchWarning", textSearchWarningYesRadio.isSelected());
+            userPreferences.putBoolean("messageBrowserShowAttachmentTypeDialog", messageBrowserShowAttachmentTypeDialogYesRadio.isSelected());
 
             if (importChannelLibrariesAskRadio.isSelected()) {
                 userPreferences.remove("importChannelCodeTemplateLibraries");
@@ -361,6 +368,20 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         textSearchWarningNoRadio.setBackground(systemSettingsPanel.getBackground());
         textSearchWarningNoRadio.setToolTipText(toolTipText);
         textSearchWarningButtonGroup.add(textSearchWarningNoRadio);
+
+        messageBrowserShowAttachmentTypeDialogLabel = new JLabel("Message browser attachment type dialog:");
+        messageBrowserShowAttachmentTypeDialogButtonGroup = new ButtonGroup();
+
+        toolTipText = "<html>Show a selection dialog in the message browser when viewing attachments<br/>to allow the user to select a specific attachment viewer. If No is selected,<br/>the attachment viewer will be automatically chosen from the MIME type.</html>";
+        messageBrowserShowAttachmentTypeDialogYesRadio = new MirthRadioButton("Yes");
+        messageBrowserShowAttachmentTypeDialogYesRadio.setBackground(systemSettingsPanel.getBackground());
+        messageBrowserShowAttachmentTypeDialogYesRadio.setToolTipText(toolTipText);
+        messageBrowserShowAttachmentTypeDialogButtonGroup.add(messageBrowserShowAttachmentTypeDialogYesRadio);
+
+        messageBrowserShowAttachmentTypeDialogNoRadio = new MirthRadioButton("No");
+        messageBrowserShowAttachmentTypeDialogNoRadio.setBackground(systemSettingsPanel.getBackground());
+        messageBrowserShowAttachmentTypeDialogNoRadio.setToolTipText(toolTipText);
+        messageBrowserShowAttachmentTypeDialogButtonGroup.add(messageBrowserShowAttachmentTypeDialogNoRadio);
 
         importChannelLibrariesLabel = new JLabel("Import code template libraries with channels:");
         importChannelLibrariesButtonGroup = new ButtonGroup();
@@ -527,6 +548,9 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         systemSettingsPanel.add(textSearchWarningLabel, "newline, right");
         systemSettingsPanel.add(textSearchWarningYesRadio, "split");
         systemSettingsPanel.add(textSearchWarningNoRadio);
+        systemSettingsPanel.add(messageBrowserShowAttachmentTypeDialogLabel, "newline, right");
+        systemSettingsPanel.add(messageBrowserShowAttachmentTypeDialogYesRadio, "split");
+        systemSettingsPanel.add(messageBrowserShowAttachmentTypeDialogNoRadio);
         systemSettingsPanel.add(importChannelLibrariesLabel, "newline, right");
         systemSettingsPanel.add(importChannelLibrariesYesRadio, "split");
         systemSettingsPanel.add(importChannelLibrariesNoRadio);
@@ -633,6 +657,10 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     private ButtonGroup textSearchWarningButtonGroup;
     private JRadioButton textSearchWarningYesRadio;
     private JRadioButton textSearchWarningNoRadio;
+    private JLabel messageBrowserShowAttachmentTypeDialogLabel;
+    private ButtonGroup messageBrowserShowAttachmentTypeDialogButtonGroup;
+    private JRadioButton messageBrowserShowAttachmentTypeDialogYesRadio;
+    private JRadioButton messageBrowserShowAttachmentTypeDialogNoRadio;
     private JLabel importChannelLibrariesLabel;
     private ButtonGroup importChannelLibrariesButtonGroup;
     private JRadioButton importChannelLibrariesYesRadio;

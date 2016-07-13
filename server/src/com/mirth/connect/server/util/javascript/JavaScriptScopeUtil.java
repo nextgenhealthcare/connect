@@ -241,11 +241,12 @@ public class JavaScriptScopeUtil {
      * Since this method calls getContext(), anything calling it should wrap this method in a
      * try-finally with Context.exit() in the finally block.
      */
-    public static Scriptable getAttachmentScope(ContextFactory contextFactory, Object logger, String channelId, String channelName, RawMessage message, List<Attachment> attachments) {
+    public static Scriptable getAttachmentScope(ContextFactory contextFactory, Object logger, String channelId, String channelName, RawMessage message, List<Attachment> attachments, boolean isBinary) {
         Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId, channelName);
         addRawMessage(scope, message.getRawData());
         add("sourceMap", scope, new SourceMap(Collections.unmodifiableMap(message.getSourceMap())));
         add("mirth_attachments", scope, attachments);
+        add("binary", scope, isBinary);
         return scope;
     }
 

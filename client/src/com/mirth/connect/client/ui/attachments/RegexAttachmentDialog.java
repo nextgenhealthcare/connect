@@ -7,13 +7,13 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.client.ui;
+package com.mirth.connect.client.ui.attachments;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -33,15 +34,18 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.mirth.connect.client.ui.components.MirthButton;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.MirthDialog;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.RefreshTableModel;
+import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
-import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 
 public class RegexAttachmentDialog extends MirthDialog {
 
     private Frame parent;
-    private boolean initialFocus = true;
     private AttachmentHandlerProperties attachmentHandlerProperties;
 
     public static final int DATA_TYPE_COLUMN_NUMBER = 1;
@@ -63,22 +67,32 @@ public class RegexAttachmentDialog extends MirthDialog {
 
         attachmentHandlerProperties = properties;
 
-        regexTextField.setText(StringUtils.defaultIfEmpty(attachmentHandlerProperties.getProperties().get("regex.pattern"), ""));
-        regexTextField.requestFocus();
-        regexTextField.addFocusListener(new FocusAdapter() {
+        List<RegexInfo> regexInfoList = new ArrayList<RegexInfo>();
 
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (initialFocus) {
-                    regexTextField.setCaretPosition(0);
-                    initialFocus = false;
-                }
-            }
-
-        });
-        mimeTypeField.setText(StringUtils.defaultIfEmpty(attachmentHandlerProperties.getProperties().get("regex.mimetype"), ""));
+        if (attachmentHandlerProperties.getProperties().containsKey("regex.pattern")) {
+            String regex = StringUtils.defaultString(attachmentHandlerProperties.getProperties().get("regex.pattern"));
+            String mimeType = StringUtils.defaultString(attachmentHandlerProperties.getProperties().get("regex.mimetype"));
+            regexInfoList.add(new RegexInfo(regex, mimeType));
+        }
 
         int count = 0;
+        while (attachmentHandlerProperties.getProperties().containsKey("regex.pattern" + count)) {
+            String regex = StringUtils.defaultString(attachmentHandlerProperties.getProperties().get("regex.pattern" + count));
+            String mimeType = StringUtils.defaultString(attachmentHandlerProperties.getProperties().get("regex.mimetype" + count));
+            regexInfoList.add(new RegexInfo(regex, mimeType));
+            count++;
+        }
+
+        Object[][] regexTableData = new Object[regexInfoList.size()][2];
+        int i = 0;
+        for (RegexInfo regexInfo : regexInfoList) {
+            regexTableData[i][0] = regexInfo.pattern;
+            regexTableData[i][1] = regexInfo.mimeType;
+            i++;
+        }
+        ((RefreshTableModel) regexTable.getModel()).refreshDataVector(regexTableData);
+
+        count = 0;
         while (attachmentHandlerProperties.getProperties().containsKey("regex.replaceKey" + count)) {
             DefaultTableModel tableModel = (DefaultTableModel) inboundReplacementTable.getModel();
             tableModel.addRow(new Object[] {
@@ -107,15 +121,6 @@ public class RegexAttachmentDialog extends MirthDialog {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return true;
             }
-
-            @Override
-            public void setValueAt(Object value, int row, int column) {
-                if (!value.equals(getValueAt(row, column))) {
-                    parent.setSaveEnabled(true);
-                }
-
-                super.setValueAt(value, row, column);
-            }
         };
 
         inboundReplacementTable.setSortable(false);
@@ -141,15 +146,6 @@ public class RegexAttachmentDialog extends MirthDialog {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return true;
             }
-
-            @Override
-            public void setValueAt(Object value, int row, int column) {
-                if (!value.equals(getValueAt(row, column))) {
-                    parent.setSaveEnabled(true);
-                }
-
-                super.setValueAt(value, row, column);
-            }
         };
 
         outboundReplacementTable.setSortable(false);
@@ -172,10 +168,7 @@ public class RegexAttachmentDialog extends MirthDialog {
     private void initComponents() {
         regularExpressionPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, fill, insets 0"));
         regularExpressionPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        regularExpressionPanel.setBorder(BorderFactory.createTitledBorder("Regular Expression"));
-
-        regexTextField = new MirthTextField();
-        regexTextField.setToolTipText("<html>The regular expression that will be used to match and extract attachments.<br>If capturing groups are used, only the last group will be extracted.</html>");
+        regularExpressionPanel.setBorder(BorderFactory.createTitledBorder("Regular Expressions"));
 
         regexExampleTextField = new JTextField();
         regexExampleTextField.setText("(?:OBX\\|(?:[^|]*\\|){4}(?:[^|^]*\\^){4})([^|^\\r\\n]*)(?:[|^\\r\\n]|$)");
@@ -183,12 +176,54 @@ public class RegexAttachmentDialog extends MirthDialog {
         regexExampleTextField.setBorder(null);
         regexExampleTextField.setOpaque(false);
 
-        mimeTypePanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, fill, insets 0"));
-        mimeTypePanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        mimeTypePanel.setBorder(BorderFactory.createTitledBorder("Mime Type"));
+        regexTable = new MirthTable();
+        regexTable.setModel(new RefreshTableModel(new Object[] { "Regular Expression", "MIME Type" }, 0));
+        regexTable.setDragEnabled(false);
+        regexTable.setRowSelectionAllowed(true);
+        regexTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        regexTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        regexTable.setFocusable(true);
+        regexTable.setOpaque(true);
+        regexTable.getTableHeader().setReorderingAllowed(false);
+        regexTable.setEditable(true);
+        regexTable.setSortable(false);
 
-        mimeTypeField = new MirthTextField();
-        mimeTypeField.setToolTipText("The mime type of the extracted attachment data.");
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            regexTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
+        }
+
+        regexTable.getColumnExt(0).setMinWidth(105);
+        regexTable.getColumnExt(0).setPreferredWidth(350);
+        regexTable.getColumnExt(0).setToolTipText("<html>The regular expression that will be used to match and extract attachments.<br>If capturing groups are used, only the last group will be extracted.</html>");
+
+        regexTable.getColumnExt(1).setMinWidth(63);
+        regexTable.getColumnExt(1).setToolTipText("The MIME type of the extracted attachment data. Source map variables may be used here.");
+
+        regexTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent evt) {
+                regexDeleteButton.setEnabled(regexTable.getSelectedRow() >= 0);
+            }
+        });
+
+        regexTableScrollPane = new JScrollPane(regexTable);
+
+        regexNewButton = new JButton("New");
+        regexNewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                regexNewButtonActionPerformed();
+            }
+        });
+
+        regexDeleteButton = new JButton("Delete");
+        regexDeleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                regexDeleteButtonActionPerformed();
+            }
+        });
+        regexDeleteButton.setEnabled(false);
 
         stringReplacementPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0"));
         stringReplacementPanel.setBackground(UIConstants.BACKGROUND_COLOR);
@@ -210,14 +245,14 @@ public class RegexAttachmentDialog extends MirthDialog {
         inboundButtonPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0", "", ""));
         inboundButtonPanel.setBackground(UIConstants.BACKGROUND_COLOR);
 
-        inboundNewButton = new MirthButton("New");
+        inboundNewButton = new JButton("New");
         inboundNewButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 inboundNewButtonActionPerformed(evt);
             }
         });
 
-        inboundDeleteButton = new MirthButton("Delete");
+        inboundDeleteButton = new JButton("Delete");
         inboundDeleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 inboundDeleteButtonActionPerformed(evt);
@@ -227,14 +262,14 @@ public class RegexAttachmentDialog extends MirthDialog {
         outboundButtonPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0", "", ""));
         outboundButtonPanel.setBackground(UIConstants.BACKGROUND_COLOR);
 
-        outboundNewButton = new MirthButton("New");
+        outboundNewButton = new JButton("New");
         outboundNewButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 outboundNewButtonActionPerformed(evt);
             }
         });
 
-        outboundDeleteButton = new MirthButton("Delete");
+        outboundDeleteButton = new JButton("Delete");
         outboundDeleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 outboundDeleteButtonActionPerformed(evt);
@@ -252,11 +287,11 @@ public class RegexAttachmentDialog extends MirthDialog {
     }
 
     private void initLayout() {
-        regularExpressionPanel.add(new JLabel("Example for OBX 5.5: "));
-        regularExpressionPanel.add(regexExampleTextField, "left, push, wrap");
-        regularExpressionPanel.add(regexTextField, "sx, growx");
-
-        mimeTypePanel.add(mimeTypeField, "sx, growx");
+        regularExpressionPanel.add(new JLabel("Example for OBX 5.5: "), "sx, split 2");
+        regularExpressionPanel.add(regexExampleTextField, "push");
+        regularExpressionPanel.add(regexTableScrollPane, "newline, h 80:, grow, push");
+        regularExpressionPanel.add(regexNewButton, "w 50!, top, split 2, flowy");
+        regularExpressionPanel.add(regexDeleteButton, "w 50!");
 
         stringReplacementPanel.add(stringReplacementLabel, "left, sx, growx, wrap");
         stringReplacementPanel.add(new JLabel("<html><b>Inbound Replacements</b></html>"), "newline, wrap");
@@ -271,8 +306,7 @@ public class RegexAttachmentDialog extends MirthDialog {
         outboundButtonPanel.add(outboundDeleteButton, "w 50!");
         stringReplacementPanel.add(outboundButtonPanel, "aligny top, left");
 
-        add(regularExpressionPanel, "wrap");
-        add(mimeTypePanel, "wrap");
+        add(regularExpressionPanel, "grow, wrap");
         add(stringReplacementPanel, "wrap");
 
         add(separator, "wrap");
@@ -280,9 +314,45 @@ public class RegexAttachmentDialog extends MirthDialog {
         pack();
     }
 
+    private void regexNewButtonActionPerformed() {
+        int row = regexTable.getSelectedRow() + 1;
+        ((RefreshTableModel) regexTable.getModel()).insertRow(row, new Object[] { "", "" });
+        regexTable.getSelectionModel().setSelectionInterval(row, row);
+        regexTable.scrollRowToVisible(row);
+    }
+
+    private void regexDeleteButtonActionPerformed() {
+        int selectedRow = regexTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            ((RefreshTableModel) regexTable.getModel()).removeRow(selectedRow);
+            if (selectedRow < regexTable.getRowCount()) {
+                regexTable.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
+            } else if (regexTable.getRowCount() > 0) {
+                regexTable.getSelectionModel().setSelectionInterval(regexTable.getRowCount() - 1, regexTable.getRowCount() - 1);
+            }
+        }
+    }
+
     private void closeButtonActionPerformed(ActionEvent evt) {
-        attachmentHandlerProperties.getProperties().put("regex.pattern", regexTextField.getText());
-        attachmentHandlerProperties.getProperties().put("regex.mimetype", mimeTypeField.getText());
+        if (regexTable.isEditing()) {
+            regexTable.getCellEditor().stopCellEditing();
+        }
+        if (inboundReplacementTable.isEditing()) {
+            inboundReplacementTable.getCellEditor().stopCellEditing();
+        }
+        if (outboundReplacementTable.isEditing()) {
+            outboundReplacementTable.getCellEditor().stopCellEditing();
+        }
+
+        attachmentHandlerProperties.getProperties().clear();
+
+        for (int row = 0; row < regexTable.getModel().getRowCount(); row++) {
+            String regex = (String) regexTable.getModel().getValueAt(row, 0);
+            String mimeType = (String) regexTable.getModel().getValueAt(row, 1);
+
+            attachmentHandlerProperties.getProperties().put("regex.pattern" + row, regex);
+            attachmentHandlerProperties.getProperties().put("regex.mimetype" + row, mimeType);
+        }
 
         DefaultTableModel inboundTableModel = (DefaultTableModel) inboundReplacementTable.getModel();
         for (int row = 0; row < inboundTableModel.getRowCount(); row++) {
@@ -303,6 +373,7 @@ public class RegexAttachmentDialog extends MirthDialog {
         }
 
         attachmentHandlerProperties = null;
+        parent.setSaveEnabled(true);
         this.dispose();
     }
 
@@ -313,8 +384,6 @@ public class RegexAttachmentDialog extends MirthDialog {
         model.addRow(new Object[] { "", "" });
 
         inboundReplacementTable.setRowSelectionInterval(row, row);
-
-        parent.setSaveEnabled(true);
     }
 
     private void inboundDeleteButtonActionPerformed(ActionEvent evt) {
@@ -333,8 +402,6 @@ public class RegexAttachmentDialog extends MirthDialog {
 
             inboundReplacementTable.setRowSelectionInterval(selectedRow, selectedRow);
         }
-
-        parent.setSaveEnabled(true);
     }
 
     private void outboundNewButtonActionPerformed(ActionEvent evt) {
@@ -344,8 +411,6 @@ public class RegexAttachmentDialog extends MirthDialog {
         model.addRow(new Object[] { "", "" });
 
         outboundReplacementTable.setRowSelectionInterval(row, row);
-
-        parent.setSaveEnabled(true);
     }
 
     private void outboundDeleteButtonActionPerformed(ActionEvent evt) {
@@ -364,16 +429,24 @@ public class RegexAttachmentDialog extends MirthDialog {
 
             outboundReplacementTable.setRowSelectionInterval(selectedRow, selectedRow);
         }
+    }
 
-        parent.setSaveEnabled(true);
+    private class RegexInfo {
+        public String pattern;
+        public String mimeType;
+
+        public RegexInfo(String pattern, String mimeType) {
+            this.pattern = pattern;
+            this.mimeType = mimeType;
+        }
     }
 
     private JPanel regularExpressionPanel;
     private JTextField regexExampleTextField;
-    private MirthTextField regexTextField;
-
-    private JPanel mimeTypePanel;
-    private MirthTextField mimeTypeField;
+    private MirthTable regexTable;
+    private JScrollPane regexTableScrollPane;
+    private JButton regexNewButton;
+    private JButton regexDeleteButton;
 
     private JPanel stringReplacementPanel;
     private JLabel stringReplacementLabel;
@@ -383,12 +456,12 @@ public class RegexAttachmentDialog extends MirthDialog {
     private JScrollPane outboundScrollPane;
 
     private JPanel inboundButtonPanel;
-    private MirthButton inboundNewButton;
-    private MirthButton inboundDeleteButton;
+    private JButton inboundNewButton;
+    private JButton inboundDeleteButton;
 
     private JPanel outboundButtonPanel;
-    private MirthButton outboundNewButton;
-    private MirthButton outboundDeleteButton;
+    private JButton outboundNewButton;
+    private JButton outboundDeleteButton;
 
     private JSeparator separator;
     private JButton closeButton;

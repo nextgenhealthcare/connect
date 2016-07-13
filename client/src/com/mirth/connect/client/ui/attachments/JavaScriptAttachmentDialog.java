@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.client.ui;
+package com.mirth.connect.client.ui.attachments;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -19,6 +19,9 @@ import javax.swing.JDialog;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.MirthDialog;
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.model.ContextType;
 

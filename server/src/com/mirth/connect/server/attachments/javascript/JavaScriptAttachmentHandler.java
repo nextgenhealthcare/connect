@@ -33,10 +33,6 @@ public class JavaScriptAttachmentHandler implements AttachmentHandler {
 
     @Override
     public void initialize(RawMessage message, Channel channel) throws AttachmentException {
-        if (message.isBinary()) {
-            throw new AttachmentException("Binary data not supported for Javascript attachment handler");
-        }
-
         index = 0;
         attachments = new ArrayList<com.mirth.connect.server.userutil.Attachment>();
         try {

@@ -34,6 +34,8 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
+import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.ServerEvent;
@@ -83,7 +85,20 @@ public class JavaScriptUtil {
         }
     }
 
-    public static String executeAttachmentScript(MirthContextFactory contextFactory, final RawMessage message, final String channelId, final String channelName, final List<Attachment> attachments) throws InterruptedException, JavaScriptExecutorException {
+    public static String executeAttachmentScript(MirthContextFactory contextFactory, RawMessage message, final String channelId, final String channelName, final List<Attachment> attachments) throws InterruptedException, AttachmentException, JavaScriptExecutorException {
+        final boolean isBinary = message.isBinary();
+        if (isBinary) {
+            try {
+                String messageData = org.apache.commons.codec.binary.StringUtils.newStringUsAscii(Base64Util.encodeBase64(message.getRawBytes()));
+                message.clearMessage();
+                message = new RawMessage(messageData, message.getDestinationMetaDataIds(), message.getSourceMap());
+            } catch (Throwable t) {
+                throw new AttachmentException(t);
+            }
+        }
+
+        final RawMessage finalMessage = message;
+
         String processedMessage = message.getRawData();
         Object result = null;
 
@@ -93,7 +108,7 @@ public class JavaScriptUtil {
                 public Object doCall() throws Exception {
                     Logger scriptLogger = Logger.getLogger(ScriptController.ATTACHMENT_SCRIPT_KEY.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getAttachmentScope(getContextFactory(), scriptLogger, channelId, channelName, message, attachments);
+                        Scriptable scope = JavaScriptScopeUtil.getAttachmentScope(getContextFactory(), scriptLogger, channelId, channelName, finalMessage, attachments, isBinary);
                         return JavaScriptUtil.executeScript(this, ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId), scope, null, null);
                     } finally {
                         Context.exit();

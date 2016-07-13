@@ -9,7 +9,9 @@
 
 package com.mirth.connect.server.attachments.regex;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -22,20 +24,31 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProper
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class RegexAttachmentHandlerProvider extends MirthAttachmentHandlerProvider {
 
-    private Pattern pattern;
-    private String mimeType;
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private String channelId;
+    private String channelName;
+    private List<RegexInfo> regexInfoList = new ArrayList<RegexInfo>();
     private Map<String, String> inboundReplacements = new HashMap<String, String>();
     private Map<String, String> outboundReplacements = new HashMap<String, String>();
 
-    Pattern getPattern() {
-        return pattern;
+    TemplateValueReplacer getReplacer() {
+        return replacer;
     }
 
-    String getMimeType() {
-        return mimeType;
+    String getChannelId() {
+        return channelId;
+    }
+
+    String getChannelName() {
+        return channelName;
+    }
+
+    List<RegexInfo> getRegexInfo() {
+        return regexInfoList;
     }
 
     Map<String, String> getInboundReplacements() {
@@ -48,10 +61,30 @@ public class RegexAttachmentHandlerProvider extends MirthAttachmentHandlerProvid
 
     @Override
     public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties) {
-        String regex = attachmentProperties.getProperties().get("regex.pattern");
-        mimeType = attachmentProperties.getProperties().get("regex.mimetype");
+        channelId = channel.getChannelId();
+        channelName = channel.getName();
+
+        if (attachmentProperties.getProperties().containsKey("regex.pattern")) {
+            String regex = attachmentProperties.getProperties().get("regex.pattern");
+            String mimeType = attachmentProperties.getProperties().get("regex.mimetype");
+            if (StringUtils.isBlank(mimeType)) {
+                mimeType = "text/plain";
+            }
+            regexInfoList.add(new RegexInfo(Pattern.compile(regex), mimeType));
+        }
 
         int count = 0;
+        while (attachmentProperties.getProperties().containsKey("regex.pattern" + count)) {
+            String regex = attachmentProperties.getProperties().get("regex.pattern" + count);
+            String mimeType = attachmentProperties.getProperties().get("regex.mimetype" + count);
+            if (StringUtils.isBlank(mimeType)) {
+                mimeType = "text/plain";
+            }
+            regexInfoList.add(new RegexInfo(Pattern.compile(regex), mimeType));
+            count++;
+        }
+
+        count = 0;
         while (attachmentProperties.getProperties().containsKey("regex.replaceKey" + count)) {
             inboundReplacements.put(StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceKey" + count)), StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceValue" + count)));
             count++;
@@ -61,12 +94,6 @@ public class RegexAttachmentHandlerProvider extends MirthAttachmentHandlerProvid
         while (attachmentProperties.getProperties().containsKey("outbound.regex.replaceKey" + count)) {
             outboundReplacements.put(StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("outbound.regex.replaceKey" + count)), StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("outbound.regex.replaceValue" + count)));
             count++;
-        }
-
-        if (StringUtils.isNotEmpty(regex)) {
-            pattern = Pattern.compile(regex);
-        } else {
-            pattern = null;
         }
     }
 
@@ -85,6 +112,9 @@ public class RegexAttachmentHandlerProvider extends MirthAttachmentHandlerProvid
             String replaceValue = replacementEntry.getValue();
 
             if (replaceKey != null && replaceValue != null) {
+                replaceKey = replacer.replaceValues(replaceKey, channelId, channelName);
+                replaceValue = replacer.replaceValues(replaceValue, channelId, channelName);
+
                 attachmentString = attachmentString.replace(replaceKey, replaceValue);
             }
         }

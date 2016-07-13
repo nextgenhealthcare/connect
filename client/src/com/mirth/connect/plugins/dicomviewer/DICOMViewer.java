@@ -14,10 +14,12 @@ import ij.plugin.DICOM;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.io.IOUtils;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.plugins.AttachmentViewer;
@@ -37,8 +39,23 @@ public class DICOMViewer extends AttachmentViewer {
         try {
             ConnectorMessage message = parent.messageBrowser.getSelectedConnectorMessage();
             byte[] rawImage = StringUtils.getBytesUsAscii(parent.mirthClient.getDICOMMessage(message));
-            ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
-            DICOM dcm = new DICOM(new Base64InputStream(bis));
+            BufferedInputStream bis = new BufferedInputStream(new Base64InputStream(new ByteArrayInputStream(rawImage)));
+
+            /*
+             * Attempt to read in at least 128 bytes, this being the offset of "DCIM" in a valid
+             * file. This is done so that DicomDecoder won't get stuck in an infinite loop trying to
+             * read in a malformed attachment. If 128 bytes weren't successfully read abort the
+             * operation.
+             */
+            bis.mark(128);
+            if (bis.read(new byte[128], 0, 128) == 128) {
+                bis.reset();
+            } else {
+                IOUtils.closeQuietly(bis);
+                throw new Exception("Attachment is not a valid DICOM file.");
+            }
+
+            DICOM dcm = new DICOM(bis);
             // run() is required to create the dicom object. The argument serves multiple purposes. If it is null or empty, it opens a dialog to select a dicom file.
             // Otherwise, if dicom.show() is called, it is the title of the dialog. Since we are showing the dialog here, we pass the string we want to use as the title.
             dcm.run("DICOM Image Viewer");
