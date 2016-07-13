@@ -888,6 +888,7 @@
 					<signjar jar="@{jarFile}" alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa" digestalg="SHA1">
 						<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
 						<sysproperty key="jsse.enableSNIExtension" value="false" />
+						<sysproperty key="https.protocols" value="TLSv1.2,TLSv1.1" />
 					</signjar>
 				</retry>
 			</sequential>
@@ -901,6 +902,7 @@
 					<signjar jar="@{jarFile}" alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
 						<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
 						<sysproperty key="jsse.enableSNIExtension" value="false" />
+						<sysproperty key="https.protocols" value="TLSv1.2,TLSv1.1" />
 					</signjar>
 				</retry>
 			</sequential>
