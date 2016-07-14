@@ -44,7 +44,7 @@ public class AttachmentTypeDialog extends MirthDialog {
 
         setTitle("Select Attachment Viewer");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setPreferredSize(new Dimension(292, checkBox.isVisible() ? 147 : 125));
+        setPreferredSize(new Dimension(300, checkBox.isVisible() ? 155 : 133));
         pack();
         setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
         setVisible(true);
