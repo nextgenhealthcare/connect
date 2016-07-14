@@ -140,7 +140,7 @@ public class ScriptPanel extends JPanel {
         }
 
         for (MirthRTextScrollPane scriptTextArea : scriptTextAreaMap.values()) {
-            add(scriptTextArea, "newline, grow, push");
+            add(scriptTextArea, "newline, grow, push, w :400, h :300");
         }
     }
 
