@@ -10,10 +10,12 @@
 package com.mirth.connect.donkey.server.channel;
 
 import java.util.Calendar;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 
@@ -57,6 +59,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     private Integer orderId;
     private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
+    private Deque<Long> processingThreadIdStack;
     private DestinationConnectorProperties destinationConnectorProperties;
     private DestinationQueue queue;
     private String destinationName;
@@ -83,17 +86,44 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     /**
-     * Returns a unique id that the dispatcher can use for thread safety. If queuing is disabled or
-     * if there is only 1 queue thread, returns -1. If there are multiple queue threads, returns the
-     * thread's id if the current thread is a queue thread, otherwise it returns -1.
+     * Returns a unique id that the dispatcher can use for thread safety. If the current thread is a
+     * queue thread and there is only one queue thread, returns 0. If the current thread is not a
+     * queue thread and there is only one processing thread allowed, also returns 0.
+     * 
+     * Otherwise, if the current thread is a queue thread, returns the current thread ID (which will
+     * be positive). If the current thread is a processing thread, returns a unique negative ID.
+     * 
+     * 0: Single queue thread or single processing thread
+     * 
+     * Positive: One of multiple queue threads
+     * 
+     * Negative: One of multiple processing threads
      */
-    public long getDispatcherId() {
+    private long getDispatcherId() {
         long threadId = Thread.currentThread().getId();
-        if (queueThreads.size() <= 1 || !queueThreads.containsKey(threadId)) {
-            threadId = -1L;
-        }
+        boolean isQueueThread = isQueueEnabled() && queueThreads.containsKey(threadId);
 
-        return threadId;
+        if (isQueueThread) {
+            if (queueThreads.size() <= 1) {
+                // If this is a queue thread and there's only one queue thread, return 0
+                return 0L;
+            } else {
+                // If this is a queue thread and there are multiple queue threads, return the current thread ID
+                return threadId;
+            }
+        } else {
+            if (getChannel().getProcessingThreads() <= 1) {
+                // If this is a processing thread and there's only one allowed, return 0
+                return 0L;
+            } else {
+                // If this is a processing thread and there are multiple allowed, checkout a unique negative ID
+                return processingThreadIdStack.pop();
+            }
+        }
+    }
+
+    private void returnProcessingThreadId(long threadId) {
+        processingThreadIdStack.push(threadId);
     }
 
     public String getDestinationName() {
@@ -210,6 +240,15 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     public void start() throws ConnectorTaskException, InterruptedException {
         updateCurrentState(DeployedState.STARTING);
+
+        // If multiple processing threads are allowed, create the unique ID stack
+        int processingThreads = getChannel().getProcessingThreads();
+        if (processingThreads > 1) {
+            processingThreadIdStack = new LinkedBlockingDeque<Long>();
+            for (int i = processingThreads; i >= 1; i--) {
+                processingThreadIdStack.push((long) -i);
+            }
+        }
 
         onStart();
 
@@ -775,7 +814,22 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     private Response handleSend(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
         message.setSendDate(Calendar.getInstance());
-        Response response = send(connectorProperties, message);
+        Response response;
+
+        long dispatcherId = getDispatcherId();
+        try {
+            message.setDispatcherId(dispatcherId);
+            response = send(connectorProperties, message);
+        } finally {
+            /*
+             * A negative dispatcher ID indicates that this was one of multiple processing threads,
+             * so push the dispatcher ID back on the stack.
+             */
+            if (dispatcherId < 0) {
+                returnProcessingThreadId(dispatcherId);
+            }
+        }
+
         if (response.isValidate() && response.getStatus() == Status.SENT) {
             response = responseValidator.validate(response, message);
 

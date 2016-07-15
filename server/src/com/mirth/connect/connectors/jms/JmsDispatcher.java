@@ -123,7 +123,7 @@ public class JmsDispatcher extends DestinationConnector {
         // Only one connection is allowed to be created per message so keep track of whether a connection was created.
         boolean connectionCreated = false;
 
-        long dispatcherId = getDispatcherId();
+        long dispatcherId = connectorMessage.getDispatcherId();
         String connectionKey = getConnectionKey(jmsDispatcherProperties);
 
         // Retrieve the connection from the cache

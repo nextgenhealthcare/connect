@@ -191,7 +191,7 @@ public class TcpDispatcher extends DestinationConnector {
         String responseError = null;
         boolean validateResponse = false;
 
-        long dispatcherId = getDispatcherId();
+        long dispatcherId = message.getDispatcherId();
 
         String socketKey = dispatcherId + tcpDispatcherProperties.getRemoteAddress() + tcpDispatcherProperties.getRemotePort();
         if (tcpDispatcherProperties.isOverrideLocalBinding()) {

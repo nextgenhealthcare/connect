@@ -53,6 +53,7 @@ public class ConnectorMessage implements Serializable {
     private transient ConnectorProperties sentProperties;
     private transient Integer queueBucket;
     private transient boolean attemptedFirst;
+    private transient long dispatcherId;
 
     public ConnectorMessage() {}
 
@@ -483,6 +484,14 @@ public class ConnectorMessage implements Serializable {
 
     public void setAttemptedFirst(boolean attemptedFirst) {
         this.attemptedFirst = attemptedFirst;
+    }
+
+    public long getDispatcherId() {
+        return dispatcherId;
+    }
+
+    public void setDispatcherId(long dispatcherId) {
+        this.dispatcherId = dispatcherId;
     }
 
     public String toString() {
