@@ -92,7 +92,7 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
 
     @Override
     public Response send(DatabaseDispatcherProperties connectorProperties, ConnectorMessage connectorMessage) throws DatabaseDispatcherException {
-        long dispatcherId = connector.getDispatcherId();
+        long dispatcherId = connectorMessage.getDispatcherId();
         SimpleDataSource dataSource = dataSources.get(dispatcherId);
 
         if (dataSource == null) {

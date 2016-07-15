@@ -226,7 +226,7 @@ public class HttpDispatcher extends DestinationConnector {
         try {
             configuration.configureDispatcher(this, httpDispatcherProperties);
 
-            long dispatcherId = getDispatcherId();
+            long dispatcherId = connectorMessage.getDispatcherId();
             client = clients.get(dispatcherId);
             if (client == null) {
                 BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());

@@ -109,6 +109,7 @@ public class Channel implements Runnable {
     private AttachmentHandlerProvider attachmentHandlerProvider;
     private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
     private SourceConnector sourceConnector;
+    private int processingThreads;
 
     private SourceQueue sourceQueue;
     private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
@@ -279,6 +280,10 @@ public class Channel implements Runnable {
 
     public void setSourceConnector(SourceConnector sourceConnector) {
         this.sourceConnector = sourceConnector;
+    }
+
+    public int getProcessingThreads() {
+        return processingThreads;
     }
 
     /**
@@ -627,6 +632,11 @@ public class Channel implements Runnable {
                 shuttingDown = false;
                 stopSourceQueue = false;
 
+                processingThreads = ((SourceConnectorPropertiesInterface) sourceConnector.getConnectorProperties()).getSourceConnectorProperties().getProcessingThreads();
+                if (processingThreads < 1) {
+                    processingThreads = 1;
+                }
+
                 // Remove any items in the queue's buffer because they may be outdated and refresh the queue size.
                 sourceQueue.invalidate(true, true);
 
@@ -673,7 +683,6 @@ public class Channel implements Runnable {
 
                 // start up the worker thread that will process queued messages
                 if (!sourceConnector.isRespondAfterProcessing()) {
-                    int processingThreads = ((SourceConnectorPropertiesInterface) sourceConnector.getConnectorProperties()).getSourceConnectorProperties().getProcessingThreads();
                     queueThreads.clear();
                     for (int i = 1; i <= processingThreads; i++) {
                         Thread queueThread = new Thread(Channel.this);

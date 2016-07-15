@@ -433,7 +433,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         boolean validateResponse = false;
 
         try {
-            long dispatcherId = getDispatcherId();
+            long dispatcherId = connectorMessage.getDispatcherId();
             DispatchContainer dispatchContainer = dispatchContainers.get(dispatcherId);
             if (dispatchContainer == null) {
                 dispatchContainer = new DispatchContainer();
