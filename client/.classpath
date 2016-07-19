@@ -157,5 +157,6 @@
 	<classpathentry kind="lib" path="lib/javax.annotation-api-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-media-multipart-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/mimepull-1.9.6.jar"/>
+	<classpathentry kind="lib" path="lib/zip4j_1.3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -67,7 +67,12 @@ public class MessageWriterFactory {
 
         File archiveFile = new File(rootFolder + IOUtils.DIR_SEPARATOR + options.getArchiveFileName() + "." + getArchiveExtension(options.getArchiveFormat(), options.getCompressFormat()));
 
-        return new MessageWriterArchive(fileWriter, new File(tempFolder), archiveFile, options.getArchiveFormat(), options.getCompressFormat());
+        String password = null;
+        if (options.isPasswordEnabled()) {
+            password = options.getPassword();
+        }
+
+        return new MessageWriterArchive(fileWriter, new File(tempFolder), archiveFile, options.getArchiveFormat(), options.getCompressFormat(), password, options.getEncryptionType());
     }
 
     private String getArchiveExtension(String archiver, String compressor) {

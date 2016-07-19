@@ -18,18 +18,24 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 
+import net.lingala.zip4j.io.ZipOutputStream;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.util.Zip4jConstants;
+
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+
+import com.mirth.connect.util.messagewriter.EncryptionType;
 
 public class ArchiveUtils {
     /**
@@ -52,7 +58,7 @@ public class ArchiveUtils {
      * @throws CompressException
      */
     public static void createArchive(File sourceFolder, File destinationFile, String archiver) throws CompressException {
-        createArchive(sourceFolder, destinationFile, archiver, null);
+        createArchive(sourceFolder, destinationFile, archiver, null, null, null);
     }
 
     /**
@@ -70,14 +76,14 @@ public class ArchiveUtils {
      *            org.apache.commons.compress.compressors.CompressorStreamFactory
      * @throws CompressException
      */
-    public static void createArchive(File sourceFolder, File destinationFile, String archiver, String compressor) throws CompressException {
+    public static void createArchive(File sourceFolder, File destinationFile, String archiver, String compressor, String password, EncryptionType encryptionType) throws CompressException {
         if (!sourceFolder.isDirectory() || !sourceFolder.exists()) {
             throw new CompressException("Invalid source folder: " + sourceFolder.getAbsolutePath());
         }
 
         logger.debug("Creating archive \"" + destinationFile.getAbsolutePath() + "\" from folder \"" + sourceFolder.getAbsolutePath() + "\"");
         OutputStream outputStream = null;
-        ArchiveOutputStream archiveOutputStream = null;
+        OutputStream archiveOutputStream = null;
 
         try {
             /*
@@ -86,7 +92,7 @@ public class ArchiveUtils {
              * http://commons.apache.org/proper/commons-compress/zip.html
              */
             if (archiver.equals(ArchiveStreamFactory.ZIP) && compressor == null) {
-                archiveOutputStream = new ZipArchiveOutputStream(destinationFile);
+                archiveOutputStream = new ZipOutputStream(new FileOutputStream(destinationFile));
             } else {
                 // if not using ZIP format, use the archiver/compressor stream factories to initialize the archive output stream
                 outputStream = new BufferedOutputStream(new FileOutputStream(destinationFile));
@@ -98,7 +104,7 @@ public class ArchiveUtils {
                 archiveOutputStream = new ArchiveStreamFactory().createArchiveOutputStream(archiver, outputStream);
             }
 
-            createFolderArchive(sourceFolder, archiveOutputStream, sourceFolder.getAbsolutePath() + IOUtils.DIR_SEPARATOR);
+            createFolderArchive(sourceFolder, archiveOutputStream, sourceFolder.getAbsolutePath() + IOUtils.DIR_SEPARATOR, password, encryptionType);
         } catch (Exception e) {
             throw new CompressException(e);
         } finally {
@@ -108,42 +114,82 @@ public class ArchiveUtils {
         }
     }
 
-    /**
-     * Recursively copies folders/files into the given ArchiveOutputStream.
-     */
-    private static void createFolderArchive(File folder, ArchiveOutputStream archiveOutputStream, String rootFolder) throws CompressException {
+    private static void createFolderArchive(File folder, OutputStream outputStream, String rootFolder, String password, EncryptionType encryptionType) throws CompressException {
         byte[] buffer = new byte[BUFFER_SIZE];
+        ZipOutputStream zipOutputStream = null;
 
-        for (File file : folder.listFiles()) {
-            if (file.isDirectory()) {
-                createFolderArchive(file, archiveOutputStream, rootFolder);
-            } else {
-                try {
-                    // extract/remove the rootFolder from the file's absolute path before adding it to the archive
-                    String entryName = file.getAbsolutePath();
-
-                    if (entryName.substring(0, rootFolder.length()).equals(rootFolder)) {
-                        entryName = entryName.substring(rootFolder.length());
-                    }
-
-                    archiveOutputStream.putArchiveEntry(archiveOutputStream.createArchiveEntry(file, entryName));
-                    InputStream inputStream = new FileInputStream(file);
-
-                    logger.debug("Adding \"" + entryName + "\" to archive");
-
+        try {
+            for (File file : folder.listFiles()) {
+                if (file.isDirectory()) {
+                    createFolderArchive(file, outputStream, rootFolder, password, encryptionType);
+                } else {
                     try {
-                        IOUtils.copyLarge(inputStream, archiveOutputStream, buffer);
-                    } finally {
-                        IOUtils.closeQuietly(inputStream);
-                        archiveOutputStream.closeArchiveEntry();
+                        // extract/remove the rootFolder from the file's absolute path before adding it to the archive
+                        String entryName = file.getAbsolutePath();
+
+                        if (entryName.substring(0, rootFolder.length()).equals(rootFolder)) {
+                            entryName = entryName.substring(rootFolder.length());
+                        }
+
+                        ArchiveOutputStream archiveOutputStream = null;
+                        InputStream inputStream = new FileInputStream(file);
+                        try {
+                            logger.debug("Adding \"" + entryName + "\" to archive");
+
+                            if (outputStream instanceof ArchiveOutputStream) {
+                                archiveOutputStream = (ArchiveOutputStream) outputStream;
+                                archiveOutputStream.putArchiveEntry(archiveOutputStream.createArchiveEntry(file, entryName));
+                            } else if (outputStream instanceof ZipOutputStream) {
+                                zipOutputStream = (ZipOutputStream) outputStream;
+
+                                ZipParameters parameters = new ZipParameters();
+                                parameters.setSourceExternalStream(true);
+                                parameters.setFileNameInZip(entryName);
+                                parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+                                parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+
+                                if (StringUtils.isNotBlank(password)) {
+                                    parameters.setEncryptFiles(true);
+
+                                    boolean isAes = encryptionType != EncryptionType.STANDARD;
+                                    parameters.setEncryptionMethod(isAes ? Zip4jConstants.ENC_METHOD_AES : Zip4jConstants.ENC_METHOD_STANDARD);
+
+                                    if (isAes) {
+                                        parameters.setAesKeyStrength(encryptionType.getKeyStrength());
+                                    }
+
+                                    parameters.setPassword(password);
+                                }
+
+                                zipOutputStream.putNextEntry(null, parameters);
+                            }
+
+                            IOUtils.copyLarge(inputStream, outputStream, buffer);
+                        } finally {
+                            IOUtils.closeQuietly(inputStream);
+
+                            if (outputStream instanceof ArchiveOutputStream) {
+                                archiveOutputStream.closeArchiveEntry();
+                            } else if (outputStream instanceof ZipOutputStream) {
+                                zipOutputStream.closeEntry();
+                            }
+                        }
+                    } catch (Exception e) {
+                        throw new CompressException(e);
                     }
+                }
+            }
+        } finally {
+            if (zipOutputStream != null) {
+                try {
+                    zipOutputStream.finish();
                 } catch (Exception e) {
                     throw new CompressException(e);
                 }
             }
         }
     }
-
+    
     /**
      * Extracts folders/files from an archive into the destinationFolder. Supports reading any type
      * of archive file supported by Apache's commons-compress.

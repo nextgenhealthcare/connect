@@ -41,11 +41,13 @@ import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthComboBox;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthPasswordField;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.components.MirthTextPane;
 import com.mirth.connect.client.ui.components.MirthVariableList;
 import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.util.messagewriter.EncryptionType;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class MessageExportPanel extends JPanel {
@@ -75,6 +77,13 @@ public class MessageExportPanel extends JPanel {
     private JCheckBox attachmentsCheckBox = new MirthCheckBox("Include Attachments");
     private JLabel compressLabel = new JLabel("Compression:");
     private JComboBox compressComboBox = new MirthComboBox();
+    private JLabel passwordProtectionLabel = new JLabel("Password Protect:");
+    private JRadioButton passwordYesButton = new MirthRadioButton("Yes");
+    private JRadioButton passwordNoButton = new MirthRadioButton("No");
+    private ButtonGroup passwordButtonGroup = new ButtonGroup();
+    private JLabel passwordLabel = new JLabel("Password:");
+    private MirthPasswordField passwordField = new MirthPasswordField();
+    private MirthComboBox encryptionComboBox = new MirthComboBox();
     private JLabel exportToLabel = new JLabel("Export To:");
     private ButtonGroup exportButtonGroup = new ButtonGroup();
     private JRadioButton exportServerRadio = new MirthRadioButton("Server");
@@ -170,6 +179,10 @@ public class MessageExportPanel extends JPanel {
             options.setCompressFormat(archiveFormat.getCompressor());
         }
 
+        options.setPasswordEnabled(passwordYesButton.isSelected());
+        options.setPassword(new String(passwordField.getPassword()));
+        options.setEncryptionType(EncryptionType.fromDisplayName((String) encryptionComboBox.getSelectedItem()));
+
         options.setIncludeAttachments(attachmentsCheckBox.isSelected());
         options.setRootFolder(rootPathTextField.getText());
         options.setFilePattern(filePatternTextPane.getText());
@@ -206,7 +219,12 @@ public class MessageExportPanel extends JPanel {
             compressComboBox.setSelectedItem(archiveFormat);
         }
 
+        passwordYesButton.setSelected(options.isPasswordEnabled());
+        passwordNoButton.setSelected(!passwordYesButton.isSelected());
+        passwordField.setText(options.getPassword());
+
         compressComboBoxChanged();
+        updatePasswordFields(!passwordNoButton.isSelected());
 
         rootPathTextField.setText(options.getRootFolder());
         filePatternTextPane.setText(options.getFilePattern());
@@ -229,6 +247,8 @@ public class MessageExportPanel extends JPanel {
             attachmentsCheckBox.setBackground(color);
             exportServerRadio.setBackground(color);
             exportLocalRadio.setBackground(color);
+            passwordYesButton.setBackground(color);
+            passwordNoButton.setBackground(color);
         }
     }
 
@@ -268,6 +288,16 @@ public class MessageExportPanel extends JPanel {
             }
         }
 
+        Object archiveFormat = compressComboBox.getSelectedItem();
+        if (archiveFormat == ArchiveFormat.ZIP && StringUtils.isBlank(new String(passwordField.getPassword()))) {
+            builder.append("A password is required.");
+            builder.append("\n");
+
+            if (highlight) {
+                passwordField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
         return builder.toString();
     }
 
@@ -275,6 +305,7 @@ public class MessageExportPanel extends JPanel {
         rootPathTextField.setBackground(getBackground());
         filePatternTextPane.setBackground(getBackground());
         archiverBlockSizeField.setBackground(getBackground());
+        passwordField.setBackground(getBackground());
     }
 
     private void initComponents() {
@@ -282,6 +313,10 @@ public class MessageExportPanel extends JPanel {
         encryptCheckBox.setToolTipText("<html>If checked, the exported message content will be encrypted.</html>");
         attachmentsCheckBox.setToolTipText("<html>If checked and the content type is set to XML serialized message,<br/>the exported message will contain any attachments.</html>");
         compressComboBox.setToolTipText("<html>When compression is enabled, the files/folders created according to the<br />File Pattern will be put into a compressed file in the Root Path.</html>");
+        passwordYesButton.setToolTipText("<html>Select Yes to allow password protected zip files.</html>");
+        passwordNoButton.setToolTipText("<html>Select Yes to allow password protected zip files.</html>");
+        passwordField.setToolTipText("<html>The password used to protect zip files.</html>");
+        encryptionComboBox.setToolTipText("<html>The algorithm used to encrypt password-protected zip files.</html>");
         exportServerRadio.setToolTipText("<html>Store exported files on the Mirth Connect Server, in the Root Path specified below.</html>");
         exportLocalRadio.setToolTipText("<html>Store exported files on this computer, in the Root Path specified below.</html>");
         rootPathTextField.setToolTipText("<html>The root path to store the exported files/folders or compressed file.<br/>Relative paths will be resolved against the Mirth Connect Server home directory.</html>");
@@ -332,6 +367,36 @@ public class MessageExportPanel extends JPanel {
         }
 
         compressComboBox.setModel(model);
+
+        passwordProtectionLabel.setEnabled(false);
+        passwordButtonGroup.add(passwordYesButton);
+        passwordYesButton.setEnabled(false);
+        passwordYesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updatePasswordFields(true);
+            }
+        });
+
+        passwordButtonGroup.add(passwordNoButton);
+        passwordNoButton.setEnabled(false);
+        passwordNoButton.setSelected(true);
+        passwordNoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updatePasswordFields(false);
+            }
+        });
+
+        updatePasswordFields(false);
+
+        DefaultComboBoxModel encryptionModel = new DefaultComboBoxModel();
+        encryptionModel.addElement(EncryptionType.STANDARD.getDisplayName());
+        encryptionModel.addElement(EncryptionType.AES128.getDisplayName());
+        encryptionModel.addElement(EncryptionType.AES256.getDisplayName());
+
+        encryptionComboBox.setModel(encryptionModel);
+        encryptionComboBox.setSelectedItem(EncryptionType.AES128.getDisplayName());
 
         ArrayList<String> variables = new ArrayList<String>();
         variables.add("Message ID");
@@ -407,6 +472,12 @@ public class MessageExportPanel extends JPanel {
         // @formatter:on
     }
 
+    private void updatePasswordFields(boolean enabled) {
+        passwordLabel.setEnabled(enabled);
+        passwordField.setEnabled(enabled);
+        encryptionComboBox.setEnabled(enabled);
+    }
+
     private void browseSelected() {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -453,14 +524,28 @@ public class MessageExportPanel extends JPanel {
     }
 
     private void compressComboBoxChanged() {
-        if (compressComboBox.getSelectedItem() instanceof ArchiveFormat) {
-            ArchiveFormat archiveFormat = (ArchiveFormat) compressComboBox.getSelectedItem();
+        Object archiveFormat = compressComboBox.getSelectedItem();
+        boolean isArchiveableFormat = archiveFormat instanceof ArchiveFormat;
+
+        if (isArchiveableFormat) {
             rootPathExtLabel.setText("/" + ((archiverMode) ? ARCHIVER_MODE_PATTERN : EXPORT_MODE_PATTERN) + "." + archiveFormat);
             rootPathExtLabel.setVisible(true);
         } else if (archiverMode) {
             rootPathExtLabel.setText("/" + ARCHIVER_MODE_PATTERN + "/");
         } else {
             rootPathExtLabel.setVisible(false);
+        }
+
+        boolean enabled = isArchiveableFormat && archiveFormat == ArchiveFormat.ZIP;
+        passwordProtectionLabel.setEnabled(enabled);
+        passwordYesButton.setEnabled(enabled);
+        passwordNoButton.setEnabled(enabled);
+        updatePasswordFields(enabled && passwordYesButton.isSelected());
+
+        if (!enabled) {
+            passwordNoButton.setSelected(true);
+            passwordField.setText("");
+            encryptionComboBox.setSelectedItem(EncryptionType.AES256.getDisplayName());
         }
     }
 
@@ -477,7 +562,7 @@ public class MessageExportPanel extends JPanel {
             add(archiverBlockSizeLabel);
             add(archiverBlockSizeField, "w 71!, h 22!, gapbottom " + rowGap);
 
-            add(varListPanel, "spany 5, growy, width 170!");
+            add(varListPanel, "spany, growy, width 170!");
         }
 
         add(contentLabel);
@@ -486,11 +571,19 @@ public class MessageExportPanel extends JPanel {
         add(attachmentsCheckBox, "gapleft 8");
 
         if (!archiverMode) {
-            add(varListPanel, "spany 5, growy, width 170!");
+            add(varListPanel, "spany, growy, width 170!");
         }
 
         add(compressLabel);
         add(compressComboBox, "gapbottom " + rowGap);
+
+        add(passwordProtectionLabel);
+        add(passwordYesButton, "split 3");
+        add(passwordNoButton);
+        add(encryptionComboBox, "h 22!, w 96!, gapbottom " + rowGap);
+
+        add(passwordLabel);
+        add(passwordField, "h 22!, w 170!, gapbottom " + rowGap);
 
         if (allowLocalExport) {
             add(exportToLabel);
@@ -503,7 +596,7 @@ public class MessageExportPanel extends JPanel {
         add(rootPathTextField, "grow, split 2, height 22!, gapbottom " + rowGap);
         add(rootPathExtLabel, "hidemode 2");
 
-        add(filePatternLabel, "aligny top");
+        add(filePatternLabel, "newline, aligny top");
         add(filePatternScrollPane, "grow, push, split 2");
         add(new JLabel(), "gapbottom " + rowGap);
     }

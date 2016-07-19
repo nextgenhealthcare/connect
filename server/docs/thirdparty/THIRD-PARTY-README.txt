@@ -29,6 +29,7 @@ APACHE-LICENSE-2.0.txt):
 	Swagger Core 1.5.4 (https://github.com/swagger-api/swagger-core)
 	Swagger UI 2.1.3 (http://swagger.io/swagger-ui/)
 	webdavclient4j 0.92 [Mirth Connect only] (http://sourceforge.net/projects/webdavclient4j/)
+	Zip4j (http://www.lingala.net/zip4j/)
 
 
 --------------------------------------------------------------------------------

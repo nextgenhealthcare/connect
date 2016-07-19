@@ -45,6 +45,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.util.messagewriter.EncryptionType;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 @Path("/channels")
@@ -474,7 +475,9 @@ public interface MessageServletInterface extends BaseServletInterface {
             @Param("filePattern") @ApiParam(value = "A string defining the folder/filename(s) for writing messages. It may contain variables to be replaced.") @QueryParam("filePattern") String filePattern,
             @Param("archiveFileName") @ApiParam(value = "The file name to use for archive exports.") @QueryParam("archiveFileName") String archiveFileName,
             @Param("archiveFormat") @ApiParam(value = "The archiver format to use to archive messages/folders that are written to the root folder. Valid values: zip, tar") @QueryParam("archiveFormat") String archiveFormat,
-            @Param("compressFormat") @ApiParam(value = "The compressor format to use to compress the archive file. Only valid when using the TAR archive format. Valid values: gz, bzip2") @QueryParam("compressFormat") String compressFormat) throws ClientException;
+            @Param("compressFormat") @ApiParam(value = "The compressor format to use to compress the archive file. Only valid when using the TAR archive format. Valid values: gz, bzip2") @QueryParam("compressFormat") String compressFormat,
+            @Param("password") @ApiParam(value = "The password used to protect the archive file. Only valid when using the ZIP archive format.") @QueryParam("password") String password,
+            @Param("encryptionType") @ApiParam(value = "The algorithm used to encrypt the password-protected archive file. Only valid when using the ZIP archive format. Valid values: STANDARD, AES128, AES256") @QueryParam("encryptionType") EncryptionType encryptionType) throws ClientException;
     // @formatter:on
 
     @POST

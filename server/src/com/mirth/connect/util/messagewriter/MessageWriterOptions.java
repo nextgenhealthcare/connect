@@ -27,6 +27,9 @@ public class MessageWriterOptions implements Serializable {
     private String archiveFileName;
     private String archiveFormat;
     private String compressFormat;
+    private boolean passwordEnabled;
+    private String password;
+    private EncryptionType encryptionType;
 
     public ContentType getContentType() {
         return contentType;
@@ -149,7 +152,31 @@ public class MessageWriterOptions implements Serializable {
     public void setCompressFormat(String compressFormat) {
         this.compressFormat = compressFormat;
     }
-    
+
+    public boolean isPasswordEnabled() {
+        return passwordEnabled;
+    }
+
+    public void setPasswordEnabled(boolean passwordEnabled) {
+        this.passwordEnabled = passwordEnabled;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public EncryptionType getEncryptionType() {
+        return encryptionType;
+    }
+
+    public void setEncryptionType(EncryptionType encryptionType) {
+        this.encryptionType = encryptionType;
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());

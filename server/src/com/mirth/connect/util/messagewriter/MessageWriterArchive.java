@@ -24,6 +24,8 @@ public class MessageWriterArchive implements MessageWriter {
     private File archiveFile;
     private String archiver;
     private String compressor;
+    private String password;
+    private EncryptionType encryptionType;
     private boolean messagesWritten;
 
     /**
@@ -34,17 +36,21 @@ public class MessageWriterArchive implements MessageWriter {
      * @param rootFolder
      * @param archiveFile
      * @param archiver
+     * @param password
+     * @param encryptionType
      *            The archiver type, see org.apache.commons.compress.archivers.ArchiveStreamFactory
      * @param compressor
      *            The compressor type, see
      *            org.apache.commons.compress.compressors.CompressorStreamFactory
      */
-    public MessageWriterArchive(MessageWriter fileWriter, File rootFolder, File archiveFile, String archiver, String compressor) {
+    public MessageWriterArchive(MessageWriter fileWriter, File rootFolder, File archiveFile, String archiver, String compressor, String password, EncryptionType encryptionType) {
         this.fileWriter = fileWriter;
         this.rootFolder = rootFolder;
         this.archiveFile = archiveFile;
         this.archiver = archiver;
         this.compressor = compressor;
+        this.password = password;
+        this.encryptionType = encryptionType;
     }
 
     @Override
@@ -74,7 +80,7 @@ public class MessageWriterArchive implements MessageWriter {
                 } catch (FileNotFoundException e) {
                 }
                 
-                ArchiveUtils.createArchive(rootFolder, tempFile, archiver, compressor);
+                ArchiveUtils.createArchive(rootFolder, tempFile, archiver, compressor, password, encryptionType);
                 
                 try {
                     FileUtils.forceDelete(archiveFile);
