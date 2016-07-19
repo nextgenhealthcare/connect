@@ -184,7 +184,7 @@ public class TcpReceiver extends SourceConnector {
         thread = new Thread("TCP Receiver Server Acceptor Thread on " + getChannel().getName() + " (" + getChannelId() + ")") {
             @Override
             public void run() {
-                while (getCurrentState() == DeployedState.STARTED) {
+                do {
                     Socket socket = null;
 
                     if (connectorProperties.isServerMode()) {
@@ -260,9 +260,10 @@ public class TcpReceiver extends SourceConnector {
                     } catch (InterruptedException e) {
                         return;
                     }
-                }
+                } while (getCurrentState() == DeployedState.STARTED);
             }
         };
+
         thread.start();
     }
 
