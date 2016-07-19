@@ -48,6 +48,7 @@ public class MirthJavaScriptTokenMaker extends JavaScriptTokenMaker {
         extraTokens.put("$cfg", blueTokenType);
         extraTokens.put("$r", blueTokenType);
         extraTokens.put("logger", purpleTokenType);
+        extraTokens.put("destinationSet", purpleTokenType);
 
         extraTokens.put("SMTPConnectionFactory", purpleTokenType);
         extraTokens.put("DatabaseConnectionFactory", purpleTokenType);
