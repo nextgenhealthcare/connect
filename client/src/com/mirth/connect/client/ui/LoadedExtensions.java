@@ -19,6 +19,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.reference.ReferenceListFactory;
@@ -71,6 +72,7 @@ public class LoadedExtensions {
     private Map<String, ConnectorSettingsPanel> sourceConnectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> destinationConnectors = new TreeMap<String, ConnectorSettingsPanel>();
     private static LoadedExtensions instance = null;
+    private Logger logger = Logger.getLogger(this.getClass());
 
     private LoadedExtensions() {
         // private
@@ -210,7 +212,12 @@ public class LoadedExtensions {
 
     public void startPlugins() {
         for (ClientPlugin clientPlugin : clientPlugins) {
-            clientPlugin.start();
+            try {
+                clientPlugin.start();
+            } catch (Exception e) {
+                logger.error("Could not start plugin: " + clientPlugin.getPluginName());
+                PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, "Could not start plugin: " + clientPlugin.getPluginName());
+            }
         }
     }
 
