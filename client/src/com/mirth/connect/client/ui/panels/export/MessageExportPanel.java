@@ -288,8 +288,7 @@ public class MessageExportPanel extends JPanel {
             }
         }
 
-        Object archiveFormat = compressComboBox.getSelectedItem();
-        if (archiveFormat == ArchiveFormat.ZIP && StringUtils.isBlank(new String(passwordField.getPassword()))) {
+        if (passwordYesButton.isSelected() && StringUtils.isBlank(new String(passwordField.getPassword()))) {
             builder.append("A password is required.");
             builder.append("\n");
 
