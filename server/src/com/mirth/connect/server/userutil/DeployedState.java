@@ -41,6 +41,8 @@ public enum DeployedState {
                 return PAUSING;
             case PAUSED:
                 return PAUSED;
+            case STOPPING:
+                return STOPPING;
             case STOPPED:
                 return STOPPED;
             case SYNCING:
