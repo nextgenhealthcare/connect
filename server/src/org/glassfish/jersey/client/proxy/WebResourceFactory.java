@@ -258,9 +258,9 @@ public final class WebResourceFactory implements InvocationHandler {
                         newTarget = newTarget.resolveTemplate(((PathParam) ann).value(), value);
                     } else if ((ann = anns.get((QueryParam.class))) != null) {
                         if (value instanceof Collection) {
-                            newTarget = newTarget.queryParam(((QueryParam) ann).value(), convert((Collection) value));
+                            newTarget = newTarget.queryParam(((QueryParam) ann).value(), encodeQueryParams(convert((Collection) value)));
                         } else {
-                            newTarget = newTarget.queryParam(((QueryParam) ann).value(), value);
+                            newTarget = newTarget.queryParam(((QueryParam) ann).value(), encodeQueryParam(value));
                         }
                     } else if ((ann = anns.get((HeaderParam.class))) != null) {
                         if (value instanceof Collection) {
@@ -413,5 +413,24 @@ public final class WebResourceFactory implements InvocationHandler {
     private static String getHttpMethodName(final AnnotatedElement ae) {
         final HttpMethod a = ae.getAnnotation(HttpMethod.class);
         return a == null ? null : a.value();
+    }
+
+    private Object[] encodeQueryParams(Object[] values) {
+        if (values != null) {
+            for (int i = 0; i < values.length; i++) {
+                values[i] = encodeQueryParam(values[i]);
+            }
+        }
+        return values;
+    }
+
+    private Object encodeQueryParam(Object value) {
+        if (value != null) {
+            String val = value.toString();
+            if (val != null) {
+                value = val.replace("{", "%7B").replace("}", "%7D");
+            }
+        }
+        return value;
     }
 }
