@@ -226,8 +226,8 @@ public class ChannelPanel extends AbstractFramePanel {
         parent.addTask(TaskConstants.CHANNEL_GROUP_ASSIGN_CHANNEL, "Assign To Group", "Assign channel(s) to a group.", "A", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), groupTasks, groupPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_GROUP_NEW_GROUP, "New Group", "Create a new channel group.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_add.png")), groupTasks, groupPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_GROUP_EDIT_DETAILS, "Edit Group Details", "Edit group name and description.", "E", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_edit.png")), groupTasks, groupPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_GROUP_EXPORT_ALL_GROUPS, "Export All Groups", "Export all of the channel groups to XML files.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), groupTasks, groupPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_GROUP_IMPORT_GROUP, "Import Group", "Import a channel group from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), groupTasks, groupPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_GROUP_EXPORT_ALL_GROUPS, "Export All Groups", "Export all of the channel groups to XML files.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), groupTasks, groupPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_GROUP_EXPORT_GROUP, "Export Group", "Export the currently selected channel group to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), groupTasks, groupPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_GROUP_DELETE_GROUP, "Delete Group", "Delete the currently selected channel group.", "L", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_delete.png")), groupTasks, groupPopupMenu, this);
 
@@ -1026,7 +1026,7 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     public void doImportGroup() {
-        if (isSaveEnabled() && !promptSave(true)) {
+        if ((isSaveEnabled() && !promptSave(true)) || parent.getChannelTagInfo(false).isEnabled()) {
             return;
         }
 
@@ -1038,7 +1038,7 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     public void importGroup(String content, boolean showAlerts) {
-        if (showAlerts && !parent.promptObjectMigration(content, "group")) {
+        if ((showAlerts && !parent.promptObjectMigration(content, "group")) || parent.getChannelTagInfo(false).isEnabled()) {
             return;
         }
 
@@ -1282,7 +1282,7 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     public void doImportChannel() {
-        if (isSaveEnabled() && !promptSave(true)) {
+        if ((isSaveEnabled() && !promptSave(true)) || parent.getChannelTagInfo(false).isEnabled()) {
             return;
         }
 
@@ -2854,7 +2854,7 @@ public class ChannelPanel extends AbstractFramePanel {
             @Override
             public boolean canImport(TransferSupport support) {
                 // Don't allow files to be imported when the save task is enabled 
-                if (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && isSaveEnabled()) {
+                if (parent.getChannelTagInfo(false).isEnabled() || (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && isSaveEnabled())) {
                     return false;
                 }
                 return super.canImport(support);
@@ -2862,6 +2862,10 @@ public class ChannelPanel extends AbstractFramePanel {
 
             @Override
             public void importFile(final File file, final boolean showAlerts) {
+                if (parent.getChannelTagInfo(false).isEnabled()) {
+                    return;
+                }
+
                 try {
                     SwingUtilities.invokeAndWait(new Runnable() {
                         @Override
