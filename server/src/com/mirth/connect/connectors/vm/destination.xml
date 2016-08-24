@@ -2,7 +2,7 @@
 	<name>Channel Writer</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.4.1</mirthVersion>
+	<mirthVersion>3.4.2</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send events to other channels in the same Mirth instance.</description>
 	<clientClassName>com.mirth.connect.connectors.vm.ChannelWriter</clientClassName>

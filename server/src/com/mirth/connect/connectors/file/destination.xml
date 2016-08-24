@@ -2,7 +2,7 @@
 	<name>File Writer</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.4.1</mirthVersion>
+	<mirthVersion>3.4.2</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to write files to a local or network file system. A velocity template is available to dynamically generate files.</description>
 	<clientClassName>com.mirth.connect.connectors.file.FileWriter</clientClassName>

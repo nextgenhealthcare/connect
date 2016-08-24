@@ -2,7 +2,7 @@
 	<name>Dashboard Connector Status Monitor</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.4.1</mirthVersion>
+	<mirthVersion>3.4.2</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides a real-time connection status column on the Mirth Connect client</description>
 	<serverClasses>

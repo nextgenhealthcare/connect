@@ -2,7 +2,7 @@
 	<name>DICOM Data Type</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.4.1</mirthVersion>
+	<mirthVersion>3.4.2</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides support for the DICOM data type</description>
 	<serverClasses>

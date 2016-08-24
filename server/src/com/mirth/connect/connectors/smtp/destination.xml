@@ -2,7 +2,7 @@
 	<name>SMTP Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.4.1</mirthVersion>
+	<mirthVersion>3.4.2</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth Connect to send email messages via SMTP. A template is available to dynamically create messages.</description>
 	<clientClassName>com.mirth.connect.connectors.smtp.SmtpSender</clientClassName>
