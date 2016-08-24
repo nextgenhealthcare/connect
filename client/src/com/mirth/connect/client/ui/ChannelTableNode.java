@@ -106,7 +106,7 @@ public class ChannelTableNode extends AbstractChannelTableNode {
             }
         }
 
-        if (channel.isEnabled()) {
+        if (channel.getExportData().getMetadata().isEnabled()) {
             row[i++] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
         } else {
             row[i++] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
@@ -118,7 +118,7 @@ public class ChannelTableNode extends AbstractChannelTableNode {
         row[i++] = channel.getDescription();
         row[i++] = channelStatus.getDeployedRevisionDelta();
         row[i++] = channelStatus.getDeployedDate();
-        row[i++] = channel.getLastModified();
+        row[i++] = channel.getExportData().getMetadata().getLastModified();
 
         for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
             if (!plugin.isDisplayFirst()) {
@@ -135,7 +135,7 @@ public class ChannelTableNode extends AbstractChannelTableNode {
             boolean allEnabled = true;
             boolean allDisabled = true;
             for (ChannelStatus channelStatus : groupStatus.getChannelStatuses()) {
-                if (channelStatus.getChannel().isEnabled()) {
+                if (channelStatus.getChannel().getExportData().getMetadata().isEnabled()) {
                     allDisabled = false;
                 } else {
                     allEnabled = false;

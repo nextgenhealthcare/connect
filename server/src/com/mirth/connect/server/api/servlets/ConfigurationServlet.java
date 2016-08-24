@@ -33,6 +33,7 @@ import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
+import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LibraryProperties;
@@ -335,6 +336,16 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
     @Override
     public void setChannelDependencies(Set<ChannelDependency> dependencies) {
         configurationController.setChannelDependencies(dependencies);
+    }
+    
+    @Override
+    public Map<String, ChannelMetadata> getChannelMetadata() {
+        return configurationController.getChannelMetadata();
+    }
+
+    @Override
+    public void setChannelMetadata(Map<String, ChannelMetadata> metadata) {
+        configurationController.setChannelMetadata(metadata);
     }
 
     @Override

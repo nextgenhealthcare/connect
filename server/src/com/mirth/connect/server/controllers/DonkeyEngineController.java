@@ -95,6 +95,7 @@ import com.mirth.connect.donkey.server.queue.DestinationQueue;
 import com.mirth.connect.donkey.server.queue.SourceQueue;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.SerializerProvider;
+import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ConnectorMetaData;
@@ -699,8 +700,9 @@ public class DonkeyEngineController implements EngineController {
     public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, boolean includeUndeployed) {
         List<DashboardStatus> statusList = new ArrayList<>();
         Map<String, Channel> dashboardChannels = getDashboardChannels(channelIds);
+        Map<String, ChannelMetadata> metadataMap = configurationController.getChannelMetadata();
 
-        statusList.addAll(getDashboardStatuses(dashboardChannels.values()));
+        statusList.addAll(getDashboardStatuses(dashboardChannels.values(), metadataMap));
 
         if (includeUndeployed) {
             Map<String, com.mirth.connect.model.Channel> channelModels = new HashMap<String, com.mirth.connect.model.Channel>();
@@ -709,13 +711,13 @@ public class DonkeyEngineController implements EngineController {
                     channelModels.put(channelModel.getId(), channelModel);
                 }
             }
-            statusList.addAll(getUndeployedDashboardStatuses(channelModels.values()));
+            statusList.addAll(getUndeployedDashboardStatuses(channelModels.values(), metadataMap));
         }
 
         return statusList;
     }
 
-    private List<DashboardStatus> getUndeployedDashboardStatuses(Collection<com.mirth.connect.model.Channel> channelModels) {
+    private List<DashboardStatus> getUndeployedDashboardStatuses(Collection<com.mirth.connect.model.Channel> channelModels, Map<String, ChannelMetadata> metadataMap) {
         List<DashboardStatus> statuses = new ArrayList<DashboardStatus>();
         Statistics stats = channelController.getStatisticsFromStorage(configurationController.getServerId());
         Statistics lifetimeStats = channelController.getTotalStatisticsFromStorage(configurationController.getServerId());
@@ -724,6 +726,11 @@ public class DonkeyEngineController implements EngineController {
         for (com.mirth.connect.model.Channel channelModel : channelModels) {
             if (!(channelModel instanceof InvalidChannel)) {
                 String channelId = channelModel.getId();
+
+                ChannelMetadata metadata = metadataMap.get(channelId);
+                if (metadata == null) {
+                    metadata = new ChannelMetadata();
+                }
 
                 DashboardStatus status = new DashboardStatus();
                 status.setStatusType(StatusType.CHANNEL);
@@ -734,7 +741,7 @@ public class DonkeyEngineController implements EngineController {
                 status.setDeployedRevisionDelta(0);
                 status.setStatistics(stats.getConnectorStats(channelId, null));
                 status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
-                status.setTags(channelModel.getProperties().getTags());
+                status.setTags(metadata.getTags());
 
                 DashboardStatus sourceStatus = new DashboardStatus();
                 sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);
@@ -782,6 +789,10 @@ public class DonkeyEngineController implements EngineController {
     }
 
     private List<DashboardStatus> getDashboardStatuses(Collection<Channel> channels) {
+        return getDashboardStatuses(channels, configurationController.getChannelMetadata());
+    }
+
+    private List<DashboardStatus> getDashboardStatuses(Collection<Channel> channels, Map<String, ChannelMetadata> metadataMap) {
         List<DashboardStatus> statuses = new ArrayList<DashboardStatus>();
 
         Map<String, Integer> channelRevisions = null;
@@ -797,6 +808,11 @@ public class DonkeyEngineController implements EngineController {
 
             // Make sure the channel is actually still deployed
             if (channelModel != null) {
+                ChannelMetadata metadata = metadataMap.get(channelId);
+                if (metadata == null) {
+                    metadata = new ChannelMetadata();
+                }
+
                 Statistics stats = channelController.getStatistics();
                 Statistics lifetimeStats = channelController.getTotalStatistics();
 
@@ -824,7 +840,7 @@ public class DonkeyEngineController implements EngineController {
 
                 status.setStatistics(stats.getConnectorStats(channelId, null));
                 status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
-                status.setTags(channelModel.getProperties().getTags());
+                status.setTags(metadata.getTags());
 
                 DashboardStatus sourceStatus = new DashboardStatus();
                 sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);
@@ -1077,7 +1093,6 @@ public class DonkeyEngineController implements EngineController {
         channel.setLocalChannelId(donkeyChannelController.getLocalChannelId(channelId));
         channel.setServerId(ConfigurationController.getInstance().getServerId());
         channel.setName(channelModel.getName());
-        channel.setEnabled(channelModel.isEnabled());
         channel.setRevision(channelModel.getRevision());
         channel.setInitialState(channelProperties.getInitialState());
         channel.setStorageSettings(storageSettings);
@@ -1720,7 +1735,11 @@ public class DonkeyEngineController implements EngineController {
         }
 
         protected void doDeploy(com.mirth.connect.model.Channel channelModel) throws Exception {
-            if (channelModel == null || !channelModel.isEnabled() || isDeployed(channelId)) {
+            if (channelModel == null || channelModel instanceof InvalidChannel) {
+                return;
+            }
+            ChannelMetadata metadata = configurationController.getChannelMetadata().get(channelModel.getId());
+            if (metadata == null || !metadata.isEnabled() || isDeployed(channelId)) {
                 return;
             }
 

@@ -34,6 +34,7 @@ import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.ExportClearable;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.MigrationException;
@@ -213,7 +214,7 @@ public class ServerMigrator extends Migrator {
             case V3_4_0: return new Migrate3_4_0();
             case V3_4_1: return null;
             case V3_4_2: return null;
-            case V3_5_0: return null;
+            case V3_5_0: return new Migrate3_5_0();
         } // @formatter:on
 
         return null;
@@ -312,7 +313,11 @@ public class ServerMigrator extends Migrator {
                 try {
                     String id = resultSet.getString(1);
                     String serializedData = resultSet.getString(2);
-                    String migratedData = serializer.serialize(serializer.deserialize(serializedData, expectedClass));
+                    Object obj = serializer.deserialize(serializedData, expectedClass);
+                    if (obj instanceof ExportClearable) {
+                        ((ExportClearable) obj).clearExportData();
+                    }
+                    String migratedData = serializer.serialize(obj);
 
                     if (!migratedData.equals(serializedData)) {
                         updateStatement = connection.prepareStatement(updateSql);

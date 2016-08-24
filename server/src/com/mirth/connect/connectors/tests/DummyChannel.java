@@ -41,7 +41,6 @@ public class DummyChannel extends Channel {
     public DummyChannel(String channelId, String serverId, SourceConnector sourceConnector, DestinationConnector destinationConnector) {
         super();
 
-        setEnabled(true);
         setChannelId(channelId);
         setServerId(serverId);
 

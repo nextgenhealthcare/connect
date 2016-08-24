@@ -108,6 +108,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
+import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
@@ -149,8 +150,8 @@ public class ChannelPanel extends AbstractFramePanel {
 
     private final static String[] DEFAULT_COLUMNS = new String[] { STATUS_COLUMN_NAME,
             DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, LOCAL_CHANNEL_ID,
-            DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME,
-            LAST_DEPLOYED_COLUMN_NAME, LAST_MODIFIED_COLUMN_NAME };
+            DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME,
+            LAST_MODIFIED_COLUMN_NAME };
 
     private static final int TASK_CHANNEL_REFRESH = 0;
     private static final int TASK_CHANNEL_REDEPLOY_ALL = 1;
@@ -428,7 +429,7 @@ public class ChannelPanel extends AbstractFramePanel {
 
                     for (Enumeration<? extends MutableTreeTableNode> channelNodes = node.children(); channelNodes.hasMoreElements();) {
                         AbstractChannelTableNode channelNode = (AbstractChannelTableNode) channelNodes.nextElement();
-                        if (channelNode.getChannelStatus().getChannel().isEnabled()) {
+                        if (channelNode.getChannelStatus().getChannel().getExportData().getMetadata().isEnabled()) {
                             allDisabled = false;
                         } else {
                             allEnabled = false;
@@ -442,7 +443,7 @@ public class ChannelPanel extends AbstractFramePanel {
                 } else {
                     allGroups = false;
 
-                    if (node.getChannelStatus().getChannel().isEnabled()) {
+                    if (node.getChannelStatus().getChannel().getExportData().getMetadata().isEnabled()) {
                         allDisabled = false;
                     } else {
                         allEnabled = false;
@@ -509,6 +510,7 @@ public class ChannelPanel extends AbstractFramePanel {
             updateChannelStatuses(parent.mirthClient.getChannelSummary(getChannelHeaders(), false));
             updateChannelGroups(parent.mirthClient.getAllChannelGroups());
             channelDependencies = parent.mirthClient.getChannelDependencies();
+            updateChannelMetadata(parent.mirthClient.getChannelMetadata());
         } catch (ClientException e) {
             parent.alertThrowable(parent, e);
         }
@@ -709,7 +711,7 @@ public class ChannelPanel extends AbstractFramePanel {
         final Set<String> selectedEnabledChannelIds = new LinkedHashSet<String>();
         boolean channelDisabled = false;
         for (Channel channel : selectedChannels) {
-            if (channel.isEnabled()) {
+            if (channel.getExportData().getMetadata().isEnabled()) {
                 selectedEnabledChannelIds.add(channel.getId());
             } else {
                 channelDisabled = true;
@@ -768,7 +770,7 @@ public class ChannelPanel extends AbstractFramePanel {
                 ChannelStatus channelStatus = channelStatuses.get(dependentChannelId);
 
                 // Only add the dependent channel if it's enabled and currently deployed
-                if (channelStatus != null && channelStatus.getChannel().isEnabled() && deployedChannelIds.contains(dependentChannelId)) {
+                if (channelStatus != null && channelStatus.getChannel().getExportData().getMetadata().isEnabled() && deployedChannelIds.contains(dependentChannelId)) {
                     addChannelToDeploySet(dependentChannelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
                 }
             }
@@ -777,7 +779,7 @@ public class ChannelPanel extends AbstractFramePanel {
                 ChannelStatus channelStatus = channelStatuses.get(dependencyChannelId);
 
                 // Only add the dependency channel it it's enabled
-                if (channelStatus != null && channelStatus.getChannel().isEnabled()) {
+                if (channelStatus != null && channelStatus.getChannel().getExportData().getMetadata().isEnabled()) {
                     addChannelToDeploySet(dependencyChannelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
                 }
             }
@@ -1066,8 +1068,8 @@ public class ChannelPanel extends AbstractFramePanel {
         Set<String> codeTemplateIds = new HashSet<String>();
 
         for (Channel channel : importGroup.getChannels()) {
-            if (channel.getCodeTemplateLibraries() != null) {
-                for (CodeTemplateLibrary library : channel.getCodeTemplateLibraries()) {
+            if (channel.getExportData() != null && channel.getExportData().getCodeTemplateLibraries() != null) {
+                for (CodeTemplateLibrary library : channel.getExportData().getCodeTemplateLibraries()) {
                     CodeTemplateLibrary matchingLibrary = codeTemplateLibraryMap.get(library.getId());
 
                     if (matchingLibrary != null) {
@@ -1096,7 +1098,7 @@ public class ChannelPanel extends AbstractFramePanel {
                     matchingLibrary.getDisabledChannelIds().removeAll(matchingLibrary.getEnabledChannelIds());
                 }
 
-                channel.getCodeTemplateLibraries().clear();
+                channel.getExportData().clearCodeTemplateLibraries();
             }
         }
 
@@ -1368,86 +1370,87 @@ public class ChannelPanel extends AbstractFramePanel {
             parent.alertThrowable(parent, e);
         }
 
-        // Import code templates / libraries if applicable
-        parent.removeInvalidItems(importChannel.getCodeTemplateLibraries(), CodeTemplateLibrary.class);
-        if (!(importChannel instanceof InvalidChannel) && !importChannel.getCodeTemplateLibraries().isEmpty()) {
-            boolean importLibraries;
-            String importChannelCodeTemplateLibraries = Preferences.userNodeForPackage(Mirth.class).get("importChannelCodeTemplateLibraries", null);
+        if (!(importChannel instanceof InvalidChannel)) {
+            // Import code templates / libraries if applicable
+            parent.removeInvalidItems(importChannel.getExportData().getCodeTemplateLibraries(), CodeTemplateLibrary.class);
+            if (!(importChannel instanceof InvalidChannel) && !importChannel.getExportData().getCodeTemplateLibraries().isEmpty()) {
+                boolean importLibraries;
+                String importChannelCodeTemplateLibraries = Preferences.userNodeForPackage(Mirth.class).get("importChannelCodeTemplateLibraries", null);
 
-            if (importChannelCodeTemplateLibraries == null) {
-                JCheckBox alwaysChooseCheckBox = new JCheckBox("Always choose this option by default in the future (may be changed in the Administrator settings)");
-                Object[] params = new Object[] {
-                        "Channel \"" + importChannel.getName() + "\" has code template libraries included with it. Would you like to import them?",
-                        alwaysChooseCheckBox };
-                int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (importChannelCodeTemplateLibraries == null) {
+                    JCheckBox alwaysChooseCheckBox = new JCheckBox("Always choose this option by default in the future (may be changed in the Administrator settings)");
+                    Object[] params = new Object[] {
+                            "Channel \"" + importChannel.getName() + "\" has code template libraries included with it. Would you like to import them?",
+                            alwaysChooseCheckBox };
+                    int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 
-                if (result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
-                    importLibraries = result == JOptionPane.YES_OPTION;
-                    if (alwaysChooseCheckBox.isSelected()) {
-                        Preferences.userNodeForPackage(Mirth.class).putBoolean("importChannelCodeTemplateLibraries", importLibraries);
+                    if (result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
+                        importLibraries = result == JOptionPane.YES_OPTION;
+                        if (alwaysChooseCheckBox.isSelected()) {
+                            Preferences.userNodeForPackage(Mirth.class).putBoolean("importChannelCodeTemplateLibraries", importLibraries);
+                        }
+                    } else {
+                        return null;
                     }
                 } else {
-                    return null;
+                    importLibraries = Boolean.parseBoolean(importChannelCodeTemplateLibraries);
                 }
-            } else {
-                importLibraries = Boolean.parseBoolean(importChannelCodeTemplateLibraries);
-            }
 
-            if (importLibraries) {
-                CodeTemplateImportDialog dialog = new CodeTemplateImportDialog(parent, importChannel.getCodeTemplateLibraries(), false, true);
+                if (importLibraries) {
+                    CodeTemplateImportDialog dialog = new CodeTemplateImportDialog(parent, importChannel.getExportData().getCodeTemplateLibraries(), false, true);
 
-                if (dialog.wasSaved()) {
-                    CodeTemplateLibrarySaveResult updateSummary = parent.codeTemplatePanel.attemptUpdate(dialog.getUpdatedLibraries(), new HashMap<String, CodeTemplateLibrary>(), dialog.getUpdatedCodeTemplates(), new HashMap<String, CodeTemplate>(), true, null, null);
+                    if (dialog.wasSaved()) {
+                        CodeTemplateLibrarySaveResult updateSummary = parent.codeTemplatePanel.attemptUpdate(dialog.getUpdatedLibraries(), new HashMap<String, CodeTemplateLibrary>(), dialog.getUpdatedCodeTemplates(), new HashMap<String, CodeTemplate>(), true, null, null);
 
-                    if (updateSummary == null || updateSummary.isOverrideNeeded() || !updateSummary.isLibrariesSuccess()) {
-                        return null;
-                    } else {
-                        for (CodeTemplateUpdateResult result : updateSummary.getCodeTemplateResults().values()) {
-                            if (!result.isSuccess()) {
-                                return null;
+                        if (updateSummary == null || updateSummary.isOverrideNeeded() || !updateSummary.isLibrariesSuccess()) {
+                            return null;
+                        } else {
+                            for (CodeTemplateUpdateResult result : updateSummary.getCodeTemplateResults().values()) {
+                                if (!result.isSuccess()) {
+                                    return null;
+                                }
                             }
                         }
-                    }
 
-                    parent.codeTemplatePanel.doRefreshCodeTemplates();
+                        parent.codeTemplatePanel.doRefreshCodeTemplates();
+                    }
                 }
             }
 
-            importChannel.getCodeTemplateLibraries().clear();
+            if (CollectionUtils.isNotEmpty(importChannel.getExportData().getDependentIds()) || CollectionUtils.isNotEmpty(importChannel.getExportData().getDependencyIds())) {
+                Set<ChannelDependency> channelDependencies = new HashSet<ChannelDependency>(getCachedChannelDependencies());
+
+                if (CollectionUtils.isNotEmpty(importChannel.getExportData().getDependentIds())) {
+                    for (String dependentId : importChannel.getExportData().getDependentIds()) {
+                        if (StringUtils.isNotBlank(dependentId) && !StringUtils.equals(dependentId, importChannel.getId())) {
+                            channelDependencies.add(new ChannelDependency(dependentId, importChannel.getId()));
+                        }
+                    }
+                }
+
+                if (CollectionUtils.isNotEmpty(importChannel.getExportData().getDependencyIds())) {
+                    for (String dependencyId : importChannel.getExportData().getDependencyIds()) {
+                        if (StringUtils.isNotBlank(dependencyId) && !StringUtils.equals(dependencyId, importChannel.getId())) {
+                            channelDependencies.add(new ChannelDependency(importChannel.getId(), dependencyId));
+                        }
+                    }
+                }
+
+                if (!channelDependencies.equals(getCachedChannelDependencies())) {
+                    try {
+                        parent.mirthClient.setChannelDependencies(channelDependencies);
+                    } catch (ClientException e) {
+                        parent.alertThrowable(parent, e, "Unable to save channel dependencies.");
+                    }
+                }
+            }
+
+            importChannel.getExportData().clearCodeTemplateLibraries();
+            importChannel.getExportData().clearDependencies();
+
+            // Update resource names
+            parent.updateResourceNames(importChannel);
         }
-
-        if (CollectionUtils.isNotEmpty(importChannel.getDependentIds()) || CollectionUtils.isNotEmpty(importChannel.getDependencyIds())) {
-            Set<ChannelDependency> channelDependencies = new HashSet<ChannelDependency>(getCachedChannelDependencies());
-
-            if (CollectionUtils.isNotEmpty(importChannel.getDependentIds())) {
-                for (String dependentId : importChannel.getDependentIds()) {
-                    if (StringUtils.isNotBlank(dependentId) && !StringUtils.equals(dependentId, importChannel.getId())) {
-                        channelDependencies.add(new ChannelDependency(dependentId, importChannel.getId()));
-                    }
-                }
-            }
-
-            if (CollectionUtils.isNotEmpty(importChannel.getDependencyIds())) {
-                for (String dependencyId : importChannel.getDependencyIds()) {
-                    if (StringUtils.isNotBlank(dependencyId) && !StringUtils.equals(dependencyId, importChannel.getId())) {
-                        channelDependencies.add(new ChannelDependency(importChannel.getId(), dependencyId));
-                    }
-                }
-            }
-
-            if (!channelDependencies.equals(getCachedChannelDependencies())) {
-                try {
-                    parent.mirthClient.setChannelDependencies(channelDependencies);
-                } catch (ClientException e) {
-                    parent.alertThrowable(parent, e, "Unable to save channel dependencies.");
-                }
-            }
-
-            importChannel.clearDependencies();
-        }
-
-        // Update resource names
-        parent.updateResourceNames(importChannel);
 
         /*
          * Update the channel if we're overwriting an imported channel, if we're not showing alerts
@@ -1506,9 +1509,11 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     private void setIdAndUpdateLibraries(Channel channel, String newChannelId) {
-        for (CodeTemplateLibrary library : channel.getCodeTemplateLibraries()) {
-            library.getEnabledChannelIds().remove(channel.getId());
-            library.getEnabledChannelIds().add(newChannelId);
+        if (CollectionUtils.isNotEmpty(channel.getExportData().getCodeTemplateLibraries())) {
+            for (CodeTemplateLibrary library : channel.getExportData().getCodeTemplateLibraries()) {
+                library.getEnabledChannelIds().remove(channel.getId());
+                library.getEnabledChannelIds().add(newChannelId);
+            }
         }
         channel.setId(newChannelId);
     }
@@ -1590,8 +1595,7 @@ public class ChannelPanel extends AbstractFramePanel {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String channelXML = serializer.serialize(channel);
         // Reset the libraries on the cached channel
-        channel.getCodeTemplateLibraries().clear();
-        channel.clearDependencies();
+        channel.getExportData().clearAllExceptMetadata();
 
         return parent.exportFile(channelXML, channel.getName(), "XML", "Channel");
     }
@@ -1712,8 +1716,7 @@ public class ChannelPanel extends AbstractFramePanel {
 
         // Reset the libraries on the cached channels
         for (Channel channel : channelList) {
-            channel.getCodeTemplateLibraries().clear();
-            channel.clearDependencies();
+            channel.getExportData().clearAllExceptMetadata();
         }
     }
 
@@ -1761,7 +1764,7 @@ public class ChannelPanel extends AbstractFramePanel {
             }
         }
 
-        channel.setCodeTemplateLibraries(channelLibraries);
+        channel.getExportData().setCodeTemplateLibraries(channelLibraries);
     }
 
     private void addDependenciesToChannel(Channel channel) {
@@ -1776,10 +1779,10 @@ public class ChannelPanel extends AbstractFramePanel {
         }
 
         if (CollectionUtils.isNotEmpty(dependentIds)) {
-            channel.setDependentIds(dependentIds);
+            channel.getExportData().setDependentIds(dependentIds);
         }
         if (CollectionUtils.isNotEmpty(dependencyIds)) {
-            channel.setDependencyIds(dependencyIds);
+            channel.getExportData().setDependencyIds(dependencyIds);
         }
     }
 
@@ -1902,8 +1905,7 @@ public class ChannelPanel extends AbstractFramePanel {
             // Reset the libraries on the cached channels
             for (ChannelGroup group : groups) {
                 for (Channel channel : group.getChannels()) {
-                    channel.getCodeTemplateLibraries().clear();
-                    channel.clearDependencies();
+                    channel.getExportData().clearAllExceptMetadata();
                 }
             }
         }
@@ -2214,7 +2216,7 @@ public class ChannelPanel extends AbstractFramePanel {
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 public Void doInBackground() {
                     for (Channel channel : selectedChannels) {
-                        channel.setEnabled(true);
+                        channel.getExportData().getMetadata().setEnabled(true);
                     }
 
                     try {
@@ -2275,15 +2277,17 @@ public class ChannelPanel extends AbstractFramePanel {
 
                 for (Channel channel : selectedChannels) {
                     if (!(channel instanceof InvalidChannel)) {
-                        channel.setEnabled(false);
+                        channel.getExportData().getMetadata().setEnabled(false);
                         channelIds.add(channel.getId());
                     }
                 }
 
-                try {
-                    parent.mirthClient.setChannelEnabled(channelIds, false);
-                } catch (ClientException e) {
-                    parent.alertThrowable(parent, e);
+                if (CollectionUtils.isNotEmpty(channelIds)) {
+                    try {
+                        parent.mirthClient.setChannelEnabled(channelIds, false);
+                    } catch (ClientException e) {
+                        parent.alertThrowable(parent, e);
+                    }
                 }
                 return null;
             }
@@ -2407,9 +2411,21 @@ public class ChannelPanel extends AbstractFramePanel {
         }
     }
 
+    private void updateChannelMetadata(Map<String, ChannelMetadata> metadataMap) {
+        if (metadataMap != null) {
+            for (ChannelStatus status : channelStatuses.values()) {
+                Channel channel = status.getChannel();
+                channel.getExportData().setMetadata(metadataMap.get(channel.getId()));
+                if (channel instanceof InvalidChannel) {
+                    channel.getExportData().getMetadata().setEnabled(false);
+                }
+            }
+        }
+    }
+
     public void clearChannelCache() {
-        channelStatuses = new HashMap<String, ChannelStatus>();
-        groupStatuses = new HashMap<String, ChannelGroupStatus>();
+        channelStatuses = new LinkedHashMap<String, ChannelStatus>();
+        groupStatuses = new LinkedHashMap<String, ChannelGroupStatus>();
         parent.updateChannelTags(false);
     }
 
@@ -2576,10 +2592,10 @@ public class ChannelPanel extends AbstractFramePanel {
 
         for (ChannelStatus channelStatus : channelStatuses.values()) {
             Channel channel = channelStatus.getChannel();
-            if (!channelTagInfo.isEnabled() || CollectionUtils.containsAny(channelTagInfo.getVisibleTags(), channel.getProperties().getTags())) {
+            if (!channelTagInfo.isEnabled() || CollectionUtils.containsAny(channelTagInfo.getVisibleTags(), channel.getExportData().getMetadata().getTags())) {
                 filteredChannelStatuses.add(channelStatus);
 
-                if (channel.isEnabled()) {
+                if (channel.getExportData().getMetadata().isEnabled()) {
                     enabled++;
                 }
             }
@@ -3265,7 +3281,8 @@ public class ChannelPanel extends AbstractFramePanel {
 
                 for (Enumeration<? extends MutableTreeTableNode> groupNodes = root.children(); groupNodes.hasMoreElements();) {
                     AbstractChannelTableNode groupNode = (AbstractChannelTableNode) groupNodes.nextElement();
-                    if (channelTable.isExpanded(new TreePath(new Object[] { root, groupNode })) || groupNode.getChildCount() == 0) {
+                    if (channelTable.isExpanded(new TreePath(new Object[] { root,
+                            groupNode })) || groupNode.getChildCount() == 0) {
                         expandedGroupIds.add(groupNode.getGroupStatus().getGroup().getId());
                     }
                 }

@@ -571,24 +571,18 @@ public class JavaScriptUtil {
             String preprocessorScriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channel.getId());
             String postprocessorScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getId());
 
-            if (channel.isEnabled()) {
-                compileAndAddScript(channel.getId(), contextFactory, deployScriptId, channel.getDeployScript(), ContextType.CHANNEL_DEPLOY);
-                compileAndAddScript(channel.getId(), contextFactory, undeployScriptId, channel.getUndeployScript(), ContextType.CHANNEL_UNDEPLOY);
+            compileAndAddScript(channel.getId(), contextFactory, deployScriptId, channel.getDeployScript(), ContextType.CHANNEL_DEPLOY);
+            compileAndAddScript(channel.getId(), contextFactory, undeployScriptId, channel.getUndeployScript(), ContextType.CHANNEL_UNDEPLOY);
 
-                // Only compile and run preprocessor if it's not the default
-                if (!compileAndAddScript(channel.getId(), contextFactory, preprocessorScriptId, channel.getPreprocessingScript(), ContextType.CHANNEL_PREPROCESSOR)) {
-                    logger.debug("removing " + preprocessorScriptId);
-                    removeScriptFromCache(preprocessorScriptId);
-                }
+            // Only compile and run preprocessor if it's not the default
+            if (!compileAndAddScript(channel.getId(), contextFactory, preprocessorScriptId, channel.getPreprocessingScript(), ContextType.CHANNEL_PREPROCESSOR)) {
+                logger.debug("removing " + preprocessorScriptId);
+                removeScriptFromCache(preprocessorScriptId);
+            }
 
-                // Only compile and run post processor if it's not the default
-                if (!compileAndAddScript(channel.getId(), contextFactory, postprocessorScriptId, channel.getPostprocessingScript(), ContextType.CHANNEL_POSTPROCESSOR)) {
-                    logger.debug("removing " + postprocessorScriptId);
-                    removeScriptFromCache(postprocessorScriptId);
-                }
-            } else {
-                removeScriptFromCache(deployScriptId);
-                removeScriptFromCache(undeployScriptId);
+            // Only compile and run post processor if it's not the default
+            if (!compileAndAddScript(channel.getId(), contextFactory, postprocessorScriptId, channel.getPostprocessingScript(), ContextType.CHANNEL_POSTPROCESSOR)) {
+                logger.debug("removing " + postprocessorScriptId);
                 removeScriptFromCache(postprocessorScriptId);
             }
         } catch (Exception e) {

@@ -180,8 +180,6 @@ public class TestUtils {
 
         com.mirth.connect.model.Channel channel = new com.mirth.connect.model.Channel();
         channel.setId(channelId);
-        channel.setEnabled(true);
-        channel.setLastModified(Calendar.getInstance());
         channel.setName(channelName);
         channel.setRevision(0);
         channel.setSourceConnector(sourceConnector);
@@ -194,7 +192,6 @@ public class TestUtils {
         Channel channel = new Channel();
         channel.setChannelId(channelId);
         channel.setServerId(serverId);
-        channel.setEnabled(true);
         channel.setSourceConnector(sourceConnector);
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
@@ -231,7 +228,6 @@ public class TestUtils {
         Channel channel = new Channel();
         channel.setChannelId(channelId);
         channel.setServerId(serverId);
-        channel.setEnabled(true);
         channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory(), new SerializerProvider() {
             @Override
             public Serializer getSerializer(Integer metaDataId) {

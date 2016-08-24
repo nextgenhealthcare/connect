@@ -22,6 +22,7 @@ import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.model.ChannelDependency;
+import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
@@ -310,6 +311,10 @@ public abstract class ConfigurationController extends Controller {
     public abstract Set<ChannelDependency> getChannelDependencies();
 
     public abstract void setChannelDependencies(Set<ChannelDependency> dependencies);
+
+    public abstract Map<String, ChannelMetadata> getChannelMetadata();
+
+    public abstract void setChannelMetadata(Map<String, ChannelMetadata> channelMetadata);
 
     public abstract ConnectionTestResponse sendTestEmail(Properties properties) throws Exception;
 }

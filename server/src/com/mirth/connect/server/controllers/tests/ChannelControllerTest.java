@@ -11,7 +11,6 @@ package com.mirth.connect.server.controllers.tests;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -46,8 +45,6 @@ public class ChannelControllerTest extends TestCase {
             sampleChannel.setName("Channel" + i);
             sampleChannel.setDescription("This is a sample channel");
             sampleChannel.setRevision(0);
-
-            sampleChannel.setLastModified(Calendar.getInstance());
 
             sampleChannel.setPostprocessingScript("return 1;");
             sampleChannel.setDeployScript("return 1;");

@@ -177,7 +177,6 @@ public class StatisticsTests {
 
         channel.setChannelId(channelId);
         channel.setServerId(serverId);
-        channel.setEnabled(true);
 
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
@@ -307,7 +306,6 @@ public class StatisticsTests {
 
         channel.setChannelId(channelId);
         channel.setServerId(serverId);
-        channel.setEnabled(true);
 
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
@@ -488,7 +486,7 @@ public class StatisticsTests {
             if (metaDataId != null) {
                 for (Status status : stats.get(metaDataId).keySet()) {
                     switch (status) {
-                    // Aggregate RECEIVED and TRANSFORMED stats should be the same as the source connector
+                        // Aggregate RECEIVED and TRANSFORMED stats should be the same as the source connector
                         case RECEIVED:
                         case TRANSFORMED:
                             if (metaDataId == 0) {

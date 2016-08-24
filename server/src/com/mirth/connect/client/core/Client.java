@@ -84,6 +84,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
+import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
@@ -227,49 +228,50 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
 
     @SuppressWarnings("unchecked")
     public <T> T getServlet(final Class<T> servletInterface, final ExecuteType executeType) {
-        return (T) Proxy.newProxyInstance(AccessController.doPrivileged(ReflectionHelper.getClassLoaderPA(servletInterface)), new Class[] { servletInterface }, new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws ClientException {
-                try {
-                    WebTarget target = client.target(api);
+        return (T) Proxy.newProxyInstance(AccessController.doPrivileged(ReflectionHelper.getClassLoaderPA(servletInterface)), new Class[] {
+                servletInterface }, new InvocationHandler() {
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws ClientException {
+                        try {
+                            WebTarget target = client.target(api);
 
-                    Operation operation = OperationUtil.getOperation(servletInterface, method);
-                    if (operation != null) {
-                        target.property(ServerConnection.OPERATION_PROPERTY, operation);
-                    }
+                            Operation operation = OperationUtil.getOperation(servletInterface, method);
+                            if (operation != null) {
+                                target.property(ServerConnection.OPERATION_PROPERTY, operation);
+                            }
 
-                    if (executeType != null) {
-                        target.property(ServerConnection.EXECUTE_TYPE_PROPERTY, executeType);
-                    }
+                            if (executeType != null) {
+                                target.property(ServerConnection.EXECUTE_TYPE_PROPERTY, executeType);
+                            }
 
-                    if (args == null && method.getName().equals("toString")) {
-                        return target.toString();
-                    }
+                            if (args == null && method.getName().equals("toString")) {
+                                return target.toString();
+                            }
 
-                    T resource = WebResourceFactory.newResource(servletInterface, target);
-                    Object result = method.invoke(resource, args);
+                            T resource = WebResourceFactory.newResource(servletInterface, target);
+                            Object result = method.invoke(resource, args);
 
-                    // Make sure to return the right type
-                    if (result == null && method.getReturnType().isPrimitive()) {
-                        return method.getReturnType() == boolean.class ? false : (byte) 0x00;
+                            // Make sure to return the right type
+                            if (result == null && method.getReturnType().isPrimitive()) {
+                                return method.getReturnType() == boolean.class ? false : (byte) 0x00;
+                            }
+                            return result;
+                        } catch (Throwable t) {
+                            Throwable cause = t;
+                            if (cause instanceof InvocationTargetException && cause.getCause() != null) {
+                                cause = cause.getCause();
+                            }
+                            if (cause instanceof ProcessingException && cause.getCause() != null) {
+                                cause = cause.getCause();
+                            }
+                            if (cause instanceof ClientException) {
+                                throw (ClientException) cause;
+                            } else {
+                                throw new ClientException(cause);
+                            }
+                        }
                     }
-                    return result;
-                } catch (Throwable t) {
-                    Throwable cause = t;
-                    if (cause instanceof InvocationTargetException && cause.getCause() != null) {
-                        cause = cause.getCause();
-                    }
-                    if (cause instanceof ProcessingException && cause.getCause() != null) {
-                        cause = cause.getCause();
-                    }
-                    if (cause instanceof ClientException) {
-                        throw (ClientException) cause;
-                    } else {
-                        throw new ClientException(cause);
-                    }
-                }
-            }
-        });
+                });
     }
 
     public ServerConnection getServerConnection() {
@@ -793,6 +795,26 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     @Override
     public void setChannelDependencies(Set<ChannelDependency> dependencies) throws ClientException {
         getServlet(ConfigurationServletInterface.class).setChannelDependencies(dependencies);
+    }
+
+    /**
+     * Returns all channel metadata for the server.
+     * 
+     * @see ConfigurationServletInterface#getChannelMetadata
+     */
+    @Override
+    public Map<String, ChannelMetadata> getChannelMetadata() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getChannelMetadata();
+    }
+
+    /**
+     * Updates all channel metadata for the server.
+     * 
+     * @see ConfigurationServletInterface#setChannelMetadata
+     */
+    @Override
+    public void setChannelMetadata(Map<String, ChannelMetadata> metadata) throws ClientException {
+        getServlet(ConfigurationServletInterface.class).setChannelMetadata(metadata);
     }
 
     /**

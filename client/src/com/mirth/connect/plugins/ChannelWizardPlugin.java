@@ -33,7 +33,7 @@ public abstract class ChannelWizardPlugin extends ClientPlugin {
         Channel channel = new Channel();
 
         channel.setName("New Channel");
-        channel.setLastModified(Calendar.getInstance());
+        channel.getExportData().getMetadata().setLastModified(Calendar.getInstance());
 
         Connector sourceConnector = new Connector();
         sourceConnector.setEnabled(true);

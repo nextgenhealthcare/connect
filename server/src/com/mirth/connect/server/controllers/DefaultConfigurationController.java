@@ -90,6 +90,7 @@ import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
+import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.DatabaseSettings;
@@ -132,6 +133,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public static final String PROPERTIES_CORE = "core";
     public static final String PROPERTIES_RESOURCES = "resources";
     public static final String PROPERTIES_DEPENDENCIES = "channelDependencies";
+    public static final String PROPERTIES_CHANNEL_METADATA = "channelMetadata";
     public static final String SECRET_KEY_ALIAS = "encryption";
 
     private Logger logger = Logger.getLogger(this.getClass());
@@ -963,6 +965,26 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         saveProperty(PROPERTIES_CORE, PROPERTIES_DEPENDENCIES, ObjectXMLSerializer.getInstance().serialize(dependencies));
+    }
+
+    @Override
+    public Map<String, ChannelMetadata> getChannelMetadata() {
+        String channelMetadataXml = getProperty(PROPERTIES_CORE, PROPERTIES_CHANNEL_METADATA);
+        Map<String, ChannelMetadata> channelMetadata;
+
+        if (StringUtils.isNotBlank(channelMetadataXml)) {
+            channelMetadata = ObjectXMLSerializer.getInstance().deserialize(channelMetadataXml, Map.class);
+        } else {
+            channelMetadata = new HashMap<String, ChannelMetadata>();
+            setChannelMetadata(channelMetadata);
+        }
+
+        return channelMetadata;
+    }
+
+    @Override
+    public void setChannelMetadata(Map<String, ChannelMetadata> channelMetadata) {
+        saveProperty(PROPERTIES_CORE, PROPERTIES_CHANNEL_METADATA, ObjectXMLSerializer.getInstance().serialize(channelMetadata));
     }
 
     @Override

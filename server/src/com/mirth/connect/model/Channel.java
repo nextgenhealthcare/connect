@@ -11,16 +11,15 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
@@ -33,13 +32,11 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 
 @XStreamAlias("channel")
-public class Channel implements Serializable, Auditable, Migratable, Purgable, Cacheable<Channel> {
+public class Channel implements Serializable, Auditable, Migratable, Purgable, Cacheable<Channel>, ExportClearable {
     private String id;
     private Integer nextMetaDataId;
     private String name;
     private String description;
-    private boolean enabled;
-    private Calendar lastModified;
     private int revision;
     private Connector sourceConnector;
     private List<Connector> destinationConnectors;
@@ -48,16 +45,12 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
     private String deployScript;
     private String undeployScript;
     private ChannelProperties properties;
-    private List<CodeTemplateLibrary> codeTemplateLibraries;
-    private Set<String> dependentIds;
-    private Set<String> dependencyIds;
+    private ChannelExportData exportData;
 
     public Channel() {
-        enabled = true;
         destinationConnectors = new ArrayList<Connector>();
         properties = new ChannelProperties();
         nextMetaDataId = 1;
-        codeTemplateLibraries = new ArrayList<CodeTemplateLibrary>();
     }
 
     public Channel(String id) {
@@ -96,14 +89,6 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     @Override
@@ -175,49 +160,24 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
         this.undeployScript = undeployScript;
     }
 
-    public Calendar getLastModified() {
-        return lastModified;
-    }
-
-    public void setLastModified(Calendar lastModified) {
-        this.lastModified = lastModified;
-    }
-
     public ChannelProperties getProperties() {
         return properties;
     }
 
-    public List<CodeTemplateLibrary> getCodeTemplateLibraries() {
-        return codeTemplateLibraries;
-    }
-
-    public void setCodeTemplateLibraries(List<CodeTemplateLibrary> codeTemplateLibraries) {
-        this.codeTemplateLibraries = codeTemplateLibraries;
-    }
-
-    public Set<String> getDependentIds() {
-        return dependentIds;
-    }
-
-    public void setDependentIds(Set<String> dependentIds) {
-        this.dependentIds = dependentIds;
-    }
-
-    public Set<String> getDependencyIds() {
-        return dependencyIds;
-    }
-
-    public void setDependencyIds(Set<String> dependencyIds) {
-        this.dependencyIds = dependencyIds;
-    }
-    
-    public void clearDependencies() {
-        if (dependentIds != null) {
-            dependentIds.clear();
+    public ChannelExportData getExportData() {
+        if (exportData == null) {
+            exportData = new ChannelExportData();
         }
-        if (dependencyIds != null) {
-            dependencyIds.clear();
-        }
+        return exportData;
+    }
+
+    public void setExportData(ChannelExportData exportData) {
+        this.exportData = exportData;
+    }
+
+    @Override
+    public void clearExportData() {
+        exportData = null;
     }
 
     @Override
@@ -236,11 +196,11 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
 
         Channel channel = (Channel) that;
 
-        return ObjectUtils.equals(this.getId(), channel.getId()) && ObjectUtils.equals(this.getName(), channel.getName()) && ObjectUtils.equals(this.getDescription(), channel.getDescription()) && ObjectUtils.equals(this.isEnabled(), channel.isEnabled()) && ObjectUtils.equals(this.getLastModified(), channel.getLastModified()) && ObjectUtils.equals(this.getRevision(), channel.getRevision()) && ObjectUtils.equals(this.getSourceConnector(), channel.getSourceConnector()) && ObjectUtils.equals(this.getDestinationConnectors(), channel.getDestinationConnectors()) && ObjectUtils.equals(this.getUndeployScript(), channel.getUndeployScript()) && ObjectUtils.equals(this.getDeployScript(), channel.getDeployScript()) && ObjectUtils.equals(this.getPostprocessingScript(), channel.getPostprocessingScript()) && ObjectUtils.equals(this.getPreprocessingScript(), channel.getPreprocessingScript()) && ObjectUtils.equals(this.getCodeTemplateLibraries(), channel.getCodeTemplateLibraries());
+        return ObjectUtils.equals(this.getId(), channel.getId()) && ObjectUtils.equals(this.getName(), channel.getName()) && ObjectUtils.equals(this.getDescription(), channel.getDescription()) && ObjectUtils.equals(this.getRevision(), channel.getRevision()) && ObjectUtils.equals(this.getSourceConnector(), channel.getSourceConnector()) && ObjectUtils.equals(this.getDestinationConnectors(), channel.getDestinationConnectors()) && ObjectUtils.equals(this.getUndeployScript(), channel.getUndeployScript()) && ObjectUtils.equals(this.getDeployScript(), channel.getDeployScript()) && ObjectUtils.equals(this.getPostprocessingScript(), channel.getPostprocessingScript()) && ObjectUtils.equals(this.getPreprocessingScript(), channel.getPreprocessingScript());
     }
 
     public String toString() {
-        return new ToStringBuilder(this, CalendarToStringStyle.instance()).append("name", name).append("enabled", enabled).toString();
+        return new ToStringBuilder(this, CalendarToStringStyle.instance()).append("name", name).toString();
     }
 
     public String toAuditString() {
@@ -274,7 +234,76 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
     public void migrate3_4_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_5_0(DonkeyElement element) {}
+    public void migrate3_5_0(DonkeyElement element) {
+        DonkeyElement propertiesElement = element.getChildElement("properties");
+
+        // Add channel metadata
+        DonkeyElement exportDataElement = element.addChildElement("exportData");
+        DonkeyElement metadataElement = exportDataElement.addChildElement("metadata");
+
+        // Enabled
+        metadataElement.addChildElement("enabled", element.removeChild("enabled").getTextContent());
+
+        // Last modified
+        DonkeyElement lastModifiedElement = element.removeChild("lastModified");
+        if (lastModifiedElement != null) {
+            try {
+                metadataElement.addChildElementFromXml(lastModifiedElement.toXml());
+            } catch (DonkeyElementException e) {
+            }
+        }
+
+        // Pruning settings
+        DonkeyElement pruningSettingsElement = metadataElement.addChildElement("pruningSettings");
+        DonkeyElement pruneMetaDataDaysElement = propertiesElement.removeChild("pruneMetaDataDays");
+        DonkeyElement pruneContentDaysElement = propertiesElement.removeChild("pruneContentDays");
+        DonkeyElement archiveEnabledElement = propertiesElement.removeChild("archiveEnabled");
+        if (pruneMetaDataDaysElement != null) {
+            pruningSettingsElement.addChildElement("pruneMetaDataDays", pruneMetaDataDaysElement.getTextContent());
+        }
+        if (pruneContentDaysElement != null) {
+            pruningSettingsElement.addChildElement("pruneContentDays", pruneContentDaysElement.getTextContent());
+        }
+        if (archiveEnabledElement != null) {
+            pruningSettingsElement.addChildElement("archiveEnabled", archiveEnabledElement.getTextContent());
+        }
+
+        // Tags
+        DonkeyElement tagsElement = propertiesElement.removeChild("tags");
+        if (tagsElement != null) {
+            try {
+                metadataElement.addChildElementFromXml(tagsElement.toXml());
+            } catch (DonkeyElementException e) {
+            }
+        }
+
+        // Code template libraries
+        DonkeyElement codeTemplateLibrariesElement = element.removeChild("codeTemplateLibraries");
+        if (codeTemplateLibrariesElement != null) {
+            try {
+                exportDataElement.addChildElementFromXml(codeTemplateLibrariesElement.toXml());
+            } catch (DonkeyElementException e) {
+            }
+        }
+
+        // Dependent IDs
+        DonkeyElement dependentIdsElement = element.removeChild("dependentIds");
+        if (dependentIdsElement != null) {
+            try {
+                exportDataElement.addChildElementFromXml(dependentIdsElement.toXml());
+            } catch (DonkeyElementException e) {
+            }
+        }
+
+        // Dependency IDs
+        DonkeyElement dependencyIdsElement = element.removeChild("dependencyIds");
+        if (dependencyIdsElement != null) {
+            try {
+                exportDataElement.addChildElementFromXml(dependencyIdsElement.toXml());
+            } catch (DonkeyElementException e) {
+            }
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -283,8 +312,6 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
         purgedProperties.put("nextMetaDataId", nextMetaDataId);
         purgedProperties.put("nameChars", PurgeUtil.countChars(name));
         purgedProperties.put("descriptionChars", PurgeUtil.countChars(description));
-        purgedProperties.put("enabled", enabled);
-        purgedProperties.put("lastModified", lastModified);
         Map<String, Object> sourceProperties = sourceConnector.getPurgedProperties();
         sourceProperties.put("messageStatistics", PurgeUtil.getMessageStatistics(id, sourceConnector.getMetaDataId()));
         purgedProperties.put("sourceConnector", sourceProperties);
@@ -302,11 +329,9 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
         purgedProperties.put("properties", properties.getPurgedProperties());
         purgedProperties.put("messageStatistics", PurgeUtil.getMessageStatistics(id, null));
 
-        List<Map<String, Object>> purgedCodeTemplateLibraries = new ArrayList<Map<String, Object>>();
-        for (CodeTemplateLibrary codeTemplateLibrary : codeTemplateLibraries) {
-            purgedCodeTemplateLibraries.add(codeTemplateLibrary.getPurgedProperties());
+        if (exportData != null) {
+            purgedProperties.put("exportData", exportData.getPurgedProperties());
         }
-        purgedProperties.put("codeTemplateLibraries", purgedCodeTemplateLibraries);
 
         return purgedProperties;
     }

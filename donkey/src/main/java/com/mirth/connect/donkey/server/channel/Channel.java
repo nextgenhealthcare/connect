@@ -97,7 +97,6 @@ public class Channel implements Runnable {
     private Set<String> resourceIds;
     private String contextFactoryId;
 
-    private boolean enabled = false;
     private DeployedState initialState;
     private DeployedState currentState = DeployedState.STOPPED;
 
@@ -200,14 +199,6 @@ public class Channel implements Runnable {
 
     public void setContextFactoryId(String contextFactoryId) {
         this.contextFactoryId = contextFactoryId;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     public DeployedState getInitialState() {

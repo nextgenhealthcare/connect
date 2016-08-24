@@ -63,6 +63,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
+import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplateLibrary;
@@ -685,10 +686,12 @@ public class CommandLineInterface {
     private void commandDeploy(Token[] arguments) throws ClientException {
         out.println("Deploying Channels");
         List<Channel> channels = client.getAllChannels();
+        Map<String, ChannelMetadata> metadataMap = client.getChannelMetadata();
 
         boolean hasChannels = false;
         for (Channel channel : channels) {
-            if (channel.isEnabled()) {
+            ChannelMetadata metadata = metadataMap.get(channel.getId());
+            if (!(channel instanceof InvalidChannel) && metadata != null && metadata.isEnabled()) {
                 hasChannels = true;
                 break;
             }
@@ -1510,10 +1513,10 @@ public class CommandLineInterface {
         }
 
         if (CollectionUtils.isNotEmpty(dependentIds)) {
-            channel.setDependentIds(dependentIds);
+            channel.getExportData().setDependentIds(dependentIds);
         }
         if (CollectionUtils.isNotEmpty(dependencyIds)) {
-            channel.setDependencyIds(dependencyIds);
+            channel.getExportData().setDependencyIds(dependencyIds);
         }
     }
 
@@ -1530,11 +1533,15 @@ public class CommandLineInterface {
 
     private void commandChannelList(Token[] arguments) throws ClientException {
         List<Channel> allChannels = client.getAllChannels();
+        Map<String, ChannelMetadata> metadataMap = client.getChannelMetadata();
+
         out.println("ID\t\t\t\t\tEnabled\t\tName");
         String enable = "";
         for (Iterator<Channel> iter = allChannels.iterator(); iter.hasNext();) {
             Channel channel = iter.next();
-            if (channel.isEnabled()) {
+
+            ChannelMetadata metadata = metadataMap.get(channel.getId());
+            if (!(channel instanceof InvalidChannel) && metadata != null && metadata.isEnabled()) {
                 enable = "YES";
             } else {
                 enable = "NO";
@@ -1544,20 +1551,24 @@ public class CommandLineInterface {
     }
 
     private void commandChannelDisable(Token[] arguments) throws ClientException {
+        Map<String, ChannelMetadata> metadataMap = client.getChannelMetadata();
+
         for (Channel channel : getMatchingChannels(arguments[2])) {
-            if (channel.isEnabled()) {
-                channel.setEnabled(false);
-                client.updateChannel(channel, true);
+            ChannelMetadata metadata = metadataMap.get(channel.getId());
+            if (metadata != null && metadata.isEnabled()) {
+                client.setChannelEnabled(channel.getId(), false);
                 out.println("Channel '" + channel.getName() + "' Disabled");
             }
         }
     }
 
     private void commandChannelEnable(Token[] arguments) throws ClientException {
+        Map<String, ChannelMetadata> metadataMap = client.getChannelMetadata();
+
         for (Channel channel : getMatchingChannels(arguments[2])) {
-            if (!(channel instanceof InvalidChannel) && !channel.isEnabled()) {
-                channel.setEnabled(true);
-                client.updateChannel(channel, true);
+            ChannelMetadata metadata = metadataMap.get(channel.getId());
+            if (!(channel instanceof InvalidChannel) && (metadata == null || !metadata.isEnabled())) {
+                client.setChannelEnabled(channel.getId(), true);
                 out.println("Channel '" + channel.getName() + "' Enabled");
             }
         }
@@ -1565,9 +1576,6 @@ public class CommandLineInterface {
 
     private void commandChannelRemove(Token[] arguments) throws ClientException {
         for (Channel channel : getMatchingChannels(arguments[2])) {
-            if (channel.isEnabled()) {
-                channel.setEnabled(false);
-            }
             client.removeChannel(channel.getId());
             out.println("Channel '" + channel.getName() + "' Removed");
         }
@@ -1944,20 +1952,20 @@ public class CommandLineInterface {
     }
 
     private void importChannelDependencies(Channel importChannel) throws ClientException {
-        if (CollectionUtils.isNotEmpty(importChannel.getDependentIds()) || CollectionUtils.isNotEmpty(importChannel.getDependencyIds())) {
+        if (CollectionUtils.isNotEmpty(importChannel.getExportData().getDependentIds()) || CollectionUtils.isNotEmpty(importChannel.getExportData().getDependencyIds())) {
             Set<ChannelDependency> cachedChannelDependencies = client.getChannelDependencies();
             Set<ChannelDependency> channelDependencies = new HashSet<ChannelDependency>(cachedChannelDependencies);
 
-            if (CollectionUtils.isNotEmpty(importChannel.getDependentIds())) {
-                for (String dependentId : importChannel.getDependentIds()) {
+            if (CollectionUtils.isNotEmpty(importChannel.getExportData().getDependentIds())) {
+                for (String dependentId : importChannel.getExportData().getDependentIds()) {
                     if (StringUtils.isNotBlank(dependentId) && !StringUtils.equals(dependentId, importChannel.getId())) {
                         channelDependencies.add(new ChannelDependency(dependentId, importChannel.getId()));
                     }
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(importChannel.getDependencyIds())) {
-                for (String dependencyId : importChannel.getDependencyIds()) {
+            if (CollectionUtils.isNotEmpty(importChannel.getExportData().getDependencyIds())) {
+                for (String dependencyId : importChannel.getExportData().getDependencyIds()) {
                     if (StringUtils.isNotBlank(dependencyId) && !StringUtils.equals(dependencyId, importChannel.getId())) {
                         channelDependencies.add(new ChannelDependency(importChannel.getId(), dependencyId));
                     }
@@ -1972,7 +1980,7 @@ public class CommandLineInterface {
                 }
             }
 
-            importChannel.clearDependencies();
+            importChannel.getExportData().clearAllExceptMetadata();
         }
     }
 

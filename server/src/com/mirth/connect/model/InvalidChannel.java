@@ -9,8 +9,6 @@
 
 package com.mirth.connect.model;
 
-import java.util.LinkedHashSet;
-
 import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -54,9 +52,8 @@ public class InvalidChannel extends Channel {
         this.cause = cause;
         this.channelXml = channelXml;
 
-        super.setEnabled(false);
+        getExportData().getMetadata().setEnabled(false);
         setDescription("This channel is invalid. Verify all required extensions are loaded correctly.");
-        getProperties().setTags(new LinkedHashSet<String>());
 
         Connector sourceConnector = new Connector();
         sourceConnector.setFilter(new Filter());
@@ -96,11 +93,6 @@ public class InvalidChannel extends Channel {
     public void setRevision(int revision) {
         setProperty("revision", String.valueOf(revision));
         super.setRevision(revision);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        throw new UnsupportedOperationException();
     }
 
     private void setProperty(String key, String value) {

@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -38,6 +39,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
+import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DeployedChannelInfo;
@@ -240,45 +242,27 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public synchronized void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException {
-        /*
-         * Methods that update the channel must be synchronized to ensure the channel cache and
-         * database never contain different versions of a channel.
-         */
-        ControllerException firstCause = null;
-        List<Channel> cachedChannels = getChannels(channelIds);
+        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+        Map<String, ChannelMetadata> metadataMap = configurationController.getChannelMetadata();
+        Map<String, Channel> cachedChannelMap = channelCache.getAllItems();
+        boolean changed = false;
 
-        for (Channel cachedChannel : cachedChannels) {
-            // If the channel is not invalid, and its enabled flag isn't already the same as what was passed in
-            if (!(cachedChannel instanceof InvalidChannel) && cachedChannel.isEnabled() != enabled) {
-                Channel channel = (Channel) SerializationUtils.clone(cachedChannel);
-                channel.setEnabled(enabled);
-                channel.setRevision(channel.getRevision() + 1);
+        for (String channelId : channelIds) {
+            Channel cachedChannel = cachedChannelMap.get(channelId);
+            ChannelMetadata metadata = metadataMap.get(channelId);
 
-                try {
-                    Map<String, Object> params = new HashMap<String, Object>();
-                    params.put("id", channel.getId());
-                    params.put("name", channel.getName());
-                    params.put("revision", channel.getRevision());
-                    params.put("channel", channel);
-
-                    // Update the new channel in the database
-                    logger.debug("updating channel");
-                    SqlConfig.getSqlSessionManager().update("Channel.updateChannel", params);
-
-                    // invoke the channel plugins
-                    for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-                        channelPlugin.save(channel, context);
-                    }
-                } catch (Exception e) {
-                    if (firstCause == null) {
-                        firstCause = new ControllerException(e);
-                    }
+            if (cachedChannel != null && !(cachedChannel instanceof InvalidChannel) && (metadata == null || metadata.isEnabled() != enabled)) {
+                if (metadata == null) {
+                    metadata = new ChannelMetadata();
+                    metadataMap.put(channelId, metadata);
                 }
+                metadata.setEnabled(enabled);
+                changed = true;
             }
         }
 
-        if (firstCause != null) {
-            throw firstCause;
+        if (changed) {
+            configurationController.setChannelMetadata(metadataMap);
         }
     }
 
@@ -332,9 +316,9 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
-        // Never include code template libraries in the channel stored in the database
-        channel.getCodeTemplateLibraries().clear();
-        channel.clearDependencies();
+        // Extract metadata and then clear it from the channel model so it won't be stored in the database
+        ChannelMetadata metadata = channel.getExportData().getMetadata();
+        channel.clearExportData();
 
         /*
          * Methods that update the channel must be synchronized to ensure the channel cache and
@@ -360,6 +344,7 @@ public class DefaultChannelController extends ChannelController {
              */
             if (EqualsBuilder.reflectionEquals(channel, matchingChannel, new String[] {
                     "lastModified", "revision" })) {
+                updateChannelMetadata(channel.getId(), metadata);
                 return true;
             }
 
@@ -400,6 +385,9 @@ public class DefaultChannelController extends ChannelController {
                 }
             }
 
+            // Update the metadata first
+            updateChannelMetadata(channel.getId(), metadata);
+
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", channel.getId());
             params.put("name", channel.getName());
@@ -423,6 +411,17 @@ public class DefaultChannelController extends ChannelController {
             return true;
         } catch (Exception e) {
             throw new ControllerException(e);
+        }
+    }
+
+    private void updateChannelMetadata(String channelId, ChannelMetadata metadata) {
+        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+
+        Map<String, ChannelMetadata> metadataMap = configurationController.getChannelMetadata();
+        if (!Objects.equals(metadataMap.get(channelId), metadata)) {
+            // Only need to update if the metadata has changed
+            metadataMap.put(channelId, metadata);
+            configurationController.setChannelMetadata(metadataMap);
         }
     }
 
@@ -485,6 +484,12 @@ public class DefaultChannelController extends ChannelController {
             }
             if (dependenciesChanged) {
                 configurationController.setChannelDependencies(dependencies);
+            }
+
+            // Update the metadata
+            Map<String, ChannelMetadata> metadataMap = configurationController.getChannelMetadata();
+            if (metadataMap.remove(channel.getId()) != null) {
+                configurationController.setChannelMetadata(metadataMap);
             }
 
             // invoke the channel plugins

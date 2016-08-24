@@ -37,6 +37,7 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.ChannelDependency;
+import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PasswordRequirements;
@@ -239,6 +240,18 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @ApiOperation("Updates all channel dependencies for the server.")
     @MirthOperation(name = "setChannelDependencies", display = "Set channel dependencies", permission = Permissions.CHANNELS_MANAGE)
     public void setChannelDependencies(Set<ChannelDependency> dependencies) throws ClientException;
+
+    @GET
+    @Path("/channelMetadata")
+    @ApiOperation("Returns all channel metadata for the server.")
+    @MirthOperation(name = "getChannelMetadata", display = "Get channel metadata", auditable = false)
+    public Map<String, ChannelMetadata> getChannelMetadata() throws ClientException;
+
+    @PUT
+    @Path("/channelMetadata")
+    @ApiOperation("Updates all channel metadata for the server.")
+    @MirthOperation(name = "setChannelMetadata", display = "Set channel metadata", permission = Permissions.CHANNELS_MANAGE)
+    public void setChannelMetadata(Map<String, ChannelMetadata> metadata) throws ClientException;
 
     @GET
     @Path("/protocolsAndCipherSuites")
