@@ -1282,7 +1282,7 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     public void doImportChannel() {
-        if ((isSaveEnabled() && !promptSave(true)) || parent.getChannelTagInfo(false).isEnabled()) {
+        if (isSaveEnabled() && !promptSave(true)) {
             return;
         }
 
@@ -2854,7 +2854,7 @@ public class ChannelPanel extends AbstractFramePanel {
             @Override
             public boolean canImport(TransferSupport support) {
                 // Don't allow files to be imported when the save task is enabled 
-                if (parent.getChannelTagInfo(false).isEnabled() || (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && isSaveEnabled())) {
+                if (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && isSaveEnabled()) {
                     return false;
                 }
                 return super.canImport(support);
@@ -2862,10 +2862,6 @@ public class ChannelPanel extends AbstractFramePanel {
 
             @Override
             public void importFile(final File file, final boolean showAlerts) {
-                if (parent.getChannelTagInfo(false).isEnabled()) {
-                    return;
-                }
-
                 try {
                     SwingUtilities.invokeAndWait(new Runnable() {
                         @Override
@@ -2873,9 +2869,9 @@ public class ChannelPanel extends AbstractFramePanel {
                             String fileString = StringUtils.trim(parent.readFileToString(file));
 
                             try {
-                                // If the table is in channel view, don't allow groups to be imported
+                                // If the table is in channel view, or filtering is enabled, don't allow groups to be imported
                                 ChannelGroup group = ObjectXMLSerializer.getInstance().deserialize(fileString, ChannelGroup.class);
-                                if (group != null && !((ChannelTreeTableModel) channelTable.getTreeTableModel()).isGroupModeEnabled()) {
+                                if (group != null && (!((ChannelTreeTableModel) channelTable.getTreeTableModel()).isGroupModeEnabled() || parent.getChannelTagInfo(false).isEnabled())) {
                                     return;
                                 }
                             } catch (Exception e) {
