@@ -65,7 +65,12 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MirthTreeTable extends SortableTreeTable {
+
     private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
+    private static String PREFERENCE_COLUMN_ORDER_MAP = "TreeColumnOrderMap";
+    private static String PREFERENCE_SORT_ORDER = "TreeSortOrder";
+    private static String PREFERENCE_SORT_ORDER_COLUMN = "TreeSortOrderColumn";
+
     private Map<String, Set<String>> customHiddenColumnMap;
     private String channelId;
 
@@ -100,7 +105,7 @@ public class MirthTreeTable extends SortableTreeTable {
         if (StringUtils.isNotEmpty(prefix)) {
             try {
                 userPreferences = Preferences.userNodeForPackage(Mirth.class);
-                String columns = userPreferences.get(prefix + "ColumnOrderMap", "");
+                String columns = userPreferences.get(prefix + PREFERENCE_COLUMN_ORDER_MAP, "");
 
                 if (StringUtils.isNotEmpty(columns)) {
                     columnOrderMap = (Map<String, Integer>) ObjectXMLSerializer.getInstance().deserialize(columns, Map.class);
@@ -109,11 +114,11 @@ public class MirthTreeTable extends SortableTreeTable {
             }
 
             try {
-                String order = userPreferences.get(prefix + "SortOrder", "");
+                String order = userPreferences.get(prefix + PREFERENCE_SORT_ORDER, "");
 
                 if (StringUtils.isNotEmpty(order)) {
                     sortOrder = ObjectXMLSerializer.getInstance().deserialize(order, SortOrder.class);
-                    sortOrderColumn = userPreferences.getInt(prefix + "SortOrderColumn", -1);
+                    sortOrderColumn = userPreferences.getInt(prefix + PREFERENCE_SORT_ORDER_COLUMN, -1);
                 }
             } catch (Exception e) {
             }
@@ -400,7 +405,7 @@ public class MirthTreeTable extends SortableTreeTable {
                     }
                 }
 
-                userPreferences.put(prefix + "ColumnOrderMap", ObjectXMLSerializer.getInstance().serialize(new HashMap<String, Integer>(columnOrderMap)));
+                userPreferences.put(prefix + PREFERENCE_COLUMN_ORDER_MAP, ObjectXMLSerializer.getInstance().serialize(new HashMap<String, Integer>(columnOrderMap)));
             }
         } catch (Exception e) {
         }
@@ -470,8 +475,8 @@ public class MirthTreeTable extends SortableTreeTable {
             if (StringUtils.isNotEmpty(prefix)) {
                 SortOrder order = getSortOrder(column);
 
-                userPreferences.put(prefix + "SortOrder", ObjectXMLSerializer.getInstance().serialize(order));
-                userPreferences.putInt(prefix + "SortOrderColumn", column);
+                userPreferences.put(prefix + PREFERENCE_SORT_ORDER, ObjectXMLSerializer.getInstance().serialize(order));
+                userPreferences.putInt(prefix + PREFERENCE_SORT_ORDER_COLUMN, column);
 
                 sortOrder = order;
                 sortOrderColumn = column;
@@ -482,9 +487,9 @@ public class MirthTreeTable extends SortableTreeTable {
 
     public void restoreDefaultColumnPreferences() {
         try {
-            userPreferences.put(prefix + "ColumnOrderMap", "");
-            userPreferences.put(prefix + "SortOrder", "");
-            userPreferences.putInt(prefix + "SortOrderColumn", -1);
+            userPreferences.put(prefix + PREFERENCE_COLUMN_ORDER_MAP, "");
+            userPreferences.put(prefix + PREFERENCE_SORT_ORDER, "");
+            userPreferences.putInt(prefix + PREFERENCE_SORT_ORDER_COLUMN, -1);
 
             if (StringUtils.isNotEmpty(prefix)) {
                 columnOrderMap.clear();
