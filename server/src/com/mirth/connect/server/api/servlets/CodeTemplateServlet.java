@@ -68,7 +68,7 @@ public class CodeTemplateServlet extends MirthServlet implements CodeTemplateSer
     }
 
     @Override
-    public boolean updateCodeTemplateLibraries(Set<CodeTemplateLibrary> libraries, boolean override) {
+    public boolean updateCodeTemplateLibraries(List<CodeTemplateLibrary> libraries, boolean override) {
         try {
             return codeTemplateController.updateLibraries(libraries, context, override);
         } catch (ControllerException e) {
@@ -135,7 +135,7 @@ public class CodeTemplateServlet extends MirthServlet implements CodeTemplateSer
     }
 
     @Override
-    public CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(Set<CodeTemplateLibrary> libraries, Set<String> removedLibraryIds, Set<CodeTemplate> updatedCodeTemplates, Set<String> removedCodeTemplateIds, boolean override) {
+    public CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, Set<String> removedLibraryIds, List<CodeTemplate> updatedCodeTemplates, Set<String> removedCodeTemplateIds, boolean override) {
         return codeTemplateController.updateLibrariesAndTemplates(libraries, removedLibraryIds, updatedCodeTemplates, removedCodeTemplateIds, context, override);
     }
 }

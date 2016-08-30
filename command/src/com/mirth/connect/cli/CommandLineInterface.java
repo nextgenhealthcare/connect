@@ -977,7 +977,7 @@ public class CommandLineInterface {
                 libraryMap.put(library.getId(), library);
             }
 
-            CodeTemplateLibrarySaveResult updateSummary = client.updateLibrariesAndTemplates(new HashSet<CodeTemplateLibrary>(libraryMap.values()), new HashSet<String>(), new HashSet<CodeTemplate>(codeTemplateMap.values()), new HashSet<String>(), force);
+            CodeTemplateLibrarySaveResult updateSummary = client.updateLibrariesAndTemplates(new ArrayList<CodeTemplateLibrary>(libraryMap.values()), new HashSet<String>(), new ArrayList<CodeTemplate>(codeTemplateMap.values()), new HashSet<String>(), force);
 
             if (!updateSummary.isOverrideNeeded()) {
                 if (updateSummary.isLibrariesSuccess()) {
@@ -1066,7 +1066,7 @@ public class CommandLineInterface {
             return;
         }
 
-        Set<CodeTemplateLibrary> updatedLibraries = new HashSet<CodeTemplateLibrary>();
+        List<CodeTemplateLibrary> updatedLibraries = new ArrayList<CodeTemplateLibrary>();
         for (CodeTemplateLibrary library : libraries) {
             if (!matchedLibraries.contains(library)) {
                 updatedLibraries.add(library);

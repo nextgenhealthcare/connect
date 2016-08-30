@@ -676,7 +676,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     }
 
     private CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(Map<String, CodeTemplateLibrary> libraries, Map<String, CodeTemplateLibrary> removedLibraries, Map<String, CodeTemplate> updatedCodeTemplates, Map<String, CodeTemplate> removedCodeTemplates, boolean override) throws Exception {
-        return parent.mirthClient.updateLibrariesAndTemplates(new HashSet<CodeTemplateLibrary>(libraries.values()), new HashSet<String>(removedLibraries.keySet()), new HashSet<CodeTemplate>(updatedCodeTemplates.values()), new HashSet<String>(removedCodeTemplates.keySet()), override);
+        return parent.mirthClient.updateLibrariesAndTemplates(new ArrayList<CodeTemplateLibrary>(libraries.values()), new HashSet<String>(removedLibraries.keySet()), new ArrayList<CodeTemplate>(updatedCodeTemplates.values()), new HashSet<String>(removedCodeTemplates.keySet()), override);
     }
 
     private void handleUpdateSummary(Map<String, CodeTemplateLibrary> libraries, Map<String, CodeTemplate> updatedCodeTemplates, Map<String, CodeTemplate> removedCodeTemplates, boolean override, TreeTableNode selectedNode, Set<String> expandedLibraryIds, CodeTemplateLibrarySaveResult updateSummary) {
@@ -1369,8 +1369,8 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         };
 
         DefaultTreeTableModel model = new CodeTemplateTreeTableModel();
-        model.setColumnIdentifiers(Arrays.asList(new String[] { "Name", "Id", "Type",
-                "Description", "Revision", "Last Modified" }));
+        model.setColumnIdentifiers(Arrays.asList(new String[] { "Name", "Id", "Type", "Description",
+                "Revision", "Last Modified" }));
 
         CodeTemplateRootTreeTableNode rootNode = new CodeTemplateRootTreeTableNode();
         model.setRoot(rootNode);

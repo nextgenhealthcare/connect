@@ -32,7 +32,7 @@ public abstract class CodeTemplateController extends Controller {
 
     public abstract CodeTemplateLibrary getLibraryByName(String name) throws ControllerException;
 
-    public abstract boolean updateLibraries(Set<CodeTemplateLibrary> libraries, ServerEventContext context, boolean override) throws ControllerException;
+    public abstract boolean updateLibraries(List<CodeTemplateLibrary> libraries, ServerEventContext context, boolean override) throws ControllerException;
 
     public abstract List<CodeTemplate> getCodeTemplates(Set<String> codeTemplateIds) throws ControllerException;
 
@@ -46,5 +46,5 @@ public abstract class CodeTemplateController extends Controller {
 
     public abstract void removeCodeTemplate(String codeTemplateId, ServerEventContext context) throws ControllerException;
 
-    public abstract CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(Set<CodeTemplateLibrary> libraries, Set<String> removedLibraryIds, Set<CodeTemplate> updatedCodeTemplates, Set<String> removedCodeTemplateIds, ServerEventContext context, boolean override);
+    public abstract CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, Set<String> removedLibraryIds, List<CodeTemplate> updatedCodeTemplates, Set<String> removedCodeTemplateIds, ServerEventContext context, boolean override);
 }

@@ -70,7 +70,7 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @ApiOperation("Replaces all code template libraries.")
     @MirthOperation(name = "updateCodeTemplateLibraries", display = "Update code template libraries", permission = Permissions.CODE_TEMPLATES_MANAGE)
     public boolean updateCodeTemplateLibraries(// @formatter:off
-            @Param("libraries") @ApiParam(value = "The list of code template libraries to replace with.", required = true) Set<CodeTemplateLibrary> libraries,
+            @Param("libraries") @ApiParam(value = "The list of code template libraries to replace with.", required = true) List<CodeTemplateLibrary> libraries,
             @Param("override") @ApiParam(value = "If true, the code template library will be updated even if a different revision exists on the server.", defaultValue = "false") @QueryParam("override") boolean override) throws ClientException;
     // @formatter:on
 
@@ -114,9 +114,9 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @ApiOperation("Updates all libraries and updates/removes selected code templates in one request.")
     @MirthOperation(name = "updateCodeTemplatesAndLibraries", display = "Update code templates and libraries", permission = Permissions.CODE_TEMPLATES_MANAGE)
     public CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(// @formatter:off
-            @Param("libraries") @ApiParam(value = "The set of code template libraries to replace with.") @FormDataParam("libraries") Set<CodeTemplateLibrary> libraries,
+            @Param("libraries") @ApiParam(value = "The set of code template libraries to replace with.") @FormDataParam("libraries") List<CodeTemplateLibrary> libraries,
             @Param("removedLibraryIds") @ApiParam(value = "All library IDs known to be removed.") @FormDataParam("removedLibraryIds") Set<String> removedLibraryIds,
-            @Param("updatedCodeTemplates") @ApiParam(value = "The set of code templates to update.") @FormDataParam("updatedCodeTemplates") Set<CodeTemplate> updatedCodeTemplates,
+            @Param("updatedCodeTemplates") @ApiParam(value = "The set of code templates to update.") @FormDataParam("updatedCodeTemplates") List<CodeTemplate> updatedCodeTemplates,
             @Param("removedCodeTemplateIds") @ApiParam(value = "All code template IDs known to be removed.") @FormDataParam("removedCodeTemplateIds") Set<String> removedCodeTemplateIds,
             @Param("override") @ApiParam(value = "If true, the libraries and code templates will be updated even if different revisions exist on the server.", defaultValue = "false") @QueryParam("override") boolean override) throws ClientException;
     // @formatter:on

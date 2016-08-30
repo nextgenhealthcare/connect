@@ -189,7 +189,7 @@ public class MirthWebServer extends Server {
             // Since webapps may use JSP and JSTL, we need to enable the AnnotationConfiguration in order to correctly set up the JSP container.
             Configuration.ClassList classlist = Configuration.ClassList.setServerDefault(this);
             classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration", "org.eclipse.jetty.annotations.AnnotationConfiguration");
-            
+
             for (File file : listOfFiles) {
                 logger.debug("webApp File Path: " + file.getAbsolutePath());
 
@@ -211,12 +211,14 @@ public class MirthWebServer extends Server {
             }
         }
 
+        // TODO: Fully support backward compatibility for models before exposing earlier servlets
+        addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, Version.getLatest());
         // Add Jersey API / swagger servlets for each specific version
-        Version version = Version.getApiEarliest();
-        while (version != null) {
-            addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, version);
-            version = version.getNextVersion();
-        }
+//        Version version = Version.getApiEarliest();
+//        while (version != null) {
+//            addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, version);
+//            version = version.getNextVersion();
+//        }
         // Add servlets for the main (default) API endpoint
         addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, null);
 
@@ -276,7 +278,7 @@ public class MirthWebServer extends Server {
         config.addCustomizer(new SecureRequestCustomizer());
 
         ServerConnector sslConnector = new ServerConnector(this, new SslConnectionFactory(contextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(config));
-        
+
         /*
          * http://www.mirthcorp.com/community/issues/browse/MIRTH-3070 Keep SSL connections alive
          * for 24 hours unless closed by the client. When the Administrator runs on Windows, the SSL
@@ -382,12 +384,14 @@ public class MirthWebServer extends Server {
         // These contain only the shared servlet interfaces, and will be used to generate the Swagger models.
         Set<String> servletInterfacePackages = new LinkedHashSet<String>();
         Set<Class<?>> servletInterfaces = new LinkedHashSet<Class<?>>();
-        servletInterfaces.addAll(getApiClassesForVersion("com.mirth.connect.client.core.api.servlets", version, new Class<?>[] { BaseServletInterface.class }, new Class<?>[0]));
+        servletInterfaces.addAll(getApiClassesForVersion("com.mirth.connect.client.core.api.servlets", version, new Class<?>[] {
+                BaseServletInterface.class }, new Class<?>[0]));
 
         // These are JAX-RS providers that should be shared on the client and server.
         Set<String> coreProviderPackages = new LinkedHashSet<String>();
         Set<Class<?>> coreProviderClasses = new LinkedHashSet<Class<?>>();
-        coreProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.client.core.api.providers", version, new Class<?>[0], new Class<?>[] { Provider.class }));
+        coreProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.client.core.api.providers", version, new Class<?>[0], new Class<?>[] {
+                Provider.class }));
         coreProviderClasses.add(MultiPartFeature.class);
 
         /*
@@ -398,8 +402,10 @@ public class MirthWebServer extends Server {
         Set<String> serverProviderPackages = new LinkedHashSet<String>();
         serverProviderPackages.add("io.swagger.jaxrs.listing");
         Set<Class<?>> serverProviderClasses = new LinkedHashSet<Class<?>>();
-        serverProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.server.api.providers", version, new Class<?>[0], new Class<?>[] { Provider.class }));
-        serverProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.server.api.servlets", version, new Class<?>[] { MirthServlet.class }, new Class<?>[0]));
+        serverProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.server.api.providers", version, new Class<?>[0], new Class<?>[] {
+                Provider.class }));
+        serverProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.server.api.servlets", version, new Class<?>[] {
+                MirthServlet.class }, new Class<?>[0]));
 
         // Add JAX-RS providers from extensions
         for (MetaData metaData : CollectionUtils.union(extensionController.getPluginMetaData().values(), extensionController.getConnectorMetaData().values())) {

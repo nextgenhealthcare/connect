@@ -645,7 +645,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             if (serverConfiguration.getCodeTemplateLibraries() != null) {
-                Set<CodeTemplateLibrary> clonedLibraries = new HashSet<CodeTemplateLibrary>();
+                List<CodeTemplateLibrary> clonedLibraries = new ArrayList<CodeTemplateLibrary>();
                 for (CodeTemplateLibrary library : serverConfiguration.getCodeTemplateLibraries()) {
                     clonedLibraries.add(new CodeTemplateLibrary(library));
                 }
@@ -1241,7 +1241,8 @@ public class DefaultConfigurationController extends ConfigurationController {
             logger.debug("generated new certificate with serial number: " + ((X509Certificate) sslCert).getSerialNumber());
 
             // add the generated SSL cert to the keystore using the key password
-            keyStore.setKeyEntry(certificateAlias, sslKeyPair.getPrivate(), keyPassword, new Certificate[] { sslCert });
+            keyStore.setKeyEntry(certificateAlias, sslKeyPair.getPrivate(), keyPassword, new Certificate[] {
+                    sslCert });
         } else {
             logger.debug("found certificate in keystore");
         }

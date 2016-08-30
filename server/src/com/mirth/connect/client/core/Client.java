@@ -2083,7 +2083,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see CodeTemplateServletInterface#updateCodeTemplateLibraries
      */
     @Override
-    public synchronized boolean updateCodeTemplateLibraries(Set<CodeTemplateLibrary> libraries, boolean override) throws ClientException {
+    public synchronized boolean updateCodeTemplateLibraries(List<CodeTemplateLibrary> libraries, boolean override) throws ClientException {
         return getServlet(CodeTemplateServletInterface.class).updateCodeTemplateLibraries(libraries, override);
     }
 
@@ -2162,7 +2162,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see CodeTemplateServletInterface#updateLibrariesAndTemplates
      */
     @Override
-    public synchronized CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(Set<CodeTemplateLibrary> libraries, Set<String> removedLibraryIds, Set<CodeTemplate> updatedCodeTemplates, Set<String> removedCodeTemplateIds, boolean override) throws ClientException {
+    public synchronized CodeTemplateLibrarySaveResult updateLibrariesAndTemplates(List<CodeTemplateLibrary> libraries, Set<String> removedLibraryIds, List<CodeTemplate> updatedCodeTemplates, Set<String> removedCodeTemplateIds, boolean override) throws ClientException {
         return getServlet(CodeTemplateServletInterface.class).updateLibrariesAndTemplates(libraries, removedLibraryIds, updatedCodeTemplates, removedCodeTemplateIds, override);
     }
 
