@@ -55,10 +55,14 @@ public class JSONTokenMarker extends TokenMarker {
                     case Token.NULL:
                         switch (c) {
                             case '"': // inside a String
-                                if (states.peek().equals(JSONTokenState.OBJECT_KEY)) {
-                                    token = Token.KEYWORD1; // an object key
-                                } else {
-                                    token = Token.KEYWORD3; // an object or array value
+                                //If the state we peek is null we will start marking as there are no current states
+                                JSONTokenState peek = states.peek();
+                                if (peek != null) {
+                                    if (states.peek().equals(JSONTokenState.OBJECT_KEY)) {
+                                        token = Token.KEYWORD1; // an object key
+                                    } else {
+                                        token = Token.KEYWORD3; // an object or array value
+                                    }
                                 }
                                 addToken(i1 - lastOffset, token);
                                 lastOffset = lastKeyword = i1;
