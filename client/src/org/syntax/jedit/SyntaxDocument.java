@@ -92,9 +92,10 @@ public class SyntaxDocument extends MirthPlainDocument
                 tokenMarker.markTokens(lineSegment, i);
             }
         }
-        catch (BadLocationException bl)
+        catch(Throwable t)
         {
-            bl.printStackTrace();
+            //MIRTH-4034 - Setting the syntax document should be safe to call
+            t.printStackTrace();
         }
     }
 
