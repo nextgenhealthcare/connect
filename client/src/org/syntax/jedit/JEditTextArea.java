@@ -1320,7 +1320,12 @@ public class JEditTextArea extends JComponent {
 		// Clear the `magic' caret position used by up/down
 		magicCaret = -1;
 
-		scrollToCaret();
+		try{
+		    //MIRTH-4041 - Make safe because this call can be problematic with TokenMarker
+		    scrollToCaret();
+		}catch(Throwable t){
+		    t.printStackTrace();
+		}
 	}
 
 	/**
