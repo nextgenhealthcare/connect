@@ -100,7 +100,17 @@ public class DonkeyStatisticsUpdater extends Thread implements StatisticsUpdater
                 if (t instanceof InterruptedException) {
                     throw (InterruptedException) t;
                 }
-                logger.error("Unable to update statistics.", t);
+
+                if (t instanceof ChannelDoesNotExistException) {
+                    ChannelDoesNotExistException e = (ChannelDoesNotExistException) t;
+                    logger.debug("Unable to update statistics.", e);
+
+                    for (String channelId : e.getChannelIds()) {
+                        statistics.remove(channelId);
+                    }
+                } else {
+                    logger.error("Unable to update statistics.", t);
+                }
             } finally {
                 dao.close();
             }

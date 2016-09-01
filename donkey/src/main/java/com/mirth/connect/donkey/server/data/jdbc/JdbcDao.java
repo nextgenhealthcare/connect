@@ -51,6 +51,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.Statistics;
+import com.mirth.connect.donkey.server.data.ChannelDoesNotExistException;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.StatisticsUpdater;
@@ -321,42 +322,55 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void addChannelStatistics(Statistics statistics) {
+        Set<String> failedChannelIds = null;
+
         for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : statistics.getStats().entrySet()) {
-            String channelId = channelEntry.getKey();
-            Map<Integer, Map<Status, Long>> channelAndConnectorStats = channelEntry.getValue();
-            Map<Integer, Map<Status, Long>> connectorStatsToUpdate = new HashMap<Integer, Map<Status, Long>>();
-            Map<Status, Long> channelStats = channelAndConnectorStats.get(null);
+            try {
+                String channelId = channelEntry.getKey();
+                Map<Integer, Map<Status, Long>> channelAndConnectorStats = channelEntry.getValue();
+                Map<Integer, Map<Status, Long>> connectorStatsToUpdate = new HashMap<Integer, Map<Status, Long>>();
+                Map<Status, Long> channelStats = channelAndConnectorStats.get(null);
 
-            for (Entry<Integer, Map<Status, Long>> entry : channelAndConnectorStats.entrySet()) {
-                Integer metaDataId = entry.getKey();
+                for (Entry<Integer, Map<Status, Long>> entry : channelAndConnectorStats.entrySet()) {
+                    Integer metaDataId = entry.getKey();
 
-                // only add connector stats to the statsToUpdate list, not the channel stats
-                if (metaDataId != null) {
-                    Map<Status, Long> connectorStats = entry.getValue();
+                    // only add connector stats to the statsToUpdate list, not the channel stats
+                    if (metaDataId != null) {
+                        Map<Status, Long> connectorStats = entry.getValue();
 
-                    if (hasUpdatableStatistics(connectorStats)) {
-                        connectorStatsToUpdate.put(metaDataId, connectorStats);
+                        if (hasUpdatableStatistics(connectorStats)) {
+                            connectorStatsToUpdate.put(metaDataId, connectorStats);
+                        }
                     }
                 }
-            }
 
-            /*
-             * MIRTH-3042: With certain channel configurations, SQL Server will encounter a deadlock
-             * scenario unless we always update the channel stats row and update it before the
-             * connector stats. We determined that this is because SQL Server creates a page lock
-             * when the statistics update statement references the existing row values in order to
-             * increment them (RECEIVED = RECEIVED + ?). Other databases such as Postgres use only
-             * row locks in this situation so they were not deadlocking. The deadlock scenario was
-             * only confirmed to happen with a channel with multiple asynchronous destinations and
-             * destination queues enabled.
-             */
-            if (!connectorStatsToUpdate.isEmpty() || hasUpdatableStatistics(channelStats)) {
-                updateStatistics(channelId, null, channelStats);
+                /*
+                 * MIRTH-3042: With certain channel configurations, SQL Server will encounter a
+                 * deadlock scenario unless we always update the channel stats row and update it
+                 * before the connector stats. We determined that this is because SQL Server creates
+                 * a page lock when the statistics update statement references the existing row
+                 * values in order to increment them (RECEIVED = RECEIVED + ?). Other databases such
+                 * as Postgres use only row locks in this situation so they were not deadlocking.
+                 * The deadlock scenario was only confirmed to happen with a channel with multiple
+                 * asynchronous destinations and destination queues enabled.
+                 */
+                if (!connectorStatsToUpdate.isEmpty() || hasUpdatableStatistics(channelStats)) {
+                    updateStatistics(channelId, null, channelStats);
 
-                for (Entry<Integer, Map<Status, Long>> entry : connectorStatsToUpdate.entrySet()) {
-                    updateStatistics(channelId, entry.getKey(), entry.getValue());
+                    for (Entry<Integer, Map<Status, Long>> entry : connectorStatsToUpdate.entrySet()) {
+                        updateStatistics(channelId, entry.getKey(), entry.getValue());
+                    }
                 }
+            } catch (ChannelDoesNotExistException e) {
+                if (failedChannelIds == null) {
+                    failedChannelIds = new HashSet<String>();
+                }
+                failedChannelIds.addAll(e.getChannelIds());
             }
+        }
+
+        if (failedChannelIds != null) {
+            throw new ChannelDoesNotExistException(failedChannelIds);
         }
     }
 
@@ -2718,7 +2732,7 @@ public class JdbcDao implements DonkeyDao {
             Long localChannelId = getLocalChannelIds().get(channelId);
 
             if (localChannelId == null) {
-                throw new DonkeyDaoException("Channel ID " + channelId + " does not exist");
+                throw new ChannelDoesNotExistException(channelId);
             } else {
                 return localChannelId;
             }
