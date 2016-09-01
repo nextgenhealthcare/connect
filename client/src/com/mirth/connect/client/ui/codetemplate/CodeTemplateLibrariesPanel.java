@@ -153,6 +153,7 @@ public class CodeTemplateLibrariesPanel extends JPanel {
                     libraryTreeTable.getTreeTableModel().setValueAt(new MutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), true), libraryNode, libraryTreeTable.getHierarchicalColumn());
                 }
                 libraryTreeTable.updateUI();
+                changed = true;
             }
         });
 
@@ -169,6 +170,7 @@ public class CodeTemplateLibrariesPanel extends JPanel {
                     libraryTreeTable.getTreeTableModel().setValueAt(new MutableTriple<String, String, Boolean>(triple.getLeft(), triple.getMiddle(), false), libraryNode, libraryTreeTable.getHierarchicalColumn());
                 }
                 libraryTreeTable.updateUI();
+                changed = true;
             }
         });
 
