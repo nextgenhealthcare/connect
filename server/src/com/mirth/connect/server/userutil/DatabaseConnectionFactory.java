@@ -12,6 +12,8 @@ package com.mirth.connect.server.userutil;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -25,8 +27,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 public class DatabaseConnectionFactory {
 
     private MirthContextFactory contextFactory;
-    private boolean customDriverAttempted;
-    private CustomDriver customDriver;
+    private Map<String, CustomDriverInfo> customDriverInfoMap;
     private Logger logger = Logger.getLogger(getClass());
 
     public DatabaseConnectionFactory(MirthContextFactory contextFactory) {
@@ -49,17 +50,13 @@ public class DatabaseConnectionFactory {
      * @throws SQLException
      */
     public DatabaseConnection createDatabaseConnection(String driver, String address, String username, String password) throws SQLException {
-        try {
-            initializeDriver(driver);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        CustomDriverInfo customDriverInfo = getCustomDriverInfo(driver);
 
         Properties info = new Properties();
         info.setProperty("user", username);
         info.setProperty("password", password);
-        if (customDriver != null) {
-            return new DatabaseConnection(customDriver, address, info);
+        if (customDriverInfo != null && customDriverInfo.customDriver != null) {
+            return new DatabaseConnection(customDriverInfo.customDriver, address, info);
         } else {
             return new DatabaseConnection(address, info);
         }
@@ -77,14 +74,10 @@ public class DatabaseConnectionFactory {
      * @throws SQLException
      */
     public DatabaseConnection createDatabaseConnection(String driver, String address) throws SQLException {
-        try {
-            initializeDriver(driver);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        CustomDriverInfo customDriverInfo = getCustomDriverInfo(driver);
 
-        if (customDriver != null) {
-            return new DatabaseConnection(customDriver, address);
+        if (customDriverInfo != null && customDriverInfo.customDriver != null) {
+            return new DatabaseConnection(customDriverInfo.customDriver, address);
         } else {
             return new DatabaseConnection(address);
         }
@@ -106,18 +99,14 @@ public class DatabaseConnectionFactory {
      * @throws SQLException
      */
     public Connection createConnection(String driver, String address, String username, String password) throws SQLException {
-        try {
-            initializeDriver(driver);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        CustomDriverInfo customDriverInfo = getCustomDriverInfo(driver);
 
         Properties info = new Properties();
         info.setProperty("user", username);
         info.setProperty("password", password);
 
-        if (customDriver != null) {
-            return customDriver.connect(address, info);
+        if (customDriverInfo != null && customDriverInfo.customDriver != null) {
+            return customDriverInfo.customDriver.connect(address, info);
         } else {
             return DriverManager.getConnection(address, info);
         }
@@ -132,12 +121,25 @@ public class DatabaseConnectionFactory {
      * @throws Exception
      */
     public void initializeDriver(String driver) throws Exception {
-        if (!customDriverAttempted) {
+        initializeDriverAndGetInfo(driver);
+    }
+
+    private CustomDriverInfo initializeDriverAndGetInfo(String driver) throws Exception {
+        if (customDriverInfoMap == null) {
+            customDriverInfoMap = new HashMap<String, CustomDriverInfo>();
+        }
+        CustomDriverInfo customDriverInfo = customDriverInfoMap.get(driver);
+        if (customDriverInfo == null) {
+            customDriverInfo = new CustomDriverInfo();
+            customDriverInfoMap.put(driver, customDriverInfo);
+        }
+
+        if (!customDriverInfo.customDriverAttempted) {
             try {
                 ClassLoader isolatedClassLoader = contextFactory.getIsolatedClassLoader();
                 if (isolatedClassLoader != null) {
-                    customDriver = new CustomDriver(isolatedClassLoader, driver);
-                    logger.debug("Custom driver created: " + customDriver.toString() + ", Version " + customDriver.getMajorVersion() + "." + customDriver.getMinorVersion());
+                    customDriverInfo.customDriver = new CustomDriver(isolatedClassLoader, driver);
+                    logger.debug("Custom driver created: " + customDriverInfo.customDriver.toString() + ", Version " + customDriverInfo.customDriver.getMajorVersion() + "." + customDriverInfo.customDriver.getMinorVersion());
                 } else {
                     logger.debug("Custom classloader is not being used, defaulting to DriverManager.");
                 }
@@ -145,12 +147,28 @@ public class DatabaseConnectionFactory {
                 logger.debug("Error creating custom driver, defaulting to DriverManager.", e);
             }
 
-            customDriverAttempted = true;
+            customDriverInfo.customDriverAttempted = true;
         }
 
         // If a custom driver was not created, use the default one
-        if (customDriver == null) {
+        if (customDriverInfo.customDriver == null) {
             Class.forName(driver, true, Thread.currentThread().getContextClassLoader());
         }
+
+        return customDriverInfo;
+    }
+
+    private CustomDriverInfo getCustomDriverInfo(String driver) {
+        try {
+            return initializeDriverAndGetInfo(driver);
+        } catch (Exception e) {
+            logger.error("Error initializing DatabaseConnectionFactory driver: " + driver, e);
+        }
+        return null;
+    }
+
+    private class CustomDriverInfo {
+        public boolean customDriverAttempted;
+        public CustomDriver customDriver;
     }
 }
