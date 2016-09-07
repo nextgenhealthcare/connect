@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.mozilla.javascript.Context;
+
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
@@ -52,12 +54,7 @@ public class DestinationSet {
      */
     public boolean remove(Object metaDataIdOrConnectorName) {
         if (metaDataIds != null) {
-            Integer metaDataId = null;
-            if (metaDataIdOrConnectorName instanceof Number) {
-                metaDataId = ((Number) metaDataIdOrConnectorName).intValue();
-            } else if (metaDataIdOrConnectorName instanceof String && destinationIdMap != null) {
-                metaDataId = destinationIdMap.get((String) metaDataIdOrConnectorName);
-            }
+            Integer metaDataId = convertToMetaDataId(metaDataIdOrConnectorName);
 
             if (metaDataId != null) {
                 return metaDataIds.remove(metaDataId);
@@ -99,12 +96,7 @@ public class DestinationSet {
      */
     public boolean removeAllExcept(Object metaDataIdOrConnectorName) {
         if (metaDataIds != null) {
-            Integer metaDataId = null;
-            if (metaDataIdOrConnectorName instanceof Number) {
-                metaDataId = ((Number) metaDataIdOrConnectorName).intValue();
-            } else if (metaDataIdOrConnectorName instanceof String && destinationIdMap != null) {
-                metaDataId = destinationIdMap.get((String) metaDataIdOrConnectorName);
-            }
+            Integer metaDataId = convertToMetaDataId(metaDataIdOrConnectorName);
 
             if (metaDataId != null) {
                 return metaDataIds.retainAll(Collections.singleton(metaDataId));
@@ -128,12 +120,7 @@ public class DestinationSet {
             Set<Integer> set = new HashSet<Integer>();
 
             for (Object metaDataIdOrConnectorName : metaDataIdOrConnectorNames) {
-                Integer metaDataId = null;
-                if (metaDataIdOrConnectorName instanceof Number) {
-                    metaDataId = ((Number) metaDataIdOrConnectorName).intValue();
-                } else if (metaDataIdOrConnectorName instanceof String && destinationIdMap != null) {
-                    metaDataId = destinationIdMap.get((String) metaDataIdOrConnectorName);
-                }
+                Integer metaDataId = convertToMetaDataId(metaDataIdOrConnectorName);
 
                 if (metaDataId != null) {
                     set.add(metaDataId);
@@ -160,5 +147,19 @@ public class DestinationSet {
         }
 
         return false;
+    }
+
+    private Integer convertToMetaDataId(Object metaDataIdOrConnectorName) {
+        if (metaDataIdOrConnectorName != null) {
+            if (metaDataIdOrConnectorName instanceof Number) {
+                return ((Number) metaDataIdOrConnectorName).intValue();
+            } else if (metaDataIdOrConnectorName.getClass().getName().equals("org.mozilla.javascript.NativeNumber")) {
+                return (Integer) Context.jsToJava(metaDataIdOrConnectorName, int.class);
+            } else if (destinationIdMap != null) {
+                return destinationIdMap.get(metaDataIdOrConnectorName.toString());
+            }
+        }
+
+        return null;
     }
 }
