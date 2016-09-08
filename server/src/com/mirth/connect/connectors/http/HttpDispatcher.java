@@ -223,10 +223,11 @@ public class HttpDispatcher extends DestinationConnector {
         File tempFile = null;
         int socketTimeout = NumberUtils.toInt(httpDispatcherProperties.getSocketTimeout(), 30000);
 
+        long dispatcherId = connectorMessage.getDispatcherId();
+
         try {
             configuration.configureDispatcher(this, httpDispatcherProperties);
 
-            long dispatcherId = connectorMessage.getDispatcherId();
             client = clients.get(dispatcherId);
             if (client == null) {
                 BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
@@ -395,10 +396,16 @@ public class HttpDispatcher extends DestinationConnector {
                 responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Received error response from HTTP server.", null);
                 responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), responseData, null);
             }
-        } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error connecting to HTTP server.", e));
-            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error connecting to HTTP server", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error connecting to HTTP server", e);
+        } catch (Throwable t) {
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error connecting to HTTP server.", t));
+            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error connecting to HTTP server", t);
+            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error connecting to HTTP server", t);
+
+            if (t instanceof Error || t instanceof IllegalStateException) {
+                // If an error occurred we can't guarantee the state of the client, so close it
+                HttpClientUtils.closeQuietly(client);
+                clients.remove(dispatcherId);
+            }
         } finally {
             try {
                 HttpClientUtils.closeQuietly(httpResponse);
