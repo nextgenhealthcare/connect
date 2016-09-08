@@ -31,6 +31,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -52,6 +53,7 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -77,8 +79,11 @@ public class ServerConnection implements Connector {
     private static final int CONNECT_TIMEOUT = 10000;
 
     private Logger logger = Logger.getLogger(getClass());
-    private CloseableHttpClient client;
+    private Registry<ConnectionSocketFactory> socketFactoryRegistry;
+    private CookieStore cookieStore;
+    private SocketConfig socketConfig;
     private RequestConfig requestConfig;
+    private CloseableHttpClient client;
     private final Operation currentOp = new Operation(null, null, null, false);
     private HttpRequestBase syncRequestBase;
     private HttpRequestBase abortPendingRequestBase;
@@ -105,19 +110,13 @@ public class ServerConnection implements Connector {
         if (allowHTTP) {
             builder.register("http", PlainConnectionSocketFactory.getSocketFactory());
         }
-        Registry<ConnectionSocketFactory> socketFactoryRegistry = builder.build();
+        socketFactoryRegistry = builder.build();
 
-        PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-        httpClientConnectionManager.setDefaultMaxPerRoute(5);
-        httpClientConnectionManager.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build());
-        // MIRTH-3962: The stale connection settings has been deprecated, and this is recommended instead
-        httpClientConnectionManager.setValidateAfterInactivity(5000);
+        cookieStore = new BasicCookieStore();
+        socketConfig = SocketConfig.custom().setSoTimeout(timeout).build();
+        requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(timeout).build();
 
-        HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager);
-        HttpUtil.configureClientBuilder(clientBuilder);
-
-        client = clientBuilder.build();
-        requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setConnectionRequestTimeout(CONNECT_TIMEOUT).setSocketTimeout(timeout).build();
+        createClient();
     }
 
     @Override
@@ -169,11 +168,30 @@ public class ServerConnection implements Connector {
         // Do nothing
     }
 
-    public void shutdown() {
+    private void createClient() {
+        PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+        httpClientConnectionManager.setDefaultMaxPerRoute(5);
+        httpClientConnectionManager.setDefaultSocketConfig(socketConfig);
+        // MIRTH-3962: The stale connection settings has been deprecated, and this is recommended instead
+        httpClientConnectionManager.setValidateAfterInactivity(5000);
+
+        HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager).setDefaultCookieStore(cookieStore);
+        HttpUtil.configureClientBuilder(clientBuilder);
+
+        client = clientBuilder.build();
+    }
+
+    public synchronized void shutdown() {
         // Shutdown the abort thread
         abortExecutor.shutdownNow();
 
         HttpClientUtils.closeQuietly(client);
+    }
+
+    public synchronized void restart() {
+        shutdown();
+        abortExecutor = Executors.newSingleThreadExecutor();
+        createClient();
     }
 
     /**
@@ -212,7 +230,15 @@ public class ServerConnection implements Connector {
                 shouldClose = false;
             }
             return responseContext;
+        } catch (Error e) {
+            // If an error occurred we can't guarantee the state of the client, so close it
+            restart();
+            throw e;
         } catch (Exception e) {
+            if (e instanceof IllegalStateException) {
+                restart();
+            }
+
             if (requestBase != null && requestBase.isAborted()) {
                 throw new RequestAbortedException(e);
             } else if (e instanceof ClientException) {
@@ -248,7 +274,15 @@ public class ServerConnection implements Connector {
                 shouldClose = false;
             }
             return responseContext;
+        } catch (Error e) {
+            // If an error occurred we can't guarantee the state of the client, so close it
+            restart();
+            throw e;
         } catch (Exception e) {
+            if (e instanceof IllegalStateException) {
+                restart();
+            }
+
             if (requestBase != null && requestBase.isAborted()) {
                 throw new RequestAbortedException(e);
             } else if (e instanceof ClientException) {
@@ -294,7 +328,15 @@ public class ServerConnection implements Connector {
                     shouldClose = false;
                 }
                 return responseContext;
+            } catch (Error e) {
+                // If an error occurred we can't guarantee the state of the client, so close it
+                restart();
+                throw e;
             } catch (Exception e) {
+                if (e instanceof IllegalStateException) {
+                    restart();
+                }
+
                 if (requestBase != null && requestBase.isAborted()) {
                     return new ClientResponse(Status.NO_CONTENT, request);
                 } else if (e instanceof ClientException) {
