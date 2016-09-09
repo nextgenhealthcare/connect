@@ -232,10 +232,12 @@ public class ServerConnection implements Connector {
             return responseContext;
         } catch (Error e) {
             // If an error occurred we can't guarantee the state of the client, so close it
+            HttpUtil.closeVeryQuietly(response);
             restart();
             throw e;
         } catch (Exception e) {
             if (e instanceof IllegalStateException) {
+                HttpUtil.closeVeryQuietly(response);
                 restart();
             }
 
@@ -247,7 +249,7 @@ public class ServerConnection implements Connector {
             throw new ClientException(e);
         } finally {
             if (shouldClose) {
-                HttpClientUtils.closeQuietly(response);
+                HttpUtil.closeVeryQuietly(response);
 
                 synchronized (currentOp) {
                     currentOp.setName(null);
@@ -276,10 +278,12 @@ public class ServerConnection implements Connector {
             return responseContext;
         } catch (Error e) {
             // If an error occurred we can't guarantee the state of the client, so close it
+            HttpUtil.closeVeryQuietly(response);
             restart();
             throw e;
         } catch (Exception e) {
             if (e instanceof IllegalStateException) {
+                HttpUtil.closeVeryQuietly(response);
                 restart();
             }
 
@@ -291,7 +295,7 @@ public class ServerConnection implements Connector {
             throw new ClientException(e);
         } finally {
             if (shouldClose) {
-                HttpClientUtils.closeQuietly(response);
+                HttpUtil.closeVeryQuietly(response);
             }
         }
     }
@@ -330,10 +334,12 @@ public class ServerConnection implements Connector {
                 return responseContext;
             } catch (Error e) {
                 // If an error occurred we can't guarantee the state of the client, so close it
+                HttpUtil.closeVeryQuietly(response);
                 restart();
                 throw e;
             } catch (Exception e) {
                 if (e instanceof IllegalStateException) {
+                    HttpUtil.closeVeryQuietly(response);
                     restart();
                 }
 
@@ -346,7 +352,7 @@ public class ServerConnection implements Connector {
             } finally {
                 abortTask.decrementRequestsInQueue();
                 if (shouldClose) {
-                    HttpClientUtils.closeQuietly(response);
+                    HttpUtil.closeVeryQuietly(response);
                 }
             }
         }

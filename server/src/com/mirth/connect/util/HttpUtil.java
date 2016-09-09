@@ -10,6 +10,8 @@
 package com.mirth.connect.util;
 
 import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.util.PublicSuffixMatcher;
 import org.apache.http.conn.util.PublicSuffixMatcherLoader;
@@ -49,5 +51,12 @@ public class HttpUtil {
         cookieSpecBuilder.register(CookieSpecs.NETSCAPE, new NetscapeDraftSpecProvider());
         cookieSpecBuilder.register(CookieSpecs.IGNORE_COOKIES, new IgnoreSpecProvider());
         clientBuilder.setDefaultCookieSpecRegistry(cookieSpecBuilder.build());
+    }
+
+    public static void closeVeryQuietly(CloseableHttpResponse response) {
+        try {
+            HttpClientUtils.closeQuietly(response);
+        } catch (Throwable ignore) {
+        }
     }
 }
