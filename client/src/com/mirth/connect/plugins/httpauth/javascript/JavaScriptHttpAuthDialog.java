@@ -29,6 +29,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.model.ContextType;
+import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class JavaScriptHttpAuthDialog extends MirthDialog {
 
@@ -108,7 +109,7 @@ public class JavaScriptHttpAuthDialog extends MirthDialog {
     private boolean validateScript(boolean alertOnSuccess) {
         boolean success = false;
         StringBuilder sb = new StringBuilder();
-        Context context = Context.enter();
+        Context context = JavaScriptContextUtil.getGlobalContextForValidation();
         try {
             context.compileString("function rhinoWrapper() {" + scriptPane.getText() + "\n}", UUID.randomUUID().toString(), 1, null);
             sb.append("JavaScript was successfully validated.");

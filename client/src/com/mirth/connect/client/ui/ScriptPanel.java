@@ -29,6 +29,7 @@ import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.model.ContextType;
+import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class ScriptPanel extends JPanel {
 
@@ -71,7 +72,7 @@ public class ScriptPanel extends JPanel {
 
     public void validateCurrentScript() {
         StringBuilder sb = new StringBuilder();
-        Context context = Context.enter();
+        Context context = JavaScriptContextUtil.getGlobalContextForValidation();
         try {
             context.compileString("function rhinoWrapper() {" + getScriptTextArea().getText() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
             sb.append("JavaScript was successfully validated.");
@@ -88,7 +89,7 @@ public class ScriptPanel extends JPanel {
 
     public String validateScript(String script) {
         String error = null;
-        Context context = Context.enter();
+        Context context = JavaScriptContextUtil.getGlobalContextForValidation();;
         try {
             context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
         } catch (EvaluatorException e) {

@@ -91,6 +91,7 @@ import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.plugins.ChannelTabPlugin;
+import com.mirth.connect.util.JavaScriptContextUtil;
 import com.mirth.connect.util.PropertyVerifier;
 
 /** The channel editor panel. Majority of the client application */
@@ -905,7 +906,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     private boolean compareScripts(String savedScript, String defualtScript) {
-        Context context = Context.enter();
+        Context context = JavaScriptContextUtil.getGlobalContextForValidation();
         try {
             String decompiledSavedScript = "";
             String decompiledDefaultScript = "";

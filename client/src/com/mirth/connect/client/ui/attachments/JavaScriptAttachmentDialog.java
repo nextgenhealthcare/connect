@@ -24,6 +24,7 @@ import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.model.ContextType;
+import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class JavaScriptAttachmentDialog extends MirthDialog {
 
@@ -173,7 +174,7 @@ public class JavaScriptAttachmentDialog extends MirthDialog {
 
     private void validateScriptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validateScriptButtonActionPerformed
         StringBuilder sb = new StringBuilder();
-        Context context = Context.enter();
+        Context context = JavaScriptContextUtil.getGlobalContextForValidation();
         try {
             context.compileString("function rhinoWrapper() {" + scriptContent.getText() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
             sb.append("JavaScript was successfully validated.");

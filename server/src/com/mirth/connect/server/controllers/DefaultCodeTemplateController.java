@@ -38,6 +38,7 @@ import com.mirth.connect.plugins.CodeTemplateServerPlugin;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class DefaultCodeTemplateController extends CodeTemplateController {
 
@@ -392,7 +393,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             String validationMessage = null;
             Throwable validationCause = null;
             try {
-                Context.enter().compileString("function rhinoWrapper() {" + codeTemplate.getCode() + "\n}", UUID.randomUUID().toString(), 1, null);
+                JavaScriptContextUtil.getGlobalContextForValidation().compileString("function rhinoWrapper() {" + codeTemplate.getCode() + "\n}", UUID.randomUUID().toString(), 1, null);
             } catch (EvaluatorException e) {
                 validationMessage = "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
                 validationCause = e;
