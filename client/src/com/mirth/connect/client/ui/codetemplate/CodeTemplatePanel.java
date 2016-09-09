@@ -118,6 +118,7 @@ import com.mirth.connect.model.CodeTemplateSummary;
 import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.CodeTemplateUtil;
+import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class CodeTemplatePanel extends AbstractFramePanel {
 
@@ -1287,7 +1288,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         String validationMessage = null;
 
         try {
-            Context.enter().compileString("function rhinoWrapper() {" + templateCodeTextArea.getText() + "\n}", UUID.randomUUID().toString(), 1, null);
+            JavaScriptContextUtil.getGlobalContextForValidation().compileString("function rhinoWrapper() {" + templateCodeTextArea.getText() + "\n}", UUID.randomUUID().toString(), 1, null);
         } catch (EvaluatorException e) {
             validationMessage = "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
         } catch (Exception e) {

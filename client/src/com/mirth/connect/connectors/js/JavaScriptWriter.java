@@ -21,6 +21,7 @@ import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.ContextType;
+import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class JavaScriptWriter extends ConnectorSettingsPanel {
 
@@ -94,7 +95,7 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
         String script = props.getScript();
 
         if (script.length() != 0) {
-            Context context = Context.enter();
+            Context context = JavaScriptContextUtil.getGlobalContextForValidation();
             try {
                 context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
             } catch (EvaluatorException e) {

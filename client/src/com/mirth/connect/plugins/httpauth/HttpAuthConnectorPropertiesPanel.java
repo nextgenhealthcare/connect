@@ -79,6 +79,7 @@ import com.mirth.connect.plugins.httpauth.javascript.JavaScriptHttpAuthDialog;
 import com.mirth.connect.plugins.httpauth.javascript.JavaScriptHttpAuthProperties;
 import com.mirth.connect.plugins.httpauth.oauth2.OAuth2HttpAuthProperties;
 import com.mirth.connect.plugins.httpauth.oauth2.OAuth2HttpAuthProperties.TokenLocation;
+import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertiesPanel {
 
@@ -941,7 +942,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
     private void updateJSScriptField() {
         boolean equal = true;
 
-        Context context = Context.enter();
+        Context context = JavaScriptContextUtil.getGlobalContextForValidation();
         try {
             try {
                 String decompiledSavedScript = context.decompileScript(context.compileString("function doScript() {" + jsScript + "}", UUID.randomUUID().toString(), 1, null), 1);
