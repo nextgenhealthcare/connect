@@ -403,12 +403,13 @@ public class HttpDispatcher extends DestinationConnector {
 
             if (t instanceof Error || t instanceof IllegalStateException) {
                 // If an error occurred we can't guarantee the state of the client, so close it
+                HttpUtil.closeVeryQuietly(httpResponse);
                 HttpClientUtils.closeQuietly(client);
                 clients.remove(dispatcherId);
             }
         } finally {
             try {
-                HttpClientUtils.closeQuietly(httpResponse);
+                HttpUtil.closeVeryQuietly(httpResponse);
 
                 // Delete temp files if we created them
                 if (tempFile != null) {
