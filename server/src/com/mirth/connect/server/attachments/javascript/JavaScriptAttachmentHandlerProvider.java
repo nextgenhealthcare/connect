@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;

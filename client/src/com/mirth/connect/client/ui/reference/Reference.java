@@ -14,9 +14,9 @@ import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 
 import com.mirth.connect.client.ui.components.rsta.ac.MirthCompletion;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeTemplateType;
-import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateProperties.CodeTemplateType;
 
 public abstract class Reference {
 

@@ -11,9 +11,9 @@ package com.mirth.connect.client.ui.reference;
 
 import java.util.List;
 
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateContextSet;
-import com.mirth.connect.model.CodeTemplateFunctionDefinition;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateFunctionDefinition;
 import com.mirth.connect.util.CodeTemplateUtil;
 
 public class FunctionReference extends Reference {

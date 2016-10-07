@@ -11,7 +11,7 @@ package com.mirth.connect.client.ui.panels.reference;
 
 import java.util.List;
 
-import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
 
 public class ReferenceListPanel extends javax.swing.JPanel {
 

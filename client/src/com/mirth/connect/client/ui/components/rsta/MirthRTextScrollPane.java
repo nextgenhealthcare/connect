@@ -17,7 +17,7 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 
 public class MirthRTextScrollPane extends RTextScrollPane implements SyntaxConstants {
 

@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.model;
+package com.mirth.connect.model.codetemplates;
 
 import java.io.Serializable;
 

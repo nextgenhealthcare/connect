@@ -21,7 +21,7 @@ import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.ScriptPanel;
 import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.model.Connector.Mode;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.plugins.FilterRulePlugin;
 import com.mirth.connect.util.JavaScriptContextUtil;
 

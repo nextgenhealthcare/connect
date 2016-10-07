@@ -29,7 +29,7 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 
 public class ExportChannelLibrariesDialog extends MirthDialog {
 

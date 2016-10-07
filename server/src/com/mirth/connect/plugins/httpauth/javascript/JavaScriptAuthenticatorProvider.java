@@ -12,7 +12,7 @@ package com.mirth.connect.plugins.httpauth.javascript;
 import java.util.UUID;
 
 import com.mirth.connect.donkey.server.channel.Connector;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.AuthenticatorProvider;
 import com.mirth.connect.plugins.httpauth.HttpAuthConnectorPluginProperties;

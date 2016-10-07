@@ -12,8 +12,8 @@ package com.mirth.connect.client.ui.reference;
 import org.apache.commons.lang3.StringUtils;
 import org.fife.rsta.ac.js.IconFactory;
 
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
 import com.mirth.connect.util.CodeTemplateUtil;
 
 public class CodeReference extends Reference {

@@ -9,7 +9,7 @@
 
 package com.mirth.connect.server.sqlmap.extensions;
 
-import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
 
 public class CodeTemplateTypeHandler extends SerializedObjectTypeHandler<CodeTemplate> {
     public CodeTemplateTypeHandler() {

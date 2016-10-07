@@ -32,10 +32,10 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.ExportClearable;
 import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.server.util.DatabaseUtil;

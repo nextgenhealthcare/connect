@@ -27,9 +27,9 @@ import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.Name;
 import org.mozilla.javascript.ast.NodeVisitor;
 
-import com.mirth.connect.model.CodeTemplateFunctionDefinition;
 import com.mirth.connect.model.Parameter;
 import com.mirth.connect.model.Parameters;
+import com.mirth.connect.model.codetemplates.CodeTemplateFunctionDefinition;
 
 public class CodeTemplateUtil {
 

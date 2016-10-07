@@ -19,7 +19,7 @@ import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;

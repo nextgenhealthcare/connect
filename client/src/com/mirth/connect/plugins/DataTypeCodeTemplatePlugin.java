@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.mirth.connect.client.ui.reference.Category;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeTemplateType;
-import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateProperties.CodeTemplateType;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 

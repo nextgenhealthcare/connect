@@ -15,7 +15,7 @@ import org.fife.ui.autocomplete.CompletionProvider;
 import com.mirth.connect.client.ui.components.rsta.ac.MirthCompletion;
 import com.mirth.connect.client.ui.reference.ParameterizedCodeReference;
 import com.mirth.connect.client.ui.reference.Reference;
-import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
 
 public class MirthJavaScriptTemplateCompletion extends JavaScriptTemplateCompletion implements MirthCompletion {
 

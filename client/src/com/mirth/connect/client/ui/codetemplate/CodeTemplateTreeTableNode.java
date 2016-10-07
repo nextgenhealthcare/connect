@@ -14,8 +14,7 @@ import java.util.Calendar;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeTemplateType;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.util.CodeTemplateUtil;
 
 public class CodeTemplateTreeTableNode extends AbstractSortableTreeTableNode {
@@ -49,7 +48,7 @@ public class CodeTemplateTreeTableNode extends AbstractSortableTreeTableNode {
         switch (i) {
             case CodeTemplatePanel.TEMPLATE_NAME_COLUMN: return codeTemplate.getName();
             case CodeTemplatePanel.TEMPLATE_ID_COLUMN: return codeTemplate.getId();
-            case CodeTemplatePanel.TEMPLATE_TYPE_COLUMN: return codeTemplate.getType();
+            case CodeTemplatePanel.TEMPLATE_TYPE_COLUMN: return codeTemplate.getProperties().getPluginPointName();
             case CodeTemplatePanel.TEMPLATE_DESCRIPTION_COLUMN:
                 if (StringUtils.equals(CodeTemplateUtil.getDocumentation(CodeTemplate.DEFAULT_CODE).getDescription(), codeTemplate.getDescription())) {
                     return null;
@@ -70,9 +69,6 @@ public class CodeTemplateTreeTableNode extends AbstractSortableTreeTableNode {
                 break;
             case CodeTemplatePanel.TEMPLATE_ID_COLUMN:
                 codeTemplate.setId((String) value);
-                break;
-            case CodeTemplatePanel.TEMPLATE_TYPE_COLUMN:
-                codeTemplate.setType((CodeTemplateType) value);
                 break;
             case CodeTemplatePanel.TEMPLATE_REVISION_COLUMN:
                 codeTemplate.setRevision((int) value);

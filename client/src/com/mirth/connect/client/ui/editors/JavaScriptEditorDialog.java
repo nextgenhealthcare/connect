@@ -35,7 +35,7 @@ import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class JavaScriptEditorDialog extends MirthDialog implements DropTargetListener {

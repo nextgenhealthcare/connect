@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.model;
+package com.mirth.connect.model.codetemplates;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,6 +28,7 @@ import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
+import com.mirth.connect.model.Cacheable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("codeTemplateLibrary")

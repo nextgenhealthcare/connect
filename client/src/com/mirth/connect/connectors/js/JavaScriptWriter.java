@@ -20,7 +20,7 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class JavaScriptWriter extends ConnectorSettingsPanel {

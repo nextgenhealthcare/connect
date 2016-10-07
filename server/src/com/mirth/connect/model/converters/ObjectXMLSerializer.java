@@ -29,12 +29,8 @@ import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateLibrary;
-import com.mirth.connect.model.CodeTemplateLibrarySaveResult;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
-import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DeployedChannelInfo;
@@ -62,6 +58,10 @@ import com.mirth.connect.model.alert.AlertConnectors;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.alert.DefaultTrigger;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter3_0_0;
@@ -70,7 +70,7 @@ import com.mirth.connect.util.MigrationUtil;
 public class ObjectXMLSerializer extends XStreamSerializer {
     public final static String VERSION_ATTRIBUTE_NAME = "version";
 
-    private static final Class<?>[] annotatedClasses = new Class<?>[] {//@formatter:off
+    private static final Class<?>[] annotatedClasses = new Class<?>[] { //@formatter:off
         AlertAction.class,
         AlertActionGroup.class,
         AlertChannels.class,

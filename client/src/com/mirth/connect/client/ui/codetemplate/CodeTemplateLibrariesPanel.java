@@ -61,8 +61,8 @@ import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.util.CodeTemplateUtil;
 import com.mirth.connect.util.MirthXmlUtil;
 

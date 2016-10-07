@@ -89,7 +89,7 @@ import com.mirth.connect.client.ui.components.rsta.actions.ToggleCommentAction;
 import com.mirth.connect.client.ui.components.rsta.actions.UndoAction;
 import com.mirth.connect.client.ui.components.rsta.actions.ViewUserAPIAction;
 import com.mirth.connect.client.ui.components.rsta.actions.WrapLinesAction;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 
 public class MirthRSyntaxTextArea extends RSyntaxTextArea implements MirthTextInterface {
 

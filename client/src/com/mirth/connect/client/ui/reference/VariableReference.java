@@ -11,7 +11,7 @@ package com.mirth.connect.client.ui.reference;
 
 import org.fife.rsta.ac.js.IconFactory;
 
-import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
 
 public class VariableReference extends Reference {
 

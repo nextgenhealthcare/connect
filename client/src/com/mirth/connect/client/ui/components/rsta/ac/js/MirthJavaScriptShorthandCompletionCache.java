@@ -38,7 +38,7 @@ import com.mirth.connect.client.ui.reference.ParameterizedCodeReference;
 import com.mirth.connect.client.ui.reference.Reference;
 import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.client.ui.reference.VariableReference;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 
 public class MirthJavaScriptShorthandCompletionCache extends JavaScriptShorthandCompletionCache implements MirthCompletionCacheInterface {
 

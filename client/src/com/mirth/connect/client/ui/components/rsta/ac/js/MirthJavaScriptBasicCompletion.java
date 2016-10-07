@@ -21,7 +21,7 @@ import com.mirth.connect.client.ui.reference.ClassReference;
 import com.mirth.connect.client.ui.reference.CodeReference;
 import com.mirth.connect.client.ui.reference.Reference;
 import com.mirth.connect.client.ui.reference.VariableReference;
-import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
 
 public class MirthJavaScriptBasicCompletion extends JavascriptBasicCompletion implements MirthCompletion {
 

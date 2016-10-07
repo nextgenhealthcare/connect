@@ -26,8 +26,8 @@
 		<typeHandler javaType="com.mirth.connect.model.Channel" handler="com.mirth.connect.server.sqlmap.extensions.ChannelTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.ChannelGroup" handler="com.mirth.connect.server.sqlmap.extensions.ChannelGroupTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.InvalidChannel" handler="com.mirth.connect.server.sqlmap.extensions.ChannelTypeHandler" />
-		<typeHandler javaType="com.mirth.connect.model.CodeTemplate" handler="com.mirth.connect.server.sqlmap.extensions.CodeTemplateTypeHandler" />
-		<typeHandler javaType="com.mirth.connect.model.CodeTemplateLibrary" handler="com.mirth.connect.server.sqlmap.extensions.CodeTemplateLibraryTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.codetemplates.CodeTemplate" handler="com.mirth.connect.server.sqlmap.extensions.CodeTemplateTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.codetemplates.CodeTemplateLibrary" handler="com.mirth.connect.server.sqlmap.extensions.CodeTemplateLibraryTypeHandler" />
 		<typeHandler javaType="java.util.Properties" handler="com.mirth.connect.server.sqlmap.extensions.PropertiesTypeHandler" />
 	</typeHandlers>
 

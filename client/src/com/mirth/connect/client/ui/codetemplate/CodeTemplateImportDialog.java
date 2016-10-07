@@ -84,8 +84,8 @@ import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 
 public class CodeTemplateImportDialog extends MirthDialog {
 

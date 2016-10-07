@@ -29,7 +29,7 @@ import com.mirth.connect.client.ui.VariableListHandler;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.panels.reference.VariableReferenceTable;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class TabbedTemplatePanel extends JPanel {

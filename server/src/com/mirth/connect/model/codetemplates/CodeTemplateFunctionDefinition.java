@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.model;
+package com.mirth.connect.model.codetemplates;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,6 +16,9 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import com.mirth.connect.model.CalendarToStringStyle;
+import com.mirth.connect.model.Parameter;
 
 public class CodeTemplateFunctionDefinition {
 

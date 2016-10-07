@@ -18,7 +18,7 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang3.StringUtils;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 
 public class ScriptPanel extends BasePanel {
 

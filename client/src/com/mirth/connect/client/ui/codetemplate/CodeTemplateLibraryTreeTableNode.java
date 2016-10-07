@@ -12,7 +12,7 @@ package com.mirth.connect.client.ui.codetemplate;
 import java.util.Calendar;
 
 import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
-import com.mirth.connect.model.CodeTemplateLibrary;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 
 public class CodeTemplateLibraryTreeTableNode extends AbstractSortableTreeTableNode {
 

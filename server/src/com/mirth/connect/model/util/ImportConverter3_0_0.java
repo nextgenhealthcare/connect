@@ -33,12 +33,12 @@ import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
-import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 /**

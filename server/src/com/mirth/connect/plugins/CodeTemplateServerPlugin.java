@@ -9,9 +9,9 @@
 
 package com.mirth.connect.plugins;
 
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.ServerEventContext;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 
 public interface CodeTemplateServerPlugin extends ServerPlugin {
 

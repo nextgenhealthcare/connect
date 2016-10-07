@@ -29,9 +29,9 @@ import com.mirth.connect.client.ui.dependencies.ChannelDependenciesPanel;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateLibrary;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 
 public class ChannelDependenciesDialog extends MirthDialog {
 

@@ -37,9 +37,9 @@ import org.fife.rsta.ac.js.IconFactory;
 
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.model.CodeTemplateContextSet;
-import com.mirth.connect.model.CodeTemplateFunctionDefinition;
 import com.mirth.connect.model.Parameters;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateFunctionDefinition;
 
 public class ClassVisitor extends VoidVisitorAdapter<Object> {
 

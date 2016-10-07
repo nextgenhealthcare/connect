@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.fife.rsta.ac.js.IconFactory;
 
-import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
 
 public class ClassReference extends Reference {
 

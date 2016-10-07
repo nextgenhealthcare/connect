@@ -33,6 +33,7 @@ import com.mirth.connect.plugins.ChannelTabPlugin;
 import com.mirth.connect.plugins.ChannelWizardPlugin;
 import com.mirth.connect.plugins.ClientPlugin;
 import com.mirth.connect.plugins.CodeTemplatePlugin;
+import com.mirth.connect.plugins.CodeTemplateTypePlugin;
 import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DashboardTabPlugin;
@@ -61,6 +62,7 @@ public class LoadedExtensions {
     private Map<String, FilterRulePlugin> filterRulePlugins = new LinkedHashMap<String, FilterRulePlugin>();
     private Map<String, TransformerStepPlugin> transformerStepPlugins = new LinkedHashMap<String, TransformerStepPlugin>();
     private Map<String, CodeTemplatePlugin> codeTemplatePlugins = new LinkedHashMap<String, CodeTemplatePlugin>();
+    private Map<String, CodeTemplateTypePlugin> codeTemplateTypePlugins = new LinkedHashMap<String, CodeTemplateTypePlugin>();
     private Map<String, DataTypeClientPlugin> dataTypePlugins = new TreeMap<String, DataTypeClientPlugin>();
     private Map<String, TransmissionModePlugin> transmissionModePlugins = new TreeMap<String, TransmissionModePlugin>();
     private Map<String, ResourceClientPlugin> resourceClientPlugins = new LinkedHashMap<String, ResourceClientPlugin>();
@@ -121,7 +123,8 @@ public class LoadedExtensions {
 
                         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
                             if (constructor.getParameterTypes().length == 1) {
-                                CodeTemplatePlugin codeTemplatePlugin = (CodeTemplatePlugin) constructor.newInstance(new Object[] { metaData.getName() });
+                                CodeTemplatePlugin codeTemplatePlugin = (CodeTemplatePlugin) constructor.newInstance(new Object[] {
+                                        metaData.getName() });
                                 addPluginPoints(codeTemplatePlugin);
                                 break;
                             }
@@ -143,7 +146,8 @@ public class LoadedExtensions {
 
                         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
                             if (constructor.getParameterTypes().length == 1) {
-                                CodeTemplatePlugin codeTemplatePlugin = (CodeTemplatePlugin) constructor.newInstance(new Object[] { metaData.getName() });
+                                CodeTemplatePlugin codeTemplatePlugin = (CodeTemplatePlugin) constructor.newInstance(new Object[] {
+                                        metaData.getName() });
                                 addPluginPoints(codeTemplatePlugin);
                                 break;
                             }
@@ -172,7 +176,8 @@ public class LoadedExtensions {
                         // load plugin if the number of parameters
                         // in the constructor is 1.
                         if (parameters.length == 1) {
-                            ClientPlugin clientPlugin = (ClientPlugin) constructors[i].newInstance(new Object[] { pluginName });
+                            ClientPlugin clientPlugin = (ClientPlugin) constructors[i].newInstance(new Object[] {
+                                    pluginName });
                             addPluginPoints(clientPlugin);
                             i = constructors.length;
                         }
@@ -286,6 +291,10 @@ public class LoadedExtensions {
             codeTemplatePlugins.put(plugin.getPluginPointName(), (CodeTemplatePlugin) plugin);
         }
 
+        if (plugin instanceof CodeTemplateTypePlugin) {
+            codeTemplateTypePlugins.put(plugin.getPluginPointName(), (CodeTemplateTypePlugin) plugin);
+        }
+
         if (plugin instanceof DataTypeClientPlugin) {
             dataTypePlugins.put(plugin.getPluginPointName(), (DataTypeClientPlugin) plugin);
         }
@@ -388,6 +397,10 @@ public class LoadedExtensions {
 
     public Map<String, CodeTemplatePlugin> getCodeTemplatePlugins() {
         return codeTemplatePlugins;
+    }
+
+    public Map<String, CodeTemplateTypePlugin> getCodeTemplateTypePlugins() {
+        return codeTemplateTypePlugins;
     }
 
     public Map<String, DataTypeClientPlugin> getDataTypePlugins() {

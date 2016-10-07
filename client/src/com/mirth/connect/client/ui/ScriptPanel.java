@@ -28,7 +28,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class ScriptPanel extends JPanel {

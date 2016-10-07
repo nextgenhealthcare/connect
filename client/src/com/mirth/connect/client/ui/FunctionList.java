@@ -20,8 +20,8 @@ import org.apache.commons.collections.CollectionUtils;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListPanel;
 import com.mirth.connect.client.ui.reference.Category;
 import com.mirth.connect.client.ui.reference.ReferenceListFactory;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.ContextType;
 
 public class FunctionList extends javax.swing.JPanel {
 

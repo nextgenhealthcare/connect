@@ -18,7 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 
 public class ContextTreeTableCellRenderer extends MirthTriStateCheckBox implements TreeCellRenderer {
 

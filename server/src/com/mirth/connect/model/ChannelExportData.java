@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 
 public class ChannelExportData implements Serializable, Purgable {
 

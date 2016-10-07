@@ -29,6 +29,7 @@ import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
 import com.thoughtworks.xstream.annotations.XStreamAlias;

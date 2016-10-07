@@ -27,8 +27,8 @@ import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class DatabaseWriter extends ConnectorSettingsPanel {

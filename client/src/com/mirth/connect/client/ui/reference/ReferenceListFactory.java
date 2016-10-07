@@ -41,12 +41,12 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.components.rsta.ac.MirthCompletionCacheInterface;
 import com.mirth.connect.client.ui.components.rsta.ac.MirthLanguageSupport;
 import com.mirth.connect.client.ui.reference.Reference.Type;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeTemplateType;
-import com.mirth.connect.model.CodeTemplateContextSet;
-import com.mirth.connect.model.CodeTemplateFunctionDefinition;
-import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.Parameters;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateFunctionDefinition;
+import com.mirth.connect.model.codetemplates.CodeTemplateProperties.CodeTemplateType;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.plugins.CodeTemplatePlugin;
 
@@ -570,9 +570,8 @@ public class ReferenceListFactory {
         aliasMap.put("com.mirth.connect.server.userutil.VMRouter", Collections.singletonList("router"));
         aliasMap.put("com.mirth.connect.server.userutil.DestinationSet", Collections.singletonList("destinationSet"));
         aliasMap.put("com.mirth.connect.server.userutil.ContextFactory", Collections.singletonList("contextFactory"));
-        aliasMap.put("java.util.HashMap", Arrays.asList(new String[] { "connectorMap",
-                "channelMap", "sourceMap", "globalMap", "configurationMap", "globalChannelMap",
-                "responseMap" }));
+        aliasMap.put("java.util.HashMap", Arrays.asList(new String[] { "connectorMap", "channelMap",
+                "sourceMap", "globalMap", "configurationMap", "globalChannelMap", "responseMap" }));
     }
 
     private String getDataTypesToolTipText() {

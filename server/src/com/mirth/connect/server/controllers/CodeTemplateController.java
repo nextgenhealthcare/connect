@@ -14,11 +14,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.mirth.connect.client.core.ControllerException;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateLibrary;
-import com.mirth.connect.model.CodeTemplateLibrarySaveResult;
-import com.mirth.connect.model.CodeTemplateSummary;
 import com.mirth.connect.model.ServerEventContext;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
+import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
 
 public abstract class CodeTemplateController extends Controller {
 

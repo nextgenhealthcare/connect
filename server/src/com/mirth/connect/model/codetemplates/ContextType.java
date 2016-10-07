@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.model;
+package com.mirth.connect.model.codetemplates;
 
 import org.apache.commons.lang3.text.WordUtils;
 

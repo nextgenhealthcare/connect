@@ -17,7 +17,7 @@
 		<result property="revision" column="REVISION" javaType="Integer" />
 	</resultMap>
 	
-	<select id='getLibrary' parameterType='String' resultType="com.mirth.connect.model.CodeTemplateLibrary">
+	<select id='getLibrary' parameterType='String' resultType="com.mirth.connect.model.codetemplates.CodeTemplateLibrary">
 		SELECT LIBRARY
 		FROM CODE_TEMPLATE_LIBRARY
 		<where>
@@ -56,7 +56,7 @@
 		</where>
 	</delete>
 
-	<select id='getCodeTemplate' parameterType='String' resultType="com.mirth.connect.model.CodeTemplate">
+	<select id='getCodeTemplate' parameterType='String' resultType="com.mirth.connect.model.codetemplates.CodeTemplate">
 		SELECT CODE_TEMPLATE
 		FROM CODE_TEMPLATE
 		<where>

@@ -27,7 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 
 public class ContextTreeTableCellEditor extends DefaultCellEditor {
 

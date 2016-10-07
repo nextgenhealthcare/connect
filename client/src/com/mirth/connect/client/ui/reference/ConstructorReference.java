@@ -9,8 +9,8 @@
 
 package com.mirth.connect.client.ui.reference;
 
-import com.mirth.connect.model.CodeTemplateContextSet;
-import com.mirth.connect.model.CodeTemplateFunctionDefinition;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateFunctionDefinition;
 
 public class ConstructorReference extends FunctionReference {
 

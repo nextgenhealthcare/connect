@@ -24,7 +24,7 @@ import org.fife.ui.autocomplete.ParameterizedCompletion;
 
 import com.mirth.connect.client.ui.reference.FunctionReference;
 import com.mirth.connect.client.ui.reference.Reference;
-import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
 import com.mirth.connect.util.MirthXmlUtil;
 
 public abstract class MirthFunctionCompletion extends FunctionCompletion implements MirthCompletion {

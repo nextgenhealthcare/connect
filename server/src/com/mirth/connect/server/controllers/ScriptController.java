@@ -13,7 +13,7 @@ import java.util.Map;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public abstract class ScriptController extends Controller {

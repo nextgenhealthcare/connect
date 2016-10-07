@@ -11,7 +11,7 @@ package com.mirth.connect.client.ui.components.rsta.ac;
 
 import org.fife.ui.autocomplete.Completion;
 
-import com.mirth.connect.model.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
 
 public interface MirthCompletion extends Completion {
 

@@ -19,7 +19,7 @@ import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
 
 public class VariableReferenceTable extends ReferenceTable {
 

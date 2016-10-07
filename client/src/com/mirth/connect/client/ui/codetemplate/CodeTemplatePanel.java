@@ -39,7 +39,6 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -91,6 +90,7 @@ import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.AbstractFramePanel;
 import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.OffsetRowSorter;
 import com.mirth.connect.client.ui.QueuingSwingWorker;
@@ -107,17 +107,19 @@ import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.model.ChannelStatus;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeTemplateType;
-import com.mirth.connect.model.CodeTemplateContextSet;
-import com.mirth.connect.model.CodeTemplateLibrary;
-import com.mirth.connect.model.CodeTemplateLibrarySaveResult;
-import com.mirth.connect.model.CodeTemplateLibrarySaveResult.CodeTemplateUpdateResult;
-import com.mirth.connect.model.CodeTemplateLibrarySaveResult.LibraryUpdateResult;
-import com.mirth.connect.model.CodeTemplateSummary;
-import com.mirth.connect.model.ContextType;
+import com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult.CodeTemplateUpdateResult;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult.LibraryUpdateResult;
+import com.mirth.connect.model.codetemplates.CodeTemplateProperties;
+import com.mirth.connect.model.codetemplates.CodeTemplateProperties.CodeTemplateType;
+import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.util.CodeTemplateUtil;
+import com.mirth.connect.plugins.CodeTemplateTypePlugin;
 import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class CodeTemplatePanel extends AbstractFramePanel {
@@ -162,6 +164,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     private AtomicBoolean updateCurrentNode = new AtomicBoolean(true);
     private CodeTemplateTreeTableModel fullModel;
     private int currentSelectedRow = -1;
+    private CodeTemplatePropertiesPanel currentPropertiesPanel;
     private CodeChangeWorker codeChangeWorker;
 
     private List<Pair<Component, Component>> singleLibraryTaskComponents = new ArrayList<Pair<Component, Component>>();
@@ -1288,7 +1291,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         String validationMessage = null;
 
         try {
-            JavaScriptContextUtil.getGlobalContextForValidation().compileString("function rhinoWrapper() {" + templateCodeTextArea.getText() + "\n}", UUID.randomUUID().toString(), 1, null);
+            JavaScriptContextUtil.getGlobalContextForValidation().compileString("function rhinoWrapper() {" + currentPropertiesPanel.getProperties().getRight() + "\n}", UUID.randomUUID().toString(), 1, null);
         } catch (EvaluatorException e) {
             validationMessage = "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
         } catch (Exception e) {
@@ -1723,29 +1726,24 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         });
 
         templateTypeLabel = new JLabel("Type:");
-        templateTypeComboBox = new JComboBox<CodeTemplateType>(CodeTemplateType.values());
+        List<String> types = new ArrayList<String>();
+        for (CodeTemplateType type : CodeTemplateType.values()) {
+            types.add(type.toString());
+        }
+        basicPropertiesPanel = new BasicCodeTemplatePropertiesPanel(this, codeChangeListener);
+        currentPropertiesPanel = basicPropertiesPanel;
+
+        pluginPropertiesPanelMap = new LinkedHashMap<String, CodeTemplatePropertiesPanel>();
+        for (CodeTemplateTypePlugin plugin : LoadedExtensions.getInstance().getCodeTemplateTypePlugins().values()) {
+            types.add(plugin.getPluginPointName());
+            pluginPropertiesPanelMap.put(plugin.getPluginPointName(), plugin.getPanel());
+        }
+
+        templateTypeComboBox = new JComboBox<String>(types.toArray(new String[types.size()]));
         templateTypeComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 setSaveEnabled(true);
-            }
-        });
-
-        templateCodeLabel = new JLabel("Code:");
-        templateCodeTextArea = new MirthRTextScrollPane(ContextType.GLOBAL_DEPLOY);
-        templateCodeTextArea.getDocument().addDocumentListener(codeChangeListener);
-
-        templateAutoGenerateDocumentationButton = new JButton("Update JSDoc");
-        templateAutoGenerateDocumentationButton.setToolTipText("<html>Generates/updates a JSDoc at the beginning of your<br/>code, with parameter/return annotations as needed.</html>");
-        templateAutoGenerateDocumentationButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                String currentText = templateCodeTextArea.getText();
-                String newText = CodeTemplateUtil.updateCode(templateCodeTextArea.getText());
-                templateCodeTextArea.setText(newText, false);
-                if (!currentText.equals(newText)) {
-                    setSaveEnabled(true);
-                }
             }
         });
 
@@ -1983,9 +1981,16 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         templateLeftPanel.add(templateLibraryComboBox, "w 200:");
         templateLeftPanel.add(templateTypeLabel, "newline, right");
         templateLeftPanel.add(templateTypeComboBox);
-        templateLeftPanel.add(templateCodeLabel, "newline, top, right");
-        templateLeftPanel.add(templateCodeTextArea, "grow, sx, w :400, h 127:127");
-        templateLeftPanel.add(templateAutoGenerateDocumentationButton, "sx, right");
+        for (Pair<Pair<Component, String>, Pair<Component, String>> row : basicPropertiesPanel.getRows()) {
+            templateLeftPanel.add(row.getLeft().getLeft(), row.getLeft().getRight());
+            templateLeftPanel.add(row.getRight().getLeft(), row.getRight().getRight());
+        }
+        for (CodeTemplatePropertiesPanel pluginPanel : pluginPropertiesPanelMap.values()) {
+            for (Pair<Pair<Component, String>, Pair<Component, String>> row : pluginPanel.getRows()) {
+                templateLeftPanel.add(row.getLeft().getLeft(), row.getLeft().getRight());
+                templateLeftPanel.add(row.getRight().getLeft(), row.getRight().getRight());
+            }
+        }
         templatePanel.add(templateLeftPanel, "grow, push");
 
         templateRightPanel.setLayout(new MigLayout("insets 12 0 12 12, novisualpadding, hidemode 3, fill"));
@@ -2110,8 +2115,13 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
     private void updateCodeTemplateNode(CodeTemplateTreeTableNode codeTemplateNode) {
         if (codeTemplateNode != null) {
-            codeTemplateNode.setValueAt(templateTypeComboBox.getSelectedItem(), TEMPLATE_TYPE_COLUMN);
-            codeTemplateNode.getCodeTemplate().setCode(templateCodeTextArea.getText());
+            Pair<CodeTemplateProperties, String> propertiesAndCode = currentPropertiesPanel.getProperties();
+            CodeTemplateProperties properties = propertiesAndCode.getLeft();
+            if (properties instanceof BasicCodeTemplateProperties) {
+                properties.setType(CodeTemplateType.fromString((String) templateTypeComboBox.getSelectedItem()));
+            }
+            codeTemplateNode.getCodeTemplate().setProperties(properties);
+            codeTemplateNode.getCodeTemplate().setCode(propertiesAndCode.getRight());
 
             CodeTemplateContextSet contextSet = new CodeTemplateContextSet();
             for (Enumeration<? extends MutableTreeTableNode> groups = ((MutableTreeTableNode) templateContextTreeTable.getTreeTableModel().getRoot()).children(); groups.hasMoreElements();) {
@@ -2137,8 +2147,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
         libraryComboBoxAdjusting.set(true);
         templateLibraryComboBox.setSelectedItem(libraryNode.getLibrary().getName());
-        templateTypeComboBox.setSelectedItem(codeTemplate.getType());
-        templateCodeTextArea.setText(codeTemplate.getCode());
+        templateTypeComboBox.setSelectedItem(codeTemplate.getProperties().getPluginPointName());
+        templateTypeComboBoxActionPerformed();
+        currentPropertiesPanel.setProperties(codeTemplate.getProperties(), codeTemplate.getCode());
         updateContextTable(codeTemplate.getContextSet());
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -2359,18 +2370,13 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                                 fullModel.setValueAt(libraryDescriptionScrollPane.getText(), findFullNode(libraryNode), TEMPLATE_DESCRIPTION_COLUMN);
                             } else if (selectedNode instanceof CodeTemplateTreeTableNode) {
                                 CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) selectedNode;
-                                codeTemplateNode.getCodeTemplate().setCode(templateCodeTextArea.getText());
+                                String code = currentPropertiesPanel.getProperties().getRight();
+                                codeTemplateNode.getCodeTemplate().setCode(code);
                                 model.setValueAt(codeTemplateNode.getCodeTemplate().getDescription(), codeTemplateNode, TEMPLATE_DESCRIPTION_COLUMN);
 
                                 CodeTemplateTreeTableNode fullCodeTemplateNode = (CodeTemplateTreeTableNode) findFullNode(codeTemplateNode);
-                                fullCodeTemplateNode.getCodeTemplate().setCode(templateCodeTextArea.getText());
+                                fullCodeTemplateNode.getCodeTemplate().setCode(code);
                                 fullModel.setValueAt(fullCodeTemplateNode.getCodeTemplate().getDescription(), fullCodeTemplateNode, TEMPLATE_DESCRIPTION_COLUMN);
-
-                                if (StringUtils.startsWith(StringUtils.trim(codeTemplateNode.getCodeTemplate().getCode()), "/**")) {
-                                    templateAutoGenerateDocumentationButton.setText("Update JSDoc");
-                                } else {
-                                    templateAutoGenerateDocumentationButton.setText("Generate JSDoc");
-                                }
                             }
                         }
                     }
@@ -2485,6 +2491,26 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         }
     }
 
+    private void templateTypeComboBoxActionPerformed() {
+        String type = (String) templateTypeComboBox.getSelectedItem();
+
+        CodeTemplateType codeTemplateType = CodeTemplateType.fromString(type);
+        if (codeTemplateType != null) {
+            basicPropertiesPanel.setVisible(true);
+            currentPropertiesPanel = basicPropertiesPanel;
+        }
+
+        for (Entry<String, CodeTemplatePropertiesPanel> entry : pluginPropertiesPanelMap.entrySet()) {
+            if (entry.getKey().equals(type)) {
+                entry.getValue().setVisible(true);
+                basicPropertiesPanel.setVisible(false);
+                currentPropertiesPanel = entry.getValue();
+            } else {
+                entry.getValue().setVisible(false);
+            }
+        }
+    }
+
     private JXTaskPane codeTemplateTasks;
     private JPopupMenu codeTemplatePopupMenu;
 
@@ -2523,10 +2549,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     private JLabel templateLibraryLabel;
     private JComboBox<String> templateLibraryComboBox;
     private JLabel templateTypeLabel;
-    private JComboBox<CodeTemplateType> templateTypeComboBox;
-    private JLabel templateCodeLabel;
-    private MirthRTextScrollPane templateCodeTextArea;
-    private JButton templateAutoGenerateDocumentationButton;
+    private JComboBox<String> templateTypeComboBox;
+    private BasicCodeTemplatePropertiesPanel basicPropertiesPanel;
+    private Map<String, CodeTemplatePropertiesPanel> pluginPropertiesPanelMap;
 
     private JPanel templateRightPanel;
     private JPanel templateContextSelectPanel;

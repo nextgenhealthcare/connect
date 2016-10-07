@@ -22,14 +22,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplateLibrary;
-import com.mirth.connect.model.ContextType;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.controllers.CodeTemplateController;

@@ -12,7 +12,7 @@ package com.mirth.connect.plugins;
 import java.util.List;
 import java.util.Map;
 
-import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
 
 public abstract class CodeTemplatePlugin extends ClientPlugin {
 
