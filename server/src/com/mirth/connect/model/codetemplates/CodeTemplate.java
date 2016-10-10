@@ -28,8 +28,6 @@ import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.Cacheable;
 import com.mirth.connect.model.codetemplates.CodeTemplateProperties.CodeTemplateType;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.util.CodeTemplateUtil;
-import com.mirth.connect.util.CodeTemplateUtil.CodeTemplateDocumentation;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("codeTemplate")
@@ -42,34 +40,25 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
     private Integer revision;
     private Calendar lastModified;
     private CodeTemplateContextSet contextSet;
-    private String code;
     private CodeTemplateProperties properties;
-
-    private transient String description;
-    private transient CodeTemplateFunctionDefinition functionDefinition;
 
     public CodeTemplate(String id) {
         this.id = id;
     }
 
     public CodeTemplate(String name, CodeTemplateType type, CodeTemplateContextSet contextSet, String code, String description) {
-        this(name, new BasicCodeTemplateProperties(type), contextSet, addComment(code, description));
-    }
-
-    public CodeTemplate(String name, CodeTemplateProperties properties, CodeTemplateContextSet contextSet, String code, String description) {
-        this(name, properties, contextSet, addComment(code, description));
+        this(name, new BasicCodeTemplateProperties(type, code, description), contextSet);
     }
 
     public CodeTemplate(String name, CodeTemplateType type, CodeTemplateContextSet contextSet, String code) {
-        this(name, new BasicCodeTemplateProperties(type), contextSet, code);
+        this(name, new BasicCodeTemplateProperties(type, code), contextSet);
     }
 
-    public CodeTemplate(String name, CodeTemplateProperties properties, CodeTemplateContextSet contextSet, String code) {
+    public CodeTemplate(String name, CodeTemplateProperties properties, CodeTemplateContextSet contextSet) {
         this(UUID.randomUUID().toString());
         this.name = name;
         this.properties = properties;
         this.contextSet = contextSet;
-        setCode(code);
     }
 
     public CodeTemplate(CodeTemplate codeTemplate) {
@@ -80,7 +69,6 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
         if (codeTemplate.getContextSet() != null) {
             contextSet = new CodeTemplateContextSet(codeTemplate.getContextSet());
         }
-        setCode(codeTemplate.getCode());
         if (codeTemplate.getProperties() != null) {
             properties = codeTemplate.getProperties().clone();
         }
@@ -88,13 +76,6 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
 
     public static CodeTemplate getDefaultCodeTemplate(String name) {
         return new CodeTemplate(name, CodeTemplateType.FUNCTION, CodeTemplateContextSet.getConnectorContextSet(), DEFAULT_CODE);
-    }
-
-    private static String addComment(String code, String description) {
-        if (StringUtils.isNotBlank(description)) {
-            return new StringBuilder("/**\n\t").append(WordUtils.wrap(description, 80, "\n\t", false)).append("\n*/\n").append(code).toString();
-        }
-        return code;
     }
 
     @Override
@@ -133,11 +114,11 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
     }
 
     public CodeTemplateType getType() {
-        return properties.getType();
+        return properties != null ? properties.getType() : null;
     }
 
     public boolean isAddToScripts() {
-        return properties.getType() == CodeTemplateType.FUNCTION || properties.getType() == CodeTemplateType.COMPILED_CODE;
+        return properties != null ? (properties.getType() == CodeTemplateType.FUNCTION || properties.getType() == CodeTemplateType.COMPILED_CODE) : null;
     }
 
     public CodeTemplateContextSet getContextSet() {
@@ -149,12 +130,7 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
     }
 
     public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-        updateDocumentation();
+        return properties != null ? properties.getCode() : null;
     }
 
     public CodeTemplateProperties getProperties() {
@@ -171,31 +147,11 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
     }
 
     public String getDescription() {
-        if (description == null) {
-            updateDocumentation();
-        }
-        return description;
+        return properties != null ? properties.getDescription() : null;
     }
 
     public CodeTemplateFunctionDefinition getFunctionDefinition() {
-        if (functionDefinition == null) {
-            updateDocumentation();
-        }
-        return functionDefinition;
-    }
-
-    private void updateDocumentation() {
-        String description = null;
-        CodeTemplateFunctionDefinition functionDefinition = null;
-
-        if (StringUtils.isNotBlank(code)) {
-            CodeTemplateDocumentation documentation = CodeTemplateUtil.getDocumentation(code);
-            description = documentation.getDescription();
-            functionDefinition = documentation.getFunctionDefinition();
-        }
-
-        this.description = description;
-        this.functionDefinition = functionDefinition;
+        return properties != null ? properties.getFunctionDefinition() : null;
     }
 
     @Override
@@ -277,9 +233,14 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
 
     @Override
     public void migrate3_5_0(DonkeyElement element) {
-        DonkeyElement propertiesElement = element.addChildElement("properties");
-        propertiesElement.setAttribute("class", "com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties");
-        propertiesElement.addChildElement("type", element.removeChild("type").getTextContent());
+        DonkeyElement typeElement = element.removeChild("type");
+        DonkeyElement codeElement = element.removeChild("code");
+        if (typeElement != null && codeElement != null) {
+            DonkeyElement propertiesElement = element.addChildElement("properties");
+            propertiesElement.setAttribute("class", "com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties");
+            propertiesElement.addChildElement("type", typeElement.getTextContent());
+            propertiesElement.addChildElement("code", codeElement.getTextContent());
+        }
     }
 
     @Override
@@ -289,10 +250,9 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
         purgedProperties.put("nameChars", PurgeUtil.countChars(name));
         purgedProperties.put("lastModified", lastModified);
         purgedProperties.put("contextSet", contextSet);
-        purgedProperties.put("codeLines", PurgeUtil.countLines(code));
         CodeTemplateFunctionDefinition functionDefinition = getFunctionDefinition();
         purgedProperties.put("parameterCount", functionDefinition != null ? functionDefinition.getParameters().size() : 0);
-        purgedProperties.put("properties", properties.getPurgedProperties());
+        purgedProperties.put("properties", properties != null ? properties.getPurgedProperties() : null);
         return purgedProperties;
     }
 
@@ -310,7 +270,6 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
         builder.append("revision=").append(revision).append(", ");
         builder.append("lastModified=").append(lastModified).append(", ");
         builder.append("contextSet=").append(contextSet).append(", ");
-        builder.append("code=").append(code).append(", ");
         builder.append("properties=").append(properties).append(']');
         return builder.toString();
     }

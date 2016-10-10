@@ -17,6 +17,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.model.CalendarToStringStyle;
+import com.mirth.connect.util.CodeTemplateUtil;
+import com.mirth.connect.util.CodeTemplateUtil.CodeTemplateDocumentation;
 
 public abstract class CodeTemplateProperties implements Serializable, Purgable {
 
@@ -47,11 +49,16 @@ public abstract class CodeTemplateProperties implements Serializable, Purgable {
 
     private CodeTemplateType type;
 
+    private transient String description;
+    private transient CodeTemplateFunctionDefinition functionDefinition;
+
     public CodeTemplateProperties(CodeTemplateType type) {
         this.type = type;
     }
 
     public abstract String getPluginPointName();
+
+    public abstract String getCode();
 
     public CodeTemplateType getType() {
         return type;
@@ -59,6 +66,35 @@ public abstract class CodeTemplateProperties implements Serializable, Purgable {
 
     public void setType(CodeTemplateType type) {
         this.type = type;
+    }
+
+    public String getDescription() {
+        if (description == null) {
+            updateDocumentation();
+        }
+        return description;
+    }
+
+    public CodeTemplateFunctionDefinition getFunctionDefinition() {
+        if (functionDefinition == null) {
+            updateDocumentation();
+        }
+        return functionDefinition;
+    }
+
+    protected void updateDocumentation() {
+        String code = getCode();
+        String description = null;
+        CodeTemplateFunctionDefinition functionDefinition = null;
+
+        if (StringUtils.isNotBlank(code)) {
+            CodeTemplateDocumentation documentation = CodeTemplateUtil.getDocumentation(code);
+            description = documentation.getDescription();
+            functionDefinition = documentation.getFunctionDefinition();
+        }
+
+        this.description = description;
+        this.functionDefinition = functionDefinition;
     }
 
     @Override

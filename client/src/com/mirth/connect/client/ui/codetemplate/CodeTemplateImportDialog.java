@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -111,6 +112,16 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
     public CodeTemplateImportDialog(Frame owner, List<CodeTemplateLibrary> importLibraries, boolean unassignedCodeTemplates, boolean showCancelAlert) {
         super(owner, "Import Code Templates / Libraries", true);
+
+        // Remove skeleton code templates if they exist
+        for (CodeTemplateLibrary library : importLibraries) {
+            for (Iterator<CodeTemplate> it = library.getCodeTemplates().iterator(); it.hasNext();) {
+                if (it.next().getProperties() == null) {
+                    it.remove();
+                }
+            }
+        }
+
         this.importLibraries = importLibraries;
         this.unassignedCodeTemplates = unassignedCodeTemplates;
         this.showCancelAlert = showCancelAlert;

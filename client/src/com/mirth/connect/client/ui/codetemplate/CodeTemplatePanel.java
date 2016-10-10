@@ -1291,7 +1291,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         String validationMessage = null;
 
         try {
-            JavaScriptContextUtil.getGlobalContextForValidation().compileString("function rhinoWrapper() {" + currentPropertiesPanel.getProperties().getRight() + "\n}", UUID.randomUUID().toString(), 1, null);
+            JavaScriptContextUtil.getGlobalContextForValidation().compileString("function rhinoWrapper() {" + currentPropertiesPanel.getProperties().getCode() + "\n}", UUID.randomUUID().toString(), 1, null);
         } catch (EvaluatorException e) {
             validationMessage = "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
         } catch (Exception e) {
@@ -2115,13 +2115,11 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
     private void updateCodeTemplateNode(CodeTemplateTreeTableNode codeTemplateNode) {
         if (codeTemplateNode != null) {
-            Pair<CodeTemplateProperties, String> propertiesAndCode = currentPropertiesPanel.getProperties();
-            CodeTemplateProperties properties = propertiesAndCode.getLeft();
+            CodeTemplateProperties properties = currentPropertiesPanel.getProperties();
             if (properties instanceof BasicCodeTemplateProperties) {
                 properties.setType(CodeTemplateType.fromString((String) templateTypeComboBox.getSelectedItem()));
             }
             codeTemplateNode.getCodeTemplate().setProperties(properties);
-            codeTemplateNode.getCodeTemplate().setCode(propertiesAndCode.getRight());
 
             CodeTemplateContextSet contextSet = new CodeTemplateContextSet();
             for (Enumeration<? extends MutableTreeTableNode> groups = ((MutableTreeTableNode) templateContextTreeTable.getTreeTableModel().getRoot()).children(); groups.hasMoreElements();) {
@@ -2149,7 +2147,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         templateLibraryComboBox.setSelectedItem(libraryNode.getLibrary().getName());
         templateTypeComboBox.setSelectedItem(codeTemplate.getProperties().getPluginPointName());
         templateTypeComboBoxActionPerformed();
-        currentPropertiesPanel.setProperties(codeTemplate.getProperties(), codeTemplate.getCode());
+        currentPropertiesPanel.setProperties(codeTemplate.getProperties());
         updateContextTable(codeTemplate.getContextSet());
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -2370,12 +2368,12 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                                 fullModel.setValueAt(libraryDescriptionScrollPane.getText(), findFullNode(libraryNode), TEMPLATE_DESCRIPTION_COLUMN);
                             } else if (selectedNode instanceof CodeTemplateTreeTableNode) {
                                 CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) selectedNode;
-                                String code = currentPropertiesPanel.getProperties().getRight();
-                                codeTemplateNode.getCodeTemplate().setCode(code);
+                                CodeTemplateProperties properties = currentPropertiesPanel.getProperties();
+                                codeTemplateNode.getCodeTemplate().setProperties(properties);
                                 model.setValueAt(codeTemplateNode.getCodeTemplate().getDescription(), codeTemplateNode, TEMPLATE_DESCRIPTION_COLUMN);
 
                                 CodeTemplateTreeTableNode fullCodeTemplateNode = (CodeTemplateTreeTableNode) findFullNode(codeTemplateNode);
-                                fullCodeTemplateNode.getCodeTemplate().setCode(code);
+                                fullCodeTemplateNode.getCodeTemplate().setProperties(properties);
                                 fullModel.setValueAt(fullCodeTemplateNode.getCodeTemplate().getDescription(), fullCodeTemplateNode, TEMPLATE_DESCRIPTION_COLUMN);
                             }
                         }

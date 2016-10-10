@@ -30,9 +30,9 @@ public abstract class CodeTemplatePropertiesPanel {
 
     public abstract List<Pair<Pair<Component, String>, Pair<Component, String>>> getRows();
 
-    public abstract Pair<CodeTemplateProperties, String> getProperties();
+    public abstract CodeTemplateProperties getProperties();
 
-    public abstract void setProperties(CodeTemplateProperties properties, String code);
+    public abstract void setProperties(CodeTemplateProperties properties);
 
     public abstract void setVisible(boolean visible);
 }

@@ -54,14 +54,14 @@ public class BasicCodeTemplatePropertiesPanel extends CodeTemplatePropertiesPane
     }
 
     @Override
-    public Pair<CodeTemplateProperties, String> getProperties() {
-        return new ImmutablePair<CodeTemplateProperties, String>(new BasicCodeTemplateProperties(type), templateCodeTextArea.getText());
+    public CodeTemplateProperties getProperties() {
+        return new BasicCodeTemplateProperties(type, templateCodeTextArea.getText());
     }
 
     @Override
-    public void setProperties(CodeTemplateProperties properties, String code) {
+    public void setProperties(CodeTemplateProperties properties) {
         type = CodeTemplateType.fromString(properties.getPluginPointName());
-        templateCodeTextArea.setText(code);
+        templateCodeTextArea.setText(properties.getCode());
     }
 
     @Override
