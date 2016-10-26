@@ -235,72 +235,79 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
 
     @Override
     public void migrate3_5_0(DonkeyElement element) {
+        DonkeyElement enabledElement = element.removeChild("enabled");
+        DonkeyElement lastModifiedElement = element.removeChild("lastModified");
+        DonkeyElement codeTemplateLibrariesElement = element.removeChild("codeTemplateLibraries");
+        DonkeyElement dependentIdsElement = element.removeChild("dependentIds");
+        DonkeyElement dependencyIdsElement = element.removeChild("dependencyIds");
+
         DonkeyElement propertiesElement = element.getChildElement("properties");
 
-        // Add channel metadata
-        DonkeyElement exportDataElement = element.addChildElement("exportData");
-        DonkeyElement metadataElement = exportDataElement.addChildElement("metadata");
+        // Only do migration if the properties exist. Otherwise this could be a stub channel inside of a channel group.
+        if (propertiesElement != null) {
+            // Add channel metadata
+            DonkeyElement exportDataElement = element.addChildElement("exportData");
+            DonkeyElement metadataElement = exportDataElement.addChildElement("metadata");
 
-        // Enabled
-        metadataElement.addChildElement("enabled", element.removeChild("enabled").getTextContent());
-
-        // Last modified
-        DonkeyElement lastModifiedElement = element.removeChild("lastModified");
-        if (lastModifiedElement != null) {
-            try {
-                metadataElement.addChildElementFromXml(lastModifiedElement.toXml());
-            } catch (DonkeyElementException e) {
+            // Enabled
+            if (enabledElement != null) {
+                metadataElement.addChildElement("enabled", enabledElement.getTextContent());
             }
-        }
 
-        // Pruning settings
-        DonkeyElement pruningSettingsElement = metadataElement.addChildElement("pruningSettings");
-        DonkeyElement pruneMetaDataDaysElement = propertiesElement.removeChild("pruneMetaDataDays");
-        DonkeyElement pruneContentDaysElement = propertiesElement.removeChild("pruneContentDays");
-        DonkeyElement archiveEnabledElement = propertiesElement.removeChild("archiveEnabled");
-        if (pruneMetaDataDaysElement != null) {
-            pruningSettingsElement.addChildElement("pruneMetaDataDays", pruneMetaDataDaysElement.getTextContent());
-        }
-        if (pruneContentDaysElement != null) {
-            pruningSettingsElement.addChildElement("pruneContentDays", pruneContentDaysElement.getTextContent());
-        }
-        if (archiveEnabledElement != null) {
-            pruningSettingsElement.addChildElement("archiveEnabled", archiveEnabledElement.getTextContent());
-        }
-
-        // Tags
-        DonkeyElement tagsElement = propertiesElement.removeChild("tags");
-        if (tagsElement != null) {
-            try {
-                metadataElement.addChildElementFromXml(tagsElement.toXml());
-            } catch (DonkeyElementException e) {
+            // Last modified
+            if (lastModifiedElement != null) {
+                try {
+                    metadataElement.addChildElementFromXml(lastModifiedElement.toXml());
+                } catch (DonkeyElementException e) {
+                }
             }
-        }
 
-        // Code template libraries
-        DonkeyElement codeTemplateLibrariesElement = element.removeChild("codeTemplateLibraries");
-        if (codeTemplateLibrariesElement != null) {
-            try {
-                exportDataElement.addChildElementFromXml(codeTemplateLibrariesElement.toXml());
-            } catch (DonkeyElementException e) {
+            // Pruning settings
+            DonkeyElement pruningSettingsElement = metadataElement.addChildElement("pruningSettings");
+            DonkeyElement pruneMetaDataDaysElement = propertiesElement.removeChild("pruneMetaDataDays");
+            DonkeyElement pruneContentDaysElement = propertiesElement.removeChild("pruneContentDays");
+            DonkeyElement archiveEnabledElement = propertiesElement.removeChild("archiveEnabled");
+            if (pruneMetaDataDaysElement != null) {
+                pruningSettingsElement.addChildElement("pruneMetaDataDays", pruneMetaDataDaysElement.getTextContent());
             }
-        }
-
-        // Dependent IDs
-        DonkeyElement dependentIdsElement = element.removeChild("dependentIds");
-        if (dependentIdsElement != null) {
-            try {
-                exportDataElement.addChildElementFromXml(dependentIdsElement.toXml());
-            } catch (DonkeyElementException e) {
+            if (pruneContentDaysElement != null) {
+                pruningSettingsElement.addChildElement("pruneContentDays", pruneContentDaysElement.getTextContent());
             }
-        }
+            if (archiveEnabledElement != null) {
+                pruningSettingsElement.addChildElement("archiveEnabled", archiveEnabledElement.getTextContent());
+            }
 
-        // Dependency IDs
-        DonkeyElement dependencyIdsElement = element.removeChild("dependencyIds");
-        if (dependencyIdsElement != null) {
-            try {
-                exportDataElement.addChildElementFromXml(dependencyIdsElement.toXml());
-            } catch (DonkeyElementException e) {
+            // Tags
+            DonkeyElement tagsElement = propertiesElement.removeChild("tags");
+            if (tagsElement != null) {
+                try {
+                    metadataElement.addChildElementFromXml(tagsElement.toXml());
+                } catch (DonkeyElementException e) {
+                }
+            }
+
+            // Code template libraries
+            if (codeTemplateLibrariesElement != null) {
+                try {
+                    exportDataElement.addChildElementFromXml(codeTemplateLibrariesElement.toXml());
+                } catch (DonkeyElementException e) {
+                }
+            }
+
+            // Dependent IDs
+            if (dependentIdsElement != null) {
+                try {
+                    exportDataElement.addChildElementFromXml(dependentIdsElement.toXml());
+                } catch (DonkeyElementException e) {
+                }
+            }
+
+            // Dependency IDs
+            if (dependencyIdsElement != null) {
+                try {
+                    exportDataElement.addChildElementFromXml(dependencyIdsElement.toXml());
+                } catch (DonkeyElementException e) {
+                }
             }
         }
     }
