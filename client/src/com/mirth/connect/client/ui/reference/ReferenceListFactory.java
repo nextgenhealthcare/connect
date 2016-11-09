@@ -366,6 +366,8 @@ public class ReferenceListFactory {
         addReference(new ParameterizedCodeReference(CONTEXT_RESPONSE_MAP, Category.MAP.toString(), "Create Error Response", "Creates an unsuccessful response object.", "ResponseFactory.getErrorResponse('${message}')"));
 
         // Utility references
+        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Build Map", "Creates a new HashMap and adds an entry to it.", "var ${map} = Maps.map().add('${key}', ${value});"));
+        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Build List", "Creates a new ArrayList and adds an element to it.", "var ${list} = Lists.list().append(${element});"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Use Java Class", "Access any Java class in the current classpath", "var ${object} = Packages.${[fully-qualified name]};"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Generate Unique ID", "Generate a Universally Unique Identifier", "var ${uuid} = UUIDGenerator.getUUID();"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Call System Function", "Execute a command on server system. Must have proper security enabled.", "java.lang.Runtime.getRuntime().exec(\"${system_command}\");"));
