@@ -4,6 +4,7 @@
 	<property name="keystore_property_file" value="keystore.properties" />
 	<property name="manifest_thread_count" value="4" />
 	<property name="signjar_thread_count" value="4" />
+	<property name="jdk_src_path" value="" />
 
 	<target name="help">
 		<echo>Mirth Connect Build Help</echo>
@@ -1072,7 +1073,7 @@
 	<target name="create-javadocs" depends="init">
 		<mkdir dir="${docs.javadocs}" />
 		
-		<javadoc sourcepath="${src}" destdir="${docs.javadocs.userapi}" packagenames="com.mirth.connect.server.userutil,com.mirth.connect.userutil,com.mirth.connect.plugins.httpauth.userutil">
+		<javadoc sourcepath="${src}:${jdk_src_path}" destdir="${docs.javadocs.userapi}" packagenames="com.mirth.connect.server.userutil,com.mirth.connect.userutil,com.mirth.connect.plugins.httpauth.userutil" link="https://docs.oracle.com/javase/7/docs/api/">
 			<classpath refid="classpath" />
 		</javadoc>
 	</target>
