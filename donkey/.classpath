@@ -47,7 +47,7 @@
 	<classpathentry kind="lib" path="lib/commons/commons-dbcp2-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-pool2-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/database/derby-10.10.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/database/postgresql-9.4-1200.jdbc41.jar">
+	<classpathentry kind="lib" path="lib/database/postgresql-9.4.1212.jre7.jdbc41.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jdbc.postgresql.org/documentation/publicapi/"/>
 		</attributes>
