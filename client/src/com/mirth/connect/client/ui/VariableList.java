@@ -72,6 +72,7 @@ public class VariableList extends javax.swing.JPanel {
 
         variables.add("XML Entity Encoder");
         variables.add("XML Pretty Printer");
+        variables.add("Escape JSON String");
         variables.add("JSON Pretty Printer");
         variables.add("CDATA Tag");
         variables.add("DICOM Message Raw Data");

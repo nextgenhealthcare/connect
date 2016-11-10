@@ -9,6 +9,8 @@
 
 package com.mirth.connect.userutil;
 
+import com.mirth.connect.util.MirthJsonUtil;
+
 /**
  * Provides JSON utility methods.
  */
@@ -23,6 +25,17 @@ public class JsonUtil {
      * @return The formatted JSON string.
      */
     public static String prettyPrint(String input) {
-        return com.mirth.connect.util.MirthJsonUtil.prettyPrint(input);
+        return MirthJsonUtil.prettyPrint(input);
+    }
+
+    /**
+     * Escapes any special JSON characters in the input.
+     * 
+     * @param input
+     *            The string to escape.
+     * @return The escaped string.
+     */
+    public static String escape(String input) {
+        return MirthJsonUtil.escape(input);
     }
 }

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.util;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -33,9 +34,13 @@ public class MirthJsonUtil {
 
             return mapper.writer(prettyPrinter).writeValueAsString(json);
         } catch (Exception e) {
-            logger.error("Error pretty printing json.", e);
+            logger.warn("Error pretty printing json.", e);
         }
 
         return input;
+    }
+
+    public static String escape(String input) {
+        return StringEscapeUtils.escapeJson(input);
     }
 }

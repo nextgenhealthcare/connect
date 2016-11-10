@@ -69,6 +69,7 @@ public class VariableListHandler extends TransferHandler {
         staticVelocityReferences.put("Formatted Date", "${date.get('yyyy-M-d H.m.s')}");
         staticVelocityReferences.put("XML Entity Encoder", "${XmlUtil.encode()}");
         staticVelocityReferences.put("XML Pretty Printer", "${XmlUtil.prettyPrint()}");
+        staticVelocityReferences.put("Escape JSON String", "${JsonUtil.escape()}");
         staticVelocityReferences.put("JSON Pretty Printer", "${JsonUtil.prettyPrint()}");
 
         // these are used in DataPrunerPanel
@@ -95,6 +96,7 @@ public class VariableListHandler extends TransferHandler {
         staticJsReferences.put("Formatted Date", "var dateString = DateUtil.getCurrentDate('yyyy-M-d H.m.s');");
         staticJsReferences.put("XML Entity Encoder", "var encodedMessage = XmlUtil.encode('message');");
         staticJsReferences.put("XML Pretty Printer", "var prettyPrintedMessage = XmlUtil.prettyPrint('message');");
+        staticJsReferences.put("Escape JSON String", "var escapedJSONString = JsonUtil.escape('message');");
         staticJsReferences.put("JSON Pretty Printer", "var prettyPrintedMessage = JsonUtil.prettyPrint('message');");
     }
 
