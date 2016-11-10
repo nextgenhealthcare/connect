@@ -117,12 +117,14 @@ public abstract class JavaScriptTask<T> implements Callable<T> {
     }
 
     public Object executeScript(Script compiledScript, Scriptable scope) throws InterruptedException {
+        Thread currentThread = Thread.currentThread();
+
         try {
             // if the executor is halting this task, we don't want to initialize the context yet
             synchronized (this) {
                 ThreadUtils.checkInterruptedStatus();
                 context = Context.getCurrentContext();
-                Thread.currentThread().setContextClassLoader(contextFactory.getApplicationClassLoader());
+                currentThread.setContextClassLoader(contextFactory.getApplicationClassLoader());
                 logger.debug(StringUtils.defaultString(StringUtils.trimToNull(getClass().getSimpleName()), getClass().getName()) + " using context factory: " + contextFactory.hashCode());
 
                 /*
@@ -139,11 +141,23 @@ public abstract class JavaScriptTask<T> implements Callable<T> {
                 }
             }
 
+            if (currentThread instanceof MirthJavaScriptThread) {
+                MirthJavaScriptThread mirthThread = (MirthJavaScriptThread) currentThread;
+                mirthThread.setContext(context);
+                mirthThread.setScope(scope);
+            }
+
             return compiledScript.exec(context, scope);
         } finally {
             if (contextCreated) {
                 Context.exit();
                 contextCreated = false;
+            }
+
+            if (currentThread instanceof MirthJavaScriptThread) {
+                MirthJavaScriptThread mirthThread = (MirthJavaScriptThread) currentThread;
+                mirthThread.setContext(null);
+                mirthThread.setScope(null);
             }
         }
     }

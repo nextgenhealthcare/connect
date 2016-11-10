@@ -15,8 +15,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -56,7 +60,8 @@ public class JavaScriptUtil {
     private static Logger logger = Logger.getLogger(JavaScriptUtil.class);
     private static CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private static final int SOURCE_CODE_LINE_WRAPPER = 5;
-    private static ExecutorService executor = Executors.newCachedThreadPool();
+    private static final RejectedExecutionHandler defaultHandler = new AbortPolicy();
+    private static ExecutorService executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new MirthJavaScriptThreadFactory(), defaultHandler);
     private static ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private static volatile String globalScriptContextFactoryId = null;
     private static String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
