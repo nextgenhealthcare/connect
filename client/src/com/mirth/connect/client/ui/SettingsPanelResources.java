@@ -147,6 +147,10 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
         try {
             cachedResources = resources;
 
+            for (ResourceClientPlugin plugin : LoadedExtensions.getInstance().getResourceClientPlugins().values()) {
+                plugin.resourcesRefreshed();
+            }
+
             ResourceProperties defaultResource = null;
             for (ResourceProperties properties : resources) {
                 if (properties.getId().equals(ResourceProperties.DEFAULT_RESOURCE_ID)) {
@@ -343,6 +347,8 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
                             currentPropertiesPanel.fillProperties(properties);
                             currentPropertiesPanel.setProperties(properties);
                         }
+
+                        doRefresh();
                     } catch (Throwable t) {
                         if (t instanceof ExecutionException) {
                             t = t.getCause();

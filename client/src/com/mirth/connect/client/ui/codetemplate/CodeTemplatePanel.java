@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.prefs.Preferences;
@@ -82,8 +81,6 @@ import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.TaskConstants;
@@ -120,7 +117,6 @@ import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.CodeTemplateTypePlugin;
-import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class CodeTemplatePanel extends AbstractFramePanel {
 
@@ -593,7 +589,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         stopTableEditing();
         updateCurrentNode();
 
-        if (!doValidateCodeTemplate(false)) {
+        if (!validateAll()) {
             return null;
         }
 
@@ -821,6 +817,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                         }
                     } else {
                         setSaveEnabled(false);
+                        if (currentPropertiesPanel != null) {
+                            currentPropertiesPanel.resetInvalidProperties();
+                        }
                     }
 
                     final TreePath finalPath = selectedPath;
@@ -1288,17 +1287,8 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
     private boolean doValidateCodeTemplate(boolean showSuccessMessage) {
         stopTableEditing();
-        String validationMessage = null;
 
-        try {
-            JavaScriptContextUtil.getGlobalContextForValidation().compileString("function rhinoWrapper() {" + currentPropertiesPanel.getProperties().getCode() + "\n}", UUID.randomUUID().toString(), 1, null);
-        } catch (EvaluatorException e) {
-            validationMessage = "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
-        } catch (Exception e) {
-            validationMessage = "Unknown error occurred during validation.";
-        } finally {
-            Context.exit();
-        }
+        String validationMessage = currentPropertiesPanel.checkProperties(currentPropertiesPanel.getProperties(), true);
 
         if (validationMessage == null) {
             if (showSuccessMessage) {
@@ -1309,6 +1299,37 @@ public class CodeTemplatePanel extends AbstractFramePanel {
             parent.alertInformation(this, validationMessage);
             return false;
         }
+    }
+
+    private boolean validateAll() {
+        stopTableEditing();
+        updateCurrentNode();
+
+        for (Enumeration<? extends MutableTreeTableNode> libraryNodes = ((AbstractSortableTreeTableNode) fullModel.getRoot()).children(); libraryNodes.hasMoreElements();) {
+            CodeTemplateLibraryTreeTableNode libraryNode = (CodeTemplateLibraryTreeTableNode) libraryNodes.nextElement();
+            CodeTemplateLibrary library = libraryNode.getLibrary();
+
+            for (Enumeration<? extends MutableTreeTableNode> codeTemplateNodes = libraryNode.children(); codeTemplateNodes.hasMoreElements();) {
+                CodeTemplateTreeTableNode codeTemplateNode = (CodeTemplateTreeTableNode) codeTemplateNodes.nextElement();
+                CodeTemplate codeTemplate = codeTemplateNode.getCodeTemplate();
+                CodeTemplateProperties properties = codeTemplate.getProperties();
+
+                CodeTemplatePropertiesPanel selectedPropertiesPanel = pluginPropertiesPanelMap.get(properties.getPluginPointName());
+                if (selectedPropertiesPanel == null) {
+                    selectedPropertiesPanel = basicPropertiesPanel;
+                }
+
+                String validationMessage = selectedPropertiesPanel.checkProperties(properties, selectedPropertiesPanel == currentPropertiesPanel);
+
+                if (validationMessage != null) {
+                    validationMessage = "Error validating code template \"" + codeTemplate.getName() + "\" in library \"" + library.getName() + "\":\n\n" + validationMessage;
+                    parent.alertError(this, validationMessage);
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private void initComponents() {
@@ -1486,7 +1507,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
                                 switchSplitPaneComponent(libraryPanel);
                             } else if (node instanceof CodeTemplateTreeTableNode) {
                                 setCodeTemplateProperties((CodeTemplateTreeTableNode) node);
-                                switchSplitPaneComponent(templatePanel);
+                                switchSplitPaneComponent(templateScrollPane);
                             }
                         }
                     }
@@ -1713,6 +1734,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         templatePanel = new JPanel();
         templatePanel.setBackground(splitPane.getBackground());
 
+        templateScrollPane = new JScrollPane(templatePanel);
+        templateScrollPane.setBorder(null);
+
         templateLeftPanel = new JPanel();
         templateLeftPanel.setBackground(templatePanel.getBackground());
 
@@ -1736,13 +1760,14 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         pluginPropertiesPanelMap = new LinkedHashMap<String, CodeTemplatePropertiesPanel>();
         for (CodeTemplateTypePlugin plugin : LoadedExtensions.getInstance().getCodeTemplateTypePlugins().values()) {
             types.add(plugin.getPluginPointName());
-            pluginPropertiesPanelMap.put(plugin.getPluginPointName(), plugin.getPanel());
+            pluginPropertiesPanelMap.put(plugin.getPluginPointName(), plugin.getPanel(this, codeChangeListener));
         }
 
         templateTypeComboBox = new JComboBox<String>(types.toArray(new String[types.size()]));
         templateTypeComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
+                templateTypeComboBoxActionPerformed();
                 setSaveEnabled(true);
             }
         });
@@ -1976,7 +2001,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
         templatePanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
 
-        templateLeftPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill", "[]13[grow]", "[][][grow][]"));
+        templateLeftPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gap 6", "[]13[grow]"));
         templateLeftPanel.add(templateLibraryLabel, "right");
         templateLeftPanel.add(templateLibraryComboBox, "w 200:");
         templateLeftPanel.add(templateTypeLabel, "newline, right");
@@ -1988,7 +2013,9 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         for (CodeTemplatePropertiesPanel pluginPanel : pluginPropertiesPanelMap.values()) {
             for (Pair<Pair<Component, String>, Pair<Component, String>> row : pluginPanel.getRows()) {
                 templateLeftPanel.add(row.getLeft().getLeft(), row.getLeft().getRight());
-                templateLeftPanel.add(row.getRight().getLeft(), row.getRight().getRight());
+                if (row.getRight() != null) {
+                    templateLeftPanel.add(row.getRight().getLeft(), row.getRight().getRight());
+                }
             }
         }
         templatePanel.add(templateLeftPanel, "grow, push");
@@ -2147,6 +2174,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
         templateLibraryComboBox.setSelectedItem(libraryNode.getLibrary().getName());
         templateTypeComboBox.setSelectedItem(codeTemplate.getProperties().getPluginPointName());
         templateTypeComboBoxActionPerformed();
+        currentPropertiesPanel.resetInvalidProperties();
         currentPropertiesPanel.setProperties(codeTemplate.getProperties());
         updateContextTable(codeTemplate.getContextSet());
 
@@ -2491,20 +2519,29 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
     private void templateTypeComboBoxActionPerformed() {
         String type = (String) templateTypeComboBox.getSelectedItem();
+        CodeTemplatePropertiesPanel selectedPropertiesPanel = null;
 
         CodeTemplateType codeTemplateType = CodeTemplateType.fromString(type);
         if (codeTemplateType != null) {
-            basicPropertiesPanel.setVisible(true);
-            currentPropertiesPanel = basicPropertiesPanel;
+            selectedPropertiesPanel = basicPropertiesPanel;
         }
 
         for (Entry<String, CodeTemplatePropertiesPanel> entry : pluginPropertiesPanelMap.entrySet()) {
             if (entry.getKey().equals(type)) {
-                entry.getValue().setVisible(true);
                 basicPropertiesPanel.setVisible(false);
-                currentPropertiesPanel = entry.getValue();
+                selectedPropertiesPanel = entry.getValue();
             } else {
                 entry.getValue().setVisible(false);
+            }
+        }
+
+        if (selectedPropertiesPanel != null) {
+            selectedPropertiesPanel.setVisible(true);
+
+            if (currentPropertiesPanel != selectedPropertiesPanel) {
+                currentPropertiesPanel = selectedPropertiesPanel;
+                currentPropertiesPanel.resetInvalidProperties();
+                currentPropertiesPanel.setProperties(currentPropertiesPanel.getDefaults());
             }
         }
     }
@@ -2542,6 +2579,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
     // Template Panel
     private JPanel templatePanel;
+    private JScrollPane templateScrollPane;
 
     private JPanel templateLeftPanel;
     private JLabel templateLibraryLabel;

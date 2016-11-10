@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -27,14 +28,18 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.model.codetemplates.CodeTemplateProperties;
 import com.mirth.connect.model.codetemplates.CodeTemplateProperties.CodeTemplateType;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.CodeTemplateUtil;
+import com.mirth.connect.util.JavaScriptContextUtil;
 
 public class BasicCodeTemplatePropertiesPanel extends CodeTemplatePropertiesPanel {
 
@@ -49,7 +54,7 @@ public class BasicCodeTemplatePropertiesPanel extends CodeTemplatePropertiesPane
     @Override
     public List<Pair<Pair<Component, String>, Pair<Component, String>>> getRows() {
         List<Pair<Pair<Component, String>, Pair<Component, String>>> rows = new ArrayList<Pair<Pair<Component, String>, Pair<Component, String>>>();
-        rows.add(new ImmutablePair<Pair<Component, String>, Pair<Component, String>>(new ImmutablePair<Component, String>(templateCodeLabel, "newline, top, right"), new ImmutablePair<Component, String>(containerPanel, "grow, sx, w :400, h 127:127")));
+        rows.add(new ImmutablePair<Pair<Component, String>, Pair<Component, String>>(new ImmutablePair<Component, String>(templateCodeLabel, "newline, top, right"), new ImmutablePair<Component, String>(containerPanel, "grow, push, sx, w :400, h 127:127")));
         return rows;
     }
 
@@ -59,10 +64,33 @@ public class BasicCodeTemplatePropertiesPanel extends CodeTemplatePropertiesPane
     }
 
     @Override
+    public CodeTemplateProperties getDefaults() {
+        return new BasicCodeTemplateProperties(CodeTemplateType.FUNCTION, CodeTemplate.DEFAULT_CODE);
+    }
+
+    @Override
     public void setProperties(CodeTemplateProperties properties) {
         type = CodeTemplateType.fromString(properties.getPluginPointName());
         templateCodeTextArea.setText(properties.getCode());
     }
+
+    @Override
+    public String checkProperties(CodeTemplateProperties properties, boolean highlight) {
+        try {
+            JavaScriptContextUtil.getGlobalContextForValidation().compileString("function rhinoWrapper() {" + properties.getCode() + "\n}", UUID.randomUUID().toString(), 1, null);
+        } catch (EvaluatorException e) {
+            return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
+        } catch (Exception e) {
+            return "Unknown error occurred during validation.";
+        } finally {
+            Context.exit();
+        }
+
+        return null;
+    }
+
+    @Override
+    public void resetInvalidProperties() {}
 
     @Override
     public void setVisible(boolean visible) {

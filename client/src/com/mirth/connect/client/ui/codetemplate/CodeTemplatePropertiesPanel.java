@@ -32,7 +32,13 @@ public abstract class CodeTemplatePropertiesPanel {
 
     public abstract CodeTemplateProperties getProperties();
 
+    public abstract CodeTemplateProperties getDefaults();
+
     public abstract void setProperties(CodeTemplateProperties properties);
+
+    public abstract String checkProperties(CodeTemplateProperties properties, boolean highlight);
+
+    public abstract void resetInvalidProperties();
 
     public abstract void setVisible(boolean visible);
 }

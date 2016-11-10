@@ -397,8 +397,13 @@ public class Frame extends JXFrame {
         channelPanel = new ChannelPanel();
         channelPanel.retrieveGroups();
         channelPanel.retrieveDependencies();
-        codeTemplatePanel = new CodeTemplatePanel(this);
+
         initializeExtensions();
+
+        codeTemplatePanel = new CodeTemplatePanel(this);
+
+        statusBar = new StatusBar();
+        statusBar.setBorder(BorderFactory.createEmptyBorder());
 
         channelPanel.initPanelPlugins();
 
@@ -423,8 +428,6 @@ public class Frame extends JXFrame {
         contentPanel.setBorder(BorderFactory.createEmptyBorder());
         taskPane.setBorder(BorderFactory.createEmptyBorder());
 
-        statusBar = new StatusBar();
-        statusBar.setBorder(BorderFactory.createEmptyBorder());
         contentPane.setBorder(BorderFactory.createEmptyBorder());
 
         buildContentPanel(rightContainer, contentPane, false);

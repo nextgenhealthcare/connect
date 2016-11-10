@@ -19,8 +19,9 @@ import javax.swing.table.DefaultTableModel;
 
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.model.Connector;
 
-public class MirthEditorPane extends JPanel {
+public abstract class MirthEditorPane extends JPanel {
     // transformer constants
 
     public static final int STEP_NUMBER_COL = 0;
@@ -60,6 +61,8 @@ public class MirthEditorPane extends JPanel {
         // let the parent decide how big this should be
         this.setPreferredSize(new Dimension(0, 0));
     }
+
+    public abstract Connector getConnector();
 
     public int getSelectedRow() {
         return 0;

@@ -140,6 +140,11 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         initComponents();
     }
 
+    @Override
+    public Connector getConnector() {
+        return connector;
+    }
+
     public void reload(Connector c, Filter f) {
         connector = c;
         filter = f;

@@ -20,4 +20,6 @@ public abstract class ResourceClientPlugin extends ClientPlugin {
     public abstract String getType();
 
     public abstract ResourcePropertiesPanel getPropertiesPanel();
+
+    public void resourcesRefreshed() {}
 }

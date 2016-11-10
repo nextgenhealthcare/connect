@@ -17,6 +17,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 
@@ -24,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class MirthIconTextField extends MirthTextField {
 
-    private ImageIcon icon;
+    private Icon icon;
     private Insets insets;
     private String originalToolTipText;
     private String alternateToolTipText;
@@ -34,7 +35,7 @@ public class MirthIconTextField extends MirthTextField {
         this(null);
     }
 
-    public MirthIconTextField(ImageIcon icon) {
+    public MirthIconTextField(Icon icon) {
         setIcon(icon);
 
         addMouseListener(new MouseAdapter() {
@@ -51,36 +52,26 @@ public class MirthIconTextField extends MirthTextField {
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent evt) {
-                int cursorType = getCursor().getType();
-
                 if (isIconActive(evt)) {
                     if (StringUtils.isNotBlank(alternateToolTipText)) {
                         MirthIconTextField.super.setToolTipText(alternateToolTipText);
-                    }
-
-                    if (iconPopupMenuComponent != null) {
-                        if (cursorType != Cursor.HAND_CURSOR) {
-                            setCursor(new Cursor(Cursor.HAND_CURSOR));
-                        }
-                    } else {
-                        if (cursorType != Cursor.DEFAULT_CURSOR) {
-                            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                        }
                     }
                 } else {
                     if (StringUtils.isNotBlank(alternateToolTipText)) {
                         MirthIconTextField.super.setToolTipText(originalToolTipText);
                     }
-
-                    if (cursorType != Cursor.TEXT_CURSOR) {
-                        setCursor(new Cursor(Cursor.TEXT_CURSOR));
-                    }
                 }
+
+                mouseMovedAction(evt);
             }
         });
     }
 
-    public void setIcon(ImageIcon icon) {
+    public Icon getIcon() {
+        return icon;
+    }
+
+    public void setIcon(Icon icon) {
         this.icon = icon;
     }
 
@@ -115,11 +106,31 @@ public class MirthIconTextField extends MirthTextField {
 
         super.paintComponent(g);
         if (icon != null) {
-            g.drawImage(icon.getImage(), 2, (getHeight() - icon.getIconHeight()) / 2, this);
+            if (icon instanceof ImageIcon) {
+                g.drawImage(((ImageIcon) icon).getImage(), 2, (getHeight() - icon.getIconHeight()) / 2, this);
+            } else {
+                icon.paintIcon(this, g, 2, (getHeight() - icon.getIconHeight()) / 2);
+            }
         }
     }
 
-    private boolean isIconActive(MouseEvent evt) {
+    protected void mouseMovedAction(MouseEvent evt) {
+        int cursorType = getCursor().getType();
+
+        if (isIconActive(evt)) {
+            if (iconPopupMenuComponent != null) {
+                if (cursorType != Cursor.HAND_CURSOR) {
+                    setCursor(new Cursor(Cursor.HAND_CURSOR));
+                }
+            } else if (cursorType != Cursor.DEFAULT_CURSOR) {
+                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+        } else if (cursorType != Cursor.TEXT_CURSOR) {
+            setCursor(new Cursor(Cursor.TEXT_CURSOR));
+        }
+    }
+
+    protected boolean isIconActive(MouseEvent evt) {
         return icon != null && evt.getX() < icon.getIconWidth();
     }
 }

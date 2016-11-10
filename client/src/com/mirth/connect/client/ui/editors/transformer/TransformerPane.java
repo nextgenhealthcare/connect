@@ -134,6 +134,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         setBorder(BorderFactory.createEmptyBorder());
     }
 
+    @Override
+    public Connector getConnector() {
+        return connector;
+    }
+
     public void reload(Connector c) {
         connector = c;
         transformer = isResponse ? c.getResponseTransformer() : c.getTransformer();
@@ -501,7 +506,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
 
         // Data Column is hidden
-        transformerTable.setModel(new DefaultTableModel(new String[] { "#", "Name", "Type", "Data" }, 0) {
+        transformerTable.setModel(new DefaultTableModel(new String[] { "#", "Name", "Type",
+                "Data" }, 0) {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 boolean[] canEdit;
@@ -570,10 +576,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         transformerTable.getColumnExt(STEP_NUMBER_COL).setMaxWidth(UIConstants.MAX_WIDTH);
         transformerTable.getColumnExt(STEP_TYPE_COL).setMaxWidth(UIConstants.MAX_WIDTH);
-        transformerTable.getColumnExt(STEP_TYPE_COL).setMinWidth(120);
+        transformerTable.getColumnExt(STEP_TYPE_COL).setMinWidth(155);
 
         transformerTable.getColumnExt(STEP_NUMBER_COL).setPreferredWidth(30);
-        transformerTable.getColumnExt(STEP_TYPE_COL).setPreferredWidth(120);
+        transformerTable.getColumnExt(STEP_TYPE_COL).setPreferredWidth(155);
 
         transformerTable.getColumnExt(STEP_NUMBER_COL).setCellRenderer(new CenterCellRenderer());
         transformerTable.getColumnExt(STEP_TYPE_COL).setCellEditor(comboBox);
