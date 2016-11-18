@@ -589,7 +589,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         sourceMap.put("localPort", request.getLocalPort());
         sourceMap.put("method", requestMessage.getMethod());
         sourceMap.put("url", requestMessage.getRequestUrl());
-        sourceMap.put("uri", StringUtils.trimToEmpty(request.getUri().toString()));
+        sourceMap.put("uri", StringUtils.trimToEmpty(request.getHttpURI().toString()));
         sourceMap.put("protocol", StringUtils.trimToEmpty(request.getProtocol()));
         sourceMap.put("query", requestMessage.getQueryString());
         sourceMap.put("contextPath", requestMessage.getContextPath());
@@ -767,11 +767,6 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     }
 
     private Map<String, List<String>> extractParameters(Request request) {
-        /*
-         * XXX: extractParameters must be called before the parameters are accessed, otherwise the
-         * map will be null.
-         */
-        request.extractParameters();
         Map<String, List<String>> parameterMap = new HashMap<String, List<String>>();
 
         for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {

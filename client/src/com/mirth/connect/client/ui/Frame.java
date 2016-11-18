@@ -398,9 +398,14 @@ public class Frame extends JXFrame {
         channelPanel.retrieveGroups();
         channelPanel.retrieveDependencies();
 
-        initializeExtensions();
+        // Initialize all of the extensions now that the metadata has been retrieved
+        // Make sure to initialize before the code template panel is created because it needs extensions
+        LoadedExtensions.getInstance().initialize();
 
         codeTemplatePanel = new CodeTemplatePanel(this);
+
+        // Now it's okay to start the plugins
+        LoadedExtensions.getInstance().startPlugins();
 
         statusBar = new StatusBar();
         statusBar.setBorder(BorderFactory.createEmptyBorder());
@@ -534,12 +539,6 @@ public class Frame extends JXFrame {
         }
 
         mirthClient.registerApiProviders(apiProviderPackages, apiProviderClasses);
-    }
-
-    private void initializeExtensions() {
-        // Initialize all of the extensions now that the metadata has been retrieved
-        LoadedExtensions.getInstance().initialize();
-        LoadedExtensions.getInstance().startPlugins();
     }
 
     /**
