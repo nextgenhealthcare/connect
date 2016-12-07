@@ -15,8 +15,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.util.Map;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -29,7 +27,6 @@ public class MirthTextIcon implements Icon {
     private String text;
     private boolean includeSpace;
     private Color background;
-    private Map<?, ?> desktopHints;
     private int width;
     private int widthWithSpace;
     private int height;
@@ -55,8 +52,6 @@ public class MirthTextIcon implements Icon {
             this.background = DEFAULT_BACKGROUND;
         }
 
-        this.desktopHints = (Map<?, ?>) Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints");
-
         FontMetrics fm = component.getFontMetrics(component.getFont());
         this.width = fm.stringWidth(this.text);
         if (includeSpace) {
@@ -81,11 +76,8 @@ public class MirthTextIcon implements Icon {
     public void paintIcon(Component c, Graphics g, int x, int y) {
         // Setup font
         Graphics2D g2 = (Graphics2D) g.create();
-        if (desktopHints != null) {
-            g2.addRenderingHints(desktopHints);
-        } else {
-            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        }
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2.setFont(c.getFont());
 
         // Draw bubble
