@@ -14,6 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 public class DefinitionServiceMap implements Serializable {
 
     private Map<String, DefinitionPortMap> map = new LinkedHashMap<String, DefinitionPortMap>();
@@ -28,6 +30,11 @@ public class DefinitionServiceMap implements Serializable {
 
         public Map<String, PortInformation> getMap() {
             return map;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return EqualsBuilder.reflectionEquals(this, obj);
         }
     }
 
@@ -51,5 +58,15 @@ public class DefinitionServiceMap implements Serializable {
         public String getLocationURI() {
             return locationURI;
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            return EqualsBuilder.reflectionEquals(this, obj);
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }
