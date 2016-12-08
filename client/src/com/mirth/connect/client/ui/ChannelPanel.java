@@ -20,12 +20,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,6 +47,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.DropMode;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -69,10 +72,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
-import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -92,16 +94,21 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.TaskConstants;
-import com.mirth.connect.client.ui.ChannelFilter.ChannelFilterSaveTask;
 import com.mirth.connect.client.ui.Frame.ChannelTask;
 import com.mirth.connect.client.ui.Frame.ConflictOption;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplateImportDialog;
 import com.mirth.connect.client.ui.components.ChannelTableTransferHandler;
-import com.mirth.connect.client.ui.components.IconButton;
 import com.mirth.connect.client.ui.components.IconToggleButton;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
+import com.mirth.connect.client.ui.components.tag.ChannelNameFilterCompletion;
+import com.mirth.connect.client.ui.components.tag.FilterCompletion;
+import com.mirth.connect.client.ui.components.tag.MirthTagField;
+import com.mirth.connect.client.ui.components.tag.SearchFilterListener;
+import com.mirth.connect.client.ui.components.tag.TagFilterCompletion;
+import com.mirth.connect.client.ui.components.tag.TagLabel;
 import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
+import com.mirth.connect.client.ui.tag.SettingsPanelTags;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.model.Channel;
@@ -111,6 +118,7 @@ import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
+import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.codetemplates.CodeTemplate;
@@ -118,13 +126,18 @@ import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult.CodeTemplateUpdateResult;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.filter.SearchFilter;
+import com.mirth.connect.model.filter.SearchFilterParser;
 import com.mirth.connect.model.util.ImportConverter3_0_0;
 import com.mirth.connect.plugins.ChannelColumnPlugin;
 import com.mirth.connect.plugins.ChannelPanelPlugin;
 import com.mirth.connect.plugins.TaskPlugin;
 import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
+import com.mirth.connect.util.ColorUtil;
 import com.mirth.connect.util.DirectedAcyclicGraphNode;
+
+import net.miginfocom.swing.MigLayout;
 
 public class ChannelPanel extends AbstractFramePanel {
 
@@ -184,8 +197,12 @@ public class ChannelPanel extends AbstractFramePanel {
     private Map<String, ChannelGroupStatus> groupStatuses = new LinkedHashMap<String, ChannelGroupStatus>();
     private Set<ChannelDependency> channelDependencies = new HashSet<ChannelDependency>();
 
+    private Preferences userPreferences;
+
     public ChannelPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);
+
         initComponents();
         initLayout();
 
@@ -239,7 +256,7 @@ public class ChannelPanel extends AbstractFramePanel {
 
         ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("channelGroupViewEnabled", true)) {
+        if (userPreferences.getBoolean("channelGroupViewEnabled", true)) {
             tableModeGroupsButton.setSelected(true);
             tableModeGroupsButton.setContentFilled(true);
             tableModeChannelsButton.setContentFilled(false);
@@ -249,6 +266,18 @@ public class ChannelPanel extends AbstractFramePanel {
             tableModeChannelsButton.setContentFilled(true);
             tableModeGroupsButton.setContentFilled(false);
             model.setGroupModeEnabled(false);
+        }
+
+        if (userPreferences.getBoolean("tagModeEnabled", false)) {
+            tagModeIconButton.setSelected(true);
+            tagModeIconButton.setContentFilled(true);
+            tagModeTextButton.setContentFilled(false);
+            channelTable.setTreeCellRenderer(new ChannelPanelTreeCellRenderer(true));
+        } else {
+            tagModeTextButton.setSelected(true);
+            tagModeTextButton.setContentFilled(true);
+            tagModeIconButton.setContentFilled(false);
+            channelTable.setTreeCellRenderer(new ChannelPanelTreeCellRenderer(false));
         }
 
         updateModel(new TableState(new ArrayList<String>(), null));
@@ -270,6 +299,18 @@ public class ChannelPanel extends AbstractFramePanel {
             tableModeGroupsButton.setContentFilled(false);
         }
 
+        if (userPreferences.getBoolean("tagModeEnabled", false)) {
+            tagModeIconButton.setSelected(true);
+            tagModeIconButton.setContentFilled(true);
+            tagModeTextButton.setContentFilled(false);
+            channelTable.setTreeCellRenderer(new ChannelPanelTreeCellRenderer(true));
+        } else {
+            tagModeTextButton.setSelected(true);
+            tagModeTextButton.setContentFilled(true);
+            tagModeIconButton.setContentFilled(false);
+            channelTable.setTreeCellRenderer(new ChannelPanelTreeCellRenderer(false));
+        }
+
         List<JXTaskPane> taskPanes = new ArrayList<JXTaskPane>();
         taskPanes.add(channelTasks);
 
@@ -284,13 +325,20 @@ public class ChannelPanel extends AbstractFramePanel {
             }
         }
 
+        tagField.setFocus(true);
+
         parent.setBold(parent.viewPane, 1);
         parent.setPanelName("Channels");
         parent.setCurrentContentPage(ChannelPanel.this);
         parent.setFocus(taskPanes.toArray(new JXTaskPane[taskPanes.size()]), true, true);
         parent.setSaveEnabled(false);
+        setSaveEnabled(false);
 
         doRefreshChannels();
+    }
+
+    public void closePopupWindow() {
+        tagField.closePopupWindow();
     }
 
     @Override
@@ -357,6 +405,14 @@ public class ChannelPanel extends AbstractFramePanel {
         return channelDependencies;
     }
 
+    public Set<ChannelTag> getCachedChannelTags() {
+        return parent.getCachedChannelTags();
+    }
+
+    public String getUserTags() {
+        return tagField.getTags();
+    }
+
     public void doRefreshChannels() {
         doRefreshChannels(true);
     }
@@ -377,6 +433,7 @@ public class ChannelPanel extends AbstractFramePanel {
             public void done() {
                 updateModel(getCurrentTableState());
                 updateTasks();
+                updateTags();
                 parent.setSaveEnabled(false);
             }
         };
@@ -387,7 +444,7 @@ public class ChannelPanel extends AbstractFramePanel {
     private void updateTasks() {
         int[] rows = channelTable.getSelectedModelRows();
         ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
-        boolean filterEnabled = parent.getChannelTagInfo(false).isEnabled();
+        boolean filterEnabled = tagField.isFilterEnabled();
         boolean saveEnabled = isSaveEnabled();
 
         setAllTaskVisibility(false);
@@ -423,30 +480,34 @@ public class ChannelPanel extends AbstractFramePanel {
             boolean includesDefaultGroup = false;
 
             for (int row : rows) {
-                AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(row).getLastPathComponent();
-                if (node.isGroupNode()) {
-                    allChannels = false;
+                TreePath path = channelTable.getPathForRow(row);
 
-                    for (Enumeration<? extends MutableTreeTableNode> channelNodes = node.children(); channelNodes.hasMoreElements();) {
-                        AbstractChannelTableNode channelNode = (AbstractChannelTableNode) channelNodes.nextElement();
-                        if (channelNode.getChannelStatus().getChannel().getExportData().getMetadata().isEnabled()) {
+                if (path != null) {
+                    AbstractChannelTableNode node = (AbstractChannelTableNode) channelTable.getPathForRow(row).getLastPathComponent();
+                    if (node.isGroupNode()) {
+                        allChannels = false;
+
+                        for (Enumeration<? extends MutableTreeTableNode> channelNodes = node.children(); channelNodes.hasMoreElements();) {
+                            AbstractChannelTableNode channelNode = (AbstractChannelTableNode) channelNodes.nextElement();
+                            if (channelNode.getChannelStatus().getChannel().getExportData().getMetadata().isEnabled()) {
+                                allDisabled = false;
+                            } else {
+                                allEnabled = false;
+                            }
+                            channelNodeFound = true;
+                        }
+
+                        if (StringUtils.equals(node.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
+                            includesDefaultGroup = true;
+                        }
+                    } else {
+                        allGroups = false;
+
+                        if (node.getChannelStatus().getChannel().getExportData().getMetadata().isEnabled()) {
                             allDisabled = false;
                         } else {
                             allEnabled = false;
                         }
-                        channelNodeFound = true;
-                    }
-
-                    if (StringUtils.equals(node.getGroupStatus().getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
-                        includesDefaultGroup = true;
-                    }
-                } else {
-                    allGroups = false;
-
-                    if (node.getChannelStatus().getChannel().getExportData().getMetadata().isEnabled()) {
-                        allDisabled = false;
-                    } else {
-                        allEnabled = false;
                     }
                 }
             }
@@ -473,7 +534,7 @@ public class ChannelPanel extends AbstractFramePanel {
                     setGroupTaskVisible(TASK_GROUP_EXPORT_GROUP);
                 }
 
-                if (!includesDefaultGroup && !parent.getChannelTagInfo(false).isEnabled()) {
+                if (!includesDefaultGroup && !filterEnabled) {
                     setGroupTaskVisible(TASK_GROUP_DELETE_GROUP);
                 }
             } else if (allChannels) {
@@ -497,6 +558,19 @@ public class ChannelPanel extends AbstractFramePanel {
         }
     }
 
+    private void updateTags() {
+        Set<FilterCompletion> tags = new HashSet<FilterCompletion>();
+        for (ChannelStatus status : channelStatuses.values()) {
+            tags.add(new ChannelNameFilterCompletion(status.getChannel().getName()));
+        }
+
+        for (ChannelTag channelTag : getCachedChannelTags()) {
+            tags.add(new TagFilterCompletion(channelTag));
+        }
+
+        tagField.update(tags, false, true);
+    }
+
     public void retrieveGroups() {
         try {
             updateChannelGroups(parent.mirthClient.getAllChannelGroups());
@@ -506,11 +580,22 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     public void retrieveChannels() {
+        retrieveChannels(true);
+    }
+
+    public void retrieveChannels(boolean refreshTags) {
         try {
             updateChannelStatuses(parent.mirthClient.getChannelSummary(getChannelHeaders(), false));
             updateChannelGroups(parent.mirthClient.getAllChannelGroups());
             channelDependencies = parent.mirthClient.getChannelDependencies();
             updateChannelMetadata(parent.mirthClient.getChannelMetadata());
+
+            if (refreshTags) {
+                SettingsPanelTags tagsPanel = parent.getTagsPanel();
+                if (tagsPanel != null) {
+                    tagsPanel.refresh();
+                }
+            }
         } catch (ClientException e) {
             parent.alertThrowable(parent, e);
         }
@@ -535,12 +620,39 @@ public class ChannelPanel extends AbstractFramePanel {
         return channelHeaders;
     }
 
+    public void updateChannelTags(List<ChannelTag> channelTags, String channelId) {
+        List<ChannelTag> tagsCopy = new ArrayList<ChannelTag>(channelTags);
+        Set<ChannelTag> updateTagList = new HashSet<ChannelTag>();
+
+        for (ChannelTag tagToUpdate : tagsCopy) {
+            for (ChannelTag existingTag : getCachedChannelTags()) {
+                if (existingTag.getId().equals(tagToUpdate.getId()) || existingTag.getName().equalsIgnoreCase(tagToUpdate.getName())) {
+                    existingTag.getChannelIds().add(channelId);
+                    channelTags.remove(tagToUpdate);
+                }
+
+                updateTagList.add(existingTag);
+            }
+        }
+
+        for (ChannelTag newTag : channelTags) {
+            String tagName = newTag.getName();
+            newTag.setName(StringUtils.substring(tagName, 0, 12));
+            updateTagList.add(newTag);
+        }
+
+        SettingsPanelTags tagsPanel = parent.getTagsPanel();
+        if (tagsPanel != null) {
+            tagsPanel.updateTagsTable(updateTagList);
+        }
+    }
+
     public boolean doSaveGroups() {
         return doSaveGroups(true);
     }
 
     public boolean doSaveGroups(boolean asynchronous) {
-        if (parent.getChannelTagInfo(false).isEnabled()) {
+        if (tagField.isFilterEnabled()) {
             return false;
         }
 
@@ -571,6 +683,9 @@ public class ChannelPanel extends AbstractFramePanel {
         } else {
             return attemptUpdate(channelGroups, removedChannelGroupIds, false);
         }
+
+        tagField.setEnabled(true);
+        filterLabel.setEnabled(true);
 
         return true;
     }
@@ -803,7 +918,7 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     public void doNewGroup() {
-        if (parent.getChannelTagInfo(false).isEnabled()) {
+        if (tagField.isFilterEnabled()) {
             return;
         }
 
@@ -828,6 +943,9 @@ public class ChannelPanel extends AbstractFramePanel {
                 }
             });
         }
+
+        tagField.setEnabled(false);
+        filterLabel.setEnabled(false);
     }
 
     private boolean checkGroupId(String id) {
@@ -930,7 +1048,7 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     public void doEditGroupDetails() {
-        if (parent.getChannelTagInfo(false).isEnabled()) {
+        if (tagField.isFilterEnabled()) {
             return;
         }
 
@@ -1028,7 +1146,7 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     public void doImportGroup() {
-        if ((isSaveEnabled() && !promptSave(true)) || parent.getChannelTagInfo(false).isEnabled()) {
+        if ((isSaveEnabled() && !promptSave(true)) || tagField.isFilterEnabled()) {
             return;
         }
 
@@ -1040,7 +1158,7 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     public void importGroup(String content, boolean showAlerts) {
-        if ((showAlerts && !parent.promptObjectMigration(content, "group")) || parent.getChannelTagInfo(false).isEnabled()) {
+        if ((showAlerts && !parent.promptObjectMigration(content, "group")) || tagField.isFilterEnabled()) {
             return;
         }
 
@@ -1365,7 +1483,11 @@ public class ChannelPanel extends AbstractFramePanel {
             }
 
             channelStatuses.put(importChannel.getId(), new ChannelStatus(importChannel));
-            parent.updateChannelTags(false);
+
+            List<ChannelTag> channelTags = (List<ChannelTag>) importChannel.getExportData().getChannelTags();
+            if (channelTags != null && !channelTags.isEmpty()) {
+                updateChannelTags(channelTags, importChannel.getId());
+            }
         } catch (ClientException e) {
             parent.alertThrowable(parent, e);
         }
@@ -1467,7 +1589,6 @@ public class ChannelPanel extends AbstractFramePanel {
                 }
             } catch (Exception e) {
                 channelStatuses.remove(importChannel.getId());
-                parent.updateChannelTags(false);
                 parent.alertThrowable(parent, e);
                 return null;
             } finally {
@@ -1495,7 +1616,6 @@ public class ChannelPanel extends AbstractFramePanel {
                         parent.setSaveEnabled(!overwriteFinal);
                     } catch (Exception e) {
                         channelStatuses.remove(importChannelFinal.getId());
-                        parent.updateChannelTags(false);
                         parent.alertError(parent, "Channel had an unknown problem. Channel import aborted.");
                         parent.channelEditPanel = new ChannelSetup();
                         parent.doShowChannel();
@@ -1588,6 +1708,7 @@ public class ChannelPanel extends AbstractFramePanel {
         }
 
         addDependenciesToChannel(channel);
+        addTagsToChannel(channel);
 
         // Update resource names
         parent.updateResourceNames(channel);
@@ -1633,6 +1754,7 @@ public class ChannelPanel extends AbstractFramePanel {
 
         for (Channel channel : channelList) {
             addDependenciesToChannel(channel);
+            addTagsToChannel(channel);
         }
 
         JFileChooser exportFileChooser = new JFileChooser();
@@ -1786,6 +1908,19 @@ public class ChannelPanel extends AbstractFramePanel {
         }
     }
 
+    private void addTagsToChannel(Channel channel) {
+        List<ChannelTag> channelTags = new ArrayList<ChannelTag>();
+        for (ChannelTag channelTag : getCachedChannelTags()) {
+            if (channelTag.getChannelIds().contains(channel.getId())) {
+                channelTags.add(channelTag);
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(channelTags)) {
+            channel.getExportData().setChannelTags(channelTags);
+        }
+    }
+
     public boolean doExportAllGroups() {
         if (isSaveEnabled() && !promptSave(true)) {
             return false;
@@ -1892,6 +2027,7 @@ public class ChannelPanel extends AbstractFramePanel {
             for (ChannelGroup group : groups) {
                 for (Channel channel : group.getChannels()) {
                     addDependenciesToChannel(channel);
+                    addTagsToChannel(channel);
                     parent.updateResourceNames(channel);
                 }
             }
@@ -2131,7 +2267,6 @@ public class ChannelPanel extends AbstractFramePanel {
 
         channel.setName(channelName);
         channelStatuses.put(channel.getId(), new ChannelStatus(channel));
-        parent.updateChannelTags(false);
 
         parent.editChannel(channel);
         parent.setSaveEnabled(true);
@@ -2371,8 +2506,6 @@ public class ChannelPanel extends AbstractFramePanel {
                 channelStatus.setLocalChannelId(channelSummary.getChannelStatus().getLocalChannelId());
             }
         }
-
-        parent.updateChannelTags(false);
     }
 
     private void updateChannelGroups(List<ChannelGroup> channelGroups) {
@@ -2426,7 +2559,6 @@ public class ChannelPanel extends AbstractFramePanel {
     public void clearChannelCache() {
         channelStatuses = new LinkedHashMap<String, ChannelStatus>();
         groupStatuses = new LinkedHashMap<String, ChannelGroupStatus>();
-        parent.updateChannelTags(false);
     }
 
     private String getMissingExtensions(InvalidChannel channel) {
@@ -2586,18 +2718,14 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     private synchronized void updateModel(TableState tableState) {
-        ChannelTagInfo channelTagInfo = parent.getChannelTagInfo(false);
-        List<ChannelStatus> filteredChannelStatuses = new ArrayList<ChannelStatus>();
-        int enabled = 0;
+        List<ChannelStatus> filteredChannelStatuses = new ArrayList<ChannelStatus>(channelStatuses.values());
 
-        for (ChannelStatus channelStatus : channelStatuses.values()) {
-            Channel channel = channelStatus.getChannel();
-            if (!channelTagInfo.isEnabled() || CollectionUtils.containsAny(channelTagInfo.getVisibleTags(), channel.getExportData().getMetadata().getTags())) {
-                filteredChannelStatuses.add(channelStatus);
-
-                if (channel.getExportData().getMetadata().isEnabled()) {
-                    enabled++;
-                }
+        List<String> activeFilters = new ArrayList<String>();
+        String filterText = tagField.getTags();
+        if (StringUtils.isNotBlank(filterText)) {
+            for (SearchFilter filter : SearchFilterParser.parse(filterText, getCachedChannelTags())) {
+                activeFilters.add(filter.toDisplayString());
+                filter.filterChannelStatuses(filteredChannelStatuses);
             }
         }
 
@@ -2678,11 +2806,11 @@ public class ChannelPanel extends AbstractFramePanel {
         if (totalChannelCount != visibleChannelCount) {
             builder.append(" (").append(totalChannelCount - visibleChannelCount).append(" filtered)");
         }
-        builder.append(", ").append(enabled).append(" Enabled");
+        builder.append(", ").append(totalChannelCount).append(" Enabled");
 
-        if (channelTagInfo.isEnabled()) {
+        if (tagField.isFilterEnabled()) {
             builder.append(" (");
-            for (Iterator<String> it = channelTagInfo.getVisibleTags().iterator(); it.hasNext();) {
+            for (Iterator<String> it = activeFilters.iterator(); it.hasNext();) {
                 builder.append(it.next());
                 if (it.hasNext()) {
                     builder.append(", ");
@@ -2692,6 +2820,7 @@ public class ChannelPanel extends AbstractFramePanel {
         }
 
         tagsLabel.setText(builder.toString());
+        tagsLabel.setToolTipText(tagsLabel.getText());
 
         for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
             plugin.tableUpdate(filteredChannels);
@@ -2887,7 +3016,7 @@ public class ChannelPanel extends AbstractFramePanel {
                             try {
                                 // If the table is in channel view, or filtering is enabled, don't allow groups to be imported
                                 ChannelGroup group = ObjectXMLSerializer.getInstance().deserialize(fileString, ChannelGroup.class);
-                                if (group != null && (!((ChannelTreeTableModel) channelTable.getTreeTableModel()).isGroupModeEnabled() || parent.getChannelTagInfo(false).isEnabled())) {
+                                if (group != null && (!((ChannelTreeTableModel) channelTable.getTreeTableModel()).isGroupModeEnabled() || tagField.isFilterEnabled())) {
                                     return;
                                 }
                             } catch (Exception e) {
@@ -3145,17 +3274,67 @@ public class ChannelPanel extends AbstractFramePanel {
         filterPanel = new JPanel();
         filterPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(164, 164, 164)));
 
-        tagsFilterButton = new IconButton();
-        tagsFilterButton.setIcon(new ImageIcon(getClass().getResource("/com/mirth/connect/client/ui/images/wrench.png")));
-        tagsFilterButton.setToolTipText("Show Channel Filter");
-        tagsFilterButton.addActionListener(new ActionListener() {
+        filterLabel = new JLabel("Filter:");
+
+        Set<FilterCompletion> tags = new HashSet<FilterCompletion>();
+        for (ChannelTag tag : getCachedChannelTags()) {
+            tags.add(new TagFilterCompletion(tag));
+        }
+
+        tagField = new MirthTagField("Channels", false, tags);
+        tagField.addUpdateSearchListener(new SearchFilterListener() {
             @Override
-            public void actionPerformed(ActionEvent evt) {
-                tagsFilterButtonActionPerformed();
+            public void doSearch(String filterString) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        updateModel(getCurrentTableState());
+                        updateTasks();
+                    }
+                });
+            }
+
+            @Override
+            public void doDelete(String filterString) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        updateModel(getCurrentTableState());
+                        updateTasks();
+                    }
+                });
             }
         });
 
         tagsLabel = new JLabel();
+
+        ButtonGroup tagModeGroup = new ButtonGroup();
+
+        tagModeTextButton = new IconToggleButton(UIConstants.ICON_TEXT);
+        tagModeTextButton.setToolTipText("Display tags as names.");
+        tagModeTextButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                tagModeTextButton.setSelected(true);
+                tagModeIconButton.setContentFilled(false);
+                Preferences.userNodeForPackage(Mirth.class).putBoolean("tagModeEnabled", false);
+                channelTable.setTreeCellRenderer(new ChannelPanelTreeCellRenderer(false));
+                channelTable.updateUI();
+            }
+        });
+        tagModeGroup.add(tagModeTextButton);
+
+        tagModeIconButton = new IconToggleButton(UIConstants.ICON_TAG);
+        tagModeIconButton.setToolTipText("Display tags as icons.");
+        tagModeIconButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                tagModeIconButton.setSelected(true);
+                tagModeTextButton.setContentFilled(false);
+                Preferences.userNodeForPackage(Mirth.class).putBoolean("tagModeEnabled", true);
+                channelTable.setTreeCellRenderer(new ChannelPanelTreeCellRenderer(true));
+                channelTable.updateUI();
+            }
+        });
+        tagModeGroup.add(tagModeIconButton);
 
         ButtonGroup tableModeButtonGroup = new ButtonGroup();
 
@@ -3195,28 +3374,18 @@ public class ChannelPanel extends AbstractFramePanel {
         topPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 0"));
         topPanel.add(channelScrollPane, "grow, push");
 
-        filterPanel.setLayout(new MigLayout("insets 0 12 0 12, novisualpadding, hidemode 3, fill, gap 12"));
-        filterPanel.add(tagsFilterButton);
-        filterPanel.add(tagsLabel, "left, growx, push");
-        filterPanel.add(tableModeGroupsButton, "right, split 2, gapafter 0");
+        filterPanel.setLayout(new MigLayout("insets 0 12 3 12, novisualpadding, hidemode 3, fill, gap 12"));
+        filterPanel.add(filterLabel, "split 3");
+        filterPanel.add(tagField, "w 195:500:500");
+        filterPanel.add(tagsLabel, "gapleft 8, gaptop 2, growx, push, w ::500");
+        filterPanel.add(tagModeTextButton, "right, push, split 5, gapafter 0");
+        filterPanel.add(tagModeIconButton);
+        filterPanel.add(new JSeparator(SwingConstants.VERTICAL), "right, h 18!, gapbefore 12, gapafter 12");
+        filterPanel.add(tableModeGroupsButton, "gapafter 0");
         filterPanel.add(tableModeChannelsButton);
         topPanel.add(filterPanel, "newline, growx");
 
         add(splitPane, "grow, push");
-    }
-
-    private void tagsFilterButtonActionPerformed() {
-        if (isSaveEnabled() && !promptSave(true)) {
-            return;
-        }
-
-        new ChannelFilter(parent.getChannelTagInfo(false), new ChannelFilterSaveTask() {
-            @Override
-            public void save(ChannelTagInfo channelTagInfo) {
-                parent.setFilteredChannelTags(false, channelTagInfo.getVisibleTags(), channelTagInfo.isEnabled());
-                doRefreshChannels(true);
-            }
-        });
     }
 
     private boolean switchTableMode(boolean groupModeEnabled) {
@@ -3567,6 +3736,107 @@ public class ChannelPanel extends AbstractFramePanel {
         private JButton cancelButton;
     }
 
+    private class ChannelPanelTreeCellRenderer extends JPanel implements TreeCellRenderer {
+        private static final int GAP = 4;
+        private JLabel label;
+        private JPanel tagPanel;
+
+        private boolean renderTags = false;
+
+        public ChannelPanelTreeCellRenderer(boolean renderTags) {
+            super(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap " + GAP));
+            this.renderTags = renderTags;
+            setOpaque(false);
+            label = new JLabel();
+            label.setOpaque(false);
+            add(label);
+            tagPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, gap " + GAP));
+            tagPanel.setOpaque(false);
+            add(tagPanel, "growx, pushx");
+        }
+
+        @Override
+        public String getToolTipText(MouseEvent event) {
+            Point p = event.getPoint();
+            // Adjust for the label width and layout gap
+            p.translate((int) -label.getPreferredSize().getWidth() - GAP, 0);
+            int tagLocX = 0;
+            for (Component tagComp : tagPanel.getComponents()) {
+                JLabel tagLabel = (JLabel) tagComp;
+                Icon tagIcon = tagLabel.getIcon();
+                if (tagIcon != null) {
+                    // Using getComponentAt won't work because the layout dimensions are zero
+                    if (p.x >= tagLocX && p.x < tagLocX + tagIcon.getIconWidth() && p.y >= 0 && p.y < tagIcon.getIconHeight()) {
+                        return tagLabel.getToolTipText();
+                    }
+
+                    tagLocX += tagIcon.getIconWidth();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean isSelected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            String name = "";
+            String channelId = "";
+            ImageIcon icon = UIConstants.ICON_CHANNEL;
+            boolean channel = false;
+            if (value instanceof ChannelTableNode) {
+                ChannelTableNode node = (ChannelTableNode) value;
+                if (node.isGroupNode()) {
+                    name = node.getGroupStatus().getGroup().getName();
+                    icon = UIConstants.ICON_GROUP;
+                } else {
+                    name = node.getChannelStatus().getChannel().getName();
+                    channelId = node.getChannelStatus().getChannel().getId();
+                    channel = true;
+                }
+            }
+            label.setIcon(icon);
+            label.setText(name);
+            tagPanel.removeAll();
+            if (channel) {
+                List<ChannelTag> tags = new ArrayList<ChannelTag>();
+                for (ChannelTag tag : parent.getCachedChannelTags()) {
+                    if (tag.getChannelIds().contains(channelId)) {
+                        tags.add(tag);
+                    }
+                }
+
+                if (CollectionUtils.isNotEmpty(tags)) {
+                    tags.sort(new Comparator<ChannelTag>() {
+                        @Override
+                        public int compare(ChannelTag tag1, ChannelTag tag2) {
+                            return tag1.getName().compareTo(tag2.getName());
+                        }
+                    });
+
+                    BufferedImage tagImage = ColorUtil.toBufferedImage(UIConstants.ICON_TAG_GRAY.getImage());
+                    for (ChannelTag tag : tags) {
+                        String constraints = "";
+                        TagLabel tagLabel = new TagLabel();
+                        tagLabel.setToolTipText(tag.getName());
+                        if (renderTags) {
+                            tagLabel.setIcon(new ImageIcon(ColorUtil.tint(tagImage, tag.getBackgroundColor(), ColorUtil.getForegroundColor(tag.getBackgroundColor()))));
+                        } else {
+                            constraints = "h 16!, growx";
+                            tagLabel.decorate(true);
+                            tagLabel.setBackground(tag.getBackgroundColor());
+                            tagLabel.setForeground(ColorUtil.getForegroundColor(tag.getBackgroundColor()));
+                            tagLabel.setText(" " + tag.getName() + " ");
+                        }
+
+                        tagPanel.add(tagLabel, constraints);
+                    }
+                }
+            }
+            updateUI();
+            return this;
+        }
+    }
+
     public JXTaskPane channelTasks;
     public JPopupMenu channelPopupMenu;
     public JXTaskPane groupTasks;
@@ -3577,8 +3847,11 @@ public class ChannelPanel extends AbstractFramePanel {
     private MirthTreeTable channelTable;
     private JScrollPane channelScrollPane;
     private JPanel filterPanel;
-    private JButton tagsFilterButton;
+    private JLabel filterLabel;
+    private MirthTagField tagField;
     private JLabel tagsLabel;
+    private IconToggleButton tagModeTextButton;
+    private IconToggleButton tagModeIconButton;
     private IconToggleButton tableModeGroupsButton;
     private IconToggleButton tableModeChannelsButton;
 

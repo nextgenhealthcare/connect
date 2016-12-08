@@ -88,6 +88,15 @@
 				<include name="*.properties" />
 			</fileset>
 		</copy>
+		
+		<!-- Copy HTML files to use with JavaFX -->
+		<copy todir="${classes}/com/mirth/connect/client/ui/components/tag">
+			<fileset dir="${src}/com/mirth/connect/client/ui/components/tag">
+				<include name="*.html" />
+				<include name="*.css" />
+				<include name="*.js" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="build" depends="compile">

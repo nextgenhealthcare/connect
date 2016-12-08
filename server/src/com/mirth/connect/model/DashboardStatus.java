@@ -12,10 +12,8 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -48,7 +46,6 @@ public class DashboardStatus implements Serializable {
     private boolean queueEnabled;
     private Long queued = 0L;
     private boolean waitForPrevious = false;
-    private Set<String> tags = new LinkedHashSet<String>();
     private StatusType statusType;
 
     public String getChannelId() {
@@ -153,14 +150,6 @@ public class DashboardStatus implements Serializable {
 
     public void setWaitForPrevious(boolean waitForPrevious) {
         this.waitForPrevious = waitForPrevious;
-    }
-
-    public Set<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(Set<String> tags) {
-        this.tags = tags;
     }
 
     public StatusType getStatusType() {

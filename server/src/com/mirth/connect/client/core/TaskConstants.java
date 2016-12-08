@@ -27,6 +27,7 @@ public class TaskConstants {
     public static final String VIEW_KEY = "view";
     public static final String SETTINGS_KEY_PREFIX = "settings_";
     public static final String SETTINGS_SERVER_KEY = SETTINGS_KEY_PREFIX + "Server";
+    public static final String SETTINGS_TAGS_KEY = SETTINGS_KEY_PREFIX + "Tags";
     public static final String SETTINGS_CONFIGURATION_MAP_KEY = SETTINGS_KEY_PREFIX + "Configuration Map";
     public static final String SETTINGS_DATABASE_TASKS_KEY = SETTINGS_KEY_PREFIX + "Database Tasks";
     public static final String SETTINGS_RESOURCES_KEY = SETTINGS_KEY_PREFIX + "Resources";

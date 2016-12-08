@@ -40,6 +40,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -49,6 +50,8 @@ import java.util.concurrent.Future;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javafx.application.Platform;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -106,6 +109,7 @@ import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
 import com.mirth.connect.client.ui.components.rsta.ac.js.MirthJavaScriptLanguageSupport;
 import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
+import com.mirth.connect.client.ui.tag.SettingsPanelTags;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
@@ -115,6 +119,7 @@ import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
@@ -216,23 +221,22 @@ public class Frame extends JXFrame {
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
     private boolean acceleratorKeyPressed = false;
     private boolean canSave = true;
-    private ChannelTagInfo channelTagInfo;
-    private ChannelTagInfo deployedChannelTagInfo;
     private RemoveMessagesDialog removeMessagesDialog;
     private MessageExportDialog messageExportDialog;
     private MessageImportDialog messageImportDialog;
     private AttachmentExportDialog attachmentExportDialog;
     private KeyEventDispatcher keyEventDispatcher = null;
+    private int deployedChannelCount;
 
     private static final int REFRESH_BLOCK_SIZE = 100;
 
     public Frame() {
+        Platform.setImplicitExit(false);
+
         // Load RSyntaxTextArea language support
         LanguageSupportFactory.get().addLanguageSupport(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, MirthJavaScriptLanguageSupport.class.getName());
 
         rightContainer = new JXTitledPanel();
-        channelTagInfo = new ChannelTagInfo();
-        deployedChannelTagInfo = new ChannelTagInfo();
 
         taskPaneContainer = new JXTaskPaneContainer();
 
@@ -478,6 +482,21 @@ public class Frame extends JXFrame {
         statusBar.setTimezoneText(PlatformUI.SERVER_TIMEZONE);
         statusBar.setServerTime(PlatformUI.SERVER_TIME);
 
+        // Refresh resources and tags
+        if (settingsPane == null) {
+            settingsPane = new SettingsPane();
+        }
+
+        SettingsPanelResources resourcesPanel = (SettingsPanelResources) settingsPane.getSettingsPanel(SettingsPanelResources.TAB_NAME);
+        if (resourcesPanel != null) {
+            resourcesPanel.doRefresh();
+        }
+
+        SettingsPanelTags tagsPanel = (SettingsPanelTags) settingsPane.getSettingsPanel(SettingsPanelTags.TAB_NAME);
+        if (tagsPanel != null) {
+            tagsPanel.doRefresh();
+        }
+
         setCurrentTaskPaneContainer(taskPaneContainer);
         login.setStatus("Loading dashboard...");
         doShowDashboard();
@@ -492,15 +511,6 @@ public class Frame extends JXFrame {
 
         // Refresh code templates after extensions have been loaded
         codeTemplatePanel.doRefreshCodeTemplates(false);
-
-        // Refresh resources
-        if (settingsPane == null) {
-            settingsPane = new SettingsPane();
-        }
-        SettingsPanelResources resourcesPanel = (SettingsPanelResources) settingsPane.getSettingsPanel(SettingsPanelResources.TAB_NAME);
-        if (resourcesPanel != null) {
-            resourcesPanel.doRefresh();
-        }
 
         // DEBUGGING THE UIDefaults:
 
@@ -619,6 +629,7 @@ public class Frame extends JXFrame {
         setCurrentContentPage(channelEditPanel);
         setFocus(channelEditTasks);
         setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 0, false);
+        confirmLeave();
         channelEditPanel.addChannel(channel, groupId);
     }
 
@@ -634,6 +645,7 @@ public class Frame extends JXFrame {
             }
         }
 
+        confirmLeave();
         setBold(viewPane, UIConstants.ERROR_CONSTANT);
         setCurrentContentPage(channelEditPanel);
         setFocus(channelEditTasks);
@@ -1441,6 +1453,18 @@ public class Frame extends JXFrame {
      * A prompt to ask the user if he would like to save the changes made before leaving the page.
      */
     public boolean confirmLeave() {
+        if (dashboardPanel != null) {
+            dashboardPanel.closePopupWindow();
+        }
+
+        if (channelPanel != null) {
+            channelPanel.closePopupWindow();
+        }
+
+        if (channelEditPanel != null) {
+            channelEditPanel.closePopupWindow();
+        }
+
         if (currentContentPage == channelPanel && isSaveEnabled()) {
             if (!channelPanel.confirmLeave()) {
                 return false;
@@ -1981,7 +2005,17 @@ public class Frame extends JXFrame {
 
         LoadedExtensions.getInstance().stopPlugins();
 
+        final Properties tagUserProperties = new Properties();
+        tagUserProperties.put("initialTagsDashboard", dashboardPanel.getUserTags());
+        tagUserProperties.put("initialTagsChannels", channelPanel.getUserTags());
+
         try {
+            try {
+                mirthClient.setUserPreferences(getCurrentUser(this).getId(), tagUserProperties);
+            } catch (ClientException e) {
+                alertThrowable(this, e);
+            }
+
             mirthClient.logout();
             mirthClient.close();
             this.dispose();
@@ -2142,13 +2176,19 @@ public class Frame extends JXFrame {
                     channelPanel.retrieveGroups();
                     channelPanel.retrieveDependencies();
 
+                    SettingsPanelTags tagsPanel = getTagsPanel();
+                    if (tagsPanel != null) {
+                        tagsPanel.refresh();
+                    }
+
                     for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
                         plugin.tableUpdate(status);
                     }
 
-                    DashboardChannelInfo dashboardStatusList = mirthClient.getDashboardChannelInfo(REFRESH_BLOCK_SIZE);
+                    DashboardChannelInfo dashboardStatusList = mirthClient.getDashboardChannelInfo(REFRESH_BLOCK_SIZE, dashboardPanel.getUserTags());
                     status = dashboardStatusList.getDashboardStatuses();
                     Set<String> remainingIds = dashboardStatusList.getRemainingChannelIds();
+                    deployedChannelCount = dashboardStatusList.getDeployedChannelCount();
 
                     if (status != null) {
                         publish(status.toArray(new DashboardStatus[status.size()]));
@@ -2194,14 +2234,17 @@ public class Frame extends JXFrame {
             public void done() {
                 if (status != null) {
                     TableState tableState = dashboardPanel.getCurrentTableState();
-                    updateChannelTags(true);
-                    dashboardPanel.finishUpdatingTable(status, channelPanel.getCachedGroupStatuses().values());
+                    dashboardPanel.finishUpdatingTable(status, channelPanel.getCachedGroupStatuses().values(), deployedChannelCount);
                     dashboardPanel.updateTableState(tableState);
                 }
             }
         };
 
         new QueuingSwingWorker<Void, DashboardStatus>(task, queue).executeDelegate();
+    }
+
+    public int getDeployedChannelCount() {
+        return deployedChannelCount;
     }
 
     public void doStart() {
@@ -2661,9 +2704,9 @@ public class Frame extends JXFrame {
     }
 
     public enum ChannelTask {
-        DEPLOY("deploy", "(re)deployed", true), UNDEPLOY("undeploy", "undeployed", false), START_RESUME(
-                "start/resume", "started or resumed", true), STOP("stop", "stopped", false), PAUSE(
-                "pause", "paused", false);
+        DEPLOY("deploy", "(re)deployed", true), UNDEPLOY("undeploy", "undeployed",
+                false), START_RESUME("start/resume", "started or resumed",
+                        true), STOP("stop", "stopped", false), PAUSE("pause", "paused", false);
 
         private String value;
         private String futurePassive;
@@ -4282,42 +4325,19 @@ public class Frame extends JXFrame {
         return true;
     }
 
-    public ChannelTagInfo getChannelTagInfo(boolean deployed) {
-        ChannelTagInfo channelTagInfo = deployed ? deployedChannelTagInfo : this.channelTagInfo;
-
-        synchronized (channelTagInfo) {
-            return new ChannelTagInfo(channelTagInfo);
+    public SettingsPanelTags getTagsPanel() {
+        if (settingsPane != null) {
+            return (SettingsPanelTags) settingsPane.getSettingsPanel(SettingsPanelTags.TAB_NAME);
         }
+        return null;
     }
 
-    public void setFilteredChannelTags(boolean deployed, Set<String> visibleTags, boolean enabled) {
-        ChannelTagInfo channelTagInfo = deployed ? deployedChannelTagInfo : this.channelTagInfo;
-
-        synchronized (channelTagInfo) {
-            channelTagInfo.setVisibleTags(visibleTags);
-            channelTagInfo.setEnabled(enabled);
+    public Set<ChannelTag> getCachedChannelTags() {
+        SettingsPanelTags tagsPanel = getTagsPanel();
+        if (tagsPanel != null) {
+            return tagsPanel.getCachedChannelTags();
         }
-    }
-
-    public void updateChannelTags(boolean deployed) {
-        ChannelTagInfo channelTagInfo;
-        Set<String> tags = new HashSet<String>();
-
-        if (deployed) {
-            channelTagInfo = deployedChannelTagInfo;
-            for (DashboardStatus dashboardStatus : status) {
-                tags.addAll(dashboardStatus.getTags());
-            }
-        } else {
-            channelTagInfo = this.channelTagInfo;
-            for (ChannelStatus channelStatus : channelPanel.getCachedChannelStatuses().values()) {
-                tags.addAll(channelStatus.getChannel().getExportData().getMetadata().getTags());
-            }
-        }
-
-        synchronized (channelTagInfo) {
-            channelTagInfo.setTags(tags);
-        }
+        return new HashSet<ChannelTag>();
     }
 
     /**

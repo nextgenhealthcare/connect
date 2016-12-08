@@ -29,15 +29,19 @@ import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.servlets.ChannelStatusServletInterface;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
+import com.mirth.connect.model.filter.SearchFilter;
+import com.mirth.connect.model.filter.SearchFilterParser;
 import com.mirth.connect.server.api.CheckAuthorizedChannelId;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.channel.ErrorTaskHandler;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 
 public class ChannelStatusServlet extends MirthServlet implements ChannelStatusServletInterface {
 
     private static final EngineController engineController = ControllerFactory.getFactory().createEngineController();
+    private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     public ChannelStatusServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
@@ -63,9 +67,20 @@ public class ChannelStatusServlet extends MirthServlet implements ChannelStatusS
     }
 
     @Override
-    public DashboardChannelInfo getDashboardChannelInfo(int fetchSize) {
+    public DashboardChannelInfo getDashboardChannelInfo(int fetchSize, String filter) {
         // Return a partial dashboard status list, and a list of remaining channel IDs
-        Set<String> remainingChannelIds = engineController.getDeployedIds();
+        List<DashboardStatus> channelStatuses;
+        Set<String> remainingChannelIds = redactChannelIds(engineController.getDeployedIds());
+        int deployedCount = remainingChannelIds.size();
+
+        // First, filter out channels by ID
+        List<SearchFilter> searchFilterList = SearchFilterParser.parse(filter, configurationController.getChannelTags());
+        boolean filterDashboardStatuses = CollectionUtils.isNotEmpty(searchFilterList);
+        if (filterDashboardStatuses) {
+            for (SearchFilter searchFilter : searchFilterList) {
+                searchFilter.filterChannelIds(remainingChannelIds);
+            }
+        }
 
         Set<String> channelIds;
         if (remainingChannelIds.size() > fetchSize) {
@@ -80,8 +95,20 @@ public class ChannelStatusServlet extends MirthServlet implements ChannelStatusS
             remainingChannelIds = Collections.emptySet();
         }
 
-        List<DashboardStatus> channelStatuses = engineController.getChannelStatusList(redactChannelIds(channelIds));
-        return new DashboardChannelInfo(channelStatuses, remainingChannelIds);
+        if (CollectionUtils.isNotEmpty(channelIds)) {
+            channelStatuses = redactChannelStatuses(engineController.getChannelStatusList(channelIds));
+        } else {
+            channelStatuses = new ArrayList<DashboardStatus>();
+        }
+
+        // Second, filter out channels by name
+        if (filterDashboardStatuses && CollectionUtils.isNotEmpty(channelStatuses)) {
+            for (SearchFilter searchFilter : searchFilterList) {
+                searchFilter.filterDashboardStatuses(channelStatuses);
+            }
+        }
+
+        return new DashboardChannelInfo(channelStatuses, remainingChannelIds, deployedCount);
     }
 
     @Override

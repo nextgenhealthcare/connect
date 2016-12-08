@@ -9,11 +9,14 @@
 
 package com.mirth.connect.model;
 
+import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -23,6 +26,8 @@ import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.util.ColorUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -280,9 +285,25 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
             // Tags
             DonkeyElement tagsElement = propertiesElement.removeChild("tags");
             if (tagsElement != null) {
-                try {
-                    metadataElement.addChildElementFromXml(tagsElement.toXml());
-                } catch (DonkeyElementException e) {
+                String channelId = element.getChildElement("id").getTextContent();
+                DonkeyElement migratedTags = exportDataElement.addChildElement("channelTags");
+                Set<String> tagSet = ObjectXMLSerializer.getInstance().deserialize(tagsElement.toString(), Set.class);
+
+                migratedTags.setAttribute("class", "list");
+                for (String tag : tagSet) {
+                    DonkeyElement channelTag = migratedTags.addChildElement("channelTag");
+                    channelTag.addChildElement("id", UUID.randomUUID().toString());
+                    channelTag.addChildElement("name", tag);
+
+                    Color newColor = ColorUtil.getNewColor();
+                    DonkeyElement bgColor = channelTag.addChildElement("backgroundColor");
+                    bgColor.addChildElement("red", String.valueOf(newColor.getRed()));
+                    bgColor.addChildElement("blue", String.valueOf(newColor.getBlue()));
+                    bgColor.addChildElement("green", String.valueOf(newColor.getGreen()));
+                    bgColor.addChildElement("alpha", String.valueOf(newColor.getAlpha()));
+
+                    DonkeyElement channelIds = channelTag.addChildElement("channelIds");
+                    channelIds.addChildElement("string", channelId);
                 }
             }
 

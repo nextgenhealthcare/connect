@@ -130,6 +130,10 @@ public class UIConstants {
     public static final ImageIcon ICON_CHANNEL = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/server.png"));
     public static final ImageIcon ICON_CONNECTOR = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/connect.png"));
     public static final ImageIcon ICON_GROUP = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/server_database.png"));
+    // for tags
+    public static final ImageIcon ICON_TAG = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/tag_blue.png"));
+    public static final ImageIcon ICON_TAG_GRAY = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/tag_gray.png"));
+    public static final ImageIcon ICON_TEXT = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/style.png"));
     // for events
     public static final ImageIcon ICON_INFORMATION = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png"));
     public static final ImageIcon ICON_WARNING = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error.png"));

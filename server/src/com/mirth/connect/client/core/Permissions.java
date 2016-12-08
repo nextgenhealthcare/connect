@@ -36,6 +36,10 @@ public class Permissions {
     public static final String MESSAGES_IMPORT = "importMessages";
     public static final String MESSAGES_EXPORT_SERVER = "exportMessagesServer";
 
+    // Tags
+    public static final String TAGS_VIEW = "viewTags";
+    public static final String TAGS_MANAGE = "manageTags";
+
     // Events
     public static final String EVENTS_VIEW = "viewEvents";
     public static final String EVENTS_REMOVE = "removeEvents";

@@ -91,6 +91,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelMetadata;
+import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
@@ -134,6 +135,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public static final String PROPERTIES_RESOURCES = "resources";
     public static final String PROPERTIES_DEPENDENCIES = "channelDependencies";
     public static final String PROPERTIES_CHANNEL_METADATA = "channelMetadata";
+    public static final String PROPERTIES_CHANNEL_TAGS = "channelTags";
     public static final String SECRET_KEY_ALIAS = "encryption";
 
     private Logger logger = Logger.getLogger(this.getClass());
@@ -564,6 +566,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         ServerConfiguration serverConfiguration = new ServerConfiguration();
         serverConfiguration.setChannelGroups(channelController.getChannelGroups(null));
         serverConfiguration.setChannels(channelController.getChannels(null));
+        serverConfiguration.setChannelTags(getChannelTags());
         serverConfiguration.setAlerts(alertController.getAlerts());
         serverConfiguration.setCodeTemplateLibraries(codeTemplateController.getLibraries(null, true));
         serverConfiguration.setServerSettings(getServerSettings());
@@ -743,6 +746,12 @@ public class DefaultConfigurationController extends ConfigurationController {
                 setChannelDependencies(serverConfiguration.getChannelDependencies());
             } else {
                 setChannelDependencies(new HashSet<ChannelDependency>());
+            }
+
+            if (serverConfiguration.getChannelTags() != null) {
+                setChannelTags(serverConfiguration.getChannelTags());
+            } else {
+                setChannelTags(new HashSet<ChannelTag>());
             }
 
             if (serverConfiguration.getGlobalScripts() != null) {
@@ -965,6 +974,26 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         saveProperty(PROPERTIES_CORE, PROPERTIES_DEPENDENCIES, ObjectXMLSerializer.getInstance().serialize(dependencies));
+    }
+
+    @Override
+    public Set<ChannelTag> getChannelTags() {
+        String channelTagXML = getProperty(PROPERTIES_CORE, PROPERTIES_CHANNEL_TAGS);
+        Set<ChannelTag> channelTags;
+
+        if (StringUtils.isNotBlank(channelTagXML)) {
+            channelTags = ObjectXMLSerializer.getInstance().deserialize(channelTagXML, Set.class);
+        } else {
+            channelTags = new HashSet<ChannelTag>();
+            setChannelTags(channelTags);
+        }
+
+        return channelTags;
+    }
+
+    @Override
+    public synchronized void setChannelTags(Set<ChannelTag> tags) {
+        saveProperty(PROPERTIES_CORE, PROPERTIES_CHANNEL_TAGS, ObjectXMLSerializer.getInstance().serialize(tags));
     }
 
     @Override

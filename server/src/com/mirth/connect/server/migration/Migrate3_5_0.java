@@ -9,16 +9,26 @@
 
 package com.mirth.connect.server.migration;
 
+import java.awt.Color;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.MigrationException;
+import com.mirth.connect.util.ColorUtil;
 
 public class Migrate3_5_0 extends Migrator {
     private Logger logger = Logger.getLogger(getClass());
@@ -29,6 +39,7 @@ public class Migrate3_5_0 extends Migrator {
     }
 
     private void migrateChannelMetadata() {
+        Map<String, Set<String>> tags = new HashMap<String, Set<String>>();
         PreparedStatement preparedStatement = null;
         ResultSet results = null;
 
@@ -93,8 +104,18 @@ public class Migrate3_5_0 extends Migrator {
                     DonkeyElement tagsElement = propertiesElement.getChildElement("tags");
                     if (tagsElement != null) {
                         try {
-                            metadataElement.addChildElementFromXml(tagsElement.toXml());
-                        } catch (DonkeyElementException e) {
+                            Set<String> channelTags = ObjectXMLSerializer.getInstance().deserialize(tagsElement.toString(), Set.class);
+                            for (String tagName : channelTags) {
+                                Set<String> channelList = tags.get(tagName);
+
+                                if (channelList == null) {
+                                    channelList = new HashSet<String>();
+                                    tags.put(tagName, channelList);
+                                }
+
+                                channelList.add(channelId);
+                            }
+                        } catch (Exception e) {
                         }
                     }
                 } catch (Exception e) {
@@ -106,6 +127,36 @@ public class Migrate3_5_0 extends Migrator {
             try {
                 updateStatement = connection.prepareStatement("INSERT INTO CONFIGURATION (CATEGORY, NAME, VALUE) VALUES ('core', 'channelMetadata', ?)");
                 updateStatement.setString(1, metadataMapElement.toXml());
+                updateStatement.executeUpdate();
+            } finally {
+                DbUtils.closeQuietly(updateStatement);
+            }
+
+            DonkeyElement tagsElement = new DonkeyElement("<set/>");
+            if (MapUtils.isNotEmpty(tags)) {
+                for (Entry<String, Set<String>> tag : tags.entrySet()) {
+                    DonkeyElement tagElement = tagsElement.addChildElement("channelTag");
+                    tagElement.addChildElement("id", UUID.randomUUID().toString());
+                    tagElement.addChildElement("name", tag.getKey());
+
+                    DonkeyElement channelIds = tagElement.addChildElement("channelIds");
+                    for (String channelId : tag.getValue()) {
+                        channelIds.addChildElement("string", channelId);
+                    }
+
+                    Color newColor = ColorUtil.getNewColor();
+                    DonkeyElement bgColor = tagElement.addChildElement("backgroundColor");
+                    bgColor.addChildElement("red", String.valueOf(newColor.getRed()));
+                    bgColor.addChildElement("blue", String.valueOf(newColor.getBlue()));
+                    bgColor.addChildElement("green", String.valueOf(newColor.getGreen()));
+                    bgColor.addChildElement("alpha", String.valueOf(newColor.getAlpha()));
+                }
+            }
+
+            updateStatement = null;
+            try {
+                updateStatement = connection.prepareStatement("INSERT INTO CONFIGURATION (CATEGORY, NAME, VALUE) VALUES ('core', 'channelTags', ?)");
+                updateStatement.setString(1, tagsElement.toXml());
                 updateStatement.executeUpdate();
             } finally {
                 DbUtils.closeQuietly(updateStatement);

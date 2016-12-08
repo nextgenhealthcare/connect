@@ -26,6 +26,7 @@ public class ChannelExportData implements Serializable, Purgable {
     private List<CodeTemplateLibrary> codeTemplateLibraries;
     private Set<String> dependentIds;
     private Set<String> dependencyIds;
+    private List<ChannelTag> channelTags;
 
     public ChannelMetadata getMetadata() {
         if (metadata == null) {
@@ -84,9 +85,25 @@ public class ChannelExportData implements Serializable, Purgable {
         dependencyIds = null;
     }
 
+    public List<ChannelTag> getChannelTags() {
+        if (channelTags == null) {
+            channelTags = new ArrayList<ChannelTag>();
+        }
+        return channelTags;
+    }
+
+    public void setChannelTags(List<ChannelTag> channelTags) {
+        this.channelTags = channelTags;
+    }
+
+    public void clearTags() {
+        channelTags = null;
+    }
+
     public void clearAllExceptMetadata() {
         clearCodeTemplateLibraries();
         clearDependencies();
+        clearTags();
     }
 
     @Override

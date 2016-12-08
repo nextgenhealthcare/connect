@@ -12,9 +12,7 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -25,7 +23,6 @@ public class ChannelMetadata implements Serializable, Purgable {
     private boolean enabled;
     private Calendar lastModified;
     private ChannelPruningSettings pruningSettings;
-    private Set<String> tags;
 
     public ChannelMetadata() {
         enabled = true;
@@ -58,17 +55,6 @@ public class ChannelMetadata implements Serializable, Purgable {
         this.pruningSettings = pruningSettings;
     }
 
-    public Set<String> getTags() {
-        if (tags == null) {
-            tags = new LinkedHashSet<String>();
-        }
-        return tags;
-    }
-
-    public void setTags(Set<String> tags) {
-        this.tags = tags;
-    }
-
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
@@ -83,10 +69,6 @@ public class ChannelMetadata implements Serializable, Purgable {
 
         if (pruningSettings != null) {
             purgedProperties.put("pruningSettings", pruningSettings.getPurgedProperties());
-        }
-
-        if (tags != null) {
-            purgedProperties.put("tagsCount", tags.size());
         }
 
         return purgedProperties;

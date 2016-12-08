@@ -87,6 +87,7 @@ import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelSummary;
+import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
@@ -827,6 +828,26 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
         return getServlet(ConfigurationServletInterface.class).getProtocolsAndCipherSuites();
     }
 
+    /**
+     * Returns a set containing all channel tags for the server.
+     * 
+     * @see ConfigurationServletInterface#getChannelTags
+     */
+    @Override
+    public Set<ChannelTag> getChannelTags() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getChannelTags();
+    }
+
+    /**
+     * Updates all channel tags.
+     * 
+     * @see ConfigurationServletInterface#updateChannelTags
+     */
+    @Override
+    public void setChannelTags(Set<ChannelTag> channelTags) throws ClientException {
+        getServlet(ConfigurationServletInterface.class).setChannelTags(channelTags);
+    }
+
     /*******************
      * Channel Servlet *
      *******************/
@@ -1051,8 +1072,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#getDashboardChannelInfo
      */
     @Override
-    public DashboardChannelInfo getDashboardChannelInfo(int fetchSize) throws ClientException {
-        return getServlet(ChannelStatusServletInterface.class).getDashboardChannelInfo(fetchSize);
+    public DashboardChannelInfo getDashboardChannelInfo(int fetchSize, String filter) throws ClientException {
+        return getServlet(ChannelStatusServletInterface.class).getDashboardChannelInfo(fetchSize, filter);
     }
 
     /**

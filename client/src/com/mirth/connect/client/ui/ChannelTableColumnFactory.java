@@ -78,7 +78,6 @@ public class ChannelTableColumnFactory extends ColumnFactory {
                 break;
 
             case NAME_COLUMN_NUMBER:
-                column.setMaxWidth(325);
                 column.setMinWidth(150);
                 column.setToolTipText("<html><body>The name of this channel.</body></html>");
                 break;

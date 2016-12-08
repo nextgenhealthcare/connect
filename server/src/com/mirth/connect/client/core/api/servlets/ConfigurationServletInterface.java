@@ -38,6 +38,7 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelMetadata;
+import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PasswordRequirements;
@@ -239,7 +240,7 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @Path("/channelDependencies")
     @ApiOperation("Updates all channel dependencies for the server.")
     @MirthOperation(name = "setChannelDependencies", display = "Set channel dependencies", permission = Permissions.CHANNELS_MANAGE)
-    public void setChannelDependencies(Set<ChannelDependency> dependencies) throws ClientException;
+    public void setChannelDependencies(@Param("dependencies") @ApiParam(value = "The channel dependencies to set.", required = true) Set<ChannelDependency> dependencies) throws ClientException;
 
     @GET
     @Path("/channelMetadata")
@@ -251,11 +252,23 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @Path("/channelMetadata")
     @ApiOperation("Updates all channel metadata for the server.")
     @MirthOperation(name = "setChannelMetadata", display = "Set channel metadata", permission = Permissions.CHANNELS_MANAGE)
-    public void setChannelMetadata(Map<String, ChannelMetadata> metadata) throws ClientException;
+    public void setChannelMetadata(@Param("metadata") @ApiParam(value = "The map of channel metadata to set.", required = true) Map<String, ChannelMetadata> metadata) throws ClientException;
 
     @GET
     @Path("/protocolsAndCipherSuites")
     @ApiOperation("Returns a map containing all supported and enabled TLS protocols and cipher suites.")
     @MirthOperation(name = "getProtocolsAndCipherSuites", display = "Get protocols and cipher suites", type = ExecuteType.ASYNC, auditable = false)
     public Map<String, String[]> getProtocolsAndCipherSuites() throws ClientException;
+
+    @GET
+    @Path("/channelTags")
+    @ApiOperation("Returns a set containing all channel tags for the server.")
+    @MirthOperation(name = "getChannelTags", display = "Get channel tags", permission = Permissions.TAGS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    public Set<ChannelTag> getChannelTags() throws ClientException;
+
+    @PUT
+    @Path("/channelTags")
+    @ApiOperation("Updates all channel tags.")
+    @MirthOperation(name = "updateChannelTags", display = "Update channel tags", permission = Permissions.TAGS_MANAGE)
+    public void setChannelTags(@Param("channelTags") @ApiParam(value = "The channel tags to set.", required = true) Set<ChannelTag> channelTags) throws ClientException;
 }

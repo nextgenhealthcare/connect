@@ -9,12 +9,16 @@
 
 package com.mirth.connect.model;
 
+import java.awt.Color;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -32,6 +36,7 @@ import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
+import com.mirth.connect.util.ColorUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverConfiguration")
@@ -39,6 +44,7 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
     private String date;
     private List<ChannelGroup> channelGroups = null;
     private List<Channel> channels = null;
+    private Set<ChannelTag> channelTags = null;
     private List<User> users = null;
     private List<AlertModel> alerts = null;
     private List<CodeTemplateLibrary> codeTemplateLibraries = null;
@@ -71,6 +77,14 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
 
     public void setChannels(List<Channel> channels) {
         this.channels = channels;
+    }
+
+    public Set<ChannelTag> getChannelTags() {
+        return this.channelTags;
+    }
+
+    public void setChannelTags(Set<ChannelTag> channelTags) {
+        this.channelTags = channelTags;
     }
 
     public ServerSettings getServerSettings() {
@@ -334,5 +348,48 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
     public void migrate3_4_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_5_0(DonkeyElement element) {}
+    public void migrate3_5_0(DonkeyElement element) {
+        Map<String, List<String>> migratedTagList = new HashMap<String, List<String>>();
+
+        DonkeyElement channelsElem = element.getChildElement("channels");
+        if (channelsElem != null) {
+            for (DonkeyElement channel : channelsElem.getChildElements()) {
+                DonkeyElement tagsElem = channel.getChildElement("properties").getChildElement("tags");
+                String channelId = channel.getChildElement("id").getTextContent();
+
+                if (tagsElem != null) {
+                    for (DonkeyElement tag : tagsElem.getChildElements()) {
+                        String tagName = tag.getTextContent();
+                        List<String> channelIds = migratedTagList.get(tagName);
+
+                        if (channelIds == null) {
+                            channelIds = new ArrayList<String>();
+                            migratedTagList.put(tagName, channelIds);
+                        }
+
+                        channelIds.add(channelId);
+                    }
+                }
+            }
+        }
+
+        DonkeyElement tagsElement = element.addChildElementIfNotExists("channelTags");
+        for (Entry<String, List<String>> tag : migratedTagList.entrySet()) {
+            DonkeyElement tagElement = tagsElement.addChildElement("channelTag");
+            tagElement.addChildElement("id", UUID.randomUUID().toString());
+            tagElement.addChildElement("name", tag.getKey());
+
+            DonkeyElement channelIds = tagElement.addChildElement("channelIds");
+            for (String channelId : tag.getValue()) {
+                channelIds.addChildElement("string", channelId);
+            }
+
+            Color newColor = ColorUtil.getNewColor();
+            DonkeyElement bgColor = tagElement.addChildElement("backgroundColor");
+            bgColor.addChildElement("red", String.valueOf(newColor.getRed()));
+            bgColor.addChildElement("blue", String.valueOf(newColor.getBlue()));
+            bgColor.addChildElement("green", String.valueOf(newColor.getGreen()));
+            bgColor.addChildElement("alpha", String.valueOf(newColor.getAlpha()));
+        }
+    }
 }

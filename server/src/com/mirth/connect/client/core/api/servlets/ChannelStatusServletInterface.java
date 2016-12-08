@@ -61,7 +61,10 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @Path("/statuses/initial")
     @ApiOperation("Returns a DashboardChannelInfo object containing a partial channel status list and a set of remaining channel IDs.")
     @MirthOperation(name = "getChannelStatusListInitial", display = "Get initial channel status list", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public DashboardChannelInfo getDashboardChannelInfo(@Param("fetchSize") @ApiParam(value = "Specifies the maximum number of statuses to return.", required = true, defaultValue = "100") @QueryParam("fetchSize") int fetchSize) throws ClientException;
+    public DashboardChannelInfo getDashboardChannelInfo(// @formatter:off
+            @Param("fetchSize") @ApiParam(value = "Specifies the maximum number of statuses to return.", required = true, defaultValue = "100") @QueryParam("fetchSize") int fetchSize,
+            @Param("filter") @ApiParam(value = "The filter string to limit dashboard statuses with.") @QueryParam("filter") String filter) throws ClientException;
+    // @formatter:on
 
     @POST
     @Path("/{channelId}/_start")

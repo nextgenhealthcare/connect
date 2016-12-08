@@ -37,10 +37,12 @@ import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
+import com.mirth.connect.model.ChannelExportData;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelSummary;
+import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.InvalidChannel;
@@ -317,7 +319,7 @@ public class DefaultChannelController extends ChannelController {
     @Override
     public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
         // Extract metadata and then clear it from the channel model so it won't be stored in the database
-        ChannelMetadata metadata = channel.getExportData().getMetadata();
+        ChannelExportData exportData = channel.getExportData();
         channel.clearExportData();
 
         /*
@@ -344,7 +346,8 @@ public class DefaultChannelController extends ChannelController {
              */
             if (EqualsBuilder.reflectionEquals(channel, matchingChannel, new String[] {
                     "lastModified", "revision" })) {
-                updateChannelMetadata(channel.getId(), metadata);
+                updateChannelMetadata(channel.getId(), exportData.getMetadata());
+                updateChannelTags(channel.getId(), exportData.getChannelTags());
                 return true;
             }
 
@@ -386,7 +389,8 @@ public class DefaultChannelController extends ChannelController {
             }
 
             // Update the metadata first
-            updateChannelMetadata(channel.getId(), metadata);
+            updateChannelMetadata(channel.getId(), exportData.getMetadata());
+            updateChannelTags(channel.getId(), exportData.getChannelTags());
 
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", channel.getId());
@@ -422,6 +426,47 @@ public class DefaultChannelController extends ChannelController {
             // Only need to update if the metadata has changed
             metadataMap.put(channelId, metadata);
             configurationController.setChannelMetadata(metadataMap);
+        }
+    }
+
+    private void updateChannelTags(String channelId, List<ChannelTag> channelTags) {
+        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+
+        boolean updateTags = false;
+        Set<ChannelTag> serverChannelTags = configurationController.getChannelTags();
+        for (ChannelTag existingTag : serverChannelTags) {
+            boolean found = false;
+
+            for (Iterator<ChannelTag> it = channelTags.iterator(); it.hasNext();) {
+                ChannelTag tag = it.next();
+                if (existingTag.getId().equals(tag.getId()) || existingTag.getName().equalsIgnoreCase(tag.getName())) {
+                    found = true;
+
+                    if (!existingTag.getChannelIds().contains(channelId)) {
+                        updateTags = true;
+                        existingTag.getChannelIds().add(channelId);
+                    }
+
+                    it.remove();
+                    break;
+                }
+            }
+
+            if (!found) {
+                if (existingTag.getChannelIds().contains(channelId)) {
+                    updateTags = true;
+                    existingTag.getChannelIds().remove(channelId);
+                }
+            }
+        }
+
+        for (ChannelTag tag : channelTags) {
+            updateTags = true;
+            serverChannelTags.add(tag);
+        }
+
+        if (updateTags) {
+            configurationController.setChannelTags(serverChannelTags);
         }
     }
 
@@ -490,6 +535,20 @@ public class DefaultChannelController extends ChannelController {
             Map<String, ChannelMetadata> metadataMap = configurationController.getChannelMetadata();
             if (metadataMap.remove(channel.getId()) != null) {
                 configurationController.setChannelMetadata(metadataMap);
+            }
+
+            // Remove any tags this channel was a part of
+            boolean tagsRemoved = false;
+            Set<ChannelTag> tags = configurationController.getChannelTags();
+            for (ChannelTag tag : tags) {
+                if (tag.getChannelIds().contains(channel.getId())) {
+                    tagsRemoved = true;
+                    tag.getChannelIds().remove(channel.getId());
+                }
+            }
+
+            if (tagsRemoved) {
+                configurationController.setChannelTags(tags);
             }
 
             // invoke the channel plugins

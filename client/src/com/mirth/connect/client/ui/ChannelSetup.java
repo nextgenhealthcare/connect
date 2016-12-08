@@ -10,15 +10,26 @@
 package com.mirth.connect.client.ui;
 
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,11 +38,23 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
@@ -44,6 +67,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,12 +80,21 @@ import com.mirth.connect.client.ui.attachments.CustomAttachmentDialog;
 import com.mirth.connect.client.ui.attachments.IdentityAttachmentDialog;
 import com.mirth.connect.client.ui.attachments.JavaScriptAttachmentDialog;
 import com.mirth.connect.client.ui.attachments.RegexAttachmentDialog;
+import com.mirth.connect.client.ui.components.MirthCheckBox;
+import com.mirth.connect.client.ui.components.MirthComboBox;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.components.MirthTextField;
+import com.mirth.connect.client.ui.components.MirthTextPane;
+import com.mirth.connect.client.ui.components.tag.FilterCompletion;
+import com.mirth.connect.client.ui.components.tag.MirthTagField;
+import com.mirth.connect.client.ui.components.tag.SearchFilterListener;
+import com.mirth.connect.client.ui.components.tag.TagFilterCompletion;
 import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorPanel;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
@@ -77,6 +110,7 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProper
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelProperties;
+import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.Filter;
@@ -89,13 +123,17 @@ import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
+import com.mirth.connect.model.filter.SearchFilter;
+import com.mirth.connect.model.filter.SearchFilterParser;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.plugins.ChannelTabPlugin;
 import com.mirth.connect.util.JavaScriptContextUtil;
 import com.mirth.connect.util.PropertyVerifier;
 
+import net.miginfocom.swing.MigLayout;
+
 /** The channel editor panel. Majority of the client application */
-public class ChannelSetup extends javax.swing.JPanel {
+public class ChannelSetup extends JPanel {
     private static final String METADATA_NAME_COLUMN_NAME = "Column Name";
     private static final String METADATA_TYPE_COLUMN_NAME = "Type";
     private static final String METADATA_MAPPING_COLUMN_NAME = "Variable Mapping";
@@ -126,91 +164,71 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     private int previousTab = -1;
 
-    /**
-     * Creates the Channel Editor panel. Calls initComponents() and sets up the model, dropdowns,
-     * and mouse listeners.
-     */
     public ChannelSetup() {
         this.parent = PlatformUI.MIRTH_FRAME;
-
         initComponents();
-        initChannelTagsUI();
-        initMetaDataTable();
-
-        sourceConnectorPanel.setChannelSetup(this);
-        destinationConnectorPanel.setChannelSetup(this);
-
-        attachmentComboBox.setModel(new DefaultComboBoxModel(AttachmentHandlerType.values()));
-        metadataPruningDaysTextField.setDocument(new MirthFieldConstraints(3, false, false, true));
-        contentPruningDaysTextField.setDocument(new MirthFieldConstraints(3, false, false, true));
-        summaryNameField.setDocument(new MirthFieldConstraints(40, false, true, true));
-
-        channelView.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                showChannelEditPopupMenu(evt);
-            }
-
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                showChannelEditPopupMenu(evt);
-            }
-        });
-
-        channelView.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent event) {
-                int selectedTab = channelView.getSelectedIndex();
-
-                if (previousTab == SCRIPTS_TAB_INDEX && selectedTab != SCRIPTS_TAB_INDEX) {
-                    updateScriptsPanel(getScriptsMap());
-                }
-
-                if (selectedTab == SCRIPTS_TAB_INDEX) {
-                    scripts.updateDisplayOptions();
-                }
-
-                /*
-                 * When connector-specific resources are changed and the connector panel has already
-                 * been loaded, returning to the connector panel will not trigger a call to
-                 * setProperties. In order to allow connector panels to take action when resources
-                 * have changed, we call setVisible when the user switches tabs.
-                 */
-                if (selectedTab == SOURCE_TAB_INDEX && sourceConnectorPanel.getConnectorSettingsPanel() != null) {
-                    sourceConnectorPanel.getConnectorSettingsPanel().setVisible(true);
-                    sourceConnectorPanel.updateNextFireTime();
-                } else if (selectedTab == DESTINATIONS_TAB_INDEX && destinationConnectorPanel.getConnectorSettingsPanel() != null) {
-                    destinationConnectorPanel.getConnectorSettingsPanel().setVisible(true);
-                }
-
-                previousTab = selectedTab;
-            }
-        });
-
-        channelView.setMaximumSize(new Dimension(450, 3000));
-
-        /*
-         * The channel ID field is non-editable, so we have to set the background color explicitly
-         * since Netbeans calls setEditable afterwards and overwrites it.
-         */
-        channelIdField.setBackground(UIConstants.BACKGROUND_COLOR);
+        initToolTips();
+        initLayout();
     }
 
-    private void updateTagTable() {
-        DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
-        model.setRowCount(0);
-
-        for (String tag : currentChannel.getExportData().getMetadata().getTags()) {
-            model.addRow(new Object[] { tag });
-        }
+    public void closePopupWindow() {
+        tagsField.closePopupWindow();
     }
 
     private void saveChannelTags() {
-        currentChannel.getExportData().getMetadata().getTags().clear();
+        currentChannel.getExportData().getChannelTags().clear();
 
-        DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
-        int rowCount = model.getRowCount();
+        List<SearchFilter> filters = SearchFilterParser.parse(tagsField.getTags(), parent.getCachedChannelTags());
 
-        for (int i = 0; i < rowCount; i++) {
-            currentChannel.getExportData().getMetadata().getTags().add((String) model.getValueAt(i, 0));
+        if (CollectionUtils.isEmpty(filters)) {
+            for (ChannelTag channelTag : parent.getCachedChannelTags()) {
+                channelTag.getChannelIds().remove(currentChannel.getId());
+            }
+        } else {
+            List<String> newTagNames = new ArrayList<String>();
+
+            for (SearchFilter filter : filters) {
+                List<String> tagNames = filter.getValues();
+
+                for (ChannelTag channelTag : parent.getCachedChannelTags()) {
+                    boolean found = false;
+
+                    for (Iterator<String> it = tagNames.iterator(); it.hasNext();) {
+                        String tagName = it.next();
+
+                        if (StringUtils.equalsIgnoreCase(channelTag.getName(), tagName)) {
+                            // Matching tag found
+                            found = true;
+                            channelTag.getChannelIds().add(currentChannel.getId());
+                            currentChannel.getExportData().getChannelTags().add(channelTag);
+                            it.remove();
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        channelTag.getChannelIds().remove(currentChannel.getId());
+                    }
+                }
+
+                newTagNames.addAll(tagNames);
+            }
+
+            // New tags
+            Map<String, Color> tagColors = tagsField.getTagColors();
+            for (String tagName : newTagNames) {
+                Set<String> channelIds = new HashSet<String>();
+                channelIds.add(currentChannel.getId());
+
+                Color tagColor = tagColors.get(tagName);
+                if (tagColor == null) {
+                    tagColor = Color.LIGHT_GRAY;
+                }
+
+                ChannelTag newTag = new ChannelTag(UUID.randomUUID().toString(), tagName, channelIds, tagColor);
+                currentChannel.getExportData().getChannelTags().add(newTag);
+                parent.getCachedChannelTags().add(newTag);
+            }
         }
     }
 
@@ -219,7 +237,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         model.setNumRows(0);
 
         for (MetaDataColumn column : currentChannel.getProperties().getMetaDataColumns()) {
-            model.addRow(new Object[] { column.getName(), column.getType(), column.getMappingName() });
+            model.addRow(new Object[] { column.getName(), column.getType(),
+                    column.getMappingName() });
         }
 
         revertMetaDataButton.setEnabled(false);
@@ -241,14 +260,10 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
     }
 
-    private int getSelectedRow(MirthTable table) {
-        return table.isEditing() ? table.getEditingRow() : table.getSelectedRow();
-    }
-
     /**
      * Shows the popup menu when the trigger button (right-click) has been pushed.
      */
-    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
+    private void checkSelectionAndPopupMenu(MouseEvent evt) {
         int row = destinationTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
 
         if (evt.isPopupTrigger()) {
@@ -262,7 +277,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     /**
      * Shows the trigger-button popup menu.
      */
-    private void showChannelEditPopupMenu(java.awt.event.MouseEvent evt) {
+    private void showChannelEditPopupMenu(MouseEvent evt) {
         if (evt.isPopupTrigger()) {
             parent.channelEditPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
@@ -395,9 +410,9 @@ public class ChannelSetup extends javax.swing.JPanel {
                 currentChannel.addDestination(connector);
 
                 if (connector.isEnabled()) {
-                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
+                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
                 } else {
-                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), UIConstants.DISABLED_STATUS);
+                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_black.png")), UIConstants.DISABLED_STATUS);
                 }
                 tableData[i][1] = connector.getName();
                 tableData[i][2] = connector.getMetaDataId();
@@ -411,9 +426,9 @@ public class ChannelSetup extends javax.swing.JPanel {
             } else {
 
                 if (destinationConnectors.get(i).isEnabled()) {
-                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
+                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
                 } else {
-                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), UIConstants.DISABLED_STATUS);
+                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_black.png")), UIConstants.DISABLED_STATUS);
                 }
                 tableData[i][1] = destinationConnectors.get(i).getName();
                 tableData[i][2] = destinationConnectors.get(i).getMetaDataId();
@@ -427,104 +442,9 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         }
 
-        destinationTable = new MirthTable();
-
-        destinationTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
-                STATUS_COLUMN_NAME, DESTINATION_COLUMN_NAME, METADATA_COLUMN_NAME,
-                CONNECTOR_TYPE_COLUMN_NAME, DESTINATION_CHAIN_COLUMN_NAME }) {
-
-            boolean[] canEdit = new boolean[] { false, true, false, false, false };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
-            }
-        });
-
-        destinationTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-
-        // Set the custom cell editor for the Destination Name column.
-        destinationTable.getColumnModel().getColumn(destinationTable.getColumnModel().getColumnIndex(DESTINATION_COLUMN_NAME)).setCellEditor(new DestinationTableCellEditor());
-        destinationTable.setCustomEditorControls(true);
-
-        // Must set the maximum width on columns that should be packed.
-        destinationTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        destinationTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
-
-        // Set the cell renderer for the status column.
-        destinationTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
-
-        // Set the maximum width and cell renderer for the metadata ID column
-        destinationTable.getColumnExt(METADATA_COLUMN_NAME).setMaxWidth(UIConstants.METADATA_ID_COLUMN_WIDTH);
-        destinationTable.getColumnExt(METADATA_COLUMN_NAME).setMinWidth(UIConstants.METADATA_ID_COLUMN_WIDTH);
-        destinationTable.getColumnExt(METADATA_COLUMN_NAME).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
-
-        // Set the cell renderer for the destination connector type
-        destinationTable.getColumnExt(CONNECTOR_TYPE_COLUMN_NAME).setCellRenderer(new ConnectorTypeCellRenderer());
-
-        // Set the cell renderer and the max width for the destination chain column
-        destinationTable.getColumnExt(DESTINATION_CHAIN_COLUMN_NAME).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
-        destinationTable.getColumnExt(DESTINATION_CHAIN_COLUMN_NAME).setMaxWidth(50);
-
-        destinationTable.setSelectionMode(0);
-        destinationTable.setRowSelectionAllowed(true);
-        destinationTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        destinationTable.setFocusable(true);
-        destinationTable.setSortable(false);
-        destinationTable.getTableHeader().setReorderingAllowed(false);
-
-        destinationTable.setOpaque(true);
-
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-            destinationTable.setHighlighters(highlighter);
-        }
-
-        // This action is called when a new selection is made on the destination
-        // table.
-        destinationTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent evt) {
-                if (!evt.getValueIsAdjusting()) {
-                    if (lastModelIndex != -1 && lastModelIndex != destinationTable.getRowCount() && !isDeleting) {
-                        Connector destinationConnector = currentChannel.getDestinationConnectors().get(lastModelIndex);
-
-                        ConnectorProperties props = destinationConnectorPanel.getProperties();
-                        ((DestinationConnectorPropertiesInterface) props).getDestinationConnectorProperties().setResourceIds(resourceIds.get(destinationConnector.getMetaDataId()));
-                        destinationConnector.setProperties(props);
-                    }
-
-                    if (!loadConnector()) {
-                        if (lastModelIndex == destinationTable.getRowCount()) {
-                            destinationTable.setRowSelectionInterval(lastModelIndex - 1, lastModelIndex - 1);
-                        } else {
-                            destinationTable.setRowSelectionInterval(lastModelIndex, lastModelIndex);
-                        }
-                    } else {
-                        lastModelIndex = destinationTable.getSelectedModelIndex();
-                    }
-
-                    /*
-                     * Loading the connector may have updated the current destination with incorrect
-                     * properties, so after updating lastModelIndex we need to update the
-                     * destination panel again.
-                     */
-                    saveDestinationPanel();
-                    checkVisibleDestinationTasks();
-                }
-            }
-        });
+        ((RefreshTableModel) destinationTable.getModel()).refreshDataVector(tableData);
 
         destinationTable.requestFocus();
-
-        // Mouse listener for trigger-button popup on the table.
-        destinationTable.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                checkSelectionAndPopupMenu(evt);
-            }
-
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                checkSelectionAndPopupMenu(evt);
-            }
-        });
 
         // Checks to see what to set the new row selection to based on
         // last index and if a new destination was added.
@@ -539,38 +459,12 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (addNew) {
             destinationTable.setRowSelectionInterval(destinationTable.getRowCount() - 1, destinationTable.getRowCount() - 1);
         } else if (last == -1) {
-            destinationTable.setRowSelectionInterval(0, 0); // Makes sure the
-        } // event is called
-          // when the table is
-          // created.
-        else if (last == destinationTable.getRowCount()) {
+            destinationTable.setRowSelectionInterval(0, 0); // Makes sure the event is called when the table is created.
+        } else if (last == destinationTable.getRowCount()) {
             destinationTable.setRowSelectionInterval(last - 1, last - 1);
         } else {
             destinationTable.setRowSelectionInterval(last, last);
         }
-
-        destinationTablePane.setViewportView(destinationTable);
-        destinationTablePane.setWheelScrollingEnabled(true);
-
-        // Key Listener trigger for DEL
-        destinationTable.addKeyListener(new KeyListener() {
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                    parent.doDeleteDestination();
-                }
-            }
-
-            public void keyReleased(KeyEvent e) {}
-
-            public void keyTyped(KeyEvent e) {}
-        });
-
-        destinationTable.addMouseWheelListener(new MouseWheelListener() {
-
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                destinationTablePane.getMouseWheelListeners()[0].mouseWheelMoved(e);
-            }
-        });
     }
 
     /**
@@ -609,7 +503,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             for (int i = 0; i < destinationConnectors.size(); i++) {
                 if (destinationConnectors.get(i).getName().equalsIgnoreCase(destinationName)) {
                     boolean enabled = parent.isSaveEnabled();
-                    destinationSourceDropdown.setSelectedItem(destinationConnectors.get(i).getTransportName());
+                    destinationConnectorTypeComboBox.setSelectedItem(destinationConnectors.get(i).getTransportName());
                     parent.setSaveEnabled(enabled);
 
                     return true;
@@ -622,16 +516,25 @@ public class ChannelSetup extends javax.swing.JPanel {
     /** Sets the overall panel to edit the channel with the given channel index. */
     public void editChannel(Channel channel) {
         loadingChannel = true;
+
+        Set<FilterCompletion> channelTags = new HashSet<FilterCompletion>();
+        for (ChannelTag channelTag : parent.channelPanel.getCachedChannelTags()) {
+            channelTags.add(new TagFilterCompletion(channelTag));
+        }
+        tagsField.update(channelTags, true, true);
+        tagsField.setFocus(false);
+
         channelValidationFailed = false;
         lastModelIndex = -1;
         currentChannel = channel;
         saveGroupId = null;
         setResourceIds();
+        setChannelTags();
 
 //        PropertyVerifier.checkConnectorProperties(currentChannel, parent.getConnectorMetaData());
 
-        sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getSourceConnectors().keySet().toArray()));
-        destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
+        sourceConnectorTypeComboBox.setModel(new DefaultComboBoxModel(LoadedExtensions.getInstance().getSourceConnectors().keySet().toArray()));
+        destinationConnectorTypeComboBox.setModel(new DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
 
         try {
             ServerSettings serverSettings = parent.mirthClient.getServerSettings();
@@ -645,7 +548,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         makeDestinationTable(false);
         saveDestinationPanel();
         updateMetaDataTable();
-        updateTagTable();
         setDestinationVariableList();
         loadingChannel = false;
         channelView.setSelectedIndex(0);
@@ -653,6 +555,23 @@ public class ChannelSetup extends javax.swing.JPanel {
         sourceConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
         destinationConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
         updateResourceIds();
+
+        List<ChannelTag> tags = new ArrayList<ChannelTag>();
+        for (ChannelTag channelTag : parent.channelPanel.getCachedChannelTags()) {
+            if (channelTag.getChannelIds().contains(channel.getId())) {
+                tags.add(channelTag);
+            }
+        }
+
+        Collections.sort(tags, new Comparator<ChannelTag>() {
+            @Override
+            public int compare(ChannelTag tag1, ChannelTag tag2) {
+                return tag1.getName().compareTo(tag2.getName());
+            }
+
+        });
+
+        tagsField.setChannelTags(tags);
     }
 
     /**
@@ -664,8 +583,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         currentChannel = channel;
         saveGroupId = groupId;
 
-        sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getSourceConnectors().keySet().toArray()));
-        destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
+        sourceConnectorTypeComboBox.setModel(new DefaultComboBoxModel(LoadedExtensions.getInstance().getSourceConnectors().keySet().toArray()));
+        destinationConnectorTypeComboBox.setModel(new DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
 
         Connector sourceConnector = makeNewConnector(false);
         sourceConnector.setName("sourceConnector");
@@ -707,14 +626,18 @@ public class ChannelSetup extends javax.swing.JPanel {
         makeDestinationTable(true);
         updateMetaDataTable();
 
+        tagsField.clear();
+        Set<FilterCompletion> channelTags = new HashSet<FilterCompletion>();
+        for (ChannelTag channelTag : parent.channelPanel.getCachedChannelTags()) {
+            channelTags.add(new TagFilterCompletion(channelTag));
+        }
+        tagsField.update(channelTags, true, false);
+
         setDestinationVariableList();
         loadingChannel = false;
         channelView.setSelectedIndex(0);
-        summaryNameField.requestFocus();
+        nameField.requestFocus();
         parent.setSaveEnabled(true);
-
-        DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
-        model.setRowCount(0);
 
         Map<String, String> sourceResourceIds = new LinkedHashMap<String, String>();
         sourceResourceIds.put(ResourceProperties.DEFAULT_RESOURCE_ID, ResourceProperties.DEFAULT_RESOURCE_NAME);
@@ -726,6 +649,23 @@ public class ChannelSetup extends javax.swing.JPanel {
             ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().setResourceIds(destinationResourceIds);
         }
         setResourceIds();
+    }
+
+    private void setChannelTags() {
+        currentChannel.getExportData().getChannelTags().clear();
+
+        Set<ChannelTag> channelTags = parent.channelPanel.getCachedChannelTags();
+        if (channelTags != null) {
+            List<ChannelTag> currentTags = new ArrayList<ChannelTag>();
+
+            for (ChannelTag channelTag : channelTags) {
+                if (channelTag.getChannelIds().contains(currentChannel.getId())) {
+                    currentTags.add(channelTag);
+                }
+            }
+
+            currentChannel.getExportData().setChannelTags(currentTags);
+        }
     }
 
     /**
@@ -772,11 +712,11 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     private void updateRevision() {
-        summaryRevision.setText("Revision: " + currentChannel.getRevision());
+        revisionLabel.setText("Revision: " + currentChannel.getRevision());
     }
 
     private void updateLastModified() {
-        lastModified.setText("Last Modified: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentChannel.getExportData().getMetadata().getLastModified().getTime()));
+        lastModifiedLabel.setText("Last Modified: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentChannel.getExportData().getMetadata().getLastModified().getTime()));
     }
 
     /** Load all of the saved channel information into the channel editor */
@@ -785,16 +725,16 @@ public class ChannelSetup extends javax.swing.JPanel {
         ChannelProperties properties = currentChannel.getProperties();
         ChannelMetadata metadata = currentChannel.getExportData().getMetadata();
         parent.setPanelName("Edit Channel - " + currentChannel.getName());
-        summaryNameField.setText(currentChannel.getName());
+        nameField.setText(currentChannel.getName());
         summaryDescriptionText.setText(currentChannel.getDescription());
         updateChannelId();
         updateRevision();
         updateLastModified();
 
         if (currentChannel.getExportData().getMetadata().isEnabled()) {
-            summaryEnabledCheckbox.setSelected(true);
+            summaryEnabledCheckBox.setSelected(true);
         } else {
-            summaryEnabledCheckbox.setSelected(false);
+            summaryEnabledCheckBox.setSelected(false);
         }
 
         LinkedHashMap<String, String> scriptMap = new LinkedHashMap<String, String>();
@@ -822,7 +762,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, JavaScriptConstants.DEFAULT_CHANNEL_POSTPROCESSOR_SCRIPT);
         }
 
-        scripts.setScripts(scriptMap);
+        scriptsPanel.setScripts(scriptMap);
         updateScriptsPanel(scriptMap);
 
 //        PropertyVerifier.checkChannelProperties(currentChannel);
@@ -838,9 +778,9 @@ public class ChannelSetup extends javax.swing.JPanel {
         // load message storage settings
         messageStorageSlider.setValue(properties.getMessageStorageMode().getValue());
         encryptMessagesCheckBox.setSelected(properties.isEncryptData());
-        removeContentCheckbox.setSelected(properties.isRemoveContentOnCompletion());
+        removeContentCheckBox.setSelected(properties.isRemoveContentOnCompletion());
         removeOnlyFilteredCheckBox.setSelected(properties.isRemoveOnlyFilteredOnCompletion());
-        removeAttachmentsCheckbox.setSelected(properties.isRemoveAttachmentsOnCompletion());
+        removeAttachmentsCheckBox.setSelected(properties.isRemoveAttachmentsOnCompletion());
         updateStorageMode();
 
         // load pruning settings
@@ -869,9 +809,9 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         archiveCheckBox.setSelected(metadata.getPruningSettings().isArchiveEnabled());
 
-        sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
+        sourceConnectorTypeComboBox.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
 
-        initialState.setSelectedItem(currentChannel.getProperties().getInitialState());
+        initialStateComboBox.setSelectedItem(currentChannel.getProperties().getInitialState());
 
         attachmentStoreCheckBox.setSelected(currentChannel.getProperties().isStoreAttachments());
 
@@ -987,9 +927,9 @@ public class ChannelSetup extends javax.swing.JPanel {
                 durableStatusLabel.setForeground(new Color(0, 130, 0));
                 messageStorageProgressBar.setValue(20);
                 encryptMessagesCheckBox.setEnabled(true);
-                removeContentCheckbox.setEnabled(true);
-                removeOnlyFilteredCheckBox.setEnabled(removeContentCheckbox.isSelected());
-                removeAttachmentsCheckbox.setEnabled(true);
+                removeContentCheckBox.setEnabled(true);
+                removeOnlyFilteredCheckBox.setEnabled(removeContentCheckBox.isSelected());
+                removeAttachmentsCheckBox.setEnabled(true);
                 break;
 
             case PRODUCTION:
@@ -1000,9 +940,9 @@ public class ChannelSetup extends javax.swing.JPanel {
                 durableStatusLabel.setForeground(new Color(0, 130, 0));
                 messageStorageProgressBar.setValue(25);
                 encryptMessagesCheckBox.setEnabled(true);
-                removeContentCheckbox.setEnabled(true);
-                removeOnlyFilteredCheckBox.setEnabled(removeContentCheckbox.isSelected());
-                removeAttachmentsCheckbox.setEnabled(true);
+                removeContentCheckBox.setEnabled(true);
+                removeOnlyFilteredCheckBox.setEnabled(removeContentCheckBox.isSelected());
+                removeAttachmentsCheckBox.setEnabled(true);
                 break;
 
             case RAW:
@@ -1013,9 +953,9 @@ public class ChannelSetup extends javax.swing.JPanel {
                 durableStatusLabel.setForeground(new Color(255, 102, 0));
                 messageStorageProgressBar.setValue(60);
                 encryptMessagesCheckBox.setEnabled(true);
-                removeContentCheckbox.setEnabled(true);
-                removeOnlyFilteredCheckBox.setEnabled(removeContentCheckbox.isSelected());
-                removeAttachmentsCheckbox.setEnabled(true);
+                removeContentCheckBox.setEnabled(true);
+                removeOnlyFilteredCheckBox.setEnabled(removeContentCheckBox.isSelected());
+                removeAttachmentsCheckBox.setEnabled(true);
                 break;
 
             case METADATA:
@@ -1026,9 +966,9 @@ public class ChannelSetup extends javax.swing.JPanel {
                 durableStatusLabel.setForeground(new Color(130, 0, 0));
                 messageStorageProgressBar.setValue(65);
                 encryptMessagesCheckBox.setEnabled(false);
-                removeContentCheckbox.setEnabled(false);
+                removeContentCheckBox.setEnabled(false);
                 removeOnlyFilteredCheckBox.setEnabled(false);
-                removeAttachmentsCheckbox.setEnabled(false);
+                removeAttachmentsCheckBox.setEnabled(false);
                 break;
 
             case DISABLED:
@@ -1039,9 +979,9 @@ public class ChannelSetup extends javax.swing.JPanel {
                 durableStatusLabel.setForeground(new Color(130, 0, 0));
                 messageStorageProgressBar.setValue(100);
                 encryptMessagesCheckBox.setEnabled(false);
-                removeContentCheckbox.setEnabled(false);
+                removeContentCheckBox.setEnabled(false);
                 removeOnlyFilteredCheckBox.setEnabled(false);
-                removeAttachmentsCheckbox.setEnabled(false);
+                removeAttachmentsCheckBox.setEnabled(false);
                 break;
         }
 
@@ -1051,12 +991,12 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         // if the "remove content on completion" option is enabled, subtract a percentage from the progress bar
-        if (removeContentCheckbox.isEnabled() && removeContentCheckbox.isSelected()) {
+        if (removeContentCheckBox.isEnabled() && removeContentCheckBox.isSelected()) {
             messageStorageProgressBar.setValue(messageStorageProgressBar.getValue() - 3);
         }
 
         // if the "remove content on completion" option is enabled, subtract a percentage from the progress bar
-        if (removeAttachmentsCheckbox.isEnabled() && removeAttachmentsCheckbox.isSelected()) {
+        if (removeAttachmentsCheckBox.isEnabled() && removeAttachmentsCheckBox.isSelected()) {
             messageStorageProgressBar.setValue(messageStorageProgressBar.getValue() - 3);
         }
 
@@ -1131,10 +1071,10 @@ public class ChannelSetup extends javax.swing.JPanel {
      * Update channels scripts
      */
     public void updateScripts() {
-        currentChannel.setPreprocessingScript(scripts.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
-        currentChannel.setDeployScript(scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
-        currentChannel.setUndeployScript(scripts.getScripts().get(ScriptPanel.UNDEPLOY_SCRIPT));
-        currentChannel.setPostprocessingScript(scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
+        currentChannel.setPreprocessingScript(scriptsPanel.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
+        currentChannel.setDeployScript(scriptsPanel.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
+        currentChannel.setUndeployScript(scriptsPanel.getScripts().get(ScriptPanel.UNDEPLOY_SCRIPT));
+        currentChannel.setPostprocessingScript(scriptsPanel.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
 
         updateScriptsPanel(getScriptsMap());
     }
@@ -1142,10 +1082,10 @@ public class ChannelSetup extends javax.swing.JPanel {
     private Map<String, String> getScriptsMap() {
         LinkedHashMap<String, String> scriptMap = new LinkedHashMap<String, String>();
 
-        scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, scripts.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
-        scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
-        scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
-        scriptMap.put(ScriptPanel.UNDEPLOY_SCRIPT, scripts.getScripts().get(ScriptPanel.UNDEPLOY_SCRIPT));
+        scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, scriptsPanel.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
+        scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, scriptsPanel.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
+        scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, scriptsPanel.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
+        scriptMap.put(ScriptPanel.UNDEPLOY_SCRIPT, scriptsPanel.getScripts().get(ScriptPanel.UNDEPLOY_SCRIPT));
 
         return scriptMap;
     }
@@ -1173,7 +1113,7 @@ public class ChannelSetup extends javax.swing.JPanel {
      * Save all of the current channel information in the editor to the actual channel
      */
     public boolean saveChanges() {
-        if (!parent.checkChannelName(summaryNameField.getText(), currentChannel.getId())) {
+        if (!parent.checkChannelName(nameField.getText(), currentChannel.getId())) {
             return false;
         }
 
@@ -1196,6 +1136,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                 return false;
             }
         }
+
+        tagsField.createTagOnFocusLost();
 
         // Store the current metadata column data in a map with the column name as the key and the type as the value.
         Map<String, MetaDataColumnType> currentColumns = new HashMap<String, MetaDataColumnType>();
@@ -1243,7 +1185,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         }
 
-        boolean enabled = summaryEnabledCheckbox.isSelected();
+        boolean enabled = summaryEnabledCheckBox.isSelected();
 
         saveSourcePanel();
 
@@ -1267,7 +1209,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             return false;
         }
 
-        currentChannel.setName(summaryNameField.getText());
+        currentChannel.setName(nameField.getText());
         currentChannel.setDescription(summaryDescriptionText.getText());
 
         updateScripts();
@@ -1275,7 +1217,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         currentChannel.getProperties().setClearGlobalChannelMap(clearGlobalChannelMapCheckBox.isSelected());
         currentChannel.getProperties().setEncryptData(encryptMessagesCheckBox.isSelected());
-        currentChannel.getProperties().setInitialState((DeployedState) initialState.getSelectedItem());
+        currentChannel.getProperties().setInitialState((DeployedState) initialStateComboBox.getSelectedItem());
         currentChannel.getProperties().setStoreAttachments(attachmentStoreCheckBox.isSelected());
 
         String validationMessage = checkAllForms(currentChannel);
@@ -1284,16 +1226,16 @@ public class ChannelSetup extends javax.swing.JPanel {
 
             // If there is an error on one of the forms, then run the
             // validation on the current form to display any errors.
-            if (channelView.getSelectedComponent() == destination) {
+            if (channelView.getSelectedComponent() == destinationsPanel) {
                 // If the destination is enabled...
                 if (currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).isEnabled()) {
                     destinationConnectorPanel.checkProperties(destinationConnectorPanel.getProperties(), true);
                 }
-            } else if (channelView.getSelectedComponent() == source) {
+            } else if (channelView.getSelectedComponent() == sourcePanel) {
                 sourceConnectorPanel.checkProperties(sourceConnectorPanel.getProperties(), true);
             }
 
-            summaryEnabledCheckbox.setSelected(false);
+            summaryEnabledCheckBox.setSelected(false);
 
             parent.alertCustomError(this.parent, validationMessage, CustomErrorDialog.ERROR_SAVING_CHANNEL);
         }
@@ -1350,7 +1292,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         sourceConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
         destinationConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
-        
+
         if (updated && saveGroupId != null) {
             parent.channelPanel.addChannelToGroup(currentChannel.getId(), saveGroupId);
             saveGroupId = null;
@@ -1363,9 +1305,9 @@ public class ChannelSetup extends javax.swing.JPanel {
         ChannelProperties properties = currentChannel.getProperties();
         properties.setMessageStorageMode(messageStorageMode);
         properties.setEncryptData(encryptMessagesCheckBox.isSelected());
-        properties.setRemoveContentOnCompletion(removeContentCheckbox.isSelected());
+        properties.setRemoveContentOnCompletion(removeContentCheckBox.isSelected());
         properties.setRemoveOnlyFilteredOnCompletion(removeOnlyFilteredCheckBox.isSelected());
-        properties.setRemoveAttachmentsOnCompletion(removeAttachmentsCheckbox.isSelected());
+        properties.setRemoveAttachmentsOnCompletion(removeAttachmentsCheckBox.isSelected());
     }
 
     private void saveMessagePruning() {
@@ -1463,7 +1405,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     /** Adds a new destination. */
     public void addNewDestination() {
         makeDestinationTable(true);
-        destinationTablePane.getViewport().setViewPosition(new Point(0, destinationTable.getRowHeight() * destinationTable.getRowCount()));
+        destinationTableScrollPane.getViewport().setViewPosition(new Point(0, destinationTable.getRowHeight() * destinationTable.getRowCount()));
         parent.setSaveEnabled(true);
     }
 
@@ -1566,7 +1508,7 @@ public class ChannelSetup extends javax.swing.JPanel {
      * to the task names.
      */
     public void checkVisibleDestinationTasks() {
-        if (channelView.getSelectedComponent() == destination) {
+        if (channelView.getSelectedComponent() == destinationsPanel) {
             // enable and disable
             List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
             Connector destination = destinationConnectors.get(destinationTable.getSelectedModelIndex());
@@ -1734,22 +1676,22 @@ public class ChannelSetup extends javax.swing.JPanel {
     private String validateScripts(Channel channel) {
         String errors = "";
 
-        String validationMessage = this.scripts.validateScript(channel.getDeployScript());
+        String validationMessage = this.scriptsPanel.validateScript(channel.getDeployScript());
         if (validationMessage != null) {
             errors += "Error in channel script \"" + ScriptPanel.DEPLOY_SCRIPT + "\":\n" + validationMessage + "\n\n";
         }
 
-        validationMessage = this.scripts.validateScript(channel.getPreprocessingScript());
+        validationMessage = this.scriptsPanel.validateScript(channel.getPreprocessingScript());
         if (validationMessage != null) {
             errors += "Error in channel script \"" + ScriptPanel.PREPROCESSOR_SCRIPT + "\":\n" + validationMessage + "\n\n";
         }
 
-        validationMessage = this.scripts.validateScript(channel.getPostprocessingScript());
+        validationMessage = this.scriptsPanel.validateScript(channel.getPostprocessingScript());
         if (validationMessage != null) {
             errors += "Error in channel script \"" + ScriptPanel.POSTPROCESSOR_SCRIPT + "\":\n" + validationMessage + "\n\n";
         }
 
-        validationMessage = this.scripts.validateScript(channel.getUndeployScript());
+        validationMessage = this.scriptsPanel.validateScript(channel.getUndeployScript());
         if (validationMessage != null) {
             errors += "Error in channel script \"" + ScriptPanel.UNDEPLOY_SCRIPT + "\":\n" + validationMessage + "\n\n";
         }
@@ -1758,7 +1700,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     public void doValidate() {
-        if (source.isVisible()) {
+        if (sourcePanel.isVisible()) {
             String validationMessage = sourceConnectorPanel.doValidate(sourceConnectorPanel.getProperties(), true);
             if (validationMessage != null) {
                 parent.alertCustomError(this.parent, validationMessage, CustomErrorDialog.ERROR_VALIDATING_CONNECTOR);
@@ -1776,7 +1718,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     public void validateScripts() {
-        scripts.validateCurrentScript();
+        scriptsPanel.validateCurrentScript();
     }
 
     public void showAttachmentPropertiesDialog(AttachmentHandlerType type) {
@@ -1794,886 +1736,322 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        setBackground(UIConstants.COMBO_BOX_BACKGROUND);
 
-        metadataPruningButtonGroup = new javax.swing.ButtonGroup();
-        contentPruningButtonGroup = new javax.swing.ButtonGroup();
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        channelView = new javax.swing.JTabbedPane();
-        summary = new javax.swing.JPanel();
-        channelPropertiesPanel = new javax.swing.JPanel();
-        summaryNameLabel = new javax.swing.JLabel();
-        summaryNameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        summaryPatternLabel1 = new javax.swing.JLabel();
-        initialStateLabel = new javax.swing.JLabel();
-        changeDataTypesButton = new javax.swing.JButton();
-        initialState = new com.mirth.connect.client.ui.components.MirthComboBox();
-        attachmentLabel = new javax.swing.JLabel();
-        attachmentPropertiesButton = new javax.swing.JButton();
-        attachmentComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        summaryEnabledCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        clearGlobalChannelMapCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        summaryRevision = new javax.swing.JLabel();
-        lastModified = new javax.swing.JLabel();
-        attachmentWarningLabel = new javax.swing.JLabel();
-        attachmentStoreCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        channelIdField = new javax.swing.JTextField();
-        dependenciesLabel = new javax.swing.JLabel();
-        setDependenciesButton = new javax.swing.JButton();
-        messageStoragePanel = new javax.swing.JPanel();
-        storageModeLabel = new javax.swing.JLabel();
-        contentLabel = new javax.swing.JLabel();
-        metadataLabel = new javax.swing.JLabel();
-        durableLabel = new javax.swing.JLabel();
-        performanceLabel = new javax.swing.JLabel();
-        messageStorageSlider = new javax.swing.JSlider();
-        messageStorageProgressBar = new javax.swing.JProgressBar();
-        encryptMessagesCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        durableStatusLabel = new javax.swing.JLabel();
-        removeContentCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        removeAttachmentsCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        queueWarningLabel = new javax.swing.JLabel();
-        removeOnlyFilteredCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        messagePruningPanel = new javax.swing.JPanel();
-        metadataPruningLabel = new javax.swing.JLabel();
-        metadataPruningOffRadio = new javax.swing.JRadioButton();
-        metadataPruningOnRadio = new javax.swing.JRadioButton();
-        metadataPruningDaysTextField = new com.mirth.connect.client.ui.components.MirthTextField();
-        metadataDaysLabel = new javax.swing.JLabel();
-        contentPruningMetadataRadio = new javax.swing.JRadioButton();
-        contentPruningLabel = new javax.swing.JLabel();
-        contentPruningDaysRadio = new javax.swing.JRadioButton();
-        contentPruningDaysTextField = new com.mirth.connect.client.ui.components.MirthTextField();
-        contentDaysLabel = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        archiveCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        channelTagsPanel = new javax.swing.JPanel();
-        channelTagsScrollPane = new javax.swing.JScrollPane();
-        tagTable = new com.mirth.connect.client.ui.components.MirthTable();
-        addTagButton = new com.mirth.connect.client.ui.components.MirthButton();
-        deleteTagButton = new com.mirth.connect.client.ui.components.MirthButton();
-        customMetadataPanel = new javax.swing.JPanel();
-        addMetaDataButton = new javax.swing.JButton();
-        deleteMetaDataButton = new javax.swing.JButton();
-        metaDataTablePane = new javax.swing.JScrollPane();
-        metaDataTable = new com.mirth.connect.client.ui.components.MirthTable();
-        revertMetaDataButton = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
-        summaryDescriptionScrollPane = new javax.swing.JScrollPane();
-        summaryDescriptionText = new com.mirth.connect.client.ui.components.MirthTextPane();
-        source = new javax.swing.JPanel();
-        sourceSourceDropdown = new com.mirth.connect.client.ui.components.MirthComboBox();
-        sourceSourceLabel = new javax.swing.JLabel();
-        sourceConnectorPane = new javax.swing.JScrollPane();
-        sourceConnectorPanel = new com.mirth.connect.client.ui.panels.connectors.ConnectorPanel();
-        destination = new javax.swing.JPanel();
-        destinationSourceDropdown = new com.mirth.connect.client.ui.components.MirthComboBox();
-        destinationSourceLabel = new javax.swing.JLabel();
-        destinationVariableList = new com.mirth.connect.client.ui.VariableList();
-        destinationConnectorPane = new javax.swing.JScrollPane();
-        destinationConnectorPanel = new com.mirth.connect.client.ui.panels.connectors.ConnectorPanel();
-        destinationTablePane = new javax.swing.JScrollPane();
-        destinationTable = new com.mirth.connect.client.ui.components.MirthTable();
-        waitForPreviousCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        scripts = new ScriptPanel(false);
+        channelView = new JTabbedPane();
+        channelView.setBackground(getBackground());
 
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        channelView.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent evt) {
+                showChannelEditPopupMenu(evt);
+            }
 
-        channelView.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        channelView.setFocusable(false);
-        channelView.setPreferredSize(new java.awt.Dimension(0, 0));
+            public void mouseReleased(MouseEvent evt) {
+                showChannelEditPopupMenu(evt);
+            }
+        });
 
-        summary.setBackground(new java.awt.Color(255, 255, 255));
-        summary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        summary.setFocusable(false);
-        summary.setPreferredSize(new java.awt.Dimension(0, 0));
-        summary.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
+        channelView.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent event) {
+                int selectedTab = channelView.getSelectedIndex();
+
+                if (previousTab == SCRIPTS_TAB_INDEX && selectedTab != SCRIPTS_TAB_INDEX) {
+                    updateScriptsPanel(getScriptsMap());
+                }
+
+                if (selectedTab == SCRIPTS_TAB_INDEX) {
+                    scriptsPanel.updateDisplayOptions();
+                }
+
+                /*
+                 * When connector-specific resources are changed and the connector panel has already
+                 * been loaded, returning to the connector panel will not trigger a call to
+                 * setProperties. In order to allow connector panels to take action when resources
+                 * have changed, we call setVisible when the user switches tabs.
+                 */
+                if (selectedTab == SOURCE_TAB_INDEX && sourceConnectorPanel.getConnectorSettingsPanel() != null) {
+                    sourceConnectorPanel.getConnectorSettingsPanel().setVisible(true);
+                    sourceConnectorPanel.updateNextFireTime();
+                } else if (selectedTab == DESTINATIONS_TAB_INDEX && destinationConnectorPanel.getConnectorSettingsPanel() != null) {
+                    destinationConnectorPanel.getConnectorSettingsPanel().setVisible(true);
+                }
+
+                previousTab = selectedTab;
+            }
+        });
+
+        // Summary Tab
+        summaryPanel = new JPanel();
+        summaryPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        summaryPanel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent evt) {
                 summaryComponentShown(evt);
             }
         });
 
-        channelPropertiesPanel.setBackground(new java.awt.Color(255, 255, 255));
-        channelPropertiesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Channel Properties"));
+        // Channel Properties
+        channelPropertiesPanel = new JPanel();
+        channelPropertiesPanel.setBackground(summaryPanel.getBackground());
+        channelPropertiesPanel.setBorder(BorderFactory.createTitledBorder("Channel Properties"));
 
-        summaryNameLabel.setText("Name:");
+        nameLabel = new JLabel("Name:");
 
-        summaryNameField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+        nameField = new MirthTextField();
+        nameField.setDocument(new MirthFieldConstraints(40, false, true, true));
+        nameField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent evt) {
                 summaryNameFieldKeyReleased(evt);
             }
         });
 
-        summaryPatternLabel1.setText("Data Types:");
+        summaryEnabledCheckBox = new MirthCheckBox("Enabled");
+        summaryEnabledCheckBox.setBackground(channelPropertiesPanel.getBackground());
+        summaryEnabledCheckBox.setText("Enabled");
 
-        initialStateLabel.setText("Initial State:");
+        channelIdField = new JTextField("Id: ");
+        channelIdField.setEditable(false);
+        channelIdField.setBackground(channelPropertiesPanel.getBackground());
+        channelIdField.setHorizontalAlignment(JTextField.RIGHT);
+        channelIdField.setText("Id: ");
+        channelIdField.setBorder(null);
 
-        changeDataTypesButton.setText("Set Data Types");
-        changeDataTypesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        dataTypesLabel = new JLabel("Data Types:");
+
+        dataTypesButton = new JButton("Set Data Types");
+        dataTypesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 changeDataTypesButtonActionPerformed(evt);
             }
         });
 
-        initialState.setModel(new javax.swing.DefaultComboBoxModel(new Object[] { DeployedState.STARTED, DeployedState.PAUSED, DeployedState.STOPPED }));
+        clearGlobalChannelMapCheckBox = new MirthCheckBox("Clear global channel map on deploy");
+        clearGlobalChannelMapCheckBox.setBackground(channelPropertiesPanel.getBackground());
 
-        attachmentLabel.setText("Attachment:");
+        revisionLabel = new JLabel("Revision: ");
+        revisionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        attachmentPropertiesButton.setText("Properties");
-        attachmentPropertiesButton.setEnabled(false);
-        attachmentPropertiesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                attachmentPropertiesButtonActionPerformed(evt);
-            }
-        });
+        dependenciesLabel = new JLabel("Dependencies:");
 
-        attachmentComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None", "Regex", "DICOM", "Javascript" }));
-        attachmentComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                attachmentComboBoxActionPerformed(evt);
-            }
-        });
-
-        summaryEnabledCheckbox.setBackground(new java.awt.Color(255, 255, 255));
-        summaryEnabledCheckbox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        summaryEnabledCheckbox.setSelected(true);
-        summaryEnabledCheckbox.setText("Enabled");
-        summaryEnabledCheckbox.setToolTipText("Enable this channel so that it can be deployed.");
-        summaryEnabledCheckbox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        clearGlobalChannelMapCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        clearGlobalChannelMapCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        clearGlobalChannelMapCheckBox.setText("Clear global channel map on deploy");
-        clearGlobalChannelMapCheckBox.setToolTipText("Clear the global channel map on both single channel deploy and a full redeploy.");
-        clearGlobalChannelMapCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        summaryRevision.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        summaryRevision.setText("Revision: ");
-
-        lastModified.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        lastModified.setText("Last Modified: ");
-
-        attachmentWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
-        attachmentWarningLabel.setText("Attachments will be extracted but not stored or reattached.");
-
-        attachmentStoreCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        attachmentStoreCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        attachmentStoreCheckBox.setText("Store Attachments");
-        attachmentStoreCheckBox.setToolTipText("If checked, attachments will be stored in the database and available for reattachment.");
-        attachmentStoreCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        attachmentStoreCheckBox.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                attachmentStoreCheckBoxItemStateChanged(evt);
-            }
-        });
-
-        channelIdField.setEditable(false);
-        channelIdField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        channelIdField.setText("Id: ");
-        channelIdField.setBorder(null);
-
-        dependenciesLabel.setText("Dependencies:");
-
-        setDependenciesButton.setText("Set Dependencies");
-        setDependenciesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        dependenciesButton = new JButton("Set Dependencies");
+        dependenciesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 setDependenciesButtonActionPerformed(evt);
             }
         });
 
-        javax.swing.GroupLayout channelPropertiesPanelLayout = new javax.swing.GroupLayout(channelPropertiesPanel);
-        channelPropertiesPanel.setLayout(channelPropertiesPanelLayout);
-        channelPropertiesPanelLayout.setHorizontalGroup(
-            channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(summaryNameLabel)
-                    .addComponent(summaryPatternLabel1)
-                    .addComponent(dependenciesLabel)
-                    .addComponent(initialStateLabel)
-                    .addComponent(attachmentLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(changeDataTypesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(summaryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(setDependenciesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                                .addComponent(attachmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(attachmentPropertiesButton)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(summaryEnabledCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(channelIdField, javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(summaryRevision, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(lastModified, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addContainerGap())
-                            .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                                .addComponent(attachmentStoreCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(attachmentWarningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(119, 119, 119))))
-                    .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                        .addComponent(initialState, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))))
-        );
-        channelPropertiesPanelLayout.setVerticalGroup(
-            channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(summaryNameLabel)
-                    .addComponent(summaryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(summaryEnabledCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(channelIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(summaryPatternLabel1)
-                            .addComponent(changeDataTypesButton))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(dependenciesLabel)
-                            .addComponent(setDependenciesButton)))
-                    .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(summaryRevision))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lastModified)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(initialStateLabel)
-                    .addComponent(initialState, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(attachmentLabel)
-                    .addComponent(attachmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(attachmentPropertiesButton)
-                    .addComponent(attachmentStoreCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(attachmentWarningLabel))
-                .addGap(10, 10, 10))
-        );
+        lastModifiedLabel = new JLabel("Last Modified: ");
+        lastModifiedLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        messageStoragePanel.setBackground(new java.awt.Color(255, 255, 255));
-        messageStoragePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Message Storage"));
-        messageStoragePanel.setForeground(new java.awt.Color(0, 102, 0));
+        initialStateLabel = new JLabel("Initial State:");
+        initialStateComboBox = new MirthComboBox<DeployedState>();
+        initialStateComboBox.setModel(new DefaultComboBoxModel<DeployedState>(new DeployedState[] {
+                DeployedState.STARTED, DeployedState.PAUSED, DeployedState.STOPPED }));
 
-        storageModeLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        storageModeLabel.setText("Development");
+        attachmentLabel = new JLabel("Attachment:");
 
-        contentLabel.setText("Content: ");
+        attachmentComboBox = new MirthComboBox<AttachmentHandlerType>();
+        attachmentComboBox.setModel(new DefaultComboBoxModel<AttachmentHandlerType>(AttachmentHandlerType.values()));
+        attachmentComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                attachmentComboBoxActionPerformed(evt);
+            }
+        });
 
-        metadataLabel.setText("Metadata:");
+        attachmentPropertiesButton = new JButton("Properties");
+        attachmentPropertiesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                attachmentPropertiesButtonActionPerformed(evt);
+            }
+        });
 
-        durableLabel.setText("Durable Message Delivery:");
+        attachmentStoreCheckBox = new MirthCheckBox("Store Attachments");
+        attachmentStoreCheckBox.setBackground(channelPropertiesPanel.getBackground());
+        attachmentStoreCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent evt) {
+                attachmentStoreCheckBoxItemStateChanged(evt);
+            }
+        });
 
-        performanceLabel.setText("Performance:");
+        attachmentWarningLabel = new JLabel("Attachments will be extracted but not stored or reattached.");
+        attachmentWarningLabel.setForeground(new Color(255, 0, 0));
 
-        messageStorageSlider.setBackground(new java.awt.Color(255, 255, 255));
+        tagsLabel = new JLabel("Tags:");
+
+        Set<FilterCompletion> tags = new HashSet<FilterCompletion>();
+        for (ChannelTag tag : parent.getCachedChannelTags()) {
+            tags.add(new TagFilterCompletion(tag));
+        }
+
+        tagsField = new MirthTagField(null, true, tags);
+        tagsField.addUpdateSearchListener(new SearchFilterListener() {
+            @Override
+            public void doSearch(final String filterString) {}
+
+            @Override
+            public void doDelete(String filterString) {
+                parent.setSaveEnabled(true);
+            }
+        });
+
+        // Message Storage
+        messageStoragePanel = new JPanel();
+        messageStoragePanel.setBackground(summaryPanel.getBackground());
+        messageStoragePanel.setBorder(BorderFactory.createTitledBorder("Message Storage"));
+        messageStoragePanel.setForeground(new Color(0, 102, 0));
+
+        messageStorageSlider = new JSlider();
+        messageStorageSlider.setBackground(messageStoragePanel.getBackground());
         messageStorageSlider.setMajorTickSpacing(1);
-        messageStorageSlider.setMaximum(5);
         messageStorageSlider.setMinimum(1);
-        messageStorageSlider.setOrientation(javax.swing.JSlider.VERTICAL);
+        messageStorageSlider.setMaximum(5);
+        messageStorageSlider.setOrientation(JSlider.VERTICAL);
         messageStorageSlider.setPaintTicks(true);
         messageStorageSlider.setSnapToTicks(true);
-        messageStorageSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+        messageStorageSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent evt) {
                 messageStorageSliderStateChanged(evt);
             }
         });
 
+        storageModeLabel = new JLabel("Development");
+        storageModeLabel.setFont(new Font("Dialog", 1, 14));
+
+        contentLabel = new JLabel("Content: ");
+
+        metadataLabel = new JLabel("Metadata:");
+
+        durableLabel = new JLabel("Durable Message Delivery:");
+
+        durableStatusLabel = new JLabel("On");
+        durableStatusLabel.setForeground(new Color(0, 102, 0));
+
+        performanceLabel = new JLabel("Performance:");
+
+        messageStorageProgressBar = new JProgressBar();
         messageStorageProgressBar.setValue(10);
 
-        encryptMessagesCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        encryptMessagesCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        encryptMessagesCheckBox.setText("Encrypt message content");
-        encryptMessagesCheckBox.setToolTipText("<html>Encrypt message content that is stored in the database. Messages that<br>are stored while this option is enabled will still be viewable in the<br>message browser, but the content will not be searchable.</html>");
-        encryptMessagesCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        encryptMessagesCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        encryptMessagesCheckBox = new MirthCheckBox("Encrypt message content");
+        encryptMessagesCheckBox.setBackground(messageStoragePanel.getBackground());
+        encryptMessagesCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 encryptMessagesCheckBoxActionPerformed(evt);
             }
         });
 
-        durableStatusLabel.setForeground(new java.awt.Color(0, 102, 0));
-        durableStatusLabel.setText("On");
-
-        removeContentCheckbox.setBackground(new java.awt.Color(255, 255, 255));
-        removeContentCheckbox.setText("Remove content on completion");
-        removeContentCheckbox.setToolTipText("<html>Remove message content once the message has completed processing.<br/>Not applicable for messages that are errored or queued.</html>");
-        removeContentCheckbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        removeContentCheckBox = new MirthCheckBox("Remove content on completion");
+        removeContentCheckBox.setBackground(messageStoragePanel.getBackground());
+        removeContentCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 removeContentCheckboxActionPerformed(evt);
             }
         });
 
-        removeAttachmentsCheckbox.setBackground(new java.awt.Color(255, 255, 255));
-        removeAttachmentsCheckbox.setText("Remove attachments on completion");
-        removeAttachmentsCheckbox.setToolTipText("<html>Remove message attachments once the message has completed processing.<br/>Not applicable for messages that are errored or queued.</html>");
-        removeAttachmentsCheckbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        removeAttachmentsCheckBox = new MirthCheckBox("Remove attachments on completion");
+        removeAttachmentsCheckBox.setBackground(messageStoragePanel.getBackground());
+        removeAttachmentsCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 removeAttachmentsCheckboxActionPerformed(evt);
             }
         });
 
-        queueWarningLabel.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
-        queueWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
-        queueWarningLabel.setText("<html>Disable source & destination queueing before using this mode</html>");
-        queueWarningLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        removeOnlyFilteredCheckBox = new MirthCheckBox("Filtered only");
+        removeOnlyFilteredCheckBox.setBackground(messageStoragePanel.getBackground());
 
-        removeOnlyFilteredCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        removeOnlyFilteredCheckBox.setText("Filtered only");
-        removeOnlyFilteredCheckBox.setToolTipText("<html>If checked, only content for filtered connector messages will be removed.</html>");
+        queueWarningLabel = new JLabel("<html>Disable source & destination queueing before using this mode</html>");
+        queueWarningLabel.setFont(new Font("Dialog", 0, 11));
+        queueWarningLabel.setForeground(new Color(255, 0, 0));
+        queueWarningLabel.setVerticalAlignment(SwingConstants.TOP);
 
-        javax.swing.GroupLayout messageStoragePanelLayout = new javax.swing.GroupLayout(messageStoragePanel);
-        messageStoragePanel.setLayout(messageStoragePanelLayout);
-        messageStoragePanelLayout.setHorizontalGroup(
-            messageStoragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(messageStoragePanelLayout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addComponent(messageStorageSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(messageStoragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(messageStoragePanelLayout.createSequentialGroup()
-                        .addComponent(performanceLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(messageStorageProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, messageStoragePanelLayout.createSequentialGroup()
-                        .addComponent(durableLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(durableStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(messageStoragePanelLayout.createSequentialGroup()
-                        .addComponent(removeContentCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(removeOnlyFilteredCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(encryptMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(storageModeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(contentLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(metadataLabel)
-                    .addComponent(removeAttachmentsCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(queueWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        messageStoragePanelLayout.setVerticalGroup(
-            messageStoragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(messageStoragePanelLayout.createSequentialGroup()
-                .addComponent(storageModeLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(contentLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(metadataLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(messageStoragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(durableLabel)
-                    .addComponent(durableStatusLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(messageStoragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(messageStorageProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(performanceLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
-                .addComponent(encryptMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(messageStoragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(removeContentCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(removeOnlyFilteredCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(removeAttachmentsCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(queueWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(messageStoragePanelLayout.createSequentialGroup()
-                .addComponent(messageStorageSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        // Message Pruning
+        messagePruningPanel = new JPanel();
+        messagePruningPanel.setBackground(summaryPanel.getBackground());
+        messagePruningPanel.setBorder(BorderFactory.createTitledBorder("Message Pruning"));
 
-        messagePruningPanel.setBackground(new java.awt.Color(255, 255, 255));
-        messagePruningPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Message Pruning"));
+        metadataPruningLabel = new JLabel("Metadata:");
+        ButtonGroup metadataPruningButtonGroup = new ButtonGroup();
 
-        metadataPruningLabel.setText("Metadata:");
-
-        metadataPruningOffRadio.setBackground(new java.awt.Color(255, 255, 255));
-        metadataPruningButtonGroup.add(metadataPruningOffRadio);
-        metadataPruningOffRadio.setSelected(true);
-        metadataPruningOffRadio.setText("Store indefinitely");
-        metadataPruningOffRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        metadataPruningOffRadio = new JRadioButton("Store indefinitely");
+        metadataPruningOffRadio.setBackground(messagePruningPanel.getBackground());
+        metadataPruningOffRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 metadataPruningOffRadioActionPerformed(evt);
             }
         });
+        metadataPruningButtonGroup.add(metadataPruningOffRadio);
 
-        metadataPruningOnRadio.setBackground(new java.awt.Color(255, 255, 255));
-        metadataPruningButtonGroup.add(metadataPruningOnRadio);
-        metadataPruningOnRadio.setText("Prune metadata older than");
-        metadataPruningOnRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        metadataPruningOnRadio = new JRadioButton("Prune metadata older than");
+        metadataPruningOnRadio.setBackground(messagePruningPanel.getBackground());
+        metadataPruningOnRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 metadataPruningOnRadioActionPerformed(evt);
             }
         });
+        metadataPruningButtonGroup.add(metadataPruningOnRadio);
 
-        metadataPruningDaysTextField.setEnabled(false);
+        metadataPruningDaysTextField = new MirthTextField();
+        metadataPruningDaysTextField.setDocument(new MirthFieldConstraints(3, false, false, true));
 
-        metadataDaysLabel.setText("days");
+        metadataDaysLabel = new JLabel("days");
 
-        contentPruningMetadataRadio.setBackground(new java.awt.Color(255, 255, 255));
-        contentPruningButtonGroup.add(contentPruningMetadataRadio);
-        contentPruningMetadataRadio.setSelected(true);
-        contentPruningMetadataRadio.setText("Prune when message metadata is removed");
-        contentPruningMetadataRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        contentPruningLabel = new JLabel("Content:");
+        ButtonGroup contentPruningButtonGroup = new ButtonGroup();
+
+        contentPruningMetadataRadio = new JRadioButton("Prune when message metadata is removed");
+        contentPruningMetadataRadio.setBackground(messagePruningPanel.getBackground());
+        contentPruningMetadataRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 contentPruningMetadataRadioActionPerformed(evt);
             }
         });
+        contentPruningButtonGroup.add(contentPruningMetadataRadio);
 
-        contentPruningLabel.setText("Content:");
-
-        contentPruningDaysRadio.setBackground(new java.awt.Color(255, 255, 255));
-        contentPruningButtonGroup.add(contentPruningDaysRadio);
-        contentPruningDaysRadio.setText("Prune content older than");
-        contentPruningDaysRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        contentPruningDaysRadio = new JRadioButton("Prune content older than");
+        contentPruningDaysRadio.setBackground(messagePruningPanel.getBackground());
+        contentPruningDaysRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 contentPruningDaysRadioActionPerformed(evt);
             }
         });
+        contentPruningButtonGroup.add(contentPruningDaysRadio);
 
-        contentPruningDaysTextField.setEnabled(false);
+        contentPruningDaysTextField = new MirthTextField();
+        contentPruningDaysTextField.setDocument(new MirthFieldConstraints(3, false, false, true));
 
-        contentDaysLabel.setText("days");
+        contentDaysLabel = new JLabel("days");
 
-        jLabel1.setText("(incomplete, errored, and queued messages will not be pruned)");
+        archiveCheckBox = new MirthCheckBox("Allow message archiving");
+        archiveCheckBox.setBackground(messagePruningPanel.getBackground());
 
-        archiveCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        archiveCheckBox.setText("Allow message archiving");
-        archiveCheckBox.setToolTipText("<html>If checked and the data pruner and archiver are enabled, messages<br />in this channel will be archived before being pruned.</html>");
+        pruningWarningLabel = new JLabel("(incomplete, errored, and queued messages will not be pruned)");
 
-        javax.swing.GroupLayout messagePruningPanelLayout = new javax.swing.GroupLayout(messagePruningPanel);
-        messagePruningPanel.setLayout(messagePruningPanelLayout);
-        messagePruningPanelLayout.setHorizontalGroup(
-            messagePruningPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(messagePruningPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(messagePruningPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(metadataPruningLabel)
-                    .addComponent(contentPruningLabel)
-                    .addGroup(messagePruningPanelLayout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addGroup(messagePruningPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(messagePruningPanelLayout.createSequentialGroup()
-                                .addComponent(metadataPruningOnRadio)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(metadataPruningDaysTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(metadataDaysLabel))
-                            .addComponent(metadataPruningOffRadio)
-                            .addComponent(contentPruningMetadataRadio)
-                            .addGroup(messagePruningPanelLayout.createSequentialGroup()
-                                .addComponent(contentPruningDaysRadio)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(contentPruningDaysTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(contentDaysLabel))))
-                    .addComponent(jLabel1)
-                    .addComponent(archiveCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        messagePruningPanelLayout.setVerticalGroup(
-            messagePruningPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(messagePruningPanelLayout.createSequentialGroup()
-                .addComponent(metadataPruningLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(metadataPruningOffRadio)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(messagePruningPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(metadataPruningOnRadio)
-                    .addComponent(metadataPruningDaysTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(metadataDaysLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(contentPruningLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(contentPruningMetadataRadio)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(messagePruningPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(contentPruningDaysRadio)
-                    .addComponent(contentPruningDaysTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(contentDaysLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(archiveCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel1))
-        );
+        // Custom Metadata
+        customMetadataPanel = new JPanel();
+        customMetadataPanel.setBackground(summaryPanel.getBackground());
+        customMetadataPanel.setBorder(BorderFactory.createTitledBorder("Custom Metadata"));
 
-        channelTagsPanel.setBackground(new java.awt.Color(255, 255, 255));
-        channelTagsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Channel Tags"));
+        metaDataTable = new MirthTable();
 
-        tagTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Tag"
-            }
-        ));
-        tagTable.setEditable(false);
-        channelTagsScrollPane.setViewportView(tagTable);
-
-        addTagButton.setText("Add");
-        addTagButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addTagButtonActionPerformed(evt);
-            }
-        });
-
-        deleteTagButton.setText("Delete");
-        deleteTagButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteTagButtonActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout channelTagsPanelLayout = new javax.swing.GroupLayout(channelTagsPanel);
-        channelTagsPanel.setLayout(channelTagsPanelLayout);
-        channelTagsPanelLayout.setHorizontalGroup(
-            channelTagsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(channelTagsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(channelTagsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(channelTagsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(addTagButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(deleteTagButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        channelTagsPanelLayout.setVerticalGroup(
-            channelTagsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(channelTagsPanelLayout.createSequentialGroup()
-                .addComponent(addTagButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(deleteTagButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 65, Short.MAX_VALUE))
-            .addGroup(channelTagsPanelLayout.createSequentialGroup()
-                .addComponent(channelTagsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        customMetadataPanel.setBackground(new java.awt.Color(255, 255, 255));
-        customMetadataPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Custom Metadata"));
-        customMetadataPanel.setPreferredSize(new java.awt.Dimension(120, 146));
-
-        addMetaDataButton.setText("Add");
-        addMetaDataButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addMetaDataButtonActionPerformed(evt);
-            }
-        });
-
-        deleteMetaDataButton.setText("Delete");
-        deleteMetaDataButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteMetaDataButtonActionPerformed(evt);
-            }
-        });
-
-        metaDataTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-
-            }
-        ));
-        metaDataTablePane.setViewportView(metaDataTable);
-
-        revertMetaDataButton.setText("Revert");
-        revertMetaDataButton.setToolTipText("<html>Revert the custom metadata settings to the last save.<br>This option allows you to undo your metadata changes without affecting the rest of the channel.</html>");
-        revertMetaDataButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                revertMetaDataButtonActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout customMetadataPanelLayout = new javax.swing.GroupLayout(customMetadataPanel);
-        customMetadataPanel.setLayout(customMetadataPanelLayout);
-        customMetadataPanelLayout.setHorizontalGroup(
-            customMetadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(customMetadataPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(metaDataTablePane)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(customMetadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(addMetaDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(deleteMetaDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(revertMetaDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        customMetadataPanelLayout.setVerticalGroup(
-            customMetadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, customMetadataPanelLayout.createSequentialGroup()
-                .addGroup(customMetadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(customMetadataPanelLayout.createSequentialGroup()
-                        .addComponent(addMetaDataButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteMetaDataButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
-                        .addComponent(revertMetaDataButton))
-                    .addComponent(metaDataTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Channel Description"));
-
-        summaryDescriptionScrollPane.setViewportView(summaryDescriptionText);
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(summaryDescriptionScrollPane)
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(summaryDescriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        javax.swing.GroupLayout summaryLayout = new javax.swing.GroupLayout(summary);
-        summary.setLayout(summaryLayout);
-        summaryLayout.setHorizontalGroup(
-            summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(summaryLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(channelPropertiesPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(summaryLayout.createSequentialGroup()
-                        .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(messageStoragePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(channelTagsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(messagePruningPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE))))
-                .addContainerGap())
-        );
-        summaryLayout.setVerticalGroup(
-            summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(summaryLayout.createSequentialGroup()
-                .addGap(11, 11, 11)
-                .addComponent(channelPropertiesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(messagePruningPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(messageStoragePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(channelTagsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        channelView.addTab("Summary", summary);
-
-        source.setBackground(new java.awt.Color(255, 255, 255));
-        source.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        source.setFocusable(false);
-        source.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
-                sourceComponentShown(evt);
-            }
-        });
-
-        sourceSourceDropdown.setMaximumRowCount(20);
-        sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "NHIN CONNECT Gateway Listener", "Web Service Listener", "Email" }));
-        sourceSourceDropdown.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sourceSourceDropdownActionPerformed(evt);
-            }
-        });
-
-        sourceSourceLabel.setText("Connector Type:");
-
-        sourceConnectorPane.setBorder(null);
-        sourceConnectorPane.setViewportView(sourceConnectorPanel);
-
-        javax.swing.GroupLayout sourceLayout = new javax.swing.GroupLayout(source);
-        source.setLayout(sourceLayout);
-        sourceLayout.setHorizontalGroup(
-            sourceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(sourceLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(sourceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(sourceConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 748, Short.MAX_VALUE)
-                    .addGroup(sourceLayout.createSequentialGroup()
-                        .addComponent(sourceSourceLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(sourceSourceDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 424, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        sourceLayout.setVerticalGroup(
-            sourceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(sourceLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(sourceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sourceSourceLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sourceSourceDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(sourceConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        channelView.addTab("Source", source);
-
-        destination.setBackground(new java.awt.Color(255, 255, 255));
-        destination.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        destination.setFocusable(false);
-        destination.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
-                destinationComponentShown(evt);
-            }
-        });
-
-        destinationSourceDropdown.setMaximumRowCount(20);
-        destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "NHIN CONNECT Gateway Listener", "Web Service Listener", "Email" }));
-        destinationSourceDropdown.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                destinationSourceDropdownActionPerformed(evt);
-            }
-        });
-
-        destinationSourceLabel.setText("Connector Type:");
-
-        destinationConnectorPane.setBorder(null);
-        destinationConnectorPane.setViewportView(destinationConnectorPanel);
-
-        destinationTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        destinationTablePane.setViewportView(destinationTable);
-
-        waitForPreviousCheckbox.setBackground(new java.awt.Color(255, 255, 255));
-        waitForPreviousCheckbox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        waitForPreviousCheckbox.setSelected(true);
-        waitForPreviousCheckbox.setText("Wait for previous destination");
-        waitForPreviousCheckbox.setToolTipText("<html>Wait for the previous destination to finish before processing the current destination.<br/>Each destination connector for which this is not selected marks the beginning of a destination chain,<br/>such that all chains execute asynchronously, but each destination within a particular chain executes in order.<br/>This option has no effect on the first destination connector, which always marks the beginning of the first chain.</html>");
-        waitForPreviousCheckbox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        waitForPreviousCheckbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                waitForPreviousCheckboxActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout destinationLayout = new javax.swing.GroupLayout(destination);
-        destination.setLayout(destinationLayout);
-        destinationLayout.setHorizontalGroup(
-            destinationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(destinationLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(destinationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(destinationTablePane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 748, Short.MAX_VALUE)
-                    .addGroup(destinationLayout.createSequentialGroup()
-                        .addComponent(destinationConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(destinationVariableList, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, destinationLayout.createSequentialGroup()
-                        .addComponent(destinationSourceLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(destinationSourceDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(waitForPreviousCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 237, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        destinationLayout.setVerticalGroup(
-            destinationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(destinationLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(destinationTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(destinationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(destinationSourceLabel)
-                    .addComponent(destinationSourceDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(waitForPreviousCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(destinationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(destinationVariableList, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(destinationConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-
-        channelView.addTab("Destinations", destination);
-
-        scripts.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
-                scriptsComponentShown(evt);
-            }
-        });
-        channelView.addTab("Scripts", scripts);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(channelView, javax.swing.GroupLayout.DEFAULT_SIZE, 777, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(channelView, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 691, Short.MAX_VALUE)
-        );
-    }// </editor-fold>//GEN-END:initComponents
-
-    private void initChannelTagsUI() {
-        tagTable.setSortable(true);
-        tagTable.getTableHeader().setReorderingAllowed(false);
-
-        tagTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent evt) {
-                deleteTagButton.setEnabled(getSelectedRow(tagTable) != -1);
-            }
-        });
-
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            tagTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
-        }
-
-        deleteTagButton.setEnabled(false);
-
-        DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { "Tag" }) {
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return true;
-            }
-        };
-
-        tagTable.setModel(model);
-    }
-
-    private void initMetaDataTable() {
-        metaDataTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] {
-                METADATA_NAME_COLUMN_NAME, METADATA_TYPE_COLUMN_NAME, METADATA_MAPPING_COLUMN_NAME }) {
+                METADATA_NAME_COLUMN_NAME, METADATA_TYPE_COLUMN_NAME,
+                METADATA_MAPPING_COLUMN_NAME }) {
+            @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return true;
             }
@@ -2690,7 +2068,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         };
 
         model.addTableModelListener(new TableModelListener() {
-
             @Override
             public void tableChanged(TableModelEvent e) {
                 if (e.getType() == TableModelEvent.UPDATE) {
@@ -2699,6 +2076,24 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
 
         });
+        metaDataTable.setModel(model);
+
+        metaDataTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        metaDataTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        metaDataTable.setDragEnabled(false);
+        metaDataTable.setSortable(false);
+        metaDataTable.getTableHeader().setReorderingAllowed(false);
+
+        metaDataTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent evt) {
+                deleteMetaDataButton.setEnabled(metaDataTable.getSelectedRow() != -1);
+            }
+        });
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            metaDataTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
+        }
 
         class AlphaNumericCellEditor extends TextFieldCellEditor {
 
@@ -2713,23 +2108,6 @@ public class ChannelSetup extends javax.swing.JPanel {
             protected boolean valueChanged(String value) {
                 return true;
             }
-
-        }
-
-        metaDataTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        metaDataTable.setDragEnabled(false);
-        metaDataTable.setSortable(false);
-        metaDataTable.getTableHeader().setReorderingAllowed(false);
-        metaDataTable.setModel(model);
-
-        metaDataTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent evt) {
-                deleteMetaDataButton.setEnabled(metaDataTable.getSelectedRow() != -1);
-            }
-        });
-
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            metaDataTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
 
         metaDataTable.getColumnModel().getColumn(metaDataTable.getColumnModel().getColumnIndex(METADATA_NAME_COLUMN_NAME)).setCellEditor(new AlphaNumericCellEditor());
@@ -2741,17 +2119,354 @@ public class ChannelSetup extends javax.swing.JPanel {
         column.setMinWidth(100);
         column.setMaxWidth(100);
 
-        deleteMetaDataButton.setEnabled(false);
+        metaDataScrollPane = new JScrollPane(metaDataTable);
+
+        addMetaDataButton = new JButton("Add");
+        addMetaDataButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                addMetaDataButtonActionPerformed(evt);
+            }
+        });
+
+        deleteMetaDataButton = new JButton("Delete");
+        deleteMetaDataButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                deleteMetaDataButtonActionPerformed(evt);
+            }
+        });
+
+        revertMetaDataButton = new JButton("Revert");
+        revertMetaDataButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                revertMetaDataButtonActionPerformed(evt);
+            }
+        });
+
+        // Channel Description
+        descriptionPanel = new JPanel();
+        descriptionPanel.setBackground(summaryPanel.getBackground());
+        descriptionPanel.setBorder(BorderFactory.createTitledBorder("Channel Description"));
+
+        summaryDescriptionText = new MirthTextPane();
+
+        summaryDescriptionScrollPane = new JScrollPane(summaryDescriptionText);
+
+        // Source Panel
+        sourcePanel = new JPanel();
+        sourcePanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        sourcePanel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent evt) {
+                sourceComponentShown(evt);
+            }
+        });
+
+        sourceConnectorTypeLabel = new JLabel("Connector Type:");
+
+        sourceConnectorTypeComboBox = new MirthComboBox<String>();
+        sourceConnectorTypeComboBox.setMaximumRowCount(20);
+        sourceConnectorTypeComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                sourceSourceDropdownActionPerformed(evt);
+            }
+        });
+
+        sourceConnectorPanel = new ConnectorPanel();
+        sourceConnectorPanel.setChannelSetup(this);
+
+        sourceConnectorScrollPane = new JScrollPane(sourceConnectorPanel);
+        sourceConnectorScrollPane.setBorder(null);
+
+        // Destinations Panel
+        destinationsPanel = new JPanel();
+        destinationsPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        destinationsPanel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent evt) {
+                destinationComponentShown(evt);
+            }
+        });
+
+        destinationTable = new MirthTable();
+
+        destinationTable.setModel(new RefreshTableModel(new String[] { STATUS_COLUMN_NAME,
+                DESTINATION_COLUMN_NAME, METADATA_COLUMN_NAME, CONNECTOR_TYPE_COLUMN_NAME,
+                DESTINATION_CHAIN_COLUMN_NAME }, 0) {
+
+            boolean[] canEdit = new boolean[] { false, true, false, false, false };
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        });
+
+        destinationTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
+        // Set the custom cell editor for the Destination Name column.
+        destinationTable.getColumnModel().getColumn(destinationTable.getColumnModel().getColumnIndex(DESTINATION_COLUMN_NAME)).setCellEditor(new DestinationTableCellEditor());
+        destinationTable.setCustomEditorControls(true);
+
+        // Must set the maximum width on columns that should be packed.
+        destinationTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        destinationTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+
+        // Set the cell renderer for the status column.
+        destinationTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
+
+        // Set the maximum width and cell renderer for the metadata ID column
+        destinationTable.getColumnExt(METADATA_COLUMN_NAME).setMaxWidth(UIConstants.METADATA_ID_COLUMN_WIDTH);
+        destinationTable.getColumnExt(METADATA_COLUMN_NAME).setMinWidth(UIConstants.METADATA_ID_COLUMN_WIDTH);
+        destinationTable.getColumnExt(METADATA_COLUMN_NAME).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
+
+        // Set the cell renderer for the destination connector type
+        destinationTable.getColumnExt(CONNECTOR_TYPE_COLUMN_NAME).setCellRenderer(new ConnectorTypeCellRenderer());
+
+        // Set the cell renderer and the max width for the destination chain column
+        destinationTable.getColumnExt(DESTINATION_CHAIN_COLUMN_NAME).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
+        destinationTable.getColumnExt(DESTINATION_CHAIN_COLUMN_NAME).setMaxWidth(50);
+
+        destinationTable.setSelectionMode(0);
+        destinationTable.setRowSelectionAllowed(true);
+        destinationTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        destinationTable.setFocusable(true);
+        destinationTable.setSortable(false);
+        destinationTable.getTableHeader().setReorderingAllowed(false);
+
+        destinationTable.setOpaque(true);
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            destinationTable.setHighlighters(highlighter);
+        }
+
+        // This action is called when a new selection is made on the destination table.
+        destinationTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent evt) {
+                if (!evt.getValueIsAdjusting()) {
+                    if (lastModelIndex != -1 && lastModelIndex != destinationTable.getRowCount() && !isDeleting) {
+                        Connector destinationConnector = currentChannel.getDestinationConnectors().get(lastModelIndex);
+
+                        ConnectorProperties props = destinationConnectorPanel.getProperties();
+                        ((DestinationConnectorPropertiesInterface) props).getDestinationConnectorProperties().setResourceIds(resourceIds.get(destinationConnector.getMetaDataId()));
+                        destinationConnector.setProperties(props);
+                    }
+
+                    if (!loadConnector()) {
+                        if (lastModelIndex == destinationTable.getRowCount()) {
+                            destinationTable.setRowSelectionInterval(lastModelIndex - 1, lastModelIndex - 1);
+                        } else if (lastModelIndex >= 0 && lastModelIndex < destinationTable.getRowCount()) {
+                            destinationTable.setRowSelectionInterval(lastModelIndex, lastModelIndex);
+                        } else {
+                            destinationTable.setRowSelectionInterval(0, 0);
+                        }
+                    } else {
+                        lastModelIndex = destinationTable.getSelectedModelIndex();
+                    }
+
+                    /*
+                     * Loading the connector may have updated the current destination with incorrect
+                     * properties, so after updating lastModelIndex we need to update the
+                     * destination panel again.
+                     */
+                    saveDestinationPanel();
+                    checkVisibleDestinationTasks();
+                }
+            }
+        });
+
+        // Mouse listener for trigger-button popup on the table.
+        destinationTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent evt) {
+                checkSelectionAndPopupMenu(evt);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+                checkSelectionAndPopupMenu(evt);
+            }
+        });
+
+        // Key Listener trigger for DEL
+        destinationTable.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                    parent.doDeleteDestination();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {}
+
+            @Override
+            public void keyTyped(KeyEvent e) {}
+        });
+
+        destinationTable.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                destinationTableScrollPane.getMouseWheelListeners()[0].mouseWheelMoved(e);
+            }
+        });
+
+        destinationTableScrollPane = new JScrollPane(destinationTable);
+        destinationTableScrollPane.setWheelScrollingEnabled(true);
+
+        destinationConnectorTypeLabel = new JLabel("Connector Type:");
+
+        destinationConnectorTypeComboBox = new MirthComboBox<String>();
+        destinationConnectorTypeComboBox.setMaximumRowCount(20);
+        destinationConnectorTypeComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                destinationSourceDropdownActionPerformed(evt);
+            }
+        });
+
+        waitForPreviousCheckbox = new MirthCheckBox("Wait for previous destination");
+        waitForPreviousCheckbox.setBackground(destinationsPanel.getBackground());
+        waitForPreviousCheckbox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                waitForPreviousCheckboxActionPerformed(evt);
+            }
+        });
+
+        destinationConnectorPanel = new ConnectorPanel();
+        destinationConnectorPanel.setChannelSetup(this);
+
+        destinationConnectorScrollPane = new JScrollPane(destinationConnectorPanel);
+        destinationConnectorScrollPane.setBorder(null);
+
+        destinationVariableList = new VariableList();
+
+        // Scripts Panel
+        scriptsPanel = new ScriptPanel(false);
+        scriptsPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        scriptsPanel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent evt) {
+                scriptsComponentShown(evt);
+            }
+        });
     }
 
-    private void scriptsComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_scriptsComponentShown
-    {//GEN-HEADEREND:event_scriptsComponentShown
+    private void initToolTips() {
+        summaryEnabledCheckBox.setToolTipText("Enable this channel so that it can be deployed.");
+        clearGlobalChannelMapCheckBox.setToolTipText("Clear the global channel map on both single channel deploy and a full redeploy.");
+        attachmentStoreCheckBox.setToolTipText("If checked, attachments will be stored in the database and available for reattachment.");
+        encryptMessagesCheckBox.setToolTipText("<html>Encrypt message content that is stored in the database. Messages that<br>are stored while this option is enabled will still be viewable in the<br>message browser, but the content will not be searchable.</html>");
+        removeContentCheckBox.setToolTipText("<html>Remove message content once the message has completed processing.<br/>Not applicable for messages that are errored or queued.</html>");
+        removeAttachmentsCheckBox.setToolTipText("<html>Remove message attachments once the message has completed processing.<br/>Not applicable for messages that are errored or queued.</html>");
+        removeOnlyFilteredCheckBox.setToolTipText("<html>If checked, only content for filtered connector messages will be removed.</html>");
+        archiveCheckBox.setToolTipText("<html>If checked and the data pruner and archiver are enabled, messages<br />in this channel will be archived before being pruned.</html>");
+        revertMetaDataButton.setToolTipText("<html>Revert the custom metadata settings to the last save.<br>This option allows you to undo your metadata changes without affecting the rest of the channel.</html>");
+        waitForPreviousCheckbox.setToolTipText("<html>Wait for the previous destination to finish before processing the current destination.<br/>Each destination connector for which this is not selected marks the beginning of a destination chain,<br/>such that all chains execute asynchronously, but each destination within a particular chain executes in order.<br/>This option has no effect on the first destination connector, which always marks the beginning of the first chain.</html>");
+    }
+
+    private void initLayout() {
+        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
+
+        channelPropertiesPanel.setLayout(new MigLayout("insets 0 10 10 10, novisualpadding, hidemode 3, fill, gap 6", "[]12[]12[][grow]"));
+        channelPropertiesPanel.add(nameLabel, "right");
+        channelPropertiesPanel.add(nameField, "w 185!");
+        channelPropertiesPanel.add(summaryEnabledCheckBox);
+        channelPropertiesPanel.add(channelIdField, "right");
+        channelPropertiesPanel.add(dataTypesLabel, "newline, right");
+        channelPropertiesPanel.add(dataTypesButton, "w 108!");
+        channelPropertiesPanel.add(clearGlobalChannelMapCheckBox);
+        channelPropertiesPanel.add(revisionLabel, "right");
+        channelPropertiesPanel.add(dependenciesLabel, "newline, right");
+        channelPropertiesPanel.add(dependenciesButton, "w 108!");
+        channelPropertiesPanel.add(lastModifiedLabel, "skip 1, right");
+        channelPropertiesPanel.add(initialStateLabel, "newline, right");
+        channelPropertiesPanel.add(initialStateComboBox, "w 108!");
+        channelPropertiesPanel.add(attachmentLabel, "newline, right");
+        channelPropertiesPanel.add(attachmentComboBox, "w 108!, split 2");
+        channelPropertiesPanel.add(attachmentPropertiesButton, "gapbefore 6");
+        channelPropertiesPanel.add(attachmentStoreCheckBox);
+        channelPropertiesPanel.add(tagsLabel, "newline, right");
+        channelPropertiesPanel.add(tagsField, "sx, growx");
+
+        messageStoragePanel.setLayout(new MigLayout("insets 0 10 5 22, novisualpadding, hidemode 3, gap 6", "", "[][][][][][]4[]4[]4[]"));
+        messageStoragePanel.add(messageStorageSlider, "spany, h 167!, top");
+        messageStoragePanel.add(storageModeLabel);
+        messageStoragePanel.add(contentLabel, "newline");
+        messageStoragePanel.add(metadataLabel, "newline");
+        messageStoragePanel.add(durableLabel, "newline, split 2");
+        messageStoragePanel.add(durableStatusLabel);
+        messageStoragePanel.add(performanceLabel, "newline, sx, split 2");
+        messageStoragePanel.add(messageStorageProgressBar, "growx, gapbefore 12");
+        messageStoragePanel.add(encryptMessagesCheckBox, "newline");
+        messageStoragePanel.add(removeContentCheckBox, "newline, split 2");
+        messageStoragePanel.add(removeOnlyFilteredCheckBox);
+        messageStoragePanel.add(removeAttachmentsCheckBox, "newline");
+        messageStoragePanel.add(queueWarningLabel, "newline");
+
+        messagePruningPanel.setLayout(new MigLayout("insets 0 10 10 10, novisualpadding, hidemode 3, gap 6"));
+        messagePruningPanel.add(metadataPruningLabel);
+        messagePruningPanel.add(metadataPruningOffRadio, "newline, gapleft 12");
+        messagePruningPanel.add(metadataPruningOnRadio, "newline, gapleft 12, split 3");
+        messagePruningPanel.add(metadataPruningDaysTextField, "w 30!");
+        messagePruningPanel.add(metadataDaysLabel);
+        messagePruningPanel.add(contentPruningLabel, "newline");
+        messagePruningPanel.add(contentPruningMetadataRadio, "newline, gapleft 12");
+        messagePruningPanel.add(contentPruningDaysRadio, "newline, gapleft 12, split 3");
+        messagePruningPanel.add(contentPruningDaysTextField, "w 30!");
+        messagePruningPanel.add(contentDaysLabel);
+        messagePruningPanel.add(archiveCheckBox, "newline");
+        messagePruningPanel.add(pruningWarningLabel, "newline");
+
+        customMetadataPanel.setLayout(new MigLayout("insets 0 10 10 10, novisualpadding, hidemode 3, fill, gap 6", "[grow][]"));
+        customMetadataPanel.add(metaDataScrollPane, "sy, grow");
+        customMetadataPanel.add(addMetaDataButton, "top, sg button, flowy, split 2");
+        customMetadataPanel.add(deleteMetaDataButton, "sg button");
+        customMetadataPanel.add(revertMetaDataButton, "newline, bottom, sg button");
+
+        descriptionPanel.setLayout(new MigLayout("insets 0 10 10 10, novisualpadding, hidemode 3, fill"));
+        descriptionPanel.add(summaryDescriptionScrollPane, "grow");
+
+        summaryPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill", "", "[][][][grow]"));
+        summaryPanel.add(channelPropertiesPanel, "growx, sx");
+        summaryPanel.add(messageStoragePanel, "newline, w 420!, h 210!, split 2");
+        summaryPanel.add(messagePruningPanel, "growx, pushx, h 210!");
+        summaryPanel.add(customMetadataPanel, "newline, growx, sx, h 150!");
+        summaryPanel.add(descriptionPanel, "newline, sx, grow");
+
+        sourcePanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gap 6", "[]12[]", "[][grow]"));
+        sourcePanel.add(sourceConnectorTypeLabel, "split 2");
+        sourcePanel.add(sourceConnectorTypeComboBox, "gapbefore 12");
+        sourcePanel.add(sourceConnectorScrollPane, "newline, sx, grow");
+
+        destinationsPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gap 6", "[]12[]", "[][][grow]"));
+        destinationsPanel.add(destinationTableScrollPane, "sx, growx, h 165!");
+        destinationsPanel.add(destinationConnectorTypeLabel, "newline, split 3");
+        destinationsPanel.add(destinationConnectorTypeComboBox, "gapbefore 12");
+        destinationsPanel.add(waitForPreviousCheckbox, "gapbefore 12");
+        destinationsPanel.add(destinationConnectorScrollPane, "newline, grow, pushx");
+        destinationsPanel.add(destinationVariableList, "w 185!, growy");
+
+        channelView.addTab("Summary", summaryPanel);
+        channelView.addTab("Source", sourcePanel);
+        channelView.addTab("Destinations", destinationsPanel);
+        channelView.addTab("Scripts", scriptsPanel);
+        add(channelView, "grow, h 600, w 600");
+    }
+
+    private void scriptsComponentShown(ComponentEvent evt) {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 13, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 15, 15, true);
-    }//GEN-LAST:event_scriptsComponentShown
+    }
 
     /** Action when the source tab is shown. */
-    private void sourceComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_sourceComponentShown
+    private void sourceComponentShown(ComponentEvent evt) {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 8, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 9, 10, true);
@@ -2776,10 +2491,10 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (channelValidationFailed) {
             sourceConnectorPanel.checkProperties(sourceConnectorPanel.getProperties(), true);
         }
-    }//GEN-LAST:event_sourceComponentShown
+    }
 
     /** Action when the destinations tab is shown. */
-    private void destinationComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_destinationComponentShown
+    private void destinationComponentShown(ComponentEvent evt) {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 13, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 15, 15, false);
@@ -2790,23 +2505,23 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (channelValidationFailed && currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).isEnabled()) {
             destinationConnectorPanel.checkProperties(destinationConnectorPanel.getProperties(), true);
         }
-    }//GEN-LAST:event_destinationComponentShown
+    }
 
     /**
      * Action when an action is performed on the source connector type dropdown.
      */
-    private void sourceSourceDropdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sourceSourceDropdownActionPerformed
+    private void sourceSourceDropdownActionPerformed(ActionEvent evt) {
         // If a channel is not being loaded then alert the user when necessary
         // that changing the connector type will lose all current connector data.
         if (!loadingChannel) {
-            if (sourceConnectorPanel.getName() != null && sourceConnectorPanel.getName().equals(sourceSourceDropdown.getSelectedItem())) {
+            if (sourceConnectorPanel.getName() != null && sourceConnectorPanel.getName().equals(sourceConnectorTypeComboBox.getSelectedItem())) {
                 return;
             }
 
             if (!PropertyVerifier.compareProps(sourceConnectorPanel.getProperties(), sourceConnectorPanel.getDefaults())) {
                 boolean changeType = parent.alertOption(this.parent, "Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType) {
-                    sourceSourceDropdown.setSelectedItem(sourceConnectorPanel.getProperties().getName());
+                    sourceConnectorTypeComboBox.setSelectedItem(sourceConnectorPanel.getProperties().getName());
                     return;
                 }
             }
@@ -2824,7 +2539,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         // Get the selected source connector and set it.
-        sourceConnectorPanel.setConnectorSettingsPanel(LoadedExtensions.getInstance().getSourceConnectors().get((String) sourceSourceDropdown.getSelectedItem()));
+        sourceConnectorPanel.setConnectorSettingsPanel(LoadedExtensions.getInstance().getSourceConnectors().get((String) sourceConnectorTypeComboBox.getSelectedItem()));
 
         // Sets all of the properties, transformer, filter, etc. on the new
         // source connector.
@@ -2836,7 +2551,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 connectorName = sourceConnector.getProperties().getName();
             }
 
-            if (sourceConnector.getProperties() == null || !connectorName.equals(sourceSourceDropdown.getSelectedItem())) {
+            if (sourceConnector.getProperties() == null || !connectorName.equals(sourceConnectorTypeComboBox.getSelectedItem())) {
                 String name = sourceConnector.getName();
                 changeConnectorType(sourceConnector, false);
                 sourceConnector.setName(name);
@@ -2850,7 +2565,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 sourceConnector.setProperties(props);
             }
 
-            sourceConnector.setTransportName((String) sourceSourceDropdown.getSelectedItem());
+            sourceConnector.setTransportName((String) sourceConnectorTypeComboBox.getSelectedItem());
             currentChannel.setSourceConnector(sourceConnector);
 
             ConnectorProperties props = sourceConnector.getProperties();
@@ -2861,25 +2576,25 @@ public class ChannelSetup extends javax.swing.JPanel {
         // Set the source data type to XML if necessary
         checkAndSetXmlDataType();
 
-        sourceConnectorPane.repaint();
+        sourceConnectorScrollPane.repaint();
 
         // If validation has failed, then highlight any errors on this form.
         if (channelValidationFailed) {
             sourceConnectorPanel.checkProperties(sourceConnectorPanel.getProperties(), true);
         }
-    }//GEN-LAST:event_sourceSourceDropdownActionPerformed
+    }
 
     /**
      * Action when an action is performed on the destination connector type dropdown. Fires off
      * either generateMultipleDestinationPage()
      */
-    private void destinationSourceDropdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_destinationSourceDropdownActionPerformed
+    private void destinationSourceDropdownActionPerformed(ActionEvent evt) {
         // If a channel is not being loaded then alert the user when necessary
         // that changing the connector type will lose all current connector
         // data. Continue when deleting a destination because the selected
         // destination index will not be different than the last index.
         if (!loadingChannel && !isDeleting) {
-            if (destinationConnectorPanel.getProperties().getName() != null && destinationConnectorPanel.getProperties().getName().equals(destinationSourceDropdown.getSelectedItem()) && lastModelIndex == destinationTable.getSelectedModelIndex()) {
+            if (destinationConnectorPanel.getProperties().getName() != null && destinationConnectorPanel.getProperties().getName().equals(destinationConnectorTypeComboBox.getSelectedItem()) && lastModelIndex == destinationTable.getSelectedModelIndex()) {
                 return;
             }
 
@@ -2890,7 +2605,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             if (lastModelIndex == destinationTable.getSelectedModelIndex() && !PropertyVerifier.compareProps(destinationConnectorPanel.getProperties(), destinationConnectorPanel.getDefaults())) {
                 boolean changeType = parent.alertOption(this.parent, "Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType) {
-                    destinationSourceDropdown.setSelectedItem(destinationConnectorPanel.getProperties().getName());
+                    destinationConnectorTypeComboBox.setSelectedItem(destinationConnectorPanel.getProperties().getName());
                     return;
                 }
             }
@@ -2901,9 +2616,9 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (channelValidationFailed && currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).isEnabled()) {
             destinationConnectorPanel.checkProperties(destinationConnectorPanel.getProperties(), true);
         }
-    }//GEN-LAST:event_destinationSourceDropdownActionPerformed
+    }
 
-    private void waitForPreviousCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_waitForPreviousCheckboxActionPerformed
+    private void waitForPreviousCheckboxActionPerformed(ActionEvent evt) {
         currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).setWaitForPrevious(waitForPreviousCheckbox.isSelected());
 
         TableModel model = destinationTable.getModel();
@@ -2916,23 +2631,23 @@ public class ChannelSetup extends javax.swing.JPanel {
             chain += (waitForPrevious) ? -1 : 1;
             model.setValueAt(chain, i, colNum);
         }
-    }//GEN-LAST:event_waitForPreviousCheckboxActionPerformed
+    }
 
-    private void summaryComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_summaryComponentShown
+    private void summaryComponentShown(ComponentEvent evt) {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 13, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 15, 15, false);
-    }//GEN-LAST:event_summaryComponentShown
+    }
 
-    private void metadataPruningOffRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_metadataPruningOffRadioActionPerformed
+    private void metadataPruningOffRadioActionPerformed(ActionEvent evt) {
         parent.setSaveEnabled(true);
         metadataPruningDaysTextField.setEnabled(false);
 
         if (contentPruningMetadataRadio.isSelected()) {
             archiveCheckBox.setEnabled(false);
         }
-    }//GEN-LAST:event_metadataPruningOffRadioActionPerformed
+    }
 
-    private void attachmentComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attachmentComboBoxActionPerformed
+    private void attachmentComboBoxActionPerformed(ActionEvent evt) {
         AttachmentHandlerType type = (AttachmentHandlerType) attachmentComboBox.getSelectedItem();
         AttachmentHandlerType lastType = AttachmentHandlerType.fromString(currentChannel.getProperties().getAttachmentProperties().getType());
 
@@ -2971,13 +2686,13 @@ public class ChannelSetup extends javax.swing.JPanel {
         } else {
             attachmentWarningLabel.setVisible(!attachmentStoreCheckBox.isEnabled());
         }
-    }//GEN-LAST:event_attachmentComboBoxActionPerformed
+    }
 
-    private void attachmentPropertiesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attachmentPropertiesButtonActionPerformed
+    private void attachmentPropertiesButtonActionPerformed(ActionEvent evt) {
         showAttachmentPropertiesDialog((AttachmentHandlerType) attachmentComboBox.getSelectedItem());
-    }//GEN-LAST:event_attachmentPropertiesButtonActionPerformed
+    }
 
-    private void changeDataTypesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeDataTypesButtonActionPerformed
+    private void changeDataTypesButtonActionPerformed(ActionEvent evt) {
         String previousDataType = currentChannel.getSourceConnector().getTransformer().getInboundDataType();
         AttachmentHandlerType previousDefaultAttachmentHandlerType = LoadedExtensions.getInstance().getDataTypePlugins().get(previousDataType).getDefaultAttachmentHandlerType();
         AttachmentHandlerType previousAttachmentHandlerType = (AttachmentHandlerType) attachmentComboBox.getSelectedItem();
@@ -2994,36 +2709,14 @@ public class ChannelSetup extends javax.swing.JPanel {
                 attachmentComboBox.setSelectedItem(AttachmentHandlerType.NONE);
             }
         }
-    }//GEN-LAST:event_changeDataTypesButtonActionPerformed
+    }
 
-    private void summaryNameFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_summaryNameFieldKeyReleased
-        currentChannel.setName(summaryNameField.getText());
+    private void summaryNameFieldKeyReleased(KeyEvent evt) {
+        currentChannel.setName(nameField.getText());
         parent.setPanelName("Edit Channel - " + currentChannel.getName());
-    }//GEN-LAST:event_summaryNameFieldKeyReleased
+    }
 
-    private void addTagButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTagButtonActionPerformed
-        new ChannelTagDialog(tagTable);
-    }//GEN-LAST:event_addTagButtonActionPerformed
-
-    private void deleteTagButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteTagButtonActionPerformed
-        int selectedRow = getSelectedRow(tagTable);
-
-        if (selectedRow != -1 && !tagTable.isEditing()) {
-            ((DefaultTableModel) tagTable.getModel()).removeRow(selectedRow);
-        }
-
-        int rowCount = tagTable.getRowCount();
-
-        if (rowCount > 0) {
-            if (selectedRow >= rowCount) {
-                selectedRow--;
-            }
-
-            tagTable.setRowSelectionInterval(selectedRow, selectedRow);
-        }
-    }//GEN-LAST:event_deleteTagButtonActionPerformed
-
-    private void addMetaDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMetaDataButtonActionPerformed
+    private void addMetaDataButtonActionPerformed(ActionEvent evt) {
         DefaultTableModel model = ((DefaultTableModel) metaDataTable.getModel());
         int row = model.getRowCount();
 
@@ -3034,9 +2727,9 @@ public class ChannelSetup extends javax.swing.JPanel {
         revertMetaDataButton.setEnabled(true);
 
         parent.setSaveEnabled(true);
-    }//GEN-LAST:event_addMetaDataButtonActionPerformed
+    }
 
-    private void deleteMetaDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteMetaDataButtonActionPerformed
+    private void deleteMetaDataButtonActionPerformed(ActionEvent evt) {
         int selectedRow = metaDataTable.getSelectedRow();
 
         if (selectedRow != -1 && !metaDataTable.isEditing()) {
@@ -3056,14 +2749,14 @@ public class ChannelSetup extends javax.swing.JPanel {
         revertMetaDataButton.setEnabled(true);
 
         parent.setSaveEnabled(true);
-    }//GEN-LAST:event_deleteMetaDataButtonActionPerformed
+    }
 
-    private void encryptMessagesCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encryptMessagesCheckBoxActionPerformed
+    private void encryptMessagesCheckBoxActionPerformed(ActionEvent evt) {
         parent.setSaveEnabled(true);
         updateStorageMode();
-    }//GEN-LAST:event_encryptMessagesCheckBoxActionPerformed
+    }
 
-    private void messageStorageSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_messageStorageSliderStateChanged
+    private void messageStorageSliderStateChanged(ChangeEvent evt) {
         parent.setSaveEnabled(true);
         updateStorageMode();
 
@@ -3085,50 +2778,50 @@ public class ChannelSetup extends javax.swing.JPanel {
                 }
                 break;
         }
-    }//GEN-LAST:event_messageStorageSliderStateChanged
+    }
 
-    private void removeContentCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeContentCheckboxActionPerformed
+    private void removeContentCheckboxActionPerformed(ActionEvent evt) {
         parent.setSaveEnabled(true);
         updateStorageMode();
-    }//GEN-LAST:event_removeContentCheckboxActionPerformed
+    }
 
-    private void metadataPruningOnRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_metadataPruningOnRadioActionPerformed
+    private void metadataPruningOnRadioActionPerformed(ActionEvent evt) {
         parent.setSaveEnabled(true);
         metadataPruningDaysTextField.setEnabled(true);
         archiveCheckBox.setEnabled(true);
-    }//GEN-LAST:event_metadataPruningOnRadioActionPerformed
+    }
 
-    private void contentPruningMetadataRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contentPruningMetadataRadioActionPerformed
+    private void contentPruningMetadataRadioActionPerformed(ActionEvent evt) {
         parent.setSaveEnabled(true);
         contentPruningDaysTextField.setEnabled(false);
 
         if (metadataPruningOffRadio.isSelected()) {
             archiveCheckBox.setEnabled(false);
         }
-    }//GEN-LAST:event_contentPruningMetadataRadioActionPerformed
+    }
 
-    private void contentPruningDaysRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contentPruningDaysRadioActionPerformed
+    private void contentPruningDaysRadioActionPerformed(ActionEvent evt) {
         parent.setSaveEnabled(true);
         contentPruningDaysTextField.setEnabled(true);
         archiveCheckBox.setEnabled(true);
-    }//GEN-LAST:event_contentPruningDaysRadioActionPerformed
+    }
 
-    private void revertMetaDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_revertMetaDataButtonActionPerformed
+    private void revertMetaDataButtonActionPerformed(ActionEvent evt) {
         if (parent.alertOption(parent, "Are you sure you want to revert custom metadata settings to the last save?")) {
             updateMetaDataTable();
         }
-    }//GEN-LAST:event_revertMetaDataButtonActionPerformed
+    }
 
-    private void removeAttachmentsCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAttachmentsCheckboxActionPerformed
+    private void removeAttachmentsCheckboxActionPerformed(ActionEvent evt) {
         parent.setSaveEnabled(true);
         updateStorageMode();
-    }//GEN-LAST:event_removeAttachmentsCheckboxActionPerformed
+    }
 
-    private void attachmentStoreCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_attachmentStoreCheckBoxItemStateChanged
+    private void attachmentStoreCheckBoxItemStateChanged(ItemEvent evt) {
         attachmentWarningLabel.setVisible(evt.getStateChange() != ItemEvent.SELECTED && attachmentComboBox.getSelectedItem() != AttachmentHandlerType.NONE);
-    }//GEN-LAST:event_attachmentStoreCheckBoxItemStateChanged
+    }
 
-    private void setDependenciesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setDependenciesButtonActionPerformed
+    private void setDependenciesButtonActionPerformed(ActionEvent evt) {
         ChannelDependenciesDialog dialog = new ChannelDependenciesDialog(currentChannel);
         if (dialog.wasSaved()) {
             resourceIds = dialog.getSelectedResourceIds();
@@ -3139,11 +2832,11 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
             parent.setSaveEnabled(true);
         }
-    }//GEN-LAST:event_setDependenciesButtonActionPerformed
+    }
 
     public void generateMultipleDestinationPage() {
         // Get the selected destination connector and set it.
-        destinationConnectorPanel.setConnectorSettingsPanel(LoadedExtensions.getInstance().getDestinationConnectors().get((String) destinationSourceDropdown.getSelectedItem()));
+        destinationConnectorPanel.setConnectorSettingsPanel(LoadedExtensions.getInstance().getDestinationConnectors().get((String) destinationConnectorTypeComboBox.getSelectedItem()));
 
         // Get the currently selected destination connector.
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
@@ -3164,11 +2857,8 @@ public class ChannelSetup extends javax.swing.JPanel {
             connectorName = destinationConnector.getProperties().getName();
         }
 
-        // Debug with:
-        // System.out.println(destinationConnector.getTransportName() + " " + (String)destinationSourceDropdown.getSelectedItem());
-
         // Set to defaults on first load of connector or if it has changed types.
-        if (destinationConnector.getProperties() == null || !connectorName.equals(destinationSourceDropdown.getSelectedItem())) {
+        if (destinationConnector.getProperties() == null || !connectorName.equals(destinationConnectorTypeComboBox.getSelectedItem())) {
             String name = destinationConnector.getName();
             changeConnectorType(destinationConnector, true);
             destinationConnector.setName(name);
@@ -3192,25 +2882,21 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         destinationVariableList.setTransferMode(destinationConnectorPanel.getTransferMode());
 
-        // Set the transport name of the destination connector and set it in the
-        // list.
-        destinationConnector.setTransportName((String) destinationSourceDropdown.getSelectedItem());
+        // Set the transport name of the destination connector and set it in the list.
+        destinationConnector.setTransportName((String) destinationConnectorTypeComboBox.getSelectedItem());
         destinationConnectors.set(connectorIndex, destinationConnector);
 
-        // If the connector type has changed then set the new value in the
-        // destination table.
+        // If the connector type has changed then set the new value in the destination table.
         String transportName = ((ConnectorTypeData) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME))).getTransportName();
         if (destinationConnector.getTransportName() != null && !transportName.equals(destinationConnector.getTransportName()) && destinationTable.getSelectedModelIndex() != -1) {
-            ConnectorTypeData connectorTypeData = new ConnectorTypeData((String) destinationSourceDropdown.getSelectedItem());
+            ConnectorTypeData connectorTypeData = new ConnectorTypeData((String) destinationConnectorTypeComboBox.getSelectedItem());
             destinationTable.getModel().setValueAt(connectorTypeData, destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
         }
 
-        // Debug with:
-        // System.out.println(destinationConnector.getProperties().toString());
         destinationConnectorPanel.setProperties(destinationConnector.getProperties());
         setDestinationVariableList();
 
-        destinationConnectorPane.repaint();
+        destinationConnectorScrollPane.repaint();
     }
 
     private Set<String> getMultipleDestinationRules(Connector currentDestination) {
@@ -3366,7 +3052,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             currentChannel.setSourceConnector(connector);
             // Update the cached resource ID map
             resourceIds.put(connector.getMetaDataId(), ((SourceConnectorPropertiesInterface) connector.getProperties()).getSourceConnectorProperties().getResourceIds());
-            sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
+            sourceConnectorTypeComboBox.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
 
             updateAttachmentHandler(connector.getTransformer().getInboundDataType());
 
@@ -3414,86 +3100,97 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addMetaDataButton;
-    private com.mirth.connect.client.ui.components.MirthButton addTagButton;
-    private com.mirth.connect.client.ui.components.MirthCheckBox archiveCheckBox;
-    private com.mirth.connect.client.ui.components.MirthComboBox attachmentComboBox;
-    private javax.swing.JLabel attachmentLabel;
-    private javax.swing.JButton attachmentPropertiesButton;
-    public com.mirth.connect.client.ui.components.MirthCheckBox attachmentStoreCheckBox;
-    private javax.swing.JLabel attachmentWarningLabel;
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JButton changeDataTypesButton;
-    private javax.swing.JTextField channelIdField;
-    private javax.swing.JPanel channelPropertiesPanel;
-    private javax.swing.JPanel channelTagsPanel;
-    private javax.swing.JScrollPane channelTagsScrollPane;
-    private javax.swing.JTabbedPane channelView;
-    public com.mirth.connect.client.ui.components.MirthCheckBox clearGlobalChannelMapCheckBox;
-    private javax.swing.JLabel contentDaysLabel;
-    private javax.swing.JLabel contentLabel;
-    private javax.swing.ButtonGroup contentPruningButtonGroup;
-    private javax.swing.JRadioButton contentPruningDaysRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField contentPruningDaysTextField;
-    private javax.swing.JLabel contentPruningLabel;
-    private javax.swing.JRadioButton contentPruningMetadataRadio;
-    private javax.swing.JPanel customMetadataPanel;
-    private javax.swing.JButton deleteMetaDataButton;
-    private com.mirth.connect.client.ui.components.MirthButton deleteTagButton;
-    private javax.swing.JLabel dependenciesLabel;
-    private javax.swing.JPanel destination;
-    private javax.swing.JScrollPane destinationConnectorPane;
-    private com.mirth.connect.client.ui.panels.connectors.ConnectorPanel destinationConnectorPanel;
-    private com.mirth.connect.client.ui.components.MirthComboBox destinationSourceDropdown;
-    private javax.swing.JLabel destinationSourceLabel;
-    private com.mirth.connect.client.ui.components.MirthTable destinationTable;
-    private javax.swing.JScrollPane destinationTablePane;
-    public com.mirth.connect.client.ui.VariableList destinationVariableList;
-    private javax.swing.JLabel durableLabel;
-    private javax.swing.JLabel durableStatusLabel;
-    private com.mirth.connect.client.ui.components.MirthCheckBox encryptMessagesCheckBox;
-    private com.mirth.connect.client.ui.components.MirthComboBox initialState;
-    private javax.swing.JLabel initialStateLabel;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JLabel lastModified;
-    private javax.swing.JPanel messagePruningPanel;
-    private javax.swing.JPanel messageStoragePanel;
-    private javax.swing.JProgressBar messageStorageProgressBar;
-    private javax.swing.JSlider messageStorageSlider;
-    private com.mirth.connect.client.ui.components.MirthTable metaDataTable;
-    private javax.swing.JScrollPane metaDataTablePane;
-    private javax.swing.JLabel metadataDaysLabel;
-    private javax.swing.JLabel metadataLabel;
-    private javax.swing.ButtonGroup metadataPruningButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthTextField metadataPruningDaysTextField;
-    private javax.swing.JLabel metadataPruningLabel;
-    private javax.swing.JRadioButton metadataPruningOffRadio;
-    private javax.swing.JRadioButton metadataPruningOnRadio;
-    private javax.swing.JLabel performanceLabel;
-    private javax.swing.JLabel queueWarningLabel;
-    private com.mirth.connect.client.ui.components.MirthCheckBox removeAttachmentsCheckbox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox removeContentCheckbox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox removeOnlyFilteredCheckBox;
-    private javax.swing.JButton revertMetaDataButton;
-    private com.mirth.connect.client.ui.ScriptPanel scripts;
-    private javax.swing.JButton setDependenciesButton;
-    private javax.swing.JPanel source;
-    private javax.swing.JScrollPane sourceConnectorPane;
-    private com.mirth.connect.client.ui.panels.connectors.ConnectorPanel sourceConnectorPanel;
-    private com.mirth.connect.client.ui.components.MirthComboBox sourceSourceDropdown;
-    private javax.swing.JLabel sourceSourceLabel;
-    private javax.swing.JLabel storageModeLabel;
-    private javax.swing.JPanel summary;
-    private javax.swing.JScrollPane summaryDescriptionScrollPane;
-    private com.mirth.connect.client.ui.components.MirthTextPane summaryDescriptionText;
-    private com.mirth.connect.client.ui.components.MirthCheckBox summaryEnabledCheckbox;
-    private com.mirth.connect.client.ui.components.MirthTextField summaryNameField;
-    private javax.swing.JLabel summaryNameLabel;
-    private javax.swing.JLabel summaryPatternLabel1;
-    private javax.swing.JLabel summaryRevision;
-    private com.mirth.connect.client.ui.components.MirthTable tagTable;
-    private com.mirth.connect.client.ui.components.MirthCheckBox waitForPreviousCheckbox;
-    // End of variables declaration//GEN-END:variables
+    // Tab Container
+    private JTabbedPane channelView;
+
+    // Summary Tab
+    private JPanel summaryPanel;
+
+    // Channel Properties
+    private JPanel channelPropertiesPanel;
+    private JLabel nameLabel;
+    private MirthTextField nameField;
+    private MirthCheckBox summaryEnabledCheckBox;
+    private JTextField channelIdField;
+    private JLabel dataTypesLabel;
+    private JButton dataTypesButton;
+    public MirthCheckBox clearGlobalChannelMapCheckBox;
+    private JLabel revisionLabel;
+    private JLabel dependenciesLabel;
+    private JButton dependenciesButton;
+    private JLabel lastModifiedLabel;
+    private JLabel initialStateLabel;
+    private MirthComboBox<DeployedState> initialStateComboBox;
+    private JLabel attachmentLabel;
+    private MirthComboBox<AttachmentHandlerType> attachmentComboBox;
+    private JButton attachmentPropertiesButton;
+    public MirthCheckBox attachmentStoreCheckBox;
+    private JLabel attachmentWarningLabel;
+    private JLabel tagsLabel;
+    private MirthTagField tagsField;
+
+    // Message Storage
+    private JPanel messageStoragePanel;
+    private JSlider messageStorageSlider;
+    private JLabel storageModeLabel;
+    private JLabel contentLabel;
+    private JLabel metadataLabel;
+    private JLabel durableLabel;
+    private JLabel durableStatusLabel;
+    private JLabel performanceLabel;
+    private JProgressBar messageStorageProgressBar;
+    private MirthCheckBox encryptMessagesCheckBox;
+    private MirthCheckBox removeContentCheckBox;
+    private MirthCheckBox removeOnlyFilteredCheckBox;
+    private MirthCheckBox removeAttachmentsCheckBox;
+    private JLabel queueWarningLabel;
+
+    // Message Pruning
+    private JPanel messagePruningPanel;
+    private JLabel metadataPruningLabel;
+    private JRadioButton metadataPruningOffRadio;
+    private JRadioButton metadataPruningOnRadio;
+    private MirthTextField metadataPruningDaysTextField;
+    private JLabel metadataDaysLabel;
+    private JLabel contentPruningLabel;
+    private JRadioButton contentPruningMetadataRadio;
+    private JRadioButton contentPruningDaysRadio;
+    private MirthTextField contentPruningDaysTextField;
+    private JLabel contentDaysLabel;
+    private MirthCheckBox archiveCheckBox;
+    private JLabel pruningWarningLabel;
+
+    // Custom Metadata
+    private JPanel customMetadataPanel;
+    private MirthTable metaDataTable;
+    private JScrollPane metaDataScrollPane;
+    private JButton addMetaDataButton;
+    private JButton deleteMetaDataButton;
+    private JButton revertMetaDataButton;
+
+    // Channel Description
+    private JPanel descriptionPanel;
+    private MirthTextPane summaryDescriptionText;
+    private JScrollPane summaryDescriptionScrollPane;
+
+    // Source
+    private JPanel sourcePanel;
+    private JLabel sourceConnectorTypeLabel;
+    private MirthComboBox<String> sourceConnectorTypeComboBox;
+    private ConnectorPanel sourceConnectorPanel;
+    private JScrollPane sourceConnectorScrollPane;
+
+    // Destinations
+    private JPanel destinationsPanel;
+    private MirthTable destinationTable;
+    private JScrollPane destinationTableScrollPane;
+    private JLabel destinationConnectorTypeLabel;
+    private MirthComboBox<String> destinationConnectorTypeComboBox;
+    private MirthCheckBox waitForPreviousCheckbox;
+    private ConnectorPanel destinationConnectorPanel;
+    private JScrollPane destinationConnectorScrollPane;
+    public VariableList destinationVariableList;
+
+    // Scripts
+    private ScriptPanel scriptsPanel;
 }

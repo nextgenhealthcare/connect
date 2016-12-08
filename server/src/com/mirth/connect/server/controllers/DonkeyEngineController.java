@@ -741,7 +741,6 @@ public class DonkeyEngineController implements EngineController {
                 status.setDeployedRevisionDelta(0);
                 status.setStatistics(stats.getConnectorStats(channelId, null));
                 status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
-                status.setTags(metadata.getTags());
 
                 DashboardStatus sourceStatus = new DashboardStatus();
                 sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);
@@ -840,7 +839,6 @@ public class DonkeyEngineController implements EngineController {
 
                 status.setStatistics(stats.getConnectorStats(channelId, null));
                 status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
-                status.setTags(metadata.getTags());
 
                 DashboardStatus sourceStatus = new DashboardStatus();
                 sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);

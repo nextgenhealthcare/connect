@@ -26,6 +26,7 @@ import javax.ws.rs.core.SecurityContext;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.servlets.ConfigurationServletInterface;
@@ -34,6 +35,7 @@ import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelMetadata;
+import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LibraryProperties;
@@ -329,6 +331,16 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
     }
 
     @Override
+    public Set<ChannelTag> getChannelTags() throws ClientException {
+        return configurationController.getChannelTags();
+    }
+
+    @Override
+    public void setChannelTags(Set<ChannelTag> channelTags) throws ClientException {
+        configurationController.setChannelTags(channelTags);
+    }
+
+    @Override
     public Set<ChannelDependency> getChannelDependencies() {
         return configurationController.getChannelDependencies();
     }
@@ -337,7 +349,7 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
     public void setChannelDependencies(Set<ChannelDependency> dependencies) {
         configurationController.setChannelDependencies(dependencies);
     }
-    
+
     @Override
     public Map<String, ChannelMetadata> getChannelMetadata() {
         return configurationController.getChannelMetadata();

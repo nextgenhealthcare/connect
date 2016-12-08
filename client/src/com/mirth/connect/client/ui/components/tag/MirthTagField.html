@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	<link href="bootstrap.min.css" rel="stylesheet">
+	<link href="tokenfield-typeahead.css" rel="stylesheet">
+	<link href="bootstrap-tokenfield.css" rel="stylesheet">
+	
+	<script src="jquery.min.js"></script>
+	<script src="jquery-ui.min.js"></script>
+	<script src="bootstrap-tokenfield.js"></script>
+	
+	<style>
+		input[type='text'] { 
+			font-family: 'Tahoma',
+			color: black,
+			font-size: 10px;
+			width: 2000px;
+		}
+	
+		.form-control {
+			border: none;
+			box-shadow: none;
+			-webkit-box-shadow: none;
+			outline: none;
+		    padding: 0px;
+		    border-color: none;
+		}
+		
+		. close {
+			opacity: 2.0;
+		}
+	
+		.token {
+			opacity: .9;
+  			height: 22px !important;
+		}
+		
+		.token.active {
+			opacity: 1;
+		}
+		
+		.tokenfield.focus {
+			border-color: none;
+			outline: 0;
+			-webkit-box-shadow: none;
+			box-shadow: none;
+		}
+	</style>
+	<script>
+	// Constants
+	var CHAR_MAX = 12;
+	var BACKSPACE_KEY = 8;
+	var ENTER_KEY = 13;
+	var ESCAPE_KEY = 27;
+	var END_KEY = 35;
+	var HOME_KEY = 36;
+	var LEFT_ARROW_KEY = 37;
+	var UP_ARROW_KEY = 38;
+	var RIGHT_ARROW_KEY = 39;
+	var DOWN_ARROW_KEY = 40;
+	
+	var tagObjects = {};
+	var placeholder = null;
+	var channelContext = false;
+	
+	function updateTags(tagAttributes, context) {
+		$('#MirthTokenField').tokenfield({
+			limit: 10,
+		  	autocomplete: {
+				disabled: true
+		  }
+		});
+		
+		tagObjects = JSON.parse(tagAttributes);
+		channelContext = JSON.parse(context);
+		
+		placeholder = "Enter channel tag or name";
+		if (channelContext) {
+			placeholder = "Enter channel tag";
+		}
+		
+		$(document).find('#MirthTokenField').data('bs.tokenfield').$input.attr('placeholder', placeholder);
+		
+		var tokens = $('#MirthTokenField').tokenfield('getTokens');
+		for (var i = 0; i < tokens.length; i++) {
+			var token = tokens[i];
+			var value = token.value;
+			var values = value.split(':');
+			var text = values[1] || values[0];
+			var type = values[1] ? values[0] : 'name';
+			
+			var tokenDiv = $('#MirthTokenField').parent().find('div.token[value="' + value.replace(/"/g,'') + '"]');
+			
+			if (tokenDiv && tokenDiv.length > 0 && tagObjects[text] && type != 'name') {
+				var color = tagObjects[text].background;
+				if (color) {
+					tokenDiv.css("background-color", color);
+				}
+				
+				color = tagObjects[text].color;
+				if (color) {
+					tokenDiv.css("color", color);
+					tokenDiv.find('.close').css("color", color);
+				}
+			}	
+		}
+	}
+	
+	// Loads all selected tags into the field, clearing previous tags that were set
+	function setUserTags(tags) {
+		if (!tags) {
+			tags = {};
+		} else {
+			$(document).find('#MirthTokenField').data('bs.tokenfield').$input.attr('placeholder', placeholder);
+		}
+		
+		$('#MirthTokenField').tokenfield('setTokens', JSON.parse(tags));
+		$(document).find('#MirthTokenField').data('bs.tokenfield').$input.val('');
+	}
+	
+	function insertTag(tag, type) {
+		// Remove the old incomplete text and replace it with a tag
+		var val = type + ':' + tag;
+		
+		$('#MirthTokenField').tokenfield('createToken', { value: val, label: tag });
+		$(document).find('#MirthTokenField').data('bs.tokenfield').$input.val('');
+	}
+	
+	function setFocus(focus) {
+		focus = JSON.parse(focus);
+		if (focus) {
+			$('#MirthTokenField').focus();
+		} else {
+			$('#MirthTokenField').blur();
+		}
+	}
+	
+	function setEnabled(enable) {
+		enable = JSON.parse(enable);
+		if (enable) {
+			$('#MirthTokenField').tokenfield('enable');
+		} else {
+			$('#MirthTokenField').tokenfield('disable');
+		}
+	}
+		
+	function getSelectedTags() {
+		return $('#MirthTokenField').tokenfield('getTokensList');
+	}
+	
+	function updatePlaceholder(tags) {
+		if (tags) {
+			$(document).find('#MirthTokenField').data('bs.tokenfield').$input.attr('placeholder', '');
+		} else {
+			$(document).find('#MirthTokenField').data('bs.tokenfield').$input.attr('placeholder', placeholder);
+		}
+	}
+	
+	$(function() {
+    	$('#MirthTokenField').click(function (event) {
+			clickController.closePopupWindow();	
+    	});
+	
+		// This method will inject the type prefix in front of the tag name upon creation and
+    	// Prevent existing tokens from being entered into the field
+		$('#MirthTokenField').on('tokenfield:createtoken', function (event) {
+			var tag = event.attrs.value.split(':');
+			
+			var tagName = tag[1] || tag[0];
+			var tagType = !tag[1] ? "name" : tag[0];
+			
+			event.attrs.label = tagName;
+			event.attrs.value = tagType + ":" + tagName;
+			if (channelContext && tagName.length > 12) {
+				event.preventDefault();
+			}
+			
+			if (/[^a-zA-Z0-9\s\-_]/.test(event.attrs.label)) {
+				event.preventDefault();
+			}
+			
+			var existingTokens = $(this).tokenfield('getTokens');
+			$.each(existingTokens, function(index, token) {
+				var existingTokenName = token.label;
+				if (tagName === existingTokenName || (channelContext && tagName.toUpperCase() === existingTokenName.toUpperCase())) {
+					event.preventDefault();
+				}
+			});
+		});
+		
+		// Override UP/DOWN arrow key actions
+		$('#MirthTokenField').parent().on('keydown', function(event) {
+			var code = event.keyCode || event.which;
+			var tokenField = $(document).find('#MirthTokenField').data('bs.tokenfield').$input;
+			
+			if (!channelContext) {
+				if (code == END_KEY) {
+					var OFFSET = 10;
+					var xLocation = $(document).find('#MirthTokenField-tokenfield').offset().left;
+					var lastTokenWidth = $(document).find('.token').last().width();
+					var newLocation = xLocation - lastTokenWidth - OFFSET;
+					if (newLocation < 0 || newLocation < 400) {
+						newLocation = 0;
+					}
+					
+					window.scrollTo(newLocation, 0);
+				}
+				
+				if (code == HOME_KEY) {
+					window.scrollTo(0, 0);
+				}
+			}
+			
+			// Disable typing more than X characters
+		    if ((channelContext && tokenField.val().length >= CHAR_MAX) && code != BACKSPACE_KEY) {
+		    	return false;
+    		}
+			
+			if (code == UP_ARROW_KEY || code == DOWN_ARROW_KEY) {
+				event.preventDefault();
+			}
+		});
+		
+		$('#MirthTokenField').parent().on('keyup', function(event) {
+			var code = event.keyCode || event.which;
+			var incompleteTagText = $(this).find('#MirthTokenField').data('bs.tokenfield').$input.val();
+			
+			if (code == ENTER_KEY || code == ESCAPE_KEY || code == UP_ARROW_KEY || code == DOWN_ARROW_KEY) {
+				clickController.translateKey(code);
+			} else {
+				clickController.updatePopupWindow(incompleteTagText);
+			}
+		});
+		
+		// This method will remove the prefix from the tag during editing
+		$('#MirthTokenField').on('tokenfield:edittoken', function (event) {
+			var tag = event.attrs.value.split(':');
+			var tagName = tag[1] || tag[0];
+			
+			event.attrs.label = tagName;
+			event.attrs.value = tagName;
+		});
+		
+		$('#MirthTokenField').on('tokenfield:createdtoken', function (event) {
+			var tags = getSelectedTags();
+			var tag = event.attrs.value.split(':');
+			var tagName = tag[1] || tag[0];
+			var tagType = !tag[1] ? "name" : tag[0];
+			
+			$(event.relatedTarget).attr('value', event.attrs.value);
+			
+			if (tagType != 'name' && tagObjects[tagName]) {
+				var color = tagObjects[tagName].background;
+				
+				if (color) {
+					$(event.relatedTarget).css("background-color", color);
+				}
+				
+				color = tagObjects[tagName].color;
+				if (color) {
+					$(event.relatedTarget).css("color", color);
+					$(event.relatedTarget).find('.close').css("color", color);
+				}
+				
+				var OFFSET = 10;
+				var xLocation = $(document).find('#MirthTokenField-tokenfield').offset().left;
+				var lastTokenWidth = $(document).find('.token').last().width();
+				var newLocation = xLocation - lastTokenWidth - OFFSET;
+				if (newLocation < 0 || newLocation < 400) {
+					newLocation = 0;
+				}
+				
+				if (!channelContext) {
+					window.scrollTo(newLocation, 0);
+				}
+			} else if(channelContext) {
+				var colors = JSON.parse(clickController.getColor(tagName));
+				$(event.relatedTarget).css("background-color", colors[0]);
+				$(event.relatedTarget).css("color", colors[1]);
+				$(event.relatedTarget).find('.close').css("color", colors[1]);
+			}
+			
+			updatePlaceholder(tags);
+			clickController.updateTagSearch(getSelectedTags());
+		});
+		
+		$('#MirthTokenField').on('tokenfield:removedtoken', function (event) {
+			var tags = getSelectedTags();
+			
+			updatePlaceholder(tags);
+			clickController.deleteTagActionPerformed(tags);
+		});
+	});
+	</script>
+
+	</head>
+	
+	<body>
+		<div class="tagContainer" style="padding-top:1px">
+			<input type="text" class="form-control input-group-sm" id="MirthTokenField"/> 
+		</div>
+	</body>
+</html>

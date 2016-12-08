@@ -17,13 +17,14 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("dashboardChannelInfo")
 public class DashboardChannelInfo implements Serializable {
-
     private List<DashboardStatus> dashboardStatuses;
     private Set<String> remainingChannelIds;
+    private int deployedChannelCount;
 
-    public DashboardChannelInfo(List<DashboardStatus> dashboardStatuses, Set<String> remainingChannelIds) {
+    public DashboardChannelInfo(List<DashboardStatus> dashboardStatuses, Set<String> remainingChannelIds, int deployedChannelCount) {
         this.dashboardStatuses = dashboardStatuses;
         this.remainingChannelIds = remainingChannelIds;
+        this.deployedChannelCount = deployedChannelCount;
     }
 
     public List<DashboardStatus> getDashboardStatuses() {
@@ -40,5 +41,13 @@ public class DashboardChannelInfo implements Serializable {
 
     public void setRemainingChannelIds(Set<String> remainingChannelIds) {
         this.remainingChannelIds = remainingChannelIds;
+    }
+
+    public int getDeployedChannelCount() {
+        return deployedChannelCount;
+    }
+
+    public void setDeployedChannelNames(int deployedChannelCount) {
+        this.deployedChannelCount = deployedChannelCount;
     }
 }

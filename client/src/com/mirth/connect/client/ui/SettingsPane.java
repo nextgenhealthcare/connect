@@ -16,6 +16,7 @@ import javax.swing.DefaultSingleSelectionModel;
 import javax.swing.SingleSelectionModel;
 
 import com.mirth.connect.client.core.TaskConstants;
+import com.mirth.connect.client.ui.tag.SettingsPanelTags;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
 
 public class SettingsPane extends javax.swing.JPanel {
@@ -31,6 +32,7 @@ public class SettingsPane extends javax.swing.JPanel {
 
         loadPanel(new SettingsPanelServer(SettingsPanelServer.TAB_NAME));
         loadPanel(new SettingsPanelAdministrator(SettingsPanelAdministrator.TAB_NAME));
+        loadPanel(new SettingsPanelTags(SettingsPanelTags.TAB_NAME));
         loadPanel(new SettingsPanelMap(SettingsPanelMap.TAB_NAME));
         loadPanel(new SettingsPanelDatabaseTasks(SettingsPanelDatabaseTasks.TAB_NAME));
         loadPanel(new SettingsPanelResources(SettingsPanelResources.TAB_NAME));
