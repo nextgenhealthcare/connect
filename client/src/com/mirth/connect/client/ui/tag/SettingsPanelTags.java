@@ -21,6 +21,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EventObject;
@@ -584,8 +585,10 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
     private void removeTag() {
         int[] selectedModelRows = tagsTable.getSelectedModelRows();
         if (selectedModelRows.length > 0) {
-            for (int row : selectedModelRows) {
-                ((RefreshTableModel) tagsTable.getModel()).removeRow(row);
+            Arrays.sort(selectedModelRows);
+
+            for (int i = selectedModelRows.length - 1; i >= 0; i--) {
+                ((RefreshTableModel) tagsTable.getModel()).removeRow(selectedModelRows[i]);
             }
 
             if (selectedModelRows[0] < tagsTable.getRowCount()) {
