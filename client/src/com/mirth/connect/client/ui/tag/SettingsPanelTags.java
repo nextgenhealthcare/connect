@@ -62,8 +62,11 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -81,8 +84,6 @@ import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.util.ColorUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class SettingsPanelTags extends AbstractSettingsPanel {
 
@@ -311,6 +312,7 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
         tagsTable.getColumnExt(TAGS_CHANNEL_COUNT_COLUMN).setMinWidth(90);
         tagsTable.getColumnExt(TAGS_CHANNEL_COUNT_COLUMN).setMaxWidth(90);
         tagsTable.getColumnExt(TAGS_CHANNEL_COUNT_COLUMN).setEditable(false);
+        tagsTable.getColumnExt(TAGS_CHANNEL_COUNT_COLUMN).setComparator(ComparatorUtils.NATURAL_COMPARATOR);
 
         DefaultTableCellRenderer centerAlignedRenderer = new DefaultTableCellRenderer();
         centerAlignedRenderer.setHorizontalAlignment(SwingConstants.CENTER);
