@@ -722,6 +722,9 @@
 		<copy todir="${plugins.javascriptstep}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/javascriptstep" />
 		</copy>
+		<jar destfile="${plugins.javascriptstep}/javascriptstep-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/javascriptstep/JavaScriptStep.class" />
+		</jar>
 
 		<!-- plugins.mapper -->
 		<mkdir dir="${plugins.mapper}" />
@@ -733,6 +736,10 @@
 		<copy todir="${plugins.mapper}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/mapper" />
 		</copy>
+		<jar destfile="${plugins.mapper}/mapper-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/mapper/MapperStep.class" />
+			<include name="com/mirth/connect/plugins/mapper/MapperStep$Scope.class" />
+		</jar>
 
 		<!-- plugins.messagebuilder -->
 		<mkdir dir="${plugins.messagebuilder}" />
@@ -744,6 +751,9 @@
 		<copy todir="${plugins.messagebuilder}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/messagebuilder" />
 		</copy>
+		<jar destfile="${plugins.messagebuilder}/messagebuilder-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/messagebuilder/MessageBuilderStep.class" />
+		</jar>
 
 		<!-- plugins.datapruner -->
 		<mkdir dir="${plugins.datapruner}" />
@@ -853,6 +863,9 @@
 		<copy todir="${plugins.scriptfilestep}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/scriptfilestep" />
 		</copy>
+		<jar destfile="${plugins.scriptfilestep}/scriptfilestep-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/scriptfilestep/ExternalScriptStep.class" />
+		</jar>
 
 		<!-- plugins.xsltstep -->
 		<mkdir dir="${plugins.xsltstep}" />
@@ -864,6 +877,9 @@
 		<copy todir="${plugins.xsltstep}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/xsltstep" />
 		</copy>
+		<jar destfile="${plugins.xsltstep}/xsltstep-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/xsltstep/XsltStep.class" />
+		</jar>
 
 		<!-- set the version on all plugins -->
 		<replace dir="${extensions}" token="@mirthversion" value="${version}">

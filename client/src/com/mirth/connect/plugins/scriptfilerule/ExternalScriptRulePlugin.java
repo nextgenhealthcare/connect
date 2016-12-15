@@ -32,7 +32,7 @@ public class ExternalScriptRulePlugin extends FilterRulePlugin {
     }
 
     @Override
-    public BasePanel getPanel() {
+    public BasePanel getBasePanel() {
         return panel;
     }
 

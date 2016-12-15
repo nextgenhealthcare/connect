@@ -18,8 +18,6 @@ import java.util.UUID;
 import javax.swing.JButton;
 import javax.swing.JSeparator;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
@@ -29,7 +27,9 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.model.codetemplates.ContextType;
-import com.mirth.connect.util.JavaScriptContextUtil;
+import com.mirth.connect.util.JavaScriptSharedUtil;
+
+import net.miginfocom.swing.MigLayout;
 
 public class JavaScriptHttpAuthDialog extends MirthDialog {
 
@@ -109,7 +109,7 @@ public class JavaScriptHttpAuthDialog extends MirthDialog {
     private boolean validateScript(boolean alertOnSuccess) {
         boolean success = false;
         StringBuilder sb = new StringBuilder();
-        Context context = JavaScriptContextUtil.getGlobalContextForValidation();
+        Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
         try {
             context.compileString("function rhinoWrapper() {" + scriptPane.getText() + "\n}", UUID.randomUUID().toString(), 1, null);
             sb.append("JavaScript was successfully validated.");

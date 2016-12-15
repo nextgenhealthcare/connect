@@ -9,4 +9,5 @@
 		<string>com.mirth.connect.plugins.scriptfilestep.ExternalScriptStepPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="scriptfilestep-client.jar" />
+	<library type="SHARED" path="scriptfilestep-shared.jar" />
 </pluginMetaData>

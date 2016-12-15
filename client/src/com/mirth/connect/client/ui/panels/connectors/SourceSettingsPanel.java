@@ -16,14 +16,12 @@ import java.awt.event.ActionListener;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -33,9 +31,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import net.miginfocom.swing.MigLayout;
-
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.ui.ChannelSetup;
@@ -47,29 +42,17 @@ import com.mirth.connect.client.ui.components.MirthComboBox;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTextField;
-import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.Step;
+import com.mirth.connect.util.JavaScriptSharedUtil;
+
+import net.miginfocom.swing.MigLayout;
 
 public class SourceSettingsPanel extends JPanel {
-
-    /*
-     * This regular expression uses alternation to capture either the "responseMap.put" syntax, or
-     * the "$r('key'," syntax. Kleene closures for whitespace are used in between every method token
-     * since it is legal JavaScript. Instead of checking ['"] once at the beginning and end, it
-     * checks once and then uses a backreference later on. That way you can capture keys like
-     * "Foo's Bar". It also accounts for backslashes before any subsequent backreferences so that
-     * "Foo\"s Bar" would still be captured. In the "$r" case, the regular expression also performs
-     * a lookahead to ensure that there is a comma after the first argument, indicating that it is
-     * the "put" version of the method, not the "get" version.
-     */
-    private final String RESULT_PATTERN = "responseMap\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)(?<!\\\\)\\1|\\$r\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)(?<!\\\\)\\4(?=\\s*,)";
-    private final static int FULL_NAME_MATCHER_INDEX = 2;
-    private final static int SHORT_NAME_MATCHER_INDEX = 5;
 
     private Frame parent;
     private ChannelSetup channelSetup;
@@ -162,36 +145,19 @@ public class SourceSettingsPanel extends JPanel {
             stepsToCheck.addAll(connector.getResponseTransformer().getSteps());
         }
 
-        Pattern pattern = Pattern.compile(RESULT_PATTERN);
-
         for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
             Step step = (Step) it.next();
-            Map data;
-            data = (Map) step.getData();
 
-            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
-                Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find()) {
-                    variables.add(getMapKey(matcher));
-                }
-            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
-                if (data.containsKey(UIConstants.IS_GLOBAL)) {
-                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
-                        variables.add((String) data.get("Variable"));
-                    }
-                }
+            Collection<String> vars = step.getResponseVariables();
+            if (vars != null) {
+                variables.addAll(vars);
             }
-        }
 
-        scripts.add(channel.getPreprocessingScript());
-        scripts.add(channel.getPostprocessingScript());
+            scripts.add(channel.getPreprocessingScript());
+            scripts.add(channel.getPostprocessingScript());
 
-        for (String script : scripts) {
-            if (script != null && script.length() > 0) {
-                Matcher matcher = pattern.matcher(script);
-                while (matcher.find()) {
-                    variables.add(getMapKey(matcher));
-                }
+            for (String script : scripts) {
+                variables.addAll(JavaScriptSharedUtil.getResponseVariables(script));
             }
         }
 
@@ -282,20 +248,6 @@ public class SourceSettingsPanel extends JPanel {
         }
 
         return valid;
-    }
-
-    private String getMapKey(Matcher matcher) {
-        /*
-         * Since multiple capturing groups are used and the final key could reside on either side of
-         * the alternation, we use two specific group indices (2 and 5), one for the full
-         * "responseMap" case and one for the short "$r" case. We also replace JavaScript-specific
-         * escape sequences like \', \", etc.
-         */
-        String key = matcher.group(FULL_NAME_MATCHER_INDEX);
-        if (key == null) {
-            key = matcher.group(SHORT_NAME_MATCHER_INDEX);
-        }
-        return StringEscapeUtils.unescapeEcmaScript(key);
     }
 
     private void setSelectedItem(Object selectedItem) {

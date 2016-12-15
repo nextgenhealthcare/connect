@@ -39,7 +39,7 @@ import com.mirth.connect.model.codetemplates.CodeTemplateProperties;
 import com.mirth.connect.model.codetemplates.CodeTemplateProperties.CodeTemplateType;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.CodeTemplateUtil;
-import com.mirth.connect.util.JavaScriptContextUtil;
+import com.mirth.connect.util.JavaScriptSharedUtil;
 
 public class BasicCodeTemplatePropertiesPanel extends CodeTemplatePropertiesPanel {
 
@@ -77,7 +77,7 @@ public class BasicCodeTemplatePropertiesPanel extends CodeTemplatePropertiesPane
     @Override
     public String checkProperties(CodeTemplateProperties properties, boolean highlight) {
         try {
-            JavaScriptContextUtil.getGlobalContextForValidation().compileString("function rhinoWrapper() {" + properties.getCode() + "\n}", UUID.randomUUID().toString(), 1, null);
+            JavaScriptSharedUtil.getGlobalContextForValidation().compileString("function rhinoWrapper() {" + properties.getCode() + "\n}", UUID.randomUUID().toString(), 1, null);
         } catch (EvaluatorException e) {
             return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
         } catch (Exception e) {

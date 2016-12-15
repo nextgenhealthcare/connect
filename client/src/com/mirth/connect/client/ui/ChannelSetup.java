@@ -127,7 +127,7 @@ import com.mirth.connect.model.filter.SearchFilter;
 import com.mirth.connect.model.filter.SearchFilterParser;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.plugins.ChannelTabPlugin;
-import com.mirth.connect.util.JavaScriptContextUtil;
+import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.PropertyVerifier;
 
 import net.miginfocom.swing.MigLayout;
@@ -846,7 +846,7 @@ public class ChannelSetup extends JPanel {
     }
 
     private boolean compareScripts(String savedScript, String defualtScript) {
-        Context context = JavaScriptContextUtil.getGlobalContextForValidation();
+        Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
         try {
             String decompiledSavedScript = "";
             String decompiledDefaultScript = "";
@@ -1636,7 +1636,7 @@ public class ChannelSetup extends JPanel {
 
         for (Step step : connector.getTransformer().getSteps()) {
             String validationMessage = this.transformerPane.validateStep(step);
-            if (validationMessage != null) {
+            if (StringUtils.isNotBlank(validationMessage)) {
                 errors += "Error in connector \"" + connector.getName() + "\" at transformer step " + step.getSequenceNumber() + " (\"" + step.getName() + "\"):\n" + validationMessage + "\n\n";
             }
         }
@@ -1644,7 +1644,7 @@ public class ChannelSetup extends JPanel {
         if (connector.getMode() == Connector.Mode.DESTINATION) {
             for (Step step : connector.getResponseTransformer().getSteps()) {
                 String validationMessage = this.transformerPane.validateStep(step);
-                if (validationMessage != null) {
+                if (StringUtils.isNotBlank(validationMessage)) {
                     errors += "Error in connector \"" + connector.getName() + "\" at response transformer step " + step.getSequenceNumber() + " (\"" + step.getName() + "\"):\n" + validationMessage + "\n\n";
                 }
             }

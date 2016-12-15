@@ -9,4 +9,5 @@
 		<string>com.mirth.connect.plugins.xsltstep.XsltStepPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="xsltstep-client.jar" />
+	<library type="SHARED" path="xsltstep-shared.jar" />
 </pluginMetaData>

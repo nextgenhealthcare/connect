@@ -29,7 +29,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.codetemplates.ContextType;
-import com.mirth.connect.util.JavaScriptContextUtil;
+import com.mirth.connect.util.JavaScriptSharedUtil;
 
 public class DatabaseWriter extends ConnectorSettingsPanel {
 
@@ -176,7 +176,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
             String script = props.getQuery();
 
             if (script.length() != 0) {
-                Context context = JavaScriptContextUtil.getGlobalContextForValidation();
+                Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
                 try {
                     context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
                 } catch (EvaluatorException e) {

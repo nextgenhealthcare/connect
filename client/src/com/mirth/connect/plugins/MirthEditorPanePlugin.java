@@ -22,7 +22,7 @@ public abstract class MirthEditorPanePlugin extends ClientPlugin {
         super(name);
     }
 
-    public abstract BasePanel getPanel();
+    public abstract BasePanel getBasePanel();
 
     public abstract boolean isNameEditable();
 

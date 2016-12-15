@@ -44,7 +44,7 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.util.JavaScriptContextUtil;
+import com.mirth.connect.util.JavaScriptSharedUtil;
 
 public class DatabaseReader extends ConnectorSettingsPanel {
     private List<DriverInfo> drivers;
@@ -279,7 +279,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
             String script = props.getSelect();
 
             if (script.length() != 0) {
-                Context context = JavaScriptContextUtil.getGlobalContextForValidation();
+                Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
 
                 try {
                     context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
@@ -296,7 +296,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
                 String onUpdateScript = props.getUpdate();
 
                 if (onUpdateScript.length() != 0) {
-                    Context context = JavaScriptContextUtil.getGlobalContextForValidation();
+                    Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
 
                     try {
                         context.compileString("function rhinoWrapper() {" + onUpdateScript + "\n}", UUID.randomUUID().toString(), 1, null);

@@ -9,4 +9,5 @@
 		<string>com.mirth.connect.plugins.mapper.MapperStepPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="mapper-client.jar" />
+	<library type="SHARED" path="mapper-shared.jar" />
 </pluginMetaData>

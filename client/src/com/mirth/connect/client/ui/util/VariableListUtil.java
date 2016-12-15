@@ -16,28 +16,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
+import com.mirth.connect.util.ScriptBuilderException;
 
 public class VariableListUtil {
     final static String COMMENT_SIMPLE_PATTERN = "//.*";
     final static String COMMENT_BLOCK_PATTERN = "/\\*(?:.|[\\n\\r])*?\\*/";
 
     /*
-     * This regular expression uses alternation to capture either the
-     * "xxxxxMap.put" syntax, or the "$x('key'," syntax. Kleene closures for
-     * whitespace are used in between every method token since it is legal
-     * JavaScript. Instead of checking ['"] once at the beginning and end, it
-     * checks once and then uses a backreference later on. That way you can
-     * capture keys like "Foo's Bar". It also accounts for backslashes before
-     * any subsequent backreferences so that "Foo\"s Bar" would still be
-     * captured. In the "$x" case, the regular expression also performs a
-     * lookahead to ensure that there is a comma after the first argument,
-     * indicating that it is the "put" version of the method, not the "get"
-     * version.
+     * This regular expression uses alternation to capture either the "xxxxxMap.put" syntax, or the
+     * "$x('key'," syntax. Kleene closures for whitespace are used in between every method token
+     * since it is legal JavaScript. Instead of checking ['"] once at the beginning and end, it
+     * checks once and then uses a backreference later on. That way you can capture keys like
+     * "Foo's Bar". It also accounts for backslashes before any subsequent backreferences so that
+     * "Foo\"s Bar" would still be captured. In the "$x" case, the regular expression also performs
+     * a lookahead to ensure that there is a comma after the first argument, indicating that it is
+     * the "put" version of the method, not the "get" version.
      */
     final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:channel|global|globalChannel|response)Map\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)\\1|(?<![A-Za-z0-9_$])\\$(?:g|gc|c|r)\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)\\4(?=\\s*,)";
     final static String LOCAL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:channel|global|globalChannel|response|connector)Map\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)\\1|(?<![A-Za-z0-9_$])\\$(?:g|gc|c|r|co)\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)\\4(?=\\s*,)";
@@ -49,8 +48,7 @@ public class VariableListUtil {
     }
 
     /*
-     * Gets all steps that have variables that should show up in the global
-     * variable list
+     * Gets all steps that have variables that should show up in the global variable list
      */
     public static void getStepVariables(Set<String> targetSet, Transformer transformer, boolean includeLocalVars, int row) {
 
@@ -67,11 +65,18 @@ public class VariableListUtil {
                 break;
             }
             Pattern pattern = Pattern.compile(varPattern);
-            String scriptWithoutComments = getScriptWithoutComments(stepIterator.next().getScript());
+            try {
+                String script = stepIterator.next().getScript(false);
+                if (StringUtils.isNotEmpty(script)) {
+                    String scriptWithoutComments = getScriptWithoutComments(script);
 
-            Matcher matcher = pattern.matcher(scriptWithoutComments);
-            while (matcher.find()) {
-                targetSet.add(getMapKey(matcher));
+                    Matcher matcher = pattern.matcher(scriptWithoutComments);
+                    while (matcher.find()) {
+                        targetSet.add(getMapKey(matcher));
+                    }
+                }
+            } catch (ScriptBuilderException e) {
+                //just move on to next step
             }
             currentRow++;
         }
@@ -82,8 +87,7 @@ public class VariableListUtil {
     }
 
     /*
-     * Gets all rules that have variables that should show up in the global
-     * variable list
+     * Gets all rules that have variables that should show up in the global variable list
      */
     public static void getRuleVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars, int row) {
 
@@ -135,10 +139,9 @@ public class VariableListUtil {
 
     private static String getMapKey(Matcher matcher) {
         /*
-         * Since multiple capturing groups are used and the final key could
-         * reside on either side of the alternation, we use two specific group
-         * indices (2 and 5), one for the full "xxxxxMap" case and one for
-         * the short "$x" case. We also replace JavaScript-specific escape
+         * Since multiple capturing groups are used and the final key could reside on either side of
+         * the alternation, we use two specific group indices (2 and 5), one for the full "xxxxxMap"
+         * case and one for the short "$x" case. We also replace JavaScript-specific escape
          * sequences like \', \", etc.
          */
         String key = matcher.group(FULL_NAME_MATCHER_INDEX);

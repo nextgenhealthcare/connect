@@ -41,8 +41,6 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -79,7 +77,9 @@ import com.mirth.connect.plugins.httpauth.javascript.JavaScriptHttpAuthDialog;
 import com.mirth.connect.plugins.httpauth.javascript.JavaScriptHttpAuthProperties;
 import com.mirth.connect.plugins.httpauth.oauth2.OAuth2HttpAuthProperties;
 import com.mirth.connect.plugins.httpauth.oauth2.OAuth2HttpAuthProperties.TokenLocation;
-import com.mirth.connect.util.JavaScriptContextUtil;
+import com.mirth.connect.util.JavaScriptSharedUtil;
+
+import net.miginfocom.swing.MigLayout;
 
 public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertiesPanel {
 
@@ -117,9 +117,11 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             props.setRealm(digestRealmField.getText());
 
             if (digestAlgorithmMD5Radio.isSelected()) {
-                props.setAlgorithms(new HashSet<Algorithm>(Arrays.asList(new Algorithm[] { Algorithm.MD5 })));
+                props.setAlgorithms(new HashSet<Algorithm>(Arrays.asList(new Algorithm[] {
+                        Algorithm.MD5 })));
             } else if (digestAlgorithmMD5SessRadio.isSelected()) {
-                props.setAlgorithms(new HashSet<Algorithm>(Arrays.asList(new Algorithm[] { Algorithm.MD5_SESS })));
+                props.setAlgorithms(new HashSet<Algorithm>(Arrays.asList(new Algorithm[] {
+                        Algorithm.MD5_SESS })));
             } else {
                 props.setAlgorithms(new HashSet<Algorithm>(Arrays.asList(Algorithm.values())));
             }
@@ -395,7 +397,8 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         basicCredentialsPanel.setBackground(getBackground());
 
         basicCredentialsTable = new MirthTable();
-        basicCredentialsTable.setModel(new RefreshTableModel(new String[] { "Username", "Password" }, 0));
+        basicCredentialsTable.setModel(new RefreshTableModel(new String[] { "Username",
+                "Password" }, 0));
         basicCredentialsTable.setCustomEditorControls(true);
         basicCredentialsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         basicCredentialsTable.setRowSelectionAllowed(true);
@@ -515,7 +518,8 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         digestCredentialsPanel.setBackground(getBackground());
 
         digestCredentialsTable = new MirthTable();
-        digestCredentialsTable.setModel(new RefreshTableModel(new String[] { "Username", "Password" }, 0));
+        digestCredentialsTable.setModel(new RefreshTableModel(new String[] { "Username",
+                "Password" }, 0));
         digestCredentialsTable.setCustomEditorControls(true);
         digestCredentialsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         digestCredentialsTable.setRowSelectionAllowed(true);
@@ -942,7 +946,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
     private void updateJSScriptField() {
         boolean equal = true;
 
-        Context context = JavaScriptContextUtil.getGlobalContextForValidation();
+        Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
         try {
             try {
                 String decompiledSavedScript = context.decompileScript(context.compileString("function doScript() {" + jsScript + "}", UUID.randomUUID().toString(), 1, null), 1);

@@ -195,7 +195,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             rulePanel.showCard(BLANK_TYPE);
 
             for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
-                plugin.getPanel().setData(null);
+                plugin.getBasePanel().setData(null);
             }
 
             loadData(-1);
@@ -363,7 +363,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         // establish the cards to use in the Transformer
         rulePanel.addCard(blankPanel, BLANK_TYPE);
         for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
-            rulePanel.addCard(plugin.getPanel(), plugin.getPluginPointName());
+            rulePanel.addCard(plugin.getBasePanel(), plugin.getPluginPointName());
         }
 
         filterTablePane = new JScrollPane();

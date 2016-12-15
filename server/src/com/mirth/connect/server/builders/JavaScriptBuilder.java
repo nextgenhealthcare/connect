@@ -37,6 +37,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.util.CodeTemplateUtil;
+import com.mirth.connect.util.ScriptBuilderException;
 
 public class JavaScriptBuilder {
     private static Logger logger = Logger.getLogger(JavaScriptBuilder.class);
@@ -134,7 +135,7 @@ public class JavaScriptBuilder {
         return script;
     }
 
-    public static String generateFilterTransformerScript(Filter filter, Transformer transformer) throws BuilderException {
+    public static String generateFilterTransformerScript(Filter filter, Transformer transformer) throws ScriptBuilderException {
         logger.debug("generating script");
 
         StringBuilder builder = new StringBuilder();
@@ -188,7 +189,7 @@ public class JavaScriptBuilder {
         return builder.toString();
     }
 
-    public static String generateResponseTransformerScript(Transformer transformer) throws BuilderException {
+    public static String generateResponseTransformerScript(Transformer transformer) throws ScriptBuilderException {
         logger.debug("Generating response transformer script...");
 
         StringBuilder builder = new StringBuilder();
@@ -278,7 +279,7 @@ public class JavaScriptBuilder {
         }
     }
 
-    private static void appendFilterScript(StringBuilder builder, Filter filter) throws BuilderException {
+    private static void appendFilterScript(StringBuilder builder, Filter filter) throws ScriptBuilderException {
         logger.debug("building javascript filter: rule count=" + filter.getRules().size());
 
         if (filter.getRules().isEmpty()) {
@@ -293,7 +294,7 @@ public class JavaScriptBuilder {
                         File externalScriptFile = new File(rule.getScript());
                         builder.append("function filterRule" + iter.nextIndex() + "() {\n" + FileUtils.readFileToString(externalScriptFile) + "\n}");
                     } catch (IOException e) {
-                        throw new BuilderException("Could not add script file.", e);
+                        throw new ScriptBuilderException("Could not add script file.", e);
                     }
                 } else {
                     builder.append("function filterRule" + iter.nextIndex() + "() {\n" + rule.getScript() + "\n}");
@@ -320,7 +321,7 @@ public class JavaScriptBuilder {
         }
     }
 
-    private static void appendTransformerScript(StringBuilder builder, Transformer transformer, boolean response) throws BuilderException {
+    private static void appendTransformerScript(StringBuilder builder, Transformer transformer, boolean response) throws ScriptBuilderException {
         logger.debug("building javascript transformer: step count=" + transformer.getSteps().size());
 
         // Set the phase and also reset the logger to transformer (it was filter before)
@@ -334,16 +335,7 @@ public class JavaScriptBuilder {
 
         for (Step step : transformer.getSteps()) {
             logger.debug("adding step: " + step.getName());
-
-            if (step.getType().equalsIgnoreCase("External Script")) {
-                try {
-                    builder.append("\n" + FileUtils.readFileToString(new File(step.getScript())) + "\n");
-                } catch (IOException e) {
-                    throw new BuilderException("Could not add script file.", e);
-                }
-            } else {
-                builder.append(step.getScript() + "\n");
-            }
+            builder.append(step.getScript(true) + "\n");
         }
 
         builder.append("if ('xml' === typeof msg) {\n");

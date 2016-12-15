@@ -9,4 +9,5 @@
 		<string>com.mirth.connect.plugins.messagebuilder.MessageBuilderPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="messagebuilder-client.jar" />
+	<library type="SHARED" path="messagebuilder-shared.jar" />
 </pluginMetaData>

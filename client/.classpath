@@ -57,6 +57,7 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datatypes/**"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceServletInterface"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/globalmapviewer/GlobalMapServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/HttpAuthConnectorPluginProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/HttpAuthConnectorPluginProperties$AuthType"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/NoneHttpAuthProperties"/>
@@ -68,9 +69,14 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/javascript/JavaScriptHttpAuthProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties$TokenLocation"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/globalmapviewer/GlobalMapServletInterface"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/javascriptstep/JavaScriptStep"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mapper/MapperStep"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mapper/MapperStep$Scope"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/messagebuilder/MessageBuilderStep"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mllpmode/MLLPModeProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/scriptfilestep/ExternalScriptStep"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/serverlog/ServerLogServletInterface"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/xsltstep/XsltStep"/>
 			<accessrule kind="nonaccessible" pattern="*/**"/>
 		</accessrules>
 	</classpathentry>

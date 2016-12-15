@@ -9,33 +9,29 @@
 
 package com.mirth.connect.plugins.scriptfilestep;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.mirth.connect.client.ui.editors.BasePanel;
-import com.mirth.connect.client.ui.editors.ExternalScriptPanel;
-import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
-import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.client.ui.editors.EditorPanel;
+import com.mirth.connect.model.Step;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class ExternalScriptStepPlugin extends TransformerStepPlugin {
 
     private ExternalScriptPanel panel;
-    private TransformerPane parent;
 
     public ExternalScriptStepPlugin(String name) {
         super(name);
+        panel = new ExternalScriptPanel();
     }
 
     @Override
-    public void initialize(TransformerPane pane) {
-        this.parent = pane;
-        panel = new ExternalScriptPanel(parent, true);
-    }
-
-    @Override
-    public BasePanel getPanel() {
+    public EditorPanel<Step> getPanel() {
         return panel;
+    }
+
+    @Override
+    public Step newStep(String variable, String mapping) {
+        ExternalScriptStep props = new ExternalScriptStep();
+        props.setScriptPath(mapping);
+        return props;
     }
 
     @Override
@@ -44,64 +40,7 @@ public class ExternalScriptStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public Map<Object, Object> getData(int row) {
-        Map<Object, Object> data = panel.getData();
-        String var = data.get("Variable").toString();
-
-        // check for empty variable names
-        if (var == null || var.trim().equals("")) {
-            parent.setInvalidVar(true);
-            String msg = "The script path field cannot be blank.\nPlease enter a new script path.\n";
-            parent.setRowSelectionInterval(row, row);
-            alertWarning(msg);
-        } else {
-            parent.setInvalidVar(false);
-        }
-
-        return data;
-    }
-
-    @Override
-    public void setData(Mode mode, Map<Object, Object> data) {
-        panel.setData(data);
-    }
-
-    @Override
-    public void clearData() {
-        panel.setData(null);
-    }
-
-    @Override
-    public void initData() {
-        Map<Object, Object> data = new HashMap<Object, Object>();
-        data.put("Variable", "");
-        panel.setData(data);
-    }
-
-    @Override
-    public String getScript(Map<Object, Object> data) {
-        StringBuilder script = new StringBuilder();
-        String variable = (String) data.get("Variable");
-        script.append(variable);
-        return script.toString();
-    }
-
-    @Override
-    public String getGeneratedScript(Map<Object, Object> data) {
-        return "";
-    }
-
-    @Override
-    public void start() {}
-
-    @Override
-    public void stop() {}
-
-    @Override
-    public void reset() {}
-
-    @Override
     public String getPluginPointName() {
-        return "External Script";
+        return ExternalScriptStep.PLUGIN_POINT;
     }
 }

@@ -22,14 +22,14 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.model.codetemplates.ContextType;
-import com.mirth.connect.util.JavaScriptContextUtil;
+import com.mirth.connect.util.JavaScriptSharedUtil;
+
+import net.miginfocom.swing.MigLayout;
 
 public class ScriptPanel extends JPanel {
 
@@ -72,7 +72,7 @@ public class ScriptPanel extends JPanel {
 
     public void validateCurrentScript() {
         StringBuilder sb = new StringBuilder();
-        Context context = JavaScriptContextUtil.getGlobalContextForValidation();
+        Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
         try {
             context.compileString("function rhinoWrapper() {" + getScriptTextArea().getText() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
             sb.append("JavaScript was successfully validated.");
@@ -89,7 +89,7 @@ public class ScriptPanel extends JPanel {
 
     public String validateScript(String script) {
         String error = null;
-        Context context = JavaScriptContextUtil.getGlobalContextForValidation();;
+        Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
         try {
             context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
         } catch (EvaluatorException e) {

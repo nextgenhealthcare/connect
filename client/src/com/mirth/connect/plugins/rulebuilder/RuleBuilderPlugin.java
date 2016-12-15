@@ -24,7 +24,7 @@ import com.mirth.connect.client.ui.editors.RuleBuilderPanel;
 import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.plugins.FilterRulePlugin;
-import com.mirth.connect.util.JavaScriptContextUtil;
+import com.mirth.connect.util.JavaScriptSharedUtil;
 
 public class RuleBuilderPlugin extends FilterRulePlugin {
 
@@ -42,7 +42,7 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
     }
 
     @Override
-    public BasePanel getPanel() {
+    public BasePanel getBasePanel() {
         return panel;
     }
 
@@ -148,7 +148,7 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
 
     public String doValidate(Map<Object, Object> data) {
         try {
-            Context context = JavaScriptContextUtil.getGlobalContextForValidation();
+            Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
             Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(data) + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
         } catch (EvaluatorException e) {
             return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";

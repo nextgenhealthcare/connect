@@ -32,11 +32,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
@@ -76,7 +75,6 @@ import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
-import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.client.ui.util.VariableListUtil;
@@ -92,9 +90,9 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     public static final String MAPPER = "Mapper";
     public static final String MESSAGE_BUILDER = "Message Builder";
     public static final String JAVASCRIPT = "Javascript";
-    // used to load the pane
+
     private Transformer transformer;
-    // fields
+
     private MirthTable transformerTable;
     private DefaultTableModel transformerTableModel;
     private JScrollPane transformerTablePane;
@@ -107,9 +105,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     private Connector connector;
     public boolean updating; // flow control
     public boolean invalidVar; // selection control
-    // panels using CardLayout
-    protected BasePanel stepPanel; // the card holder
-    protected BasePanel blankPanel;
+    private JScrollPane stepScrollPane;
     public static final int NUMBER_OF_COLUMNS = 4;
     private DropTarget dropTarget;
     private boolean isResponse = false;
@@ -153,6 +149,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             return false;
         }
 
+        stepScrollPane.setViewport(null);
+
         switchTab = false;
         lastSelectedIndex = 0;
         tabbedPane.setSelectedIndex(0);
@@ -185,11 +183,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             prevSelRow = 0;
         } else {
             transformerTable.getSelectionModel().clearSelection();
-            stepPanel.showCard(BLANK_TYPE);
-
-            for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
-                plugin.getPanel().setData(null);
-            }
             loadData(-1);
         }
 
@@ -335,10 +328,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      * This method is called from within the constructor to initialize the form.
      */
     public void initComponents() {
-
-        // the available panels (cards)
-        stepPanel = new BasePanel();
-        blankPanel = new BasePanel();
+        stepScrollPane = new JScrollPane();
+        stepScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         scriptTextArea = new MirthRTextScrollPane(null, true, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, false);
         scriptTextArea.setBackground(new Color(204, 204, 204));
@@ -352,7 +343,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         generatedScriptPanel.add(scriptTextArea, "");
 
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Step", stepPanel);
+        tabbedPane.addTab("Step", stepScrollPane);
 
         tabbedPane.addMouseListener(new MouseAdapter() {
             @Override
@@ -362,15 +353,25 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             }
         });
 
-        for (TransformerStepPlugin transformerStepPlugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
-            transformerStepPlugin.initialize(this);
+        ActionListener nameActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                if (!updating) {
+                    int selectedRow = transformerTable.getSelectedRow();
+                    if (selectedRow >= 0) {
+                        selectedRow = transformerTable.convertRowIndexToModel(selectedRow);
+                        if (selectedRow >= 0) {
+                            transformerTable.getModel().setValueAt(evt.getActionCommand(), selectedRow, STEP_NAME_COL);
+                        }
+                    }
+                }
+            }
+        };
+        for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
+            plugin.getPanel().addNameActionListener(nameActionListener);
         }
 
         // establish the cards to use in the Transformer
-        stepPanel.addCard(blankPanel, BLANK_TYPE);
-        for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
-            stepPanel.addCard(plugin.getPanel(), plugin.getPluginPointName());
-        }
         transformerTablePane = new JScrollPane();
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
 
@@ -480,7 +481,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
         transformerTablePane.setMinimumSize(new Dimension(0, 40));
-        stepPanel.setBorder(BorderFactory.createEmptyBorder());
 
         hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, transformerTablePane, tabbedPane);
         hSplitPane.setContinuousLayout(true);
@@ -508,12 +508,12 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         // Data Column is hidden
         transformerTable.setModel(new DefaultTableModel(new String[] { "#", "Name", "Type",
                 "Data" }, 0) {
-
+            @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 boolean[] canEdit;
                 TransformerStepPlugin plugin;
                 try {
-                    plugin = getPlugin((String) transformerTableModel.getValueAt(rowIndex, STEP_TYPE_COL));
+                    plugin = getTransformerStep((String) transformerTableModel.getValueAt(rowIndex, STEP_TYPE_COL));
                     canEdit = new boolean[] { false, plugin.isNameEditable(), true, true };
                 } catch (Exception e) {
                     canEdit = new boolean[] { false, false, true, true };
@@ -543,7 +543,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 if (transformerTable.getEditingRow() != -1) {
                     int row = getSelectedRow();
                     String selectedType = ((JComboBox) evt.getSource()).getSelectedItem().toString();
-                    String previousType = (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
+                    String previousType = (String) transformerTableModel.getValueAt(row, STEP_TYPE_COL);
 
                     if (selectedType.equalsIgnoreCase(previousType)) {
                         return;
@@ -553,16 +553,20 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                     invalidVar = false;
                     TransformerStepPlugin plugin = null;
                     try {
+                        plugin = getTransformerStep(previousType);
+                        Step selectedStep = plugin.getProperties();
 
-                        if (stepPanel.isModified() && !PlatformUI.MIRTH_FRAME.alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you would like to change this transformer step and lose all of the current transformer data?")) {
+                        if (!Objects.equals(selectedStep, plugin.getDefaults()) && !PlatformUI.MIRTH_FRAME.alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you would like to change this transformer step and lose all of the current transformer data?")) {
                             ((JComboBox) evt.getSource()).getModel().setSelectedItem(previousType);
                             return;
                         }
 
-                        plugin = getPlugin(selectedType);
-                        plugin.initData();
-                        transformerTableModel.setValueAt(plugin.getNewName(), row, STEP_NAME_COL);
-                        stepPanel.showCard(selectedType);
+                        plugin = getTransformerStep(selectedType);
+                        Step newStep = plugin.getDefaults();
+                        transformerTableModel.setValueAt("", row, STEP_NAME_COL);
+                        transformerTableModel.setValueAt(newStep, row, STEP_DATA_COL);
+                        plugin.setProperties(connector.getMode(), isResponse, newStep);
+                        stepScrollPane.setViewportView(plugin.getPanel());
                         updateTaskPane(selectedType);
                         updateCodePanel(selectedType);
                     } catch (Exception e) {
@@ -690,7 +694,12 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             }
 
             String type = (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
-            stepPanel.showCard(type);
+            try {
+                TransformerStepPlugin plugin = getTransformerStep(type);
+                stepScrollPane.setViewportView(plugin.getPanel());
+            } catch (Exception e) {
+                stepScrollPane.setViewportView(null);
+            }
             transformerTable.setRowSelectionInterval(row, row);
             prevSelRow = row;
             updateTaskPane(type);
@@ -705,35 +714,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         return (row >= 0 && row < transformerTableModel.getRowCount());
     }
 
-    // returns true if the variable name is unique
-    // if an integer is provided, don't check against
-    // the var in that row
-    public boolean isUnique(String var, boolean dontCheckCurrentRow) {
-        return isUnique(var, -1, dontCheckCurrentRow);
-    }
-
-    public boolean isUnique(String var, int curRow, boolean dontCheckCurrentRow) {
-        boolean unique = true;
-
-        for (int i = 0; i < transformerTableModel.getRowCount(); i++) {
-            if (!dontCheckCurrentRow || dontCheckCurrentRow && i != getSelectedRow()) {
-                String temp = "";
-                Map<Object, Object> data = (Map<Object, Object>) transformerTableModel.getValueAt(i, STEP_DATA_COL);
-
-                if (data != null) {
-                    temp = (String) data.get("Variable");
-                }
-                if (var != null && curRow != i) {
-                    if (var.equalsIgnoreCase(temp)) {
-                        unique = false;
-                    }
-                }
-            }
-        }
-
-        return unique;
-    }
-
     // sets the data from the previously used panel into the
     // previously selected Step object
     private void saveData(int row) {
@@ -742,10 +722,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         }
         if (isValid(row)) {
             String type = (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
-            Map<Object, Object> data;
+            Step step;
             try {
-                data = getPlugin(type).getData(row);
-                transformerTableModel.setValueAt(data, row, STEP_DATA_COL);
+                step = getTransformerStep(type).getProperties();
+                transformerTableModel.setValueAt(step, row, STEP_DATA_COL);
                 List<Step> list = buildStepList(new ArrayList<Step>(), transformerTable.getRowCount());
                 transformer.setSteps(list);
             } catch (Exception e) {
@@ -760,9 +740,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     private void loadData(int row) {
         if (isValid(row)) {
             String type = (String) transformerTableModel.getValueAt(row, STEP_TYPE_COL);
-            Map<Object, Object> data = (Map<Object, Object>) transformerTableModel.getValueAt(row, STEP_DATA_COL);
-
-            setPanelData(type, data);
+            Step step = (Step) transformerTableModel.getValueAt(row, STEP_DATA_COL);
+            setPanelData(type, step);
         }
 
         if (connector.getMode() == Connector.Mode.SOURCE) {
@@ -777,25 +756,30 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         }
     }
 
-    private void setPanelData(String type, Map<Object, Object> data) {
+    private void setPanelData(String type, Step step) {
         TransformerStepPlugin plugin;
         try {
-            plugin = getPlugin(type);
-            plugin.setData(connector.getMode(), data);
+            plugin = getTransformerStep(type);
+            plugin.setProperties(connector.getMode(), isResponse, step);
         } catch (Exception e) {
             parent.alertThrowable(this, e);
         }
     }
 
-    private TransformerStepPlugin getPlugin(String name) throws Exception {
-        TransformerStepPlugin plugin = LoadedExtensions.getInstance().getTransformerStepPlugins().get(name);
-        if (plugin == null) {
-            String message = "Unable to find Transformer Step Plugin: " + name;
+    /**
+     * getTransformerStep() first searches defaultTransformerSteps and then plugins and returns the
+     * appropriate plugin class
+     */
+    private TransformerStepPlugin getTransformerStep(String name) throws Exception {
+        TransformerStepPlugin stepPlugin = LoadedExtensions.getInstance().getTransformerStepPlugins().get(name);
+
+        if (stepPlugin == null) {
+            String message = "Unable to find Transformer Step: " + name;
             Exception e = new Exception(message);
             parent.alertError(this, message);
             throw new Exception(e);
         } else {
-            return plugin;
+            return stepPlugin;
         }
     }
 
@@ -803,9 +787,9 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      * prepData( int row ) works to move the data in a panel for moves or deletes
      */
     private void prepData(int row) {
-        Map<Object, Object> d = (Map<Object, Object>) transformerTableModel.getValueAt(row, STEP_DATA_COL);
+        Step step = (Step) transformerTableModel.getValueAt(row, STEP_DATA_COL);
         String type = (String) transformerTableModel.getValueAt(row, STEP_TYPE_COL);
-        setPanelData(type, d);
+        setPanelData(type, step);
     }
 
     private void setRowData(Step step, int row, boolean selectRow) {
@@ -813,17 +797,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         Object[] tableData = new Object[NUMBER_OF_COLUMNS];
 
         tableData[STEP_NUMBER_COL] = step.getSequenceNumber();
-        TransformerStepPlugin plugin;
         try {
-            plugin = getPlugin(step.getType());
-            String stepName = step.getName();
-            if (stepName == null || stepName.equals("")) {
-                plugin.setData(connector.getMode(), (Map<Object, Object>) step.getData());
-                stepName = plugin.getStepName();
-            }
-            tableData[STEP_NAME_COL] = stepName;
+            tableData[STEP_NAME_COL] = step.getName();
             tableData[STEP_TYPE_COL] = step.getType();
-            tableData[STEP_DATA_COL] = step.getData();
+            tableData[STEP_DATA_COL] = step.clone();
 
             updating = true;
             transformerTableModel.addRow(tableData);
@@ -848,10 +825,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      * void addNewStep() add a new step to the end of the list
      */
     public void addNewStep(String name, String variable, String mapping, String type) {
-        TransformerStepPlugin plugin;
+        TransformerStepPlugin stepPlugin;
 
         try {
-            plugin = getPlugin(type);
+            stepPlugin = getTransformerStep(type);
         } catch (Exception e) {
             parent.alertThrowable(this, e);
             return;
@@ -862,41 +839,9 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         if (!invalidVar || transformerTable.getRowCount() == 0) {
             int rowCount = transformerTable.getRowCount();
             modified = true;
-            Step step = new Step();
+            Step step = stepPlugin.newStep(variable, mapping);
             step.setSequenceNumber(rowCount);
-            step.setScript("");
             step.setName(name);
-
-            if (type.equals(MAPPER)) {
-                if (LoadedExtensions.getInstance().getTransformerStepPlugins().containsKey(MAPPER)) {
-                    step.setType(MAPPER); // mapper type by default, inbound
-                    LoadedExtensions.getInstance().getTransformerStepPlugins().get(MAPPER).initData();
-                } else {
-                    System.out.println("Mapper Plugin not found");
-                    step.setType(LoadedExtensions.getInstance().getTransformerStepPlugins().keySet().iterator().next());
-                }
-            } else if (type.equals(MESSAGE_BUILDER)) {
-                if (LoadedExtensions.getInstance().getTransformerStepPlugins().containsKey(MESSAGE_BUILDER)) {
-                    step.setType(MESSAGE_BUILDER); // mapper type by default,
-                    // inbound
-                    LoadedExtensions.getInstance().getTransformerStepPlugins().get(MESSAGE_BUILDER).initData();
-                } else {
-                    System.out.println("Message Builder Plugin not found");
-                    step.setType(LoadedExtensions.getInstance().getTransformerStepPlugins().keySet().iterator().next());
-                }
-            }
-
-            LinkedHashMap<Object, Object> data = new LinkedHashMap<Object, Object>();
-            data.put("Mapping", mapping);
-            data.put("Variable", variable);
-
-            step.setData(data);
-
-            if (plugin.isProvideOwnStepName()) {
-                plugin.setData(connector.getMode(), data);
-                step.setName(plugin.getStepName());
-                plugin.clearData();
-            }
 
             setRowData(step, rowCount, true);
             prevSelRow = rowCount;
@@ -931,10 +876,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         } else if (isValid(row - 1)) {
             transformerTable.setRowSelectionInterval(row - 1, row - 1);
         } else {
-            stepPanel.showCard(BLANK_TYPE);
-            for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
-                plugin.clearData();
-            }
+            stepScrollPane.setViewportView(null);
         }
         updateStepNumbers();
 
@@ -1045,11 +987,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     public void doValidate() {
         String type = (String) transformerTable.getValueAt(transformerTable.getSelectedRow(), STEP_TYPE_COL);
         try {
-            TransformerStepPlugin stepPlugin = getPlugin(type);
-            int selectedStep = transformerTable.getSelectedRow();
-            String validationMessage = stepPlugin.doValidate(stepPlugin.getData(selectedStep));
+            TransformerStepPlugin stepPlugin = getTransformerStep(type);
+            String validationMessage = stepPlugin.checkProperties(stepPlugin.getProperties(), true);
 
-            if (validationMessage == null) {
+            if (StringUtils.isBlank(validationMessage)) {
                 parent.alertInformation(this, "Validation successful.");
             } else {
                 parent.alertInformation(this, validationMessage);
@@ -1067,8 +1008,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      */
     public String validateStep(Step step) {
         try {
-            TransformerStepPlugin stepPlugin = getPlugin(step.getType());
-            return stepPlugin.doValidate((Map<Object, Object>) step.getData());
+            TransformerStepPlugin stepPlugin = getTransformerStep(step.getType());
+            return stepPlugin.checkProperties(step, true);
         } catch (Exception e) {
             parent.alertThrowable(this, e);
             return "Exception occurred during validation.";
@@ -1088,52 +1029,33 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
     public void moveStep(int i) {
         modified = true;
+        updating = true;
         int selRow = transformerTable.getSelectedRow();
         int moveTo = selRow + i;
 
         // we can't move past the first or last row
         if (isValid(moveTo)) {
-            for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
-                plugin.moveStart();
-            }
-
             saveData(selRow);
 
             // if the row was invalid, do not move the row.
             if (isInvalidVar()) {
-                for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
-                    plugin.moveEnd();
-                }
-
                 return;
             }
             loadData(moveTo);
             transformerTableModel.moveRow(selRow, selRow, moveTo);
             transformerTable.setRowSelectionInterval(moveTo, moveTo);
-
-            for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
-                plugin.moveEnd();
-            }
         }
 
         updateStepNumbers();
+        updating = false;
         parent.setSaveEnabled(true);
     }
 
     public List<Step> buildStepList(List<Step> list, int endingRow) {
         for (int i = 0; i < endingRow; i++) {
-            Step step = new Step();
+            Step step = ((Step) transformerTableModel.getValueAt(i, STEP_DATA_COL)).clone();
             step.setSequenceNumber(Integer.parseInt(transformerTable.getValueAt(i, STEP_NUMBER_COL).toString()));
             step.setName((String) transformerTableModel.getValueAt(i, STEP_NAME_COL));
-            step.setType((String) transformerTableModel.getValueAt(i, STEP_TYPE_COL));
-            step.setData((LinkedHashMap<Object, Object>) transformerTableModel.getValueAt(i, STEP_DATA_COL));
-
-            Map<Object, Object> map = (Map<Object, Object>) step.getData();
-            try {
-                step.setScript(getPlugin(step.getType()).getScript(map));
-            } catch (Exception e) {
-                parent.alertThrowable(this, e);
-            }
             list.add(step);
         }
         return list;
@@ -1197,6 +1119,18 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         if (!invalidVar) {
             List<Step> list = buildStepList(new ArrayList<Step>(), transformerTable.getRowCount());
+
+            String errors = "";
+            for (Step step : list) {
+                String validationMessage = validateStep(step);
+                if (StringUtils.isNotBlank(validationMessage)) {
+                    errors += "Error in connector \"" + connector.getName() + "\" at " + (isResponse ? "response " : "") + "transformer step " + step.getSequenceNumber() + " (\"" + step.getName() + "\"):\n" + validationMessage + "\n\n";
+                }
+            }
+            if (StringUtils.isNotBlank(errors)) {
+                parent.alertCustomError(this.parent, errors, "Error validating transformer steps.");
+                return;
+            }
 
             transformer.setSteps(list);
 
@@ -1268,17 +1202,22 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         for (int i = 0; i < rowCount; i++) {
             transformerTableModel.setValueAt(i, i, STEP_NUMBER_COL);
         }
-        if (isValid(selRow)) {
-            transformerTable.setRowSelectionInterval(selRow, selRow);
-            loadData(selRow);
-            type = transformerTableModel.getValueAt(selRow, STEP_TYPE_COL).toString();
-            stepPanel.showCard(type);
-        } else if (rowCount > 0) {
-            transformerTable.setRowSelectionInterval(0, 0);
-            loadData(0);
-            type = transformerTableModel.getValueAt(0, STEP_TYPE_COL).toString();
-            stepPanel.showCard(type);
-
+        try {
+            if (isValid(selRow)) {
+                transformerTable.setRowSelectionInterval(selRow, selRow);
+                loadData(selRow);
+                type = transformerTableModel.getValueAt(selRow, STEP_TYPE_COL).toString();
+                TransformerStepPlugin plugin = getTransformerStep(type);
+                stepScrollPane.setViewportView(plugin.getPanel());
+            } else if (rowCount > 0) {
+                transformerTable.setRowSelectionInterval(0, 0);
+                loadData(0);
+                type = transformerTableModel.getValueAt(0, STEP_TYPE_COL).toString();
+                TransformerStepPlugin plugin = getTransformerStep(type);
+                stepScrollPane.setViewportView(plugin.getPanel());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         updateTaskPane(type);
@@ -1311,7 +1250,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         try {
             if (newType != null && !newType.equals("")) {
-                parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, getPlugin(newType).showValidateTask());
+                parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, getTransformerStep(newType).showValidateTask());
             } else {
                 parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, false);
             }
@@ -1343,10 +1282,13 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     }
 
     private void updateCodePanel(String stepType) {
-        int row = transformerTable.getSelectedRow();
+        int selectedRow = transformerTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            selectedRow = transformerTable.convertRowIndexToModel(selectedRow);
+        }
 
-        if (row != -1) {
-            String type = StringUtils.isNotEmpty(stepType) ? stepType : (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
+        if (selectedRow >= 0) {
+            String type = StringUtils.isNotEmpty(stepType) ? stepType : (String) transformerTable.getModel().getValueAt(selectedRow, STEP_TYPE_COL);
             boolean hideScriptTab = type.equalsIgnoreCase("Javascript") || type.equalsIgnoreCase("External Script");
 
             if (hideScriptTab && tabbedPane.getTabCount() == 2) {
@@ -1356,11 +1298,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             }
 
             if (!hideScriptTab) {
-                TransformerStepPlugin plugin = null;
                 try {
-                    plugin = getPlugin(type);
-                    Map<Object, Object> dataMap = stepPanel.getData();
-                    scriptTextArea.setText(dataMap != null ? plugin.getGeneratedScript(dataMap) : "");
+                    TransformerStepPlugin plugin = getTransformerStep(type);
+                    Step step = plugin.getProperties();
+                    scriptTextArea.setText(step.getScript(false));
                 } catch (Exception e) {
                     scriptTextArea.setText("");
                 }
