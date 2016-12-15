@@ -105,12 +105,6 @@ public class UIConstants {
     // for incoming / outgoing
     public static final String INCOMING_DATA = "Incoming";
     public static final String OUTGOING_DATA = "Outgoing";
-    // variable constants
-    public static final String IS_GLOBAL = "isGlobal";
-    public static final String IS_GLOBAL_CHANNEL = "channel";
-    public static final String IS_GLOBAL_CONNECTOR = "connector";
-    public static final String IS_GLOBAL_GLOBAL = "global";
-    public static final String IS_GLOBAL_RESPONSE = "response";
     // for tables
     public static final String ENABLED_STATUS = "Enabled";
     public static final String DISABLED_STATUS = "Disabled";
