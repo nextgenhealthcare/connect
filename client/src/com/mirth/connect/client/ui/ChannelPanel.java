@@ -624,20 +624,22 @@ public class ChannelPanel extends AbstractFramePanel {
         List<ChannelTag> tagsCopy = new ArrayList<ChannelTag>(channelTags);
         Set<ChannelTag> updateTagList = new HashSet<ChannelTag>();
 
-        for (ChannelTag tagToUpdate : tagsCopy) {
+        for (Iterator<ChannelTag> it = tagsCopy.iterator(); it.hasNext();) {
+            ChannelTag tagToUpdate = it.next();
+
             for (ChannelTag existingTag : getCachedChannelTags()) {
                 if (existingTag.getId().equals(tagToUpdate.getId()) || existingTag.getName().equalsIgnoreCase(tagToUpdate.getName())) {
                     existingTag.getChannelIds().add(channelId);
-                    channelTags.remove(tagToUpdate);
+                    it.remove();
                 }
 
                 updateTagList.add(existingTag);
             }
         }
 
-        for (ChannelTag newTag : channelTags) {
+        for (ChannelTag newTag : tagsCopy) {
             String tagName = newTag.getName();
-            newTag.setName(StringUtils.substring(tagName, 0, 12));
+            newTag.setName(StringUtils.substring(tagName, 0, 24));
             updateTagList.add(newTag);
         }
 

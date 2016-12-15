@@ -293,7 +293,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
                 for (String tag : tagSet) {
                     DonkeyElement channelTag = migratedTags.addChildElement("channelTag");
                     channelTag.addChildElement("id", UUID.randomUUID().toString());
-                    channelTag.addChildElement("name", tag);
+                    channelTag.addChildElement("name", ChannelTag.fixName(tag));
 
                     Color newColor = ColorUtil.getNewColor();
                     DonkeyElement bgColor = channelTag.addChildElement("backgroundColor");

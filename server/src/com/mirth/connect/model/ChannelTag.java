@@ -16,7 +16,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import com.mirth.connect.donkey.util.purge.Purgable;
@@ -25,6 +27,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("channelTag")
 public class ChannelTag implements Serializable, Purgable {
+
+    public static final int MAX_NAME_LENGTH = 24;
+    public static final Pattern INVALID_NAME_PATTERN = Pattern.compile("[^a-zA-Z_0-9\\-\\s]");
 
     private String id;
     private String name;
@@ -45,14 +50,14 @@ public class ChannelTag implements Serializable, Purgable {
 
     public ChannelTag(String id, String name, Set<String> channelIds, Color backgroundColor) {
         this.id = id;
-        this.name = name;
+        this.name = fixName(name);
         this.channelIds = channelIds;
         this.backgroundColor = backgroundColor;
     }
 
     public ChannelTag(ChannelTag tag) {
         id = tag.getId();
-        name = tag.getName();
+        name = fixName(tag.getName());
         channelIds = new HashSet<String>(tag.getChannelIds());
         backgroundColor = tag.getBackgroundColor();
     }
@@ -70,7 +75,7 @@ public class ChannelTag implements Serializable, Purgable {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = fixName(name);
     }
 
     public Set<String> getChannelIds() {
@@ -87,6 +92,14 @@ public class ChannelTag implements Serializable, Purgable {
 
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
+    }
+
+    public static String fixName(String name) {
+        name = StringUtils.substring(INVALID_NAME_PATTERN.matcher(name).replaceAll(""), 0, MAX_NAME_LENGTH);
+        if (StringUtils.isBlank(name)) {
+            name = "_";
+        }
+        return name;
     }
 
     @Override

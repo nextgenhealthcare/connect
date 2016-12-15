@@ -49,7 +49,7 @@
 	</style>
 	<script>
 	// Constants
-	var CHAR_MAX = 12;
+	var CHAR_MAX = 24;
 	var BACKSPACE_KEY = 8;
 	var ENTER_KEY = 13;
 	var ESCAPE_KEY = 27;
@@ -172,7 +172,7 @@
 			
 			event.attrs.label = tagName;
 			event.attrs.value = tagType + ":" + tagName;
-			if (channelContext && tagName.length > 12) {
+			if (channelContext && tagName.length > 24) {
 				event.preventDefault();
 			}
 			

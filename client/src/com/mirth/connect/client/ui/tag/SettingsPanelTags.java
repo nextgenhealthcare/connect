@@ -602,7 +602,7 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
     private class TagNameCellEditor extends TextFieldCellEditor {
 
         public TagNameCellEditor() {
-            getTextField().setDocument(new MirthFieldConstraints(12, false, true, true));
+            getTextField().setDocument(new MirthFieldConstraints(ChannelTag.MAX_NAME_LENGTH, false, true, true));
         }
 
         @Override

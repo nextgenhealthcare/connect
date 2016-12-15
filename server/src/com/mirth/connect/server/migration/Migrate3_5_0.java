@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
+import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.util.ColorUtil;
@@ -137,7 +138,7 @@ public class Migrate3_5_0 extends Migrator {
                 for (Entry<String, Set<String>> tag : tags.entrySet()) {
                     DonkeyElement tagElement = tagsElement.addChildElement("channelTag");
                     tagElement.addChildElement("id", UUID.randomUUID().toString());
-                    tagElement.addChildElement("name", tag.getKey());
+                    tagElement.addChildElement("name", ChannelTag.fixName(tag.getKey()));
 
                     DonkeyElement channelIds = tagElement.addChildElement("channelIds");
                     for (String channelId : tag.getValue()) {

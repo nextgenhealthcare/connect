@@ -993,6 +993,24 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public synchronized void setChannelTags(Set<ChannelTag> tags) {
+        if (tags == null) {
+            tags = new HashSet<ChannelTag>();
+        } else {
+            Map<String, ChannelTag> tagMap = new HashMap<String, ChannelTag>();
+            
+            for (ChannelTag tag : tags) {
+                tag.setName(ChannelTag.fixName(tag.getName()));
+                
+                ChannelTag matchingTag = tagMap.get(tag.getName().toLowerCase());
+                if (matchingTag != null) {
+                    matchingTag.getChannelIds().addAll(tag.getChannelIds());
+                } else {
+                    tagMap.put(tag.getName().toLowerCase(), tag);
+                }
+            }
+            
+            tags = new HashSet<ChannelTag>(tagMap.values());
+        }
         saveProperty(PROPERTIES_CORE, PROPERTIES_CHANNEL_TAGS, ObjectXMLSerializer.getInstance().serialize(tags));
     }
 
