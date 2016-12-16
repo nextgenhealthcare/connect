@@ -2252,6 +2252,14 @@ public class ChannelPanel extends AbstractFramePanel {
             return;
         }
 
+        // Before overwriting the ID, get all associated tags 
+        List<ChannelTag> channelTags = new ArrayList<ChannelTag>();
+        for (ChannelTag tag : getCachedChannelTags()) {
+            if (tag.getChannelIds().contains(channel.getId())) {
+                channelTags.add(tag);
+            }
+        }
+
         try {
             channel.setRevision(0);
             channel.setId(parent.mirthClient.getGuid());
@@ -2269,6 +2277,11 @@ public class ChannelPanel extends AbstractFramePanel {
 
         channel.setName(channelName);
         channelStatuses.put(channel.getId(), new ChannelStatus(channel));
+
+        // Add the cloned channel's ID to any tags
+        for (ChannelTag tag : channelTags) {
+            tag.getChannelIds().add(channel.getId());
+        }
 
         parent.editChannel(channel);
         parent.setSaveEnabled(true);
