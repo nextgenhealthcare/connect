@@ -267,6 +267,10 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
         leftPanel = new JPanel();
         leftPanel.setBackground(getBackground());
 
+        tagsSeparator = new JPanel();
+        tagsSeparator.setBackground(getBackground());
+        tagsSeparator.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Tags", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+
         tagsTable = new MirthTable();
         tagsTable.setModel(new RefreshTableModel(new Object[] { "Name", "Color", "Channel Count",
                 "Tag" }, 0) {
@@ -494,6 +498,8 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
     private void initLayout() {
         setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill"));
 
+        add(tagsSeparator, "growx, sx, h 14!");
+
         leftPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill", "", "[grow 100][]0[][grow 25]"));
         leftPanel.add(tagsScrollPane, "grow 100, sx");
         leftPanel.add(channelsSeparator, "newline, growx, sx, h 14!");
@@ -504,7 +510,7 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
         leftPanel.add(channelsSelectSeparator);
         leftPanel.add(channelsDeselectAllLabel);
         leftPanel.add(channelsScrollPane, "newline, grow 25, sx");
-        add(leftPanel, "grow, push");
+        add(leftPanel, "newline, grow, push");
 
         add(tagsAddButton, "top, flowy, split 2, w 60!");
         add(tagsRemoveButton, "w 60!");
@@ -763,6 +769,8 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
             return panel;
         }
     }
+
+    private JPanel tagsSeparator;
 
     private JPanel leftPanel;
 
