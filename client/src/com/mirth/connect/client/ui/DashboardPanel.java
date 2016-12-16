@@ -1281,7 +1281,11 @@ public class DashboardPanel extends JPanel {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                dashboardTable.getTreeSelectionModel().setSelectionPaths(selectionPaths.toArray(new TreePath[selectionPaths.size()]));
+                try {
+                    dashboardTable.getTreeSelectionModel().setSelectionPaths(selectionPaths.toArray(new TreePath[selectionPaths.size()]));
+                } catch (Exception e) {
+                    // It's possible that the model changed already, just ignore this since it's only selecting nodes
+                }
             }
         });
     }
