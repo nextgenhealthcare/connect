@@ -16,12 +16,13 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -40,7 +41,7 @@ public class Migrate3_5_0 extends Migrator {
     }
 
     private void migrateChannelMetadata() {
-        Map<String, Set<String>> tags = new HashMap<String, Set<String>>();
+        Map<String, Pair<String, Set<String>>> tags = new HashMap<String, Pair<String, Set<String>>>();
         PreparedStatement preparedStatement = null;
         ResultSet results = null;
 
@@ -107,14 +108,15 @@ public class Migrate3_5_0 extends Migrator {
                         try {
                             Set<String> channelTags = ObjectXMLSerializer.getInstance().deserialize(tagsElement.toString(), Set.class);
                             for (String tagName : channelTags) {
-                                Set<String> channelList = tags.get(tagName);
+                                tagName = ChannelTag.fixName(tagName);
+                                Pair<String, Set<String>> tagInfo = tags.get(tagName.toLowerCase());
 
-                                if (channelList == null) {
-                                    channelList = new HashSet<String>();
-                                    tags.put(tagName, channelList);
+                                if (tagInfo == null) {
+                                    tagInfo = new ImmutablePair<String, Set<String>>(tagName, new HashSet<String>());
+                                    tags.put(tagName.toLowerCase(), tagInfo);
                                 }
 
-                                channelList.add(channelId);
+                                tagInfo.getRight().add(channelId);
                             }
                         } catch (Exception e) {
                         }
@@ -135,13 +137,13 @@ public class Migrate3_5_0 extends Migrator {
 
             DonkeyElement tagsElement = new DonkeyElement("<set/>");
             if (MapUtils.isNotEmpty(tags)) {
-                for (Entry<String, Set<String>> tag : tags.entrySet()) {
+                for (Pair<String, Set<String>> tag : tags.values()) {
                     DonkeyElement tagElement = tagsElement.addChildElement("channelTag");
                     tagElement.addChildElement("id", UUID.randomUUID().toString());
-                    tagElement.addChildElement("name", ChannelTag.fixName(tag.getKey()));
+                    tagElement.addChildElement("name", ChannelTag.fixName(tag.getLeft()));
 
                     DonkeyElement channelIds = tagElement.addChildElement("channelIds");
-                    for (String channelId : tag.getValue()) {
+                    for (String channelId : tag.getRight()) {
                         channelIds.addChildElement("string", channelId);
                     }
 

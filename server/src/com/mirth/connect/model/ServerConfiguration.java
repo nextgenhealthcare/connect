@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -27,6 +26,8 @@ import javax.swing.text.DateFormatter;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
@@ -349,7 +350,7 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
 
     @Override
     public void migrate3_5_0(DonkeyElement element) {
-        Map<String, List<String>> migratedTagList = new HashMap<String, List<String>>();
+        Map<String, Pair<String, List<String>>> migratedTagList = new HashMap<String, Pair<String, List<String>>>();
 
         DonkeyElement channelsElem = element.getChildElement("channels");
         if (channelsElem != null) {
@@ -359,28 +360,28 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
 
                 if (tagsElem != null) {
                     for (DonkeyElement tag : tagsElem.getChildElements()) {
-                        String tagName = tag.getTextContent();
-                        List<String> channelIds = migratedTagList.get(tagName);
+                        String tagName = ChannelTag.fixName(tag.getTextContent());
+                        Pair<String, List<String>> tagInfo = migratedTagList.get(tagName.toLowerCase());
 
-                        if (channelIds == null) {
-                            channelIds = new ArrayList<String>();
-                            migratedTagList.put(tagName, channelIds);
+                        if (tagInfo == null) {
+                            tagInfo = new ImmutablePair<String, List<String>>(tagName, new ArrayList<String>());
+                            migratedTagList.put(tagName.toLowerCase(), tagInfo);
                         }
 
-                        channelIds.add(channelId);
+                        tagInfo.getRight().add(channelId);
                     }
                 }
             }
         }
 
         DonkeyElement tagsElement = element.addChildElementIfNotExists("channelTags");
-        for (Entry<String, List<String>> tag : migratedTagList.entrySet()) {
+        for (Pair<String, List<String>> tag : migratedTagList.values()) {
             DonkeyElement tagElement = tagsElement.addChildElement("channelTag");
             tagElement.addChildElement("id", UUID.randomUUID().toString());
-            tagElement.addChildElement("name", tag.getKey());
+            tagElement.addChildElement("name", ChannelTag.fixName(tag.getLeft()));
 
             DonkeyElement channelIds = tagElement.addChildElement("channelIds");
-            for (String channelId : tag.getValue()) {
+            for (String channelId : tag.getRight()) {
                 channelIds.addChildElement("string", channelId);
             }
 
