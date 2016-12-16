@@ -12,9 +12,9 @@
 	
 	<style>
 		input[type='text'] { 
-			font-family: 'Tahoma',
-			color: black,
-			font-size: 10px;
+			font-family: 'Tahoma' !important;
+			font-size: 14px !important;
+			color: black;
 			width: 2000px;
 		}
 	
@@ -34,6 +34,8 @@
 		.token {
 			opacity: .9;
   			height: 22px !important;
+  			font-family: 'Tahoma' !important;
+			font-size: 14px !important;
 		}
 		
 		.token.active {
@@ -75,9 +77,9 @@
 		tagObjects = JSON.parse(tagAttributes);
 		channelContext = JSON.parse(context);
 		
-		placeholder = "Enter channel tag or name";
+		placeholder = " Enter channel tag or name";
 		if (channelContext) {
-			placeholder = "Enter channel tag";
+			placeholder = " Enter channel tag";
 		}
 		
 		$(document).find('#MirthTokenField').data('bs.tokenfield').$input.attr('placeholder', placeholder);

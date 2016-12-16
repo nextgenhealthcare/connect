@@ -264,12 +264,12 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
 
+        container = new JPanel();
+        container.setBackground(getBackground());
+        container.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Tags", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+
         leftPanel = new JPanel();
         leftPanel.setBackground(getBackground());
-
-        tagsSeparator = new JPanel();
-        tagsSeparator.setBackground(getBackground());
-        tagsSeparator.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Tags", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
         tagsTable = new MirthTable();
         tagsTable.setModel(new RefreshTableModel(new Object[] { "Name", "Color", "Channel Count",
@@ -498,7 +498,7 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
     private void initLayout() {
         setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill"));
 
-        add(tagsSeparator, "growx, sx, h 14!");
+        container.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
 
         leftPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill", "", "[grow 100][]0[][grow 25]"));
         leftPanel.add(tagsScrollPane, "grow 100, sx");
@@ -510,10 +510,12 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
         leftPanel.add(channelsSelectSeparator);
         leftPanel.add(channelsDeselectAllLabel);
         leftPanel.add(channelsScrollPane, "newline, grow 25, sx");
-        add(leftPanel, "newline, grow, push");
+        container.add(leftPanel, "grow, push");
 
-        add(tagsAddButton, "top, flowy, split 2, w 60!");
-        add(tagsRemoveButton, "w 60!");
+        container.add(tagsAddButton, "top, flowy, split 2, w 60!");
+        container.add(tagsRemoveButton, "w 60!");
+
+        add(container, "grow");
     }
 
     private void tagSelectionChanged() {
@@ -770,7 +772,7 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
         }
     }
 
-    private JPanel tagsSeparator;
+    private JPanel container;
 
     private JPanel leftPanel;
 
