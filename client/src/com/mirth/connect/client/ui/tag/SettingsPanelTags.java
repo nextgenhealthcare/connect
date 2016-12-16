@@ -63,8 +63,6 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ComparatorUtils;
@@ -85,6 +83,8 @@ import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.util.ColorUtil;
+
+import net.miginfocom.swing.MigLayout;
 
 public class SettingsPanelTags extends AbstractSettingsPanel {
 
@@ -583,16 +583,18 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
     }
 
     private void removeTag() {
+        int[] selectedRows = tagsTable.getSelectedRows();
         int[] selectedModelRows = tagsTable.getSelectedModelRows();
         if (selectedModelRows.length > 0) {
+            Arrays.sort(selectedRows);
             Arrays.sort(selectedModelRows);
 
             for (int i = selectedModelRows.length - 1; i >= 0; i--) {
                 ((RefreshTableModel) tagsTable.getModel()).removeRow(selectedModelRows[i]);
             }
 
-            if (selectedModelRows[0] < tagsTable.getRowCount()) {
-                tagsTable.setRowSelectionInterval(selectedModelRows[0], selectedModelRows[0]);
+            if (selectedRows[0] < tagsTable.getRowCount()) {
+                tagsTable.setRowSelectionInterval(selectedRows[0], selectedRows[0]);
             } else if (tagsTable.getRowCount() > 0) {
                 tagsTable.setRowSelectionInterval(tagsTable.getRowCount() - 1, tagsTable.getRowCount() - 1);
             }
