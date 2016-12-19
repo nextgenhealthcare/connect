@@ -81,8 +81,7 @@
 		if (channelContext) {
 			placeholder = " Enter channel tag";
 		}
-		
-		$(document).find('#MirthTokenField').data('bs.tokenfield').$input.attr('placeholder', placeholder);
+		updatePlaceholder();
 		
 		var tokens = $('#MirthTokenField').tokenfield('getTokens');
 		for (var i = 0; i < tokens.length; i++) {
@@ -113,10 +112,8 @@
 	function setUserTags(tags) {
 		if (!tags) {
 			tags = {};
-		} else {
-			$(document).find('#MirthTokenField').data('bs.tokenfield').$input.attr('placeholder', placeholder);
 		}
-		
+		updatePlaceholder();
 		$('#MirthTokenField').tokenfield('setTokens', JSON.parse(tags));
 		$(document).find('#MirthTokenField').data('bs.tokenfield').$input.val('');
 	}
@@ -135,6 +132,8 @@
 			$('#MirthTokenField').focus();
 		} else {
 			$('#MirthTokenField').blur();
+	        $(document).find('#MirthTokenField').data('bs.tokenfield').$input.focus().blur();
+			clickController.closePopupWindow();
 		}
 	}
 	
@@ -151,17 +150,13 @@
 		return $('#MirthTokenField').tokenfield('getTokensList');
 	}
 	
-	function updatePlaceholder(tags) {
-		if (tags) {
-			$(document).find('#MirthTokenField').data('bs.tokenfield').$input.attr('placeholder', '');
-		} else {
-			$(document).find('#MirthTokenField').data('bs.tokenfield').$input.attr('placeholder', placeholder);
-		}
+	function updatePlaceholder() {
+		$(document).find('#MirthTokenField').data('bs.tokenfield').$input.attr('placeholder', placeholder);
 	}
 	
 	$(function() {
     	$('#MirthTokenField').click(function (event) {
-			clickController.closePopupWindow();	
+			clickController.closePopupWindow();
     	});
 	
 		// This method will inject the type prefix in front of the tag name upon creation and
@@ -283,14 +278,14 @@
 				$(event.relatedTarget).find('.close').css("color", colors[1]);
 			}
 			
-			updatePlaceholder(tags);
+			updatePlaceholder();
 			clickController.updateTagSearch(getSelectedTags());
 		});
 		
 		$('#MirthTokenField').on('tokenfield:removedtoken', function (event) {
 			var tags = getSelectedTags();
 			
-			updatePlaceholder(tags);
+			updatePlaceholder();
 			clickController.deleteTagActionPerformed(tags);
 		});
 	});

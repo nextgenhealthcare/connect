@@ -55,6 +55,15 @@ public class MirthTagWebBrowser extends Region {
         webView = new WebView();
         webView.setContextMenuEnabled(false);
 
+        webView.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (!newValue) {
+                    setFocus(false);
+                }
+            }
+        });
+
         webEngine = webView.getEngine();
 
         final String tagData = convertToJSON(userTags);
