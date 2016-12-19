@@ -224,7 +224,7 @@
 			var incompleteTagText = $(this).find('#MirthTokenField').data('bs.tokenfield').$input.val();
 			
 			if (code == ENTER_KEY || code == ESCAPE_KEY || code == UP_ARROW_KEY || code == DOWN_ARROW_KEY) {
-				clickController.translateKey(code);
+				clickController.translateKey(code, incompleteTagText);
 			} else {
 				clickController.updatePopupWindow(incompleteTagText);
 			}

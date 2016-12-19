@@ -67,7 +67,7 @@ public class AutoCompletionPopupWindow extends JTextField {
     }
 
     public void createTagOnFocusLost() {
-        translateKey(ENTER_KEY);
+        translateKey(ENTER_KEY, "");
     }
 
     public void setTag(final String tagName, final String tagType) {
@@ -98,7 +98,11 @@ public class AutoCompletionPopupWindow extends JTextField {
     }
 
     public void showPopup(String completionText) {
-        if (StringUtils.isNotBlank(completionText)) {
+        showPopup(completionText, false);
+    }
+
+    public void showPopup(String completionText, boolean force) {
+        if (force || StringUtils.isNotBlank(completionText)) {
             currentlyEnteredText = completionText;
             setText(completionText);
             completionDelegate.doCompletion();
@@ -121,7 +125,7 @@ public class AutoCompletionPopupWindow extends JTextField {
         }
     }
 
-    public void translateKey(Integer keyCode) {
+    public void translateKey(Integer keyCode, String completionText) {
         if (!isFocusOwner()) {
             requestFocusInWindow();
         }
@@ -129,7 +133,11 @@ public class AutoCompletionPopupWindow extends JTextField {
         if (keyCode == UP_ARROW_KEY) {
             completionDelegate.moveUp();
         } else if (keyCode == DOWN_ARROW_KEY) {
-            completionDelegate.moveDown();
+            if (completionDelegate.isPopupVisible()) {
+                completionDelegate.moveDown();
+            } else {
+                showPopup(completionText, true);
+            }
         } else if (keyCode == ENTER_KEY) { // TODO test channel and tag with the same name
             String tagText = currentlyEnteredText;
             if (completionDelegate.isPopupVisible()) {

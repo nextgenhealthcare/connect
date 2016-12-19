@@ -72,13 +72,13 @@ public class MirthTagWebController {
         popupWindow.deleteTagActionPerformed(tagString);
     }
 
-    public void translateKey(String code) {
+    public void translateKey(String code, String completionText) {
         final Integer keyCode = Integer.parseInt(code);
 
         if (keyCode == BACKSPACE) {
             popupWindow.closePopup();
         } else {
-            popupWindow.translateKey(keyCode);
+            popupWindow.translateKey(keyCode, completionText);
         }
     }
 
