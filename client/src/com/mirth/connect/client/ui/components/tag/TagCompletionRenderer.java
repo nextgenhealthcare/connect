@@ -25,7 +25,7 @@ public class TagCompletionRenderer extends DefaultListCellRenderer {
     private BufferedImage tagImage = ColorUtil.toBufferedImage(UIConstants.ICON_TAG_GRAY.getImage());
 
     @Override
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean selected, boolean hasFocus) {
+    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean hasFocus) {
         super.getListCellRendererComponent(list, value, index, selected, hasFocus);
 
         ImageIcon icon = null;
