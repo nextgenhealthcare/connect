@@ -3390,10 +3390,10 @@ public class ChannelPanel extends AbstractFramePanel {
         topPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 0"));
         topPanel.add(channelScrollPane, "grow, push");
 
-        filterPanel.setLayout(new MigLayout("insets 0 12 3 12, novisualpadding, hidemode 3, fill, gap 12"));
-        filterPanel.add(filterLabel, "split 3");
-        filterPanel.add(tagField, "w 195:500:500");
-        filterPanel.add(tagsLabel, "gapleft 8, gaptop 2, growx, push, w ::500");
+        filterPanel.setLayout(new MigLayout("insets 0 12 3 12, novisualpadding, hidemode 3, fill", "[][][grow][]"));
+        filterPanel.add(filterLabel);
+        filterPanel.add(tagField, "gapleft 4, w 195:500:500");
+        filterPanel.add(tagsLabel, "gapleft 4, gaptop 2, growx, pushx, w 100:200");
         filterPanel.add(tagModeTextButton, "right, push, split 5, gapafter 0");
         filterPanel.add(tagModeIconButton);
         filterPanel.add(new JSeparator(SwingConstants.VERTICAL), "right, h 18!, gapbefore 12, gapafter 12");
