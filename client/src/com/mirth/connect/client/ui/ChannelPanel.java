@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -3768,6 +3769,13 @@ public class ChannelPanel extends AbstractFramePanel {
             tagPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, gap " + GAP));
             tagPanel.setOpaque(false);
             add(tagPanel, "growx, pushx");
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            // Return more width than needed to allow tags to scroll off regardless of column width
+            Dimension size = super.getPreferredSize();
+            return new Dimension(size.width + Toolkit.getDefaultToolkit().getScreenSize().width, size.height);
         }
 
         @Override
