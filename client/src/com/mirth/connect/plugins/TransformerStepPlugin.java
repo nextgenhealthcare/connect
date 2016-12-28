@@ -9,8 +9,6 @@
 
 package com.mirth.connect.plugins;
 
-import javax.swing.SwingUtilities;
-
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.Step;
@@ -19,15 +17,6 @@ public abstract class TransformerStepPlugin extends ClientPlugin {
 
     public TransformerStepPlugin(String name) {
         super(name);
-    }
-
-    public void alertWarning(final String msg) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                parent.alertWarning(parent, msg);
-            }
-        });
     }
 
     public abstract boolean isNameEditable();

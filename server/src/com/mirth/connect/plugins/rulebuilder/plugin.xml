@@ -9,4 +9,5 @@
 		<string>com.mirth.connect.plugins.rulebuilder.RuleBuilderPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="rulebuilder-client.jar" />
+	<library type="SHARED" path="rulebuilder-shared.jar" />
 </pluginMetaData>

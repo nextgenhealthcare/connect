@@ -32,11 +32,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
@@ -56,6 +55,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
@@ -76,7 +76,6 @@ import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
-import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.client.ui.util.VariableListUtil;
@@ -90,10 +89,15 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.FilterRulePlugin;
 
 public class FilterPane extends MirthEditorPane implements DropTargetListener {
-    // used to load this pane
+
+    public static final int NUMBER_OF_COLUMNS = 5;
+    public static final String BLANK_TYPE = "";
+    public static final String JAVASCRIPT = "JavaScript";
+    public static final String RULE_BUILDER = "Rule Builder";
 
     private Filter filter;
     private Transformer transformer;
+    private List<Rule> originalRules;
     // fields
     private MirthTable filterTable;
     private DefaultTableModel filterTableModel;
@@ -109,13 +113,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     // this little sucker is used to track the last row that had
     // focus after a new row is selected
     private Connector connector;
-    // panels using CardLayout
-    protected BasePanel rulePanel; // the card holder
-    protected BasePanel blankPanel;
-    public static final int NUMBER_OF_COLUMNS = 5;
-    public static final String BLANK_TYPE = "";
-    public static final String JAVASCRIPT = "JavaScript";
-    public static final String RULE_BUILDER = "Rule Builder";
+    private JScrollPane ruleScrollPane;
     private String[] comboBoxValues = new String[] { Rule.Operator.AND.toString(),
             Rule.Operator.OR.toString() };
     private Channel channel;
@@ -159,6 +157,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             return false;
         }
 
+        ruleScrollPane.setViewportView(null);
+
         switchTab = false;
         lastSelectedIndex = 0;
         tabbedPane.setSelectedIndex(0);
@@ -177,9 +177,11 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         // add any existing rules to the model
         List<Rule> list = filter.getRules();
+        originalRules = new ArrayList<Rule>();
         ListIterator<Rule> li = list.listIterator();
         while (li.hasNext()) {
             Rule s = li.next();
+            originalRules.add(s.clone());
             setRowData(s, s.getSequenceNumber(), false);
         }
 
@@ -192,12 +194,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             prevSelRow = 0;
         } else {
             filterTable.getSelectionModel().clearSelection();
-            rulePanel.showCard(BLANK_TYPE);
-
-            for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
-                plugin.getBasePanel().setData(null);
-            }
-
             loadData(-1);
         }
 
@@ -317,7 +313,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
                 if (transferData instanceof RuleDropData) {
                     RuleDropData data = (RuleDropData) transferData;
-                    addNewRule(MirthTree.constructNodeDescription(data.getNode()), data.getMapping());
+                    addNewRule(MirthTree.constructNodeDescription(data.getNode()), data.getMapping(), RULE_BUILDER);
                 }
             }
         } catch (Exception e) {
@@ -329,10 +325,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
      * This method is called from within the constructor to initialize the form.
      */
     public void initComponents() {
-
-        // the available panels (cards)
-        rulePanel = new BasePanel();
-        blankPanel = new BasePanel();
+        ruleScrollPane = new JScrollPane();
+        ruleScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         scriptTextArea = new MirthRTextScrollPane(null, true, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, false);
         scriptTextArea.setBackground(new Color(204, 204, 204));
@@ -346,7 +340,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         generatedScriptPanel.add(scriptTextArea, "");
 
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Rule", rulePanel);
+        tabbedPane.addTab("Rule", ruleScrollPane);
 
         tabbedPane.addMouseListener(new MouseAdapter() {
             @Override
@@ -356,14 +350,22 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             }
         });
 
-        for (FilterRulePlugin filterRulePlugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
-            filterRulePlugin.initialize(this);
-        }
-
-        // establish the cards to use in the Transformer
-        rulePanel.addCard(blankPanel, BLANK_TYPE);
+        ActionListener nameActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                if (!updating) {
+                    int selectedRow = filterTable.getSelectedRow();
+                    if (selectedRow >= 0) {
+                        selectedRow = filterTable.convertRowIndexToModel(selectedRow);
+                        if (selectedRow >= 0) {
+                            filterTable.getModel().setValueAt(evt.getActionCommand(), selectedRow, RULE_NAME_COL);
+                        }
+                    }
+                }
+            }
+        };
         for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
-            rulePanel.addCard(plugin.getBasePanel(), plugin.getPluginPointName());
+            plugin.getPanel().addNameActionListener(nameActionListener);
         }
 
         filterTablePane = new JScrollPane();
@@ -473,7 +475,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         // BGN LAYOUT
         filterTablePane.setBorder(BorderFactory.createEmptyBorder());
-        rulePanel.setBorder(BorderFactory.createEmptyBorder());
 
         hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filterTablePane, tabbedPane);
         hSplitPane.setContinuousLayout(true);
@@ -498,6 +499,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         filterTable.setModel(new DefaultTableModel(new String[] { "#", "Operator", "Name", "Type",
                 "Data" }, 0) {
 
+            @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 boolean[] canEdit;
                 FilterRulePlugin plugin;
@@ -543,7 +545,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                 if (filterTable.getEditingRow() != -1) {
                     int row = getSelectedRow();
                     String selectedType = ((JComboBox) evt.getSource()).getSelectedItem().toString();
-                    String previousType = (String) filterTable.getValueAt(row, RULE_TYPE_COL);
+                    String previousType = (String) filterTableModel.getValueAt(row, RULE_TYPE_COL);
 
                     if (selectedType.equalsIgnoreCase(previousType)) {
                         return;
@@ -552,15 +554,21 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                     modified = true;
                     FilterRulePlugin plugin;
                     try {
-                        if (rulePanel.isModified() && !PlatformUI.MIRTH_FRAME.alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you would like to change this filter rule and lose all of the current filter data?")) {
+                        plugin = getPlugin(previousType);
+                        Rule selectedRule = plugin.getProperties();
+
+                        if (!Objects.equals(selectedRule, plugin.getDefaults()) && !PlatformUI.MIRTH_FRAME.alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you would like to change this filter rule and lose all of the current filter data?")) {
                             ((JComboBox) evt.getSource()).getModel().setSelectedItem(previousType);
                             return;
                         }
 
                         plugin = getPlugin(selectedType);
-                        plugin.initData();
-                        filterTableModel.setValueAt(plugin.getNewName(), row, RULE_NAME_COL);
-                        rulePanel.showCard(selectedType);
+                        Rule newRule = plugin.getDefaults();
+
+                        filterTableModel.setValueAt("", row, RULE_NAME_COL);
+                        filterTableModel.setValueAt(newRule, row, RULE_DATA_COL);
+                        plugin.setProperties(connector.getMode(), newRule);
+                        ruleScrollPane.setViewportView(plugin.getPanel());
                         updateTaskPane(selectedType);
                         updateCodePanel(selectedType);
                     } catch (Exception e) {
@@ -699,7 +707,12 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         }
 
         String type = (String) filterTable.getValueAt(row, RULE_TYPE_COL);
-        rulePanel.showCard(type);
+        try {
+            FilterRulePlugin plugin = getPlugin(type);
+            ruleScrollPane.setViewportView(plugin.getPanel());
+        } catch (Exception e) {
+            ruleScrollPane.setViewportView(null);
+        }
         filterTable.setRowSelectionInterval(row, row);
         prevSelRow = row;
         updateTaskPane(type);
@@ -725,10 +738,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         if (isValid(row)) {
             String type = (String) filterTable.getValueAt(row, RULE_TYPE_COL);
 
-            Map<Object, Object> data;
+            Rule rule;
             try {
-                data = getPlugin(type).getData(row);
-                filterTableModel.setValueAt(data, row, RULE_DATA_COL);
+                rule = getPlugin(type).getProperties();
+                filterTableModel.setValueAt(rule, row, RULE_DATA_COL);
                 List<Rule> list = buildRuleList(new ArrayList<Rule>(), filterTable.getRowCount());
                 filter.setRules(list);
             } catch (Exception e) {
@@ -744,9 +757,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     private void loadData(int row) {
         if (isValid(row)) {
             String type = (String) filterTableModel.getValueAt(row, RULE_TYPE_COL);
-            Map<Object, Object> data = (Map<Object, Object>) filterTableModel.getValueAt(row, RULE_DATA_COL);
-
-            setPanelData(type, data);
+            Rule rule = (Rule) filterTableModel.getValueAt(row, RULE_DATA_COL);
+            setPanelData(type, rule);
         }
 
         if (connector.getMode() == Connector.Mode.SOURCE) {
@@ -759,11 +771,11 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         }
     }
 
-    private void setPanelData(String type, Map<Object, Object> data) {
+    private void setPanelData(String type, Rule rule) {
         FilterRulePlugin plugin;
         try {
             plugin = getPlugin(type);
-            plugin.setData(connector.getMode(), data);
+            plugin.setProperties(connector.getMode(), rule);
         } catch (Exception e) {
             parent.alertThrowable(this, e);
         }
@@ -776,19 +788,21 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         tableData[RULE_NUMBER_COL] = rule.getSequenceNumber();
         tableData[RULE_OP_COL] = rule.getOperator();
 
-        FilterRulePlugin plugin;
         try {
-            plugin = getPlugin(rule.getType());
-            String ruleName = rule.getName();
-            if (ruleName == null || ruleName.equals("") || plugin.isProvideOwnStepName()) {
-                plugin.setData(connector.getMode(), (Map<Object, Object>) rule.getData());
-                ruleName = plugin.getStepName();
-            }
-            tableData[RULE_NAME_COL] = ruleName;
+            tableData[RULE_NAME_COL] = rule.getName();
             tableData[RULE_TYPE_COL] = rule.getType();
-            tableData[RULE_DATA_COL] = rule.getData();
+            tableData[RULE_DATA_COL] = rule.clone();
 
             updating = true;
+            try {
+                FilterRulePlugin rulePlugin = getPlugin(rule.getType());
+                rulePlugin.setProperties(connector.getMode(), rule);
+                tableData[RULE_NAME_COL] = rule.getName();
+            } catch (Exception e) {
+                parent.alertThrowable(this, e);
+                return;
+            }
+
             filterTableModel.addRow(tableData);
             if (selectRow) {
                 filterTable.setRowSelectionInterval(row, row);
@@ -824,21 +838,31 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         updateCodePanel(null);
     }
 
+    public void addNewRule(String name, String mapping) {
+        addNewRule(name, mapping, RULE_BUILDER);
+    }
+
     /**
      * void addNewRule() add a new rule to the end of the list
      */
-    public void addNewRule(String name, String mapping) {
+    public void addNewRule(String name, String mapping, String type) {
         modified = true;
         addingNewRow = true;
         int rowCount = filterTable.getRowCount();
-        Rule rule = new Rule();
+
+        FilterRulePlugin rulePlugin;
+        try {
+            rulePlugin = getPlugin(type);
+        } catch (Exception e) {
+            parent.alertThrowable(this, e);
+            return;
+        }
 
         saveData(filterTable.getSelectedRow());
 
+        Rule rule = rulePlugin.newRule(mapping);
         rule.setSequenceNumber(rowCount);
-        rule.setScript("return true;");
         rule.setName(name);
-        rule.setData(null);
 
         if (rowCount == 0) {
             rule.setOperator(Rule.Operator.NONE); // NONE operator by default
@@ -846,33 +870,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         else {
             rule.setOperator(Rule.Operator.AND); // AND operator by default
         } // elsewhere
-
-        if (LoadedExtensions.getInstance().getFilterRulePlugins().containsKey(RULE_BUILDER)) {
-            rule.setType(RULE_BUILDER); // graphical rule type by default,
-                                        // inbound
-            FilterRulePlugin plugin = LoadedExtensions.getInstance().getFilterRulePlugins().get(RULE_BUILDER);
-            plugin.initData();
-            LinkedHashMap<Object, Object> data = new LinkedHashMap<Object, Object>();
-            data.put("Field", mapping);
-            data.put("Equals", UIConstants.EXISTS_OPTION);
-            data.put("Values", new ArrayList());
-            data.put("Accept", UIConstants.YES_OPTION);
-            if (name.equals("New Rule")) {
-                name = "";
-            }
-            data.put("Name", name);
-            data.put("OriginalField", mapping);
-            rule.setData(data);
-
-            if (plugin.isProvideOwnStepName()) {
-                plugin.setData(connector.getMode(), data);
-                rule.setName(plugin.getStepName());
-                plugin.clearData();
-            }
-        } else {
-            System.out.println("Rule Builder not found");
-            rule.setType(LoadedExtensions.getInstance().getFilterRulePlugins().keySet().iterator().next());
-        }
 
         setRowData(rule, rowCount, true);
         prevSelRow = rowCount;
@@ -912,10 +909,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         } else if (isValid(row - 1)) {
             filterTable.setRowSelectionInterval(row - 1, row - 1);
         } else {
-            rulePanel.showCard(BLANK_TYPE);
-            for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
-                plugin.clearData();
-            }
+            ruleScrollPane.setViewportView(null);
         }
 
         updateRuleNumbers();
@@ -932,13 +926,14 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
      * prepData( int row ) works to move the data in a panel for moves or deletes
      */
     private void prepData(int row) {
-        Map<Object, Object> d = (Map<Object, Object>) filterTableModel.getValueAt(row, RULE_DATA_COL);
+        Rule rule = (Rule) filterTableModel.getValueAt(row, RULE_DATA_COL);
         String type = (String) filterTableModel.getValueAt(row, RULE_TYPE_COL);
-        setPanelData(type, d);
+        setPanelData(type, rule);
     }
 
     private FilterRulePlugin getPlugin(String name) throws Exception {
         FilterRulePlugin plugin = LoadedExtensions.getInstance().getFilterRulePlugins().get(name);
+
         if (plugin == null) {
             String message = "Unable to find Filter Rule Plugin: " + name;
             Exception e = new Exception(message);
@@ -962,26 +957,20 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
     public void moveRule(int i) {
         modified = true;
+        updating = true;
         int selRow = filterTable.getSelectedRow();
         int moveTo = selRow + i;
 
         // we can't move past the first or last row
         if (moveTo >= 0 && moveTo < filterTable.getRowCount()) {
-            for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
-                plugin.moveStart();
-            }
-
             saveData(selRow);
             loadData(moveTo);
             filterTableModel.moveRow(selRow, selRow, moveTo);
             filterTable.setRowSelectionInterval(moveTo, moveTo);
-
-            for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
-                plugin.moveEnd();
-            }
         }
 
         updateRuleNumbers();
+        updating = false;
     }
 
     /*
@@ -1071,10 +1060,9 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         String type = (String) filterTable.getValueAt(filterTable.getSelectedRow(), RULE_TYPE_COL);
         try {
             FilterRulePlugin rulePlugin = getPlugin(type);
-            int selectedRule = filterTable.getSelectedRow();
-            String validationMessage = rulePlugin.doValidate(rulePlugin.getData(selectedRule));
+            String validationMessage = rulePlugin.checkProperties(rulePlugin.getProperties(), true);
 
-            if (validationMessage == null) {
+            if (StringUtils.isNotBlank(validationMessage)) {
                 parent.alertInformation(this, "Validation successful.");
             } else {
                 parent.alertInformation(this, validationMessage);
@@ -1093,7 +1081,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     public String validateRule(Rule rule) {
         try {
             FilterRulePlugin rulePlugin = getPlugin(rule.getType());
-            return rulePlugin.doValidate((Map<Object, Object>) rule.getData());
+            return rulePlugin.checkProperties(rule, true);
         } catch (Exception e) {
             parent.alertThrowable(this, e);
             return "Exception occurred during validation.";
@@ -1102,25 +1090,15 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
     public List<Rule> buildRuleList(List<Rule> list, int endingRow) {
         for (int i = 0; i < endingRow; i++) {
-            Rule rule = new Rule();
+            Rule rule = ((Rule) filterTableModel.getValueAt(i, RULE_DATA_COL)).clone();
             rule.setSequenceNumber(Integer.parseInt(filterTable.getValueAt(i, RULE_NUMBER_COL).toString()));
+            rule.setName((String) filterTableModel.getValueAt(i, RULE_NAME_COL));
 
             String operator = filterTableModel.getValueAt(i, RULE_OP_COL).toString();
             if (i == 0 || StringUtils.isBlank(operator)) {
                 rule.setOperator(Rule.Operator.NONE);
             } else {
                 rule.setOperator(Rule.Operator.valueOf(operator));
-            }
-
-            rule.setData((LinkedHashMap<Object, Object>) filterTableModel.getValueAt(i, RULE_DATA_COL));
-            rule.setName((String) filterTableModel.getValueAt(i, RULE_NAME_COL));
-            rule.setType((String) filterTableModel.getValueAt(i, RULE_TYPE_COL));
-
-            Map<Object, Object> map = (Map<Object, Object>) rule.getData();
-            try {
-                rule.setScript(getPlugin(rule.getType()).getScript(map));
-            } catch (Exception e) {
-                parent.alertThrowable(this, e);
             }
 
             list.add(rule);
@@ -1181,6 +1159,19 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         saveData(filterTable.getSelectedRow());
 
         List<Rule> list = buildRuleList(new ArrayList<Rule>(), filterTable.getRowCount());
+
+        String errors = "";
+        for (Rule rule : list) {
+            String validationMessage = validateRule(rule);
+            if (StringUtils.isNotBlank(validationMessage)) {
+                errors += "Error in connector \"" + connector.getName() + "\" at filter rule " + rule.getSequenceNumber() + " (\"" + rule.getName() + "\"):\n" + validationMessage + "\n\n";
+            }
+        }
+        if (StringUtils.isNotBlank(errors)) {
+            parent.alertCustomError(this.parent, errors, "Error validating filter rules.");
+            return;
+        }
+
         filter.setRules(list);
 
         String inboundDataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(tabTemplatePanel.getIncomingDataType());
@@ -1198,7 +1189,21 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             parent.setCurrentContentPage(parent.channelEditPanel);
             parent.setFocus(parent.channelEditTasks);
             parent.setPanelName("Edit Channel - " + parent.channelEditPanel.currentChannel.getName());
-            if (modified) {
+
+            boolean equalsOriginal = true;
+            if (originalRules != null) {
+                if (list.size() == originalRules.size()) {
+                    for (int i = 0; i < list.size(); i++) {
+                        if (!EqualsBuilder.reflectionEquals(list.get(i), originalRules.get(i), "name")) {
+                            equalsOriginal = false;
+                            break;
+                        }
+                    }
+                } else {
+                    equalsOriginal = false;
+                }
+            }
+            if (modified || !equalsOriginal) {
                 parent.setSaveEnabled(true);
             }
 
@@ -1224,16 +1229,22 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         updateOperations();
         String type = new String();
 
-        if (isValid(selRow)) {
-            filterTable.setRowSelectionInterval(selRow, selRow);
-            loadData(selRow);
-            type = filterTableModel.getValueAt(selRow, RULE_TYPE_COL).toString();
-            rulePanel.showCard(type);
-        } else if (rowCount > 0) {
-            filterTable.setRowSelectionInterval(0, 0);
-            loadData(0);
-            type = filterTableModel.getValueAt(0, RULE_TYPE_COL).toString();
-            rulePanel.showCard(type);
+        try {
+            if (isValid(selRow)) {
+                filterTable.setRowSelectionInterval(selRow, selRow);
+                loadData(selRow);
+                type = filterTableModel.getValueAt(selRow, RULE_TYPE_COL).toString();
+                FilterRulePlugin plugin = getPlugin(type);
+                ruleScrollPane.setViewportView(plugin.getPanel());
+            } else if (rowCount > 0) {
+                filterTable.setRowSelectionInterval(0, 0);
+                loadData(0);
+                type = filterTableModel.getValueAt(0, RULE_TYPE_COL).toString();
+                FilterRulePlugin plugin = getPlugin(type);
+                ruleScrollPane.setViewportView(plugin.getPanel());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         updateTaskPane(type);
@@ -1304,10 +1315,13 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     private void updateCodePanel(String stepType) {
-        int row = filterTable.getSelectedRow();
+        int selectedRow = filterTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            selectedRow = filterTable.convertRowIndexToModel(selectedRow);
+        }
 
-        if (row != -1) {
-            String type = StringUtils.isNotEmpty(stepType) ? stepType : (String) filterTable.getValueAt(row, RULE_TYPE_COL);
+        if (selectedRow >= 0) {
+            String type = StringUtils.isNotEmpty(stepType) ? stepType : (String) filterTableModel.getValueAt(selectedRow, RULE_TYPE_COL);
             boolean hideScriptTab = type.equalsIgnoreCase("Javascript") || type.equalsIgnoreCase("External Script");
 
             if (hideScriptTab && tabbedPane.getTabCount() == 2) {
@@ -1317,11 +1331,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             }
 
             if (!hideScriptTab) {
-                FilterRulePlugin plugin = null;
                 try {
-                    plugin = getPlugin(type);
-                    Map<Object, Object> dataMap = rulePanel.getData();
-                    scriptTextArea.setText(dataMap != null ? plugin.getGeneratedScript(dataMap) : "");
+                    FilterRulePlugin plugin = getPlugin(type);
+                    Rule rule = plugin.getProperties();
+                    scriptTextArea.setText(rule.getScript(false));
                 } catch (Exception e) {
                     scriptTextArea.setText("");
                 }

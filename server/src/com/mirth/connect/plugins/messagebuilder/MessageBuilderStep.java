@@ -36,6 +36,7 @@ public class MessageBuilderStep extends Step {
     }
 
     public MessageBuilderStep(MessageBuilderStep props) {
+        super(props);
         messageSegment = props.getMessageSegment();
         mapping = props.getMapping();
         defaultValue = props.getDefaultValue();

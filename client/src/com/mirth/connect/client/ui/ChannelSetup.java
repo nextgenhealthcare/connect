@@ -1658,7 +1658,7 @@ public class ChannelSetup extends JPanel {
 
         for (Rule rule : connector.getFilter().getRules()) {
             String validationMessage = this.filterPane.validateRule(rule);
-            if (validationMessage != null) {
+            if (StringUtils.isNotBlank(validationMessage)) {
                 String ruleName;
                 if (rule.getName() == null) {
                     ruleName = "";

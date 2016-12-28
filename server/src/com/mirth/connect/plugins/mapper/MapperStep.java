@@ -39,6 +39,7 @@ public class MapperStep extends Step {
     }
 
     public MapperStep(MapperStep props) {
+        super(props);
         variable = props.getVariable();
         mapping = props.getMapping();
         defaultValue = props.getDefaultValue();

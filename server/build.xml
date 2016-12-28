@@ -711,6 +711,9 @@
 		<copy todir="${plugins.javascriptrule}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/javascriptrule" />
 		</copy>
+		<jar destfile="${plugins.javascriptrule}/javascriptrule-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/javascriptrule/JavaScriptRule.class" />
+		</jar>
 
 		<!-- plugins.javascriptstep -->
 		<mkdir dir="${plugins.javascriptstep}" />
@@ -823,6 +826,10 @@
 		<copy todir="${plugins.rulebuilder}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/rulebuilder" />
 		</copy>
+		<jar destfile="${plugins.rulebuilder}/rulebuilder-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/rulebuilder/RuleBuilderRule.class" />
+			<include name="com/mirth/connect/plugins/rulebuilder/RuleBuilderRule$Condition.class" />
+		</jar>
 
 		<!-- plugins.serverlog -->
 		<mkdir dir="${plugins.serverlog}" />
@@ -852,6 +859,9 @@
 		<copy todir="${plugins.scriptfilerule}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/scriptfilerule" />
 		</copy>
+		<jar destfile="${plugins.scriptfilerule}/scriptfilerule-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/scriptfilerule/ExternalScriptRule.class" />
+		</jar>
 
 		<!-- plugins.scriptfilestep -->
 		<mkdir dir="${plugins.scriptfilestep}" />

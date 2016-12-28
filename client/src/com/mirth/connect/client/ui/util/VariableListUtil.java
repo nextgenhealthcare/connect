@@ -76,7 +76,7 @@ public class VariableListUtil {
                     }
                 }
             } catch (ScriptBuilderException e) {
-                //just move on to next step
+                // Just move on to next step
             }
             currentRow++;
         }
@@ -104,11 +104,18 @@ public class VariableListUtil {
                 break;
             }
             Pattern pattern = Pattern.compile(varPattern);
-            String scriptWithoutComments = getScriptWithoutComments(ruleIterator.next().getScript());
+            try {
+                String script = ruleIterator.next().getScript(false);
+                if (StringUtils.isNotEmpty(script)) {
+                    String scriptWithoutComments = getScriptWithoutComments(script);
 
-            Matcher matcher = pattern.matcher(scriptWithoutComments);
-            while (matcher.find()) {
-                targetSet.add(getMapKey(matcher));
+                    Matcher matcher = pattern.matcher(scriptWithoutComments);
+                    while (matcher.find()) {
+                        targetSet.add(getMapKey(matcher));
+                    }
+                }
+            } catch (ScriptBuilderException e) {
+                // Just move on to next rule
             }
             currentRow++;
         }

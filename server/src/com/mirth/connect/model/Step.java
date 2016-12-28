@@ -27,6 +27,13 @@ public abstract class Step implements Serializable, Purgable {
     private String name;
     private int sequenceNumber;
 
+    public Step() {}
+
+    public Step(Step props) {
+        name = props.getName();
+        sequenceNumber = props.getSequenceNumber();
+    }
+
     public abstract String getScript(boolean loadFiles) throws ScriptBuilderException;
 
     public abstract String getType();

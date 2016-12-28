@@ -9,13 +9,8 @@
 
 package com.mirth.connect.plugins.scriptfilerule;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.mirth.connect.client.ui.editors.BasePanel;
-import com.mirth.connect.client.ui.editors.ExternalScriptPanel;
-import com.mirth.connect.client.ui.editors.filter.FilterPane;
-import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.client.ui.editors.EditorPanel;
+import com.mirth.connect.model.Rule;
 import com.mirth.connect.plugins.FilterRulePlugin;
 
 public class ExternalScriptRulePlugin extends FilterRulePlugin {
@@ -24,16 +19,19 @@ public class ExternalScriptRulePlugin extends FilterRulePlugin {
 
     public ExternalScriptRulePlugin(String name) {
         super(name);
+        panel = new ExternalScriptPanel();
     }
 
     @Override
-    public void initialize(FilterPane pane) {
-        panel = new ExternalScriptPanel(pane, false);
-    }
-
-    @Override
-    public BasePanel getBasePanel() {
+    public EditorPanel<Rule> getPanel() {
         return panel;
+    }
+
+    @Override
+    public Rule newRule(String mapping) {
+        ExternalScriptRule props = new ExternalScriptRule();
+        props.setScriptPath(mapping);
+        return props;
     }
 
     @Override
@@ -42,60 +40,7 @@ public class ExternalScriptRulePlugin extends FilterRulePlugin {
     }
 
     @Override
-    public Map<Object, Object> getData(int row) {
-        return panel.getData();
-    }
-
-    @Override
-    public void setData(Mode mode, Map<Object, Object> data) {
-        panel.setData(data);
-    }
-
-    @Override
-    public String getScript(Map<Object, Object> data) {
-        StringBuilder script = new StringBuilder();
-        String variable = (String) data.get("Variable");
-        script.append(variable);
-        return script.toString();
-    }
-
-    @Override
-    public String getGeneratedScript(Map<Object, Object> data) {
-        return "";
-    }
-
-    @Override
-    public void clearData() {
-        panel.setData(null);
-    }
-
-    @Override
-    public void initData() {
-        Map<Object, Object> data = new HashMap<Object, Object>();
-        data.put("Variable", "");
-        panel.setData(data);
-    }
-
-    public String doValidate(Map<Object, Object> data) {
-        String var = data.get("Variable").toString();
-        // check for empty variable names
-        if (var == null || var.trim().equals("")) {
-            return "The script path field cannot be blank.\nPlease enter a new script path.\n";
-        }
-        return null;
-    }
-
-    @Override
-    public void start() {}
-
-    @Override
-    public void stop() {}
-
-    @Override
-    public void reset() {}
-
-    @Override
     public String getPluginPointName() {
-        return "External Script";
+        return ExternalScriptRule.PLUGIN_POINT;
     }
 }

@@ -37,6 +37,7 @@ public class XsltStep extends Step {
     }
 
     public XsltStep(XsltStep props) {
+        super(props);
         sourceXml = props.getSourceXml();
         resultVariable = props.getResultVariable();
         template = props.getTemplate();

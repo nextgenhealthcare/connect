@@ -47,6 +47,7 @@ import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.MessageStorageMode;
+import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 
@@ -121,6 +122,9 @@ public class SourceSettingsPanel extends JPanel {
 
         variables.addAll(Arrays.asList(SourceConnectorProperties.QUEUE_OFF_RESPONSES));
 
+        List<Rule> rulesToCheck = new ArrayList<Rule>();
+        rulesToCheck.addAll(channel.getSourceConnector().getFilter().getRules());
+
         List<Step> stepsToCheck = new ArrayList<Step>();
         stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getSteps());
 
@@ -141,8 +145,16 @@ public class SourceSettingsPanel extends JPanel {
                     return getValue();
                 }
             });
+            rulesToCheck.addAll(connector.getFilter().getRules());
             stepsToCheck.addAll(connector.getTransformer().getSteps());
             stepsToCheck.addAll(connector.getResponseTransformer().getSteps());
+        }
+
+        for (Rule rule : rulesToCheck) {
+            Collection<String> vars = rule.getResponseVariables();
+            if (vars != null) {
+                variables.addAll(vars);
+            }
         }
 
         for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {

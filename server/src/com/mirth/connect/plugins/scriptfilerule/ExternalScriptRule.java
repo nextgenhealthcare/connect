@@ -7,29 +7,37 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.scriptfilestep;
+package com.mirth.connect.plugins.scriptfilerule;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
-import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Rule;
 import com.mirth.connect.util.ScriptBuilderException;
 
-public class ExternalScriptStep extends Step {
+public class ExternalScriptRule extends Rule {
 
     public static final String PLUGIN_POINT = "External Script";
 
     private String scriptPath;
 
-    public ExternalScriptStep() {
+    public ExternalScriptRule() {
         scriptPath = "";
     }
 
-    public ExternalScriptStep(ExternalScriptStep props) {
+    public ExternalScriptRule(ExternalScriptRule props) {
         super(props);
         scriptPath = props.getScriptPath();
+    }
+
+    public String getScriptPath() {
+        return scriptPath;
+    }
+
+    public void setScriptPath(String scriptPath) {
+        this.scriptPath = scriptPath;
     }
 
     @Override
@@ -48,21 +56,13 @@ public class ExternalScriptStep extends Step {
         return script.toString();
     }
 
-    public String getScriptPath() {
-        return scriptPath;
-    }
-
-    public void setScriptPath(String scriptPath) {
-        this.scriptPath = scriptPath;
-    }
-
     @Override
     public String getType() {
         return PLUGIN_POINT;
     }
 
     @Override
-    public Step clone() {
-        return new ExternalScriptStep(this);
+    public Rule clone() {
+        return new ExternalScriptRule(this);
     }
 }

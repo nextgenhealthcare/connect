@@ -9,4 +9,5 @@
 		<string>com.mirth.connect.plugins.scriptfilerule.ExternalScriptRulePlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="scriptfilerule-client.jar" />
+	<library type="SHARED" path="scriptfilerule-shared.jar" />
 </pluginMetaData>

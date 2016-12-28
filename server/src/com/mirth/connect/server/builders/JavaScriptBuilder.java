@@ -9,15 +9,12 @@
 
 package com.mirth.connect.server.builders;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -288,17 +285,7 @@ public class JavaScriptBuilder {
         } else {
             for (ListIterator<Rule> iter = filter.getRules().listIterator(); iter.hasNext();) {
                 Rule rule = iter.next();
-
-                if (rule.getType().equalsIgnoreCase("External Script")) {
-                    try {
-                        File externalScriptFile = new File(rule.getScript());
-                        builder.append("function filterRule" + iter.nextIndex() + "() {\n" + FileUtils.readFileToString(externalScriptFile) + "\n}");
-                    } catch (IOException e) {
-                        throw new ScriptBuilderException("Could not add script file.", e);
-                    }
-                } else {
-                    builder.append("function filterRule" + iter.nextIndex() + "() {\n" + rule.getScript() + "\n}");
-                }
+                builder.append("function filterRule" + iter.nextIndex() + "() {\n" + rule.getScript(true) + "\n}");
             }
 
             builder.append("function doFilter() { phase[0] = 'filter'; return (");

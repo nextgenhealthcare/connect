@@ -1,12 +1,13 @@
 <pluginMetaData path="javascriptrule">
-	<name>Javascript Filter Rule</name>
+	<name>JavaScript Filter Rule</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.5.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides a JavaScript rule-type for Mirth Connect filters</description>
 	<clientClasses>
-		<string>com.mirth.connect.plugins.javascriptrule.JavascriptRulePlugin</string>
+		<string>com.mirth.connect.plugins.javascriptrule.JavaScriptRulePlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="javascriptrule-client.jar" />
+	<library type="SHARED" path="javascriptrule-shared.jar" />
 </pluginMetaData>

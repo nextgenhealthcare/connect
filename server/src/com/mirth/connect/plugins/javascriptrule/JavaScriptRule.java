@@ -7,41 +7,41 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.javascriptstep;
+package com.mirth.connect.plugins.javascriptrule;
 
 import java.util.Collection;
 import java.util.Map;
 
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
-import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Rule;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 
-public class JavaScriptStep extends Step {
+public class JavaScriptRule extends Rule {
 
     public static final String PLUGIN_POINT = "JavaScript";
 
     private String script;
 
-    public JavaScriptStep() {
+    public JavaScriptRule() {
         script = "";
     }
 
-    public JavaScriptStep(JavaScriptStep props) {
+    public JavaScriptRule(JavaScriptRule props) {
         super(props);
         script = props.getScript();
     }
 
-    @Override
-    public String getScript(boolean loadFiles) {
-        return this.script;
-    }
-
     public String getScript() {
-        return this.script;
+        return script;
     }
 
     public void setScript(String script) {
         this.script = script;
+    }
+
+    @Override
+    public String getScript(boolean loadFiles) {
+        return script;
     }
 
     @Override
@@ -50,15 +50,15 @@ public class JavaScriptStep extends Step {
     }
 
     @Override
-    public Step clone() {
-        return new JavaScriptStep(this);
+    public Rule clone() {
+        return new JavaScriptRule(this);
     }
 
     @Override
     public Collection<String> getResponseVariables() {
         return JavaScriptSharedUtil.getResponseVariables(getScript(false));
     }
-    
+
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
