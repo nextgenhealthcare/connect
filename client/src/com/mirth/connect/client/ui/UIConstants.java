@@ -86,12 +86,6 @@ public class UIConstants {
     public static final ImageIcon OPEN_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
     public static final ImageIcon CLOSED_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
     // for Forms
-    public static final String DOES_NOT_CONTAIN_OPTION = "5";
-    public static final String CONTAINS_OPTION = "4";
-    public static final String DOES_NOT_EXIST_OPTION = "3";
-    public static final String EXISTS_OPTION = "2";
-    public static final String YES_OPTION = "1";
-    public static final String NO_OPTION = "0";
     public static final Color INVALID_COLOR = Color.PINK;
     public static final String ALL_OPTION = "ALL";
     // ast: encodings

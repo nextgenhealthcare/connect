@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
@@ -81,7 +82,76 @@ public class Filter implements Serializable, Migratable, Purgable {
     public void migrate3_4_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_5_0(DonkeyElement element) {}
+    public void migrate3_5_0(DonkeyElement element) {
+        DonkeyElement rulesElement = element.getChildElement("rules");
+        List<DonkeyElement> rules = rulesElement.getChildElements();
+        rulesElement.removeChildren();
+
+        for (DonkeyElement ruleElement : rules) {
+            DonkeyElement newRuleElement;
+            String type = ruleElement.getChildElement("type").getTextContent();
+
+            DonkeyElement dataElement = ruleElement.getChildElement("data");
+            Map<String, DonkeyElement> dataMap = new HashMap<String, DonkeyElement>();
+            for (DonkeyElement entry : dataElement.getChildElements()) {
+                List<DonkeyElement> values = entry.getChildElements();
+                dataMap.put(values.get(0).getTextContent(), values.get(1));
+            }
+
+            if (StringUtils.equals(type, "Rule Builder")) {
+                newRuleElement = rulesElement.addChildElement("com.mirth.connect.plugins.rulebuilder.RuleBuilderRule");
+
+                newRuleElement.addChildElement("field", dataMap.get("Field").getTextContent());
+
+                String condition;
+                switch (dataMap.get("Equals").getTextContent()) {
+                    case "0":
+                        condition = "NOT_EQUAL";
+                        break;
+                    case "1":
+                        condition = "EQUALS";
+                        break;
+                    case "2":
+                        condition = "EXISTS";
+                        break;
+                    case "3":
+                        condition = "NOT_EXIST";
+                        break;
+                    case "4":
+                        condition = "CONTAINS";
+                        break;
+                    case "5":
+                        condition = "NOT_CONTAIN";
+                        break;
+                    default:
+                        condition = "EXISTS";
+                }
+                newRuleElement.addChildElement("condition", condition);
+
+                DonkeyElement values = newRuleElement.addChildElement("values");
+                for (DonkeyElement value : dataMap.get("Values").getChildElements()) {
+                    values.addChildElement("string", value.getTextContent());
+                }
+            } else if (StringUtils.equals(type, "External Script")) {
+                newRuleElement = rulesElement.addChildElement("com.mirth.connect.plugins.scriptfilerule.ExternalScriptRule");
+
+                newRuleElement.addChildElement("scriptPath", dataMap.get("Variable").getTextContent());
+            } else {
+                newRuleElement = rulesElement.addChildElement("com.mirth.connect.plugins.javascriptrule.JavaScriptRule");
+
+                DonkeyElement script = dataMap.get("Script");
+                if (script != null) {
+                    newRuleElement.addChildElement("script", script.getTextContent());
+                } else {
+                    newRuleElement.addChildElement("script", ruleElement.getChildElement("script").getTextContent());
+                }
+            }
+
+            newRuleElement.addChildElement("sequenceNumber", ruleElement.getChildElement("sequenceNumber").getTextContent());
+            newRuleElement.addChildElement("name", ruleElement.getChildElement("name").getTextContent());
+            newRuleElement.addChildElement("operator", ruleElement.getChildElement("operator").getTextContent());
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
