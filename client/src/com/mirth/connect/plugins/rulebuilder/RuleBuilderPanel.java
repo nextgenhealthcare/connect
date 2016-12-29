@@ -27,10 +27,13 @@ import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.text.BadLocationException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -269,6 +272,18 @@ public class RuleBuilderPanel extends EditorPanel<Rule> {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             valuesTable.setHighlighters(highlighter);
         }
+
+        valuesTable.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent evt) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateName();
+                    }
+                });
+            }
+        });
 
         valuesScrollPane = new JScrollPane(valuesTable);
         valuesScrollPane.addMouseListener(new MouseAdapter() {
