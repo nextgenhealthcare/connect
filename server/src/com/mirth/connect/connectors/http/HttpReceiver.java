@@ -60,6 +60,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.DefaultUserIdentity;
@@ -589,7 +590,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         sourceMap.put("localPort", request.getLocalPort());
         sourceMap.put("method", requestMessage.getMethod());
         sourceMap.put("url", requestMessage.getRequestUrl());
-        sourceMap.put("uri", StringUtils.trimToEmpty(request.getHttpURI().toString()));
+        HttpURI uri = request.getHttpURI();
+        sourceMap.put("uri", StringUtils.trimToEmpty(uri.isAbsolute() ? uri.toString() : uri.getPathQuery()));
         sourceMap.put("protocol", StringUtils.trimToEmpty(request.getProtocol()));
         sourceMap.put("query", requestMessage.getQueryString());
         sourceMap.put("contextPath", requestMessage.getContextPath());
@@ -918,7 +920,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                             Principal userPrincipal = new KnownUser(StringUtils.trimToEmpty(result.getUsername()), null);
                             Subject subject = new Subject();
                             subject.getPrincipals().add(userPrincipal);
-                            return new UserAuthentication(getAuthMethod(), new DefaultUserIdentity(subject, userPrincipal, new String[] { "user" }));
+                            return new UserAuthentication(getAuthMethod(), new DefaultUserIdentity(subject, userPrincipal, new String[] {
+                                    "user" }));
                         case FAILURE:
                         default:
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
