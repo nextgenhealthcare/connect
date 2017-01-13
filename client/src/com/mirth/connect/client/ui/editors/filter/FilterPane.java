@@ -176,7 +176,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         parent.setFocus(new JXTaskPane[] { viewTasks, filterTasks }, false, true);
 
         // add any existing rules to the model
-        List<Rule> list = filter.getRules();
+        List<Rule> list = filter.getElements();
         originalRules = new ArrayList<Rule>();
         ListIterator<Rule> li = list.listIterator();
         while (li.hasNext()) {
@@ -243,7 +243,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         Set<String> types = new HashSet<String>();
 
-        for (Rule rule : filter.getRules()) {
+        for (Rule rule : filter.getElements()) {
             types.add(rule.getType());
         }
 
@@ -567,7 +567,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
                         filterTableModel.setValueAt("", row, RULE_NAME_COL);
                         filterTableModel.setValueAt(newRule, row, RULE_DATA_COL);
-                        plugin.setProperties(connector.getMode(), newRule);
+                        plugin.setProperties(connector.getMode(), false, newRule);
                         ruleScrollPane.setViewportView(plugin.getPanel());
                         updateTaskPane(selectedType);
                         updateCodePanel(selectedType);
@@ -743,7 +743,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                 rule = getPlugin(type).getProperties();
                 filterTableModel.setValueAt(rule, row, RULE_DATA_COL);
                 List<Rule> list = buildRuleList(new ArrayList<Rule>(), filterTable.getRowCount());
-                filter.setRules(list);
+                filter.setElements(list);
             } catch (Exception e) {
                 parent.alertThrowable(this, e);
             }
@@ -763,7 +763,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         if (connector.getMode() == Connector.Mode.SOURCE) {
             Set<String> concatenatedRules = new LinkedHashSet<String>();
-            VariableListUtil.getRuleVariables(concatenatedRules, connector, true, row);
+            VariableListUtil.getRuleVariables(concatenatedRules, connector.getFilter(), true, row);
             tabTemplatePanel.updateVariables(concatenatedRules, null);
         } else {
             tabTemplatePanel.updateVariables(getRuleVariables(row), getGlobalStepVariables(row));
@@ -775,7 +775,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         FilterRulePlugin plugin;
         try {
             plugin = getPlugin(type);
-            plugin.setProperties(connector.getMode(), rule);
+            plugin.setProperties(connector.getMode(), false, rule);
         } catch (Exception e) {
             parent.alertThrowable(this, e);
         }
@@ -796,7 +796,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             updating = true;
             try {
                 FilterRulePlugin rulePlugin = getPlugin(rule.getType());
-                rulePlugin.setProperties(connector.getMode(), rule);
+                rulePlugin.setProperties(connector.getMode(), false, rule);
                 tableData[RULE_NAME_COL] = rule.getName();
             } catch (Exception e) {
                 parent.alertThrowable(this, e);
@@ -860,7 +860,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         saveData(filterTable.getSelectedRow());
 
-        Rule rule = rulePlugin.newRule(mapping);
+        Rule rule = rulePlugin.newObject(null, mapping);
         rule.setSequenceNumber(rowCount);
         rule.setName(name);
 
@@ -1013,19 +1013,19 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
              * MIRTH-2746 When appending filter rules from an import, the first rule may not have an
              * operator. To prevent an error in the JavaScript, we default it to AND.
              */
-            switch (importFilter.getRules().get(0).getOperator()) {
+            switch (importFilter.getElements().get(0).getOperator()) {
                 case AND:
                 case OR:
                     break;
 
                 default:
-                    importFilter.getRules().get(0).setOperator(Operator.AND);
+                    importFilter.getElements().get(0).setOperator(Operator.AND);
                     break;
             }
 
             int row = filterTableModel.getRowCount();
 
-            for (Rule rule : importFilter.getRules()) {
+            for (Rule rule : importFilter.getElements()) {
                 setRowData(rule, row++, false);
             }
 
@@ -1108,7 +1108,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
     private Set<String> getRuleVariables(int row) {
         Set<String> concatenatedRules = new LinkedHashSet<String>();
-        VariableListUtil.getRuleVariables(concatenatedRules, channel.getSourceConnector(), false);
+        VariableListUtil.getRuleVariables(concatenatedRules, channel.getSourceConnector().getFilter(), false);
 
         List<Connector> destinationConnectors = channel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
@@ -1116,10 +1116,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         while (it.hasNext()) {
             Connector destination = it.next();
             if (connector == destination) {
-                VariableListUtil.getRuleVariables(concatenatedRules, destination, true, row);
+                VariableListUtil.getRuleVariables(concatenatedRules, destination.getFilter(), true, row);
                 seenCurrent = true;
             } else if (!seenCurrent) {
-                VariableListUtil.getRuleVariables(concatenatedRules, destination, false);
+                VariableListUtil.getRuleVariables(concatenatedRules, destination.getFilter(), false);
                 concatenatedRules.add(destination.getName());
             }
         }
@@ -1172,7 +1172,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             return;
         }
 
-        filter.setRules(list);
+        filter.setElements(list);
 
         String inboundDataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(tabTemplatePanel.getIncomingDataType());
 
@@ -1277,7 +1277,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         try {
             if (newType != null && !newType.equals("")) {
-                parent.setVisibleTasks(filterTasks, filterPopupMenu, 4, 4, getPlugin(newType).showValidateTask());
+                parent.setVisibleTasks(filterTasks, filterPopupMenu, 4, 4, true);
             } else {
                 parent.setVisibleTasks(filterTasks, filterPopupMenu, 4, 4, false);
             }

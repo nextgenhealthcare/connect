@@ -17,6 +17,8 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -35,15 +37,16 @@ import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 
 import com.mirth.connect.client.ui.editors.DataTypePropertiesDialog;
-import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
 public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener {
+    public final String DEFAULT_TEXT = "Paste a sample message here.";
+
     private static final String MESSAGE_TEMPLATES_BOLD = "<html><b>Message Templates</b></html>";
     private static final String MESSAGE_TEMPLATES = "Message Templates";
-    public final String DEFAULT_TEXT = "Paste a sample message here.";
-    protected MirthEditorPane parent;
+
+    private ActionListener templateTitleListener;
     private SyntaxDocument hl7Document;
     private TreePanel treePanel;
     private String currentMessage = "";
@@ -58,8 +61,8 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         initComponents();
     }
 
-    public TemplatePanel(MirthEditorPane m) {
-        this.parent = m;
+    public TemplatePanel(ActionListener templateTitleListener) {
+        this.templateTitleListener = templateTitleListener;
 
         initComponents();
         openFileButton.setIcon(UIConstants.ICON_FILE_PICKER);
@@ -157,8 +160,6 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 } else {
                     pasteBox.setText(FileUtils.readFileToString(file, UIConstants.CHARSET));
                 }
-
-                parent.modified = true;
             }
         } catch (Exception e) {
             dtde.rejectDrop();
@@ -185,7 +186,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             public void run() {
                 // If the current message and pasteBox are blank then a new
                 // template tree is loading, so the treePanel should be cleared.
-                if (currentMessage.equals("") && currentMessage.equals(pasteBox.getText())) {
+                if (dataProperties == null || (currentMessage.equals("") && currentMessage.equals(pasteBox.getText()))) {
                     treePanel.clearMessage();
                 } else if (!currentMessage.equals(pasteBox.getText())) {
                     final String workingId = PlatformUI.MIRTH_FRAME.startWorking("Parsing...");
@@ -217,14 +218,9 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         }
 
         // Change the message tab display when the outbound template is modified
-        if (!inbound) {
-            if (StringUtils.isBlank(pasteBox.getText())) {
-                if (!parent.tabTemplatePanel.tabbedPane.getTitleAt(2).equals(MESSAGE_TEMPLATES)) {
-                    parent.tabTemplatePanel.tabbedPane.setTitleAt(2, MESSAGE_TEMPLATES);
-                }
-            } else if (!parent.tabTemplatePanel.tabbedPane.getTitleAt(2).equals(MESSAGE_TEMPLATES_BOLD)) {
-                parent.tabTemplatePanel.tabbedPane.setTitleAt(2, MESSAGE_TEMPLATES_BOLD);
-            }
+        if (!inbound && templateTitleListener != null) {
+            String title = StringUtils.isBlank(pasteBox.getText()) ? MESSAGE_TEMPLATES : MESSAGE_TEMPLATES_BOLD;
+            templateTitleListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, title));
         }
     }
 
@@ -389,8 +385,6 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                     pasteBox.setText(content);
                 }
             }
-
-            parent.modified = true;
         } catch (Exception e) {
             PlatformUI.MIRTH_FRAME.alertThrowable(this, e, "Invalid template file. " + e.getMessage());
         }

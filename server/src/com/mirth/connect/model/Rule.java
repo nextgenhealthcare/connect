@@ -9,20 +9,12 @@
 
 package com.mirth.connect.model;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-
-import com.mirth.connect.donkey.util.purge.Purgable;
-import com.mirth.connect.util.ScriptBuilderException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("rule")
-public abstract class Rule implements Serializable, Purgable {
+public abstract class Rule extends FilterTransformerElement {
 
     public enum Operator {
         AND, OR, NONE
@@ -31,41 +23,14 @@ public abstract class Rule implements Serializable, Purgable {
     public Rule() {}
 
     public Rule(Rule props) {
-        name = props.getName();
-        sequenceNumber = props.getSequenceNumber();
+        super(props);
         operator = props.getOperator();
     }
 
-    private String name;
-    private int sequenceNumber;
     private Operator operator;
-
-    public abstract String getScript(boolean loadFiles) throws ScriptBuilderException;
-
-    public abstract String getType();
 
     @Override
     public abstract Rule clone();
-
-    public Collection<String> getResponseVariables() {
-        return null;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getSequenceNumber() {
-        return this.sequenceNumber;
-    }
-
-    public void setSequenceNumber(int sequenceNumber) {
-        this.sequenceNumber = sequenceNumber;
-    }
 
     public Operator getOperator() {
         return this.operator;
@@ -76,19 +41,8 @@ public abstract class Rule implements Serializable, Purgable {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this, CalendarToStringStyle.instance());
-    }
-
-    @Override
     public Map<String, Object> getPurgedProperties() {
-        Map<String, Object> purgedProperties = new HashMap<String, Object>();
-        purgedProperties.put("sequenceNumber", sequenceNumber);
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("operator", operator);
         return purgedProperties;
     }

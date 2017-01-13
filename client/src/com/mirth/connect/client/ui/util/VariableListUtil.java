@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
@@ -53,7 +53,7 @@ public class VariableListUtil {
     public static void getStepVariables(Set<String> targetSet, Transformer transformer, boolean includeLocalVars, int row) {
 
         // add only the global variables
-        List<Step> connectorSteps = transformer.getSteps();
+        List<Step> connectorSteps = transformer.getElements();
         Iterator<Step> stepIterator = connectorSteps.iterator();
         String varPattern = GLOBAL_AND_CHANNEL_VARIABLE_PATTERN;
         if (includeLocalVars) {
@@ -82,17 +82,17 @@ public class VariableListUtil {
         }
     }
 
-    public static void getRuleVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars) {
-        getRuleVariables(targetSet, connector, includeLocalVars, -1);
+    public static void getRuleVariables(Set<String> targetSet, Filter filter, boolean includeLocalVars) {
+        getRuleVariables(targetSet, filter, includeLocalVars, -1);
     }
 
     /*
      * Gets all rules that have variables that should show up in the global variable list
      */
-    public static void getRuleVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars, int row) {
+    public static void getRuleVariables(Set<String> targetSet, Filter filter, boolean includeLocalVars, int row) {
 
         // add only the global variables
-        List<Rule> connectorRules = connector.getFilter().getRules();
+        List<Rule> connectorRules = filter.getElements();
         Iterator<Rule> ruleIterator = connectorRules.iterator();
         String varPattern = GLOBAL_AND_CHANNEL_VARIABLE_PATTERN;
         if (includeLocalVars) {

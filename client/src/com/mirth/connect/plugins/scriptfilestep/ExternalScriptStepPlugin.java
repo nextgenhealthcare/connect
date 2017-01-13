@@ -28,7 +28,7 @@ public class ExternalScriptStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public Step newStep(String variable, String mapping) {
+    public Step newObject(String variable, String mapping) {
         ExternalScriptStep props = new ExternalScriptStep();
         props.setScriptPath(mapping);
         return props;

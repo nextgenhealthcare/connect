@@ -52,7 +52,7 @@ public abstract class MirthEditorPane extends JPanel {
     public MirthEditorPane() {
         super();
         this.setBorder(BorderFactory.createEmptyBorder());
-        tabTemplatePanel = new TabbedTemplatePanel(this);
+        tabTemplatePanel = new TabbedTemplatePanel();
         tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());
         refPanel = new JPanel();
         refPanel.setBorder(BorderFactory.createEmptyBorder());

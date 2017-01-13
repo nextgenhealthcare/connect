@@ -277,13 +277,13 @@ public class JavaScriptBuilder {
     }
 
     private static void appendFilterScript(StringBuilder builder, Filter filter) throws ScriptBuilderException {
-        logger.debug("building javascript filter: rule count=" + filter.getRules().size());
+        logger.debug("building javascript filter: rule count=" + filter.getElements().size());
 
-        if (filter.getRules().isEmpty()) {
+        if (filter.getElements().isEmpty()) {
             logger.debug("filter is empty, setting to accept all messages");
             builder.append("function doFilter() { phase[0] = 'filter'; return true; }");
         } else {
-            for (ListIterator<Rule> iter = filter.getRules().listIterator(); iter.hasNext();) {
+            for (ListIterator<Rule> iter = filter.getElements().listIterator(); iter.hasNext();) {
                 Rule rule = iter.next();
                 builder.append("function filterRule" + iter.nextIndex() + "() {\n" + rule.getScript(true) + "\n}");
             }
@@ -291,7 +291,7 @@ public class JavaScriptBuilder {
             builder.append("function doFilter() { phase[0] = 'filter'; return (");
 
             // call each of the above functions in a big boolean expression
-            for (ListIterator<Rule> iter = filter.getRules().listIterator(); iter.hasNext();) {
+            for (ListIterator<Rule> iter = filter.getElements().listIterator(); iter.hasNext();) {
                 Rule rule = iter.next();
                 String operator = "";
 
@@ -309,7 +309,7 @@ public class JavaScriptBuilder {
     }
 
     private static void appendTransformerScript(StringBuilder builder, Transformer transformer, boolean response) throws ScriptBuilderException {
-        logger.debug("building javascript transformer: step count=" + transformer.getSteps().size());
+        logger.debug("building javascript transformer: step count=" + transformer.getElements().size());
 
         // Set the phase and also reset the logger to transformer (it was filter before)
         builder.append("function doTransform() {");
@@ -320,7 +320,7 @@ public class JavaScriptBuilder {
 
         builder.append("\n\n\n");
 
-        for (Step step : transformer.getSteps()) {
+        for (Step step : transformer.getElements()) {
             logger.debug("adding step: " + step.getName());
             builder.append(step.getScript(true) + "\n");
         }

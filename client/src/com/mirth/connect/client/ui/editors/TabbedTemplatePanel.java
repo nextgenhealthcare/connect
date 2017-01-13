@@ -9,6 +9,8 @@
 
 package com.mirth.connect.client.ui.editors;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +22,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.FunctionList;
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TransformerType;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler;
@@ -32,13 +35,13 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
+import net.miginfocom.swing.MigLayout;
+
 public class TabbedTemplatePanel extends JPanel {
 
-    private MirthEditorPane editorPane;
     private ContextType contextType;
 
-    public TabbedTemplatePanel(MirthEditorPane editorPane) {
-        this.editorPane = editorPane;
+    public TabbedTemplatePanel() {
         initComponents();
         initLayout();
     }
@@ -65,7 +68,7 @@ public class TabbedTemplatePanel extends JPanel {
      */
     public void setSourceView() {
         boolean inboundEnabled = true;
-        if (editorPane.parent.channelEditPanel.requiresXmlDataType()) {
+        if (PlatformUI.MIRTH_FRAME.channelEditPanel.requiresXmlDataType()) {
             inboundEnabled = false;
         }
         messageTemplatePanel.setDataTypeEnabled(inboundEnabled, true, true, true, TransformerType.SOURCE);
@@ -190,7 +193,15 @@ public class TabbedTemplatePanel extends JPanel {
 
         messageTreePanel = new MessageTreePanel();
 
-        messageTemplatePanel = new MessageTemplatePanel(editorPane);
+        ActionListener templateTitleListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                if (!StringUtils.equals(tabbedPane.getTitleAt(2), evt.getActionCommand())) {
+                    tabbedPane.setTitleAt(2, evt.getActionCommand());
+                }
+            }
+        };
+        messageTemplatePanel = new MessageTemplatePanel(templateTitleListener);
         messageTemplatePanel.setInboundTreePanel(messageTreePanel.getInboundTreePanel());
         messageTemplatePanel.setOutboundTreePanel(messageTreePanel.getOutboundTreePanel());
     }
@@ -208,7 +219,7 @@ public class TabbedTemplatePanel extends JPanel {
         add(tabbedPane, "grow");
     }
 
-    public JTabbedPane tabbedPane;
+    private JTabbedPane tabbedPane;
     private JPanel referencePanel;
     private JSplitPane referenceSplitPane;
     private Map<ContextType, FunctionList> functionListMap;

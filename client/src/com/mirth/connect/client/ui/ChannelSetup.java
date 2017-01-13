@@ -57,6 +57,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -288,25 +289,22 @@ public class ChannelSetup extends JPanel {
      */
     public String editTransformer() {
         String name = "";
-        boolean changed = parent.changesHaveBeenMade();
-        boolean transformerPaneLoaded = false;
 
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
             name = "Source";
-            transformerPaneLoaded = transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer(), changed, false);
+            transformerPane.setProperties(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer(), false);
         } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
             Connector destination = currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex());
-            transformerPaneLoaded = transformerPane.load(destination, destination.getTransformer(), changed, false);
+            transformerPane.setProperties(destination, destination.getTransformer(), false);
             name = destination.getName();
         }
 
-        if (!transformerPaneLoaded) {
-            parent.taskPaneContainer.add(parent.getOtherPane());
-            parent.setCurrentContentPage(parent.channelEditPanel);
-            parent.setFocus(parent.channelEditTasks);
-            name = "Edit Channel - " + parent.channelEditPanel.currentChannel.getName();
-            parent.channelEditPanel.updateComponentShown();
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                transformerPane.resizePanes();
+            }
+        });
 
         return name;
     }
@@ -316,22 +314,19 @@ public class ChannelSetup extends JPanel {
      */
     public String editResponseTransformer() {
         String name = "";
-        boolean changed = parent.changesHaveBeenMade();
-        boolean responseTransformerPaneLoaded = false;
 
         if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
             Connector destination = currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex());
-            responseTransformerPaneLoaded = transformerPane.load(destination, destination.getResponseTransformer(), changed, true);
+            transformerPane.setProperties(destination, destination.getResponseTransformer(), true);
             name = destination.getName();
         }
 
-        if (!responseTransformerPaneLoaded) {
-            parent.taskPaneContainer.add(parent.getOtherPane());
-            parent.setCurrentContentPage(parent.channelEditPanel);
-            parent.setFocus(parent.channelEditTasks);
-            name = "Edit Channel - " + parent.channelEditPanel.currentChannel.getName();
-            parent.channelEditPanel.updateComponentShown();
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                transformerPane.resizePanes();
+            }
+        });
 
         return name;
     }
@@ -1191,7 +1186,6 @@ public class ChannelSetup extends JPanel {
 
         if (parent.currentContentPage == transformerPane) {
             transformerPane.accept(false);
-            transformerPane.modified = false; // TODO: Check this. Fix to prevent double save on confirmLeave
         }
 
         if (parent.currentContentPage == filterPane) {
@@ -1267,10 +1261,9 @@ public class ChannelSetup extends JPanel {
 
                 if (parent.currentContentPage == transformerPane) {
                     if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
-                        transformerPane.reload(currentChannel.getSourceConnector());
+                        transformerPane.setConnector(currentChannel.getSourceConnector());
                     } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
-                        int destination = destinationTable.getSelectedModelIndex();
-                        transformerPane.reload(currentChannel.getDestinationConnectors().get(destination));
+                        transformerPane.setConnector(currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()));
                     }
                 }
                 if (parent.currentContentPage == filterPane) {
@@ -1534,9 +1527,9 @@ public class ChannelSetup extends JPanel {
             }
 
             // Update number of rules and steps on the filter and transformer
-            parent.updateFilterTaskName(destination.getFilter().getRules().size());
-            parent.updateTransformerTaskName(destination.getTransformer().getSteps().size(), StringUtils.isNotBlank(destination.getTransformer().getOutboundTemplate()));
-            parent.updateResponseTransformerTaskName(destination.getResponseTransformer().getSteps().size(), StringUtils.isNotBlank(destination.getResponseTransformer().getOutboundTemplate()));
+            parent.updateFilterTaskName(destination.getFilter().getElements().size());
+            parent.updateTransformerTaskName(destination.getTransformer().getElements().size(), StringUtils.isNotBlank(destination.getTransformer().getOutboundTemplate()));
+            parent.updateResponseTransformerTaskName(destination.getResponseTransformer().getElements().size(), StringUtils.isNotBlank(destination.getResponseTransformer().getOutboundTemplate()));
         }
     }
 
@@ -1634,16 +1627,16 @@ public class ChannelSetup extends JPanel {
     private String validateTransformerSteps(Connector connector) {
         String errors = "";
 
-        for (Step step : connector.getTransformer().getSteps()) {
-            String validationMessage = this.transformerPane.validateStep(step);
+        for (Step step : connector.getTransformer().getElements()) {
+            String validationMessage = this.transformerPane.validateElement(step);
             if (StringUtils.isNotBlank(validationMessage)) {
                 errors += "Error in connector \"" + connector.getName() + "\" at transformer step " + step.getSequenceNumber() + " (\"" + step.getName() + "\"):\n" + validationMessage + "\n\n";
             }
         }
 
         if (connector.getMode() == Connector.Mode.DESTINATION) {
-            for (Step step : connector.getResponseTransformer().getSteps()) {
-                String validationMessage = this.transformerPane.validateStep(step);
+            for (Step step : connector.getResponseTransformer().getElements()) {
+                String validationMessage = this.transformerPane.validateElement(step);
                 if (StringUtils.isNotBlank(validationMessage)) {
                     errors += "Error in connector \"" + connector.getName() + "\" at response transformer step " + step.getSequenceNumber() + " (\"" + step.getName() + "\"):\n" + validationMessage + "\n\n";
                 }
@@ -1656,7 +1649,7 @@ public class ChannelSetup extends JPanel {
     private String validateFilterRules(Connector connector) {
         String errors = "";
 
-        for (Rule rule : connector.getFilter().getRules()) {
+        for (Rule rule : connector.getFilter().getElements()) {
             String validationMessage = this.filterPane.validateRule(rule);
             if (StringUtils.isNotBlank(validationMessage)) {
                 String ruleName;
@@ -2475,8 +2468,8 @@ public class ChannelSetup extends JPanel {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 15, 15, false);
 
         // Update number of rules and steps on the filter and transformer
-        parent.updateFilterTaskName(currentChannel.getSourceConnector().getFilter().getRules().size());
-        parent.updateTransformerTaskName(currentChannel.getSourceConnector().getTransformer().getSteps().size(), StringUtils.isNotBlank(currentChannel.getSourceConnector().getTransformer().getOutboundTemplate()));
+        parent.updateFilterTaskName(currentChannel.getSourceConnector().getFilter().getElements().size());
+        parent.updateTransformerTaskName(currentChannel.getSourceConnector().getTransformer().getElements().size(), StringUtils.isNotBlank(currentChannel.getSourceConnector().getTransformer().getOutboundTemplate()));
 
         int connectorIndex = destinationTable.getSelectedModelIndex();
         Connector destinationConnector = currentChannel.getDestinationConnectors().get(connectorIndex);
@@ -2901,7 +2894,7 @@ public class ChannelSetup extends JPanel {
 
     private Set<String> getMultipleDestinationRules(Connector currentDestination) {
         Set<String> concatenatedRules = new LinkedHashSet<String>();
-        VariableListUtil.getRuleVariables(concatenatedRules, currentChannel.getSourceConnector(), false);
+        VariableListUtil.getRuleVariables(concatenatedRules, currentChannel.getSourceConnector().getFilter(), false);
 
         // add only the global variables
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
@@ -2912,10 +2905,10 @@ public class ChannelSetup extends JPanel {
             if (currentDestination == destination) {
                 seenCurrent = true;
                 // add all the variables
-                VariableListUtil.getRuleVariables(concatenatedRules, destination, true);
+                VariableListUtil.getRuleVariables(concatenatedRules, destination.getFilter(), true);
             } else if (!seenCurrent) {
                 // add only the global variables
-                VariableListUtil.getRuleVariables(concatenatedRules, destination, false);
+                VariableListUtil.getRuleVariables(concatenatedRules, destination.getFilter(), false);
                 concatenatedRules.add(destination.getName());
             }
         }

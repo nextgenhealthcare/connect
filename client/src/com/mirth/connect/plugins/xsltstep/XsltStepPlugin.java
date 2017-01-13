@@ -28,7 +28,7 @@ public class XsltStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public Step newStep(String variable, String mapping) {
+    public Step newObject(String variable, String mapping) {
         XsltStep props = new XsltStep();
         props.setSourceXml(mapping);
         props.setResultVariable(variable);
@@ -37,11 +37,6 @@ public class XsltStepPlugin extends TransformerStepPlugin {
 
     @Override
     public boolean isNameEditable() {
-        return true;
-    }
-
-    @Override
-    public boolean showValidateTask() {
         return true;
     }
 

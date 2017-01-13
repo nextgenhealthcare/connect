@@ -27,17 +27,12 @@ public class JavaScriptRulePlugin extends FilterRulePlugin {
     }
 
     @Override
-    public Rule newRule(String mapping) {
+    public Rule newObject(String variable, String mapping) {
         return new JavaScriptRule();
     }
 
     @Override
     public boolean isNameEditable() {
-        return true;
-    }
-
-    @Override
-    public boolean showValidateTask() {
         return true;
     }
 

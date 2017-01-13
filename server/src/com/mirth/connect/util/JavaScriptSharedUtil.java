@@ -11,11 +11,13 @@ package com.mirth.connect.util;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
 
 public class JavaScriptSharedUtil {
 
@@ -31,6 +33,20 @@ public class JavaScriptSharedUtil {
         Context context = Context.enter();
         context.setOptimizationLevel(-1);
         return context;
+    }
+
+    public static String validateScript(String script) {
+        Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
+        try {
+            context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
+        } catch (EvaluatorException e) {
+            return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
+        } catch (Exception e) {
+            return "Unknown error occurred during validation.";
+        } finally {
+            Context.exit();
+        }
+        return null;
     }
 
     /*

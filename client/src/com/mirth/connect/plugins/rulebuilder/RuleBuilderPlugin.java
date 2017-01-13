@@ -28,7 +28,7 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
     }
 
     @Override
-    public Rule newRule(String mapping) {
+    public Rule newObject(String variable, String mapping) {
         RuleBuilderRule props = new RuleBuilderRule();
         props.setField(mapping);
         return props;

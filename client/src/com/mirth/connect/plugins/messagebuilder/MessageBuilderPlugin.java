@@ -28,7 +28,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public Step newStep(String variable, String mapping) {
+    public Step newObject(String variable, String mapping) {
         MessageBuilderStep props = new MessageBuilderStep();
         props.setMessageSegment(variable);
         props.setMapping(mapping);
@@ -37,11 +37,6 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 
     @Override
     public boolean isNameEditable() {
-        return true;
-    }
-
-    @Override
-    public boolean showValidateTask() {
         return true;
     }
 

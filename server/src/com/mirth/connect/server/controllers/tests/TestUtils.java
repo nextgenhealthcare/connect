@@ -138,7 +138,7 @@ public class TestUtils {
         transformer.setOutboundProperties(new HL7v2DataTypeProperties());
 
         Filter filter = new Filter();
-        filter.setRules(new ArrayList<Rule>());
+        filter.setElements(new ArrayList<Rule>());
 
         Connector sourceConnector = new Connector();
         sourceConnector.setEnabled(true);
@@ -158,7 +158,7 @@ public class TestUtils {
         transformer.setOutboundProperties(new HL7v2DataTypeProperties());
 
         filter = new Filter();
-        filter.setRules(new ArrayList<Rule>());
+        filter.setElements(new ArrayList<Rule>());
 
         Connector destinationConnector = new Connector();
         destinationConnector.setEnabled(true);

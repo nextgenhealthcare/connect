@@ -28,7 +28,7 @@ public class ExternalScriptRulePlugin extends FilterRulePlugin {
     }
 
     @Override
-    public Rule newRule(String mapping) {
+    public Rule newObject(String variable, String mapping) {
         ExternalScriptRule props = new ExternalScriptRule();
         props.setScriptPath(mapping);
         return props;

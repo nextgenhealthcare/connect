@@ -253,11 +253,11 @@ public class MirthTree extends JXTree implements DropTargetListener {
                 Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                 MapperDropData data = (MapperDropData) transferData;
 
-                parent.channelEditPanel.transformerPane.addNewStep(constructMessageBuilderStepName(data.getNode(), selectedNode), constructPath(selectedNode, prefix, suffix).toString(), data.getMapping(), TransformerPane.MESSAGE_BUILDER);
+                parent.channelEditPanel.transformerPane.addNewElement(constructMessageBuilderStepName(data.getNode(), selectedNode), constructPath(selectedNode, prefix, suffix).toString(), data.getMapping(), TransformerPane.MESSAGE_BUILDER);
             } else if (supportedDropFlavor == TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR) {
                 Object transferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
                 MessageBuilderDropData data = (MessageBuilderDropData) transferData;
-                parent.channelEditPanel.transformerPane.addNewStep(constructMessageBuilderStepName(selectedNode, data.getNode()), data.getMessageSegment(), constructPath(selectedNode, prefix, suffix).toString(), TransformerPane.MESSAGE_BUILDER);
+                parent.channelEditPanel.transformerPane.addNewElement(constructMessageBuilderStepName(selectedNode, data.getNode()), data.getMessageSegment(), constructPath(selectedNode, prefix, suffix).toString(), TransformerPane.MESSAGE_BUILDER);
             } else {
                 dtde.rejectDrop();
             }
@@ -399,9 +399,9 @@ public class MirthTree extends JXTree implements DropTargetListener {
                 sb.append(".namespace('')");
             } else if (serializationType.equals(SerializationType.XML) && type == PathNode.NodeType.XML_PREFIX_DEFINITION) {
                 sb.append(".namespace('" + StringUtils.substringAfter(nodeValue.getValue(), "@xmlns:") + "')");
-            } else if(type == PathNode.NodeType.XML_PREFIXED_ATTRIBUTE){
+            } else if (type == PathNode.NodeType.XML_PREFIXED_ATTRIBUTE) {
                 sb.append(".@*::['" + StringUtils.substringAfter(nodeValue.getValue(), ":") + "']");
-            }else if (type == PathNode.NodeType.ARRAY_CHILD) {
+            } else if (type == PathNode.NodeType.ARRAY_CHILD) {
                 sb.append("[" + nodeValue.getValue() + "]");
             } else {
                 sb.append("['" + nodeValue.getValue() + "']");

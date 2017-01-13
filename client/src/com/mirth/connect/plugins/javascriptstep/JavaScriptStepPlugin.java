@@ -27,17 +27,12 @@ public class JavaScriptStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public Step newStep(String variable, String mapping) {
+    public Step newObject(String variable, String mapping) {
         return new JavaScriptStep();
     }
 
     @Override
     public boolean isNameEditable() {
-        return true;
-    }
-
-    @Override
-    public boolean showValidateTask() {
         return true;
     }
 

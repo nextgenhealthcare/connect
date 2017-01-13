@@ -212,7 +212,7 @@ public class TreePanel extends javax.swing.JPanel {
                     }
 
                     String variable = MirthTree.constructVariable(tp);
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewStep(variable, variable, MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), TransformerPane.MAPPER);
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(variable, variable, MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), TransformerPane.MAPPER);
                 }
             });
             popupMenu.add(popupMenuMapToVariable);
@@ -231,7 +231,7 @@ public class TreePanel extends javax.swing.JPanel {
                         return;
                     }
 
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewStep(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), "").toString(), "", TransformerPane.MESSAGE_BUILDER);
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), "").toString(), "", TransformerPane.MESSAGE_BUILDER);
                 }
             });
             popupMenu.add(popupMenuMapSegment);
@@ -251,7 +251,7 @@ public class TreePanel extends javax.swing.JPanel {
                         return;
                     }
 
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewStep(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "", TransformerPane.MESSAGE_BUILDER);
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "", TransformerPane.MESSAGE_BUILDER);
                 }
             });
             popupMenu.add(popupMenuMapSegmentFilter);
@@ -510,10 +510,9 @@ public class TreePanel extends javax.swing.JPanel {
                     TreeNode tn = (TreeNode) tp.getLastPathComponent();
                     if (tn.isLeaf()) {
                         /*
-                         * Update whether the accelerator key is pressed when
-                         * dragging is started. This is because a release may
-                         * have never been triggered the last time it was
-                         * pressed if it was released during a mouse drag.
+                         * Update whether the accelerator key is pressed when dragging is started.
+                         * This is because a release may have never been triggered the last time it
+                         * was pressed if it was released during a mouse drag.
                          */
                         PlatformUI.MIRTH_FRAME.updateAcceleratorKeyPressed(evt);
                     }
@@ -563,7 +562,7 @@ public class TreePanel extends javax.swing.JPanel {
 
         MirthTreeNode currentNode = new MirthTreeNode(fieldName);
         currentNode.setSerializationType(SerializationType.JSON);
-        
+
         if (parentIsArray) {
             currentNode.setArrayElement(true);
         }
@@ -571,18 +570,18 @@ public class TreePanel extends javax.swing.JPanel {
         if (element.isArray()) {
             ArrayNode arrNode = (ArrayNode) element;
             currentNode.setJSONType(JSONType.ARRAY);
-            
+
             MirthTreeNode childNode = new MirthTreeNode("");
             childNode.setSerializationType(SerializationType.JSON);
             childNode.setArrayElement(true);
             currentNode.add(childNode);
-            
+
             // If array is empty, add blank node. Otherwise, process each element.
             if (arrNode.get(0) == null) {
                 childNode.setUserObject(EMPTY);
             } else {
                 childNode.setUserObject(fieldName);
-                        
+
                 for (int i = 0; i < arrNode.size(); i++) {
                     // The node name is the index of the array.
                     String arrDescription = "[" + i + "]";
@@ -605,12 +604,12 @@ public class TreePanel extends javax.swing.JPanel {
             } else {
                 childNode = new MirthTreeNode(EMPTY);
             }
-            
+
             // Set type as object
             if (element.isObject()) {
                 currentNode.setJSONType(JSONType.OBJECT);
             }
-            
+
             childNode.setSerializationType(SerializationType.JSON);
             currentNode.add(childNode);
 
@@ -619,7 +618,7 @@ public class TreePanel extends javax.swing.JPanel {
                 processJsonElement(dataType, child.getKey(), child.getValue(), currentNode, false);
             }
         }
-        
+
         if (mtn != null) {
             mtn.setSerializationType(SerializationType.JSON);
             mtn.add(currentNode);

@@ -1335,7 +1335,7 @@ public class DonkeyEngineController implements EngineController {
         // 3. The data type has properties settings that require a transformation
         // 4. The outbound template is not empty        
 
-        if (!filter.getRules().isEmpty() || !transformer.getSteps().isEmpty() || !transformer.getInboundDataType().equals(transformer.getOutboundDataType())) {
+        if (!filter.getElements().isEmpty() || !transformer.getElements().isEmpty() || !transformer.getInboundDataType().equals(transformer.getOutboundDataType())) {
             runFilterTransformer = true;
         }
 
@@ -1392,7 +1392,7 @@ public class DonkeyEngineController implements EngineController {
         // 3. The data type has properties settings that require a transformation
         // 4. The outbound template is not empty        
 
-        if (!transformer.getSteps().isEmpty() || !transformer.getInboundDataType().equals(transformer.getOutboundDataType())) {
+        if (!transformer.getElements().isEmpty() || !transformer.getInboundDataType().equals(transformer.getOutboundDataType())) {
             runResponseTransformer = true;
         }
 

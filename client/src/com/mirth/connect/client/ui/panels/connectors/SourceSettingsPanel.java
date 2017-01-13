@@ -123,10 +123,10 @@ public class SourceSettingsPanel extends JPanel {
         variables.addAll(Arrays.asList(SourceConnectorProperties.QUEUE_OFF_RESPONSES));
 
         List<Rule> rulesToCheck = new ArrayList<Rule>();
-        rulesToCheck.addAll(channel.getSourceConnector().getFilter().getRules());
+        rulesToCheck.addAll(channel.getSourceConnector().getFilter().getElements());
 
         List<Step> stepsToCheck = new ArrayList<Step>();
-        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getSteps());
+        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getElements());
 
         List<String> scripts = new ArrayList<String>();
 
@@ -145,9 +145,9 @@ public class SourceSettingsPanel extends JPanel {
                     return getValue();
                 }
             });
-            rulesToCheck.addAll(connector.getFilter().getRules());
-            stepsToCheck.addAll(connector.getTransformer().getSteps());
-            stepsToCheck.addAll(connector.getResponseTransformer().getSteps());
+            rulesToCheck.addAll(connector.getFilter().getElements());
+            stepsToCheck.addAll(connector.getTransformer().getElements());
+            stepsToCheck.addAll(connector.getResponseTransformer().getElements());
         }
 
         for (Rule rule : rulesToCheck) {

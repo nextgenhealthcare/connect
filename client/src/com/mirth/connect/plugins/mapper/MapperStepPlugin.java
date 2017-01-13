@@ -27,7 +27,7 @@ public class MapperStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public Step newStep(String variable, String mapping) {
+    public Step newObject(String variable, String mapping) {
         MapperStep props = new MapperStep();
         props.setVariable(variable);
         props.setMapping(mapping);
@@ -37,11 +37,6 @@ public class MapperStepPlugin extends TransformerStepPlugin {
     @Override
     public boolean isNameEditable() {
         return false;
-    }
-
-    @Override
-    public boolean showValidateTask() {
-        return true;
     }
 
     @Override

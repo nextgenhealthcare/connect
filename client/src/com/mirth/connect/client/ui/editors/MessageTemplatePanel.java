@@ -9,6 +9,7 @@
 
 package com.mirth.connect.client.ui.editors;
 
+import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 
@@ -21,17 +22,17 @@ import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class MessageTemplatePanel extends javax.swing.JPanel {
 
-    protected MirthEditorPane parent;
+    private ActionListener templateTitleListener;
 
     /** Creates new form MessageTreeTemplate */
     public MessageTemplatePanel() {
         initComponents();
     }
 
-    public MessageTemplatePanel(MirthEditorPane m) {
-        this.parent = m;
+    public MessageTemplatePanel(ActionListener templateTitleListener) {
+        this.templateTitleListener = templateTitleListener;
         initComponents();
-        
+
         templatePanelInbound.setInbound(true);
         templatePanelOutbound.setInbound(false);
 
@@ -52,7 +53,7 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
         ((TitledBorder) templatePanelInbound.getBorder()).setTitle("Inbound Message Template");
         ((TitledBorder) templatePanelOutbound.getBorder()).setTitle("Outbound Message Template");
     }
-    
+
     public void setDataTypeEnabled(boolean inboundDataType, boolean inboundProperties, boolean outboundDataType, boolean outboundProperties, TransformerType transformerType) {
         templatePanelInbound.setDataTypeEnabled(inboundDataType, inboundProperties, transformerType);
         templatePanelOutbound.setDataTypeEnabled(outboundDataType, outboundProperties, transformerType);
@@ -159,8 +160,8 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
     private void initComponents() {
 
         split = new javax.swing.JSplitPane();
-        templatePanelInbound = new TemplatePanel(parent);
-        templatePanelOutbound = new TemplatePanel(parent);
+        templatePanelInbound = new TemplatePanel(templateTitleListener);
+        templatePanelOutbound = new TemplatePanel(templateTitleListener);
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));

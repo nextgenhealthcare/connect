@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -71,7 +72,7 @@ public class MapperStep extends Step {
         StringBuilder script = new StringBuilder();
 
         script.append("var mapping;\n\n");
-        script.append("try {\n\tmapping = " + mapping + "; \n} ");
+        script.append("try {\n\tmapping = " + StringUtils.defaultIfBlank(mapping, "''") + "; \n} ");
         script.append("catch (e) {\n\tlogger.error(e);\n\tmapping = '';\n}\n\n");
 
         if (scope != null) {
