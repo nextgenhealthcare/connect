@@ -14,9 +14,9 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.MapperDropData;
@@ -66,7 +66,7 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
 
     @Override
     protected Map<String, FilterTransformerTypePlugin<Step>> getPlugins() {
-        return new LinkedHashMap<String, FilterTransformerTypePlugin<Step>>(LoadedExtensions.getInstance().getTransformerStepPlugins());
+        return new TreeMap<String, FilterTransformerTypePlugin<Step>>(LoadedExtensions.getInstance().getTransformerStepPlugins());
     }
 
     @Override
