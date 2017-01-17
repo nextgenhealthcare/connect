@@ -439,16 +439,25 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     private String validateAll() {
+        int selectedRow = table.getSelectedRow();
+        int modelRow = -1;
+        if (isValidViewRow(selectedRow)) {
+            saveData(selectedRow);
+            modelRow = table.convertRowIndexToModel(selectedRow);
+        }
+
         String containerName = getContainerName().toLowerCase();
         String elementName = getElementName().toLowerCase();
 
         String errors = "";
         T properties = getProperties();
+        int row = 0;
         for (C element : properties.getElements()) {
-            String validationMessage = validateElement(element, false);
+            String validationMessage = validateElement(element, row == modelRow, false);
             if (StringUtils.isNotBlank(validationMessage)) {
                 errors += "Error in connector \"" + connector.getName() + "\" at " + (response ? "response " : "") + containerName + " " + elementName + " " + element.getSequenceNumber() + " (\"" + element.getName() + "\"):\n" + validationMessage + "\n\n";
             }
+            row++;
         }
 
         if (StringUtils.isBlank(errors)) {
@@ -491,13 +500,13 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     public String validateElement(C element) {
-        return validateElement(element, true);
+        return validateElement(element, true, true);
     }
 
-    public String validateElement(C element, boolean checkSyntax) {
+    public String validateElement(C element, boolean highlight, boolean checkSyntax) {
         try {
             FilterTransformerTypePlugin<C> plugin = getPlugins().get(element.getType());
-            String validationMessage = plugin.checkProperties(element, true);
+            String validationMessage = plugin.checkProperties(element, highlight);
             if (checkSyntax && StringUtils.isBlank(validationMessage)) {
                 validationMessage = JavaScriptSharedUtil.validateScript(element.getScript(false));
             }
