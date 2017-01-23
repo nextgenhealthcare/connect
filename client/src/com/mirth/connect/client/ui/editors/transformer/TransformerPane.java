@@ -12,6 +12,7 @@ package com.mirth.connect.client.ui.editors.transformer;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.IOException;
 import java.util.Map;
@@ -50,6 +51,12 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
     protected String getElementName() {
         return "Step";
     }
+
+    @Override
+    protected void onTableLoad() {}
+
+    @Override
+    protected void updateTable() {}
 
     @Override
     protected boolean useOperatorColumn() {
@@ -92,7 +99,7 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
     }
 
     @Override
-    public void doSetProperties(Connector connector, Transformer properties, boolean response) {
+    public void doSetProperties(Connector connector, Transformer properties, boolean response, boolean overwriteOriginal) {
         setElements(properties.getElements());
         setInboundDataType(properties.getInboundDataType());
         setOutboundDataType(properties.getOutboundDataType());
@@ -120,6 +127,15 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
     @Override
     protected void getStepVariables(Connector connector, Set<String> concatenatedSteps, boolean includeLocalVars, int viewRow) {
         VariableListUtil.getStepVariables(concatenatedSteps, getProperties(), includeLocalVars, viewRow);
+    }
+
+    @Override
+    protected boolean handleDragEnter(DropTargetDragEvent dtde, Transferable tr) throws UnsupportedFlavorException, IOException {
+        if (tr.isDataFlavorSupported(TreeTransferable.MAPPER_DATA_FLAVOR) || tr.isDataFlavorSupported(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR)) {
+            dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
+            return true;
+        }
+        return false;
     }
 
     @Override

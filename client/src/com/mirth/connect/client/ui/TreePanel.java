@@ -55,6 +55,7 @@ import com.mirth.connect.client.ui.components.MirthTree.FilterTreeModel;
 import com.mirth.connect.client.ui.components.MirthTreeNode;
 import com.mirth.connect.client.ui.components.MirthTreeNode.JSONType;
 import com.mirth.connect.client.ui.editors.MessageTreePanel;
+import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.model.converters.IMessageSerializer;
@@ -271,7 +272,7 @@ public class TreePanel extends javax.swing.JPanel {
                     return;
                 }
 
-                PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewRule(MirthTree.constructNodeDescription(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString());
+                PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewElement("", MirthTree.constructNodeDescription(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), FilterPane.RULE_BUILDER);
             }
         });
         popupMenu.add(popupMenuFilterSegment);

@@ -204,7 +204,9 @@ public class Transformer extends FilterTransformer<Step> {
             }
 
             newStepElement.addChildElement("sequenceNumber", stepElement.getChildElement("sequenceNumber").getTextContent());
-            newStepElement.addChildElement("name", stepElement.getChildElement("name").getTextContent());
+
+            DonkeyElement nameElement = stepElement.getChildElement("name");
+            newStepElement.addChildElement("name", nameElement != null ? nameElement.getTextContent() : "");
         }
     }
 

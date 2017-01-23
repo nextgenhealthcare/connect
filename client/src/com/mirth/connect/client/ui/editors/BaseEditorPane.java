@@ -71,7 +71,6 @@ import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
-import com.mirth.connect.client.ui.TreeTransferable;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
@@ -99,12 +98,12 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private static final int TASK_MOVE_UP = 6;
     private static final int TASK_MOVE_DOWN = 7;
 
-    private int numColumn;
-    private int operatorColumn = -1;
-    private int nameColumn;
-    private int typeColumn;
-    private int dataColumn;
-    private int columnCount = 4;
+    protected int numColumn;
+    protected int operatorColumn = -1;
+    protected int nameColumn;
+    protected int typeColumn;
+    protected int dataColumn;
+    protected int columnCount = 4;
 
     private JXTaskPane viewTasks;
     private JXTaskPane editorTasks;
@@ -114,6 +113,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private boolean response;
     private T originalProperties;
     private AtomicBoolean updating = new AtomicBoolean(false);
+    private DropTarget dropTarget;
 
     public BaseEditorPane() {
         initComponents();
@@ -131,6 +131,22 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     protected abstract Class<?> getContainerClass();
 
     protected abstract String getContainerName();
+
+    protected boolean allowCellEdit(int rowIndex, int columnIndex) {
+        if (columnIndex == nameColumn) {
+            try {
+                return getPlugins().get(table.getValueAt(rowIndex, typeColumn)).isNameEditable();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return columnIndex == typeColumn;
+    }
+
+    protected abstract void onTableLoad();
+
+    protected abstract void updateTable();
 
     protected abstract String getElementName();
 
@@ -162,7 +178,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             PlatformUI.MIRTH_FRAME.setCurrentContentPage(PlatformUI.MIRTH_FRAME.channelEditPanel);
             PlatformUI.MIRTH_FRAME.setFocus(PlatformUI.MIRTH_FRAME.channelEditTasks);
             PlatformUI.MIRTH_FRAME.setPanelName("Edit Channel - " + PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getName());
-            if (!Objects.equals(originalProperties, properties)) {
+            if (isModified(properties)) {
                 saveEnabled = true;
             }
             PlatformUI.MIRTH_FRAME.channelEditPanel.updateComponentShown();
@@ -173,6 +189,10 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     protected abstract void doAccept(Connector connector, T properties, boolean response);
 
     public boolean isModified() {
+        return isModified(getProperties());
+    }
+
+    protected boolean isModified(T properties) {
         return !Objects.equals(originalProperties, getProperties());
     }
 
@@ -205,7 +225,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             }
             templatePanel.setDefaultComponent();
 
-            doSetProperties(connector, properties, response);
+            doSetProperties(connector, properties, response, overwriteOriginal);
 
             PlatformUI.MIRTH_FRAME.setFocus(new JXTaskPane[] { viewTasks,
                     editorTasks }, false, true);
@@ -213,6 +233,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
             updateTemplateVariables();
             updateTaskPane();
+            updateTable();
         } finally {
             updating.set(false);
         }
@@ -222,7 +243,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         }
     }
 
-    protected abstract void doSetProperties(Connector connector, T properties, boolean response);
+    protected abstract void doSetProperties(Connector connector, T properties, boolean response, boolean overwriteOriginal);
 
     public List<C> getElements() {
         List<C> elements = new ArrayList<C>();
@@ -380,6 +401,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             updateGeneratedCode();
             updateTemplateVariables();
             updateStepNumbers();
+            updateTable();
         }
     }
 
@@ -421,6 +443,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 addRow(element);
             }
             updateStepNumbers();
+            updateTable();
         } else {
             setProperties(connector, properties, response, false);
         }
@@ -538,6 +561,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 table.setRowSelectionInterval(selectedRow, selectedRow);
                 updateStepNumbers();
                 updateTaskPane();
+                updateTable();
                 updateTemplateVariables(selectedRow);
             } finally {
                 updating.set(false);
@@ -588,15 +612,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         tableModel = new RefreshTableModel(columnNames.toArray(new String[columnNames.size()]), 0) {
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                if (columnIndex == nameColumn) {
-                    try {
-                        return getPlugins().get(getValueAt(rowIndex, typeColumn)).isNameEditable();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                }
-                return columnIndex == operatorColumn || columnIndex == typeColumn;
+                return allowCellEdit(rowIndex, columnIndex);
             }
         };
         table.setModel(tableModel);
@@ -634,10 +650,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         table.getColumnExt(numColumn).setPreferredWidth(30);
         table.getColumnExt(numColumn).setCellRenderer(new CenterCellRenderer());
 
-        if (operatorColumn >= 0) {
-            // TODO
-        }
-
         table.getColumnExt(typeColumn).setMaxWidth(UIConstants.MAX_WIDTH);
         table.getColumnExt(typeColumn).setMinWidth(155);
         table.getColumnExt(typeColumn).setPreferredWidth(155);
@@ -673,6 +685,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 }
             }
         });
+
+        onTableLoad();
 
         tableScrollPane = new JScrollPane(table);
         tableScrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -828,7 +842,9 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         editorTasks.setVisible(false);
         PlatformUI.MIRTH_FRAME.taskPaneContainer.add(editorTasks, PlatformUI.MIRTH_FRAME.taskPaneContainer.getComponentCount() - 1);
 
-        new DropTarget(this, this);
+        dropTarget = new DropTarget(this, this);
+        table.setDropTarget(dropTarget);
+        tableScrollPane.setDropTarget(dropTarget);
     }
 
     private void initLayout() {
@@ -868,6 +884,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 }
                 loadData(selectedRow);
                 updateTaskPane();
+                updateTable();
                 updateGeneratedCode();
             } finally {
                 updating.set(false);
@@ -1078,6 +1095,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     propertiesScrollPane.setViewportView(plugin.getPanel());
 
                     updateTaskPane();
+                    updateTable();
                     updateGeneratedCode();
                 }
             } catch (Exception e) {
@@ -1112,15 +1130,15 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 } else {
                     dtde.rejectDrag();
                 }
-            } else if (tr.isDataFlavorSupported(TreeTransferable.MAPPER_DATA_FLAVOR) || tr.isDataFlavorSupported(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR)) {
-                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
-            } else {
+            } else if (!handleDragEnter(dtde, tr)) {
                 dtde.rejectDrag();
             }
         } catch (Exception e) {
             dtde.rejectDrag();
         }
     }
+
+    protected abstract boolean handleDragEnter(DropTargetDragEvent dtde, Transferable tr) throws UnsupportedFlavorException, IOException;
 
     @Override
     public void dragOver(DropTargetDragEvent dtde) {}
@@ -1159,9 +1177,9 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private JSplitPane horizontalSplitPane;
 
     private JSplitPane verticalSplitPane;
-    private MirthTable table;
+    protected MirthTable table;
     private JScrollPane tableScrollPane;
-    private RefreshTableModel tableModel;
+    protected RefreshTableModel tableModel;
     private JTabbedPane tabPane;
     private JScrollPane propertiesScrollPane;
     private MirthRTextScrollPane generatedScriptTextArea;

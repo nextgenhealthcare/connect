@@ -68,6 +68,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
@@ -130,8 +132,6 @@ import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.plugins.ChannelTabPlugin;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.PropertyVerifier;
-
-import net.miginfocom.swing.MigLayout;
 
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends JPanel {
@@ -334,25 +334,22 @@ public class ChannelSetup extends JPanel {
     /** Is called to load the filter pane on either the source or destination */
     public String editFilter() {
         String name = "";
-        boolean changed = parent.changesHaveBeenMade();
-        boolean filterPaneLoaded = false;
 
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
             name = "Source";
-            filterPaneLoaded = filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter(), currentChannel.getSourceConnector().getTransformer(), changed);
+            filterPane.setProperties(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter(), false);
         } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
             Connector destination = currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex());
-            filterPaneLoaded = filterPane.load(destination, destination.getFilter(), destination.getTransformer(), changed);
+            filterPane.setProperties(destination, destination.getFilter(), false);
             name = destination.getName();
         }
 
-        if (!filterPaneLoaded) {
-            parent.taskPaneContainer.add(parent.getOtherPane());
-            parent.setCurrentContentPage(parent.channelEditPanel);
-            parent.setFocus(parent.channelEditTasks);
-            name = "Edit Channel - " + parent.channelEditPanel.currentChannel.getName();
-            parent.channelEditPanel.updateComponentShown();
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                filterPane.resizePanes();
+            }
+        });
 
         return name;
     }
@@ -1190,7 +1187,6 @@ public class ChannelSetup extends JPanel {
 
         if (parent.currentContentPage == filterPane) {
             filterPane.accept(false);
-            filterPane.modified = false; // TODO: Check this. Fix to prevent double save on confirmLeave
         }
 
         saveDestinationPanel();
@@ -1268,10 +1264,9 @@ public class ChannelSetup extends JPanel {
                 }
                 if (parent.currentContentPage == filterPane) {
                     if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
-                        filterPane.reload(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter());
+                        filterPane.setConnector(currentChannel.getSourceConnector());
                     } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
-                        Connector destination = currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex());
-                        filterPane.reload(destination, destination.getFilter());
+                        filterPane.setConnector(currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()));
                     }
                 }
                 updateRevision();
@@ -1650,16 +1645,9 @@ public class ChannelSetup extends JPanel {
         String errors = "";
 
         for (Rule rule : connector.getFilter().getElements()) {
-            String validationMessage = this.filterPane.validateRule(rule);
+            String validationMessage = this.filterPane.validateElement(rule);
             if (StringUtils.isNotBlank(validationMessage)) {
-                String ruleName;
-                if (rule.getName() == null) {
-                    ruleName = "";
-                } else {
-                    ruleName = rule.getName();
-                }
-
-                errors += "Error in connector \"" + connector.getName() + "\" at rule " + rule.getSequenceNumber() + " (\"" + ruleName + "\"):\n" + validationMessage + "\n\n";
+                errors += "Error in connector \"" + connector.getName() + "\" at filter rule " + rule.getSequenceNumber() + " (\"" + rule.getName() + "\"):\n" + validationMessage + "\n\n";
             }
         }
 

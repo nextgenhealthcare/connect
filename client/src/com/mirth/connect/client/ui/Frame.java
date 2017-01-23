@@ -1793,8 +1793,6 @@ public class Frame extends JXFrame {
             channelPanel.setSaveEnabled(enabled);
         } else if (currentContentPage == channelEditPanel) {
             setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 0, enabled);
-        } else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane) {
-            channelEditPanel.filterPane.modified = enabled;
         } else if (currentContentPage == settingsPane) {
             settingsPane.getCurrentSettingsPanel().setSaveEnabled(enabled);
         } else if (alertEditPanel != null && currentContentPage == alertEditPanel) {
@@ -1820,7 +1818,7 @@ public class Frame extends JXFrame {
             } else if (channelEditPanel != null && currentContentPage == channelEditPanel.transformerPane) {
                 enabled = channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPanel.transformerPane.isModified();
             } else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane) {
-                enabled = channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPanel.filterPane.modified;
+                enabled = channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPanel.filterPane.isModified();
             } else if (currentContentPage == settingsPane) {
                 enabled = settingsPane.getCurrentSettingsPanel().isSaveEnabled();
             } else if (alertEditPanel != null && currentContentPage == alertEditPanel) {
@@ -2883,7 +2881,7 @@ public class Frame extends JXFrame {
         } else if (channelEditPanel != null && currentContentPage == channelEditPanel.transformerPane) {
             return channelEditPanel.transformerPane.isModified();
         } else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane) {
-            return channelEditPanel.filterPane.modified;
+            return channelEditPanel.filterPane.isModified();
         } else if (settingsPane != null && currentContentPage == settingsPane) {
             return settingsPane.getCurrentSettingsPanel().isSaveEnabled();
         } else if (alertEditPanel != null && currentContentPage == alertEditPanel) {

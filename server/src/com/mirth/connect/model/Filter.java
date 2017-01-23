@@ -105,8 +105,10 @@ public class Filter extends FilterTransformer<Rule> {
             }
 
             newRuleElement.addChildElement("sequenceNumber", ruleElement.getChildElement("sequenceNumber").getTextContent());
-            newRuleElement.addChildElement("name", ruleElement.getChildElement("name").getTextContent());
             newRuleElement.addChildElement("operator", ruleElement.getChildElement("operator").getTextContent());
+
+            DonkeyElement nameElement = ruleElement.getChildElement("name");
+            newRuleElement.addChildElement("name", nameElement != null ? nameElement.getTextContent() : "");
         }
     }
 
