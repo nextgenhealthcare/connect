@@ -12,6 +12,7 @@ package com.mirth.connect.server.builders;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -295,9 +296,9 @@ public class JavaScriptBuilder {
                 Rule rule = iter.next();
                 String operator = "";
 
-                if (rule.getOperator().equals(Rule.Operator.AND)) {
+                if (Objects.equals(rule.getOperator(), Rule.Operator.AND)) {
                     operator = " && ";
-                } else if (rule.getOperator().equals(Rule.Operator.OR)) {
+                } else if (Objects.equals(rule.getOperator(), Rule.Operator.OR)) {
                     operator = " || ";
                 }
 
