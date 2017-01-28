@@ -217,6 +217,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         updating.set(true);
         try {
             propertiesScrollPane.setViewportView(null);
+            propertiesContainer.removeAll();
+            tabPane.updateUI();
 
             if (connector.getMode() == Connector.Mode.SOURCE) {
                 templatePanel.setSourceView();
@@ -395,6 +397,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 table.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
             } else {
                 propertiesScrollPane.setViewportView(null);
+                propertiesContainer.removeAll();
+                tabPane.updateUI();
             }
 
             updateTaskPane();
@@ -702,9 +706,12 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             }
         });
 
+        propertiesContainer = new JPanel();
+        propertiesContainer.setBorder(BorderFactory.createEmptyBorder());
+        tabPane.addTab(getElementName(), propertiesContainer);
+
         propertiesScrollPane = new JScrollPane();
         propertiesScrollPane.setBorder(BorderFactory.createEmptyBorder());
-        tabPane.addTab(getElementName(), propertiesScrollPane);
 
         generatedScriptTextArea = new MirthRTextScrollPane(null, true, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, false);
         generatedScriptTextArea.setBackground(new Color(204, 204, 204));
@@ -850,6 +857,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private void initLayout() {
         setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
 
+        propertiesContainer.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
+
         verticalSplitPane.setTopComponent(tableScrollPane);
         verticalSplitPane.setBottomComponent(tabPane);
 
@@ -902,12 +911,22 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             try {
                 FilterTransformerTypePlugin<C> plugin = getPlugins().get(type);
                 plugin.setProperties(connector.getMode(), response, element);
-                propertiesScrollPane.setViewportView(plugin.getPanel());
+
+                propertiesContainer.removeAll();
+                if (plugin.includesScrollPane()) {
+                    propertiesScrollPane.setViewportView(null);
+                    propertiesContainer.add(plugin.getPanel(), "grow");
+                } else {
+                    propertiesScrollPane.setViewportView(plugin.getPanel());
+                    propertiesContainer.add(propertiesScrollPane, "grow");
+                }
+                tabPane.updateUI();
             } catch (Exception e) {
                 PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
             }
         } else {
             propertiesScrollPane.setViewportView(null);
+            propertiesContainer.removeAll();
         }
 
         updateTemplateVariables(viewRow);
@@ -1092,7 +1111,16 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     tableModel.setValueAt("", modelRow, nameColumn);
                     tableModel.setValueAt(newElement, modelRow, dataColumn);
                     plugin.setProperties(connector.getMode(), response, newElement);
-                    propertiesScrollPane.setViewportView(plugin.getPanel());
+
+                    propertiesContainer.removeAll();
+                    if (plugin.includesScrollPane()) {
+                        propertiesScrollPane.setViewportView(null);
+                        propertiesContainer.add(plugin.getPanel(), "grow");
+                    } else {
+                        propertiesScrollPane.setViewportView(plugin.getPanel());
+                        propertiesContainer.add(propertiesScrollPane, "grow");
+                    }
+                    tabPane.updateUI();
 
                     updateTaskPane();
                     updateTable();
@@ -1181,6 +1209,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private JScrollPane tableScrollPane;
     protected RefreshTableModel tableModel;
     private JTabbedPane tabPane;
+    private JPanel propertiesContainer;
     private JScrollPane propertiesScrollPane;
     private MirthRTextScrollPane generatedScriptTextArea;
 

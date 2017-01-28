@@ -24,6 +24,10 @@ public abstract class FilterTransformerTypePlugin<C> extends ClientPlugin {
 
     public abstract EditorPanel<C> getPanel();
 
+    public boolean includesScrollPane() {
+        return false;
+    }
+
     public C getDefaults() {
         return getPanel().getDefaults();
     }

@@ -22,10 +22,10 @@ import javax.swing.table.TableCellRenderer;
 public class MirthComboBoxTableCellRenderer implements TableCellRenderer {
 
     protected JComboBox comboBox;
-    
+
     public MirthComboBoxTableCellRenderer(Object[] items) {
         comboBox = new JComboBox(items);
-        
+
         // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4515838
         // Workaround to remove the border around the comboBox
         for (int i = 0; i < comboBox.getComponentCount(); i++) {
@@ -34,7 +34,7 @@ public class MirthComboBoxTableCellRenderer implements TableCellRenderer {
             }
         }
     }
-    
+
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if (isSelected) {
@@ -50,7 +50,9 @@ public class MirthComboBoxTableCellRenderer implements TableCellRenderer {
             component.setBackground(comboBox.getBackground());
 
             if (component instanceof AbstractButton) {
-                ((AbstractButton) component).setBorderPainted(false);
+                AbstractButton button = (AbstractButton) component;
+                button.setBorderPainted(false);
+                button.setVisible(table.isCellEditable(row, column));
             } else if (component instanceof JComponent) {
                 ((JComponent) component).setBorder(new EmptyBorder(0, 3, 0, 0));
 

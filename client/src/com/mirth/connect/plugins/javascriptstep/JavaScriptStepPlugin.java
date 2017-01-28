@@ -27,6 +27,11 @@ public class JavaScriptStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
+    public boolean includesScrollPane() {
+        return true;
+    }
+
+    @Override
     public Step newObject(String variable, String mapping) {
         return new JavaScriptStep();
     }

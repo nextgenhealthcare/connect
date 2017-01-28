@@ -27,6 +27,11 @@ public class JavaScriptRulePlugin extends FilterRulePlugin {
     }
 
     @Override
+    public boolean includesScrollPane() {
+        return true;
+    }
+
+    @Override
     public Rule newObject(String variable, String mapping) {
         return new JavaScriptRule();
     }
