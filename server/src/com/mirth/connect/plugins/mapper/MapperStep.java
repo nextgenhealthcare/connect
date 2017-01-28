@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.mapper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +20,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.mirth.connect.model.FilterTransformerIterable;
+import com.mirth.connect.model.IteratorProperties;
 import com.mirth.connect.model.Step;
+import com.mirth.connect.util.JavaScriptSharedUtil;
+import com.mirth.connect.util.ScriptBuilderException;
 
-public class MapperStep extends Step {
+public class MapperStep extends Step implements FilterTransformerIterable<Step> {
 
     public static final String PLUGIN_POINT = "Mapper";
 
@@ -90,6 +95,39 @@ public class MapperStep extends Step {
         }
 
         script.append("validate( mapping , " + tempDefault + ", " + regexArray + "));");
+        return script.toString();
+    }
+
+    @Override
+    public String getPreScript(boolean loadFiles, LinkedList<IteratorProperties<Step>> ancestors) throws ScriptBuilderException {
+        StringBuilder script = new StringBuilder();
+        script.append("var _").append(JavaScriptSharedUtil.convertIdentifier(variable)).append(" = Lists.list();");
+        return script.toString();
+    }
+
+    @Override
+    public String getIterationScript(boolean loadFiles, LinkedList<IteratorProperties<Step>> ancestors) throws ScriptBuilderException {
+        String regexArray = buildRegexArray();
+
+        StringBuilder script = new StringBuilder();
+
+        script.append("var mapping;\n\n");
+        script.append("try {\n\tmapping = ").append(StringUtils.defaultIfBlank(mapping, "''")).append("; \n} ");
+        script.append("catch (e) {\n\tlogger.error(e);\n\tmapping = '';\n}\n\n");
+
+        String tempDefault = defaultValue;
+        if (tempDefault.length() == 0) {
+            tempDefault = "''";
+        }
+
+        script.append('_').append(JavaScriptSharedUtil.convertIdentifier(variable)).append(".add(validate( mapping , ").append(tempDefault).append(", ").append(regexArray).append("));");
+        return script.toString();
+    }
+
+    @Override
+    public String getPostScript(boolean loadFiles, LinkedList<IteratorProperties<Step>> ancestors) throws ScriptBuilderException {
+        StringBuilder script = new StringBuilder();
+        script.append(scope != null ? scope.map : Scope.CHANNEL.map).append(".put('").append(variable).append("', _").append(JavaScriptSharedUtil.convertIdentifier(variable)).append(".toArray());");
         return script.toString();
     }
 

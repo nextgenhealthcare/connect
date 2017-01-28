@@ -9,16 +9,21 @@
 
 package com.mirth.connect.plugins.xsltstep;
 
+import java.util.LinkedList;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
+import com.mirth.connect.model.FilterTransformerIterable;
+import com.mirth.connect.model.IteratorProperties;
 import com.mirth.connect.model.Step;
+import com.mirth.connect.util.JavaScriptSharedUtil;
+import com.mirth.connect.util.ScriptBuilderException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("step")
-public class XsltStep extends Step {
+public class XsltStep extends Step implements FilterTransformerIterable<Step> {
 
     public static final String PLUGIN_POINT = "XSLT Step";
 
@@ -67,6 +72,28 @@ public class XsltStep extends Step {
         script.append("resultVar = new Packages.java.io.StringWriter();\n");
         script.append("transformer.transform(new Packages.javax.xml.transform.stream.StreamSource(sourceVar), new Packages.javax.xml.transform.stream.StreamResult(resultVar));\n");
 
+        return script.toString();
+    }
+
+    @Override
+    public String getPreScript(boolean loadFiles, LinkedList<IteratorProperties<Step>> ancestors) throws ScriptBuilderException {
+        StringBuilder script = new StringBuilder();
+        script.append("var _").append(JavaScriptSharedUtil.convertIdentifier(resultVariable)).append(" = Lists.list();");
+        return script.toString();
+    }
+
+    @Override
+    public String getIterationScript(boolean loadFiles, LinkedList<IteratorProperties<Step>> ancestors) throws ScriptBuilderException {
+        StringBuilder script = new StringBuilder();
+        script.append(getTransformationScript());
+        script.append('_').append(JavaScriptSharedUtil.convertIdentifier(resultVariable)).append(".add(resultVar.toString());\n");
+        return script.toString();
+    }
+
+    @Override
+    public String getPostScript(boolean loadFiles, LinkedList<IteratorProperties<Step>> ancestors) throws ScriptBuilderException {
+        StringBuilder script = new StringBuilder();
+        script.append("channelMap.put('").append(resultVariable).append("', _").append(JavaScriptSharedUtil.convertIdentifier(resultVariable)).append(".toArray());\n");
         return script.toString();
     }
 

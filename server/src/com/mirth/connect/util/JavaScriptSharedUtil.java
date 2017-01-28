@@ -9,21 +9,49 @@
 
 package com.mirth.connect.util;
 
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Parser;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.ast.AstNode;
+import org.mozilla.javascript.ast.AstRoot;
+import org.mozilla.javascript.ast.ElementGet;
+import org.mozilla.javascript.ast.ExpressionStatement;
+import org.mozilla.javascript.ast.Name;
+import org.mozilla.javascript.ast.NodeVisitor;
+import org.mozilla.javascript.ast.NumberLiteral;
+import org.mozilla.javascript.ast.PropertyGet;
+import org.mozilla.javascript.ast.StringLiteral;
+import org.mozilla.javascript.ast.XmlDotQuery;
+import org.mozilla.javascript.ast.XmlElemRef;
+import org.mozilla.javascript.ast.XmlMemberGet;
+import org.mozilla.javascript.ast.XmlPropRef;
 
 public class JavaScriptSharedUtil {
 
-    private final static String RESULT_PATTERN = "responseMap\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)(?<!\\\\)\\1|\\$r\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)(?<!\\\\)\\4(?=\\s*,)";
+    private final static Pattern RESULT_PATTERN = Pattern.compile("responseMap\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)(?<!\\\\)\\1|\\$r\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)(?<!\\\\)\\4(?=\\s*,)");
+    private final static Pattern INVALID_IDENTIFIER_PATTERN = Pattern.compile("[^a-zA-Z0-9_$]");
     private final static int FULL_NAME_MATCHER_INDEX = 2;
     private final static int SHORT_NAME_MATCHER_INDEX = 5;
+    private static volatile ScriptableObject cachedFormatterScope;
+    private static Logger logger = Logger.getLogger(JavaScriptSharedUtil.class);
 
     /*
      * Retrieves the Context for the current Thread. The context must be cleaned up with
@@ -62,9 +90,8 @@ public class JavaScriptSharedUtil {
     public static Collection<String> getResponseVariables(String script) {
         Collection<String> variables = new HashSet<String>();
 
-        Pattern pattern = Pattern.compile(RESULT_PATTERN);
         if (script != null && script.length() > 0) {
-            Matcher matcher = pattern.matcher(script);
+            Matcher matcher = RESULT_PATTERN.matcher(script);
             while (matcher.find()) {
                 variables.add(getMapKey(matcher));
             }
@@ -84,5 +111,155 @@ public class JavaScriptSharedUtil {
             key = matcher.group(SHORT_NAME_MATCHER_INDEX);
         }
         return StringEscapeUtils.unescapeEcmaScript(key);
+    }
+
+    /**
+     * Removes any invalid characters from the string, making it a valid JavaScript identifier. Note
+     * that although the ECMA specifications include a wide range of characters, "valid" in this
+     * context means alphanumeric plus "$" and "_".
+     */
+    public static String convertIdentifier(String identifier) {
+        return StringUtils.defaultIfEmpty(INVALID_IDENTIFIER_PATTERN.matcher(identifier).replaceAll(""), "_");
+    }
+
+    public static String prettyPrint(String script) {
+        ScriptableObject scope = cachedFormatterScope;
+        if (scope == null) {
+            synchronized (JavaScriptSharedUtil.class) {
+                scope = cachedFormatterScope;
+                if (scope == null) {
+                    scope = cachedFormatterScope = getFormatterScope();
+                }
+            }
+        }
+
+        if (scope != null) {
+            Context currentThreadContext = Context.enter();
+            try {
+                /*
+                 * The beautify library wraps everything in a closure and adds the beautify function
+                 * to a specified object. We inject the global object so that we can access the
+                 * function here.
+                 */
+                Scriptable global = (Scriptable) scope.get("global", scope);
+                Scriptable opts = (Scriptable) scope.get("opts", scope);
+                Function function = (Function) global.get("js_beautify", global);
+                Object result = function.call(currentThreadContext, scope, scope, new Object[] {
+                        script, opts });
+                return (String) (Context.jsToJava(result, String.class));
+            } finally {
+                Context.exit();
+            }
+        }
+        return script;
+    }
+
+    private static ScriptableObject getFormatterScope() {
+        Context context = Context.enter();
+        try {
+            String script = IOUtils.toString(JavaScriptSharedUtil.class.getResourceAsStream("beautify-1.6.8.js"));
+            ScriptableObject scope = context.initStandardObjects();
+            context.evaluateString(scope, "var global = {};", UUID.randomUUID().toString(), 1, null);
+            context.evaluateString(scope, script, UUID.randomUUID().toString(), 1, null);
+            context.evaluateString(scope, "var opts = { 'e4x': true };", UUID.randomUUID().toString(), 1, null);
+            return scope;
+        } catch (Exception e) {
+            logger.error("Failed to load beautify library.");
+            return null;
+        } finally {
+            Context.exit();
+        }
+    }
+
+    public static List<ExprPart> getExpressionParts(String expression) {
+        try {
+            ExpressionVisitor visitor = new ExpressionVisitor();
+            CompilerEnvirons env = new CompilerEnvirons();
+            env.setRecordingLocalJsDocComments(true);
+            env.setAllowSharpComments(true);
+            env.setRecordingComments(true);
+            new Parser(env).parse(new StringReader(expression), null, 1).visitAll(visitor);
+            if (!visitor.getParts().isEmpty()) {
+                return visitor.getParts();
+            }
+        } catch (Exception e) {
+            logger.debug("Error parsing expression: " + expression);
+        }
+        return new ArrayList<ExprPart>(Collections.singletonList(new ExprPart(expression, expression)));
+    }
+
+    private static class ExpressionVisitor implements NodeVisitor {
+
+        private List<ExprPart> parts = new ArrayList<ExprPart>();
+
+        public List<ExprPart> getParts() {
+            return parts;
+        }
+
+        @Override
+        public boolean visit(AstNode node) {
+            if (node instanceof AstRoot && node.hasChildren() && node.getFirstChild() instanceof ExpressionStatement) {
+                ((ExpressionStatement) node.getFirstChild()).getExpression().visit(this);
+            } else if (node instanceof ElementGet || node instanceof PropertyGet || node instanceof XmlMemberGet || node instanceof XmlDotQuery) {
+                return true;
+            }
+
+            if (node instanceof Name) {
+                Name name = (Name) node;
+                if (parts.isEmpty()) {
+                    parts.add(new ExprPart(name.getIdentifier(), name.getIdentifier()));
+                } else if (name.getParent() instanceof PropertyGet) {
+                    parts.add(new ExprPart("." + name.toSource(), name.getIdentifier()));
+                } else {
+                    parts.add(new ExprPart("[" + name.toSource() + "]", name.getIdentifier()));
+                }
+            } else if (!parts.isEmpty()) {
+                if (node instanceof StringLiteral) {
+                    parts.add(new ExprPart("[" + node.toSource() + "]", node.toSource()));
+                } else if (node instanceof NumberLiteral) {
+                    parts.add(new ExprPart("[" + node.toSource() + "]", node.toSource(), true));
+                } else if (node instanceof XmlPropRef) {
+                    parts.add(new ExprPart("." + node.toSource(), ((XmlPropRef) node).getPropName().toSource()));
+                } else if (node instanceof XmlElemRef) {
+                    parts.add(new ExprPart("." + node.toSource(), ((XmlElemRef) node).getExpression().toSource()));
+                }
+            }
+
+            return false;
+        }
+    }
+
+    public static class ExprPart {
+
+        private String value;
+        private String propertyName;
+        private boolean numberLiteral;
+
+        public ExprPart(String value, String propertyName) {
+            this(value, propertyName, false);
+        }
+
+        public ExprPart(String value, String propertyName, boolean numberLiteral) {
+            this.value = value;
+            this.propertyName = propertyName;
+            this.numberLiteral = numberLiteral;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public String getPropertyName() {
+            return propertyName;
+        }
+
+        public boolean isNumberLiteral() {
+            return numberLiteral;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 }

@@ -93,6 +93,11 @@
 			<fileset file="version.properties" />
 			<fileset file="mirth-client.jnlp" />
 		</copy>
+		<copy todir="${classes}/com/mirth/connect/util">
+			<fileset dir="${src}/com/mirth/connect/util">
+				<include name="*.js" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="create-client-core" depends="compile">

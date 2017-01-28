@@ -389,6 +389,16 @@ public class JavaScriptBuilder {
         builder.append("return msgObj.child(segment[0].childIndex() + 1);");
         builder.append("}\n");
 
+        // Helper function to get the length of an XMLList or array
+        builder.append("function getArrayOrXmlLength(obj) {\n");
+        builder.append("    if (typeof obj == 'xml') {\n");
+        builder.append("        return obj.length();\n");
+        builder.append("    } else if (typeof obj != 'undefined') {\n");
+        builder.append("        return obj.length || 0;\n");
+        builder.append("    }\n");
+        builder.append("    return 0;\n");
+        builder.append("}\n");
+
         /*
          * Since we use a sealed shared scope everywhere, importClass won't be available. To allow
          * this to still work for migration, we override importClass to call importPackage instead.

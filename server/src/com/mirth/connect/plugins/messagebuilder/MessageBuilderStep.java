@@ -10,16 +10,24 @@
 package com.mirth.connect.plugins.messagebuilder;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.mirth.connect.model.FilterTransformerIterable;
+import com.mirth.connect.model.IteratorProperties;
 import com.mirth.connect.model.Step;
+import com.mirth.connect.util.JavaScriptSharedUtil;
+import com.mirth.connect.util.JavaScriptSharedUtil.ExprPart;
+import com.mirth.connect.util.ScriptBuilderException;
 
-public class MessageBuilderStep extends Step {
+public class MessageBuilderStep extends Step implements FilterTransformerIterable<Step> {
 
     public static final String PLUGIN_POINT = "Message Builder";
 
@@ -66,6 +74,122 @@ public class MessageBuilderStep extends Step {
         script.append(" = ");
         script.append("validate(" + tempMapping + ", " + tempDefaultValue + ", " + regexArray + ");");
         return script.toString();
+    }
+
+    @Override
+    public String getPreScript(boolean loadFiles, LinkedList<IteratorProperties<Step>> ancestors) throws ScriptBuilderException {
+        return null;
+    }
+
+    @Override
+    public String getIterationScript(boolean loadFiles, LinkedList<IteratorProperties<Step>> ancestors) throws ScriptBuilderException {
+        StringBuilder script = new StringBuilder();
+        List<ExprPart> exprParts = JavaScriptSharedUtil.getExpressionParts(messageSegment);
+
+        // Don't do anything if there aren't at least two parts to the expression
+        if (exprParts.size() > 1) {
+            // The segment creation logic will be different for E4X XML and regular objects
+            script.append("if (typeof(").append(exprParts.get(0)).append(") == 'xml') {\n");
+
+            // Add creation steps for each iterator
+            for (Iterator<IteratorProperties<Step>> it = ancestors.descendingIterator(); it.hasNext();) {
+                IteratorProperties<Step> ancestor = it.next();
+                String indexVar = ancestor.getIndexVariable();
+                int currentIndex = getExprIndex(exprParts, indexVar);
+
+                /*
+                 * Only add the E4X createSegment calls if the index variable is at least in the
+                 * third position (e.g. tmp['OBR'][i]), implying that there exists a base target
+                 * object, a segment name, and a position.
+                 */
+                if (currentIndex > 1) {
+                    // Segment including the index variable, e.g. tmp['OBR'][i]
+                    String wholeSegment = StringUtils.join(exprParts.subList(0, currentIndex + 1).toArray());
+                    script.append("if (typeof(").append(wholeSegment).append(") == 'undefined') {\n");
+
+                    // Segment excluding the index variable and the property before it, e.g. tmp
+                    String targetSegment = StringUtils.join(exprParts.subList(0, currentIndex - 1).toArray());
+                    // Name of the referenced property name before the index variable, e.g. 'OBR'
+                    String segmentName = exprParts.get(currentIndex - 1).getPropertyName();
+                    // Convert segment name to a string literal if needed
+                    if (!StringUtils.startsWithAny(segmentName, "\"", "'")) {
+                        segmentName = "'" + StringEscapeUtils.escapeEcmaScript(segmentName) + "'";
+                    }
+                    script.append("createSegment(").append(segmentName).append(", ").append(targetSegment).append(", ").append(indexVar).append(");\n}\n");
+                }
+            }
+
+            script.append("} else {\n");
+
+            /*
+             * For regular objects we check every segment up until the second-to-last, because the
+             * last one will be set at the end. For each of these creation statements we set the LHS
+             * to an empty object, except for segments that occur before index variables which we
+             * set to an empty array.
+             */
+            int lastIndexChecked = -1;
+
+            for (Iterator<IteratorProperties<Step>> it = ancestors.descendingIterator(); it.hasNext();) {
+                IteratorProperties<Step> ancestor = it.next();
+                String indexVar = ancestor.getIndexVariable();
+                int currentIndex = getExprIndex(exprParts, indexVar);
+
+                // Make sure the index variable occurs in at least the second position
+                if (currentIndex > 0) {
+                    /*
+                     * Iterate from the very first segment all the way to the segment associated
+                     * with the current index variable. Except that for subsequent iterators, don't
+                     * re-do the creation statements for segments already visited.
+                     */
+                    for (int i = lastIndexChecked + 1; i <= currentIndex; i++) {
+                        String targetSegment = StringUtils.join(exprParts.subList(0, i + 1).toArray());
+                        script.append("if (typeof(").append(targetSegment).append(") == 'undefined') {\n");
+
+                        // If the segment is right before the index variable or a number literal, create an empty array rather than object
+                        String value = "{}";
+                        if (i == currentIndex - 1 || (exprParts.size() > i + 1 && exprParts.get(i + 1).isNumberLiteral())) {
+                            value = "[]";
+                        }
+                        script.append(targetSegment).append(" = ").append(value).append(";\n");
+                        script.append("}\n");
+                        lastIndexChecked = i;
+                    }
+                }
+            }
+
+            // Create the rest of the segments up until the second-to-last one
+            for (int i = lastIndexChecked + 1; i <= exprParts.size() - 2; i++) {
+                String targetSegment = StringUtils.join(exprParts.subList(0, i + 1).toArray());
+                script.append("if (typeof(").append(targetSegment).append(") == 'undefined') {\n");
+
+                // If the segment is right before a number literal, create an empty array rather than object
+                String value = "{}";
+                if (exprParts.size() > i + 1 && exprParts.get(i + 1).isNumberLiteral()) {
+                    value = "[]";
+                }
+                script.append(targetSegment).append(" = ").append(value).append(";\n");
+                script.append("}\n");
+            }
+
+            script.append("}\n");
+        }
+
+        script.append(getScript(loadFiles));
+        return script.toString();
+    }
+
+    private int getExprIndex(List<ExprPart> exprParts, String indexVar) {
+        for (int i = 0; i < exprParts.size(); i++) {
+            if (StringUtils.equals(exprParts.get(i).getPropertyName(), indexVar)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public String getPostScript(boolean loadFiles, LinkedList<IteratorProperties<Step>> ancestors) throws ScriptBuilderException {
+        return null;
     }
 
     private String buildRegexArray() {
