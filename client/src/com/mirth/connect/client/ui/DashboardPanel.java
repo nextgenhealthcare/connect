@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,8 +34,6 @@ import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -45,7 +42,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -53,11 +49,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.apache.commons.collections.CollectionUtils;
+import net.miginfocom.swing.MigLayout;
+
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
@@ -74,7 +70,6 @@ import com.mirth.connect.client.ui.components.tag.FilterCompletion;
 import com.mirth.connect.client.ui.components.tag.MirthTagField;
 import com.mirth.connect.client.ui.components.tag.SearchFilterListener;
 import com.mirth.connect.client.ui.components.tag.TagFilterCompletion;
-import com.mirth.connect.client.ui.components.tag.TagLabel;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelGroup;
@@ -88,9 +83,6 @@ import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 import com.mirth.connect.plugins.DashboardTabPlugin;
 import com.mirth.connect.plugins.DashboardTablePlugin;
-import com.mirth.connect.util.ColorUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class DashboardPanel extends JPanel {
 
@@ -110,12 +102,16 @@ public class DashboardPanel extends JPanel {
 
     private Frame parent;
     private boolean showLifetimeStats = false;
+    private Preferences userPreferences;
+    private boolean tagTextModeSelected = false;
+    private boolean tagIconModeSelected = false;
 
     private Set<String> defaultVisibleColumns;
     private Set<DeployedState> haltableStates = new HashSet<DeployedState>();
 
     public DashboardPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);
 
         haltableStates.add(DeployedState.DEPLOYING);
         haltableStates.add(DeployedState.UNDEPLOYING);
@@ -151,7 +147,7 @@ public class DashboardPanel extends JPanel {
 
         DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("channelGroupViewEnabled", true)) {
+        if (userPreferences.getBoolean("channelGroupViewEnabled", true)) {
             tableModeGroupsButton.setSelected(true);
             tableModeGroupsButton.setContentFilled(true);
             tableModeChannelsButton.setContentFilled(false);
@@ -163,17 +159,7 @@ public class DashboardPanel extends JPanel {
             model.setGroupModeEnabled(false);
         }
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("tagModeEnabled", false)) {
-            tagModeIconButton.setSelected(true);
-            tagModeIconButton.setContentFilled(true);
-            tagModeTextButton.setContentFilled(false);
-            dashboardTable.setTreeCellRenderer(new DashboardTreeCellRenderer(true));
-        } else {
-            tagModeTextButton.setSelected(true);
-            tagModeTextButton.setContentFilled(true);
-            tagModeIconButton.setContentFilled(false);
-            dashboardTable.setTreeCellRenderer(new DashboardTreeCellRenderer(false));
-        }
+        updateTagButtons(userPreferences.getBoolean("showTags", true), userPreferences.getBoolean("tagTextMode", false), false);
     }
 
     public void loadTabPlugins() {
@@ -186,7 +172,7 @@ public class DashboardPanel extends JPanel {
 
             splitPane.setBottomComponent(tabPane);
             splitPane.setDividerSize(6);
-            splitPane.setDividerLocation(3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT) / 5);
+            splitPane.setDividerLocation(3 * userPreferences.getInt("height", UIConstants.MIRTH_HEIGHT) / 5);
             splitPane.setResizeWeight(0.5);
         }
     }
@@ -264,7 +250,7 @@ public class DashboardPanel extends JPanel {
     }
 
     public void switchPanel() {
-        boolean groupViewEnabled = Preferences.userNodeForPackage(Mirth.class).getBoolean("channelGroupViewEnabled", true);
+        boolean groupViewEnabled = userPreferences.getBoolean("channelGroupViewEnabled", true);
         switchTableMode(groupViewEnabled);
 
         if (groupViewEnabled) {
@@ -277,17 +263,7 @@ public class DashboardPanel extends JPanel {
             tableModeGroupsButton.setContentFilled(false);
         }
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("tagModeEnabled", false)) {
-            tagModeIconButton.setSelected(true);
-            tagModeIconButton.setContentFilled(true);
-            tagModeTextButton.setContentFilled(false);
-            dashboardTable.setTreeCellRenderer(new DashboardTreeCellRenderer(true));
-        } else {
-            tagModeTextButton.setSelected(true);
-            tagModeTextButton.setContentFilled(true);
-            tagModeIconButton.setContentFilled(false);
-            dashboardTable.setTreeCellRenderer(new DashboardTreeCellRenderer(false));
-        }
+        updateTagButtons(userPreferences.getBoolean("showTags", true), userPreferences.getBoolean("tagTextMode", false), false);
 
         Map<String, String> channelNameMap = new HashMap<String, String>();
         for (ChannelStatus status : parent.channelPanel.getCachedChannelStatuses().values()) {
@@ -296,6 +272,21 @@ public class DashboardPanel extends JPanel {
 
         updateTags(new HashSet<String>(channelNameMap.values()), true);
         tagField.setUserPreferenceTags();
+    }
+
+    private void updateTagButtons(boolean showTags, boolean textMode, boolean updatePreferences) {
+        tagModeTextButton.setSelected(showTags && textMode);
+        tagModeIconButton.setSelected(showTags && !textMode);
+        tagModeTextButton.setContentFilled(showTags && textMode);
+        tagModeIconButton.setContentFilled(showTags && !textMode);
+        dashboardTable.setTreeCellRenderer(new TagTreeCellRenderer(showTags, textMode));
+        tagTextModeSelected = showTags && textMode;
+        tagIconModeSelected = showTags && !textMode;
+
+        if (updatePreferences) {
+            userPreferences.putBoolean("showTags", showTags);
+            userPreferences.putBoolean("tagTextMode", textMode);
+        }
     }
 
     /**
@@ -352,7 +343,7 @@ public class DashboardPanel extends JPanel {
         dashboardTable.restoreColumnPreferences();
         dashboardTable.setMirthColumnControlEnabled(true);
 
-        dashboardTable.setTreeCellRenderer(new DashboardTreeCellRenderer(false));
+        dashboardTable.setTreeCellRenderer(new TagTreeCellRenderer(true, false));
 
         dashboardTable.setLeafIcon(UIConstants.ICON_CONNECTOR);
         dashboardTable.setOpenIcon(UIConstants.ICON_CHANNEL);
@@ -736,7 +727,7 @@ public class DashboardPanel extends JPanel {
         dashboardTable.setHighlighters();
 
         // Add the highlighters. Always add the error highlighter.
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        if (userPreferences.getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             dashboardTable.addHighlighter(highlighter);
         }
@@ -1023,35 +1014,25 @@ public class DashboardPanel extends JPanel {
 
         controlSeparator = new JSeparator(SwingConstants.VERTICAL);
 
-        ButtonGroup tagModeGroup = new ButtonGroup();
-
         tagModeTextButton = new IconToggleButton(UIConstants.ICON_TEXT);
         tagModeTextButton.setToolTipText("Display tags as names.");
         tagModeTextButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                tagModeTextButton.setSelected(true);
-                tagModeIconButton.setContentFilled(false);
-                Preferences.userNodeForPackage(Mirth.class).putBoolean("tagModeEnabled", false);
-                dashboardTable.setTreeCellRenderer(new DashboardTreeCellRenderer(false));
+                updateTagButtons(!tagTextModeSelected, true, true);
                 dashboardTable.updateUI();
             }
         });
-        tagModeGroup.add(tagModeTextButton);
 
         tagModeIconButton = new IconToggleButton(UIConstants.ICON_TAG);
         tagModeIconButton.setToolTipText("Display tags as icons.");
         tagModeIconButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                tagModeIconButton.setSelected(true);
-                tagModeTextButton.setContentFilled(false);
-                Preferences.userNodeForPackage(Mirth.class).putBoolean("tagModeEnabled", true);
-                dashboardTable.setTreeCellRenderer(new DashboardTreeCellRenderer(true));
+                updateTagButtons(!tagIconModeSelected, false, true);
                 dashboardTable.updateUI();
             }
         });
-        tagModeGroup.add(tagModeIconButton);
 
         ButtonGroup tableModeButtonGroup = new ButtonGroup();
 
@@ -1139,7 +1120,7 @@ public class DashboardPanel extends JPanel {
     private void switchTableMode(boolean groupModeEnabled) {
         DashboardTreeTableModel model = (DashboardTreeTableModel) dashboardTable.getTreeTableModel();
         if (model.isGroupModeEnabled() != groupModeEnabled) {
-            Preferences.userNodeForPackage(Mirth.class).putBoolean("channelGroupViewEnabled", groupModeEnabled);
+            userPreferences.putBoolean("channelGroupViewEnabled", groupModeEnabled);
 
             if (groupModeEnabled) {
                 tableModeChannelsButton.setContentFilled(false);
@@ -1352,115 +1333,6 @@ public class DashboardPanel extends JPanel {
 
         public Set<String> getCollapsedIds() {
             return collapsedIds;
-        }
-    }
-
-    private class DashboardTreeCellRenderer extends JPanel implements TreeCellRenderer {
-        private static final int GAP = 4;
-        private JLabel label;
-        private JPanel tagPanel;
-
-        private boolean renderTags = false;
-
-        public DashboardTreeCellRenderer(boolean renderTags) {
-            super(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap " + GAP));
-
-            this.renderTags = renderTags;
-            setOpaque(false);
-            label = new JLabel();
-            label.setOpaque(false);
-            add(label);
-            tagPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, gap " + GAP));
-            tagPanel.setOpaque(false);
-            add(tagPanel, "growx, pushx");
-        }
-
-        @Override
-        public String getToolTipText(MouseEvent event) {
-            Point p = event.getPoint();
-            // Adjust for the label width and layout gap
-            p.translate((int) -label.getPreferredSize().getWidth() - GAP, 0);
-            int tagLocX = 0;
-            for (Component tagComp : tagPanel.getComponents()) {
-                JLabel tagLabel = (JLabel) tagComp;
-                Icon tagIcon = tagLabel.getIcon();
-                if (tagIcon != null) {
-                    // Using getComponentAt won't work because the layout dimensions are zero
-                    if (p.x >= tagLocX && p.x < tagLocX + tagIcon.getIconWidth() && p.y >= 0 && p.y < tagIcon.getIconHeight()) {
-                        return tagLabel.getToolTipText();
-                    }
-                    tagLocX += tagIcon.getIconWidth() + GAP;
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean isSelected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            String name = "";
-            String channelId = "";
-            ImageIcon icon = UIConstants.ICON_CONNECTOR;
-            boolean channel = false;
-
-            if (value instanceof AbstractDashboardTableNode) {
-                AbstractDashboardTableNode node = (AbstractDashboardTableNode) value;
-
-                if (node.isGroupNode()) {
-                    name = node.getGroupStatus().getGroup().getName();
-                    icon = UIConstants.ICON_GROUP;
-                } else {
-                    DashboardStatus status = node.getDashboardStatus();
-                    name = status.getName();
-                    channelId = status.getChannelId();
-                    if (status.getStatusType() == StatusType.CHANNEL) {
-                        icon = UIConstants.ICON_CHANNEL;
-                        channel = true;
-                    }
-                }
-            }
-
-            label.setIcon(icon);
-            label.setText(name);
-            tagPanel.removeAll();
-
-            if (channel) {
-                List<ChannelTag> tags = new ArrayList<ChannelTag>();
-                for (ChannelTag tag : parent.getCachedChannelTags()) {
-                    if (tag.getChannelIds().contains(channelId)) {
-                        tags.add(tag);
-                    }
-                }
-
-                if (CollectionUtils.isNotEmpty(tags)) {
-                    tags.sort(new Comparator<ChannelTag>() {
-                        @Override
-                        public int compare(ChannelTag tag1, ChannelTag tag2) {
-                            return tag1.getName().compareTo(tag2.getName());
-                        }
-                    });
-
-                    for (ChannelTag tag : tags) {
-                        String constraints = "";
-                        TagLabel tagLabel = new TagLabel();
-                        tagLabel.setToolTipText(tag.getName());
-                        if (renderTags) {
-                            tagLabel.setIcon(new ImageIcon(ColorUtil.tint(ColorUtil.toBufferedImage(UIConstants.ICON_TAG_GRAY.getImage()), tag.getBackgroundColor(), ColorUtil.getForegroundColor(tag.getBackgroundColor()))));
-                        } else {
-                            constraints = "h 16!, growx";
-                            tagLabel.decorate(true);
-                            tagLabel.setText(" " + tag.getName() + " ");
-                            tagLabel.setBackground(tag.getBackgroundColor());
-                            tagLabel.setForeground(ColorUtil.getForegroundColor(tag.getBackgroundColor()));
-                        }
-
-                        tagPanel.add(tagLabel, constraints);
-                    }
-                }
-            }
-
-            updateUI();
-            return this;
         }
     }
 
