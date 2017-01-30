@@ -15,13 +15,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
@@ -32,7 +35,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.util.ColorUtil;
 
-public class Migrate3_5_0 extends Migrator {
+public class Migrate3_5_0 extends Migrator implements ConfigurationMigrator {
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
@@ -176,4 +179,26 @@ public class Migrate3_5_0 extends Migrator {
 
     @Override
     public void migrateSerializedData() throws MigrationException {}
+
+    @Override
+    public Map<String, Object> getConfigurationPropertiesToAdd() {
+        Map<String, Object> propertiesToAdd = new LinkedHashMap<String, Object>();
+
+        propertiesToAdd.put("server.api.accesscontrolalloworigin", new MutablePair<Object, String>("*", "CORS headers"));
+        propertiesToAdd.put("server.api.accesscontrolallowcredentials", "false");
+        propertiesToAdd.put("server.api.accesscontrolallowmethods", "GET, POST, DELETE, PUT");
+        propertiesToAdd.put("server.api.accesscontrolallowheaders", "Content-Type");
+        propertiesToAdd.put("server.api.accesscontrolexposeheaders", "");
+        propertiesToAdd.put("server.api.accesscontrolmaxage", "");
+
+        return propertiesToAdd;
+    }
+
+    @Override
+    public String[] getConfigurationPropertiesToRemove() {
+        return null;
+    }
+
+    @Override
+    public void updateConfiguration(PropertiesConfiguration configuration) {}
 }

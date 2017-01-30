@@ -273,6 +273,8 @@ public abstract class ConfigurationController extends Controller {
      */
     public abstract int getStatus();
 
+    public abstract int getStatus(boolean checkDatabase);
+
     /**
      * Sets the current status of the server. See status constants in ConfigurationController.
      */

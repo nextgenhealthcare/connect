@@ -21,6 +21,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
@@ -33,11 +34,14 @@ import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
+import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.ServerEvent.Outcome;
 import com.mirth.connect.model.ServerEventContext;
+import com.mirth.connect.model.User;
 import com.mirth.connect.server.controllers.AuthorizationController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.UserController;
 
 public abstract class MirthServlet {
 
@@ -53,6 +57,7 @@ public abstract class MirthServlet {
     protected Map<String, Object> parameterMap;
     protected boolean userHasChannelRestrictions;
 
+    private static final UserController userController = ControllerFactory.getFactory().createUserController();
     private static final AuthorizationController authorizationController = ControllerFactory.getFactory().createAuthorizationController();
     private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
@@ -84,49 +89,86 @@ public abstract class MirthServlet {
     }
 
     protected void initLogin() {
+        boolean validLogin = false;
+
         if (isUserLoggedIn()) {
             currentUserId = Integer.parseInt(request.getSession().getAttribute(SESSION_USER).toString());
-            context = new ServerEventContext(currentUserId);
+            setContext();
+            validLogin = true;
+        } else {
+            // Allow Basic auth
+            String authHeader = request.getHeader("Authorization");
 
-            try {
-                userHasChannelRestrictions = authorizationController.doesUserHaveChannelRestrictions(currentUserId);
-
-                if (userHasChannelRestrictions) {
-                    authorizedChannelIds = authorizationController.getAuthorizedChannelIds(currentUserId);
-                }
-            } catch (ControllerException e) {
-                throw new MirthApiException(e);
-            }
-        } else if (configurationController.isBypasswordEnabled() && isRequestLocal()) {
-            /*
-             * If user isn't logged in, then only allow the request if it originated locally and the
-             * bypassword is given.
-             */
-            boolean authorized = false;
-
-            try {
-                String authHeader = request.getHeader("Authorization");
-                if (StringUtils.isNotBlank(authHeader)) {
+            if (StringUtils.startsWith(authHeader, "Basic ")) {
+                String username = null;
+                String password = null;
+                try {
                     authHeader = new String(Base64.decodeBase64(StringUtils.removeStartIgnoreCase(authHeader, "Basic ").trim()), "US-ASCII");
-                    String[] authParts = StringUtils.split(authHeader, ':');
-                    if (authParts.length >= 2) {
-                        if (StringUtils.equals(authParts[0], BYPASS_USERNAME) && configurationController.checkBypassword(authParts[1])) {
-                            authorized = true;
+                    int colonIndex = StringUtils.indexOf(authHeader, ':');
+                    if (colonIndex > 0) {
+                        username = StringUtils.substring(authHeader, 0, colonIndex);
+                        password = StringUtils.substring(authHeader, colonIndex + 1);
+                    }
+                } catch (Exception e) {
+                }
+
+                if (username != null && password != null) {
+                    if (StringUtils.equals(username, BYPASS_USERNAME)) {
+                        // Only allow bypass credentials if the request originated locally
+                        if (configurationController.isBypasswordEnabled() && isRequestLocal() && configurationController.checkBypassword(password)) {
+                            context = ServerEventContext.SYSTEM_USER_EVENT_CONTEXT;
+                            currentUserId = context.getUserId();
+                            bypassUser = true;
+                            validLogin = true;
+                        }
+                    } else {
+                        try {
+                            int status = configurationController.getStatus(false);
+                            if (status == ConfigurationController.STATUS_INITIAL_DEPLOY || status == ConfigurationController.STATUS_OK) {
+                                LoginStatus loginStatus = userController.authorizeUser(username, password);
+
+                                if ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD)) {
+                                    User user = userController.getUser(null, username);
+
+                                    if (user != null) {
+                                        currentUserId = user.getId();
+                                        setContext();
+                                        validLogin = true;
+                                    } else {
+                                        loginStatus = new LoginStatus(LoginStatus.Status.FAIL, "Could not find a valid user with username: " + username);
+                                        throw new MirthApiException(Response.status(Status.UNAUTHORIZED).entity(loginStatus).build());
+                                    }
+                                } else {
+                                    throw new MirthApiException(Response.status(Status.UNAUTHORIZED).entity(loginStatus).build());
+                                }
+                            } else {
+                                LoginStatus loginStatus = new LoginStatus(LoginStatus.Status.FAIL, "Server is still starting or otherwise unavailable. Please try again shortly.");
+                                throw new MirthApiException(Response.status(Status.SERVICE_UNAVAILABLE).entity(loginStatus).build());
+                            }
+                        } catch (ControllerException e) {
+                            throw new MirthApiException(e);
                         }
                     }
                 }
-            } catch (Exception e) {
             }
+        }
 
-            if (authorized) {
-                context = ServerEventContext.SYSTEM_USER_EVENT_CONTEXT;
-                currentUserId = context.getUserId();
-                bypassUser = true;
-            } else {
-                throw new MirthApiException(Status.UNAUTHORIZED);
-            }
-        } else {
+        if (!validLogin) {
             throw new MirthApiException(Status.UNAUTHORIZED);
+        }
+    }
+
+    private void setContext() {
+        context = new ServerEventContext(currentUserId);
+
+        try {
+            userHasChannelRestrictions = authorizationController.doesUserHaveChannelRestrictions(currentUserId);
+
+            if (userHasChannelRestrictions) {
+                authorizedChannelIds = authorizationController.getAuthorizedChannelIds(currentUserId);
+            }
+        } catch (ControllerException e) {
+            throw new MirthApiException(e);
         }
     }
 

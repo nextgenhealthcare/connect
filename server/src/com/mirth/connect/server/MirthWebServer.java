@@ -30,6 +30,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.Connector;
@@ -53,6 +54,7 @@ import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ServerProperties;
+import org.glassfish.jersey.server.wadl.internal.generators.WadlGeneratorJAXBGrammarGenerator;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
@@ -68,6 +70,7 @@ import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.api.providers.ApiOriginFilter;
+import com.mirth.connect.server.api.providers.ClickjackingFilter;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
@@ -94,6 +97,9 @@ public class MirthWebServer extends Server {
         // this disables a "form too large" error for occuring by setting
         // form size to infinite
         System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize", "0");
+
+        // Suppress logging from the WADL generator for OPTIONS requests 
+        Logger.getLogger(WadlGeneratorJAXBGrammarGenerator.class).setLevel(Level.OFF);
 
         String baseAPI = "/api";
         boolean apiAllowHTTP = Boolean.parseBoolean(mirthProperties.getString("server.api.allowhttp", "false"));
@@ -212,15 +218,15 @@ public class MirthWebServer extends Server {
         }
 
         // TODO: Fully support backward compatibility for models before exposing earlier servlets
-        addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, Version.getLatest());
+        addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, Version.getLatest(), mirthProperties);
         // Add Jersey API / swagger servlets for each specific version
 //        Version version = Version.getApiEarliest();
 //        while (version != null) {
-//            addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, version);
+//            addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, version, mirthProperties);
 //            version = version.getNextVersion();
 //        }
         // Add servlets for the main (default) API endpoint
-        addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, null);
+        addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, null, mirthProperties);
 
         // Create the webstart servlet handler
         ServletContextHandler servletContextHandler = new ServletContextHandler();
@@ -311,7 +317,7 @@ public class MirthWebServer extends Server {
         return sslConnector;
     }
 
-    private void addApiServlets(HandlerList handlers, String contextPath, String baseAPI, boolean apiAllowHTTP, Version version) {
+    private void addApiServlets(HandlerList handlers, String contextPath, String baseAPI, boolean apiAllowHTTP, Version version, PropertiesConfiguration mirthProperties) {
         String apiPath = "";
         Version apiVersion = version;
         if (apiVersion != null) {
@@ -325,7 +331,8 @@ public class MirthWebServer extends Server {
         apiServletContextHandler.setMaxFormContentSize(0);
         apiServletContextHandler.setSessionHandler(new SessionHandler());
         apiServletContextHandler.setContextPath(contextPath + baseAPI + apiPath);
-        apiServletContextHandler.addFilter(new FilterHolder(new ApiOriginFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+        apiServletContextHandler.addFilter(new FilterHolder(new ApiOriginFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
+        apiServletContextHandler.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new MethodFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
         setConnectorNames(apiServletContextHandler, apiAllowHTTP);
 

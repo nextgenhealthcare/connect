@@ -547,10 +547,15 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public int getStatus() {
+        return getStatus(true);
+    }
+
+    @Override
+    public int getStatus(boolean checkDatabase) {
         logger.debug("getting Mirth status");
 
         // If the database isn't running or the engine isn't running (only if it isn't starting) return STATUS_UNAVAILABLE.
-        if (!isDatabaseRunning() || (!ControllerFactory.getFactory().createEngineController().isRunning() && status != STATUS_ENGINE_STARTING)) {
+        if ((checkDatabase && !isDatabaseRunning()) || (!ControllerFactory.getFactory().createEngineController().isRunning() && status != STATUS_ENGINE_STARTING)) {
             return STATUS_UNAVAILABLE;
         }
 
@@ -997,10 +1002,10 @@ public class DefaultConfigurationController extends ConfigurationController {
             tags = new HashSet<ChannelTag>();
         } else {
             Map<String, ChannelTag> tagMap = new HashMap<String, ChannelTag>();
-            
+
             for (ChannelTag tag : tags) {
                 tag.setName(ChannelTag.fixName(tag.getName()));
-                
+
                 ChannelTag matchingTag = tagMap.get(tag.getName().toLowerCase());
                 if (matchingTag != null) {
                     matchingTag.getChannelIds().addAll(tag.getChannelIds());
@@ -1008,7 +1013,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                     tagMap.put(tag.getName().toLowerCase(), tag);
                 }
             }
-            
+
             tags = new HashSet<ChannelTag>(tagMap.values());
         }
         saveProperty(PROPERTIES_CORE, PROPERTIES_CHANNEL_TAGS, ObjectXMLSerializer.getInstance().serialize(tags));
