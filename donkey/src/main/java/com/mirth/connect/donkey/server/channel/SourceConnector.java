@@ -223,7 +223,7 @@ public abstract class SourceConnector extends Connector {
                 responseHandler.setUseFirstResponse(batchAdaptorFactory.isUseFirstReponse());
 
                 // Create a new adaptor for this batch
-                batchAdaptor = batchAdaptorFactory.createBatchAdaptor(batchRawMessage.getBatchMessageSource());
+                batchAdaptor = batchAdaptorFactory.createBatchAdaptor(batchRawMessage);
 
                 Long batchSet = null;
                 String message;

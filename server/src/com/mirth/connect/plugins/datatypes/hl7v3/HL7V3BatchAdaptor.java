@@ -11,6 +11,7 @@ package com.mirth.connect.plugins.datatypes.hl7v3;
 
 import java.io.BufferedReader;
 import java.io.Reader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,17 +21,18 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
-import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
 import com.mirth.connect.plugins.datatypes.hl7v3.HL7V3BatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.userutil.SourceMap;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
@@ -45,8 +47,8 @@ public class HL7V3BatchAdaptor extends BatchAdaptor {
     private HL7V3BatchProperties batchProperties;
     private BufferedReader bufferedReader;
 
-    public HL7V3BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
-        super(factory, sourceConnector, batchMessageSource);
+    public HL7V3BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
+        super(factory, sourceConnector, batchRawMessage);
     }
 
     public HL7V3BatchProperties getBatchProperties() {
@@ -62,14 +64,14 @@ public class HL7V3BatchAdaptor extends BatchAdaptor {
 
     @Override
     protected String getNextMessage(int batchSequenceId) throws Exception {
-        if (batchMessageSource instanceof BatchMessageReader) {
+        if (batchRawMessage.getBatchMessageSource() instanceof BatchMessageReader) {
             if (batchSequenceId == 1) {
-                BatchMessageReader batchMessageReader = (BatchMessageReader) batchMessageSource;
+                BatchMessageReader batchMessageReader = (BatchMessageReader) batchRawMessage.getBatchMessageSource();
                 bufferedReader = new BufferedReader(batchMessageReader.getReader());
             }
             return getMessageFromReader();
-        } else if (batchMessageSource instanceof BatchMessageReceiver) {
-            return getMessageFromReceiver((BatchMessageReceiver) batchMessageSource);
+        } else if (batchRawMessage.getBatchMessageSource() instanceof BatchMessageReceiver) {
+            return getMessageFromReceiver((BatchMessageReceiver) batchRawMessage.getBatchMessageSource());
         }
 
         return null;
@@ -156,6 +158,8 @@ public class HL7V3BatchAdaptor extends BatchAdaptor {
 
         // Provide the reader in the scope
         scopeObjects.put("reader", in);
+
+        scopeObjects.put("sourceMap", new SourceMap(Collections.unmodifiableMap(batchRawMessage.getSourceMap())));
 
         return scopeObjects;
     }

@@ -11,12 +11,12 @@ package com.mirth.connect.plugins.datatypes.edi;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
-import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.server.controllers.ContextFactoryController;
@@ -37,8 +37,8 @@ public class EDIBatchAdaptorFactory extends BatchAdaptorFactory {
     }
 
     @Override
-    public BatchAdaptor createBatchAdaptor(BatchMessageSource batchMessageSource) {
-        EDIBatchAdaptor batchAdaptor = new EDIBatchAdaptor(this, sourceConnector, batchMessageSource);
+    public BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage) {
+        EDIBatchAdaptor batchAdaptor = new EDIBatchAdaptor(this, sourceConnector, batchRawMessage);
 
         batchAdaptor.setBatchProperties(batchProperties);
 

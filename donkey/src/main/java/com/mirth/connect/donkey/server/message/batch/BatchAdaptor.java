@@ -9,20 +9,21 @@
 
 package com.mirth.connect.donkey.server.message.batch;
 
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public abstract class BatchAdaptor {
     protected BatchAdaptorFactory factory;
     protected SourceConnector sourceConnector;
-    protected BatchMessageSource batchMessageSource;
+    protected BatchRawMessage batchRawMessage;
     private int batchSequenceId;
     private boolean lookAhead = true;
     private String nextMessage = null;
 
-    public BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+    public BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         this.factory = factory;
         this.sourceConnector = sourceConnector;
-        this.batchMessageSource = batchMessageSource;
+        this.batchRawMessage = batchRawMessage;
     }
 
     public String getMessage() throws BatchMessageException {

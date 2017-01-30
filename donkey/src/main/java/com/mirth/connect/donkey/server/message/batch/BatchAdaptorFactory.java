@@ -12,6 +12,7 @@ package com.mirth.connect.donkey.server.message.batch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
@@ -77,7 +78,7 @@ public abstract class BatchAdaptorFactory {
         this.contextFactoryId = contextFactoryId;
     }
 
-    public abstract BatchAdaptor createBatchAdaptor(BatchMessageSource batchMessageSource);
+    public abstract BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage);
 
     public abstract void onDeploy() throws DeployException;
 
