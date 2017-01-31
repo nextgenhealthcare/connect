@@ -9,16 +9,20 @@
 
 package com.mirth.connect.userutil;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 
 /**
  * This class represents an overall message and is used to retrieve details such as the message ID,
@@ -82,6 +86,41 @@ public class ImmutableMessage {
      */
     public boolean isProcessed() {
         return message.isProcessed();
+    }
+
+    /**
+     * Returns the ID of the original message this one was reprocessed from.
+     */
+    public Long getOriginalId() {
+        return message.getOriginalId();
+    }
+
+    /**
+     * Returns the ID of the original message this one was imported from.
+     */
+    public Long getImportId() {
+        return message.getImportId();
+    }
+
+    /**
+     * Returns the ID of the original channel this message was reprocessed from.
+     */
+    public String getImportChannelId() {
+        return message.getImportChannelId();
+    }
+
+    /**
+     * Returns a list of attachments associated with this message. This will only be populated in
+     * certain cases, such as when a message is being exported or archived.
+     */
+    public List<ImmutableAttachment> getAttachments() {
+        List<ImmutableAttachment> attachments = new ArrayList<ImmutableAttachment>();
+        if (CollectionUtils.isNotEmpty(message.getAttachments())) {
+            for (Attachment attachment : message.getAttachments()) {
+                attachments.add(new ImmutableAttachment(attachment));
+            }
+        }
+        return attachments;
     }
 
     /**

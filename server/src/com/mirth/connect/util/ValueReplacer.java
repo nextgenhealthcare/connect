@@ -33,8 +33,6 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.userutil.ImmutableMessage;
 import com.mirth.connect.userutil.JsonUtil;
-import com.mirth.connect.userutil.ValueReplacerConnectorMessage;
-import com.mirth.connect.userutil.ValueReplacerMessage;
 import com.mirth.connect.userutil.XmlUtil;
 
 public class ValueReplacer {
@@ -253,7 +251,7 @@ public class ValueReplacer {
      * @return void
      */
     protected void loadContextFromConnectorMessage(VelocityContext context, ConnectorMessage connectorMessage) {
-        context.put("message", new ValueReplacerConnectorMessage(new ImmutableConnectorMessage(connectorMessage)));
+        context.put("message", new ImmutableConnectorMessage(connectorMessage));
         context.put("channelName", connectorMessage.getChannelName());
         context.put("channelId", connectorMessage.getChannelId());
 
@@ -276,7 +274,7 @@ public class ValueReplacer {
      * @return void
      */
     protected void loadContextFromMessage(VelocityContext context, Message message) {
-        context.put("message", new ValueReplacerMessage(new ImmutableMessage(message)));
+        context.put("message", new ImmutableMessage(message));
 
         ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
 

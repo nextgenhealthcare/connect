@@ -430,6 +430,13 @@ public class ImmutableConnectorMessage {
     }
 
     /**
+     * Returns the postprocessing error string associated with this connector message, if it exists.
+     */
+    public String getPostProcessorError() {
+        return connectorMessage.getPostProcessorError();
+    }
+
+    /**
      * Returns the processing error string associated with this connector message, if it exists.
      */
     public String getProcessingError() {
