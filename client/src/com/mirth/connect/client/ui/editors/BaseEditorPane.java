@@ -66,7 +66,6 @@ import javax.swing.event.TreeWillExpandListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
@@ -425,7 +424,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             return;
         }
 
-        boolean append = (tableModel.getRowCount() > 0 && PlatformUI.MIRTH_FRAME.alertOption(PlatformUI.MIRTH_FRAME, "Would you like to append the " + elementName + "s from the imported " + containerName + " into the existing " + containerName + "?"));
+        boolean append = (treeTableModel.getRoot().getChildCount() > 0 && PlatformUI.MIRTH_FRAME.alertOption(PlatformUI.MIRTH_FRAME, "Would you like to append the " + elementName + "s from the imported " + containerName + " into the existing " + containerName + "?"));
 
         /*
          * When appending, we merely add the elements from the filter/transformer being imported.
@@ -1341,7 +1340,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private JSplitPane verticalSplitPane;
     protected MirthTreeTable treeTable;
     private JScrollPane treeTableScrollPane;
-    protected TableModel tableModel;
     protected DefaultTreeTableModel treeTableModel;
     private JTabbedPane tabPane;
     private JPanel propertiesContainer;
