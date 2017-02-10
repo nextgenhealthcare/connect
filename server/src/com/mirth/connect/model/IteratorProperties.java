@@ -27,6 +27,8 @@ import com.mirth.connect.util.ScriptBuilderException;
 
 public abstract class IteratorProperties<C extends FilterTransformerElement> implements Serializable, Purgable, FilterTransformerIterable<C> {
 
+    public static final String PLUGIN_POINT = "Iterator";
+
     private String target;
     private String indexVariable;
     private List<String> prefixSubstitutions;

@@ -14,9 +14,7 @@ import java.util.Map;
 
 import com.mirth.connect.util.ScriptBuilderException;
 
-public class IteratorStep extends Step implements FilterTransformerIterable<Step> {
-
-    public static final String PLUGIN_POINT = "Iterator";
+public class IteratorStep extends Step implements IteratorElement<Step>, FilterTransformerIterable<Step> {
 
     private IteratorStepProperties properties;
 
@@ -29,6 +27,7 @@ public class IteratorStep extends Step implements FilterTransformerIterable<Step
         properties = props.getProperties().clone();
     }
 
+    @Override
     public IteratorStepProperties getProperties() {
         return properties;
     }
@@ -59,7 +58,7 @@ public class IteratorStep extends Step implements FilterTransformerIterable<Step
 
     @Override
     public String getType() {
-        return PLUGIN_POINT;
+        return IteratorProperties.PLUGIN_POINT;
     }
 
     @Override

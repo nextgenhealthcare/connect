@@ -13,7 +13,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 
-public abstract class EditorPanel<C> extends JPanel {
+import com.mirth.connect.model.FilterTransformerElement;
+
+public abstract class EditorPanel<C extends FilterTransformerElement> extends JPanel {
 
     public abstract C getDefaults();
 

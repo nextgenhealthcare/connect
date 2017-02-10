@@ -11,8 +11,9 @@ package com.mirth.connect.plugins;
 
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.model.FilterTransformerElement;
 
-public abstract class FilterTransformerTypePlugin<C> extends ClientPlugin {
+public abstract class FilterTransformerTypePlugin<C extends FilterTransformerElement> extends ClientPlugin {
 
     public FilterTransformerTypePlugin(String name) {
         super(name);

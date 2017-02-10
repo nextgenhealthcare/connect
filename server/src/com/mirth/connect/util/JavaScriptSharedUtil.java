@@ -48,6 +48,7 @@ public class JavaScriptSharedUtil {
 
     private final static Pattern RESULT_PATTERN = Pattern.compile("responseMap\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)(?<!\\\\)\\1|\\$r\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)(?<!\\\\)\\4(?=\\s*,)");
     private final static Pattern INVALID_IDENTIFIER_PATTERN = Pattern.compile("[^a-zA-Z0-9_$]");
+    private final static Pattern INVALID_PROLOG_PATTERN = Pattern.compile("<<\\s*\\?\\s*xml\\s+version\\s*=\\s*\"(?<version>[^\"]*)\"(\\s+encoding\\s*=\\s*\"(?<encoding>[^\"]*)\")?\\s*\\?\\s*>");
     private final static int FULL_NAME_MATCHER_INDEX = 2;
     private final static int SHORT_NAME_MATCHER_INDEX = 5;
     private static volatile ScriptableObject cachedFormatterScope;
@@ -146,7 +147,28 @@ public class JavaScriptSharedUtil {
                 Function function = (Function) global.get("js_beautify", global);
                 Object result = function.call(currentThreadContext, scope, scope, new Object[] {
                         script, opts });
-                return (String) (Context.jsToJava(result, String.class));
+                String prettyPrinted = (String) (Context.jsToJava(result, String.class));
+
+                Matcher matcher = INVALID_PROLOG_PATTERN.matcher(prettyPrinted);
+                if (matcher.find()) {
+                    StringBuffer buffer = new StringBuffer();
+
+                    do {
+                        String version = matcher.group("version");
+                        String encoding = matcher.group("encoding");
+                        StringBuilder prolog = new StringBuilder("<?xml version=\"").append(version).append('"');
+                        if (encoding != null) {
+                            prolog.append(" encoding=\"").append(encoding).append('"');
+                        }
+                        prolog.append("?>");
+                        matcher.appendReplacement(buffer, prolog.toString());
+                    } while (matcher.find());
+
+                    matcher.appendTail(buffer);
+                    prettyPrinted = buffer.toString();
+                }
+
+                return prettyPrinted;
             } finally {
                 Context.exit();
             }

@@ -22,7 +22,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.swing.tree.TreePath;
+
 import org.apache.commons.lang3.StringUtils;
+import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.RuleDropData;
@@ -32,18 +35,23 @@ import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BaseEditorPane;
+import com.mirth.connect.client.ui.editors.FilterTreeTableNode;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Filter;
+import com.mirth.connect.model.IteratorProperties;
+import com.mirth.connect.model.IteratorRule;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Rule.Operator;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
+import com.mirth.connect.plugins.IteratorRulePlugin;
 
 public class FilterPane extends BaseEditorPane<Filter, Rule> {
 
     public static final String RULE_BUILDER = "Rule Builder";
 
+    private IteratorRulePlugin iteratorPlugin;
     private String originalInboundDataType;
     private DataTypeProperties originalInboundDataTypeProperties;
     private String originalInboundTemplate;
@@ -66,19 +74,25 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
     @Override
     protected boolean allowCellEdit(int rowIndex, int columnIndex) {
         if (columnIndex == operatorColumn) {
-            return rowIndex > 0;
+            TreePath path = treeTable.getPathForRow(rowIndex);
+            if (path != null) {
+                TreeTableNode node = (TreeTableNode) path.getLastPathComponent();
+                return node.getParent().getIndex(node) > 0;
+            } else {
+                return false;
+            }
         }
         return super.allowCellEdit(rowIndex, columnIndex);
     }
 
     @Override
     protected void onTableLoad() {
-        table.getColumnExt(operatorColumn).setMaxWidth(UIConstants.MAX_WIDTH);
-        table.getColumnExt(operatorColumn).setPreferredWidth(60);
+        treeTable.getColumnExt(operatorColumn).setMaxWidth(UIConstants.MAX_WIDTH);
+        treeTable.getColumnExt(operatorColumn).setPreferredWidth(60);
 
         Operator[] operatorValues = new Operator[] { Operator.AND, Operator.OR };
-        table.getColumnExt(operatorColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(operatorValues));
-        table.getColumnExt(operatorColumn).setCellEditor(new MirthComboBoxTableCellEditor(table, operatorValues, 2, true, new ActionListener() {
+        treeTable.getColumnExt(operatorColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(operatorValues));
+        treeTable.getColumnExt(operatorColumn).setCellEditor(new MirthComboBoxTableCellEditor(treeTable, operatorValues, 2, true, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 updateOperations();
@@ -92,12 +106,18 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
     }
 
     private void updateOperations() {
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
+        updateOperations(treeTableModel.getRoot());
+    }
+
+    private void updateOperations(TreeTableNode node) {
+        for (int i = 0; i < node.getChildCount(); i++) {
+            TreeTableNode child = node.getChildAt(i);
             if (i == 0) {
-                tableModel.setValueAt(null, i, operatorColumn);
-            } else if (tableModel.getValueAt(i, operatorColumn) == null) {
-                tableModel.setValueAt(Operator.AND, i, operatorColumn);
+                treeTableModel.setValueAt(null, child, operatorColumn);
+            } else if (treeTableModel.getValueAt(child, operatorColumn) == null) {
+                treeTableModel.setValueAt(Operator.AND, child, operatorColumn);
             }
+            updateOperations(child);
         }
     }
 
@@ -118,7 +138,25 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
 
     @Override
     protected Map<String, FilterTransformerTypePlugin<Rule>> getPlugins() {
-        return new TreeMap<String, FilterTransformerTypePlugin<Rule>>(LoadedExtensions.getInstance().getFilterRulePlugins());
+        Map<String, FilterTransformerTypePlugin<Rule>> plugins = new TreeMap<String, FilterTransformerTypePlugin<Rule>>(LoadedExtensions.getInstance().getFilterRulePlugins());
+        if (iteratorPlugin == null) {
+            iteratorPlugin = new IteratorRulePlugin(IteratorProperties.PLUGIN_POINT);
+        }
+        plugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
+        return plugins;
+    }
+
+    @Override
+    protected FilterTreeTableNode createTreeTableNode(Rule element) {
+        FilterTreeTableNode node = new FilterTreeTableNode(this, element);
+
+        if (element instanceof IteratorRule) {
+            for (Rule child : ((IteratorRule) element).getProperties().getChildren()) {
+                node.add(createTreeTableNode(child));
+            }
+        }
+
+        return node;
     }
 
     @Override

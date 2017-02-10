@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui.editors;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -30,6 +31,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -41,23 +43,39 @@ import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeWillExpandListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.tree.ExpandVetoException;
+import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.text.WordUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.swingx.JXTaskPane;
@@ -65,22 +83,26 @@ import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
+import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
+import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import org.jdesktop.swingx.treetable.TreeTableNode;
 
-import com.mirth.connect.client.ui.CenterCellRenderer;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.client.ui.RefreshTableModel;
+import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
-import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.FilterTransformer;
 import com.mirth.connect.model.FilterTransformerElement;
+import com.mirth.connect.model.IteratorElement;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
@@ -102,8 +124,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     protected int operatorColumn = -1;
     protected int nameColumn;
     protected int typeColumn;
-    protected int dataColumn;
-    protected int columnCount = 4;
+    protected int columnCount = 3;
 
     private JXTaskPane viewTasks;
     private JXTaskPane editorTasks;
@@ -135,7 +156,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     protected boolean allowCellEdit(int rowIndex, int columnIndex) {
         if (columnIndex == nameColumn) {
             try {
-                return getPlugins().get(table.getValueAt(rowIndex, typeColumn)).isNameEditable();
+                return getPlugins().get(treeTable.getValueAt(rowIndex, typeColumn)).isNameEditable();
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
@@ -235,64 +256,39 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
             updateTemplateVariables();
             updateTaskPane();
+            updateSequenceNumbers();
             updateTable();
         } finally {
             updating.set(false);
         }
 
-        if (table.getRowCount() > 0) {
-            table.setRowSelectionInterval(0, 0);
+        if (treeTable.getRowCount() > 0) {
+            treeTable.setRowSelectionInterval(0, 0);
         }
+        treeTable.expandAll();
     }
 
     protected abstract void doSetProperties(Connector connector, T properties, boolean response, boolean overwriteOriginal);
 
+    @SuppressWarnings("unchecked")
     public List<C> getElements() {
         List<C> elements = new ArrayList<C>();
-        for (int row = 0; row < tableModel.getRowCount(); row++) {
-            elements.add(getElementAt(row));
+        for (Enumeration<? extends TreeTableNode> en = treeTableModel.getRoot().children(); en.hasMoreElements();) {
+            elements.add(((FilterTransformerTreeTableNode<T, C>) en.nextElement()).getElementWithChildren());
         }
         return elements;
     }
 
-    @SuppressWarnings("unchecked")
-    public C getElementAt(int modelRow) {
-        C element = (C) tableModel.getValueAt(modelRow, dataColumn);
-        element.setSequenceNumber(Integer.valueOf((String) tableModel.getValueAt(modelRow, numColumn)));
-        element.setName((String) tableModel.getValueAt(modelRow, nameColumn));
-        if (useOperatorColumn()) {
-            setOperator(element, tableModel.getValueAt(modelRow, operatorColumn));
-        }
-        return element;
-    }
-
     public void setElements(List<C> elements) {
-        Object[][] data = new Object[elements.size()][columnCount];
-        int i = 0;
+        DefaultMutableTreeTableNode root = new DefaultMutableTreeTableNode();
         for (C element : elements) {
-            data[i][numColumn] = String.valueOf(i);
-            if (useOperatorColumn()) {
-                data[i][operatorColumn] = getOperator(element);
-            }
-            data[i][nameColumn] = element.getName();
-            data[i][typeColumn] = element.getType();
-            data[i][dataColumn] = element.clone();
-            i++;
+            root.add(createTreeTableNode(element));
         }
-        tableModel.refreshDataVector(data);
+        treeTableModel.setRoot(root);
+        treeTable.expandPath(new TreePath(treeTableModel.getPathToRoot(treeTableModel.getRoot())));
     }
 
-    public void setElementAt(int modelRow, C element) {
-        if (isValidModelRow(modelRow)) {
-            tableModel.setValueAt(String.valueOf(element.getSequenceNumber()), modelRow, numColumn);
-            if (useOperatorColumn()) {
-                tableModel.setValueAt(getOperator(element), modelRow, operatorColumn);
-            }
-            tableModel.setValueAt(element.getName(), modelRow, nameColumn);
-            tableModel.setValueAt(element.getType(), modelRow, typeColumn);
-            tableModel.setValueAt(element.clone(), modelRow, dataColumn);
-        }
-    }
+    protected abstract FilterTransformerTreeTableNode<T, C> createTreeTableNode(C element);
 
     public String getInboundTemplate() {
         return templatePanel.getIncomingMessage();
@@ -350,51 +346,44 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     public void addNewElement(String name, String variable, String mapping, String type) {
         try {
-            int rowCount = table.getRowCount();
-            int selectedRow = table.getSelectedRow();
+            int rowCount = treeTable.getRowCount();
+            int selectedRow = treeTable.getSelectedRow();
             saveData(selectedRow);
 
             FilterTransformerTypePlugin<C> plugin = getPlugins().get(type);
             C element = plugin.newObject(variable, mapping);
-            element.setSequenceNumber(rowCount);
             element.setName(name);
             addRow(element);
+            updateSequenceNumbers();
 
-            table.setRowSelectionInterval(rowCount, rowCount);
-            table.scrollRowToVisible(rowCount);
+            treeTable.setRowSelectionInterval(rowCount, rowCount);
+            treeTable.scrollRowToVisible(rowCount);
         } catch (Exception e) {
             PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
         }
     }
 
     private void addRow(C element) {
-        List<Object> list = new ArrayList<Object>();
-        list.add(String.valueOf(element.getSequenceNumber()));
-        if (useOperatorColumn()) {
-            list.add(getOperator(element));
-        }
-        list.add(element.getName());
-        list.add(element.getType());
-        list.add(element.clone());
-        tableModel.addRow(list.toArray(new Object[list.size()]));
+        treeTableModel.insertNodeInto(createTreeTableNode(element), (MutableTreeTableNode) treeTableModel.getRoot(), treeTableModel.getRoot().getChildCount());
     }
 
     public void doDeleteElement() {
         stopTableEditing();
-        int selectedRow = table.getSelectedRow();
+        int selectedRow = treeTable.getSelectedRow();
         if (isValidViewRow(selectedRow)) {
-            int modelRow = table.convertRowIndexToModel(selectedRow);
+            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(selectedRow);
+
             updating.set(true);
             try {
-                tableModel.removeRow(modelRow);
+                treeTableModel.removeNodeFromParent(node);
             } finally {
                 updating.set(false);
             }
 
             if (isValidViewRow(selectedRow)) {
-                table.setRowSelectionInterval(selectedRow, selectedRow);
+                treeTable.setRowSelectionInterval(selectedRow, selectedRow);
             } else if (isValidViewRow(selectedRow - 1)) {
-                table.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
+                treeTable.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
             } else {
                 propertiesScrollPane.setViewportView(null);
                 propertiesContainer.removeAll();
@@ -404,7 +393,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             updateTaskPane();
             updateGeneratedCode();
             updateTemplateVariables();
-            updateStepNumbers();
+            updateSequenceNumbers();
             updateTable();
         }
     }
@@ -446,7 +435,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             for (C element : properties.getElements()) {
                 addRow(element);
             }
-            updateStepNumbers();
+            updateSequenceNumbers();
             updateTable();
         } else {
             setProperties(connector, properties, response, false);
@@ -465,27 +454,24 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         }
     }
 
+    @SuppressWarnings("unchecked")
     private String validateAll() {
-        int selectedRow = table.getSelectedRow();
-        int modelRow = -1;
+        int selectedRow = treeTable.getSelectedRow();
+        String selectedSequenceNumber = null;
         if (isValidViewRow(selectedRow)) {
             saveData(selectedRow);
-            modelRow = table.convertRowIndexToModel(selectedRow);
+            selectedSequenceNumber = ((FilterTransformerTreeTableNode<T, C>) treeTable.getPathForRow(selectedRow).getLastPathComponent()).getElement().getSequenceNumber();
         }
 
         String containerName = getContainerName().toLowerCase();
         String elementName = getElementName().toLowerCase();
 
-        String errors = "";
         T properties = getProperties();
-        int row = 0;
+        StringBuilder builder = new StringBuilder();
         for (C element : properties.getElements()) {
-            String validationMessage = validateElement(element, row == modelRow, false);
-            if (StringUtils.isNotBlank(validationMessage)) {
-                errors += "Error in connector \"" + connector.getName() + "\" at " + (response ? "response " : "") + containerName + " " + elementName + " " + element.getSequenceNumber() + " (\"" + element.getName() + "\"):\n" + validationMessage + "\n\n";
-            }
-            row++;
+            validateElementRecursive(element, builder, selectedSequenceNumber);
         }
+        String errors = builder.toString();
 
         if (StringUtils.isBlank(errors)) {
             try {
@@ -506,12 +492,25 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         return errors;
     }
 
+    @SuppressWarnings("unchecked")
+    private void validateElementRecursive(C element, StringBuilder builder, String selectedSequenceNumber) {
+        String validationMessage = validateElement(element, StringUtils.equals(element.getSequenceNumber(), selectedSequenceNumber), false);
+        if (StringUtils.isNotBlank(validationMessage)) {
+            builder.append("Error in connector \"").append(connector.getName()).append("\" at ").append(response ? "response " : "").append(getContainerName().toLowerCase()).append(' ').append(getElementName().toLowerCase()).append(' ').append(element.getSequenceNumber()).append(" (\"").append(element.getName()).append("\"):\n").append(validationMessage).append("\n\n");
+        }
+        if (element instanceof IteratorElement) {
+            for (C child : ((IteratorElement<C>) element).getProperties().getChildren()) {
+                validateElementRecursive(child, builder, selectedSequenceNumber);
+            }
+        }
+    }
+
     public void doValidateElement() {
-        int selectedRow = table.getSelectedRow();
+        int selectedRow = treeTable.getSelectedRow();
         if (isValidViewRow(selectedRow)) {
             saveData(selectedRow);
 
-            String type = (String) table.getValueAt(selectedRow, typeColumn);
+            String type = (String) treeTable.getValueAt(selectedRow, typeColumn);
             try {
                 FilterTransformerTypePlugin<C> plugin = getPlugins().get(type);
                 String validationMessage = validateElement(plugin.getProperties());
@@ -545,30 +544,36 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     public void doMoveElementUp() {
-        doMoveElement(-1);
+        moveElement(true);
     }
 
     public void doMoveElementDown() {
-        doMoveElement(1);
+        moveElement(false);
     }
 
-    private void doMoveElement(int delta) {
-        int selectedRow = table.getSelectedRow();
-        int modelRow = table.convertRowIndexToModel(selectedRow);
+    private void moveElement(boolean up) {
+        int selectedRow = treeTable.getSelectedRow();
+        if (isValidViewRow(selectedRow)) {
+            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(selectedRow);
+            MutableTreeTableNode parent = (MutableTreeTableNode) node.getParent();
 
-        if (isValidModelRow(modelRow) && isValidModelRow(modelRow + delta)) {
-            saveData(selectedRow);
-            updating.set(true);
-            try {
-                tableModel.moveRow(modelRow, modelRow, modelRow + delta);
-                selectedRow = table.convertRowIndexToView(modelRow + delta);
-                table.setRowSelectionInterval(selectedRow, selectedRow);
-                updateStepNumbers();
-                updateTaskPane();
-                updateTable();
-                updateTemplateVariables(selectedRow);
-            } finally {
-                updating.set(false);
+            int childCount = parent.getChildCount();
+            int index = parent.getIndex(node);
+            if (up && index > 0 || !up && index + 1 < childCount) {
+                saveData(selectedRow);
+                updating.set(true);
+                try {
+                    treeTableModel.removeNodeFromParent(node);
+                    treeTableModel.insertNodeInto(node, parent, index + (up ? -1 : 1));
+                    selectedRow = treeTable.getRowForPath(new TreePath(treeTableModel.getPathToRoot(node)));
+                    treeTable.setRowSelectionInterval(selectedRow, selectedRow);
+                    updateSequenceNumbers();
+                    updateTaskPane();
+                    updateTable();
+                    updateTemplateVariables(selectedRow);
+                } finally {
+                    updating.set(false);
+                }
             }
         }
     }
@@ -608,33 +613,71 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         nameColumn = columnIndex++;
         columnNames.add("Type");
         typeColumn = columnIndex++;
-        columnNames.add("Data");
-        dataColumn = columnIndex++;
 
-        table = new MirthTable();
-        table.setBorder(BorderFactory.createEmptyBorder());
-        tableModel = new RefreshTableModel(columnNames.toArray(new String[columnNames.size()]), 0) {
+        final TableCellRenderer numCellRenderer = new LeftCellRenderer();
+        final TableCellEditor nameCellEditor = new DefaultCellEditor(new JTextField());
+
+        treeTable = new MirthTreeTable() {
             @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return allowCellEdit(rowIndex, columnIndex);
+            public TableCellRenderer getCellRenderer(int row, int column) {
+                if (column == numColumn) {
+                    return numCellRenderer;
+                } else {
+                    return super.getCellRenderer(row, column);
+                }
+            }
+
+            @Override
+            public TableCellEditor getCellEditor(int row, int column) {
+                if (isHierarchical(column)) {
+                    return nameCellEditor;
+                } else {
+                    return super.getCellEditor(row, column);
+                }
             }
         };
-        table.setModel(tableModel);
 
-        table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        table.setCustomEditorControls(true);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setRowHeight(UIConstants.ROW_HEIGHT);
-        table.packTable(UIConstants.COL_MARGIN);
-        table.setSortable(false);
-        table.setOpaque(true);
-        table.setRowSelectionAllowed(true);
-        table.setDragEnabled(false);
-        table.getTableHeader().setReorderingAllowed(false);
+        treeTableModel = new SortableTreeTableModel() {
+            @Override
+            public int getHierarchicalColumn() {
+                return nameColumn;
+            }
+
+            @Override
+            public boolean isCellEditable(Object node, int column) {
+                int row = treeTable.getRowForPath(new TreePath(getPathToRoot((TreeTableNode) node)));
+                return allowCellEdit(row, column);
+            }
+        };
+        treeTableModel.setColumnIdentifiers(columnNames);
+
+        treeTable.setBorder(BorderFactory.createEmptyBorder());
+        treeTable.setTreeTableModel(treeTableModel);
+        treeTable.setRootVisible(false);
+        treeTable.setShowsRootHandles(true);
+        treeTable.setDoubleBuffered(true);
+        treeTable.setFocusable(true);
+        treeTable.setEditable(true);
+        treeTable.setAutoCreateColumnsFromModel(false);
+        treeTable.setShowGrid(true, true);
+        treeTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        treeTable.setCustomEditorControls(true);
+        treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        treeTable.getTreeSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        treeTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        treeTable.packTable(UIConstants.COL_MARGIN);
+        treeTable.setSortable(false);
+        treeTable.setOpaque(true);
+        treeTable.setRowSelectionAllowed(true);
+        treeTable.setDragEnabled(false);
+        treeTable.getTableHeader().setReorderingAllowed(false);
+        treeTable.putClientProperty("JTree.lineStyle", "Horizontal");
+
+        treeTable.setTreeCellRenderer(new NameRenderer());
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-            table.setHighlighters(highlighter);
+            treeTable.setHighlighters(highlighter);
         }
 
         List<String> types = new ArrayList<String>();
@@ -643,33 +686,31 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         }
         String[] typeArray = types.toArray(new String[types.size()]);
 
-        MirthComboBoxTableCellEditor typeEditor = new MirthComboBoxTableCellEditor(table, typeArray, 2, true, new ActionListener() {
+        MirthComboBoxTableCellEditor typeEditor = new MirthComboBoxTableCellEditor(treeTable, typeArray, 2, true, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 typeComboBoxActionPerformed(evt);
             }
         });
 
-        table.getColumnExt(numColumn).setMaxWidth(UIConstants.MAX_WIDTH);
-        table.getColumnExt(numColumn).setPreferredWidth(30);
-        table.getColumnExt(numColumn).setCellRenderer(new CenterCellRenderer());
+        treeTable.getColumnExt(numColumn).setMaxWidth(UIConstants.MAX_WIDTH);
+        treeTable.getColumnExt(numColumn).setPreferredWidth(36);
+        treeTable.getColumnExt(numColumn).setCellRenderer(new LeftCellRenderer());
 
-        table.getColumnExt(typeColumn).setMaxWidth(UIConstants.MAX_WIDTH);
-        table.getColumnExt(typeColumn).setMinWidth(155);
-        table.getColumnExt(typeColumn).setPreferredWidth(155);
-        table.getColumnExt(typeColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(typeArray));
-        table.getColumnExt(typeColumn).setCellEditor(typeEditor);
+        treeTable.getColumnExt(typeColumn).setMaxWidth(UIConstants.MAX_WIDTH);
+        treeTable.getColumnExt(typeColumn).setMinWidth(155);
+        treeTable.getColumnExt(typeColumn).setPreferredWidth(155);
+        treeTable.getColumnExt(typeColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(typeArray));
+        treeTable.getColumnExt(typeColumn).setCellEditor(typeEditor);
 
-        table.getColumnExt(dataColumn).setVisible(false);
-
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        treeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent evt) {
                 tableListSelectionChanged(evt);
             }
         });
 
-        table.addMouseListener(new MouseAdapter() {
+        treeTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent evt) {
                 checkSelectionAndPopupMenu(evt);
@@ -681,7 +722,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             }
         });
 
-        table.addKeyListener(new KeyAdapter() {
+        treeTable.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent evt) {
                 if (evt.getKeyCode() == KeyEvent.VK_DELETE) {
@@ -690,10 +731,26 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             }
         });
 
+        treeTable.addTreeWillExpandListener(new TreeWillExpandListener() {
+            @Override
+            public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {}
+
+            @Override
+            public void treeWillCollapse(TreeExpansionEvent evt) throws ExpandVetoException {
+                if (!updating.getAndSet(true)) {
+                    try {
+                        saveData(treeTable.getSelectedRow());
+                    } finally {
+                        updating.set(false);
+                    }
+                }
+            }
+        });
+
         onTableLoad();
 
-        tableScrollPane = new JScrollPane(table);
-        tableScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        treeTableScrollPane = new JScrollPane(treeTable);
+        treeTableScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         tabPane = new JTabbedPane();
         tabPane.setBorder(BorderFactory.createEmptyBorder());
@@ -727,9 +784,9 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             @Override
             public void actionPerformed(ActionEvent evt) {
                 if (!updating.get()) {
-                    int selectedRow = table.getSelectedRow();
+                    int selectedRow = treeTable.getSelectedRow();
                     if (selectedRow >= 0) {
-                        tableModel.setValueAt(evt.getActionCommand(), table.convertRowIndexToModel(selectedRow), nameColumn);
+                        treeTableModel.setValueAt(evt.getActionCommand(), getNodeAtRow(selectedRow), nameColumn);
                     }
                 }
             }
@@ -850,8 +907,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         PlatformUI.MIRTH_FRAME.taskPaneContainer.add(editorTasks, PlatformUI.MIRTH_FRAME.taskPaneContainer.getComponentCount() - 1);
 
         dropTarget = new DropTarget(this, this);
-        table.setDropTarget(dropTarget);
-        tableScrollPane.setDropTarget(dropTarget);
+        treeTable.setDropTarget(dropTarget);
+        treeTableScrollPane.setDropTarget(dropTarget);
     }
 
     private void initLayout() {
@@ -859,7 +916,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
         propertiesContainer.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
 
-        verticalSplitPane.setTopComponent(tableScrollPane);
+        verticalSplitPane.setTopComponent(treeTableScrollPane);
         verticalSplitPane.setBottomComponent(tabPane);
 
         horizontalSplitPane.setLeftComponent(verticalSplitPane);
@@ -872,11 +929,11 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
      * Shows the popup menu when the trigger button (right-click) has been pushed.
      */
     private void checkSelectionAndPopupMenu(MouseEvent evt) {
-        int row = table.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        int row = treeTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
 
         if (evt.isPopupTrigger()) {
             if (row != -1) {
-                table.setRowSelectionInterval(row, row);
+                treeTable.setRowSelectionInterval(row, row);
             }
             editorPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
@@ -885,7 +942,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private void tableListSelectionChanged(ListSelectionEvent evt) {
         if (!evt.getValueIsAdjusting() && !updating.getAndSet(true)) {
             try {
-                int selectedRow = table.getSelectedRow();
+                int selectedRow = treeTable.getSelectedRow();
                 int previousRow = selectedRow == evt.getFirstIndex() ? evt.getLastIndex() : evt.getFirstIndex();
 
                 if (previousRow != selectedRow) {
@@ -901,12 +958,11 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void loadData(int viewRow) {
         if (isValidViewRow(viewRow)) {
-            int modelRow = table.convertRowIndexToModel(viewRow);
-            String type = (String) tableModel.getValueAt(modelRow, typeColumn);
-            C element = (C) tableModel.getValueAt(modelRow, dataColumn);
+            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(viewRow);
+            C element = node.getElement();
+            String type = element.getType();
 
             try {
                 FilterTransformerTypePlugin<C> plugin = getPlugins().get(type);
@@ -1000,17 +1056,28 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     private void saveData() {
-        saveData(table.getSelectedRow());
+        saveData(treeTable.getSelectedRow());
     }
 
     private void saveData(int viewRow) {
         stopTableEditing();
         if (isValidViewRow(viewRow)) {
-            int modelRow = table.convertRowIndexToModel(viewRow);
-            String type = (String) tableModel.getValueAt(modelRow, typeColumn);
+            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(viewRow);
+            String type = node.getElement().getType();
             try {
-                tableModel.setValueAt(getPlugins().get(type).getProperties(), modelRow, dataColumn);
-                getElementAt(modelRow);
+                C element = getPlugins().get(type).getProperties();
+                element.setSequenceNumber(node.getElement().getSequenceNumber());
+                if (useOperatorColumn()) {
+                    setOperator(element, getOperator(node.getElement()));
+                }
+                element.setName(node.getElement().getName());
+
+                node.setElement(element);
+                treeTableModel.setValueAt(element.getSequenceNumber(), node, numColumn);
+                if (useOperatorColumn()) {
+                    treeTableModel.setValueAt(getOperator(element), node, operatorColumn);
+                }
+                treeTableModel.setValueAt(element.getName(), node, nameColumn);
             } catch (Exception e) {
                 PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
             }
@@ -1018,17 +1085,18 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     private void stopTableEditing() {
-        if (table.isEditing()) {
-            table.getCellEditor(table.getEditingRow(), table.getEditingColumn()).stopCellEditing();
+        if (treeTable.isEditing()) {
+            treeTable.getCellEditor(treeTable.getEditingRow(), treeTable.getEditingColumn()).stopCellEditing();
         }
     }
 
     private boolean isValidViewRow(int viewRow) {
-        return viewRow >= 0 && viewRow < table.getRowCount();
+        return viewRow >= 0 && viewRow < treeTable.getRowCount();
     }
 
-    private boolean isValidModelRow(int modelRow) {
-        return modelRow >= 0 && modelRow < tableModel.getRowCount();
+    @SuppressWarnings("unchecked")
+    private FilterTransformerTreeTableNode<T, C> getNodeAtRow(int viewRow) {
+        return (FilterTransformerTreeTableNode<T, C>) treeTable.getPathForRow(viewRow).getLastPathComponent();
     }
 
     private BoundAction initActionCallback(String callbackMethod, String toolTip, BoundAction boundAction, ImageIcon icon) {
@@ -1041,8 +1109,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     private void updateTaskPane() {
-        int rowCount = table.getRowCount();
-        int selectedRow = table.getSelectedRow();
+        int rowCount = treeTable.getRowCount();
+        int selectedRow = treeTable.getSelectedRow();
 
         if (rowCount <= 0) {
             PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_DELETE, -1, false);
@@ -1052,10 +1120,20 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         } else {
             PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_ADD, -1, true);
 
-            if (selectedRow == 0) {
-                PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_UP, TASK_MOVE_UP, false);
-            } else if (selectedRow == rowCount - 1) {
-                PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_DOWN, TASK_MOVE_DOWN, false);
+            TreePath path = treeTable.getPathForRow(selectedRow);
+            if (path != null) {
+                TreeTableNode node = (TreeTableNode) path.getLastPathComponent();
+                TreeTableNode parent = node.getParent();
+                int childIndex = parent.getIndex(node);
+
+                if (childIndex == 0) {
+                    PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_UP, TASK_MOVE_UP, false);
+                }
+                if (childIndex == parent.getChildCount() - 1) {
+                    PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_DOWN, TASK_MOVE_DOWN, false);
+                }
+            } else {
+                PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_UP, -1, false);
             }
         }
 
@@ -1068,14 +1146,17 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void updateGeneratedCode() {
-        int selectedRow = table.getSelectedRow();
+        int selectedRow = treeTable.getSelectedRow();
         if (isValidViewRow(selectedRow)) {
             saveData(selectedRow);
 
-            C element = getElementAt(table.convertRowIndexToModel(selectedRow));
+            TreePath path = treeTable.getPathForRow(selectedRow);
+            FilterTransformerTreeTableNode<T, C> node = (FilterTransformerTreeTableNode<T, C>) path.getLastPathComponent();
+            C element = node.getElementWithChildren();
             try {
-                generatedScriptTextArea.setText(element.getScript(false));
+                generatedScriptTextArea.setText(JavaScriptSharedUtil.prettyPrint(element.getScript(false)));
             } catch (ScriptBuilderException e) {
                 e.printStackTrace();
                 generatedScriptTextArea.setText("");
@@ -1086,14 +1167,14 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     private void typeComboBoxActionPerformed(ActionEvent evt) {
-        int selectedRow = table.getSelectedRow();
+        int selectedRow = treeTable.getSelectedRow();
 
         if (selectedRow >= 0 && !updating.getAndSet(true)) {
             try {
-                int modelRow = table.convertRowIndexToModel(selectedRow);
+                FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(selectedRow);
 
                 String selectedType = ((JComboBox<?>) evt.getSource()).getSelectedItem().toString();
-                String previousType = (String) tableModel.getValueAt(modelRow, typeColumn);
+                String previousType = (String) treeTableModel.getValueAt(node, typeColumn);
 
                 if (!StringUtils.equalsIgnoreCase(selectedType, previousType)) {
                     FilterTransformerTypePlugin<C> plugin = getPlugins().get(previousType);
@@ -1101,15 +1182,15 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
                     String containerName = getContainerName().toLowerCase();
                     String elementName = getElementName().toLowerCase();
-                    if (!Objects.equals(selectedElement, plugin.getDefaults()) && !PlatformUI.MIRTH_FRAME.alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you would like to change this " + containerName + " " + elementName + " and lose all of the current data?")) {
+                    if (!EqualsBuilder.reflectionEquals(selectedElement, plugin.getDefaults(), "name", "sequenceNumber") && !PlatformUI.MIRTH_FRAME.alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you would like to change this " + containerName + " " + elementName + " and lose all of the current data?")) {
                         ((JComboBox<?>) evt.getSource()).getModel().setSelectedItem(previousType);
                         return;
                     }
 
                     plugin = getPlugins().get(selectedType);
                     C newElement = plugin.getDefaults();
-                    tableModel.setValueAt("", modelRow, nameColumn);
-                    tableModel.setValueAt(newElement, modelRow, dataColumn);
+                    node.setElement(newElement);
+                    treeTableModel.setValueAt(newElement.getName(), node, nameColumn);
                     plugin.setProperties(connector.getMode(), response, newElement);
 
                     propertiesContainer.removeAll();
@@ -1123,6 +1204,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     tabPane.updateUI();
 
                     updateTaskPane();
+                    updateSequenceNumbers();
                     updateTable();
                     updateGeneratedCode();
                 }
@@ -1134,9 +1216,19 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         }
     }
 
-    private void updateStepNumbers() {
-        for (int row = 0; row < tableModel.getRowCount(); row++) {
-            tableModel.setValueAt(String.valueOf(row), row, numColumn);
+    private void updateSequenceNumbers() {
+        updateSequenceNumbers(treeTableModel.getRoot(), "");
+    }
+
+    private void updateSequenceNumbers(TreeTableNode node, String prefix) {
+        if (StringUtils.isNotEmpty(prefix)) {
+            prefix += "-";
+        }
+        for (int i = 0; i < node.getChildCount(); i++) {
+            TreeTableNode child = node.getChildAt(i);
+            String num = prefix + i;
+            treeTableModel.setValueAt(num, child, numColumn);
+            updateSequenceNumbers(child, num);
         }
     }
 
@@ -1202,12 +1294,55 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     protected abstract void handleDrop(DropTargetDropEvent dtde, Transferable tr) throws UnsupportedFlavorException, IOException;
 
+    private class LeftCellRenderer extends DefaultTableCellRenderer {
+
+        public LeftCellRenderer() {
+            setHorizontalAlignment(LEFT);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            if (StringUtils.isNotBlank((String) value)) {
+                value = " " + value;
+            }
+            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        }
+    }
+
+    private class NameRenderer extends JLabel implements TreeCellRenderer {
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            if (row >= 0 && value instanceof FilterTransformerTreeTableNode) {
+                FilterTransformerTreeTableNode<?, ?> node = (FilterTransformerTreeTableNode<?, ?>) value;
+                setText(node.getElement().getName());
+
+                if (node.getElement() instanceof IteratorElement) {
+                    setIcon(UIConstants.ICON_BULLET_YELLOW);
+                } else {
+                    setIcon(UIConstants.ICON_BULLET_GREEN);
+                }
+
+                if (selected) {
+                    setBackground(treeTable.getSelectionBackground());
+                } else if (row % 2 == 0) {
+                    setBackground(UIConstants.HIGHLIGHTER_COLOR);
+                } else {
+                    setBackground(treeTable.getBackground());
+                }
+            }
+
+            return this;
+        }
+    }
+
     private JSplitPane horizontalSplitPane;
 
     private JSplitPane verticalSplitPane;
-    protected MirthTable table;
-    private JScrollPane tableScrollPane;
-    protected RefreshTableModel tableModel;
+    protected MirthTreeTable treeTable;
+    private JScrollPane treeTableScrollPane;
+    protected TableModel tableModel;
+    protected DefaultTreeTableModel treeTableModel;
     private JTabbedPane tabPane;
     private JPanel propertiesContainer;
     private JScrollPane propertiesScrollPane;

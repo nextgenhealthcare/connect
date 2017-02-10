@@ -28,6 +28,11 @@ public class XsltStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
+    public boolean includesScrollPane() {
+        return true;
+    }
+
+    @Override
     public Step newObject(String variable, String mapping) {
         XsltStep props = new XsltStep();
         props.setSourceXml(mapping);

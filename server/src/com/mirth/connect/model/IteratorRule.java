@@ -14,9 +14,7 @@ import java.util.Map;
 
 import com.mirth.connect.util.ScriptBuilderException;
 
-public class IteratorRule extends Rule implements FilterTransformerIterable<Rule> {
-
-    public static final String PLUGIN_POINT = "Iterator";
+public class IteratorRule extends Rule implements IteratorElement<Rule>, FilterTransformerIterable<Rule> {
 
     private IteratorRuleProperties properties;
 
@@ -29,6 +27,7 @@ public class IteratorRule extends Rule implements FilterTransformerIterable<Rule
         properties = props.getProperties().clone();
     }
 
+    @Override
     public IteratorRuleProperties getProperties() {
         return properties;
     }
@@ -59,7 +58,7 @@ public class IteratorRule extends Rule implements FilterTransformerIterable<Rule
 
     @Override
     public String getType() {
-        return PLUGIN_POINT;
+        return IteratorProperties.PLUGIN_POINT;
     }
 
     @Override

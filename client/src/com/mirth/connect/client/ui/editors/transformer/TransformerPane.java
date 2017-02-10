@@ -26,16 +26,22 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TreeTransferable;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BaseEditorPane;
+import com.mirth.connect.client.ui.editors.TransformerTreeTableNode;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.IteratorProperties;
+import com.mirth.connect.model.IteratorStep;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
+import com.mirth.connect.plugins.IteratorStepPlugin;
 
 public class TransformerPane extends BaseEditorPane<Transformer, Step> {
 
     public static final String MAPPER = "Mapper";
     public static final String MESSAGE_BUILDER = "Message Builder";
+
+    private IteratorStepPlugin iteratorPlugin;
 
     @Override
     protected Class<?> getContainerClass() {
@@ -73,7 +79,25 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
 
     @Override
     protected Map<String, FilterTransformerTypePlugin<Step>> getPlugins() {
-        return new TreeMap<String, FilterTransformerTypePlugin<Step>>(LoadedExtensions.getInstance().getTransformerStepPlugins());
+        Map<String, FilterTransformerTypePlugin<Step>> plugins = new TreeMap<String, FilterTransformerTypePlugin<Step>>(LoadedExtensions.getInstance().getTransformerStepPlugins());
+        if (iteratorPlugin == null) {
+            iteratorPlugin = new IteratorStepPlugin(IteratorProperties.PLUGIN_POINT);
+        }
+        plugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
+        return plugins;
+    }
+
+    @Override
+    protected TransformerTreeTableNode createTreeTableNode(Step element) {
+        TransformerTreeTableNode node = new TransformerTreeTableNode(this, element);
+
+        if (element instanceof IteratorStep) {
+            for (Step child : ((IteratorStep) element).getProperties().getChildren()) {
+                node.add(createTreeTableNode(child));
+            }
+        }
+
+        return node;
     }
 
     @Override

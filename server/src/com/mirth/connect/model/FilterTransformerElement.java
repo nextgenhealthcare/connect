@@ -23,7 +23,7 @@ import com.mirth.connect.util.ScriptBuilderException;
 public abstract class FilterTransformerElement implements Serializable, Purgable {
 
     private String name;
-    private int sequenceNumber;
+    private String sequenceNumber;
 
     public FilterTransformerElement() {}
 
@@ -51,11 +51,11 @@ public abstract class FilterTransformerElement implements Serializable, Purgable
         this.name = name;
     }
 
-    public int getSequenceNumber() {
+    public String getSequenceNumber() {
         return this.sequenceNumber;
     }
 
-    public void setSequenceNumber(int sequenceNumber) {
+    public void setSequenceNumber(String sequenceNumber) {
         this.sequenceNumber = sequenceNumber;
     }
 
