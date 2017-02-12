@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLContext;
@@ -29,6 +30,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.CookieStore;
@@ -47,6 +49,7 @@ import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -55,9 +58,11 @@ import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.client.ClientRequest;
@@ -77,9 +82,11 @@ public class ServerConnection implements Connector {
     public static final String OPERATION_PROPERTY = "operation";
 
     private static final int CONNECT_TIMEOUT = 10000;
+    private static final int IDLE_TIMEOUT = 300000;
 
     private Logger logger = Logger.getLogger(getClass());
     private Registry<ConnectionSocketFactory> socketFactoryRegistry;
+    private PoolingHttpClientConnectionManager httpClientConnectionManager;
     private CookieStore cookieStore;
     private SocketConfig socketConfig;
     private RequestConfig requestConfig;
@@ -90,6 +97,8 @@ public class ServerConnection implements Connector {
     private HttpClientContext abortPendingClientContext = null;
     private final AbortTask abortTask = new AbortTask();
     private ExecutorService abortExecutor = Executors.newSingleThreadExecutor();
+    private IdleConnectionMonitor idleConnectionMonitor;
+    private ConnectionKeepAliveStrategy keepAliveStrategy;
 
     public ServerConnection(int timeout, String[] httpsProtocols, String[] httpsCipherSuites) {
         this(timeout, httpsProtocols, httpsCipherSuites, false);
@@ -115,6 +124,7 @@ public class ServerConnection implements Connector {
         cookieStore = new BasicCookieStore();
         socketConfig = SocketConfig.custom().setSoTimeout(timeout).build();
         requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(timeout).build();
+        keepAliveStrategy = new CustomKeepAliveStrategy();
 
         createClient();
     }
@@ -169,19 +179,24 @@ public class ServerConnection implements Connector {
     }
 
     private void createClient() {
-        PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+        httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
         httpClientConnectionManager.setDefaultMaxPerRoute(5);
         httpClientConnectionManager.setDefaultSocketConfig(socketConfig);
         // MIRTH-3962: The stale connection settings has been deprecated, and this is recommended instead
         httpClientConnectionManager.setValidateAfterInactivity(5000);
 
-        HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager).setDefaultCookieStore(cookieStore);
+        HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager).setDefaultCookieStore(cookieStore).setKeepAliveStrategy(keepAliveStrategy);
         HttpUtil.configureClientBuilder(clientBuilder);
 
         client = clientBuilder.build();
+
+        idleConnectionMonitor = new IdleConnectionMonitor();
+        idleConnectionMonitor.start();
     }
 
     public synchronized void shutdown() {
+        idleConnectionMonitor.shutdown();
+
         // Shutdown the abort thread
         abortExecutor.shutdownNow();
 
@@ -614,6 +629,52 @@ public class ServerConnection implements Connector {
             } finally {
                 running.set(false);
             }
+        }
+    }
+
+    private class IdleConnectionMonitor extends Thread {
+
+        private volatile boolean shutdown;
+
+        @Override
+        public void run() {
+            try {
+                while (!shutdown) {
+                    synchronized (this) {
+                        wait(5000);
+                        httpClientConnectionManager.closeExpiredConnections();
+                        httpClientConnectionManager.closeIdleConnections(IDLE_TIMEOUT, TimeUnit.MILLISECONDS);
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        public void shutdown() {
+            shutdown = true;
+            synchronized (this) {
+                notifyAll();
+            }
+            try {
+                join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private class CustomKeepAliveStrategy extends DefaultConnectionKeepAliveStrategy {
+
+        @Override
+        public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+            long keepAlive = super.getKeepAliveDuration(response, context);
+
+            if (keepAlive <= 0) {
+                keepAlive = IDLE_TIMEOUT;
+            }
+
+            return keepAlive;
         }
     }
 }
