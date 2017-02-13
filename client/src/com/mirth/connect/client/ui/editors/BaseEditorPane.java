@@ -112,6 +112,7 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.FilterTransformer;
 import com.mirth.connect.model.FilterTransformerElement;
 import com.mirth.connect.model.IteratorElement;
+import com.mirth.connect.model.IteratorProperties;
 import com.mirth.connect.model.Rule.Operator;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.datatype.DataTypeProperties;
@@ -1238,6 +1239,11 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 String previousType = (String) treeTableModel.getValueAt(node, typeColumn);
 
                 if (!StringUtils.equalsIgnoreCase(selectedType, previousType)) {
+                    if (StringUtils.equalsIgnoreCase(previousType, IteratorProperties.PLUGIN_POINT) && node.getChildCount() > 0) {
+                        PlatformUI.MIRTH_FRAME.alertWarning(PlatformUI.MIRTH_FRAME, "Please remove all children before changing an Iterator to a different type.");
+                        return;
+                    }
+
                     FilterTransformerTypePlugin<C> plugin = getPlugins().get(previousType);
                     C selectedElement = plugin.getProperties();
 
