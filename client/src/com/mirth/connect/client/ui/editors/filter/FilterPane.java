@@ -14,8 +14,6 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
@@ -30,9 +28,6 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.RuleDropData;
 import com.mirth.connect.client.ui.TreeTransferable;
-import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
-import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BaseEditorPane;
 import com.mirth.connect.client.ui.editors.FilterTreeTableNode;
@@ -72,32 +67,14 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
     }
 
     @Override
-    protected boolean allowCellEdit(int rowIndex, int columnIndex) {
-        if (columnIndex == operatorColumn) {
-            TreePath path = treeTable.getPathForRow(rowIndex);
-            if (path != null) {
-                TreeTableNode node = (TreeTableNode) path.getLastPathComponent();
-                return node.getParent().getIndex(node) > 0;
-            } else {
-                return false;
-            }
+    protected boolean allowOperatorEdit(int rowIndex, int columnIndex) {
+        TreePath path = treeTable.getPathForRow(rowIndex);
+        if (path != null) {
+            TreeTableNode node = (TreeTableNode) path.getLastPathComponent();
+            return node.getParent().getIndex(node) > 0;
+        } else {
+            return false;
         }
-        return super.allowCellEdit(rowIndex, columnIndex);
-    }
-
-    @Override
-    protected void onTableLoad() {
-        treeTable.getColumnExt(operatorColumn).setMaxWidth(UIConstants.MAX_WIDTH);
-        treeTable.getColumnExt(operatorColumn).setPreferredWidth(60);
-
-        Operator[] operatorValues = new Operator[] { Operator.AND, Operator.OR };
-        treeTable.getColumnExt(operatorColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(operatorValues));
-        treeTable.getColumnExt(operatorColumn).setCellEditor(new MirthComboBoxTableCellEditor(treeTable, operatorValues, 2, true, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                updateOperations();
-            }
-        }));
     }
 
     @Override
@@ -112,10 +89,11 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
     private void updateOperations(TreeTableNode node) {
         for (int i = 0; i < node.getChildCount(); i++) {
             TreeTableNode child = node.getChildAt(i);
+            OperatorNamePair pair = (OperatorNamePair) treeTableModel.getValueAt(child, nameColumn);
             if (i == 0) {
-                treeTableModel.setValueAt(null, child, operatorColumn);
-            } else if (treeTableModel.getValueAt(child, operatorColumn) == null) {
-                treeTableModel.setValueAt(Operator.AND, child, operatorColumn);
+                treeTableModel.setValueAt(new OperatorNamePair(null, pair.getName()), child, nameColumn);
+            } else if (pair.getOperator() == null) {
+                treeTableModel.setValueAt(new OperatorNamePair(Operator.AND, pair.getName()), child, nameColumn);
             }
             updateOperations(child);
         }

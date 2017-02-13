@@ -59,9 +59,6 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
     }
 
     @Override
-    protected void onTableLoad() {}
-
-    @Override
     protected void updateTable() {}
 
     @Override

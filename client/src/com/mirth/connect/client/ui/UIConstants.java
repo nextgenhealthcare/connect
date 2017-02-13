@@ -122,6 +122,9 @@ public class UIConstants {
     public static final ImageIcon ICON_TAG = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/tag_blue.png"));
     public static final ImageIcon ICON_TAG_GRAY = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/tag_gray.png"));
     public static final ImageIcon ICON_TEXT = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/style.png"));
+    // for filter pane
+    public static final ImageIcon ICON_AND = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/and.png"));
+    public static final ImageIcon ICON_OR = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/or.png"));
     // for events
     public static final ImageIcon ICON_INFORMATION = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png"));
     public static final ImageIcon ICON_WARNING = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error.png"));

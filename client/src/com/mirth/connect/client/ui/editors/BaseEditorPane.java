@@ -11,8 +11,12 @@ package com.mirth.connect.client.ui.editors;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -28,10 +32,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -41,10 +47,12 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultCellEditor;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -57,6 +65,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -76,6 +85,7 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
@@ -102,6 +112,7 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.FilterTransformer;
 import com.mirth.connect.model.FilterTransformerElement;
 import com.mirth.connect.model.IteratorElement;
+import com.mirth.connect.model.Rule.Operator;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
@@ -120,7 +131,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private static final int TASK_MOVE_DOWN = 7;
 
     protected int numColumn;
-    protected int operatorColumn = -1;
     protected int nameColumn;
     protected int typeColumn;
     protected int columnCount = 3;
@@ -152,19 +162,25 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     protected abstract String getContainerName();
 
-    protected boolean allowCellEdit(int rowIndex, int columnIndex) {
+    protected boolean allowNameEdit(int rowIndex, int columnIndex) {
+        try {
+            return getPlugins().get(treeTable.getValueAt(rowIndex, typeColumn)).isNameEditable();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    protected boolean allowOperatorEdit(int rowIndex, int columnIndex) {
+        return false;
+    }
+
+    private boolean allowCellEdit(int rowIndex, int columnIndex) {
         if (columnIndex == nameColumn) {
-            try {
-                return getPlugins().get(treeTable.getValueAt(rowIndex, typeColumn)).isNameEditable();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
+            return allowNameEdit(rowIndex, columnIndex) || allowOperatorEdit(rowIndex, columnIndex);
         }
         return columnIndex == typeColumn;
     }
-
-    protected abstract void onTableLoad();
 
     protected abstract void updateTable();
 
@@ -253,18 +269,26 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     editorTasks }, false, true);
             PlatformUI.MIRTH_FRAME.setSaveEnabled(saveEnabled);
 
+            treeTable.expandAll();
+            if (treeTable.getRowCount() > 0) {
+                treeTable.setRowSelectionInterval(0, 0);
+                loadData(0);
+            }
+
             updateTemplateVariables();
             updateTaskPane();
             updateSequenceNumbers();
             updateTable();
+            updateGeneratedCode();
         } finally {
             updating.set(false);
         }
 
         if (treeTable.getRowCount() > 0) {
-            treeTable.setRowSelectionInterval(0, 0);
+            SwingUtilities.invokeLater(() -> {
+                treeTable.setRowSelectionInterval(0, 0);
+            });
         }
-        treeTable.expandAll();
     }
 
     protected abstract void doSetProperties(Connector connector, T properties, boolean response, boolean overwriteOriginal);
@@ -598,23 +622,17 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         verticalSplitPane.setOneTouchExpandable(true);
         verticalSplitPane.setContinuousLayout(true);
 
-        boolean useOperatorColumn = useOperatorColumn();
         int columnIndex = 0;
         List<String> columnNames = new ArrayList<String>();
         columnNames.add("#");
         numColumn = columnIndex++;
-        if (useOperatorColumn) {
-            columnNames.add("Operator");
-            operatorColumn = columnIndex++;
-            columnCount++;
-        }
         columnNames.add("Name");
         nameColumn = columnIndex++;
         columnNames.add("Type");
         typeColumn = columnIndex++;
 
         final TableCellRenderer numCellRenderer = new LeftCellRenderer();
-        final TableCellEditor nameCellEditor = new DefaultCellEditor(new JTextField());
+        final TableCellEditor nameCellEditor = new NameEditor();
 
         treeTable = new MirthTreeTable() {
             @Override
@@ -672,7 +690,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         treeTable.getTableHeader().setReorderingAllowed(false);
         treeTable.putClientProperty("JTree.lineStyle", "Horizontal");
 
-        treeTable.setTreeCellRenderer(new NameRenderer());
+        final NameRenderer nameRenderer = new NameRenderer();
+        treeTable.setTreeCellRenderer(nameRenderer);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
@@ -746,7 +765,47 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             }
         });
 
-        onTableLoad();
+        if (useOperatorColumn()) {
+            treeTable.addMouseMotionListener(new MouseMotionAdapter() {
+                @Override
+                public void mouseMoved(MouseEvent evt) {
+                    // Get the path to the node at the mouse event point
+                    TreePath path = treeTable.getPathForLocation(evt.getX(), evt.getY());
+                    if (path != null) {
+                        // Make sure the operator at the current node is not null
+                        if (((OperatorNamePair) treeTableModel.getValueAt(path.getLastPathComponent(), nameColumn)).getOperator() != null) {
+                            Point point = evt.getPoint();
+
+                            // Get the rectangle the cell renderer is drawn within, with respect to the path bounds
+                            Rectangle cellRect = treeTable.getCellRect(treeTable.getRowForPath(path), nameColumn, true);
+                            if (cellRect != null) {
+                                point.translate(-cellRect.x, -cellRect.y);
+                            }
+
+                            // Get the rectangle the cell will be drawn into, with respect to the tree table
+                            Rectangle pathBounds = ((JTree) treeTable.getCellRenderer(0, treeTable.getHierarchicalColumn())).getPathBounds(path);
+                            if (pathBounds != null) {
+                                point.translate(-pathBounds.x, 0);
+                            }
+
+                            // Get the location of the operator button with respect to the cell renderer
+                            Point loc = nameRenderer.getOperatorButton().getLocation();
+
+                            // If the mouse event point lies within the bounds of the operator button, change the cursor
+                            if (point.x >= loc.x && point.x < loc.x + UIConstants.ICON_AND.getIconWidth() && point.y >= loc.y && point.y < loc.y + UIConstants.ICON_AND.getIconHeight()) {
+                                treeTable.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                                return;
+                            }
+                        }
+                    }
+
+                    // Set the cursor back to the default if necessary
+                    if (treeTable.getCursor().getType() != Cursor.DEFAULT_CURSOR) {
+                        treeTable.setCursor(Cursor.getDefaultCursor());
+                    }
+                }
+            });
+        }
 
         treeTableScrollPane = new JScrollPane(treeTable);
         treeTableScrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -785,7 +844,9 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 if (!updating.get()) {
                     int selectedRow = treeTable.getSelectedRow();
                     if (selectedRow >= 0) {
-                        treeTableModel.setValueAt(evt.getActionCommand(), getNodeAtRow(selectedRow), nameColumn);
+                        TreeTableNode node = getNodeAtRow(selectedRow);
+                        OperatorNamePair pair = (OperatorNamePair) treeTableModel.getValueAt(node, nameColumn);
+                        treeTableModel.setValueAt(new OperatorNamePair(pair.getOperator(), evt.getActionCommand()), node, nameColumn);
                     }
                 }
             }
@@ -1074,9 +1135,10 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 node.setElement(element);
                 treeTableModel.setValueAt(element.getSequenceNumber(), node, numColumn);
                 if (useOperatorColumn()) {
-                    treeTableModel.setValueAt(getOperator(element), node, operatorColumn);
+                    treeTableModel.setValueAt(new OperatorNamePair((Operator) getOperator(element), element.getName()), node, nameColumn);
+                } else {
+                    treeTableModel.setValueAt(new OperatorNamePair(element.getName()), node, nameColumn);
                 }
-                treeTableModel.setValueAt(element.getName(), node, nameColumn);
             } catch (Exception e) {
                 PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
             }
@@ -1189,7 +1251,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     plugin = getPlugins().get(selectedType);
                     C newElement = plugin.getDefaults();
                     node.setElement(newElement);
-                    treeTableModel.setValueAt(newElement.getName(), node, nameColumn);
+                    treeTableModel.setValueAt(new OperatorNamePair(newElement.getName()), node, nameColumn);
                     plugin.setProperties(connector.getMode(), response, newElement);
 
                     propertiesContainer.removeAll();
@@ -1308,19 +1370,52 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         }
     }
 
-    private class NameRenderer extends JLabel implements TreeCellRenderer {
+    private class NameRenderer extends JPanel implements TreeCellRenderer {
+
+        private JLabel bulletLabel;
+        private OperatorButton operatorButton;
+        private JLabel nameLabel;
+
+        public NameRenderer() {
+            setOpaque(false);
+            setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 0"));
+
+            bulletLabel = new JLabel();
+            add(bulletLabel);
+
+            if (useOperatorColumn()) {
+                operatorButton = new OperatorButton();
+                add(operatorButton, "h 17!, w 21!, aligny top, gaptop 1, gapafter 4");
+            }
+
+            nameLabel = new JLabel();
+            add(nameLabel, "growx, pushx");
+        }
+
+        public OperatorButton getOperatorButton() {
+            return operatorButton;
+        }
 
         @Override
+        public Dimension getPreferredSize() {
+            // Return more width than needed to allow renderer to scroll off regardless of column width
+            Dimension size = super.getPreferredSize();
+            return new Dimension(size.width + Toolkit.getDefaultToolkit().getScreenSize().width, size.height);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             if (row >= 0 && value instanceof FilterTransformerTreeTableNode) {
-                FilterTransformerTreeTableNode<?, ?> node = (FilterTransformerTreeTableNode<?, ?>) value;
-                setText(node.getElement().getName());
+                FilterTransformerTreeTableNode<T, C> node = (FilterTransformerTreeTableNode<T, C>) value;
 
                 if (node.getElement() instanceof IteratorElement) {
-                    setIcon(UIConstants.ICON_BULLET_YELLOW);
+                    bulletLabel.setIcon(UIConstants.ICON_BULLET_YELLOW);
                 } else {
-                    setIcon(UIConstants.ICON_BULLET_GREEN);
+                    bulletLabel.setIcon(UIConstants.ICON_BULLET_GREEN);
                 }
+
+                nameLabel.setText(node.getElement().getName());
 
                 if (selected) {
                     setBackground(treeTable.getSelectionBackground());
@@ -1329,9 +1424,206 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 } else {
                     setBackground(treeTable.getBackground());
                 }
+                nameLabel.setBackground(getBackground());
+
+                if (useOperatorColumn()) {
+                    Operator operator = (Operator) getOperator(node.getElement());
+                    operatorButton.setIcon(operator != null ? operator == Operator.AND ? UIConstants.ICON_AND : UIConstants.ICON_OR : null);
+                    operatorButton.setBackground(getBackground());
+                }
             }
 
             return this;
+        }
+    }
+
+    private class NameEditor extends AbstractCellEditor implements TableCellEditor {
+
+        private JPanel panel;
+        private JLabel bulletLabel;
+        private OperatorButton operatorButton;
+        private JLabel nameLabel;
+        private JTextField nameField;
+        private boolean textFieldClicked = false;
+        private int offset = 0;
+
+        public NameEditor() {
+            panel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 0")) {
+                @Override
+                public void setBounds(int x, int y, int width, int height) {
+                    int newOffset = offset - getInsets().left + 1;
+                    super.setBounds(x + newOffset, y, width - newOffset, height);
+                }
+            };
+            panel.setBorder(BorderFactory.createEmptyBorder());
+
+            bulletLabel = new JLabel();
+            panel.add(bulletLabel, "aligny top, gaptop 2");
+
+            if (useOperatorColumn()) {
+                operatorButton = new OperatorButton();
+                operatorButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        Icon icon = operatorButton.getIcon() == UIConstants.ICON_AND ? UIConstants.ICON_OR : UIConstants.ICON_AND;
+                        operatorButton.setIcon(icon);
+                    }
+                });
+                panel.add(operatorButton, "h 17!, w 21!, aligny top, gaptop 1, gapafter 4");
+            }
+
+            nameLabel = new JLabel();
+            nameLabel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent evt) {
+                    if (treeTable.isEditing() && treeTable.getSelectedRow() >= 0 && evt.getClickCount() >= 2 && allowNameEdit(treeTable.getSelectedRow(), nameColumn)) {
+                        textFieldClicked = true;
+                        nameLabel.setVisible(false);
+                        nameField.setVisible(true);
+                    }
+                }
+            });
+            panel.add(nameLabel, "growx, pushx");
+
+            nameField = new JTextField();
+            panel.add(nameField, "growx, pushx");
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            if (useOperatorColumn()) {
+                Operator operator = operatorButton.getIcon() != null ? operatorButton.getIcon() == UIConstants.ICON_AND ? Operator.AND : Operator.OR : null;
+                return new OperatorNamePair(operator, nameField.getText());
+            }
+            return new OperatorNamePair(nameField.getText());
+        }
+
+        @Override
+        public boolean isCellEditable(EventObject evt) {
+            textFieldClicked = false;
+
+            if (evt instanceof MouseEvent) {
+                MouseEvent mouseEvt = (MouseEvent) evt;
+                Point point = mouseEvt.getPoint();
+
+                // Get the path to the node at the mouse event point
+                TreePath path = treeTable.getPathForLocation(mouseEvt.getX(), mouseEvt.getY());
+
+                if (path != null) {
+                    // Make sure the operator at the current node is not null
+                    if (useOperatorColumn() && ((OperatorNamePair) treeTableModel.getValueAt(path.getLastPathComponent(), nameColumn)).getOperator() != null) {
+                        // Get the rectangle the cell editor is drawn within, with respect to the path bounds
+                        Rectangle cellRect = treeTable.getCellRect(treeTable.getRowForPath(path), nameColumn, true);
+                        if (cellRect != null) {
+                            point.translate(-cellRect.x, -cellRect.y);
+                        }
+
+                        // Get the rectangle the cell will be drawn into, with respect to the tree table
+                        Rectangle pathBounds = ((JTree) treeTable.getCellRenderer(0, treeTable.getHierarchicalColumn())).getPathBounds(path);
+                        if (pathBounds != null) {
+                            point.translate(-pathBounds.x, 0);
+                        }
+
+                        Point loc = operatorButton.getLocation();
+
+                        if (point.x >= loc.x && point.x < loc.x + UIConstants.ICON_AND.getIconWidth() && point.y >= loc.y && point.y < loc.y + UIConstants.ICON_AND.getIconHeight()) {
+                            return true;
+                        }
+                    }
+
+                    if (mouseEvt.getClickCount() >= 2) {
+                        // Get the position of the name label with respect to the editor
+                        Point namePoint = nameLabel.getLocation();
+                        if (namePoint.x == 0) {
+                            namePoint.translate(UIConstants.ICON_BULLET_GREEN.getIconWidth(), 0);
+                        }
+
+                        // Enable the text field if the point is within the name label bounds and the event is a double-click
+                        if (point.x >= namePoint.x) {
+                            textFieldClicked = true;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            if (row >= 0) {
+                TreePath path = treeTable.getPathForRow(row);
+                FilterTransformerTreeTableNode<T, C> node = (FilterTransformerTreeTableNode<T, C>) path.getLastPathComponent();
+
+                if (node.getElement() instanceof IteratorElement) {
+                    bulletLabel.setIcon(UIConstants.ICON_BULLET_YELLOW);
+                } else {
+                    bulletLabel.setIcon(UIConstants.ICON_BULLET_GREEN);
+                }
+
+                nameLabel.setText(node.getElement().getName());
+                nameField.setText(node.getElement().getName());
+
+                panel.setBackground(treeTable.getSelectionBackground());
+                nameLabel.setBackground(panel.getBackground());
+
+                boolean allowNameEdit = textFieldClicked && allowNameEdit(row, column);
+                nameLabel.setVisible(!allowNameEdit);
+                nameField.setVisible(allowNameEdit);
+
+                if (useOperatorColumn()) {
+                    if (allowOperatorEdit(row, column)) {
+                        Operator operator = (Operator) getOperator(node.getElement());
+                        operatorButton.setIcon(operator != null ? operator == Operator.AND ? UIConstants.ICON_AND : UIConstants.ICON_OR : null);
+                        operatorButton.setEnabled(true);
+                    } else {
+                        operatorButton.setIcon(null);
+                        operatorButton.setEnabled(false);
+                    }
+                    operatorButton.setBackground(panel.getBackground());
+                    operatorButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                }
+
+                // Calculate the offset to use for resizing the editor once it gets made visible
+                Rectangle cellRect = treeTable.getCellRect(row, column, true);
+                Rectangle pathBounds = ((JTree) treeTable.getCellRenderer(0, treeTable.getHierarchicalColumn())).getPathBounds(path);
+                offset = cellRect.x + pathBounds.x - bulletLabel.getIcon().getIconWidth() - UIConstants.ICON_AND.getIconWidth();
+            }
+
+            return panel;
+        }
+    }
+
+    private class OperatorButton extends JButton {
+
+        public OperatorButton() {
+            setBorderPainted(false);
+            setContentAreaFilled(false);
+            setMargin(new Insets(0, 0, 0, 0));
+            setMaximumSize(new Dimension(21, 17));
+            setMinimumSize(new Dimension(21, 17));
+            setPreferredSize(new Dimension(21, 17));
+        }
+    }
+
+    protected static class OperatorNamePair extends MutablePair<Operator, String> {
+
+        public OperatorNamePair(String name) {
+            this(null, name);
+        }
+
+        public OperatorNamePair(Operator operator, String name) {
+            super(operator, name);
+        }
+
+        public Operator getOperator() {
+            return getLeft();
+        }
+
+        public String getName() {
+            return getRight();
         }
     }
 

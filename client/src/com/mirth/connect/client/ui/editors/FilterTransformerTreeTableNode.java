@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.jdesktop.swingx.treetable.AbstractMutableTreeTableNode;
 
+import com.mirth.connect.client.ui.editors.BaseEditorPane.OperatorNamePair;
 import com.mirth.connect.model.FilterTransformer;
 import com.mirth.connect.model.FilterTransformerElement;
 import com.mirth.connect.model.IteratorElement;
@@ -60,7 +61,7 @@ public abstract class FilterTransformerTreeTableNode<T extends FilterTransformer
         if (column == editorPane.numColumn) {
             return element.getSequenceNumber();
         } else if (column == editorPane.nameColumn) {
-            return element.getName();
+            return new OperatorNamePair(element.getName());
         } else if (column == editorPane.typeColumn) {
             return element.getType();
         }
@@ -72,7 +73,7 @@ public abstract class FilterTransformerTreeTableNode<T extends FilterTransformer
         if (column == editorPane.numColumn) {
             element.setSequenceNumber((String) value);
         } else if (column == editorPane.nameColumn) {
-            element.setName((String) value);
+            element.setName(((OperatorNamePair) value).getName());
         }
     }
 }
