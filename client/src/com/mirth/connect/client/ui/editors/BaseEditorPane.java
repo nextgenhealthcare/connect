@@ -1531,6 +1531,9 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                         }
 
                         Point loc = operatorButton.getLocation();
+                        if (loc.x == 0) {
+                            loc.translate(UIConstants.ICON_BULLET_GREEN.getIconWidth(), 0);
+                        }
 
                         if (point.x >= loc.x && point.x < loc.x + UIConstants.ICON_AND.getIconWidth() && point.y >= loc.y && point.y < loc.y + UIConstants.ICON_AND.getIconHeight()) {
                             return true;
