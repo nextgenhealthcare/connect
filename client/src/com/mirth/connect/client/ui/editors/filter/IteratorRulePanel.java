@@ -73,7 +73,11 @@ public class IteratorRulePanel extends IteratorPanel<Rule> {
 
     private String getName(String target, AcceptMessageValue acceptMessageValue) {
         StringBuilder name = new StringBuilder();
-        name.append("Accept message if ").append(acceptMessageValue.toString().toLowerCase()).append(" of the iterations returns true for each ").append(target);
+        name.append("Accept message if ").append(acceptMessageValue.toString().toLowerCase()).append(" of the iterations return");
+        if (acceptMessageValue == AcceptMessageValue.AT_LEAST_ONE) {
+            name.append('s');
+        }
+        name.append(" true for each ").append(target);
         return name.toString();
     }
 
