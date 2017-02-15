@@ -377,7 +377,16 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             FilterTransformerTypePlugin<C> plugin = getPlugins().get(type);
             C element = plugin.newObject(variable, mapping);
             element.setName(name);
-            addRow(element);
+
+            MutableTreeTableNode parent = (MutableTreeTableNode) treeTableModel.getRoot();
+            if (isValidViewRow(selectedRow)) {
+                TreePath path = treeTable.getPathForRow(selectedRow);
+                if (path != null) {
+                    parent = (MutableTreeTableNode) ((TreeTableNode) path.getLastPathComponent()).getParent();
+                }
+            }
+            addRow(parent, element);
+
             updateSequenceNumbers();
 
             treeTable.setRowSelectionInterval(rowCount, rowCount);
@@ -388,7 +397,11 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     private void addRow(C element) {
-        treeTableModel.insertNodeInto(createTreeTableNode(element), (MutableTreeTableNode) treeTableModel.getRoot(), treeTableModel.getRoot().getChildCount());
+        addRow((MutableTreeTableNode) treeTableModel.getRoot(), element);
+    }
+
+    private void addRow(MutableTreeTableNode parent, C element) {
+        treeTableModel.insertNodeInto(createTreeTableNode(element), parent, parent.getChildCount());
     }
 
     public void doDeleteElement() {
