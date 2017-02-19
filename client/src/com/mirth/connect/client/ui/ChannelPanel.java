@@ -566,7 +566,9 @@ public class ChannelPanel extends AbstractFramePanel {
         try {
             updateChannelGroups(parent.mirthClient.getAllChannelGroups());
         } catch (ClientException e) {
-            parent.alertThrowable(parent, e, false);
+            SwingUtilities.invokeLater(() -> {
+                parent.alertThrowable(parent, e, false);
+            });
         }
     }
 
@@ -588,7 +590,9 @@ public class ChannelPanel extends AbstractFramePanel {
                 }
             }
         } catch (ClientException e) {
-            parent.alertThrowable(parent, e);
+            SwingUtilities.invokeLater(() -> {
+                parent.alertThrowable(parent, e);
+            });
         }
     }
 
@@ -596,7 +600,9 @@ public class ChannelPanel extends AbstractFramePanel {
         try {
             channelDependencies = parent.mirthClient.getChannelDependencies();
         } catch (ClientException e) {
-            parent.alertThrowable(parent, e);
+            SwingUtilities.invokeLater(() -> {
+                parent.alertThrowable(parent, e);
+            });
         }
     }
 
@@ -793,7 +799,9 @@ public class ChannelPanel extends AbstractFramePanel {
                 try {
                     parent.mirthClient.redeployAllChannels();
                 } catch (ClientException e) {
-                    parent.alertThrowable(parent, e);
+                    SwingUtilities.invokeLater(() -> {
+                        parent.alertThrowable(parent, e);
+                    });
                 }
                 return null;
             }
@@ -2196,7 +2204,9 @@ public class ChannelPanel extends AbstractFramePanel {
                 try {
                     parent.mirthClient.removeChannels(channelIds);
                 } catch (ClientException e) {
-                    parent.alertThrowable(parent, e);
+                    SwingUtilities.invokeLater(() -> {
+                        parent.alertThrowable(parent, e);
+                    });
                 }
 
                 return null;
@@ -2363,7 +2373,9 @@ public class ChannelPanel extends AbstractFramePanel {
                     try {
                         parent.mirthClient.setChannelEnabled(channelIds, true);
                     } catch (ClientException e) {
-                        parent.alertThrowable(parent, e);
+                        SwingUtilities.invokeLater(() -> {
+                            parent.alertThrowable(parent, e);
+                        });
                     }
                     return null;
                 }
@@ -2427,7 +2439,9 @@ public class ChannelPanel extends AbstractFramePanel {
                     try {
                         parent.mirthClient.setChannelEnabled(channelIds, false);
                     } catch (ClientException e) {
-                        parent.alertThrowable(parent, e);
+                        SwingUtilities.invokeLater(() -> {
+                            parent.alertThrowable(parent, e);
+                        });
                     }
                 }
                 return null;

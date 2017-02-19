@@ -1297,7 +1297,7 @@ public class Frame extends JXFrame {
                     return;
                 } else if (t.getCause() != null && t.getCause() instanceof IllegalStateException && mirthClient.isClosed()) {
                     return;
-                } else if (StringUtils.contains(t.getMessage(), "reset") || (t instanceof UnauthorizedException || t.getCause() != null && t.getCause() instanceof UnauthorizedException)) {
+                } else if (t instanceof UnauthorizedException || t.getCause() != null && t.getCause() instanceof UnauthorizedException) {
                     connectionError = true;
                     statusUpdaterExecutor.shutdownNow();
 
@@ -2218,7 +2218,9 @@ public class Frame extends JXFrame {
                     }
                 } catch (ClientException e) {
                     status = null;
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e, e.getMessage(), false, TaskConstants.DASHBOARD_REFRESH);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e, e.getMessage(), false, TaskConstants.DASHBOARD_REFRESH);
+                    });
                 }
 
                 return null;
@@ -2286,7 +2288,9 @@ public class Frame extends JXFrame {
                         mirthClient.resumeChannels(resumeChannelIds);
                     }
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
 
                 return null;
@@ -2326,7 +2330,9 @@ public class Frame extends JXFrame {
                         mirthClient.stopChannels(channelIds);
                     }
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
 
                 return null;
@@ -2363,7 +2369,9 @@ public class Frame extends JXFrame {
                         mirthClient.haltChannels(channelIds);
                     }
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
 
                 return null;
@@ -2404,7 +2412,9 @@ public class Frame extends JXFrame {
                         mirthClient.pauseChannels(channelIds);
                     }
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
                 return null;
             }
@@ -2448,7 +2458,9 @@ public class Frame extends JXFrame {
                         mirthClient.startConnectors(connectorInfo);
                     }
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
 
                 return null;
@@ -2502,7 +2514,9 @@ public class Frame extends JXFrame {
                         mirthClient.stopConnectors(connectorInfo);
                     }
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
 
                 return null;
@@ -2582,7 +2596,9 @@ public class Frame extends JXFrame {
                         retrieveUsers();
                     }
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
                 return null;
             }
@@ -2692,7 +2708,9 @@ public class Frame extends JXFrame {
                     try {
                         mirthClient.deployChannels(selectedChannelIds);
                     } catch (ClientException e) {
-                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        SwingUtilities.invokeLater(() -> {
+                            alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        });
                     }
                     return null;
                 }
@@ -2843,7 +2861,9 @@ public class Frame extends JXFrame {
 
                     mirthClient.undeployChannels(channelIds);
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
                 return null;
             }
@@ -2969,7 +2989,9 @@ public class Frame extends JXFrame {
                     connectors = mirthClient.getConnectorNames(channelId);
                     metaDataColumns = mirthClient.getMetaDataColumns(channelId);
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
                 return null;
             }
@@ -3403,7 +3425,9 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.clearStatistics(channelConnectorMapFinal, deleteReceived, deleteFiltered, deleteSent, deleteErrored);
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
                 return null;
             }
@@ -3430,7 +3454,9 @@ public class Frame extends JXFrame {
                         if (e instanceof RequestAbortedException) {
                             // The client is no longer waiting for the delete request
                         } else {
-                            alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                            SwingUtilities.invokeLater(() -> {
+                                alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                            });
                         }
                     }
                     return null;
@@ -3470,7 +3496,9 @@ public class Frame extends JXFrame {
                         filter.setIncludedMetaDataIds(metaDataIds);
                         mirthClient.removeMessages(channelId, filter);
                     } catch (ClientException e) {
-                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        SwingUtilities.invokeLater(() -> {
+                            alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        });
                     }
                     return null;
                 }
@@ -3537,7 +3565,9 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds);
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
                 return null;
             }
@@ -3587,7 +3617,9 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.processMessage(channelId, rawMessage);
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
                 return null;
             }
@@ -3630,7 +3662,9 @@ public class Frame extends JXFrame {
                         mirthClient.removeAllEvents();
                     }
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
                 return null;
             }
@@ -3661,7 +3695,9 @@ public class Frame extends JXFrame {
                     try {
                         exportPath = mirthClient.exportAllEvents();
                     } catch (ClientException e) {
-                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        SwingUtilities.invokeLater(() -> {
+                            alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        });
                     }
                     return null;
                 }
@@ -3694,7 +3730,9 @@ public class Frame extends JXFrame {
                 try {
                     alertStatusList = mirthClient.getAlertStatusList();
                 } catch (ClientException e) {
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
                 return null;
             }
@@ -3756,7 +3794,9 @@ public class Frame extends JXFrame {
                     try {
                         mirthClient.removeAlert(alertId);
                     } catch (ClientException e) {
-                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        SwingUtilities.invokeLater(() -> {
+                            alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        });
                         return null;
                     }
                 }
@@ -3822,7 +3862,9 @@ public class Frame extends JXFrame {
                     try {
                         mirthClient.enableAlert(alertId);
                     } catch (ClientException e) {
-                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        SwingUtilities.invokeLater(() -> {
+                            alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        });
                         return null;
                     }
                 }
@@ -3851,7 +3893,9 @@ public class Frame extends JXFrame {
                     try {
                         mirthClient.disableAlert(alertId);
                     } catch (ClientException e) {
-                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        SwingUtilities.invokeLater(() -> {
+                            alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        });
                         return null;
                     }
                 }
@@ -4078,7 +4122,9 @@ public class Frame extends JXFrame {
                     mirthClient.setExtensionEnabled(extensionsPanel.getSelectedExtension().getName(), true);
                 } catch (ClientException e) {
                     success = false;
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
 
                 return null;
@@ -4107,7 +4153,9 @@ public class Frame extends JXFrame {
                     mirthClient.setExtensionEnabled(extensionsPanel.getSelectedExtension().getName(), false);
                 } catch (ClientException e) {
                     success = false;
-                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    SwingUtilities.invokeLater(() -> {
+                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                    });
                 }
 
                 return null;
@@ -4143,7 +4191,9 @@ public class Frame extends JXFrame {
                         mirthClient.uninstallExtension(packageName);
                     } catch (ClientException e) {
                         success = false;
-                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        SwingUtilities.invokeLater(() -> {
+                            alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                        });
                     }
                 }
 
