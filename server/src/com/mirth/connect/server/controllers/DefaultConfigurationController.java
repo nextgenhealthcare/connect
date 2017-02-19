@@ -570,7 +570,16 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         ServerConfiguration serverConfiguration = new ServerConfiguration();
         serverConfiguration.setChannelGroups(channelController.getChannelGroups(null));
+
         serverConfiguration.setChannels(channelController.getChannels(null));
+        Map<String, ChannelMetadata> metadataMap = getChannelMetadata();
+        for (Channel channel : serverConfiguration.getChannels()) {
+            ChannelMetadata metadata = metadataMap.get(channel.getId());
+            if (metadata != null) {
+                channel.getExportData().setMetadata(metadata);
+            }
+        }
+
         serverConfiguration.setChannelTags(getChannelTags());
         serverConfiguration.setAlerts(alertController.getAlerts());
         serverConfiguration.setCodeTemplateLibraries(codeTemplateController.getLibraries(null, true));

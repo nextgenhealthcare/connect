@@ -37,6 +37,9 @@ public class ChannelMetadata implements Serializable, Purgable {
     }
 
     public Calendar getLastModified() {
+        if (lastModified == null) {
+            lastModified = Calendar.getInstance();
+        }
         return lastModified;
     }
 
