@@ -28,6 +28,7 @@ public class StatusBar extends javax.swing.JPanel {
     private String serverTimeZone;
     private String localTimeZone;
     private long timeOffset;
+    private Thread updater;
 
     /** Creates new form StatusBar */
     public StatusBar() {
@@ -46,6 +47,12 @@ public class StatusBar extends javax.swing.JPanel {
         progressBar.setForeground(UIConstants.JX_CONTAINER_BACKGROUND_COLOR);
 
         this.setBorder(new BevelBorder(BevelBorder.LOWERED));
+    }
+
+    public void shutdown() {
+        if (updater != null && updater.isAlive()) {
+            updater.interrupt();
+        }
     }
 
     public void setWorking(boolean working) {
@@ -77,7 +84,8 @@ public class StatusBar extends javax.swing.JPanel {
         serverTimeZone = serverTime.getTimeZone().getID();
         localTimeZone = Calendar.getInstance().getTimeZone().getID();
 
-        new Thread() {
+        shutdown();
+        updater = new Thread() {
             @Override
             public void run() {
                 while (!Thread.currentThread().isInterrupted()) {
@@ -95,7 +103,8 @@ public class StatusBar extends javax.swing.JPanel {
                     }
                 }
             }
-        }.start();
+        };
+        updater.start();
     }
 
     private String convertLocalToServerTime() {

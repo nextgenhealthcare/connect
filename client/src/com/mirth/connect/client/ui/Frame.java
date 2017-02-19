@@ -523,6 +523,14 @@ public class Frame extends JXFrame {
 
     }
 
+    @Override
+    public void dispose() {
+        super.dispose();
+        if (statusBar != null) {
+            statusBar.shutdown();
+        }
+    }
+
     private void loadExtensionMetaData() throws ClientException {
         loadedPlugins = mirthClient.getPluginMetaData();
         loadedConnectors = mirthClient.getConnectorMetaData();
