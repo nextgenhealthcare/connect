@@ -201,6 +201,7 @@ public class MirthWebServer extends Server {
 
                 WebAppContext webapp = new WebAppContext();
                 webapp.setContextPath(contextPath + "/" + file.getName().substring(0, file.getName().length() - 4));
+                webapp.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
 
                 /*
                  * Set the ContainerIncludeJarPattern so that Jetty examines these JARs for TLDs,
