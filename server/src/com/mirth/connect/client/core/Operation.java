@@ -10,13 +10,14 @@
 package com.mirth.connect.client.core;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Operation {
     private String name;
     private String displayName;
     private ExecuteType executeType;
     private boolean auditable;
-    
+
     public enum ExecuteType {
         SYNC, ASYNC, ABORT_PENDING
     }
@@ -59,9 +60,13 @@ public class Operation {
     public void setAuditable(boolean auditable) {
         this.auditable = auditable;
     }
-    
+
     public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+        return EqualsBuilder.reflectionEquals(this, obj, "executeType");
     }
 
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this, "executeType");
+    }
 }
