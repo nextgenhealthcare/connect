@@ -100,7 +100,7 @@
             </div>
         </div>
         <div id="smallSubPage">
-        	<p>&copy; 2016 Mirth Corporation | Mirth Connect</p>
+        	<p>&copy; 2017 Mirth Corporation | Mirth Connect</p>
         </div>
     
         <script type="text/javascript">
