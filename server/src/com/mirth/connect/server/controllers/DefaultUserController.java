@@ -66,7 +66,7 @@ public class DefaultUserController extends UserController {
             logger.error("Could not reset user status.");
         }
     }
-    
+
     public List<User> getAllUsers() throws ControllerException {
         logger.debug("getting all users");
 
@@ -79,7 +79,7 @@ public class DefaultUserController extends UserController {
 
     public User getUser(Integer userId, String userName) throws ControllerException {
         logger.debug("getting user: " + userId);
-        
+
         if (userId == null && userName == null) {
             throw new ControllerException("Error getting user: Both user ID and user name cannot be null.");
         }
@@ -96,22 +96,33 @@ public class DefaultUserController extends UserController {
 
     public synchronized void updateUser(User user) throws ControllerException {
         try {
-            User existingUser = getUser(null, user.getUsername());
+            User existingUserByName = getUser(null, user.getUsername());
 
             if (user.getId() == null) {
-                if (existingUser != null) {
+                if (existingUserByName != null) {
                     throw new ControllerException("Error adding user: username must be unique");
                 }
 
                 logger.debug("adding user: " + user);
                 SqlConfig.getSqlSessionManager().insert("User.insertUser", getUserMap(user));
             } else {
-                if (existingUser != null && !user.getId().equals(existingUser.getId())) {
+                if (existingUserByName != null && !user.getId().equals(existingUserByName.getId())) {
                     throw new ControllerException("Error updating user: username must be unique");
                 }
 
+                User existingUserById = getUser(user.getId(), null);
+                if (existingUserById == null) {
+                    throw new ControllerException("Error updating user: No user found with ID " + user.getId());
+                }
+                String currentUsername = existingUserById.getUsername();
+
                 logger.debug("updating user: " + user);
                 SqlConfig.getSqlSessionManager().update("User.updateUser", getUserMap(user));
+
+                // Notify the authorization controller if the username changed
+                if (!StringUtils.equals(currentUsername, user.getUsername())) {
+                    ControllerFactory.getFactory().createAuthorizationController().usernameChanged(currentUsername, user.getUsername());
+                }
             }
         } catch (PersistenceException e) {
             throw new ControllerException(e);
@@ -221,7 +232,7 @@ public class DefaultUserController extends UserController {
             // Validate the user
             User validUser = getUser(null, username);
             Credentials credentials = null;
-            
+
             if (validUser != null) {
                 credentials = (Credentials) SqlConfig.getSqlSessionManager().selectOne("User.getLatestUserCredentials", validUser.getId());
 

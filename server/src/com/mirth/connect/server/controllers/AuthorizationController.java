@@ -39,6 +39,8 @@ public abstract class AuthorizationController {
 
     public abstract List<String> getAuthorizedChannelIds(Integer userId) throws ControllerException;
 
+    public abstract void usernameChanged(String oldName, String newName) throws ControllerException;
+
     public void auditAuthorizationRequest(Integer userId, Operation operation, Map<String, Object> parameterMap, ServerEvent.Outcome outcome, String address) {
         if (operation != null && operation.isAuditable()) {
             String displayName = operation.getDisplayName();

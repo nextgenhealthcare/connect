@@ -58,4 +58,7 @@ public class DefaultAuthorizationController extends AuthorizationController {
     public List<String> getAuthorizedChannelIds(Integer userId) throws ControllerException {
         return null;
     }
+
+    @Override
+    public void usernameChanged(String oldName, String newName) throws ControllerException {}
 }
