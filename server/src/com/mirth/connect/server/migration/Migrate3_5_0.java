@@ -196,6 +196,8 @@ public class Migrate3_5_0 extends Migrator implements ConfigurationMigrator {
         propertiesToAdd.put("server.api.accesscontrolexposeheaders", "");
         propertiesToAdd.put("server.api.accesscontrolmaxage", "");
 
+        propertiesToAdd.put("https.ephemeraldhkeysize", new MutablePair<Object, String>("2048", "Ephemeral Diffie-Hellman key size"));
+
         return propertiesToAdd;
     }
 

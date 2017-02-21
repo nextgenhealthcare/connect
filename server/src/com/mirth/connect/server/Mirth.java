@@ -116,6 +116,11 @@ public class Mirth extends Thread {
         if (initResources()) {
             logger.debug("starting mirth server...");
 
+            // Initialize TLS system properties as early as possible
+            if (System.getProperty("jdk.tls.ephemeralDHKeySize") == null) {
+                System.setProperty("jdk.tls.ephemeralDHKeySize", mirthProperties.getString("https.ephemeraldhkeysize", "2048"));
+            }
+
             // check the ports to see if they are already in use
             boolean httpPort = testPort(mirthProperties.getString("http.host"), mirthProperties.getString("http.port"), "http.port");
             boolean httpsPort = testPort(mirthProperties.getString("https.host"), mirthProperties.getString("https.port"), "https.port");
