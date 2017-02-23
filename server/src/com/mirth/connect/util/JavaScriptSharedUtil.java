@@ -193,9 +193,26 @@ public class JavaScriptSharedUtil {
         }
     }
 
+    public static String removeNumberLiterals(String expression) {
+        String suffix = "";
+        if (StringUtils.endsWith(expression, ".toString()")) {
+            suffix = ".toString()";
+            expression = StringUtils.removeEnd(expression, suffix);
+        }
+        StringBuilder builder = new StringBuilder();
+        for (ExprPart part : getExpressionParts(expression, false)) {
+            builder.append(part.getValue());
+        }
+        return builder.append(suffix).toString();
+    }
+
     public static List<ExprPart> getExpressionParts(String expression) {
+        return getExpressionParts(expression, true);
+    }
+
+    public static List<ExprPart> getExpressionParts(String expression, boolean includeNumberLiterals) {
         try {
-            ExpressionVisitor visitor = new ExpressionVisitor();
+            ExpressionVisitor visitor = new ExpressionVisitor(includeNumberLiterals);
             CompilerEnvirons env = new CompilerEnvirons();
             env.setRecordingLocalJsDocComments(true);
             env.setAllowSharpComments(true);
@@ -212,7 +229,12 @@ public class JavaScriptSharedUtil {
 
     private static class ExpressionVisitor implements NodeVisitor {
 
+        private boolean includeNumberLiterals;
         private List<ExprPart> parts = new ArrayList<ExprPart>();
+
+        public ExpressionVisitor(boolean includeNumberLiterals) {
+            this.includeNumberLiterals = includeNumberLiterals;
+        }
 
         public List<ExprPart> getParts() {
             return parts;
@@ -239,7 +261,9 @@ public class JavaScriptSharedUtil {
                 if (node instanceof StringLiteral) {
                     parts.add(new ExprPart("[" + node.toSource() + "]", node.toSource()));
                 } else if (node instanceof NumberLiteral) {
-                    parts.add(new ExprPart("[" + node.toSource() + "]", node.toSource(), true));
+                    if (includeNumberLiterals) {
+                        parts.add(new ExprPart("[" + node.toSource() + "]", node.toSource(), true));
+                    }
                 } else if (node instanceof XmlPropRef) {
                     parts.add(new ExprPart("." + node.toSource(), ((XmlPropRef) node).getPropName().toSource()));
                 } else if (node instanceof XmlElemRef) {

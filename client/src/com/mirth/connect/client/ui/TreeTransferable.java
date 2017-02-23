@@ -15,6 +15,7 @@ import java.awt.datatransfer.Transferable;
 import javax.swing.tree.TreeNode;
 
 import com.mirth.connect.client.ui.components.MirthTree;
+import com.mirth.connect.client.ui.editors.BaseEditorPane;
 import com.mirth.connect.client.ui.editors.MessageTreePanel;
 
 /**
@@ -26,16 +27,17 @@ public class TreeTransferable implements Transferable {
     public static final DataFlavor MESSAGE_BUILDER_DATA_FLAVOR = new DataFlavor(MessageBuilderDropData.class, "MessageBuilderDropData");
     public static final DataFlavor RULE_DATA_FLAVOR = new DataFlavor(RuleDropData.class, "RuleDropData");
     private static DataFlavor[] flavors = null;
+    private BaseEditorPane<?, ?> editorPane;
     private TreeNode data = null;
     private String prefix = MessageTreePanel.MAPPER_PREFIX;
     private String suffix = MessageTreePanel.MAPPER_SUFFIX;
 
     /**
      * @param data
-     *            the type of Ant element being transferred, e.g., target, task,
-     *            type, etc.
+     *            the type of Ant element being transferred, e.g., target, task, type, etc.
      */
-    public TreeTransferable(TreeNode data, String prefix, String suffix, DataFlavor supportedDropFlavor) {
+    public TreeTransferable(BaseEditorPane<?, ?> editorPane, TreeNode data, String prefix, String suffix, DataFlavor supportedDropFlavor) {
+        this.editorPane = editorPane;
         this.data = data;
         this.prefix = prefix;
         this.suffix = suffix;
@@ -43,9 +45,8 @@ public class TreeTransferable implements Transferable {
     }
 
     /**
-     * Set up the supported flavors: DataFlavor.stringFlavor for a raw string
-     * containing an Ant element name (e.g. task, target, etc), or an
-     * ElementFlavor containing an ElementPanel.
+     * Set up the supported flavors: DataFlavor.stringFlavor for a raw string containing an Ant
+     * element name (e.g. task, target, etc), or an ElementFlavor containing an ElementPanel.
      */
     private void init(DataFlavor supportedDropFlavor) {
         try {
@@ -60,10 +61,9 @@ public class TreeTransferable implements Transferable {
 
     /**
      * @param df
-     *            the flavor type desired for the data. Acceptable value is
-     *            DataFlavor.stringFlavor.
-     * @return if df is DataFlavor.stringFlavor, returns a raw string containing
-     *         an Ant element name.
+     *            the flavor type desired for the data. Acceptable value is DataFlavor.stringFlavor.
+     * @return if df is DataFlavor.stringFlavor, returns a raw string containing an Ant element
+     *         name.
      */
     public Object getTransferData(DataFlavor df) {
         if (df == null) {
@@ -73,11 +73,11 @@ public class TreeTransferable implements Transferable {
         if (data != null) {
             if (df == flavors[0]) {
                 /*
-                 * Always use a blank suffix if the accelerator key (CTRL on
-                 * Windows) is pressed. This allows CTRL + Drag to be used to
-                 * mapp into msg where we don't want to append a ".toString()".
+                 * Always use a blank suffix if the accelerator key (CTRL on Windows) is pressed.
+                 * This allows CTRL + Drag to be used to mapp into msg where we don't want to append
+                 * a ".toString()".
                  */
-                return MirthTree.constructPath(data.getParent(), prefix, (PlatformUI.MIRTH_FRAME.isAcceleratorKeyPressed() ? "" : suffix)).toString();
+                return editorPane.replaceIteratorVariables(MirthTree.constructPath(data.getParent(), prefix, (PlatformUI.MIRTH_FRAME.isAcceleratorKeyPressed() ? "" : suffix)).toString());
             }
             if (df == flavors[1]) {
                 if (prefix.equals(MessageTreePanel.MAPPER_PREFIX)) {

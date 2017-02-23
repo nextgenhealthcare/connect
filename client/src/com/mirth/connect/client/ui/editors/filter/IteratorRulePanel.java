@@ -71,6 +71,12 @@ public class IteratorRulePanel extends IteratorPanel<Rule> {
         return getName(target, (AcceptMessageValue) acceptMessageComboBox.getSelectedItem());
     }
 
+    @Override
+    public void setName(IteratorElement<Rule> properties) {
+        IteratorRule props = (IteratorRule) properties;
+        props.setName(getName(props.getProperties().getTarget(), props.getProperties().isIntersectIterations() ? AcceptMessageValue.ALL : AcceptMessageValue.AT_LEAST_ONE));
+    }
+
     private String getName(String target, AcceptMessageValue acceptMessageValue) {
         StringBuilder name = new StringBuilder();
         name.append("Accept message if ").append(acceptMessageValue.toString().toLowerCase()).append(" of the iterations return");

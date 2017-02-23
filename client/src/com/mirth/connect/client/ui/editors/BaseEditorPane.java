@@ -53,9 +53,11 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -86,6 +88,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
@@ -145,6 +148,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private T originalProperties;
     private AtomicBoolean updating = new AtomicBoolean(false);
     private DropTarget dropTarget;
+    private Preferences userPreferences = Preferences.userNodeForPackage(Mirth.class);
 
     public BaseEditorPane() {
         initComponents();
@@ -369,46 +373,182 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     public abstract void addNewElement();
 
     public void addNewElement(String name, String variable, String mapping, String type) {
+        addNewElement(name, variable, mapping, type, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void addNewElement(String name, String variable, String mapping, String type, boolean showIteratorWizard) {
+        updating.set(true);
         try {
-            int rowCount = treeTable.getRowCount();
             int selectedRow = treeTable.getSelectedRow();
             saveData(selectedRow);
 
             FilterTransformerTypePlugin<C> plugin = getPlugins().get(type);
-            C element = plugin.newObject(variable, mapping);
-            element.setName(name);
+            if (plugin == null) {
+                PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Could not find plugin of type: " + type);
+                return;
+            }
 
             MutableTreeTableNode parent = (MutableTreeTableNode) treeTableModel.getRoot();
             if (isValidViewRow(selectedRow)) {
                 TreePath path = treeTable.getPathForRow(selectedRow);
                 if (path != null) {
-                    parent = (MutableTreeTableNode) ((TreeTableNode) path.getLastPathComponent()).getParent();
+                    parent = (MutableTreeTableNode) path.getLastPathComponent();
+                    if (!((FilterTransformerTreeTableNode<T, C>) parent).isIteratorNode()) {
+                        parent = (MutableTreeTableNode) parent.getParent();
+                    }
                 }
             }
-            addRow(parent, element);
 
+            if (parent instanceof FilterTransformerTreeTableNode) {
+                variable = replaceIteratorVariables(parent, JavaScriptSharedUtil.removeNumberLiterals(variable));
+                mapping = replaceIteratorVariables(parent, JavaScriptSharedUtil.removeNumberLiterals(mapping));
+            }
+
+            if (showIteratorWizard && userPreferences.getBoolean("filterTransformerShowIteratorDialog", true)) {
+                String text = "Would you like to create a new Iterator for this " + getContainerName().toLowerCase() + " " + getElementName().toLowerCase() + "?";
+                JCheckBox checkBox = new JCheckBox("Do not show this dialog again (may be re-enabled in the Administrator settings)");
+                Object params = new Object[] { text, checkBox };
+                int result = JOptionPane.showConfirmDialog(PlatformUI.MIRTH_FRAME, params, "Select An Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+                if (checkBox.isSelected()) {
+                    userPreferences.putBoolean("filterTransformerShowIteratorDialog", false);
+                }
+
+                if (result == JOptionPane.YES_OPTION) {
+                    Pair<String, String> info = plugin.getIteratorInfo(variable, mapping);
+                    String target = info.getLeft();
+                    String outbound = info.getRight();
+
+                    List<String> ancestorIndexVariables = getIndexVariables(parent);
+                    String indexVariable = "i";
+                    while (ancestorIndexVariables.contains(indexVariable)) {
+                        char ch = indexVariable.charAt(0);
+                        int len = indexVariable.length();
+                        ch++;
+                        if (ch > 'z') {
+                            ch = 'i';
+                            len++;
+                        }
+                        indexVariable = StringUtils.repeat(ch, len);
+                    }
+
+                    IteratorWizardDialog<C> dialog = new IteratorWizardDialog<C>(target, indexVariable, ancestorIndexVariables, outbound);
+                    if (!dialog.wasAccepted()) {
+                        return;
+                    }
+
+                    FilterTransformerTypePlugin<C> iteratorPlugin = getPlugins().get(IteratorProperties.PLUGIN_POINT);
+                    IteratorElement<C> iteratorElement = (IteratorElement<C>) iteratorPlugin.getDefaults();
+                    dialog.fillIteratorProperties(iteratorElement.getProperties());
+                    ((IteratorPanel<C>) iteratorPlugin.getPanel()).setName(iteratorElement);
+
+                    variable = replaceIteratorVariables(iteratorElement, variable);
+                    mapping = replaceIteratorVariables(iteratorElement, mapping);
+
+                    parent = insertNode(parent, (C) iteratorElement);
+                } else if (result != JOptionPane.NO_OPTION) {
+                    return;
+                }
+            }
+
+            C element = plugin.newObject(variable, mapping);
+            element.setName(name);
+            FilterTransformerTreeTableNode<T, C> node = insertNode(parent, element);
+
+            TreePath path = new TreePath(treeTableModel.getPathToRoot(node));
+            treeTable.expandPath(path);
+            treeTable.getTreeSelectionModel().setSelectionPath(path);
+            treeTable.scrollPathToVisible(path);
+            loadData(treeTable.getRowForPath(path));
+            updateTaskPane();
+            updateTable();
+            updateGeneratedCode();
             updateSequenceNumbers();
-
-            treeTable.setRowSelectionInterval(rowCount, rowCount);
-            treeTable.scrollRowToVisible(rowCount);
         } catch (Exception e) {
             PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
+        } finally {
+            updating.set(false);
         }
     }
 
-    private void addRow(C element) {
-        addRow((MutableTreeTableNode) treeTableModel.getRoot(), element);
+    public String replaceIteratorVariables(String expression) {
+        int selectedRow = treeTable.getSelectedRow();
+        if (isValidViewRow(selectedRow)) {
+            TreePath path = treeTable.getPathForRow(selectedRow);
+            if (path != null) {
+                return replaceIteratorVariables(((TreeTableNode) path.getLastPathComponent()).getParent(), expression);
+            }
+        }
+        return expression;
     }
 
-    private void addRow(MutableTreeTableNode parent, C element) {
-        treeTableModel.insertNodeInto(createTreeTableNode(element), parent, parent.getChildCount());
+    @SuppressWarnings("unchecked")
+    private String replaceIteratorVariables(TreeTableNode parent, String expression) {
+        if (expression != null && parent instanceof FilterTransformerTreeTableNode) {
+            FilterTransformerTreeTableNode<T, C> node = (FilterTransformerTreeTableNode<T, C>) parent;
+            String replaced = replaceIteratorVariables(node.getParent(), expression);
+
+            if (node.getElement() instanceof IteratorElement) {
+                replaced = replaceIteratorVariables((IteratorElement<C>) node.getElement(), replaced);
+            }
+
+            return replaced;
+        }
+
+        return expression;
+    }
+
+    private String replaceIteratorVariables(IteratorElement<C> element, String expression) {
+        for (String prefix : element.getProperties().getPrefixSubstitutions()) {
+            if (StringUtils.startsWith(expression, prefix)) {
+                String suffix = "msg" + StringUtils.removeStart(expression, prefix);
+                suffix = JavaScriptSharedUtil.removeNumberLiterals(suffix);
+                suffix = StringUtils.removeStart(suffix, "msg");
+
+                expression = prefix + "[" + element.getProperties().getIndexVariable() + "]" + suffix;
+            }
+        }
+        return expression;
+    }
+
+    private List<String> getIndexVariables(TreeTableNode parent) {
+        List<String> list = new ArrayList<String>();
+        getIndexVariables(parent, list);
+        return list;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void getIndexVariables(TreeTableNode parent, List<String> list) {
+        if (parent instanceof FilterTransformerTreeTableNode) {
+            FilterTransformerTreeTableNode<T, C> node = (FilterTransformerTreeTableNode<T, C>) parent;
+            getIndexVariables(node.getParent(), list);
+            if (node.getElement() instanceof IteratorElement) {
+                list.add(((IteratorElement<C>) node.getElement()).getProperties().getIndexVariable());
+            }
+        }
+    }
+
+    private FilterTransformerTreeTableNode<T, C> insertNode(C element) {
+        return insertNode((MutableTreeTableNode) treeTableModel.getRoot(), element);
+    }
+
+    private FilterTransformerTreeTableNode<T, C> insertNode(MutableTreeTableNode parent, C element) {
+        FilterTransformerTreeTableNode<T, C> node = createTreeTableNode(element);
+        treeTableModel.insertNodeInto(node, parent, parent.getChildCount());
+        return node;
     }
 
     public void doDeleteElement() {
         stopTableEditing();
         int selectedRow = treeTable.getSelectedRow();
         if (isValidViewRow(selectedRow)) {
+            saveData(selectedRow);
+
             FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(selectedRow);
+            if (node.getChildCount() > 0 && !PlatformUI.MIRTH_FRAME.alertOkCancel(PlatformUI.MIRTH_FRAME, "All child " + getElementName().toLowerCase() + "s will be removed along with the Iterator. Are you sure you wish to continue?")) {
+                return;
+            }
 
             updating.set(true);
             try {
@@ -470,7 +610,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
          */
         if (append) {
             for (C element : properties.getElements()) {
-                addRow(element);
+                insertNode(element);
             }
             updateSequenceNumbers();
             updateTable();
@@ -590,18 +730,30 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     private void moveElement(boolean up) {
         int selectedRow = treeTable.getSelectedRow();
+
         if (isValidViewRow(selectedRow)) {
+            saveData(selectedRow);
+
+            MutableTreeTableNode targetParent = null;
+            int targetIndex = -1;
+
             FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(selectedRow);
             MutableTreeTableNode parent = (MutableTreeTableNode) node.getParent();
-
-            int childCount = parent.getChildCount();
             int index = parent.getIndex(node);
-            if (up && index > 0 || !up && index + 1 < childCount) {
-                saveData(selectedRow);
+
+            if (up && index > 0 || !up && index + 1 < parent.getChildCount()) {
+                targetParent = parent;
+                targetIndex = index + (up ? -1 : 1);
+            } else if (parent.getParent() != null && PlatformUI.MIRTH_FRAME.alertOkCancel(PlatformUI.MIRTH_FRAME, "This will move the " + getElementName().toLowerCase() + " out of its parent Iterator. Are you sure you wish to continue?")) {
+                targetParent = (MutableTreeTableNode) parent.getParent();
+                targetIndex = targetParent.getIndex(parent) + (up ? 0 : 1);
+            }
+
+            if (targetParent != null) {
                 updating.set(true);
                 try {
                     treeTableModel.removeNodeFromParent(node);
-                    treeTableModel.insertNodeInto(node, parent, index + (up ? -1 : 1));
+                    treeTableModel.insertNodeInto(node, targetParent, targetIndex);
                     selectedRow = treeTable.getRowForPath(new TreePath(treeTableModel.getPathToRoot(node)));
                     treeTable.setRowSelectionInterval(selectedRow, selectedRow);
                     updateSequenceNumbers();
@@ -849,7 +1001,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         generatedScriptTextArea.getTextArea().setDropTarget(null);
         tabPane.addTab("Generated Script", generatedScriptTextArea);
 
-        templatePanel = new TabbedTemplatePanel();
+        templatePanel = new TabbedTemplatePanel(this);
         templatePanel.setBorder(BorderFactory.createEmptyBorder());
 
         ActionListener nameActionListener = new ActionListener() {
@@ -1199,13 +1351,16 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             if (path != null) {
                 TreeTableNode node = (TreeTableNode) path.getLastPathComponent();
                 TreeTableNode parent = node.getParent();
-                int childIndex = parent.getIndex(node);
 
-                if (childIndex == 0) {
-                    PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_UP, TASK_MOVE_UP, false);
-                }
-                if (childIndex == parent.getChildCount() - 1) {
-                    PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_DOWN, TASK_MOVE_DOWN, false);
+                if (parent.getParent() == null) {
+                    int childIndex = parent.getIndex(node);
+
+                    if (childIndex == 0) {
+                        PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_UP, TASK_MOVE_UP, false);
+                    }
+                    if (childIndex == parent.getChildCount() - 1) {
+                        PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_DOWN, TASK_MOVE_DOWN, false);
+                    }
                 }
             } else {
                 PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_UP, -1, false);

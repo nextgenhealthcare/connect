@@ -9,6 +9,9 @@
 
 package com.mirth.connect.plugins;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.client.ui.editors.transformer.IteratorStepPanel;
 import com.mirth.connect.model.IteratorProperties;
@@ -39,6 +42,11 @@ public class IteratorStepPlugin extends TransformerStepPlugin {
     @Override
     public boolean isNameEditable() {
         return false;
+    }
+
+    @Override
+    public Pair<String, String> getIteratorInfo(String variable, String mapping) {
+        return new ImmutablePair<String, String>(null, null);
     }
 
     @Override

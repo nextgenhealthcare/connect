@@ -9,6 +9,9 @@
 
 package com.mirth.connect.plugins.rulebuilder;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.plugins.FilterRulePlugin;
@@ -41,6 +44,11 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
 
     public boolean showValidateTask() {
         return true;
+    }
+
+    @Override
+    public Pair<String, String> getIteratorInfo(String variable, String mapping) {
+        return new ImmutablePair<String, String>(mapping, null);
     }
 
     @Override

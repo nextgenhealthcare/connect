@@ -54,6 +54,7 @@ import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.components.MirthTree.FilterTreeModel;
 import com.mirth.connect.client.ui.components.MirthTreeNode;
 import com.mirth.connect.client.ui.components.MirthTreeNode.JSONType;
+import com.mirth.connect.client.ui.editors.BaseEditorPane;
 import com.mirth.connect.client.ui.editors.MessageTreePanel;
 import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
@@ -71,6 +72,7 @@ public class TreePanel extends javax.swing.JPanel {
     private String version = "";
     private String type = "";
     private Logger logger = Logger.getLogger(this.getClass());
+    private BaseEditorPane<?, ?> editorPane;
     private String _dropPrefix;
     private String _dropSuffix;
     private String messageName;
@@ -88,11 +90,12 @@ public class TreePanel extends javax.swing.JPanel {
     /**
      * Creates new form TreePanel
      */
-    public TreePanel() {
-        setup();
+    public TreePanel(BaseEditorPane<?, ?> editorPane) {
+        this(editorPane, null, null);
     }
 
-    public TreePanel(String prefix, String suffix) {
+    public TreePanel(BaseEditorPane<?, ?> editorPane, String prefix, String suffix) {
+        this.editorPane = editorPane;
         _dropPrefix = prefix;
         _dropSuffix = suffix;
 
@@ -213,7 +216,7 @@ public class TreePanel extends javax.swing.JPanel {
                     }
 
                     String variable = MirthTree.constructVariable(tp);
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(variable, variable, MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), TransformerPane.MAPPER);
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(variable, variable, MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), TransformerPane.MAPPER, true);
                 }
             });
             popupMenu.add(popupMenuMapToVariable);
@@ -232,7 +235,7 @@ public class TreePanel extends javax.swing.JPanel {
                         return;
                     }
 
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), "").toString(), "", TransformerPane.MESSAGE_BUILDER);
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), "").toString(), "", TransformerPane.MESSAGE_BUILDER, true);
                 }
             });
             popupMenu.add(popupMenuMapSegment);
@@ -252,7 +255,7 @@ public class TreePanel extends javax.swing.JPanel {
                         return;
                     }
 
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "", TransformerPane.MESSAGE_BUILDER);
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "", TransformerPane.MESSAGE_BUILDER, true);
                 }
             });
             popupMenu.add(popupMenuMapSegmentFilter);
@@ -272,7 +275,7 @@ public class TreePanel extends javax.swing.JPanel {
                     return;
                 }
 
-                PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewElement("", MirthTree.constructNodeDescription(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), FilterPane.RULE_BUILDER);
+                PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewElement("", MirthTree.constructNodeDescription(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), FilterPane.RULE_BUILDER, true);
             }
         });
         popupMenu.add(popupMenuFilterSegment);
@@ -714,9 +717,9 @@ public class TreePanel extends javax.swing.JPanel {
                     }
 
                     if (_dropPrefix.equals(MessageTreePanel.MAPPER_PREFIX)) {
-                        return new TreeTransferable(tp, _dropPrefix, _dropSuffix, TreeTransferable.MAPPER_DATA_FLAVOR);
+                        return new TreeTransferable(editorPane, tp, _dropPrefix, _dropSuffix, TreeTransferable.MAPPER_DATA_FLAVOR);
                     } else {
-                        return new TreeTransferable(tp, _dropPrefix, _dropSuffix, TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
+                        return new TreeTransferable(editorPane, tp, _dropPrefix, _dropSuffix, TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
                     }
                 } catch (ClassCastException cce) {
                     return null;

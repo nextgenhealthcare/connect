@@ -253,11 +253,11 @@ public class MirthTree extends JXTree implements DropTargetListener {
                 Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                 MapperDropData data = (MapperDropData) transferData;
 
-                parent.channelEditPanel.transformerPane.addNewElement(constructMessageBuilderStepName(data.getNode(), selectedNode), constructPath(selectedNode, prefix, suffix).toString(), data.getMapping(), TransformerPane.MESSAGE_BUILDER);
+                parent.channelEditPanel.transformerPane.addNewElement(constructMessageBuilderStepName(data.getNode(), selectedNode), constructPath(selectedNode, prefix, suffix).toString(), data.getMapping(), TransformerPane.MESSAGE_BUILDER, true);
             } else if (supportedDropFlavor == TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR) {
                 Object transferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
                 MessageBuilderDropData data = (MessageBuilderDropData) transferData;
-                parent.channelEditPanel.transformerPane.addNewElement(constructMessageBuilderStepName(selectedNode, data.getNode()), data.getMessageSegment(), constructPath(selectedNode, prefix, suffix).toString(), TransformerPane.MESSAGE_BUILDER);
+                parent.channelEditPanel.transformerPane.addNewElement(constructMessageBuilderStepName(selectedNode, data.getNode()), data.getMessageSegment(), constructPath(selectedNode, prefix, suffix).toString(), TransformerPane.MESSAGE_BUILDER, true);
             } else {
                 dtde.rejectDrop();
             }

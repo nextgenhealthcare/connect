@@ -66,6 +66,9 @@
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
             <Component class="com.mirth.connect.client.ui.TreePanel" name="treePanelOutbound">
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.TreePanel(editorPane)"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>
@@ -87,6 +90,9 @@
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
             <Component class="com.mirth.connect.client.ui.TreePanel" name="treePanelInbound">
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.TreePanel(editorPane)"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>

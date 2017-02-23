@@ -34,6 +34,12 @@ public class IteratorStepPanel extends IteratorPanel<Step> {
     }
 
     @Override
+    public void setName(IteratorElement<Step> properties) {
+        IteratorStep props = (IteratorStep) properties;
+        props.setName(getName(props.getProperties().getTarget()));
+    }
+
+    @Override
     protected void initComponents() {}
 
     @Override

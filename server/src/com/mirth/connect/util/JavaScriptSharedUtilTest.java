@@ -107,4 +107,16 @@ public class JavaScriptSharedUtilTest {
 
         assertEquals(expected.trim(), JavaScriptSharedUtil.prettyPrint(script).trim());
     }
+
+    @Test
+    public void testRemoveNumberLiterals1() {
+        String expression = "msg['OBR'][0]['OBR.3'][1]['OBR.3.1'].toString()";
+        assertEquals("msg['OBR']['OBR.3']['OBR.3.1'].toString()", JavaScriptSharedUtil.removeNumberLiterals(expression));
+    }
+
+    @Test
+    public void testRemoveNumberLiterals2() {
+        String expression = "msg.OBR[0].*::['OBR.3'][1].ns::['OBR.3.1'][test].toString()";
+        assertEquals("msg.OBR.*::['OBR.3'].ns::['OBR.3.1'][test].toString()", JavaScriptSharedUtil.removeNumberLiterals(expression));
+    }
 }

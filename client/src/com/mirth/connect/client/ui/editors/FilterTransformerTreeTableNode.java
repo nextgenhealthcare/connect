@@ -51,6 +51,10 @@ public abstract class FilterTransformerTreeTableNode<T extends FilterTransformer
         this.element = (C) element.clone();
     }
 
+    public boolean isIteratorNode() {
+        return element instanceof IteratorElement;
+    }
+
     @Override
     public int getColumnCount() {
         return 3;

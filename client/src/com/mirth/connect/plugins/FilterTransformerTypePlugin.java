@@ -9,6 +9,8 @@
 
 package com.mirth.connect.plugins;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.FilterTransformerElement;
@@ -24,6 +26,8 @@ public abstract class FilterTransformerTypePlugin<C extends FilterTransformerEle
     public abstract C newObject(String variable, String mapping);
 
     public abstract EditorPanel<C> getPanel();
+
+    public abstract Pair<String, String> getIteratorInfo(String variable, String mapping);
 
     public boolean includesScrollPane() {
         return false;

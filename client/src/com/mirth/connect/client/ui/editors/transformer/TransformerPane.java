@@ -170,16 +170,16 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
             if (mapperTransferData != null && !PlatformUI.MIRTH_FRAME.isAcceleratorKeyPressed()) {
                 Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                 MapperDropData data = (MapperDropData) transferData;
-                addNewElement(data.getVariable(), data.getVariable(), data.getMapping(), MAPPER);
+                addNewElement(data.getVariable(), data.getVariable(), data.getMapping(), MAPPER, true);
             } else if (mapperTransferData != null && PlatformUI.MIRTH_FRAME.isAcceleratorKeyPressed()) {
                 Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                 MapperDropData data2 = (MapperDropData) transferData;
                 MessageBuilderDropData data = new MessageBuilderDropData(data2.getNode(), MirthTree.constructPath(data2.getNode().getParent(), "msg", "").toString(), "");
-                addNewElement(MirthTree.constructMessageBuilderStepName(null, data.getNode()), data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER);
+                addNewElement(MirthTree.constructMessageBuilderStepName(null, data.getNode()), data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER, true);
             } else if (messageBuilderTransferData != null) {
                 Object transferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
                 MessageBuilderDropData data = (MessageBuilderDropData) transferData;
-                addNewElement(MirthTree.constructMessageBuilderStepName(null, data.getNode()), data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER);
+                addNewElement(MirthTree.constructMessageBuilderStepName(null, data.getNode()), data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER, true);
             }
         }
     }

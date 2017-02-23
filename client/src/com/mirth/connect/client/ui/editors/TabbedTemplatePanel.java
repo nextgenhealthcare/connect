@@ -22,6 +22,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.FunctionList;
@@ -35,13 +37,13 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
-import net.miginfocom.swing.MigLayout;
-
 public class TabbedTemplatePanel extends JPanel {
 
     private ContextType contextType;
+    private BaseEditorPane<?, ?> editorPane;
 
-    public TabbedTemplatePanel() {
+    public TabbedTemplatePanel(BaseEditorPane<?, ?> editorPane) {
+        this.editorPane = editorPane;
         initComponents();
         initLayout();
     }
@@ -191,7 +193,7 @@ public class TabbedTemplatePanel extends JPanel {
 
         variableListScrollPane = new JScrollPane(variableTable);
 
-        messageTreePanel = new MessageTreePanel();
+        messageTreePanel = new MessageTreePanel(editorPane);
 
         ActionListener templateTitleListener = new ActionListener() {
             @Override

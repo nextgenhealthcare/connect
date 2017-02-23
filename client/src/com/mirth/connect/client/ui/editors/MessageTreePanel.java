@@ -23,7 +23,10 @@ public class MessageTreePanel extends javax.swing.JPanel {
     public static final String MESSAGE_BUILDER_PREFIX = "tmp";
     public static final String MESSAGE_BUILDER_SUFFIX = "";
 
-    public MessageTreePanel() {
+    private BaseEditorPane<?, ?> editorPane;
+
+    public MessageTreePanel(BaseEditorPane<?, ?> editorPane) {
+        this.editorPane = editorPane;
         initComponents();
 
         ((TitledBorder) treePanelInbound.getBorder()).setTitle("Inbound Message Template Tree");
@@ -98,9 +101,9 @@ public class MessageTreePanel extends javax.swing.JPanel {
 
         split = new javax.swing.JSplitPane();
         treeScrollPaneOutbound = new javax.swing.JScrollPane();
-        treePanelOutbound = new com.mirth.connect.client.ui.TreePanel();
+        treePanelOutbound = new com.mirth.connect.client.ui.TreePanel(editorPane);
         treeScrollPaneInbound = new javax.swing.JScrollPane();
-        treePanelInbound = new com.mirth.connect.client.ui.TreePanel();
+        treePanelInbound = new com.mirth.connect.client.ui.TreePanel(editorPane);
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));

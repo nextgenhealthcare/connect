@@ -124,6 +124,12 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             textSearchWarningNoRadio.setSelected(true);
         }
 
+        if (userPreferences.getBoolean("filterTransformerShowIteratorDialog", true)) {
+            filterTransformerShowIteratorYesRadio.setSelected(true);
+        } else {
+            filterTransformerShowIteratorNoRadio.setSelected(true);
+        }
+
         if (userPreferences.getBoolean("messageBrowserShowAttachmentTypeDialog", true)) {
             messageBrowserShowAttachmentTypeDialogYesRadio.setSelected(true);
         } else {
@@ -221,6 +227,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             userPreferences.putInt("eventBrowserPageSize", eventBrowserPageSize);
             userPreferences.putBoolean("messageBrowserFormat", formatYesRadio.isSelected());
             userPreferences.putBoolean("textSearchWarning", textSearchWarningYesRadio.isSelected());
+            userPreferences.putBoolean("filterTransformerShowIteratorDialog", filterTransformerShowIteratorYesRadio.isSelected());
             userPreferences.putBoolean("messageBrowserShowAttachmentTypeDialog", messageBrowserShowAttachmentTypeDialogYesRadio.isSelected());
 
             if (importChannelLibrariesAskRadio.isSelected()) {
@@ -368,6 +375,20 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         textSearchWarningNoRadio.setBackground(systemSettingsPanel.getBackground());
         textSearchWarningNoRadio.setToolTipText(toolTipText);
         textSearchWarningButtonGroup.add(textSearchWarningNoRadio);
+
+        filterTransformerShowIteratorLabel = new JLabel("Filter/Transformer Iterator dialog:");
+        filterTransformerShowIteratorButtonGroup = new ButtonGroup();
+
+        toolTipText = "<html>Show a confirmation dialog in the filter/transformer<br/>views when dragging and dropping elements from the<br/>message tree, asking users whether to use an Iterator.</html>";
+        filterTransformerShowIteratorYesRadio = new MirthRadioButton("Yes");
+        filterTransformerShowIteratorYesRadio.setBackground(systemSettingsPanel.getBackground());
+        filterTransformerShowIteratorYesRadio.setToolTipText(toolTipText);
+        filterTransformerShowIteratorButtonGroup.add(filterTransformerShowIteratorYesRadio);
+
+        filterTransformerShowIteratorNoRadio = new MirthRadioButton("No");
+        filterTransformerShowIteratorNoRadio.setBackground(systemSettingsPanel.getBackground());
+        filterTransformerShowIteratorNoRadio.setToolTipText(toolTipText);
+        filterTransformerShowIteratorButtonGroup.add(filterTransformerShowIteratorNoRadio);
 
         messageBrowserShowAttachmentTypeDialogLabel = new JLabel("Message browser attachment type dialog:");
         messageBrowserShowAttachmentTypeDialogButtonGroup = new ButtonGroup();
@@ -548,6 +569,9 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         systemSettingsPanel.add(textSearchWarningLabel, "newline, right");
         systemSettingsPanel.add(textSearchWarningYesRadio, "split");
         systemSettingsPanel.add(textSearchWarningNoRadio);
+        systemSettingsPanel.add(filterTransformerShowIteratorLabel, "newline, right");
+        systemSettingsPanel.add(filterTransformerShowIteratorYesRadio, "split");
+        systemSettingsPanel.add(filterTransformerShowIteratorNoRadio);
         systemSettingsPanel.add(messageBrowserShowAttachmentTypeDialogLabel, "newline, right");
         systemSettingsPanel.add(messageBrowserShowAttachmentTypeDialogYesRadio, "split");
         systemSettingsPanel.add(messageBrowserShowAttachmentTypeDialogNoRadio);
@@ -657,6 +681,10 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     private ButtonGroup textSearchWarningButtonGroup;
     private JRadioButton textSearchWarningYesRadio;
     private JRadioButton textSearchWarningNoRadio;
+    private JLabel filterTransformerShowIteratorLabel;
+    private ButtonGroup filterTransformerShowIteratorButtonGroup;
+    private JRadioButton filterTransformerShowIteratorYesRadio;
+    private JRadioButton filterTransformerShowIteratorNoRadio;
     private JLabel messageBrowserShowAttachmentTypeDialogLabel;
     private ButtonGroup messageBrowserShowAttachmentTypeDialogButtonGroup;
     private JRadioButton messageBrowserShowAttachmentTypeDialogYesRadio;

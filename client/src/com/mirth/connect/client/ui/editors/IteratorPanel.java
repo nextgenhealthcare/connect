@@ -56,6 +56,8 @@ public abstract class IteratorPanel<C extends FilterTransformerElement> extends 
 
     protected abstract String getName(String target);
 
+    public abstract void setName(IteratorElement<C> properties);
+
     protected abstract void initComponents();
 
     protected abstract void addMiddleComponents();

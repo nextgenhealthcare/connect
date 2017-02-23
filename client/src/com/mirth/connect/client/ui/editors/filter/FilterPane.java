@@ -202,7 +202,7 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
 
             if (transferData instanceof RuleDropData) {
                 RuleDropData data = (RuleDropData) transferData;
-                addNewElement(MirthTree.constructNodeDescription(data.getNode()), "", data.getMapping(), RULE_BUILDER);
+                addNewElement(MirthTree.constructNodeDescription(data.getNode()), "", data.getMapping(), RULE_BUILDER, true);
             }
         }
     }
