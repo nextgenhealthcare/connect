@@ -443,8 +443,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     dialog.fillIteratorProperties(iteratorElement.getProperties());
                     ((IteratorPanel<C>) iteratorPlugin.getPanel()).setName(iteratorElement);
 
-                    variable = replaceIteratorVariables(iteratorElement, variable);
-                    mapping = replaceIteratorVariables(iteratorElement, mapping);
+                    variable = replaceIteratorVariables(iteratorElement, JavaScriptSharedUtil.removeNumberLiterals(variable));
+                    mapping = replaceIteratorVariables(iteratorElement, JavaScriptSharedUtil.removeNumberLiterals(mapping));
 
                     parent = insertNode(parent, (C) iteratorElement);
                 } else if (result != JOptionPane.NO_OPTION) {
