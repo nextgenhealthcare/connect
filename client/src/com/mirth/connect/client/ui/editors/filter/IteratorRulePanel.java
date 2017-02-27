@@ -95,6 +95,11 @@ public class IteratorRulePanel extends IteratorPanel<Rule> {
         acceptMessageComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
+                if (acceptMessageComboBox.getSelectedItem() == AcceptMessageValue.ALL) {
+                    acceptMessageLabel2.setText("<html>of the iterations return <b>true</b></html>");
+                } else {
+                    acceptMessageLabel2.setText("<html>of the iterations returns <b>true</b></html>");
+                }
                 updateName();
             }
         });

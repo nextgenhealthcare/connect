@@ -36,10 +36,12 @@ import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -127,12 +129,14 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     private static final int TASK_ADD = 0;
     private static final int TASK_DELETE = 1;
-    private static final int TASK_IMPORT = 2;
-    private static final int TASK_EXPORT = 3;
-    private static final int TASK_VALIDATE = 4;
-    private static final int TASK_VALIDATE_ELEMENT = 5;
-    private static final int TASK_MOVE_UP = 6;
-    private static final int TASK_MOVE_DOWN = 7;
+    private static final int TASK_ASSIGN_TO_ITERATOR = 2;
+    private static final int TASK_REMOVE_FROM_ITERATOR = 3;
+    private static final int TASK_IMPORT = 4;
+    private static final int TASK_EXPORT = 5;
+    private static final int TASK_VALIDATE = 6;
+    private static final int TASK_VALIDATE_ELEMENT = 7;
+    private static final int TASK_MOVE_UP = 8;
+    private static final int TASK_MOVE_DOWN = 9;
 
     protected int numColumn;
     protected int nameColumn;
@@ -197,7 +201,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     protected abstract void setOperator(C element, Object value);
 
-    protected abstract Map<String, FilterTransformerTypePlugin<C>> getPlugins();
+    protected abstract Map<String, FilterTransformerTypePlugin<T, C>> getPlugins();
 
     public void accept() {
         accept(true);
@@ -383,7 +387,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             int selectedRow = treeTable.getSelectedRow();
             saveData(selectedRow);
 
-            FilterTransformerTypePlugin<C> plugin = getPlugins().get(type);
+            FilterTransformerTypePlugin<T, C> plugin = getPlugins().get(type);
             if (plugin == null) {
                 PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Could not find plugin of type: " + type);
                 return;
@@ -401,11 +405,15 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             }
 
             if (parent instanceof FilterTransformerTreeTableNode) {
-                variable = replaceIteratorVariables(parent, JavaScriptSharedUtil.removeNumberLiterals(variable));
-                mapping = replaceIteratorVariables(parent, JavaScriptSharedUtil.removeNumberLiterals(mapping));
+                variable = IteratorUtil.replaceIteratorVariables(JavaScriptSharedUtil.removeNumberLiterals(variable), parent);
+                mapping = IteratorUtil.replaceIteratorVariables(JavaScriptSharedUtil.removeNumberLiterals(mapping), parent);
             }
 
-            if (showIteratorWizard && userPreferences.getBoolean("filterTransformerShowIteratorDialog", true)) {
+            Pair<String, String> info = plugin.getIteratorInfo(variable, mapping);
+            String target = info.getLeft();
+            String outbound = info.getRight();
+
+            if (showIteratorWizard && !JavaScriptSharedUtil.getExpressionParts(target, false).isEmpty() && userPreferences.getBoolean("filterTransformerShowIteratorDialog", true)) {
                 String text = "Would you like to create a new Iterator for this " + getContainerName().toLowerCase() + " " + getElementName().toLowerCase() + "?";
                 JCheckBox checkBox = new JCheckBox("Do not show this dialog again (may be re-enabled in the Administrator settings)");
                 Object params = new Object[] { text, checkBox };
@@ -416,37 +424,21 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 }
 
                 if (result == JOptionPane.YES_OPTION) {
-                    Pair<String, String> info = plugin.getIteratorInfo(variable, mapping);
-                    String target = info.getLeft();
-                    String outbound = info.getRight();
-
-                    List<String> ancestorIndexVariables = getIndexVariables(parent);
-                    String indexVariable = "i";
-                    while (ancestorIndexVariables.contains(indexVariable)) {
-                        char ch = indexVariable.charAt(0);
-                        int len = indexVariable.length();
-                        ch++;
-                        if (ch > 'z') {
-                            ch = 'i';
-                            len++;
-                        }
-                        indexVariable = StringUtils.repeat(ch, len);
-                    }
-
-                    IteratorWizardDialog<C> dialog = new IteratorWizardDialog<C>(target, indexVariable, ancestorIndexVariables, outbound);
+                    IteratorWizardDialog<T, C> dialog = new IteratorWizardDialog<T, C>(target, null, parent, treeTableModel, true, outbound);
                     if (!dialog.wasAccepted()) {
                         return;
                     }
 
-                    FilterTransformerTypePlugin<C> iteratorPlugin = getPlugins().get(IteratorProperties.PLUGIN_POINT);
+                    FilterTransformerTypePlugin<T, C> iteratorPlugin = getPlugins().get(IteratorProperties.PLUGIN_POINT);
                     IteratorElement<C> iteratorElement = (IteratorElement<C>) iteratorPlugin.getDefaults();
                     dialog.fillIteratorProperties(iteratorElement.getProperties());
                     ((IteratorPanel<C>) iteratorPlugin.getPanel()).setName(iteratorElement);
 
-                    variable = replaceIteratorVariables(iteratorElement, JavaScriptSharedUtil.removeNumberLiterals(variable));
-                    mapping = replaceIteratorVariables(iteratorElement, JavaScriptSharedUtil.removeNumberLiterals(mapping));
+                    variable = IteratorUtil.replaceIteratorVariables(JavaScriptSharedUtil.removeNumberLiterals(variable), iteratorElement);
+                    mapping = IteratorUtil.replaceIteratorVariables(JavaScriptSharedUtil.removeNumberLiterals(mapping), iteratorElement);
 
                     parent = insertNode(parent, (C) iteratorElement);
+                    replaceIteratorVariables((FilterTransformerTreeTableNode<T, C>) parent);
                 } else if (result != JOptionPane.NO_OPTION) {
                     return;
                 }
@@ -455,6 +447,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             C element = plugin.newObject(variable, mapping);
             element.setName(name);
             FilterTransformerTreeTableNode<T, C> node = insertNode(parent, element);
+            replaceIteratorVariables(node);
 
             TreePath path = new TreePath(treeTableModel.getPathToRoot(node));
             treeTable.expandPath(path);
@@ -473,60 +466,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     public String replaceIteratorVariables(String expression) {
-        int selectedRow = treeTable.getSelectedRow();
-        if (isValidViewRow(selectedRow)) {
-            TreePath path = treeTable.getPathForRow(selectedRow);
-            if (path != null) {
-                return replaceIteratorVariables(((TreeTableNode) path.getLastPathComponent()).getParent(), expression);
-            }
-        }
-        return expression;
-    }
-
-    @SuppressWarnings("unchecked")
-    private String replaceIteratorVariables(TreeTableNode parent, String expression) {
-        if (expression != null && parent instanceof FilterTransformerTreeTableNode) {
-            FilterTransformerTreeTableNode<T, C> node = (FilterTransformerTreeTableNode<T, C>) parent;
-            String replaced = replaceIteratorVariables(node.getParent(), expression);
-
-            if (node.getElement() instanceof IteratorElement) {
-                replaced = replaceIteratorVariables((IteratorElement<C>) node.getElement(), replaced);
-            }
-
-            return replaced;
-        }
-
-        return expression;
-    }
-
-    private String replaceIteratorVariables(IteratorElement<C> element, String expression) {
-        for (String prefix : element.getProperties().getPrefixSubstitutions()) {
-            if (StringUtils.startsWith(expression, prefix)) {
-                String suffix = "msg" + StringUtils.removeStart(expression, prefix);
-                suffix = JavaScriptSharedUtil.removeNumberLiterals(suffix);
-                suffix = StringUtils.removeStart(suffix, "msg");
-
-                expression = prefix + "[" + element.getProperties().getIndexVariable() + "]" + suffix;
-            }
-        }
-        return expression;
-    }
-
-    private List<String> getIndexVariables(TreeTableNode parent) {
-        List<String> list = new ArrayList<String>();
-        getIndexVariables(parent, list);
-        return list;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void getIndexVariables(TreeTableNode parent, List<String> list) {
-        if (parent instanceof FilterTransformerTreeTableNode) {
-            FilterTransformerTreeTableNode<T, C> node = (FilterTransformerTreeTableNode<T, C>) parent;
-            getIndexVariables(node.getParent(), list);
-            if (node.getElement() instanceof IteratorElement) {
-                list.add(((IteratorElement<C>) node.getElement()).getProperties().getIndexVariable());
-            }
-        }
+        return IteratorUtil.replaceIteratorVariables(expression, treeTable);
     }
 
     private FilterTransformerTreeTableNode<T, C> insertNode(C element) {
@@ -534,8 +474,12 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     private FilterTransformerTreeTableNode<T, C> insertNode(MutableTreeTableNode parent, C element) {
+        return insertNode(parent, element, parent.getChildCount());
+    }
+
+    private FilterTransformerTreeTableNode<T, C> insertNode(MutableTreeTableNode parent, C element, int index) {
         FilterTransformerTreeTableNode<T, C> node = createTreeTableNode(element);
-        treeTableModel.insertNodeInto(node, parent, parent.getChildCount());
+        treeTableModel.insertNodeInto(node, parent, index);
         return node;
     }
 
@@ -572,6 +516,198 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             updateTemplateVariables();
             updateSequenceNumbers();
             updateTable();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean hasIteratorNodes(MutableTreeTableNode node, FilterTransformerTreeTableNode<T, C> excluded) {
+        if (!Objects.equals(node, excluded)) {
+            if (node instanceof FilterTransformerTreeTableNode && ((FilterTransformerTreeTableNode<T, C>) node).isIteratorNode()) {
+                return true;
+            }
+            for (Enumeration<? extends MutableTreeTableNode> en = node.children(); en.hasMoreElements();) {
+                if (hasIteratorNodes(en.nextElement(), excluded)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void doAssignToIterator() {
+        updating.set(true);
+        try {
+            int selectedRow = treeTable.getSelectedRow();
+            if (!isValidViewRow(selectedRow)) {
+                return;
+            }
+            saveData(selectedRow);
+
+            TreePath path = treeTable.getPathForRow(selectedRow);
+            if (path == null) {
+                return;
+            }
+
+            FilterTransformerTreeTableNode<T, C> node = (FilterTransformerTreeTableNode<T, C>) path.getLastPathComponent();
+            MutableTreeTableNode parent = (MutableTreeTableNode) node.getParent();
+            int childIndex = parent.getIndex(node);
+            String type = node.getElement().getType();
+
+            FilterTransformerTypePlugin<T, C> plugin = getPlugins().get(type);
+            if (plugin == null) {
+                PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Could not find plugin of type: " + type);
+                return;
+            }
+
+            // Remove iterator variables before detaching
+            removeIteratorVariables(node);
+
+            Pair<String, String> iteratorInfo = plugin.getIteratorInfo(node.getElement());
+            String target = JavaScriptSharedUtil.removeNumberLiterals(iteratorInfo.getLeft());
+            String outbound = JavaScriptSharedUtil.removeNumberLiterals(iteratorInfo.getRight());
+
+            FilterTransformerTypePlugin<T, C> iteratorPlugin = getPlugins().get(IteratorProperties.PLUGIN_POINT);
+
+            if (JavaScriptSharedUtil.getExpressionParts(target, false).isEmpty() && !hasIteratorNodes((MutableTreeTableNode) treeTableModel.getRoot(), node)) {
+                /*
+                 * If there is no discernable target, and no other iterators to choose from, the
+                 * most we can do is add a new default iterator and add the node to that.
+                 */
+                IteratorElement<C> iteratorElement = (IteratorElement<C>) iteratorPlugin.getDefaults();
+                iteratorElement.getProperties().setIndexVariable(IteratorUtil.getValidIndexVariable(parent, node));
+
+                treeTableModel.removeNodeFromParent(node);
+                parent = insertNode(parent, (C) iteratorElement, childIndex);
+                iteratorElement = (IteratorElement<C>) ((FilterTransformerTreeTableNode<T, C>) parent).getElement();
+                replaceIteratorVariables((FilterTransformerTreeTableNode<T, C>) parent);
+                ((IteratorPanel<C>) iteratorPlugin.getPanel()).setName(iteratorElement);
+            } else {
+                IteratorWizardDialog<T, C> dialog = new IteratorWizardDialog<T, C>(target, node, parent, treeTableModel, false, outbound);
+                if (!dialog.wasAccepted()) {
+                    return;
+                }
+
+                treeTableModel.removeNodeFromParent(node);
+
+                if (dialog.isCreateNew()) {
+                    IteratorElement<C> iteratorElement = (IteratorElement<C>) iteratorPlugin.getDefaults();
+                    dialog.fillIteratorProperties(iteratorElement.getProperties());
+
+                    parent = insertNode(parent, (C) iteratorElement, childIndex);
+                    iteratorElement = (IteratorElement<C>) ((FilterTransformerTreeTableNode<T, C>) parent).getElement();
+                    replaceIteratorVariables((FilterTransformerTreeTableNode<T, C>) parent);
+                    ((IteratorPanel<C>) iteratorPlugin.getPanel()).setName(iteratorElement);
+                } else {
+                    target = IteratorUtil.removeIteratorVariables(target, parent);
+                    outbound = IteratorUtil.removeIteratorVariables(outbound, parent);
+
+                    parent = dialog.getSelectedParent();
+                }
+            }
+
+            target = IteratorUtil.replaceIteratorVariables(target, parent);
+            outbound = IteratorUtil.replaceIteratorVariables(outbound, parent);
+
+            C element = node.getElementWithChildren();
+            plugin.setIteratorInfo(element, target, outbound);
+
+            // Replace iterator variables after reattaching
+            node = insertNode(parent, element);
+            replaceIteratorVariables(node);
+
+            TreePath newPath = new TreePath(treeTableModel.getPathToRoot(node));
+            treeTable.expandPath(newPath);
+            treeTable.getTreeSelectionModel().setSelectionPath(newPath);
+            treeTable.scrollPathToVisible(newPath);
+            loadData(treeTable.getRowForPath(newPath));
+            updateTaskPane();
+            updateTable();
+            updateGeneratedCode();
+            updateSequenceNumbers();
+        } catch (Exception e) {
+            PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
+        } finally {
+            updating.set(false);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void doRemoveFromIterator() {
+        updating.set(true);
+        try {
+            int selectedRow = treeTable.getSelectedRow();
+            if (!isValidViewRow(selectedRow)) {
+                return;
+            }
+            saveData(selectedRow);
+
+            TreePath path = treeTable.getPathForRow(selectedRow);
+            if (path == null) {
+                return;
+            }
+
+            FilterTransformerTreeTableNode<T, C> node = (FilterTransformerTreeTableNode<T, C>) path.getLastPathComponent();
+            MutableTreeTableNode parent = (MutableTreeTableNode) node.getParent();
+            if (!(node.getParent() instanceof FilterTransformerTreeTableNode)) {
+                return;
+            }
+
+            // Remove iterator variables before detaching
+            removeIteratorVariables(node);
+            treeTableModel.removeNodeFromParent(node);
+
+            // Replace iterator variables after reattaching
+            node = insertNode((MutableTreeTableNode) parent.getParent(), node.getElementWithChildren());
+            replaceIteratorVariables(node);
+
+            TreePath newPath = new TreePath(treeTableModel.getPathToRoot(node));
+            treeTable.expandPath(newPath);
+            treeTable.getTreeSelectionModel().setSelectionPath(newPath);
+            treeTable.scrollPathToVisible(newPath);
+            loadData(treeTable.getRowForPath(newPath));
+            updateTaskPane();
+            updateTable();
+            updateGeneratedCode();
+            updateSequenceNumbers();
+        } catch (Exception e) {
+            PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
+        } finally {
+            updating.set(false);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void replaceIteratorVariables(FilterTransformerTreeTableNode<T, C> node) {
+        if (node.getParent() instanceof FilterTransformerTreeTableNode) {
+            FilterTransformerTypePlugin<T, C> plugin = getPlugins().get(node.getElement().getType());
+            if (plugin == null) {
+                PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Could not find plugin of type: " + node.getElement().getType());
+                return;
+            }
+
+            plugin.replaceIteratorVariables(node.getElement(), (FilterTransformerTreeTableNode<T, C>) node.getParent());
+        }
+
+        for (Enumeration<? extends MutableTreeTableNode> en = node.children(); en.hasMoreElements();) {
+            replaceIteratorVariables((FilterTransformerTreeTableNode<T, C>) en.nextElement());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void removeIteratorVariables(FilterTransformerTreeTableNode<T, C> node) {
+        for (Enumeration<? extends MutableTreeTableNode> en = node.children(); en.hasMoreElements();) {
+            removeIteratorVariables((FilterTransformerTreeTableNode<T, C>) en.nextElement());
+        }
+
+        if (node.getParent() instanceof FilterTransformerTreeTableNode) {
+            FilterTransformerTypePlugin<T, C> plugin = getPlugins().get(node.getElement().getType());
+            if (plugin == null) {
+                PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Could not find plugin of type: " + node.getElement().getType());
+                return;
+            }
+
+            plugin.removeIteratorVariables(node.getElement(), (FilterTransformerTreeTableNode<T, C>) node.getParent());
         }
     }
 
@@ -669,16 +805,30 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         return errors;
     }
 
-    @SuppressWarnings("unchecked")
     private void validateElementRecursive(C element, StringBuilder builder, String selectedSequenceNumber) {
+        validateElementRecursive(element, builder, selectedSequenceNumber, new LinkedList<String>());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void validateElementRecursive(C element, StringBuilder builder, String selectedSequenceNumber, Deque<String> indexVariables) {
         String validationMessage = validateElement(element, StringUtils.equals(element.getSequenceNumber(), selectedSequenceNumber), false);
         if (StringUtils.isNotBlank(validationMessage)) {
             builder.append("Error in connector \"").append(connector.getName()).append("\" at ").append(response ? "response " : "").append(getContainerName().toLowerCase()).append(' ').append(getElementName().toLowerCase()).append(' ').append(element.getSequenceNumber()).append(" (\"").append(element.getName()).append("\"):\n").append(validationMessage).append("\n\n");
         }
+
         if (element instanceof IteratorElement) {
-            for (C child : ((IteratorElement<C>) element).getProperties().getChildren()) {
-                validateElementRecursive(child, builder, selectedSequenceNumber);
+            IteratorElement<C> iterator = (IteratorElement<C>) element;
+            String indexVariable = iterator.getProperties().getIndexVariable();
+
+            if (StringUtils.isNotBlank(indexVariable) && indexVariables.contains(indexVariable)) {
+                builder.append("Error in connector \"").append(connector.getName()).append("\" at ").append(response ? "response " : "").append(getContainerName().toLowerCase()).append(' ').append(getElementName().toLowerCase()).append(' ').append(element.getSequenceNumber()).append(" (\"").append(element.getName()).append("\"):\nDuplicate Iterator index variable ").append(indexVariable).append(" found.\n\n");
             }
+
+            indexVariables.push(indexVariable);
+            for (C child : iterator.getProperties().getChildren()) {
+                validateElementRecursive(child, builder, selectedSequenceNumber, indexVariables);
+            }
+            indexVariables.pop();
         }
     }
 
@@ -689,7 +839,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
             String type = (String) treeTable.getValueAt(selectedRow, typeColumn);
             try {
-                FilterTransformerTypePlugin<C> plugin = getPlugins().get(type);
+                FilterTransformerTypePlugin<T, C> plugin = getPlugins().get(type);
                 String validationMessage = validateElement(plugin.getProperties());
                 if (StringUtils.isBlank(validationMessage)) {
                     PlatformUI.MIRTH_FRAME.alertInformation(this, "Validation successful.");
@@ -708,7 +858,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     public String validateElement(C element, boolean highlight, boolean checkSyntax) {
         try {
-            FilterTransformerTypePlugin<C> plugin = getPlugins().get(element.getType());
+            FilterTransformerTypePlugin<T, C> plugin = getPlugins().get(element.getType());
             String validationMessage = plugin.checkProperties(element, highlight);
             if (checkSyntax && StringUtils.isBlank(validationMessage)) {
                 validationMessage = JavaScriptSharedUtil.validateScript(element.getScript(false));
@@ -752,10 +902,17 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             if (targetParent != null) {
                 updating.set(true);
                 try {
+                    // Remove iterator variables before detaching
+                    removeIteratorVariables(node);
                     treeTableModel.removeNodeFromParent(node);
+
+                    // Replace iterator variables after reattaching
                     treeTableModel.insertNodeInto(node, targetParent, targetIndex);
+                    replaceIteratorVariables(node);
+
                     selectedRow = treeTable.getRowForPath(new TreePath(treeTableModel.getPathToRoot(node)));
                     treeTable.setRowSelectionInterval(selectedRow, selectedRow);
+                    loadData(selectedRow);
                     updateSequenceNumbers();
                     updateTaskPane();
                     updateTable();
@@ -1017,7 +1174,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 }
             }
         };
-        for (FilterTransformerTypePlugin<C> plugin : getPlugins().values()) {
+        for (FilterTransformerTypePlugin<T, C> plugin : getPlugins().values()) {
             plugin.getPanel().addNameActionListener(nameActionListener);
         }
 
@@ -1060,6 +1217,28 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             }
         });
         editorPopupMenu.add(doDeleteElementItem);
+
+        editorTasks.add(initActionCallback("doAssignToIterator", "Add the selected " + elementName + " to a new or existing Iterator.", ActionFactory.createBoundAction("doAssignToIterator", "Assign To Iterator", null), new ImageIcon(Frame.class.getResource("images/add.png"))));
+        JMenuItem assignToIteratorItem = new JMenuItem("Assign To Iterator");
+        assignToIteratorItem.setIcon(new ImageIcon(Frame.class.getResource("images/add.png")));
+        assignToIteratorItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                doAssignToIterator();
+            }
+        });
+        editorPopupMenu.add(assignToIteratorItem);
+
+        editorTasks.add(initActionCallback("doRemoveFromIterator", "Remove the selected " + elementName + " from its current Iterator.", ActionFactory.createBoundAction("doRemoveFromIterator", "Remove From Iterator", null), new ImageIcon(Frame.class.getResource("images/delete.png"))));
+        JMenuItem removeFromIteratorItem = new JMenuItem("Remove From Iterator");
+        removeFromIteratorItem.setIcon(new ImageIcon(Frame.class.getResource("images/delete.png")));
+        removeFromIteratorItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                doRemoveFromIterator();
+            }
+        });
+        editorPopupMenu.add(removeFromIteratorItem);
 
         editorTasks.add(initActionCallback("doImport", "Import a " + containerName + " from an XML file.", ActionFactory.createBoundAction("doImport", "Import " + containerNameCap, "I"), new ImageIcon(Frame.class.getResource("images/report_go.png"))));
         JMenuItem doImportItem = new JMenuItem("Import " + containerNameCap);
@@ -1191,7 +1370,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             String type = element.getType();
 
             try {
-                FilterTransformerTypePlugin<C> plugin = getPlugins().get(type);
+                FilterTransformerTypePlugin<T, C> plugin = getPlugins().get(type);
                 plugin.setProperties(connector.getMode(), response, element);
 
                 propertiesContainer.removeAll();
@@ -1336,6 +1515,21 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     private void updateTaskPane() {
+        /* @formatter:off
+         * 
+         * TASK_ADD = 0
+         * TASK_DELETE = 1
+         * TASK_ASSIGN_TO_ITERATOR = 2
+         * TASK_REMOVE_FROM_ITERATOR = 3
+         * TASK_IMPORT = 4
+         * TASK_EXPORT = 5
+         * TASK_VALIDATE = 6
+         * TASK_VALIDATE_ELEMENT = 7
+         * TASK_MOVE_UP = 8
+         * TASK_MOVE_DOWN = 9
+         * 
+         * @formatter:on
+         */
         int rowCount = treeTable.getRowCount();
         int selectedRow = treeTable.getSelectedRow();
 
@@ -1343,9 +1537,11 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_DELETE, -1, false);
         } else if (rowCount == 1) {
             PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_ADD, -1, true);
+            PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_REMOVE_FROM_ITERATOR, TASK_REMOVE_FROM_ITERATOR, false);
             PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_UP, -1, false);
         } else {
             PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_ADD, -1, true);
+            PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_REMOVE_FROM_ITERATOR, TASK_REMOVE_FROM_ITERATOR, false);
 
             TreePath path = treeTable.getPathForRow(selectedRow);
             if (path != null) {
@@ -1361,6 +1557,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     if (childIndex == parent.getChildCount() - 1) {
                         PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_DOWN, TASK_MOVE_DOWN, false);
                     }
+                } else {
+                    PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_REMOVE_FROM_ITERATOR, TASK_REMOVE_FROM_ITERATOR, true);
                 }
             } else {
                 PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_UP, -1, false);
@@ -1371,7 +1569,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_VALIDATE, TASK_VALIDATE, true);
         PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_VALIDATE_ELEMENT, TASK_VALIDATE_ELEMENT, selectedRow >= 0);
         if (selectedRow < 0) {
-            PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_DELETE, TASK_DELETE, false);
+            PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_DELETE, TASK_REMOVE_FROM_ITERATOR, false);
             PlatformUI.MIRTH_FRAME.setVisibleTasks(editorTasks, editorPopupMenu, TASK_MOVE_UP, -1, false);
         }
     }
@@ -1412,7 +1610,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                         return;
                     }
 
-                    FilterTransformerTypePlugin<C> plugin = getPlugins().get(previousType);
+                    FilterTransformerTypePlugin<T, C> plugin = getPlugins().get(previousType);
                     C selectedElement = plugin.getProperties();
 
                     String containerName = getContainerName().toLowerCase();

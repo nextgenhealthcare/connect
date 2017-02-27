@@ -9,13 +9,16 @@
 
 package com.mirth.connect.plugins;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.mirth.connect.client.ui.editors.EditorPanel;
+import com.mirth.connect.client.ui.editors.FilterTransformerTreeTableNode;
 import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.model.FilterTransformer;
 import com.mirth.connect.model.FilterTransformerElement;
 
-public abstract class FilterTransformerTypePlugin<C extends FilterTransformerElement> extends ClientPlugin {
+public abstract class FilterTransformerTypePlugin<T extends FilterTransformer<C>, C extends FilterTransformerElement> extends ClientPlugin {
 
     public FilterTransformerTypePlugin(String name) {
         super(name);
@@ -27,7 +30,25 @@ public abstract class FilterTransformerTypePlugin<C extends FilterTransformerEle
 
     public abstract EditorPanel<C> getPanel();
 
-    public abstract Pair<String, String> getIteratorInfo(String variable, String mapping);
+    public Pair<String, String> getIteratorInfo(String variable, String mapping) {
+        return new ImmutablePair<String, String>(null, null);
+    }
+
+    public Pair<String, String> getIteratorInfo(C element) {
+        return new ImmutablePair<String, String>(null, null);
+    }
+
+    public void setIteratorInfo(C element, String target, String outbound) {}
+
+    public final void replaceIteratorVariables(C element, FilterTransformerTreeTableNode<T, C> parent) {
+        replaceOrRemoveIteratorVariables(element, parent, true);
+    }
+
+    public final void removeIteratorVariables(C element, FilterTransformerTreeTableNode<T, C> parent) {
+        replaceOrRemoveIteratorVariables(element, parent, false);
+    }
+
+    public void replaceOrRemoveIteratorVariables(C element, FilterTransformerTreeTableNode<T, C> parent, boolean replace) {}
 
     public boolean includesScrollPane() {
         return false;

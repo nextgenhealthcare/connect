@@ -9,9 +9,15 @@
 
 package com.mirth.connect.util;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
+
+import com.mirth.connect.util.JavaScriptSharedUtil.ExprPart;
 
 public class JavaScriptSharedUtilTest {
 
@@ -118,5 +124,51 @@ public class JavaScriptSharedUtilTest {
     public void testRemoveNumberLiterals2() {
         String expression = "msg.OBR[0].*::['OBR.3'][1].ns::['OBR.3.1'][test].toString()";
         assertEquals("msg.OBR.*::['OBR.3'].ns::['OBR.3.1'][test].toString()", JavaScriptSharedUtil.removeNumberLiterals(expression));
+    }
+
+    @Test
+    public void testGetExpressionParts1() {
+        String expression = "msg['OBR'][0]['OBR.3'][1]['OBR.3.1']";
+
+        List<ExprPart> expected = new ArrayList<ExprPart>();
+        expected.add(new ExprPart("msg", "msg"));
+        expected.add(new ExprPart("['OBR']", "'OBR'"));
+        expected.add(new ExprPart("[0]", "0", true));
+        expected.add(new ExprPart("['OBR.3']", "'OBR.3'"));
+        expected.add(new ExprPart("[1]", "1", true));
+        expected.add(new ExprPart("['OBR.3.1']", "'OBR.3.1'"));
+
+        assertArrayEquals(expected.toArray(), JavaScriptSharedUtil.getExpressionParts(expression).toArray());
+    }
+
+    @Test
+    public void testGetExpressionParts2() {
+        String expression = "msg.OBR[0].*::['OBR.3'][1].ns::['OBR.3.1'][test]";
+
+        List<ExprPart> expected = new ArrayList<ExprPart>();
+        expected.add(new ExprPart("msg", "msg"));
+        expected.add(new ExprPart(".OBR", "OBR"));
+        expected.add(new ExprPart("[0]", "0", true));
+        expected.add(new ExprPart(".*::['OBR.3']", "'OBR.3'"));
+        expected.add(new ExprPart("[1]", "1", true));
+        expected.add(new ExprPart(".ns::['OBR.3.1']", "'OBR.3.1'"));
+        expected.add(new ExprPart("[test]", "test"));
+
+        assertArrayEquals(expected.toArray(), JavaScriptSharedUtil.getExpressionParts(expression).toArray());
+    }
+
+    @Test
+    public void testGetExpressionParts3() {
+        assertArrayEquals(new Object[0], JavaScriptSharedUtil.getExpressionParts("  ").toArray());
+    }
+
+    @Test
+    public void testGetExpressionParts4() {
+        String expression = "#@$%.^&*(";
+
+        List<ExprPart> expected = new ArrayList<ExprPart>();
+        expected.add(new ExprPart("#@$%.^&*(", "#@$%.^&*("));
+
+        assertArrayEquals(expected.toArray(), JavaScriptSharedUtil.getExpressionParts(expression).toArray());
     }
 }

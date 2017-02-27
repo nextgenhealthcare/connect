@@ -10,8 +10,9 @@
 package com.mirth.connect.plugins;
 
 import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Transformer;
 
-public abstract class TransformerStepPlugin extends FilterTransformerTypePlugin<Step> {
+public abstract class TransformerStepPlugin extends FilterTransformerTypePlugin<Transformer, Step> {
 
     public TransformerStepPlugin(String name) {
         super(name);

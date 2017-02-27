@@ -9,9 +9,10 @@
 
 package com.mirth.connect.plugins;
 
+import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
 
-public abstract class FilterRulePlugin extends FilterTransformerTypePlugin<Rule> {
+public abstract class FilterRulePlugin extends FilterTransformerTypePlugin<Filter, Rule> {
 
     public FilterRulePlugin(String name) {
         super(name);

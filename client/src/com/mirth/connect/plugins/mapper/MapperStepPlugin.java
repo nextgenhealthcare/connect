@@ -9,10 +9,14 @@
 
 package com.mirth.connect.plugins.mapper;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.mirth.connect.client.ui.editors.FilterTransformerTreeTableNode;
+import com.mirth.connect.client.ui.editors.IteratorUtil;
 import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Transformer;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class MapperStepPlugin extends TransformerStepPlugin {
@@ -45,6 +49,30 @@ public class MapperStepPlugin extends TransformerStepPlugin {
     @Override
     public Pair<String, String> getIteratorInfo(String variable, String mapping) {
         return new ImmutablePair<String, String>(mapping, null);
+    }
+
+    @Override
+    public Pair<String, String> getIteratorInfo(Step element) {
+        MapperStep props = (MapperStep) element;
+        return new ImmutablePair<String, String>(props.getMapping(), null);
+    }
+
+    @Override
+    public void setIteratorInfo(Step element, String target, String outbound) {
+        MapperStep props = (MapperStep) element;
+        props.setMapping(target);
+    }
+
+    @Override
+    public void replaceOrRemoveIteratorVariables(Step element, FilterTransformerTreeTableNode<Transformer, Step> parent, boolean replace) {
+        MapperStep props = (MapperStep) element;
+        props.setMapping(IteratorUtil.replaceOrRemoveIteratorVariables(props.getMapping(), parent, replace));
+        props.setDefaultValue(IteratorUtil.replaceOrRemoveIteratorVariables(props.getDefaultValue(), parent, replace));
+        if (CollectionUtils.isNotEmpty(props.getReplacements())) {
+            for (int i = 0; i < props.getReplacements().size(); i++) {
+                props.getReplacements().set(i, new ImmutablePair<String, String>(IteratorUtil.replaceOrRemoveIteratorVariables(props.getReplacements().get(i).getLeft(), parent, replace), IteratorUtil.replaceOrRemoveIteratorVariables(props.getReplacements().get(i).getRight(), parent, replace)));
+            }
+        }
     }
 
     @Override

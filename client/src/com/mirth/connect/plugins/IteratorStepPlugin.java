@@ -13,10 +13,13 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.mirth.connect.client.ui.editors.EditorPanel;
+import com.mirth.connect.client.ui.editors.FilterTransformerTreeTableNode;
+import com.mirth.connect.client.ui.editors.IteratorUtil;
 import com.mirth.connect.client.ui.editors.transformer.IteratorStepPanel;
 import com.mirth.connect.model.IteratorProperties;
 import com.mirth.connect.model.IteratorStep;
 import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Transformer;
 
 public class IteratorStepPlugin extends TransformerStepPlugin {
 
@@ -45,8 +48,24 @@ public class IteratorStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public Pair<String, String> getIteratorInfo(String variable, String mapping) {
-        return new ImmutablePair<String, String>(null, null);
+    public Pair<String, String> getIteratorInfo(Step element) {
+        IteratorStep props = (IteratorStep) element;
+        return new ImmutablePair<String, String>(props.getProperties().getTarget(), null);
+    }
+
+    @Override
+    public void setIteratorInfo(Step element, String target, String outbound) {
+        IteratorStep props = (IteratorStep) element;
+        props.getProperties().setTarget(target);
+    }
+
+    @Override
+    public void replaceOrRemoveIteratorVariables(Step element, FilterTransformerTreeTableNode<Transformer, Step> parent, boolean replace) {
+        IteratorStep props = (IteratorStep) element;
+        props.getProperties().setTarget(IteratorUtil.replaceOrRemoveIteratorVariables(props.getProperties().getTarget(), parent, replace));
+        for (int i = 0; i < props.getProperties().getPrefixSubstitutions().size(); i++) {
+            props.getProperties().getPrefixSubstitutions().set(i, IteratorUtil.replaceOrRemoveIteratorVariables(props.getProperties().getPrefixSubstitutions().get(i), parent, replace));
+        }
     }
 
     @Override

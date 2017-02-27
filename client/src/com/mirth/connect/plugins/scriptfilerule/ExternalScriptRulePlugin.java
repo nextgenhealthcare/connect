@@ -9,9 +9,6 @@
 
 package com.mirth.connect.plugins.scriptfilerule;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.plugins.FilterRulePlugin;
@@ -40,11 +37,6 @@ public class ExternalScriptRulePlugin extends FilterRulePlugin {
     @Override
     public boolean isNameEditable() {
         return true;
-    }
-
-    @Override
-    public Pair<String, String> getIteratorInfo(String variable, String mapping) {
-        return new ImmutablePair<String, String>(null, null);
     }
 
     @Override

@@ -80,4 +80,16 @@ public abstract class FilterTransformerTreeTableNode<T extends FilterTransformer
             element.setName(((OperatorNamePair) value).getName());
         }
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean equals(Object obj) {
+        if (obj != null && obj instanceof FilterTransformerTreeTableNode) {
+            try {
+                return element.equals(((FilterTransformerTreeTableNode<T, C>) obj).getElement());
+            } catch (Exception e) {
+            }
+        }
+        return false;
+    }
 }

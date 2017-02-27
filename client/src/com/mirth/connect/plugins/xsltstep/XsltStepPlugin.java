@@ -13,7 +13,10 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.mirth.connect.client.ui.editors.EditorPanel;
+import com.mirth.connect.client.ui.editors.FilterTransformerTreeTableNode;
+import com.mirth.connect.client.ui.editors.IteratorUtil;
 import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Transformer;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class XsltStepPlugin extends TransformerStepPlugin {
@@ -51,6 +54,18 @@ public class XsltStepPlugin extends TransformerStepPlugin {
     @Override
     public Pair<String, String> getIteratorInfo(String variable, String mapping) {
         return new ImmutablePair<String, String>(mapping, null);
+    }
+
+    @Override
+    public Pair<String, String> getIteratorInfo(Step element) {
+        XsltStep props = (XsltStep) element;
+        return new ImmutablePair<String, String>(props.getSourceXml(), null);
+    }
+
+    @Override
+    public void replaceOrRemoveIteratorVariables(Step element, FilterTransformerTreeTableNode<Transformer, Step> parent, boolean replace) {
+        XsltStep props = (XsltStep) element;
+        props.setSourceXml(IteratorUtil.replaceOrRemoveIteratorVariables(props.getSourceXml(), parent, replace));
     }
 
     @Override

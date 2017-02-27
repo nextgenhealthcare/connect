@@ -41,6 +41,7 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
     public static final String MAPPER = "Mapper";
     public static final String MESSAGE_BUILDER = "Message Builder";
 
+    private Map<String, FilterTransformerTypePlugin<Transformer, Step>> plugins;
     private IteratorStepPlugin iteratorPlugin;
 
     @Override
@@ -75,12 +76,14 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
     protected void setOperator(Step element, Object value) {}
 
     @Override
-    protected Map<String, FilterTransformerTypePlugin<Step>> getPlugins() {
-        Map<String, FilterTransformerTypePlugin<Step>> plugins = new TreeMap<String, FilterTransformerTypePlugin<Step>>(LoadedExtensions.getInstance().getTransformerStepPlugins());
-        if (iteratorPlugin == null) {
-            iteratorPlugin = new IteratorStepPlugin(IteratorProperties.PLUGIN_POINT);
+    protected Map<String, FilterTransformerTypePlugin<Transformer, Step>> getPlugins() {
+        if (plugins == null) {
+            plugins = new TreeMap<String, FilterTransformerTypePlugin<Transformer, Step>>(LoadedExtensions.getInstance().getTransformerStepPlugins());
+            if (iteratorPlugin == null) {
+                iteratorPlugin = new IteratorStepPlugin(IteratorProperties.PLUGIN_POINT);
+            }
+            plugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
         }
-        plugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
         return plugins;
     }
 

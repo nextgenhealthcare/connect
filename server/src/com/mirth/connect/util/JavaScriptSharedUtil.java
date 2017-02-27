@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Context;
@@ -194,6 +195,10 @@ public class JavaScriptSharedUtil {
     }
 
     public static String removeNumberLiterals(String expression) {
+        if (expression == null) {
+            return null;
+        }
+
         String suffix = "";
         if (StringUtils.endsWith(expression, ".toString()")) {
             suffix = ".toString()";
@@ -224,7 +229,12 @@ public class JavaScriptSharedUtil {
         } catch (Exception e) {
             logger.debug("Error parsing expression: " + expression);
         }
-        return new ArrayList<ExprPart>(Collections.singletonList(new ExprPart(expression, expression)));
+
+        if (StringUtils.isNotBlank(expression)) {
+            return new ArrayList<ExprPart>(Collections.singletonList(new ExprPart(expression, expression)));
+        } else {
+            return new ArrayList<ExprPart>();
+        }
     }
 
     private static class ExpressionVisitor implements NodeVisitor {
@@ -248,27 +258,33 @@ public class JavaScriptSharedUtil {
                 return true;
             }
 
+            ExprPart part = null;
+
             if (node instanceof Name) {
                 Name name = (Name) node;
                 if (parts.isEmpty()) {
-                    parts.add(new ExprPart(name.getIdentifier(), name.getIdentifier()));
+                    part = new ExprPart(name.getIdentifier(), name.getIdentifier());
                 } else if (name.getParent() instanceof PropertyGet) {
-                    parts.add(new ExprPart("." + name.toSource(), name.getIdentifier()));
+                    part = new ExprPart("." + name.toSource(), name.getIdentifier());
                 } else {
-                    parts.add(new ExprPart("[" + name.toSource() + "]", name.getIdentifier()));
+                    part = new ExprPart("[" + name.toSource() + "]", name.getIdentifier());
                 }
             } else if (!parts.isEmpty()) {
                 if (node instanceof StringLiteral) {
-                    parts.add(new ExprPart("[" + node.toSource() + "]", node.toSource()));
+                    part = new ExprPart("[" + node.toSource() + "]", node.toSource());
                 } else if (node instanceof NumberLiteral) {
                     if (includeNumberLiterals) {
-                        parts.add(new ExprPart("[" + node.toSource() + "]", node.toSource(), true));
+                        part = new ExprPart("[" + node.toSource() + "]", node.toSource(), true);
                     }
                 } else if (node instanceof XmlPropRef) {
-                    parts.add(new ExprPart("." + node.toSource(), ((XmlPropRef) node).getPropName().toSource()));
+                    part = new ExprPart("." + node.toSource(), ((XmlPropRef) node).getPropName().toSource());
                 } else if (node instanceof XmlElemRef) {
-                    parts.add(new ExprPart("." + node.toSource(), ((XmlElemRef) node).getExpression().toSource()));
+                    part = new ExprPart("." + node.toSource(), ((XmlElemRef) node).getExpression().toSource());
                 }
+            }
+
+            if (part != null && StringUtils.isNoneBlank(part.getPropertyName(), part.getValue())) {
+                parts.add(part);
             }
 
             return false;
@@ -301,6 +317,11 @@ public class JavaScriptSharedUtil {
 
         public boolean isNumberLiteral() {
             return numberLiteral;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return EqualsBuilder.reflectionEquals(this, obj);
         }
 
         @Override

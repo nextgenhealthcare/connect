@@ -46,6 +46,7 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
 
     public static final String RULE_BUILDER = "Rule Builder";
 
+    private Map<String, FilterTransformerTypePlugin<Filter, Rule>> plugins;
     private IteratorRulePlugin iteratorPlugin;
     private String originalInboundDataType;
     private DataTypeProperties originalInboundDataTypeProperties;
@@ -115,12 +116,14 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
     }
 
     @Override
-    protected Map<String, FilterTransformerTypePlugin<Rule>> getPlugins() {
-        Map<String, FilterTransformerTypePlugin<Rule>> plugins = new TreeMap<String, FilterTransformerTypePlugin<Rule>>(LoadedExtensions.getInstance().getFilterRulePlugins());
-        if (iteratorPlugin == null) {
-            iteratorPlugin = new IteratorRulePlugin(IteratorProperties.PLUGIN_POINT);
+    protected Map<String, FilterTransformerTypePlugin<Filter, Rule>> getPlugins() {
+        if (plugins == null) {
+            plugins = new TreeMap<String, FilterTransformerTypePlugin<Filter, Rule>>(LoadedExtensions.getInstance().getFilterRulePlugins());
+            if (iteratorPlugin == null) {
+                iteratorPlugin = new IteratorRulePlugin(IteratorProperties.PLUGIN_POINT);
+            }
+            plugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
         }
-        plugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
         return plugins;
     }
 

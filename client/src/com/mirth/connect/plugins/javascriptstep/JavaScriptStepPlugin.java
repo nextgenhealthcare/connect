@@ -9,9 +9,6 @@
 
 package com.mirth.connect.plugins.javascriptstep;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.mirth.connect.model.Step;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
@@ -42,11 +39,6 @@ public class JavaScriptStepPlugin extends TransformerStepPlugin {
     @Override
     public boolean isNameEditable() {
         return true;
-    }
-
-    @Override
-    public Pair<String, String> getIteratorInfo(String variable, String mapping) {
-        return new ImmutablePair<String, String>(null, null);
     }
 
     @Override
