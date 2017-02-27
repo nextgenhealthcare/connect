@@ -414,7 +414,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             String outbound = info.getRight();
 
             if (showIteratorWizard && !JavaScriptSharedUtil.getExpressionParts(target, false).isEmpty() && userPreferences.getBoolean("filterTransformerShowIteratorDialog", true)) {
-                String text = "Would you like to create a new Iterator for this " + getContainerName().toLowerCase() + " " + getElementName().toLowerCase() + "?";
+                String text = "Would you like to create a new or choose an existing Iterator for this " + getContainerName().toLowerCase() + " " + getElementName().toLowerCase() + "?";
                 JCheckBox checkBox = new JCheckBox("Do not show this dialog again (may be re-enabled in the Administrator settings)");
                 Object params = new Object[] { text, checkBox };
                 int result = JOptionPane.showConfirmDialog(PlatformUI.MIRTH_FRAME, params, "Select An Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -424,21 +424,28 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 }
 
                 if (result == JOptionPane.YES_OPTION) {
-                    IteratorWizardDialog<T, C> dialog = new IteratorWizardDialog<T, C>(target, null, parent, treeTableModel, true, outbound);
+                    IteratorWizardDialog<T, C> dialog = new IteratorWizardDialog<T, C>(target, null, parent, treeTableModel, outbound);
                     if (!dialog.wasAccepted()) {
                         return;
                     }
 
-                    FilterTransformerTypePlugin<T, C> iteratorPlugin = getPlugins().get(IteratorProperties.PLUGIN_POINT);
-                    IteratorElement<C> iteratorElement = (IteratorElement<C>) iteratorPlugin.getDefaults();
-                    dialog.fillIteratorProperties(iteratorElement.getProperties());
-                    ((IteratorPanel<C>) iteratorPlugin.getPanel()).setName(iteratorElement);
+                    if (dialog.isCreateNew()) {
+                        FilterTransformerTypePlugin<T, C> iteratorPlugin = getPlugins().get(IteratorProperties.PLUGIN_POINT);
+                        IteratorElement<C> iteratorElement = (IteratorElement<C>) iteratorPlugin.getDefaults();
+                        dialog.fillIteratorProperties(iteratorElement.getProperties());
+                        ((IteratorPanel<C>) iteratorPlugin.getPanel()).setName(iteratorElement);
 
-                    variable = IteratorUtil.replaceIteratorVariables(JavaScriptSharedUtil.removeNumberLiterals(variable), iteratorElement);
-                    mapping = IteratorUtil.replaceIteratorVariables(JavaScriptSharedUtil.removeNumberLiterals(mapping), iteratorElement);
+                        variable = IteratorUtil.replaceIteratorVariables(JavaScriptSharedUtil.removeNumberLiterals(variable), iteratorElement);
+                        mapping = IteratorUtil.replaceIteratorVariables(JavaScriptSharedUtil.removeNumberLiterals(mapping), iteratorElement);
 
-                    parent = insertNode(parent, (C) iteratorElement);
-                    replaceIteratorVariables((FilterTransformerTreeTableNode<T, C>) parent);
+                        parent = insertNode(parent, (C) iteratorElement);
+                        replaceIteratorVariables((FilterTransformerTreeTableNode<T, C>) parent);
+                    } else {
+                        parent = dialog.getSelectedParent();
+
+                        variable = IteratorUtil.replaceIteratorVariables(JavaScriptSharedUtil.removeNumberLiterals(variable), parent);
+                        mapping = IteratorUtil.replaceIteratorVariables(JavaScriptSharedUtil.removeNumberLiterals(mapping), parent);
+                    }
                 } else if (result != JOptionPane.NO_OPTION) {
                     return;
                 }
@@ -583,7 +590,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 replaceIteratorVariables((FilterTransformerTreeTableNode<T, C>) parent);
                 ((IteratorPanel<C>) iteratorPlugin.getPanel()).setName(iteratorElement);
             } else {
-                IteratorWizardDialog<T, C> dialog = new IteratorWizardDialog<T, C>(target, node, parent, treeTableModel, false, outbound);
+                IteratorWizardDialog<T, C> dialog = new IteratorWizardDialog<T, C>(target, node, parent, treeTableModel, outbound);
                 if (!dialog.wasAccepted()) {
                     return;
                 }

@@ -60,7 +60,6 @@ public class IteratorWizardDialog<T extends FilterTransformer<C>, C extends Filt
     private List<String> descendantIndexVariables;
     private FilterTransformerTreeTableNode<T, C> selectedNode;
     private DefaultTreeTableModel treeTableModel;
-    private boolean createNewOnly;
     private TreeTableNode root;
     private List<IteratorEntry> iteratorEntries;
     private String outbound;
@@ -70,11 +69,10 @@ public class IteratorWizardDialog<T extends FilterTransformer<C>, C extends Filt
     private TreePath preferredPath = null;
 
     @SuppressWarnings("unchecked")
-    public IteratorWizardDialog(String target, FilterTransformerTreeTableNode<T, C> selectedNode, TreeTableNode parent, DefaultTreeTableModel treeTableModel, boolean createNewOnly, String outbound) {
+    public IteratorWizardDialog(String target, FilterTransformerTreeTableNode<T, C> selectedNode, TreeTableNode parent, DefaultTreeTableModel treeTableModel, String outbound) {
         super(PlatformUI.MIRTH_FRAME, "Iterator Wizard", true);
         this.selectedNode = selectedNode;
         this.treeTableModel = treeTableModel;
-        this.createNewOnly = createNewOnly;
         this.root = (TreeTableNode) treeTableModel.getRoot();
         this.outbound = outbound;
 
@@ -100,44 +98,40 @@ public class IteratorWizardDialog<T extends FilterTransformer<C>, C extends Filt
         initComponents();
         initLayout();
 
-        if (!createNewOnly) {
-            IteratorEntry selectedEntry = null;
+        IteratorEntry selectedEntry = null;
 
-            if (!iteratorEntries.isEmpty()) {
-                // Find the preferred iterator
-                FilterTransformerTreeTableNode<T, C> preferred = null;
+        if (!iteratorEntries.isEmpty()) {
+            // Find the preferred iterator
+            FilterTransformerTreeTableNode<T, C> preferred = null;
 
-                if (parent instanceof FilterTransformerTreeTableNode) {
-                    preferred = (FilterTransformerTreeTableNode<T, C>) parent;
-                } else {
-                    findPreferred(IteratorUtil.removeIteratorVariables(target, parent));
-                    if (preferredPath != null) {
-                        preferred = (FilterTransformerTreeTableNode<T, C>) preferredPath.getLastPathComponent();
-                    }
-                }
-
-                if (preferred != null) {
-                    for (IteratorEntry entry : iteratorEntries) {
-                        if (Objects.equals(entry.getPath().getLastPathComponent(), preferred)) {
-                            selectedEntry = entry;
-                            break;
-                        }
-                    }
-
-                    if (selectedEntry != null) {
-                        iteratorComboBox.setSelectedItem(selectedEntry);
-                    }
-                }
-            }
-
-            if (selectedEntry != null || targetComponents.isEmpty()) {
-                chooseExistingRadio.setSelected(true);
-                iteratorRadioActionPerformed(false);
+            if (parent instanceof FilterTransformerTreeTableNode) {
+                preferred = (FilterTransformerTreeTableNode<T, C>) parent;
             } else {
-                createNewRadio.setSelected(true);
-                iteratorRadioActionPerformed(true);
+                findPreferred(IteratorUtil.removeIteratorVariables(target, parent));
+                if (preferredPath != null) {
+                    preferred = (FilterTransformerTreeTableNode<T, C>) preferredPath.getLastPathComponent();
+                }
             }
+
+            if (preferred != null) {
+                for (IteratorEntry entry : iteratorEntries) {
+                    if (Objects.equals(entry.getPath().getLastPathComponent(), preferred)) {
+                        selectedEntry = entry;
+                        break;
+                    }
+                }
+
+                if (selectedEntry != null) {
+                    iteratorComboBox.setSelectedItem(selectedEntry);
+                }
+            }
+        }
+
+        if (selectedEntry != null || targetComponents.isEmpty()) {
+            chooseExistingRadio.setSelected(true);
+            iteratorRadioActionPerformed(false);
         } else {
+            createNewRadio.setSelected(true);
             iteratorRadioActionPerformed(true);
         }
 
@@ -250,7 +244,7 @@ public class IteratorWizardDialog<T extends FilterTransformer<C>, C extends Filt
     }
 
     public boolean isCreateNew() {
-        return createNewOnly || iteratorEntries.isEmpty() || createNewRadio.isSelected();
+        return iteratorEntries.isEmpty() || createNewRadio.isSelected();
     }
 
     @SuppressWarnings("unchecked")
@@ -292,31 +286,29 @@ public class IteratorWizardDialog<T extends FilterTransformer<C>, C extends Filt
         setBackground(UIConstants.COMBO_BOX_BACKGROUND);
         getContentPane().setBackground(getBackground());
 
-        if (!createNewOnly) {
-            ButtonGroup selectIteratorButtonGroup = new ButtonGroup();
+        ButtonGroup selectIteratorButtonGroup = new ButtonGroup();
 
-            createNewRadio = new JRadioButton("Create New Iterator");
-            createNewRadio.setBackground(getBackground());
-            createNewRadio.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent evt) {
-                    iteratorRadioActionPerformed(true);
-                }
-            });
-            selectIteratorButtonGroup.add(createNewRadio);
+        createNewRadio = new JRadioButton("Create New Iterator");
+        createNewRadio.setBackground(getBackground());
+        createNewRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                iteratorRadioActionPerformed(true);
+            }
+        });
+        selectIteratorButtonGroup.add(createNewRadio);
 
-            chooseExistingRadio = new JRadioButton("Choose Existing Iterator");
-            chooseExistingRadio.setBackground(getBackground());
-            chooseExistingRadio.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent evt) {
-                    iteratorRadioActionPerformed(false);
-                }
-            });
-            selectIteratorButtonGroup.add(chooseExistingRadio);
+        chooseExistingRadio = new JRadioButton("Choose Existing Iterator");
+        chooseExistingRadio.setBackground(getBackground());
+        chooseExistingRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                iteratorRadioActionPerformed(false);
+            }
+        });
+        selectIteratorButtonGroup.add(chooseExistingRadio);
 
-            iteratorComboBox = new JComboBox<IteratorEntry>(new Vector<IteratorWizardDialog<T, C>.IteratorEntry>(iteratorEntries));
-        }
+        iteratorComboBox = new JComboBox<IteratorEntry>(new Vector<IteratorWizardDialog<T, C>.IteratorEntry>(iteratorEntries));
 
         createNewWarningLabel = new JLabel("<html>Not enough information available to select iteration target. A new blank Iterator will be added.</html>");
         createNewWarningLabel.setVisible(false);
@@ -449,7 +441,7 @@ public class IteratorWizardDialog<T extends FilterTransformer<C>, C extends Filt
     private void initLayout() {
         setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3"));
 
-        if (!createNewOnly && !iteratorEntries.isEmpty()) {
+        if (!iteratorEntries.isEmpty()) {
             add(createNewRadio, "split 2");
             add(chooseExistingRadio);
             add(iteratorComboBox, "newline, sx, growx, w 100:");
