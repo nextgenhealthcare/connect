@@ -508,7 +508,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             } else {
                 propertiesScrollPane.setViewportView(null);
                 propertiesContainer.removeAll();
-                tabPane.updateUI();
             }
 
             updateTaskPane();
