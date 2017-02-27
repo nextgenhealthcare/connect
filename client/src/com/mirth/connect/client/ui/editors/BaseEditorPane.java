@@ -508,6 +508,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             } else {
                 propertiesScrollPane.setViewportView(null);
                 propertiesContainer.removeAll();
+                updateTabPane();
             }
 
             updateTaskPane();
@@ -1662,6 +1663,12 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             treeTableModel.setValueAt(num, child, numColumn);
             updateSequenceNumbers(child, num);
         }
+    }
+
+    private void updateTabPane() {
+        int selectedIndex = tabPane.getSelectedIndex();
+        tabPane.setSelectedIndex(selectedIndex == 0 ? 1 : 0);
+        tabPane.setSelectedIndex(selectedIndex);
     }
 
     @Override
