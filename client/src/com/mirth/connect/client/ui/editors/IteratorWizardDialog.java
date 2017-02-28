@@ -587,9 +587,9 @@ public class IteratorWizardDialog<T extends FilterTransformer<C>, C extends Filt
         createNewWarningLabel.setVisible(createNew && targetComponents.isEmpty());
 
         if (createNew && !targetComponents.isEmpty()) {
-            setPreferredSize(new Dimension(500, !outboundComponents.isEmpty() ? 311 : 221));
+            setPreferredSize(new Dimension(500, !outboundComponents.isEmpty() ? 326 : 236));
         } else {
-            setPreferredSize(new Dimension(487, 124));
+            setPreferredSize(new Dimension(487, 139));
         }
         pack();
     }
@@ -615,7 +615,7 @@ public class IteratorWizardDialog<T extends FilterTransformer<C>, C extends Filt
         @Override
         @SuppressWarnings("unchecked")
         public String toString() {
-            return StringUtils.repeat('\t', Math.max(depth - 1, 0) * 8) + (depth > 0 ? "└─" : "") + ((FilterTransformerTreeTableNode<T, C>) path.getLastPathComponent()).getElement().getName();
+            return StringUtils.repeat(' ', Math.max(depth - 1, 0) * 8) + (depth > 0 ? "    — " : "") + ((FilterTransformerTreeTableNode<T, C>) path.getLastPathComponent()).getElement().getName();
         }
     }
 
