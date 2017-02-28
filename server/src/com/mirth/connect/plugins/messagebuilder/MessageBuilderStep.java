@@ -10,10 +10,12 @@
 package com.mirth.connect.plugins.messagebuilder;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -86,6 +88,11 @@ public class MessageBuilderStep extends Step implements FilterTransformerIterabl
         StringBuilder script = new StringBuilder();
         List<ExprPart> exprParts = JavaScriptSharedUtil.getExpressionParts(messageSegment);
 
+        Set<String> indexVariables = new HashSet<String>();
+        for (Iterator<IteratorProperties<Step>> it = ancestors.descendingIterator(); it.hasNext();) {
+            indexVariables.add(it.next().getIndexVariable());
+        }
+
         // Don't do anything if there aren't at least two parts to the expression
         if (exprParts.size() > 1) {
             // The segment creation logic will be different for E4X XML and regular objects
@@ -103,19 +110,23 @@ public class MessageBuilderStep extends Step implements FilterTransformerIterabl
                  * object, a segment name, and a position.
                  */
                 if (currentIndex > 1) {
-                    // Segment including the index variable, e.g. tmp['OBR'][i]
-                    String wholeSegment = StringUtils.join(exprParts.subList(0, currentIndex + 1).toArray());
-                    script.append("if (typeof(").append(wholeSegment).append(") == 'undefined') {\n");
-
-                    // Segment excluding the index variable and the property before it, e.g. tmp
-                    String targetSegment = StringUtils.join(exprParts.subList(0, currentIndex - 1).toArray());
+                    ExprPart segmentPart = exprParts.get(currentIndex - 1);
                     // Name of the referenced property name before the index variable, e.g. 'OBR'
-                    String segmentName = exprParts.get(currentIndex - 1).getPropertyName();
-                    // Convert segment name to a string literal if needed
-                    if (!StringUtils.startsWithAny(segmentName, "\"", "'")) {
-                        segmentName = "'" + StringEscapeUtils.escapeEcmaScript(segmentName) + "'";
+                    String segmentName = segmentPart.getPropertyName();
+
+                    if (!segmentPart.isNumberLiteral() && !indexVariables.contains(segmentName)) {
+                        // Segment including the index variable, e.g. tmp['OBR'][i]
+                        String wholeSegment = StringUtils.join(exprParts.subList(0, currentIndex + 1).toArray());
+                        script.append("if (typeof(").append(wholeSegment).append(") == 'undefined') {\n");
+
+                        // Segment excluding the index variable and the property before it, e.g. tmp
+                        String targetSegment = StringUtils.join(exprParts.subList(0, currentIndex - 1).toArray());
+                        // Convert segment name to a string literal if needed
+                        if (!StringUtils.startsWithAny(segmentName, "\"", "'")) {
+                            segmentName = "'" + StringEscapeUtils.escapeEcmaScript(segmentName) + "'";
+                        }
+                        script.append("createSegment(").append(segmentName).append(", ").append(targetSegment).append(", ").append(indexVar).append(");\n}\n");
                     }
-                    script.append("createSegment(").append(segmentName).append(", ").append(targetSegment).append(", ").append(indexVar).append(");\n}\n");
                 }
             }
 
@@ -147,7 +158,7 @@ public class MessageBuilderStep extends Step implements FilterTransformerIterabl
 
                         // If the segment is right before the index variable or a number literal, create an empty array rather than object
                         String value = "{}";
-                        if (i == currentIndex - 1 || (exprParts.size() > i + 1 && exprParts.get(i + 1).isNumberLiteral())) {
+                        if (i == currentIndex - 1 || (exprParts.size() > i + 1 && (exprParts.get(i + 1).isNumberLiteral() || indexVariables.contains(exprParts.get(i + 1).getPropertyName())))) {
                             value = "[]";
                         }
                         script.append(targetSegment).append(" = ").append(value).append(";\n");
@@ -164,7 +175,7 @@ public class MessageBuilderStep extends Step implements FilterTransformerIterabl
 
                 // If the segment is right before a number literal, create an empty array rather than object
                 String value = "{}";
-                if (exprParts.size() > i + 1 && exprParts.get(i + 1).isNumberLiteral()) {
+                if (exprParts.size() > i + 1 && (exprParts.get(i + 1).isNumberLiteral() || indexVariables.contains(exprParts.get(i + 1).getPropertyName()))) {
                     value = "[]";
                 }
                 script.append(targetSegment).append(" = ").append(value).append(";\n");

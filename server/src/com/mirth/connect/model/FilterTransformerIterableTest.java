@@ -176,6 +176,46 @@ public class FilterTransformerIterableTest {
     }
 
     /**
+     * Map OBR.3.1.1 in every OBR.3 in every OBR from msg to a 2-dimension JSON array.
+     */
+    @Test
+    public void testJSONMessageBuilderStep() throws Exception {
+        IteratorStep iterator1 = new IteratorStep();
+        iterator1.getProperties().setTarget("msg['OBR']");
+        iterator1.getProperties().setIndexVariable("i");
+
+        IteratorStep iterator2 = new IteratorStep();
+        iterator2.getProperties().setTarget("msg['OBR'][i]['OBR.3']");
+        iterator2.getProperties().setIndexVariable("j");
+
+        MessageBuilderStep messageBuilderStep = new MessageBuilderStep();
+        messageBuilderStep.setMessageSegment("tmp[i][j]");
+        messageBuilderStep.setMapping("msg['OBR'][i]['OBR.3'][j]['OBR.3.1']['OBR.3.1.1'].toString()");
+        iterator2.getProperties().getChildren().add(messageBuilderStep);
+
+        iterator1.getProperties().getChildren().add(iterator2);
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("channelMap.put('results', Lists.list()");
+        builder.append(".append(tmp[0][0])");
+        builder.append(".append(tmp[0][1])");
+        builder.append(".append(tmp[1][0])");
+        builder.append(".append(tmp[1][1])");
+        builder.append(");");
+
+        ConnectorMessage connectorMessage = new ConnectorMessage();
+        Map<String, Object> expectedMap = new HashMap<String, Object>();
+        List<String> results = new ArrayList<String>();
+        results.add("1");
+        results.add("2");
+        results.add("3");
+        results.add("4");
+        expectedMap.put("results", results.toArray());
+        testTransformerStep(iterator1, connectorMessage, builder.toString(), MSG, true, "[]", false);
+        assertTrue(EqualsBuilder.reflectionEquals(expectedMap, connectorMessage.getChannelMap()));
+    }
+
+    /**
      * For every OBX segment, transform a list of values and store it in the channel map. The
      * transformed XML will be the OBX.5.1 value for every OBX.5 in the given segment.
      */
@@ -346,10 +386,22 @@ public class FilterTransformerIterableTest {
     }
 
     private void testTransformerStep(Step step, ConnectorMessage connectorMessage, String extraScript) throws Exception {
+        testTransformerStep(step, connectorMessage, extraScript, MSG, true, TMP, true);
+    }
+
+    private void testTransformerStep(Step step, ConnectorMessage connectorMessage, String extraScript, String msg, boolean msgXml, String tmp, boolean tmpXml) throws Exception {
         StringBuilder script = new StringBuilder();
         appendMiscFunctions(script);
-        script.append("msg = new XML('").append(StringEscapeUtils.escapeEcmaScript(MSG)).append("');\n");
-        script.append("tmp = new XML('").append(StringEscapeUtils.escapeEcmaScript(TMP)).append("');\n");
+        if (msgXml) {
+            script.append("msg = new XML('").append(StringEscapeUtils.escapeEcmaScript(msg)).append("');\n");
+        } else {
+            script.append("msg = ").append(msg).append(";\n");
+        }
+        if (tmpXml) {
+            script.append("tmp = new XML('").append(StringEscapeUtils.escapeEcmaScript(tmp)).append("');\n");
+        } else {
+            script.append("tmp = ").append(tmp).append(";\n");
+        }
         script.append("function doTransform() {\n");
         script.append('\n').append(step.getScript(true)).append('\n').append(extraScript);
         script.append("\n}\ndoTransform();\n");
