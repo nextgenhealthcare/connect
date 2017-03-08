@@ -29,6 +29,7 @@ import java.util.TimerTask;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
@@ -118,7 +119,14 @@ public class Mirth extends Thread {
 
             // Initialize TLS system properties as early as possible
             if (System.getProperty("jdk.tls.ephemeralDHKeySize") == null) {
-                System.setProperty("jdk.tls.ephemeralDHKeySize", mirthProperties.getString("https.ephemeraldhkeysize", "2048"));
+                // Only allow integers from 1024-2048 as per JSSE specifications
+                int keySize = NumberUtils.toInt(mirthProperties.getString("https.ephemeraldhkeysize", "2048"), 2048);
+                if (keySize < 1024) {
+                    keySize = 1024;
+                } else if (keySize > 2048) {
+                    keySize = 2048;
+                }
+                System.setProperty("jdk.tls.ephemeralDHKeySize", String.valueOf(keySize));
             }
 
             // check the ports to see if they are already in use
