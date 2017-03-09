@@ -312,7 +312,50 @@
 		<jar destfile="${plugins.xsltstep}/xsltstep-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/xsltstep/**" />
 		</jar>
-
+	</target>
+	
+	<target name="test-init" depends="init">
+		<delete dir="${test_classes}" />
+		
+		<path id="testclasspath">
+			<path refid="classpath" />
+			<fileset dir="${server}/testlib" includes="**/*.jar" />
+			<dirset dir="${classes}"/>
+		</path>
+	</target>
+	
+	<target name="test-compile" depends="test-init">
+		<!-- compile the source -->
+		<mkdir dir="${test_classes}" />
+		
+		<javac srcdir="${test}" destdir="${test_classes}" debug="on" includeAntRuntime="false">
+			<classpath refid="testclasspath" />
+		</javac>
+	</target>
+	
+	<target name="test-run" depends="test-compile">
+		<property name="reports" value="junit-reports" />
+		<mkdir dir="${reports}" />
+		
+		<junit haltonfailure="false" fork="true" forkmode="once">
+			<jvmarg value="-Xms128m" />
+			<jvmarg value="-Xmx1024m" />
+			<classpath>
+				<path refid="testclasspath" />
+				<dirset dir="${test_classes}"/>
+			</classpath>
+			<formatter type="xml" />
+			<batchtest todir="${reports}">
+				<fileset dir="${test_classes}">
+					<include name="**/*Test.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+	
+	<target name="remove-classes" depends="init">
+		<!-- delete the compiled classes folder -->
 		<delete dir="${classes}" />
+		<delete dir="${test_classes}" />
 	</target>
 </project>

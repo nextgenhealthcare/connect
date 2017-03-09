@@ -131,6 +131,8 @@
 		<copy todir="${server.build}/client-lib">
 			<fileset dir="${server.setup}/client-lib" />
 		</copy>
+		
+		<antcall target="remove-classes" />
 	</target>
 
 	<target name="dist" depends="build-manager, build-cli, build-webadmin">
@@ -175,6 +177,18 @@
 		<header headerFile="${server}/license-header.txt">
 			<fileset dir="${webadmin}" includes="**/*.java" />
 		</header>
+	</target>
+
+	<target name="test-run" depends="init">
+		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="test-run"/>
+		<ant antfile="${server}/build.xml" dir="${server}" target="test-run"/>
+		<ant antfile="${client}/ant-build.xml" dir="${client}" target="test-run"/>
+	</target>
+
+	<target name="remove-classes" depends="init">
+		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="remove-classes"/>
+		<ant antfile="${server}/build.xml" dir="${server}" target="remove-classes"/>
+		<ant antfile="${client}/ant-build.xml" dir="${client}" target="remove-classes"/>
 	</target>
 
 	<!-- build custom extensions -->

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="dbconf"/>
 	<classpathentry kind="src" path="build"/>
@@ -37,7 +38,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/extensions/dicomviewer/ij.jar"/>
 	<classpathentry kind="lib" path="lib/jdom-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/backport-util-concurrent-Java60-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-vocab.jar"/>
@@ -144,6 +144,7 @@
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.mortbay.jasper.apache-el-8.0.33.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.mortbay.jasper.apache-jsp-8.0.33.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.eclipse.jdt.core.compiler.ecj-4.4.2.jar"/>
+	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>

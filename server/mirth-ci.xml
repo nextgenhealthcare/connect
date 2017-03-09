@@ -12,34 +12,14 @@
 		</ant>
 	</target>
 
-	<target name="junit" description="run all unit tests">
-		<property file="build.properties" />
-		<property name="reports" value="junit-reports" />
+	<target name="test-run">
+		<property name="reports" value="../server/junit-reports" />
 
 		<delete dir="${reports}" />
 		<mkdir dir="${reports}" />
 		
-		<junit haltonfailure="false" fork="true" forkmode="once">
-			<jvmarg value="-Xms128m" />
-			<jvmarg value="-Xmx256m" />
-			<classpath>
-				<path location="${classes}" />
-				<fileset dir="lib">
-					<include name="**/*.jar" />
-					<exclude name="ant.jar" />
-				</fileset>
-			</classpath>
-
-			<formatter type="xml" />
-
-			<batchtest todir="${reports}">
-				<fileset dir="${classes}">
-					<include name="**/*Test.class" />
-					<exclude name="**/connect/model/**/*Test.class" />
-					<exclude name="**/connect/server/controllers/**/*Test.class" />
-					<exclude name="**/connect/util/**/*Test.class" />
-				</fileset>
-			</batchtest>
-		</junit>
+		<ant antfile="mirth-build.xml" target="test-run">
+			<property name="reports" value="${reports}" />
+		</ant>
 	</target>
 </project>
