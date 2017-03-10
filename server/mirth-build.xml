@@ -132,6 +132,7 @@
 			<fileset dir="${server.setup}/client-lib" />
 		</copy>
 		
+		<antcall target="test-run" />
 		<antcall target="remove-classes" />
 	</target>
 
