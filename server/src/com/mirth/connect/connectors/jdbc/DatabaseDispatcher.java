@@ -90,7 +90,7 @@ public class DatabaseDispatcher extends DestinationConnector {
          * placeholder values using a TemplateValueReplacer along with the current ConnectorMessage.
          */
         databaseDispatcherProperties.setQuery(JdbcUtils.extractParameters(databaseDispatcherProperties.getQuery(), paramNames));
-        databaseDispatcherProperties.setParameters(JdbcUtils.getParameters(paramNames, getChannelId(), getChannel().getName(), message, null, getAttachmentHandlerProvider()));
+        databaseDispatcherProperties.setParameters(JdbcUtils.getParameters(paramNames, getChannelId(), getChannel().getName(), message, null, getAttachmentHandlerProvider(), databaseDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments()));
     }
 
     @Override

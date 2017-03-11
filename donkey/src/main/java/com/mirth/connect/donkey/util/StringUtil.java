@@ -16,11 +16,10 @@ public class StringUtil {
 
     /**
      * A memory efficient method for getting bytes from a string. It first calculates the required
-     * byte array size to avoid any buffers growing out of control.
-     * The main purpose of the method is to alleviate the use case when charset = "UTF-8". For some
-     * reason, using new String(string, "UTF-8") requires
-     * memory many times the size of the string itself. There is a performance decrease over the
-     * Java method of about 30-100%, so this method would ideally only
+     * byte array size to avoid any buffers growing out of control. The main purpose of the method
+     * is to alleviate the use case when charset = "UTF-8". For some reason, using new
+     * String(string, "UTF-8") requires memory many times the size of the string itself. There is a
+     * performance decrease over the Java method of about 30-100%, so this method would ideally only
      * be used when memory is an issue.
      */
     public static byte[] getBytesUncheckedChunked(String string, String charset) {
@@ -50,5 +49,25 @@ public class StringUtil {
         }
 
         return data;
+    }
+
+    /**
+     * Searches for a substring between a specific start/end position, without taking a substring
+     * and creating a new String.
+     */
+    public static int indexOf(String string, String search, int startPos, int endPos) {
+        for (int i = startPos; i < endPos && i + search.length() <= string.length(); i++) {
+            boolean found = true;
+            for (int j = 0; j < search.length(); j++) {
+                if (string.charAt(i + j) != search.charAt(j)) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

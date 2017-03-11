@@ -34,6 +34,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
     private boolean validateResponse;
     private Map<String, String> resourceIds;
     private int queueBufferSize;
+    private boolean reattachAttachments;
 
     public DestinationConnectorProperties() {
         this(false);
@@ -53,6 +54,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         this.resourceIds = new LinkedHashMap<String, String>();
         resourceIds.put("Default Resource", "[Default Resource]");
         this.queueBufferSize = 0;
+        reattachAttachments = true;
     }
 
     public DestinationConnectorProperties(DestinationConnectorProperties props) {
@@ -68,6 +70,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         validateResponse = props.isValidateResponse();
         resourceIds = new LinkedHashMap<String, String>(props.getResourceIds());
         queueBufferSize = props.getQueueBufferSize();
+        reattachAttachments = props.isReattachAttachments();
     }
 
     public boolean isQueueEnabled() {
@@ -166,6 +169,14 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         this.queueBufferSize = queueBufferSize;
     }
 
+    public boolean isReattachAttachments() {
+        return reattachAttachments;
+    }
+
+    public void setReattachAttachments(boolean reattachAttachments) {
+        this.reattachAttachments = reattachAttachments;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
@@ -212,7 +223,9 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
     }
 
     @Override
-    public void migrate3_5_0(DonkeyElement element) {}
+    public void migrate3_5_0(DonkeyElement element) {
+        element.addChildElementIfNotExists("reattachAttachments", "true");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -228,6 +241,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         purgedProperties.put("validateResponse", validateResponse);
         purgedProperties.put("resourceIdsCount", resourceIds.size());
         purgedProperties.put("queueBufferSize", queueBufferSize);
+        purgedProperties.put("reattachAttachments", reattachAttachments);
         return purgedProperties;
     }
 }

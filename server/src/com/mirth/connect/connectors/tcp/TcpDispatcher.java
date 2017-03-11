@@ -438,7 +438,7 @@ public class TcpDispatcher extends DestinationConnector {
         byte[] bytes = new byte[0];
 
         if (tcpSenderProperties.getTemplate() != null) {
-            bytes = getAttachmentHandlerProvider().reAttachMessage(tcpSenderProperties.getTemplate(), connectorMessage, CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()), tcpSenderProperties.isDataTypeBinary());
+            bytes = getAttachmentHandlerProvider().reAttachMessage(tcpSenderProperties.getTemplate(), connectorMessage, CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()), tcpSenderProperties.isDataTypeBinary(), tcpSenderProperties.getDestinationConnectorProperties().isReattachAttachments());
         }
 
         return bytes;

@@ -144,7 +144,11 @@
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.mortbay.jasper.apache-el-8.0.33.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.mortbay.jasper.apache-jsp-8.0.33.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.eclipse.jdt.core.compiler.ecj-4.4.2.jar"/>
+	<classpathentry kind="lib" path="testlib/byte-buddy-1.6.10.jar"/>
+	<classpathentry kind="lib" path="testlib/byte-buddy-agent-1.6.10.jar"/>
 	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
+	<classpathentry kind="lib" path="testlib/mockito-core-2.7.9.jar"/>
+	<classpathentry kind="lib" path="testlib/objenesis-2.5.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>

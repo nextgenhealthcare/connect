@@ -15,12 +15,17 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
+import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class IdentityAttachmentHandlerProvider extends MirthAttachmentHandlerProvider {
 
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private String mimeType;
+
+    public IdentityAttachmentHandlerProvider(MessageController messageController) {
+        super(messageController);
+    }
 
     TemplateValueReplacer getReplacer() {
         return replacer;

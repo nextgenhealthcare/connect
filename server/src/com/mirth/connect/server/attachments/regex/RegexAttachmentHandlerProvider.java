@@ -24,6 +24,7 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProper
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
+import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class RegexAttachmentHandlerProvider extends MirthAttachmentHandlerProvider {
@@ -34,6 +35,10 @@ public class RegexAttachmentHandlerProvider extends MirthAttachmentHandlerProvid
     private List<RegexInfo> regexInfoList = new ArrayList<RegexInfo>();
     private Map<String, String> inboundReplacements = new HashMap<String, String>();
     private Map<String, String> outboundReplacements = new HashMap<String, String>();
+
+    public RegexAttachmentHandlerProvider(MessageController messageController) {
+        super(messageController);
+    }
 
     TemplateValueReplacer getReplacer() {
         return replacer;

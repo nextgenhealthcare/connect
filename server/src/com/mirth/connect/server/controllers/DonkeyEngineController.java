@@ -1268,13 +1268,13 @@ public class DonkeyEngineController implements EngineController {
             Class<?> attachmentHandlerProviderClass = Class.forName(attachmentHandlerProperties.getClassName(), true, contextFactory.getApplicationClassLoader());
 
             if (MirthAttachmentHandlerProvider.class.isAssignableFrom(attachmentHandlerProviderClass)) {
-                attachmentHandlerProvider = (MirthAttachmentHandlerProvider) attachmentHandlerProviderClass.newInstance();
+                attachmentHandlerProvider = (MirthAttachmentHandlerProvider) attachmentHandlerProviderClass.getConstructor(MessageController.class).newInstance(MessageController.getInstance());
                 attachmentHandlerProvider.setProperties(channel, attachmentHandlerProperties);
             } else {
                 throw new Exception(attachmentHandlerProperties.getClassName() + " does not extend " + MirthAttachmentHandlerProvider.class.getName());
             }
         } else {
-            attachmentHandlerProvider = new PassthruAttachmentHandlerProvider();
+            attachmentHandlerProvider = new PassthruAttachmentHandlerProvider(MessageController.getInstance());
         }
 
         return attachmentHandlerProvider;

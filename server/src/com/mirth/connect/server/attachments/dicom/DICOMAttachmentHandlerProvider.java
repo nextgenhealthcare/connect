@@ -13,8 +13,13 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
+import com.mirth.connect.server.controllers.MessageController;
 
 public class DICOMAttachmentHandlerProvider extends MirthAttachmentHandlerProvider {
+
+    public DICOMAttachmentHandlerProvider(MessageController messageController) {
+        super(messageController);
+    }
 
     @Override
     public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties) {}

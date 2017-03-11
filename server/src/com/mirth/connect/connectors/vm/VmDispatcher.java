@@ -105,7 +105,7 @@ public class VmDispatcher extends DestinationConnector {
         try {
             if (!targetChannelId.equals("none")) {
                 boolean isBinary = ExtensionController.getInstance().getDataTypePlugins().get(this.getOutboundDataType().getType()).isBinary();
-                byte[] data = getAttachmentHandlerProvider().reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, Constants.ATTACHMENT_CHARSET, isBinary);
+                byte[] data = getAttachmentHandlerProvider().reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, Constants.ATTACHMENT_CHARSET, isBinary, vmDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
 
                 RawMessage rawMessage;
 

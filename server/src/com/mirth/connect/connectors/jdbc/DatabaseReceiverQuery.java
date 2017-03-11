@@ -183,7 +183,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                  * TemplateValueReplacer to to look up values from a default context based on the
                  * given channel id
                  */
-                for (Object param : JdbcUtils.getParameters(selectParams, connector.getChannelId(), connector.getChannel().getName(), null, null, null)) {
+                for (Object param : JdbcUtils.getParameters(selectParams, connector.getChannelId(), connector.getChannel().getName(), null, null, null, true)) {
                     selectStatement.setObject(objectIndex++, param);
                 }
 
@@ -262,7 +262,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
              * TemplateValueReplacer to look up values from the given resultMap or merged
              * ConnectorMessage
              */
-            for (Object param : JdbcUtils.getParameters(updateParams, connector.getChannelId(), connector.getChannel().getName(), mergedConnectorMessage, resultMap, null)) {
+            for (Object param : JdbcUtils.getParameters(updateParams, connector.getChannelId(), connector.getChannel().getName(), mergedConnectorMessage, resultMap, null, true)) {
                 updateStatement.setObject(i++, param);
             }
 

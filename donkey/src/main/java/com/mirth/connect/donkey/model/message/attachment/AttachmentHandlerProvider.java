@@ -16,11 +16,13 @@ public interface AttachmentHandlerProvider {
 
     public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties);
 
-    public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary);
+    public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach);
 
-    public String reAttachMessage(ConnectorMessage message);
+    public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly);
 
-    public String reAttachMessage(String raw, ConnectorMessage message);
+    public String reAttachMessage(ConnectorMessage message, boolean reattach);
+
+    public String reAttachMessage(String raw, ConnectorMessage message, boolean reattach);
 
     public boolean canExtractAttachments();
 

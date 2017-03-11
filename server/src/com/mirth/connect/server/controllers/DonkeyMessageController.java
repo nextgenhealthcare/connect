@@ -409,7 +409,7 @@ public class DonkeyMessageController extends MessageController {
                     if (isBinary) {
                         rawMessage = new RawMessage(DICOMMessageUtil.getDICOMRawBytes(connectorMessage));
                     } else {
-                        rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(attachmentHandlerProvider.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
+                        rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(attachmentHandlerProvider.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false, true, true), Constants.ATTACHMENT_CHARSET));
                     }
 
                     rawMessage.setOverwrite(replace);

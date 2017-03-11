@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -30,27 +31,39 @@ import com.mirth.connect.server.util.DICOMMessageUtil;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 public abstract class MirthAttachmentHandlerProvider implements AttachmentHandlerProvider {
+
     private final static String PREFIX = "${";
     private final static String SUFFIX = "}";
+    private final static String DELIMITER = ":";
     private final static int ATTACHMENT_ID_LENGTH = 36;
+    private final static int MESSAGE_ID_MAX_LENGTH = 20; // 2^64-1 unsigned, 20 chars max
     private final static String ATTACHMENT_KEY = "ATTACH:";
     private final static String DICOM_KEY = "DICOMMESSAGE";
     private final static int KEY_DATA = 0;
     private final static int KEY_END_INDEX = 1;
 
     private Logger logger = Logger.getLogger(getClass());
+    private MessageController messageController;
 
-    @Override
-    public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary) {
-        return reAttachMessage(raw, new ImmutableConnectorMessage(connectorMessage), charsetEncoding, binary);
+    public MirthAttachmentHandlerProvider(MessageController messageController) {
+        this.messageController = messageController;
     }
 
     @Override
-    public String reAttachMessage(ConnectorMessage message) {
-        return reAttachMessage(new ImmutableConnectorMessage(message));
+    public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach) {
+        return reAttachMessage(raw, connectorMessage, charsetEncoding, binary, reattach, false);
     }
 
-    public String reAttachMessage(ImmutableConnectorMessage message) {
+    public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly) {
+        return reAttachMessage(raw, new ImmutableConnectorMessage(connectorMessage), charsetEncoding, binary, reattach, localOnly);
+    }
+
+    @Override
+    public String reAttachMessage(ConnectorMessage message, boolean reattach) {
+        return reAttachMessage(new ImmutableConnectorMessage(message), reattach);
+    }
+
+    public String reAttachMessage(ImmutableConnectorMessage message, boolean reattach) {
         String messageData = null;
         if (message.getEncoded() != null && message.getEncoded().getContent() != null) {
             messageData = message.getEncoded().getContent();
@@ -58,18 +71,48 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
             messageData = message.getRaw().getContent();
         }
 
-        return StringUtils.newString(reAttachMessage(messageData, message, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
+        return StringUtils.newString(reAttachMessage(messageData, message, Constants.ATTACHMENT_CHARSET, false, reattach), Constants.ATTACHMENT_CHARSET);
     }
 
-    public String reAttachMessage(String raw, ConnectorMessage message) {
-        return reAttachMessage(raw, new ImmutableConnectorMessage(message));
+    @Override
+    public String reAttachMessage(String raw, ConnectorMessage message, boolean reattach) {
+        return reAttachMessage(raw, new ImmutableConnectorMessage(message), reattach);
     }
 
-    public String reAttachMessage(String raw, ImmutableConnectorMessage message) {
-        return StringUtils.newString(reAttachMessage(raw, message, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
+    public String reAttachMessage(String raw, ImmutableConnectorMessage message, boolean reattach) {
+        return StringUtils.newString(reAttachMessage(raw, message, Constants.ATTACHMENT_CHARSET, false, reattach), Constants.ATTACHMENT_CHARSET);
     }
 
-    public byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary) {
+    public byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach) {
+        return reAttachMessage(raw, connectorMessage, charsetEncoding, binary, reattach, false);
+    }
+
+    /**
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
+     * content, and returns the full post-replacement message as a byte array.
+     * 
+     * @param raw
+     *            The raw message string to replace tokens from.
+     * @param connectorMessage
+     *            The ConnectorMessage associated with this message, used to identify the
+     *            channel/message ID.
+     * @param charsetEncoding
+     *            If binary mode is not used, the resulting byte array will be encoded using this
+     *            charset.
+     * @param binary
+     *            If enabled, the raw data is assumed to be Base64 encoded. The resulting byte array
+     *            will be the raw Base64 decoded bytes.
+     * @param reattach
+     *            If true, attachment tokens will be replaced with the actual attachment content.
+     *            Otherwise, local attachment tokens will be replaced only with the corresponding
+     *            expanded tokens.
+     * @param localOnly
+     *            If true, only local attachment tokens will be replaced, and expanded tokens will
+     *            be ignored. This is for the use-case of reprocessing messages.
+     * @return The resulting message as a byte array, with all applicable attachment content
+     *         re-inserted.
+     */
+    public byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly) {
         try {
             Map<Integer, Map<Integer, Object>> replacementObjects = new TreeMap<Integer, Map<Integer, Object>>();
             // Determine the buffersize during the first pass for better memory performance
@@ -83,7 +126,7 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
             // Handle the special case if only a dicom message is requested. 
             // In this case we can skip any byte appending and thus do not need to base64 encode the dicom object
             // if the type is binary.
-            if (raw.trim().equals(PREFIX + DICOM_KEY + SUFFIX)) {
+            if (reattach && raw.trim().equals(PREFIX + DICOM_KEY + SUFFIX)) {
                 dicomObject = DICOMMessageUtil.getDICOMRawBytes(connectorMessage);
 
                 if (!binary) {
@@ -96,52 +139,157 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
             // Check the raw string in one pass for any attachments.
             // Stores the start and end indices to replace, along with the attachment content.
             while ((index = raw.indexOf(PREFIX, index)) != -1) {
+                // Check for special DICOM token first
                 if (raw.startsWith(DICOM_KEY + SUFFIX, index + PREFIX.length())) {
-                    if (dicomObject == null) {
-                        // Unfortunately, if the dicom data needs to appended to other base64 data, it must be done so in base64.
-                        dicomObject = Base64Util.encodeBase64(DICOMMessageUtil.getDICOMRawBytes(connectorMessage));
-                    }
-
                     endIndex = index + PREFIX.length() + DICOM_KEY.length() + SUFFIX.length();
 
-                    Map<Integer, Object> replacementMap = new HashMap<Integer, Object>();
-                    replacementMap.put(KEY_END_INDEX, endIndex);
-                    replacementMap.put(KEY_DATA, dicomObject);
-                    replacementObjects.put(index, replacementMap);
-
-                    bufferSize += dicomObject.length;
-                    index += endIndex - index;
-                } else if (raw.startsWith(ATTACHMENT_KEY, index + PREFIX.length())) {
-                    if (attachmentMap == null) {
-                        List<Attachment> list = getMessageAttachments(connectorMessage);
-
-                        // Store the attachments in a map with the attachment's Id as the key
-                        attachmentMap = new HashMap<String, Attachment>();
-                        for (Attachment attachment : list) {
-                            attachmentMap.put(attachment.getId(), attachment);
+                    // Don't actually make any replacement but still advance the index if not reattaching
+                    if (reattach) {
+                        if (dicomObject == null) {
+                            // Unfortunately, if the dicom data needs to appended to other base64 data, it must be done so in base64.
+                            dicomObject = Base64Util.encodeBase64(DICOMMessageUtil.getDICOMRawBytes(connectorMessage));
                         }
-                    }
 
-                    int attachmentIdStartIndex = index + PREFIX.length() + ATTACHMENT_KEY.length();
-                    int attachmentIdEndIndex = attachmentIdStartIndex + ATTACHMENT_ID_LENGTH;
-                    endIndex = attachmentIdEndIndex + SUFFIX.length();
-                    String attachmentId = raw.substring(attachmentIdStartIndex, attachmentIdStartIndex + ATTACHMENT_ID_LENGTH);
-
-                    if (raw.substring(attachmentIdEndIndex, endIndex).equals(SUFFIX)) {
                         Map<Integer, Object> replacementMap = new HashMap<Integer, Object>();
                         replacementMap.put(KEY_END_INDEX, endIndex);
-
-                        if (attachmentMap.containsKey(attachmentId)) {
-                            Attachment attachment = attachmentMap.get(attachmentId);
-
-                            attachment.setContent(replaceOutboundAttachment(attachment.getContent()));
-                            replacementMap.put(KEY_DATA, attachment.getContent());
-                            bufferSize += attachment.getContent().length;
-                        } else {
-                            replacementMap.put(KEY_DATA, new byte[0]);
-                        }
-
+                        replacementMap.put(KEY_DATA, dicomObject);
                         replacementObjects.put(index, replacementMap);
+
+                        bufferSize += dicomObject.length;
+                    }
+
+                    index += endIndex - index;
+                } else if (raw.startsWith(ATTACHMENT_KEY, index + PREFIX.length())) {
+                    // Get the index of the actual attachment ID 
+                    int idStartIndex = index + PREFIX.length() + ATTACHMENT_KEY.length();
+                    // Advance the end index
+                    endIndex = idStartIndex;
+
+                    // Make sure there are enough characters left in the message for an attachment ID
+                    if (endIndex + ATTACHMENT_ID_LENGTH <= raw.length()) {
+                        endIndex += ATTACHMENT_ID_LENGTH;
+
+                        // We can safely substring the attachment ID now
+                        String attachmentOrChannelId = raw.substring(idStartIndex, endIndex);
+
+                        // Make sure the next characters are the suffix
+                        if (endIndex + SUFFIX.length() <= raw.length() && raw.substring(endIndex, endIndex + SUFFIX.length()).equals(SUFFIX)) {
+                            // At this point we know it's a regular attachment, ${ATTACH:id}
+                            // Advance the end index
+                            endIndex += SUFFIX.length();
+
+                            // A replacement is going to be made one way or the other, so initialize the replacement map
+                            Map<Integer, Object> replacementMap = new HashMap<Integer, Object>();
+                            replacementMap.put(KEY_END_INDEX, endIndex);
+
+                            if (reattach) {
+                                // Initialize the attachment map if necessary
+                                if (attachmentMap == null) {
+                                    List<Attachment> list = getMessageAttachments(connectorMessage);
+
+                                    // Store the attachments in a map with the attachment's Id as the key
+                                    attachmentMap = new HashMap<String, Attachment>();
+                                    for (Attachment attachment : list) {
+                                        attachmentMap.put(attachment.getId(), attachment);
+                                    }
+                                }
+
+                                if (attachmentMap.containsKey(attachmentOrChannelId)) {
+                                    // If the attachment is found, put the contents into the replacement map
+                                    Attachment attachment = attachmentMap.get(attachmentOrChannelId);
+
+                                    attachment.setContent(replaceOutboundAttachment(attachment.getContent()));
+                                    replacementMap.put(KEY_DATA, attachment.getContent());
+                                    bufferSize += attachment.getContent().length;
+                                } else {
+                                    // Otherwise, replace with nothing
+                                    replacementMap.put(KEY_DATA, new byte[0]);
+                                }
+                            } else {
+                                // Replace with the expanded token
+                                replacementMap.put(KEY_DATA, (PREFIX + ATTACHMENT_KEY + connectorMessage.getChannelId() + DELIMITER + connectorMessage.getMessageId() + DELIMITER + attachmentOrChannelId + SUFFIX).getBytes(Constants.ATTACHMENT_CHARSET));
+                            }
+
+                            replacementObjects.put(index, replacementMap);
+                        } else if (reattach && !localOnly && endIndex + DELIMITER.length() <= raw.length() && raw.substring(endIndex, endIndex + DELIMITER.length()).equals(DELIMITER)) {
+                            // The suffix wasn't found, so assume this is an absolute attachment, ${ATTACH:channelId:messageId:attachmentId}
+                            // Check if the next characters are the delimiter
+                            // Advance the end index
+                            endIndex += DELIMITER.length();
+
+                            // The previously used attachment ID is now assumed to be the channel ID
+                            String channelId = attachmentOrChannelId;
+
+                            // Find the next delimiter without taking substrings
+                            int nextDelimIndex = StringUtil.indexOf(raw, DELIMITER, endIndex, endIndex + MESSAGE_ID_MAX_LENGTH);
+
+                            if (nextDelimIndex != -1) {
+                                // If a delimiter is found, assume we have the message ID
+                                String messageIdStr = raw.substring(endIndex, nextDelimIndex);
+                                // Advance the end index
+                                endIndex = nextDelimIndex + DELIMITER.length();
+
+                                // Attempt to parse the message ID
+                                long messageId = NumberUtils.toLong(messageIdStr);
+
+                                // If the message ID is valid and there are enough characters for the attachment ID and suffix
+                                if (messageId > 0 && endIndex + ATTACHMENT_ID_LENGTH + SUFFIX.length() <= raw.length()) {
+                                    // Assume the next characters are the attachment ID
+                                    attachmentOrChannelId = raw.substring(endIndex, endIndex + ATTACHMENT_ID_LENGTH);
+                                    endIndex += ATTACHMENT_ID_LENGTH;
+
+                                    // Make sure the next characters are the suffix
+                                    if (raw.substring(endIndex, endIndex + SUFFIX.length()).equals(SUFFIX)) {
+                                        endIndex += SUFFIX.length();
+
+                                        // Initialize the replacement map
+                                        Map<Integer, Object> replacementMap = new HashMap<Integer, Object>();
+                                        replacementMap.put(KEY_END_INDEX, endIndex);
+
+                                        // Check if the replacement token references the current message
+                                        if (channelId.equals(connectorMessage.getChannelId()) && messageId == connectorMessage.getMessageId()) {
+                                            // Initialize the attachment map if necessary
+                                            if (attachmentMap == null) {
+                                                List<Attachment> list = getMessageAttachments(connectorMessage);
+
+                                                // Store the attachments in a map with the attachment's Id as the key
+                                                attachmentMap = new HashMap<String, Attachment>();
+                                                for (Attachment attachment : list) {
+                                                    attachmentMap.put(attachment.getId(), attachment);
+                                                }
+                                            }
+
+                                            if (attachmentMap.containsKey(attachmentOrChannelId)) {
+                                                // If the attachment is found, put the contents into the replacement map
+                                                Attachment attachment = attachmentMap.get(attachmentOrChannelId);
+
+                                                attachment.setContent(replaceOutboundAttachment(attachment.getContent()));
+                                                replacementMap.put(KEY_DATA, attachment.getContent());
+                                                bufferSize += attachment.getContent().length;
+                                            } else {
+                                                // Otherwise, replace with nothing
+                                                replacementMap.put(KEY_DATA, new byte[0]);
+                                            }
+                                        } else {
+                                            // Grab the attachment using the absolute channel/message IDs
+                                            Attachment attachment = getMessageAttachment(channelId, messageId, attachmentOrChannelId);
+
+                                            if (attachmentOrChannelId.equals(attachment.getId())) {
+                                                // If the attachment is found, put the contents into the replacement map
+                                                attachment.setContent(replaceOutboundAttachment(attachment.getContent()));
+                                                replacementMap.put(KEY_DATA, attachment.getContent());
+                                                bufferSize += attachment.getContent().length;
+                                            } else {
+                                                // Otherwise, replace with nothing
+                                                replacementMap.put(KEY_DATA, new byte[0]);
+                                            }
+                                        }
+
+                                        replacementObjects.put(index, replacementMap);
+                                    }
+                                }
+                            }
+                        }
                     }
                 } else {
                     endIndex = index + PREFIX.length();
@@ -221,7 +369,7 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
             return null;
         }
     }
-    
+
     public static boolean hasAttachmentKeys(String raw) {
         if (raw.contains(PREFIX + DICOM_KEY + SUFFIX) || raw.contains(PREFIX + ATTACHMENT_KEY)) {
             return true;
@@ -229,14 +377,26 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
 
         return false;
     }
-    
-    public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage message) throws MessageSerializerException {
+
+    public List<Attachment> getMessageAttachments(ImmutableConnectorMessage message) throws MessageSerializerException {
+        return getMessageAttachments(message.getChannelId(), message.getMessageId());
+    }
+
+    public List<Attachment> getMessageAttachments(String channelId, Long messageId) throws MessageSerializerException {
         List<Attachment> attachments;
         try {
-            attachments = MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());
+            attachments = messageController.getMessageAttachment(channelId, messageId);
         } catch (Exception e) {
             throw new MessageSerializerException(e.getMessage());
         }
         return attachments;
+    }
+
+    public Attachment getMessageAttachment(String channelId, Long messageId, String attachmentId) throws MessageSerializerException {
+        try {
+            return messageController.getMessageAttachment(channelId, attachmentId, messageId);
+        } catch (Exception e) {
+            throw new MessageSerializerException(e.getMessage());
+        }
     }
 }

@@ -105,6 +105,12 @@ public class DestinationSettingsPanel extends JPanel {
             validateResponseNoRadio.setSelected(true);
         }
 
+        if (properties.isReattachAttachments()) {
+            reattachAttachmentsYesRadio.setSelected(true);
+        } else {
+            reattachAttachmentsNoRadio.setSelected(true);
+        }
+
         updateAdvancedSettingsLabel();
     }
 
@@ -131,6 +137,7 @@ public class DestinationSettingsPanel extends JPanel {
         properties.setThreadAssignmentVariable(threadAssignmentVariable);
         properties.setValidateResponse(validateResponseYesRadio.isSelected());
         properties.setQueueBufferSize(queueBufferSize);
+        properties.setReattachAttachments(reattachAttachmentsYesRadio.isSelected());
     }
 
     public boolean checkProperties(DestinationConnectorPropertiesInterface propertiesInterface, boolean highlight) {
@@ -268,6 +275,21 @@ public class DestinationSettingsPanel extends JPanel {
         validateResponseNoRadio.setBackground(getBackground());
         validateResponseNoRadio.setToolTipText(toolTipText);
         validateResponseButtonGroup.add(validateResponseNoRadio);
+
+        reattachAttachmentsLabel = new JLabel("Reattach Attachments:");
+
+        ButtonGroup reattachAttachmentsButtonGroup = new ButtonGroup();
+        toolTipText = "<html>If enabled, replacement tokens using the ${ATTACH:...} syntax will<br/>automatically be replaced with the associated attachment content<br/>before the message is sent. If disabled, the tokens will be<br/>expanded to the full ${ATTACH:channelId:messageId:attachmentId}<br/>syntax which can then be reattached in downstream channels.</html>";
+
+        reattachAttachmentsYesRadio = new MirthRadioButton("Yes");
+        reattachAttachmentsYesRadio.setBackground(getBackground());
+        reattachAttachmentsYesRadio.setToolTipText(toolTipText);
+        reattachAttachmentsButtonGroup.add(reattachAttachmentsYesRadio);
+
+        reattachAttachmentsNoRadio = new MirthRadioButton("No");
+        reattachAttachmentsNoRadio.setBackground(getBackground());
+        reattachAttachmentsNoRadio.setToolTipText(toolTipText);
+        reattachAttachmentsButtonGroup.add(reattachAttachmentsNoRadio);
     }
 
     private void initLayout() {
@@ -282,6 +304,9 @@ public class DestinationSettingsPanel extends JPanel {
         add(validateResponseLabel, "newline, right");
         add(validateResponseYesRadio, "split");
         add(validateResponseNoRadio);
+        add(reattachAttachmentsLabel, "newline, right");
+        add(reattachAttachmentsYesRadio, "split");
+        add(reattachAttachmentsNoRadio);
     }
 
     private class AdvancedDialog extends MirthDialog {
@@ -622,4 +647,7 @@ public class DestinationSettingsPanel extends JPanel {
     private JLabel validateResponseLabel;
     private JRadioButton validateResponseYesRadio;
     private JRadioButton validateResponseNoRadio;
+    private JLabel reattachAttachmentsLabel;
+    private JRadioButton reattachAttachmentsYesRadio;
+    private JRadioButton reattachAttachmentsNoRadio;
 }

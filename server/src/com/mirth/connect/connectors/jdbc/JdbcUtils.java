@@ -85,7 +85,7 @@ public class JdbcUtils {
      *            values
      * @return
      */
-    public static Object[] getParameters(List<String> paramNames, String channelId, String channelName, ConnectorMessage connectorMessage, Map<String, Object> map, AttachmentHandlerProvider attachmentHandlerProvider) {
+    public static Object[] getParameters(List<String> paramNames, String channelId, String channelName, ConnectorMessage connectorMessage, Map<String, Object> map, AttachmentHandlerProvider attachmentHandlerProvider, boolean reattach) {
         Object[] params = new Object[paramNames.size()];
         TemplateValueReplacer replacer = new TemplateValueReplacer();
         int i = 0;
@@ -103,7 +103,7 @@ public class JdbcUtils {
             }
 
             if (attachmentHandlerProvider != null && MirthAttachmentHandlerProvider.hasAttachmentKeys(value.toString())) {
-                value = StringUtils.newString(attachmentHandlerProvider.reAttachMessage(value.toString(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
+                value = StringUtils.newString(attachmentHandlerProvider.reAttachMessage(value.toString(), connectorMessage, Constants.ATTACHMENT_CHARSET, false, reattach), Constants.ATTACHMENT_CHARSET);
             }
 
             params[i++] = value;

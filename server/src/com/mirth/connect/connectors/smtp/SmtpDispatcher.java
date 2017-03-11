@@ -204,7 +204,7 @@ public class SmtpDispatcher extends DestinationConnector {
 
             AttachmentHandlerProvider attachmentHandlerProvider = getAttachmentHandlerProvider();
 
-            String body = attachmentHandlerProvider.reAttachMessage(smtpDispatcherProperties.getBody(), connectorMessage);
+            String body = attachmentHandlerProvider.reAttachMessage(smtpDispatcherProperties.getBody(), connectorMessage, smtpDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
 
             if (StringUtils.isNotEmpty(body)) {
                 if (smtpDispatcherProperties.isHtml()) {
@@ -229,13 +229,13 @@ public class SmtpDispatcher extends DestinationConnector {
                 if (StringUtils.indexOf(mimeType, "/") < 0) {
                     logger.warn("valid MIME type is missing for email attachment: \"" + name + "\", using default of text/plain");
                     attachment.setMimeType("text/plain");
-                    bytes = attachmentHandlerProvider.reAttachMessage(content, connectorMessage, charsetEncoding, false);
+                    bytes = attachmentHandlerProvider.reAttachMessage(content, connectorMessage, charsetEncoding, false, smtpDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
                 } else if ("application/xml".equalsIgnoreCase(mimeType) || StringUtils.startsWith(mimeType, "text/")) {
                     logger.debug("text or XML MIME type detected for attachment \"" + name + "\"");
-                    bytes = attachmentHandlerProvider.reAttachMessage(content, connectorMessage, charsetEncoding, false);
+                    bytes = attachmentHandlerProvider.reAttachMessage(content, connectorMessage, charsetEncoding, false, smtpDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
                 } else {
                     logger.debug("binary MIME type detected for attachment \"" + name + "\", performing Base64 decoding");
-                    bytes = attachmentHandlerProvider.reAttachMessage(content, connectorMessage, null, true);
+                    bytes = attachmentHandlerProvider.reAttachMessage(content, connectorMessage, null, true, smtpDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
                 }
 
                 ((MultiPartEmail) email).attach(new ByteArrayDataSource(bytes, mimeType), name, null);

@@ -21,6 +21,7 @@ import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
@@ -32,6 +33,10 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     private String scriptId;
     private Set<String> resourceIds;
     private volatile String contextFactoryId;
+
+    public JavaScriptAttachmentHandlerProvider(MessageController messageController) {
+        super(messageController);
+    }
 
     MirthContextFactory getContextFactory() throws Exception {
         MirthContextFactory contextFactory = contextFactoryController.getContextFactory(resourceIds);

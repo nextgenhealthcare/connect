@@ -436,9 +436,9 @@ public class HttpDispatcher extends DestinationConnector {
 
         Object content = null;
         if (httpDispatcherProperties.isDataTypeBinary()) {
-            content = getAttachmentHandlerProvider().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage, null, true);
+            content = getAttachmentHandlerProvider().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage, null, true, httpDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
         } else {
-            content = getAttachmentHandlerProvider().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
+            content = getAttachmentHandlerProvider().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage, httpDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
 
             // If text mode is used and a specific charset isn't already defined, use the one from the connector properties
             if (contentType.getCharset() == null) {

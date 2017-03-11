@@ -120,7 +120,7 @@ public class DICOMDispatcher extends DestinationConnector {
         try {
             tempFile = File.createTempFile("temp", "tmp");
 
-            FileUtils.writeByteArrayToFile(tempFile, getAttachmentHandlerProvider().reAttachMessage(dicomDispatcherProperties.getTemplate(), connectorMessage, null, true));
+            FileUtils.writeByteArrayToFile(tempFile, getAttachmentHandlerProvider().reAttachMessage(dicomDispatcherProperties.getTemplate(), connectorMessage, null, true, dicomDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments()));
 
             dcmSnd.setCalledAET("DCMRCV");
             dcmSnd.setRemoteHost(dicomDispatcherProperties.getHost());
