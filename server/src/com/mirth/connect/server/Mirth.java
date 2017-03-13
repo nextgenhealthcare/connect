@@ -117,7 +117,7 @@ public class Mirth extends Thread {
         if (initResources()) {
             logger.debug("starting mirth server...");
 
-            // Initialize TLS system properties as early as possible
+            // Initialize TLS system properties as early as possible, because otherwise they will be cached
             if (System.getProperty("jdk.tls.ephemeralDHKeySize") == null) {
                 // Only allow integers from 1024-2048 as per JSSE specifications
                 int keySize = NumberUtils.toInt(mirthProperties.getString("https.ephemeraldhkeysize", "2048"), 2048);
