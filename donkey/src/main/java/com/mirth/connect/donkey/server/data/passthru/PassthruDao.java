@@ -29,7 +29,7 @@ import com.mirth.connect.donkey.server.data.StatisticsUpdater;
 
 public class PassthruDao implements DonkeyDao {
     private boolean closed = false;
-    private Statistics transactionStats = new Statistics(false);
+    private Statistics transactionStats = new Statistics(false, true);
     private Statistics currentStats;
     private Statistics totalStats;
     private Map<String, Map<Integer, Set<Status>>> resetStats = new HashMap<String, Map<Integer, Set<Status>>>();

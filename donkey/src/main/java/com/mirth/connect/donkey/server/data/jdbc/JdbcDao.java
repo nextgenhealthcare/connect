@@ -71,7 +71,7 @@ public class JdbcDao implements DonkeyDao {
     private Encryptor encryptor;
     private Statistics currentStats;
     private Statistics totalStats;
-    private Statistics transactionStats = new Statistics(false);
+    private Statistics transactionStats = new Statistics(false, true);
     private Map<String, Map<Integer, Set<Status>>> resetCurrentStats = new HashMap<String, Map<Integer, Set<Status>>>();
     private Map<String, Map<Integer, Set<Status>>> resetTotalStats = new HashMap<String, Map<Integer, Set<Status>>>();
     private List<String> removedChannelIds = new ArrayList<String>();

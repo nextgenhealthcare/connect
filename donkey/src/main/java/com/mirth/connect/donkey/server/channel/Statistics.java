@@ -35,11 +35,17 @@ public class Statistics {
     private Map<String, Map<Integer, Map<Status, AtomicLong>>> stats = new ConcurrentHashMap<String, Map<Integer, Map<Status, AtomicLong>>>();
     private EventDispatcher eventDispatcher;
     private boolean sendEvents;
+    private boolean allowNegatives;
 
     public Statistics(boolean sendEvents) {
-        this.sendEvents = sendEvents;
+        this(sendEvents, false);
     }
 
+    public Statistics(boolean sendEvents, boolean allowNegatives) {
+        this.sendEvents = sendEvents;
+        this.allowNegatives = allowNegatives;
+    }
+    
     public Map<String, Map<Integer, Map<Status, Long>>> getStats() {
         Map<String, Map<Integer, Map<Status, Long>>> stats = new HashMap<String, Map<Integer, Map<Status, Long>>>();
 
@@ -143,28 +149,28 @@ public class Statistics {
             if (ArrayUtils.contains(TRACKED_STATUSES, statsEntry.getKey()) && diff != 0) {
                 Status status = statsEntry.getKey();
 
-                // update the connector statistics
-                Long connectorCount = connectorStats.get(status).addAndGet(diff);
-
+                AtomicLong statValue = connectorStats.get(status);
+                Long connectorCount = updateStat(statValue, diff);
+                
                 // update the channel statistics
                 switch (status) {
                 // update the following statuses based on the source connector
                     case RECEIVED:
                         if (metaDataId == 0) {
-                            aggregateStats.get(status).addAndGet(diff);
+                            updateStat(aggregateStats.get(status), diff);
                         }
                         break;
 
                     // update the following statuses based on the source and destination connectors
                     case FILTERED:
                     case ERROR:
-                        aggregateStats.get(status).addAndGet(diff);
+                        updateStat(aggregateStats.get(status), diff);
                         break;
 
                     // update the following statuses based on the destination connectors
                     case SENT:
                         if (metaDataId > 0) {
-                            aggregateStats.get(status).addAndGet(diff);
+                            updateStat(aggregateStats.get(status), diff);
                         }
                         break;
 
@@ -186,6 +192,23 @@ public class Statistics {
         }
     }
 
+    private long updateStat(AtomicLong stat, Long diff) {
+        // stats values can not go below zero. If we are decrementing, synchronize so threads don't decrement below zero accidentally
+        if (!allowNegatives && diff < 0) {
+            synchronized (stat) {
+                long connectorDiff = diff;
+                long statValueL =stat.get();
+                // if the resulting value < 0, floor the resulting value at zero.
+                if (statValueL + diff < 0L) {
+                    connectorDiff = -statValueL;
+                }
+                return stat.addAndGet(connectorDiff);
+            }
+        } else {    // else just do an add like usual. Atomic Long will make sure multiple threads increment correctly.
+            return stat.addAndGet(diff);
+        }
+    }
+    
     public void overwrite(String channelId, Integer metaDataId, Map<Status, Long> stats) {
         Map<Status, AtomicLong> connectorStats = getConnectorStatsMap(getChannelStatsMap(channelId), metaDataId);
         for (Entry<Status, Long> entry : stats.entrySet()) {

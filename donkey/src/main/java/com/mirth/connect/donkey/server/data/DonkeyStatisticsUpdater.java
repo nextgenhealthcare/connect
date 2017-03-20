@@ -23,7 +23,7 @@ public class DonkeyStatisticsUpdater extends Thread implements StatisticsUpdater
 
     private DonkeyDaoFactory daoFactory;
     private int updateInterval;
-    private Statistics statistics = new Statistics(false);
+    private Statistics statistics = new Statistics(false, true);
     private Logger logger = Logger.getLogger(getClass());
 
     public DonkeyStatisticsUpdater(DonkeyDaoFactory daoFactory, int updateInterval) {
@@ -77,7 +77,7 @@ public class DonkeyStatisticsUpdater extends Thread implements StatisticsUpdater
 
     private void commit() throws InterruptedException {
         if (!statistics.isEmpty() && daoFactory != null) {
-            Statistics tempStats = new Statistics(false);
+            Statistics tempStats = new Statistics(false, true);
 
             Map<String, Map<Integer, Map<Status, Long>>> stats = statistics.getStats();
             tempStats.update(stats);
