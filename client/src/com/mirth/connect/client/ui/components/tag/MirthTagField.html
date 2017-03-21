@@ -116,6 +116,7 @@
 		updatePlaceholder();
 		$('#MirthTokenField').tokenfield('setTokens', JSON.parse(tags));
 		$(document).find('#MirthTokenField').data('bs.tokenfield').$input.val('');
+		clickController.updateTagSearch(getSelectedTags());
 	}
 	
 	function insertTag(tag, type) {
