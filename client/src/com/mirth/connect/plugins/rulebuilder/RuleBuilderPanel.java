@@ -56,7 +56,7 @@ public class RuleBuilderPanel extends EditorPanel<Rule> {
     private static final int VALUE_COLUMN = 0;
     private static final String VALUE_COLUMN_NAME = "Value";
 
-    private List<ActionListener> nameActionListeners = new ArrayList<ActionListener>();
+    private ActionListener nameActionListener;
 
     public RuleBuilderPanel() {
         initComponents();
@@ -110,8 +110,8 @@ public class RuleBuilderPanel extends EditorPanel<Rule> {
     }
 
     @Override
-    public void addNameActionListener(ActionListener actionListener) {
-        nameActionListeners.add(actionListener);
+    public void setNameActionListener(ActionListener actionListener) {
+        nameActionListener = actionListener;
     }
 
     public void setValues(List<String> values) {
@@ -386,8 +386,8 @@ public class RuleBuilderPanel extends EditorPanel<Rule> {
 
         String name = builder.toString();
 
-        for (ActionListener actionListener : nameActionListeners) {
-            actionListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, name));
+        if (nameActionListener != null) {
+            nameActionListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, name));
         }
 
         return name;

@@ -27,5 +27,5 @@ public abstract class EditorPanel<C extends FilterTransformerElement> extends JP
 
     public abstract void resetInvalidProperties();
 
-    public abstract void addNameActionListener(ActionListener actionListener);
+    public abstract void setNameActionListener(ActionListener actionListener);
 }

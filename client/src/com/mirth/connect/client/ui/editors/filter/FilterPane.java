@@ -16,6 +16,7 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
@@ -39,6 +40,7 @@ import com.mirth.connect.model.IteratorRule;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Rule.Operator;
 import com.mirth.connect.model.datatype.DataTypeProperties;
+import com.mirth.connect.plugins.FilterRulePlugin;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
 import com.mirth.connect.plugins.IteratorRulePlugin;
 
@@ -46,7 +48,8 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
 
     public static final String RULE_BUILDER = "Rule Builder";
 
-    private Map<String, FilterTransformerTypePlugin<Filter, Rule>> plugins;
+    private Map<String, FilterTransformerTypePlugin<Filter, Rule>> sourcePlugins;
+    private Map<String, FilterTransformerTypePlugin<Filter, Rule>> destinationPlugins;
     private IteratorRulePlugin iteratorPlugin;
     private String originalInboundDataType;
     private DataTypeProperties originalInboundDataTypeProperties;
@@ -117,14 +120,29 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
 
     @Override
     protected Map<String, FilterTransformerTypePlugin<Filter, Rule>> getPlugins() {
-        if (plugins == null) {
-            plugins = new TreeMap<String, FilterTransformerTypePlugin<Filter, Rule>>(LoadedExtensions.getInstance().getFilterRulePlugins());
+        if (sourcePlugins == null || destinationPlugins == null) {
+            sourcePlugins = new TreeMap<String, FilterTransformerTypePlugin<Filter, Rule>>();
+            destinationPlugins = new TreeMap<String, FilterTransformerTypePlugin<Filter, Rule>>();
+
+            for (Entry<String, FilterRulePlugin> entry : LoadedExtensions.getInstance().getFilterRulePlugins().entrySet()) {
+                sourcePlugins.put(entry.getKey(), entry.getValue());
+                if (!entry.getValue().onlySourceConnector()) {
+                    destinationPlugins.put(entry.getKey(), entry.getValue());
+                }
+            }
+
             if (iteratorPlugin == null) {
                 iteratorPlugin = new IteratorRulePlugin(IteratorProperties.PLUGIN_POINT);
             }
-            plugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
+            sourcePlugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
+            destinationPlugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
         }
-        return plugins;
+
+        if (getConnector() != null && getConnector().getMetaDataId() == 0) {
+            return sourcePlugins;
+        } else {
+            return destinationPlugins;
+        }
     }
 
     @Override

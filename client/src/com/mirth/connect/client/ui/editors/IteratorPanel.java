@@ -29,8 +29,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -42,9 +40,11 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.FilterTransformerElement;
 import com.mirth.connect.model.IteratorElement;
 
+import net.miginfocom.swing.MigLayout;
+
 public abstract class IteratorPanel<C extends FilterTransformerElement> extends EditorPanel<C> {
 
-    private List<ActionListener> nameActionListeners = new ArrayList<ActionListener>();
+    private ActionListener nameActionListener;
 
     public IteratorPanel() {
         baseInitComponents();
@@ -129,8 +129,8 @@ public abstract class IteratorPanel<C extends FilterTransformerElement> extends 
     }
 
     @Override
-    public void addNameActionListener(ActionListener actionListener) {
-        nameActionListeners.add(actionListener);
+    public void setNameActionListener(ActionListener actionListener) {
+        nameActionListener = actionListener;
     }
 
     protected void updateName() {
@@ -139,8 +139,8 @@ public abstract class IteratorPanel<C extends FilterTransformerElement> extends 
 
     protected void updateName(String target) {
         String name = getName(StringUtils.defaultIfBlank(target, "..."));
-        for (ActionListener actionListener : nameActionListeners) {
-            actionListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, name));
+        if (nameActionListener != null) {
+            nameActionListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, name));
         }
     }
 

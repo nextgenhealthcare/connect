@@ -84,8 +84,6 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.text.WordUtils;
@@ -125,6 +123,8 @@ import com.mirth.connect.plugins.FilterTransformerTypePlugin;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.ScriptBuilderException;
 
+import net.miginfocom.swing.MigLayout;
+
 public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends FilterTransformerElement> extends JPanel implements DropTargetListener {
 
     private static final int TASK_ADD = 0;
@@ -153,6 +153,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private AtomicBoolean updating = new AtomicBoolean(false);
     private DropTarget dropTarget;
     private Preferences userPreferences = Preferences.userNodeForPackage(Mirth.class);
+    private ActionListener nameActionListener;
 
     public BaseEditorPane() {
         initComponents();
@@ -165,6 +166,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     public void setConnector(Connector connector) {
         this.connector = connector;
+        updatePlugins();
     }
 
     protected abstract Class<?> getContainerClass();
@@ -252,7 +254,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         boolean saveEnabled = PlatformUI.MIRTH_FRAME.isSaveEnabled();
         PlatformUI.MIRTH_FRAME.setCurrentContentPage((JPanel) this);
 
-        this.connector = connector;
+        setConnector(connector);
         this.response = response;
         properties = (T) properties.clone();
         if (overwriteOriginal) {
@@ -1028,19 +1030,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             treeTable.setHighlighters(highlighter);
         }
 
-        List<String> types = new ArrayList<String>();
-        for (String pluginPointName : getPlugins().keySet()) {
-            types.add(pluginPointName);
-        }
-        String[] typeArray = types.toArray(new String[types.size()]);
-
-        MirthComboBoxTableCellEditor typeEditor = new MirthComboBoxTableCellEditor(treeTable, typeArray, 2, true, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                typeComboBoxActionPerformed(evt);
-            }
-        });
-
         treeTable.getColumnExt(numColumn).setMaxWidth(UIConstants.MAX_WIDTH);
         treeTable.getColumnExt(numColumn).setPreferredWidth(36);
         treeTable.getColumnExt(numColumn).setCellRenderer(new LeftCellRenderer());
@@ -1048,8 +1037,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         treeTable.getColumnExt(typeColumn).setMaxWidth(UIConstants.MAX_WIDTH);
         treeTable.getColumnExt(typeColumn).setMinWidth(155);
         treeTable.getColumnExt(typeColumn).setPreferredWidth(155);
-        treeTable.getColumnExt(typeColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(typeArray));
-        treeTable.getColumnExt(typeColumn).setCellEditor(typeEditor);
 
         treeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -1168,7 +1155,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         templatePanel = new TabbedTemplatePanel(this);
         templatePanel.setBorder(BorderFactory.createEmptyBorder());
 
-        ActionListener nameActionListener = new ActionListener() {
+        nameActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 if (!updating.get()) {
@@ -1181,9 +1168,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 }
             }
         };
-        for (FilterTransformerTypePlugin<T, C> plugin : getPlugins().values()) {
-            plugin.getPanel().addNameActionListener(nameActionListener);
-        }
 
         viewTasks = new JXTaskPane();
         viewTasks.setTitle("Mirth Views");
@@ -1321,6 +1305,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         dropTarget = new DropTarget(this, this);
         treeTable.setDropTarget(dropTarget);
         treeTableScrollPane.setDropTarget(dropTarget);
+
+        updatePlugins();
     }
 
     private void initLayout() {
@@ -1335,6 +1321,28 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         horizontalSplitPane.setRightComponent(templatePanel);
 
         add(horizontalSplitPane, "grow");
+    }
+
+    private void updatePlugins() {
+        List<String> types = new ArrayList<String>();
+        for (String pluginPointName : getPlugins().keySet()) {
+            types.add(pluginPointName);
+        }
+        String[] typeArray = types.toArray(new String[types.size()]);
+
+        MirthComboBoxTableCellEditor typeEditor = new MirthComboBoxTableCellEditor(treeTable, typeArray, 2, true, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                typeComboBoxActionPerformed(evt);
+            }
+        });
+
+        treeTable.getColumnExt(typeColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(typeArray));
+        treeTable.getColumnExt(typeColumn).setCellEditor(typeEditor);
+
+        for (FilterTransformerTypePlugin<T, C> plugin : getPlugins().values()) {
+            plugin.getPanel().setNameActionListener(nameActionListener);
+        }
     }
 
     /**

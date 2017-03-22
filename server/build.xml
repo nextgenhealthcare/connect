@@ -44,6 +44,7 @@
 		<!-- plugins -->
 		<property name="plugins.directoryresource" value="${extensions}/directoryresource" />
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
+		<property name="plugins.destinationsetfilter" value="${extensions}/destinationsetfilter" />
 		<property name="plugins.dicomviewer" value="${extensions}/dicomviewer" />
 		<property name="plugins.httpauth" value="${extensions}/httpauth" />
 		<property name="plugins.imageviewer" value="${extensions}/imageviewer" />
@@ -624,6 +625,22 @@
 			<include name="com/mirth/connect/plugins/dashboardstatus/**" />
 			<exclude name="com/mirth/connect/plugins/dashboardstatus/DashboardConnectorStatusServletInterface.class" />
 		</jar>
+		
+		<!-- plugins.destinationsetfilter -->
+		<mkdir dir="${plugins.destinationsetfilter}" />
+		<copy todir="${plugins.destinationsetfilter}">
+			<fileset dir="${src}/com/mirth/connect/plugins/destinationsetfilter">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.destinationsetfilter}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/destinationsetfilter" />
+		</copy>
+		<jar destfile="${plugins.destinationsetfilter}/destinationsetfilter-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/destinationsetfilter/DestinationSetFilterStep.class" />
+			<include name="com/mirth/connect/plugins/destinationsetfilter/DestinationSetFilterStep$Behavior.class" />
+			<include name="com/mirth/connect/plugins/destinationsetfilter/DestinationSetFilterStep$Condition.class" />
+		</jar>
 
 		<!-- plugins.dicomviewer -->
 		<mkdir dir="${plugins.dicomviewer}" />
@@ -1078,6 +1095,7 @@
 
 		<zip destfile="${dist.extensions}/directoryresource-${version}.zip" basedir="${extensions}" includes="directoryresource/**/*" />
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />
+		<zip destfile="${dist.extensions}/destinationsetfilter-${version}.zip" basedir="${extensions}" includes="destinationsetfilter/**/*" />
 		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}" includes="serverlog/**/*" />
 		<zip destfile="${dist.extensions}/datapruner-${version}.zip" basedir="${extensions}" includes="datapruner/**/*" />
 		<zip destfile="${dist.extensions}/javascriptstep-${version}.zip" basedir="${extensions}" includes="javascriptstep/**/*" />

@@ -16,6 +16,7 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -35,13 +36,15 @@ import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
 import com.mirth.connect.plugins.IteratorStepPlugin;
+import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class TransformerPane extends BaseEditorPane<Transformer, Step> {
 
     public static final String MAPPER = "Mapper";
     public static final String MESSAGE_BUILDER = "Message Builder";
 
-    private Map<String, FilterTransformerTypePlugin<Transformer, Step>> plugins;
+    private Map<String, FilterTransformerTypePlugin<Transformer, Step>> sourcePlugins;
+    private Map<String, FilterTransformerTypePlugin<Transformer, Step>> destinationPlugins;
     private IteratorStepPlugin iteratorPlugin;
 
     @Override
@@ -77,14 +80,29 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
 
     @Override
     protected Map<String, FilterTransformerTypePlugin<Transformer, Step>> getPlugins() {
-        if (plugins == null) {
-            plugins = new TreeMap<String, FilterTransformerTypePlugin<Transformer, Step>>(LoadedExtensions.getInstance().getTransformerStepPlugins());
+        if (sourcePlugins == null || destinationPlugins == null) {
+            sourcePlugins = new TreeMap<String, FilterTransformerTypePlugin<Transformer, Step>>();
+            destinationPlugins = new TreeMap<String, FilterTransformerTypePlugin<Transformer, Step>>();
+
+            for (Entry<String, TransformerStepPlugin> entry : LoadedExtensions.getInstance().getTransformerStepPlugins().entrySet()) {
+                sourcePlugins.put(entry.getKey(), entry.getValue());
+                if (!entry.getValue().onlySourceConnector()) {
+                    destinationPlugins.put(entry.getKey(), entry.getValue());
+                }
+            }
+
             if (iteratorPlugin == null) {
                 iteratorPlugin = new IteratorStepPlugin(IteratorProperties.PLUGIN_POINT);
             }
-            plugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
+            sourcePlugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
+            destinationPlugins.put(iteratorPlugin.getPluginPointName(), iteratorPlugin);
         }
-        return plugins;
+
+        if (getConnector() != null && getConnector().getMetaDataId() == 0) {
+            return sourcePlugins;
+        } else {
+            return destinationPlugins;
+        }
     }
 
     @Override

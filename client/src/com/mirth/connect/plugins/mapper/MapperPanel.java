@@ -55,7 +55,7 @@ public class MapperPanel extends EditorPanel<Step> {
     private static final String REGEX_COLUMN_NAME = "Regular Expression";
     private static final String REPLACEMENT_COLUMN_NAME = "Replace With";
 
-    private List<ActionListener> nameActionListeners = new ArrayList<ActionListener>();
+    private ActionListener nameActionListener;
 
     public MapperPanel() {
         initComponents();
@@ -128,8 +128,8 @@ public class MapperPanel extends EditorPanel<Step> {
     }
 
     @Override
-    public void addNameActionListener(ActionListener actionListener) {
-        nameActionListeners.add(actionListener);
+    public void setNameActionListener(ActionListener actionListener) {
+        nameActionListener = actionListener;
     }
 
     private void setRegexProperties(List<Pair<String, String>> properties) {
@@ -186,8 +186,8 @@ public class MapperPanel extends EditorPanel<Step> {
             private void documentChanged(DocumentEvent evt) {
                 try {
                     String text = evt.getDocument().getText(0, evt.getDocument().getLength());
-                    for (ActionListener actionListener : nameActionListeners) {
-                        actionListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, text));
+                    if (nameActionListener != null) {
+                        nameActionListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, text));
                     }
                 } catch (BadLocationException e) {
                     e.printStackTrace();

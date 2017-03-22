@@ -102,7 +102,7 @@ public class XsltStepPanel extends EditorPanel<Step> {
     }
 
     @Override
-    public void addNameActionListener(ActionListener actionListener) {}
+    public void setNameActionListener(ActionListener actionListener) {}
 
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);

@@ -54,6 +54,10 @@ public abstract class FilterTransformerTypePlugin<T extends FilterTransformer<C>
         return false;
     }
 
+    public boolean onlySourceConnector() {
+        return false;
+    }
+
     public C getDefaults() {
         return getPanel().getDefaults();
     }

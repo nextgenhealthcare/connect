@@ -116,7 +116,7 @@ public class MessageBuilderPanel extends EditorPanel<Step> {
     }
 
     @Override
-    public void addNameActionListener(ActionListener actionListener) {}
+    public void setNameActionListener(ActionListener actionListener) {}
 
     private void setRegexProperties(List<Pair<String, String>> properties) {
         Object[][] tableData = new Object[properties.size()][2];

@@ -1,0 +1,13 @@
+<pluginMetaData path="destinationsetfilter">
+	<name>Destination Set Filter Step</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.5.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>Provides an easy method in the source transformer to filter destinations from being executed.</description>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.destinationsetfilter.DestinationSetFilterPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="destinationsetfilter-client.jar" />
+	<library type="SHARED" path="destinationsetfilter-shared.jar" />
+</pluginMetaData>

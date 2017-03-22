@@ -44,6 +44,7 @@
 		<!-- plugins -->
 		<property name="plugins.directoryresource" value="${extensions}/directoryresource" />
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
+		<property name="plugins.destinationsetfilter" value="${extensions}/destinationsetfilter" />
 		<property name="plugins.dicomviewer" value="${extensions}/dicomviewer" />
 		<property name="plugins.extensionmanager" value="${extensions}/extensionmanager" />
 		<property name="plugins.httpauth" value="${extensions}/httpauth" />
@@ -221,6 +222,11 @@
 		<mkdir dir="${plugins.dashboardstatus}" />
 		<jar destfile="${plugins.dashboardstatus}/dashboardstatus-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/dashboardstatus/**" />
+		</jar>
+		
+		<mkdir dir="${plugins.destinationsetfilter}" />
+		<jar destfile="${plugins.destinationsetfilter}/destinationsetfilter-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/destinationsetfilter/**" />
 		</jar>
 
 		<mkdir dir="${plugins.dicomviewer}" />

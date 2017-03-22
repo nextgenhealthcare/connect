@@ -57,6 +57,9 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/dashboardstatus/DashboardConnectorStatusServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datapruner/DataPrunerServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datatypes/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/destinationsetfilter/DestinationSetFilterStep"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/destinationsetfilter/DestinationSetFilterStep$Behavior"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/destinationsetfilter/DestinationSetFilterStep$Condition"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/globalmapviewer/GlobalMapServletInterface"/>

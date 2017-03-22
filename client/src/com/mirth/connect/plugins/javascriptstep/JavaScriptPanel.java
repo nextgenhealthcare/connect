@@ -74,7 +74,7 @@ public class JavaScriptPanel extends EditorPanel<Step> {
     public void resetInvalidProperties() {}
 
     @Override
-    public void addNameActionListener(ActionListener actionListener) {}
+    public void setNameActionListener(ActionListener actionListener) {}
 
     public void setContextType(ContextType contextType) {
         scriptTextArea.setContextType(contextType);

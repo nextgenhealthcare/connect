@@ -68,7 +68,7 @@ public class ExternalScriptPanel extends EditorPanel<Rule> {
     }
 
     @Override
-    public void addNameActionListener(ActionListener actionListener) {}
+    public void setNameActionListener(ActionListener actionListener) {}
 
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
