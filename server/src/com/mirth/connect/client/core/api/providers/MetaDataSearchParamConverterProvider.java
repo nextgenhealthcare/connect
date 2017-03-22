@@ -87,9 +87,10 @@ public class MetaDataSearchParamConverterProvider implements ParamConverterProvi
         public static MetaDataSearch valueOf(String value) {
             if (value != null) {
                 for (MetaDataSearchOperator operator : MetaDataSearchOperator.values()) {
-                    int index = value.indexOf(operator.toString());
+                    String operatorValue = operator.toString();
+                    int index = value.indexOf(operatorValue);
                     if (index > 0) {
-                        return new MetaDataSearch(value.substring(0, index).trim(), operator, value.substring(index + 1).trim());
+                        return new MetaDataSearch(value.substring(0, index).trim(), operator, value.substring(index + operatorValue.length()).trim());
                     }
                 }
             }
