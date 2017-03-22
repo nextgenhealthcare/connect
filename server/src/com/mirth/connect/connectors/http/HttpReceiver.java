@@ -186,6 +186,10 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
     @Override
     public void onUndeploy() throws ConnectorTaskException {
+        if (authenticatorProvider != null) {
+            authenticatorProvider.shutdown();
+        }
+
         configuration.configureConnectorUndeploy(this);
     }
 
@@ -309,10 +313,6 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             } catch (Exception e) {
                 firstCause = new ConnectorTaskException("Failed to stop HTTP Listener", e.getCause());
             }
-        }
-
-        if (authenticatorProvider != null) {
-            authenticatorProvider.shutdown();
         }
 
         if (firstCause != null) {
