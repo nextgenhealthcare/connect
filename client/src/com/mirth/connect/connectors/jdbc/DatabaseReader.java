@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
@@ -36,6 +39,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.util.SQLParserUtil;
 import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
@@ -118,6 +122,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         properties.setUsername(databaseUsernameField.getText());
         properties.setPassword(new String(databasePasswordField.getPassword()));
         properties.setKeepConnectionOpen(keepConnOpenYes.isSelected());
+        properties.setAggregateResults(aggregateResultsYesRadio.isSelected());
         properties.setCacheResults(cacheResultsYesButton.isSelected());
         properties.setFetchSize(fetchSizeField.getText());
         properties.setRetryCount(retryCountField.getText());
@@ -172,6 +177,14 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         } else {
             cacheResultsNoButton.setSelected(true);
             cacheResultsNoButtonActionPerformed(null);
+        }
+
+        if (props.isAggregateResults()) {
+            aggregateResultsYesRadio.setSelected(true);
+            aggregateResultsActionPerformed(true);
+        } else {
+            aggregateResultsNoRadio.setSelected(true);
+            aggregateResultsActionPerformed(false);
         }
 
         fetchSizeField.setText(props.getFetchSize());
@@ -574,6 +587,36 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         generateUpdateLabel.setText("Generate:");
 
+        aggregateResultsLabel = new JLabel("Aggregate Results:");
+        ButtonGroup aggregateResultsButtonGroup = new ButtonGroup();
+        String toolTipText = "<html>If enabled, all rows returned in the query will be<br/>aggregated into a single XML message. Note that all rows<br/>will be read into memory at once, so use this with caution.</html>";
+
+        aggregateResultsYesRadio = new MirthRadioButton("Yes");
+        aggregateResultsYesRadio.setBackground(getBackground());
+        aggregateResultsYesRadio.setToolTipText(toolTipText);
+        aggregateResultsYesRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                if (!parent.alertOption(parent, "<html><b>Warning:</b> All rows returned by the query below will be aggregated<br/>into a single message. This could cause memory issues if you are<br/>reading in large amounts of data. Consider using LIMIT to limit<br/>the number of rows to return. Are you sure you wish to continue?</html>")) {
+                    aggregateResultsNoRadio.setSelected(true);
+                } else {
+                    aggregateResultsActionPerformed(true);
+                }
+            }
+        });
+        aggregateResultsButtonGroup.add(aggregateResultsYesRadio);
+
+        aggregateResultsNoRadio = new MirthRadioButton("No");
+        aggregateResultsNoRadio.setBackground(getBackground());
+        aggregateResultsNoRadio.setToolTipText(toolTipText);
+        aggregateResultsNoRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                aggregateResultsActionPerformed(false);
+            }
+        });
+        aggregateResultsButtonGroup.add(aggregateResultsNoRadio);
+
         cacheResultsNoButton.setBackground(new java.awt.Color(255, 255, 255));
         cacheResultsNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup4.add(cacheResultsNoButton);
@@ -672,6 +715,9 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         add(keepConnOpenLabel, "newline, right");
         add(keepConnOpenYes, "split");
         add(keepConnOpenNo);
+        add(aggregateResultsLabel, "newline, right");
+        add(aggregateResultsYesRadio, "split");
+        add(aggregateResultsNoRadio);
         add(cacheResultsLabel, "newline, right");
         add(cacheResultsYesButton, "split");
         add(cacheResultsNoButton);
@@ -728,15 +774,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         keepConnOpenNo.setEnabled(true);
         keepConnOpenYes.setEnabled(true);
 
-        cacheResultsLabel.setEnabled(true);
-        cacheResultsNoButton.setEnabled(true);
-        cacheResultsYesButton.setEnabled(true);
-
-        if (cacheResultsYesButton.isSelected()) {
-            cacheResultsYesButtonActionPerformed(null);
-        } else {
-            cacheResultsNoButtonActionPerformed(null);
-        }
+        aggregateResultsActionPerformed(aggregateResultsYesRadio.isSelected());
 
         update();
 
@@ -801,8 +839,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     }
 
     private void cacheResultsNoButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        fetchSizeField.setEnabled(true);
-        fetchSizeLabel.setEnabled(true);
+        fetchSizeField.setEnabled(useScriptNo.isSelected());
+        fetchSizeLabel.setEnabled(useScriptNo.isSelected());
     }
 
     private void updateNeverActionPerformed(java.awt.event.ActionEvent evt) {
@@ -933,7 +971,14 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         }
 
         StringBuilder connectionString = new StringBuilder();
-        connectionString.append("// This update script will be executed once for every result returned from the above query.\n");
+        if (updateEach.isSelected()) {
+            connectionString.append("// This update script will be executed once for every result returned from the above query.\n");
+        } else {
+            connectionString.append("// This update script will be executed once after all results have been processed.\n");
+        }
+        if (aggregateResultsYesRadio.isSelected()) {
+            connectionString.append("// If \"Aggregate Results\" is enabled, you have access to \"results\",\n// a List of Map objects representing all rows returned from the above query.\n");
+        }
         connectionString.append("var dbConn;\n");
         connectionString.append("\ntry {\n\tdbConn = DatabaseConnectionFactory.createDatabaseConnection('");
         connectionString.append(driver + "','" + databaseURLField.getText() + "','");
@@ -941,6 +986,37 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         connectionString.append("\n\tif (dbConn) { \n\t\tdbConn.close();\n\t}\n}");
 
         return connectionString.toString();
+    }
+
+    private void aggregateResultsActionPerformed(boolean aggregateResults) {
+        if (aggregateResults) {
+            cacheResultsYesButton.setSelected(true);
+            cacheResultsYesButtonActionPerformed(null);
+            cacheResultsLabel.setEnabled(false);
+            cacheResultsYesButton.setEnabled(false);
+            cacheResultsNoButton.setEnabled(false);
+
+            updateEach.setText("For each row");
+            updateEach.setToolTipText("<html>Run the post-process statement/script for each row in the result set.</html>");
+
+            updateOnce.setText("Once for all rows");
+            updateOnce.setToolTipText("<html>Run the post-process statement/script only once.<br/>If JavaScript mode is used, a List of Maps representing all rows<br/>in the result set will be available as the variable \"results\".</html>");
+        } else {
+            cacheResultsLabel.setEnabled(useScriptNo.isSelected());
+            cacheResultsYesButton.setEnabled(useScriptNo.isSelected());
+            cacheResultsNoButton.setEnabled(useScriptNo.isSelected());
+            if (cacheResultsYesButton.isSelected()) {
+                cacheResultsYesButtonActionPerformed(null);
+            } else {
+                cacheResultsNoButtonActionPerformed(null);
+            }
+
+            updateEach.setText("After each message");
+            updateEach.setToolTipText("<html>Run the post-process statement/script after each message finishes processing.</html>");
+
+            updateOnce.setText("Once after all messages");
+            updateOnce.setToolTipText("<html>Run the post-process statement/script only after all messages have finished processing.</html>");
+        }
     }
 
     private javax.swing.ButtonGroup buttonGroup1;
@@ -969,6 +1045,9 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     private javax.swing.JLabel keepConnOpenLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton keepConnOpenNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton keepConnOpenYes;
+    private JLabel aggregateResultsLabel;
+    private JRadioButton aggregateResultsYesRadio;
+    private JRadioButton aggregateResultsNoRadio;
     private javax.swing.JLabel passwordLabel;
     private com.mirth.connect.client.ui.components.MirthTextField retryCountField;
     private javax.swing.JLabel retryCountLabel;

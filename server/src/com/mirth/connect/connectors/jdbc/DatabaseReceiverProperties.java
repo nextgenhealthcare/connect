@@ -38,6 +38,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
     private String select;
     private String update;
     private boolean useScript;
+    private boolean aggregateResults;
     private boolean cacheResults;
     private boolean keepConnectionOpen;
     private int updateMode;
@@ -56,6 +57,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
         select = "";
         update = "";
         useScript = false;
+        aggregateResults = false;
         cacheResults = true;
         keepConnectionOpen = true;
         updateMode = UPDATE_NEVER;
@@ -139,6 +141,14 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
 
     public void setUseScript(boolean useScript) {
         this.useScript = useScript;
+    }
+
+    public boolean isAggregateResults() {
+        return aggregateResults;
+    }
+
+    public void setAggregateResults(boolean aggregateResults) {
+        this.aggregateResults = aggregateResults;
     }
 
     public boolean isCacheResults() {
@@ -246,6 +256,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
         purgedProperties.put("selectLines", PurgeUtil.countLines(select));
         purgedProperties.put("updateLines", PurgeUtil.countLines(update));
         purgedProperties.put("useScript", useScript);
+        purgedProperties.put("aggregateResults", aggregateResults);
         purgedProperties.put("cacheResults", cacheResults);
         purgedProperties.put("keepConnectionOpen", keepConnectionOpen);
         purgedProperties.put("updateMode", updateMode);

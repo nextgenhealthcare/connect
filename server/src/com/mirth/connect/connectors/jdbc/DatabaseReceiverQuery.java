@@ -236,6 +236,11 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     }
 
     @Override
+    public void runAggregatePostProcess(List<Map<String, Object>> resultsList, ConnectorMessage mergedConnectorMessage) throws DatabaseReceiverException, InterruptedException {
+        // Let afterPoll() handle it
+    }
+
+    @Override
     public void afterPoll() throws DatabaseReceiverException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_ONCE) {
             try {

@@ -15,12 +15,14 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
@@ -41,6 +43,7 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -152,13 +155,38 @@ public class DatabaseReceiver extends PollConnector {
     private void processResultSet(ResultSet resultSet) throws SQLException, InterruptedException, DatabaseReceiverException {
         BasicRowProcessor basicRowProcessor = new BasicRowProcessor();
 
-        // loop through the ResultSet rows and convert them into hash maps for processing
-        while (resultSet.next()) {
-            if (isTerminated()) {
-                return;
+        try {
+            List<Map<String, Object>> resultsList = null;
+            if (connectorProperties.isAggregateResults()) {
+                resultsList = new ArrayList<Map<String, Object>>();
             }
 
-            processRecord((Map<String, Object>) basicRowProcessor.toMap(resultSet));
+            // loop through the ResultSet rows and convert them into hash maps for processing
+            while (resultSet.next()) {
+                if (isTerminated()) {
+                    return;
+                }
+
+                Map<String, Object> resultMap = (Map<String, Object>) basicRowProcessor.toMap(resultSet);
+
+                if (connectorProperties.isAggregateResults()) {
+                    resultsList.add(resultMap);
+                } else {
+                    processRecord(resultMap);
+                }
+            }
+
+            if (connectorProperties.isAggregateResults() && CollectionUtils.isNotEmpty(resultsList)) {
+                if (isTerminated()) {
+                    return;
+                }
+                processAggregateRecord(resultsList);
+            }
+        } catch (Exception e) {
+            if (e instanceof DatabaseReceiverException) {
+                throw (DatabaseReceiverException) e;
+            }
+            throw new DatabaseReceiverException(e);
         }
     }
 
@@ -217,6 +245,55 @@ public class DatabaseReceiver extends PollConnector {
             logger.error(errorMessage, e);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), errorMessage, e));
         }
+    }
+
+    private void processAggregateRecord(List<Map<String, Object>> resultsList) throws Exception {
+        if (isProcessBatch()) {
+            BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(resultsListToXml(resultsList)));
+
+            dispatchBatchMessage(batchRawMessage, new AggregateResponseHandler(resultsList));
+        } else {
+            DispatchResult dispatchResult = null;
+
+            try {
+                dispatchResult = dispatchRawMessage(new RawMessage(resultsListToXml(resultsList)));
+            } finally {
+                finishDispatch(dispatchResult);
+            }
+
+            runAggregatePostProcess(dispatchResult, resultsList);
+        }
+    }
+
+    private void runAggregatePostProcess(DispatchResult dispatchResult, List<Map<String, Object>> resultsList) throws Exception {
+        // If the message was persisted (dispatchResult != null), then run the post-process SQL
+        if (dispatchResult != null) {
+            if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_ONCE) {
+                // Run the post-process SQL once, passing in all results
+                if (dispatchResult.getProcessedMessage() != null) {
+                    delegate.runAggregatePostProcess(resultsList, dispatchResult.getProcessedMessage().getMergedConnectorMessage());
+                } else {
+                    delegate.runAggregatePostProcess(resultsList, null);
+                }
+            } else if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_EACH) {
+                // Iterate through each row and run the post-process SQL
+                for (Map<String, Object> resultMap : resultsList) {
+                    if (dispatchResult.getProcessedMessage() != null) {
+                        delegate.runPostProcess(resultMap, dispatchResult.getProcessedMessage().getMergedConnectorMessage());
+                    } else {
+                        delegate.runPostProcess(resultMap, null);
+                    }
+                }
+            }
+        }
+    }
+
+    private String resultsListToXml(List<Map<String, Object>> resultsList) throws Exception {
+        DonkeyElement results = new DonkeyElement("<results/>");
+        for (Map<String, Object> resultMap : resultsList) {
+            results.addChildElementFromXml(resultMapToXml(resultMap));
+        }
+        return results.toXml();
     }
 
     /**
@@ -303,6 +380,24 @@ public class DatabaseReceiver extends PollConnector {
 
         @Override
         public void responseError(ChannelException e) {}
+    }
 
+    public class AggregateResponseHandler extends ResponseHandler {
+
+        private List<Map<String, Object>> resultsList;
+
+        public AggregateResponseHandler(List<Map<String, Object>> resultsList) {
+            this.resultsList = resultsList;
+        }
+
+        @Override
+        public void responseProcess(int batchSequenceId, boolean batchComplete) throws Exception {
+            if ((isUseFirstResponse() && batchSequenceId == 1) || (!isUseFirstResponse() && batchComplete)) {
+                runAggregatePostProcess(dispatchResult, resultsList);
+            }
+        }
+
+        @Override
+        public void responseError(ChannelException e) {}
     }
 }

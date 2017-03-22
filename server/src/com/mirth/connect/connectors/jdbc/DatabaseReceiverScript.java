@@ -145,10 +145,19 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     }
 
     @Override
+    public void runAggregatePostProcess(List<Map<String, Object>> resultsList, ConnectorMessage mergedConnectorMessage) throws DatabaseReceiverException, InterruptedException {
+        try {
+            JavaScriptUtil.execute(new UpdateTask(getContextFactory(), resultsList, mergedConnectorMessage));
+        } catch (Exception e) {
+            throw new DatabaseReceiverException(e);
+        }
+    }
+
+    @Override
     public void afterPoll() throws InterruptedException, DatabaseReceiverException {
-        if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_ONCE) {
+        if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_ONCE && !connectorProperties.isAggregateResults()) {
             try {
-                JavaScriptUtil.execute(new UpdateTask(getContextFactory(), null, null));
+                JavaScriptUtil.execute(new UpdateTask(getContextFactory(), null, null, null));
             } catch (Exception e) {
                 throw new DatabaseReceiverException(e);
             }
@@ -174,11 +183,21 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
     private class UpdateTask extends JavaScriptTask<Object> {
         private Map<String, Object> resultMap;
+        private List<Map<String, Object>> resultsList;
         private ConnectorMessage mergedConnectorMessage;
 
         public UpdateTask(MirthContextFactory contextFactory, Map<String, Object> resultMap, ConnectorMessage mergedConnectorMessage) {
+            this(contextFactory, resultMap, null, mergedConnectorMessage);
+        }
+
+        public UpdateTask(MirthContextFactory contextFactory, List<Map<String, Object>> resultsList, ConnectorMessage mergedConnectorMessage) {
+            this(contextFactory, null, resultsList, mergedConnectorMessage);
+        }
+
+        public UpdateTask(MirthContextFactory contextFactory, Map<String, Object> resultMap, List<Map<String, Object>> resultsList, ConnectorMessage mergedConnectorMessage) {
             super(contextFactory, connector.getConnectorProperties().getName() + " Update", connector);
             this.resultMap = resultMap;
+            this.resultsList = resultsList;
             this.mergedConnectorMessage = mergedConnectorMessage;
         }
 
@@ -195,6 +214,9 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
                 if (resultMap != null) {
                     scope.put("resultMap", scope, Context.javaToJS(resultMap, scope));
+                }
+                if (resultsList != null) {
+                    scope.put("results", scope, Context.javaToJS(resultsList, scope));
                 }
 
                 return JavaScriptUtil.executeScript(this, updateScriptId, scope, connector.getChannelId(), "Source");
