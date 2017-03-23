@@ -563,7 +563,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                     }
                     logger.debug("Finished invoking web service, got result.");
 
-                    // Automatically accept message; leave it up to the response transformer to find SOAP faults
+                    // Automatically accept message; if a SOAP fault occurred an exception will have been thrown
                     responseStatus = Status.SENT;
                 } catch (Throwable e) {
                     // Unwrap the exception if it came from the executor
@@ -597,22 +597,23 @@ public class WebServiceDispatcher extends DestinationConnector {
                         // Replace the endpoint with the redirected URL
                         dispatch.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, location);
                     } else {
-                        // Leave the response status as QUEUED for NoRouteToHostException and ConnectException, otherwise ERROR
                         if (e instanceof NoRouteToHostException || ((e.getCause() != null) && (e.getCause() instanceof NoRouteToHostException))) {
                             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("HTTP transport error", e);
                             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "HTTP transport error", e);
                             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "HTTP transport error.", e));
                         } else if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
                             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Connection refused.", e);
+                            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Connection refused", e);
                             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Connection refused.", e));
                         } else {
                             if (e instanceof SOAPFaultException) {
+                                // Only set the status to ERROR if a SOAP fault occurred
+                                responseStatus = Status.ERROR;
                                 try {
                                     responseData = new DonkeyElement(((SOAPFaultException) e).getFault()).toXml();
                                 } catch (DonkeyElementException e2) {
                                 }
                             }
-                            responseStatus = Status.ERROR;
                             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
                             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error invoking web service", e);
                             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error invoking web service.", e));
