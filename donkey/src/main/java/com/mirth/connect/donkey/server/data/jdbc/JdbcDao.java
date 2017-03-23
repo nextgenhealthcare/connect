@@ -1145,6 +1145,11 @@ public class JdbcDao implements DonkeyDao {
             values.put("localChannelId", getLocalChannelId(channelId));
 
             statement = connection.createStatement();
+
+            if (querySource.queryExists("lockMessageSequenceTable")) {
+                statement.executeUpdate(querySource.getQuery("lockMessageSequenceTable", values));
+            }
+
             resultSet = statement.executeQuery(querySource.getQuery("getNextMessageId", values));
             resultSet.next();
             long id = resultSet.getLong(1);

@@ -204,10 +204,13 @@
         DELETE FROM D_CHANNELS WHERE LOCAL_CHANNEL_ID = ${localChannelId}
 	</query>
 	
+	<query id="lockMessageSequenceTable">
+		LOCK TABLE D_MSQ${localChannelId} IN EXCLUSIVE MODE
+	</query>
+	
 	<query id="getNextMessageId">
 		SELECT ID
 		FROM D_MSQ${localChannelId}
-		FOR UPDATE
 	</query>
 
 	<query id="incrementMessageIdSequence">
