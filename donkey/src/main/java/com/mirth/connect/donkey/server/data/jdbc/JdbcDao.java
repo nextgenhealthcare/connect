@@ -389,26 +389,64 @@ public class JdbcDao implements DonkeyDao {
         PreparedStatement statement;
 
         try {
+            /*
+             * Indicates whether case statements are used in the update statement, in which case the
+             * number of bound parameters for each statistic will double.
+             */
+            boolean usingCase = false;
+
             if (metaDataId == null) {
-                statement = prepareStatement("updateChannelStatistics", channelId);
+                if (querySource.queryExists("updateChannelStatisticsWithCase")) {
+                    usingCase = true;
+                    statement = prepareStatement("updateChannelStatisticsWithCase", channelId);
+                } else {
+                    statement = prepareStatement("updateChannelStatistics", channelId);
+                }
             } else {
-                statement = prepareStatement("updateConnectorStatistics", channelId);
+                if (querySource.queryExists("updateConnectorStatisticsWithCase")) {
+                    usingCase = true;
+                    statement = prepareStatement("updateConnectorStatisticsWithCase", channelId);
+                } else {
+                    statement = prepareStatement("updateConnectorStatistics", channelId);
+                }
             }
 
-            statement.setLong(1, received);
-            statement.setLong(2, received);
-            statement.setLong(3, filtered);
-            statement.setLong(4, filtered);
-            statement.setLong(5, sent);
-            statement.setLong(6, sent);
-            statement.setLong(7, error);
-            statement.setLong(8, error);
+            // Keep track of the index since it will change depending on whether case statements are used
+            int paramIndex = 1;
+
+            if (usingCase) {
+                statement.setLong(paramIndex++, received);
+                statement.setLong(paramIndex++, received);
+                statement.setLong(paramIndex++, received);
+                statement.setLong(paramIndex++, received);
+                statement.setLong(paramIndex++, filtered);
+                statement.setLong(paramIndex++, filtered);
+                statement.setLong(paramIndex++, filtered);
+                statement.setLong(paramIndex++, filtered);
+                statement.setLong(paramIndex++, sent);
+                statement.setLong(paramIndex++, sent);
+                statement.setLong(paramIndex++, sent);
+                statement.setLong(paramIndex++, sent);
+                statement.setLong(paramIndex++, error);
+                statement.setLong(paramIndex++, error);
+                statement.setLong(paramIndex++, error);
+                statement.setLong(paramIndex++, error);
+            } else {
+                statement.setLong(paramIndex++, received);
+                statement.setLong(paramIndex++, received);
+                statement.setLong(paramIndex++, filtered);
+                statement.setLong(paramIndex++, filtered);
+                statement.setLong(paramIndex++, sent);
+                statement.setLong(paramIndex++, sent);
+                statement.setLong(paramIndex++, error);
+                statement.setLong(paramIndex++, error);
+            }
 
             if (metaDataId != null) {
-                statement.setInt(9, metaDataId);
-                statement.setString(10, statsServerId);
+                statement.setInt(paramIndex++, metaDataId);
+                statement.setString(paramIndex++, statsServerId);
             } else {
-                statement.setString(9, statsServerId);
+                statement.setString(paramIndex++, statsServerId);
             }
 
             if (statement.executeUpdate() == 0) {
