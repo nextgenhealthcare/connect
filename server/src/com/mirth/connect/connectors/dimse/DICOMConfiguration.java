@@ -9,6 +9,9 @@
 
 package com.mirth.connect.connectors.dimse;
 
+import java.util.Map;
+
+import org.dcm4che2.net.Association;
 import org.dcm4che2.net.NetworkConnection;
 import org.dcm4che2.tool.dcmrcv.MirthDcmRcv;
 import org.dcm4che2.tool.dcmsnd.MirthDcmSnd;
@@ -24,4 +27,6 @@ public interface DICOMConfiguration {
     public void configureDcmRcv(MirthDcmRcv dcmrcv, DICOMReceiver connector, DICOMReceiverProperties connectorProperties) throws Exception;
 
     public void configureDcmSnd(MirthDcmSnd dcmsnd, DICOMDispatcher connector, DICOMDispatcherProperties connectorProperties) throws Exception;
+
+    public Map<String, Object> getCStoreRequestInformation(Association as);
 }

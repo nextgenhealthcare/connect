@@ -9,6 +9,10 @@
 
 package com.mirth.connect.connectors.dimse;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.dcm4che2.net.Association;
 import org.dcm4che2.net.NetworkConnection;
 import org.dcm4che2.tool.dcmrcv.MirthDcmRcv;
 import org.dcm4che2.tool.dcmsnd.MirthDcmSnd;
@@ -45,5 +49,10 @@ public class DefaultDICOMConfiguration implements DICOMConfiguration {
     @Override
     public void configureDcmSnd(MirthDcmSnd dcmsnd, DICOMDispatcher connector, DICOMDispatcherProperties connectorProperties) throws Exception {
         DICOMConfigurationUtil.configureDcmSnd(dcmsnd, connector, connectorProperties, protocols);
+    }
+
+    @Override
+    public Map<String, Object> getCStoreRequestInformation(Association as) {
+        return new HashMap<String, Object>();
     }
 }
