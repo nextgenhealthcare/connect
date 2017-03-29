@@ -45,6 +45,7 @@ public class Migrate3_5_0 extends Migrator implements ConfigurationMigrator {
 
     @Override
     public void migrate() throws MigrationException {
+        executeScript(getDatabaseType() + "-3.4.2-3.5.0.sql");
         migrateChannelMetadata();
     }
 
