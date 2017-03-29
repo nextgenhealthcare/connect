@@ -32,7 +32,11 @@ public class Permissions {
     // Messages
     public static final String MESSAGES_VIEW = "viewMessages";
     public static final String MESSAGES_REMOVE = "removeMessages";
+    public static final String MESSAGES_REMOVE_RESULTS = "removeResults";
+    public static final String MESSAGES_REMOVE_ALL = "removeAllMessages";
     public static final String MESSAGES_PROCESS = "processMessages";
+    public static final String MESSAGES_REPROCESS = "reprocessMessages";
+    public static final String MESSAGES_REPROCESS_RESULTS = "reprocessResults";
     public static final String MESSAGES_IMPORT = "importMessages";
     public static final String MESSAGES_EXPORT_SERVER = "exportMessagesServer";
 

@@ -17,14 +17,22 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.components.ItemSelectionTable;
 import com.mirth.connect.client.ui.components.ItemSelectionTableModel;
@@ -35,10 +43,11 @@ public class ReprocessMessagesDialog extends MirthDialog {
 
     private Frame parent;
     private MessageFilter filter = null;
+    private Long messageId = null;
     private String channelId;
     private boolean showWarning;
 
-    public ReprocessMessagesDialog(String channelId, MessageFilter filter, Map<Integer, String> destinationsConnectors, Integer selectedMetaDataId, boolean showWarning) {
+    public ReprocessMessagesDialog(String channelId, MessageFilter filter, Long messageId, Map<Integer, String> destinationsConnectors, Integer selectedMetaDataId, boolean showWarning) {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         this.showWarning = showWarning;
@@ -46,6 +55,7 @@ public class ReprocessMessagesDialog extends MirthDialog {
         initLayout();
         this.channelId = channelId;
         this.filter = filter;
+        this.messageId = messageId;
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
         setResizable(false);
@@ -83,11 +93,20 @@ public class ReprocessMessagesDialog extends MirthDialog {
     }
 
     private void initComponents() {
+        warningPane = new JEditorPane("text/html", "");
+        warningPane.setBorder(BorderFactory.createEmptyBorder());
+        warningPane.setBackground(getBackground());
+        warningPane.setEditable(false);
+        HTMLEditorKit editorKit = new HTMLEditorKit();
+        StyleSheet styleSheet = editorKit.getStyleSheet();
+        styleSheet.addRule(".reprocess-dialog {font-family:\"Tahoma\";font-size:11;text-align:center}");
+        warningPane.setEditorKit(editorKit);
+        warningPane.setText("<html><span class=\"reprocess-dialog\" style=\"color:#FF0000\"><b>Warning:</b></span> <span class=\"reprocess-dialog\">This will reprocess <b>all</b> results for the current search criteria, including those not listed on the current page. To see how many messages will be reprocessed, close this dialog and click the Count button in the upper-right.</span></html>");
+
         overwriteCheckBox = new JCheckBox();
         overwriteCheckBox.setText("Overwrite existing messages and update statistics");
 
         reprocessLabel = new JLabel("Reprocess through the following destinations:");
-        warningLabel = new JLabel("<html>Warning: This will reprocess all results for the current search, including those not listed on the current page.</html>");
 
         includedDestinationsTable = new MirthTable();
         includedDestinationsPane = new JScrollPane(includedDestinationsTable);
@@ -96,6 +115,13 @@ public class ReprocessMessagesDialog extends MirthDialog {
         okButton.setText("OK");
         okButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if (showWarning && Preferences.userNodeForPackage(Mirth.class).getBoolean("showReprocessRemoveMessagesWarning", true)) {
+                    String result = JOptionPane.showInputDialog(ReprocessMessagesDialog.this, "<html>This will reprocess all messages that match the current search criteria.<br/>To see how many messages will be reprocessed, close this dialog and<br/>click the Count button in the upper-right.<br><font size='1'><br></font>Type REPROCESSALL and click the OK button to continue.</html>", "Reprocess Results", JOptionPane.WARNING_MESSAGE);
+                    if (!StringUtils.equals(result, "REPROCESSALL")) {
+                        return;
+                    }
+                }
+
                 ItemSelectionTableModel<Integer, String> model = (ItemSelectionTableModel<Integer, String>) includedDestinationsTable.getModel();
                 List<Integer> metaDataIds = model.getKeys(true);
 
@@ -103,7 +129,7 @@ public class ReprocessMessagesDialog extends MirthDialog {
                     metaDataIds = null;
                 }
 
-                parent.reprocessMessage(channelId, filter, overwriteCheckBox.isSelected(), metaDataIds);
+                parent.reprocessMessage(channelId, filter, messageId, overwriteCheckBox.isSelected(), metaDataIds);
                 ReprocessMessagesDialog.this.dispose();
             }
         });
@@ -122,20 +148,21 @@ public class ReprocessMessagesDialog extends MirthDialog {
         contentPane.setLayout(new MigLayout("insets 12, fill", "[grow]"));
         contentPane.setPreferredSize(new Dimension(425, 330));
 
+        if (showWarning) {
+            contentPane.add(warningPane, "growx, sx, wrap");
+            contentPane.add(new JSeparator(), "growx, gapbottom 6, sx, wrap");
+        }
         contentPane.add(overwriteCheckBox, "wrap");
         contentPane.add(reprocessLabel, "wrap");
         contentPane.add(includedDestinationsPane, "growx, wrap, gapbottom 6");
         contentPane.add(new JSeparator(), "growx, gapbottom 6, span");
-        if (showWarning) {
-            contentPane.add(warningLabel, "wrap");
-        }
         contentPane.add(okButton, "alignx right, width 48, split, span");
         contentPane.add(cancelButton, "alignx right, width 48");
 
         pack();
     }
 
-    private JLabel warningLabel;
+    private JEditorPane warningPane;
     private JCheckBox overwriteCheckBox;
     private JLabel reprocessLabel;
     private JScrollPane includedDestinationsPane;

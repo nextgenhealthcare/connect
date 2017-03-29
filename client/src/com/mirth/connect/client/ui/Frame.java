@@ -967,8 +967,8 @@ public class Frame extends JXFrame {
         addTask(TaskConstants.MESSAGE_REMOVE_ALL, "Remove All Messages", "Remove all messages in this channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
         addTask(TaskConstants.MESSAGE_REMOVE_FILTERED, "Remove Results", "Remove all messages in the current search.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
         addTask(TaskConstants.MESSAGE_REMOVE, "Remove Message", "Remove the selected Message.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
-        addTask(TaskConstants.MESSAGE_REPROCESS_FILTERED, "Reprocess Results", "Reprocess all messages in the current search.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), messageTasks, messagePopupMenu);
-        addTask(TaskConstants.MESSAGE_REPROCESS, "Reprocess Message", "Reprocess the selected message.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), messageTasks, messagePopupMenu);
+        addTask(TaskConstants.MESSAGE_REPROCESS_FILTERED, "Reprocess Results", "Reprocess all messages in the current search.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/reprocess_results.png")), messageTasks, messagePopupMenu);
+        addTask(TaskConstants.MESSAGE_REPROCESS, "Reprocess Message", "Reprocess the selected message.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/reprocess_message.png")), messageTasks, messagePopupMenu);
         addTask(TaskConstants.MESSAGE_VIEW_IMAGE, "View Attachment", "View Attachment", "View the attachment for the selected message.", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/attach.png")), messageTasks, messagePopupMenu);
         addTask(TaskConstants.MESSAGE_EXPORT_ATTACHMENT, "Export Attachment", "Export Attachment", "Export the selected attachment to a file.", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), messageTasks, messagePopupMenu);
         setNonFocusable(messageTasks);
@@ -3442,7 +3442,14 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveFilteredMessages() {
-        if (alertOption(this, "<html>Are you sure you would like to remove all currently filtered messages (including QUEUED) in this channel?<br>Channel must be stopped for unfinished messages to be removed.<br><font size='1'><br></font>WARNING: Removing a Source message will remove all of its destinations.</html>")) {
+        if (alertOption(this, "<html><font color=\"red\"><b>Warning:</b></font> This will remove <b>all</b> results for the current search criteria,<br/>including those not listed on the current page. To see how many messages will<br/>be removed, close this dialog and click the Count button in the upper-right.<br/><font size='1'><br/></font><font color=\"red\"><b>Warning:</b></font> Removing a Source message will remove all of its destinations.<br/><font size='1'><br/></font>Are you sure you would like to remove all messages that match<br/>the current search criteria (including QUEUED) in this channel?<br/>Channel must be stopped for unfinished messages to be removed.</html>")) {
+            if (userPreferences.getBoolean("showReprocessRemoveMessagesWarning", true)) {
+                String result = JOptionPane.showInputDialog(this, "<html>This will remove all messages that match the current search criteria.<br/>To see how many messages will be removed, close this dialog and<br/>click the Count button in the upper-right.<br><font size='1'><br></font>Type REMOVEALL and click the OK button to continue.</html>", "Remove Results", JOptionPane.WARNING_MESSAGE);
+                if (!StringUtils.equals(result, "REMOVEALL")) {
+                    return;
+                }
+            }
+
             final String workingId = startWorking("Removing messages...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3488,13 +3495,7 @@ public class Frame extends JXFrame {
 
                 public Void doInBackground() {
                     try {
-                        MessageFilter filter = new MessageFilter();
-                        filter.setMinMessageId(messageId);
-                        filter.setMaxMessageId(messageId);
-                        List<Integer> metaDataIds = new ArrayList<Integer>();
-                        metaDataIds.add(metaDataId);
-                        filter.setIncludedMetaDataIds(metaDataIds);
-                        mirthClient.removeMessages(channelId, filter);
+                        mirthClient.removeMessage(channelId, messageId, metaDataId);
                     } catch (ClientException e) {
                         SwingUtilities.invokeLater(() -> {
                             alertThrowable(PlatformUI.MIRTH_FRAME, e);
@@ -3518,23 +3519,20 @@ public class Frame extends JXFrame {
     }
 
     public void doReprocessFilteredMessages() {
-        doReprocess(messageBrowser.getMessageFilter(), null, true);
+        doReprocess(messageBrowser.getMessageFilter(), null, null, true);
     }
 
     public void doReprocessMessage() {
         Long messageId = messageBrowser.getSelectedMessageId();
 
         if (messageBrowser.canReprocessMessage(messageId)) {
-            MessageFilter filter = new MessageFilter();
-            filter.setMinMessageId(messageId);
-            filter.setMaxMessageId(messageId);
-            doReprocess(filter, messageBrowser.getSelectedMetaDataId(), false);
+            doReprocess(null, messageId, messageBrowser.getSelectedMetaDataId(), false);
         } else {
             alertError(this, "Message " + messageId + " cannot be reprocessed because no source raw content was found.");
         }
     }
 
-    private void doReprocess(final MessageFilter filter, final Integer selectedMetaDataId, final boolean showWarning) {
+    private void doReprocess(final MessageFilter filter, final Long messageId, final Integer selectedMetaDataId, final boolean showWarning) {
         final String workingId = startWorking("Retrieving Channels...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3550,20 +3548,24 @@ public class Frame extends JXFrame {
                 stopWorking(workingId);
                 Map<Integer, String> destinationConnectors = new LinkedHashMap<Integer, String>();
                 destinationConnectors.putAll(dashboardPanel.getDestinationConnectorNames(messageBrowser.getChannelId()));
-                new ReprocessMessagesDialog(messageBrowser.getChannelId(), filter, destinationConnectors, selectedMetaDataId, showWarning);
+                new ReprocessMessagesDialog(messageBrowser.getChannelId(), filter, messageId, destinationConnectors, selectedMetaDataId, showWarning);
             }
         };
 
         worker.execute();
     }
 
-    public void reprocessMessage(final String channelId, final MessageFilter filter, final boolean replace, final Collection<Integer> reprocessMetaDataIds) {
+    public void reprocessMessage(final String channelId, final MessageFilter filter, final Long messageId, final boolean replace, final Collection<Integer> reprocessMetaDataIds) {
         final String workingId = startWorking("Reprocessing messages...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
                 try {
-                    mirthClient.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds);
+                    if (filter != null) {
+                        mirthClient.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds);
+                    } else if (messageId != null) {
+                        mirthClient.reprocessMessage(channelId, messageId, replace, reprocessMetaDataIds);
+                    }
                 } catch (ClientException e) {
                     SwingUtilities.invokeLater(() -> {
                         alertThrowable(PlatformUI.MIRTH_FRAME, e);

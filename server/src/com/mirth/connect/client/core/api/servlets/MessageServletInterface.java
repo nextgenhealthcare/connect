@@ -21,7 +21,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -240,7 +239,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @POST
     @Path("/{channelId}/messages/_reprocess")
     @ApiOperation("Reprocesses messages through a channel by specific filter criteria.")
-    @MirthOperation(name = "reprocessMessages", display = "Reprocess messages", permission = Permissions.MESSAGES_PROCESS, type = ExecuteType.ASYNC)
+    @MirthOperation(name = "reprocessMessages", display = "Reprocess messages", permission = Permissions.MESSAGES_REPROCESS_RESULTS, type = ExecuteType.ASYNC)
     public void reprocessMessages(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("filter") @ApiParam(value = "The MessageFilter object to use to query messages by.", required = true) MessageFilter filter,
@@ -253,7 +252,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Path("/{channelId}/messages/_reprocess")
     @Consumes("")
     @ApiOperation("Reprocesses messages through a channel by specific filter criteria.")
-    @MirthOperation(name = "reprocessMessages", display = "Reprocess messages", permission = Permissions.MESSAGES_PROCESS, type = ExecuteType.ASYNC)
+    @MirthOperation(name = "reprocessMessages", display = "Reprocess messages", permission = Permissions.MESSAGES_REPROCESS_RESULTS, type = ExecuteType.ASYNC)
     public void reprocessMessages(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("minMessageId") @ApiParam(value = "The minimum message ID to query.") @QueryParam("minMessageId") Long minMessageId,
@@ -297,13 +296,14 @@ public interface MessageServletInterface extends BaseServletInterface {
             @Param("reprocessMetaDataIds") @ApiParam(value = "Indicates which destinations to send the message to.") @QueryParam("metaDataId") Set<Integer> reprocessMetaDataIds) throws ClientException;
     // @formatter:on
 
-    @PUT
-    @Path("/{channelId}/messages/{messageId}")
+    @POST
+    @Path("/{channelId}/messages/{messageId}/_reprocess")
     @ApiOperation("Reprocesses and overwrites a single message.")
-    @MirthOperation(name = "reprocessMessages", display = "Reprocess messages", permission = Permissions.MESSAGES_PROCESS, type = ExecuteType.ASYNC)
+    @MirthOperation(name = "reprocessMessage", display = "Reprocess messages", permission = Permissions.MESSAGES_REPROCESS, type = ExecuteType.ASYNC)
     public void reprocessMessage(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("messageId") @ApiParam(value = "The ID of the message.", required = true) @PathParam("messageId") Long messageId,
+            @Param("replace") @ApiParam(value = "If true, the message will overwrite the current one", defaultValue = "false") @QueryParam("replace") boolean replace,
             @Param("filterDestinations") @ApiParam(value = "If true, the metaDataId parameter will be used to determine which destinations to reprocess the message through.", defaultValue = "false") @QueryParam("filterDestinations") boolean filterDestinations,
             @Param("reprocessMetaDataIds") @ApiParam(value = "Indicates which destinations to send the message to.") @QueryParam("metaDataId") Set<Integer> reprocessMetaDataIds) throws ClientException;
     // @formatter:on
@@ -311,7 +311,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @POST
     @Path("/{channelId}/messages/_remove")
     @ApiOperation("Remove messages by specific filter criteria.")
-    @MirthOperation(name = "removeMessages", display = "Remove messages", permission = Permissions.MESSAGES_REMOVE, abortable = true)
+    @MirthOperation(name = "removeMessages", display = "Remove messages", permission = Permissions.MESSAGES_REMOVE_RESULTS, abortable = true)
     public void removeMessages(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("filter") @ApiParam(value = "The MessageFilter object to use to query messages by.", required = true) MessageFilter filter) throws ClientException;
@@ -321,7 +321,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Path("/{channelId}/messages")
     @Consumes("")
     @ApiOperation("Remove messages by specific filter criteria.")
-    @MirthOperation(name = "removeMessages", display = "Remove messages", permission = Permissions.MESSAGES_REMOVE, abortable = true)
+    @MirthOperation(name = "removeMessages", display = "Remove messages", permission = Permissions.MESSAGES_REMOVE_RESULTS, abortable = true)
     public void removeMessages(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("minMessageId") @ApiParam(value = "The minimum message ID to query.") @QueryParam("minMessageId") Long minMessageId,
@@ -365,16 +365,17 @@ public interface MessageServletInterface extends BaseServletInterface {
     @DELETE
     @Path("/{channelId}/messages/{messageId}")
     @ApiOperation("Remove a single message by ID.")
-    @MirthOperation(name = "removeMessages", display = "Remove messages", permission = Permissions.MESSAGES_REMOVE, abortable = true)
+    @MirthOperation(name = "removeMessage", display = "Remove message", permission = Permissions.MESSAGES_REMOVE, abortable = true)
     public void removeMessage(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
-            @Param("messageId") @ApiParam(value = "The ID of the message.", required = true) @PathParam("messageId") Long messageId) throws ClientException;
+            @Param("messageId") @ApiParam(value = "The ID of the message.", required = true) @PathParam("messageId") Long messageId,
+            @Param("metaDataId") @ApiParam(value = "If present, only the specific connector message will be removed. If the metadata ID is 0, the entire message will be removed.") @QueryParam("metaDataId") Integer metaDataId) throws ClientException;
     // @formatter:on
 
     @DELETE
     @Path("/{channelId}/messages/_removeAll")
     @ApiOperation("Removes all messages for the specified channel.")
-    @MirthOperation(name = "clearMessages", display = "Clear messages", permission = Permissions.MESSAGES_REMOVE)
+    @MirthOperation(name = "removeAllMessages", display = "Remove all messages", permission = Permissions.MESSAGES_REMOVE_ALL)
     public void removeAllMessages(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("restartRunningChannels") @ApiParam(value = "If true, currently running channels will be stopped and restarted as part of the remove process. Otherwise, currently running channels will not be included.", defaultValue = "false") @QueryParam("restartRunningChannels") boolean restartRunningChannels,
@@ -384,7 +385,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @DELETE
     @Path("/_removeAllMessages")
     @ApiOperation("Removes all messages for multiple specified channels.")
-    @MirthOperation(name = "clearMessages", display = "Clear messages", permission = Permissions.MESSAGES_REMOVE)
+    @MirthOperation(name = "removeAllMessages", display = "Remove all messages", permission = Permissions.MESSAGES_REMOVE_ALL)
     public void removeAllMessages(// @formatter:off
             @Param("channelIds") @ApiParam(value = "The IDs of the channels.", required = true) @QueryParam("channelId") Set<String> channelIds,
             @Param("restartRunningChannels") @ApiParam(value = "If true, currently running channels will be stopped and restarted as part of the remove process. Otherwise, currently running channels will not be included.", defaultValue = "false") @QueryParam("restartRunningChannels") boolean restartRunningChannels,

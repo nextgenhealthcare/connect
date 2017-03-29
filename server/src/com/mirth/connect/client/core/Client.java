@@ -1721,11 +1721,24 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     /**
      * Reprocesses and overwrites a single message.
      * 
-     * @see MessageServletInterface#reprocessMessages
+     * @see MessageServletInterface#reprocessMessage
+     */
+    public void reprocessMessage(String channelId, Long messageId, boolean replace, Collection<Integer> reprocessMetaDataIds) throws ClientException {
+        Set<Integer> set = null;
+        if (reprocessMetaDataIds != null) {
+            set = new HashSet<Integer>(reprocessMetaDataIds);
+        }
+        getServlet(MessageServletInterface.class).reprocessMessage(channelId, messageId, replace, reprocessMetaDataIds != null, set);
+    }
+
+    /**
+     * Reprocesses and overwrites a single message.
+     * 
+     * @see MessageServletInterface#reprocessMessage
      */
     @Override
-    public void reprocessMessage(String channelId, Long messageId, boolean filterDestinations, Set<Integer> reprocessMetaDataIds) throws ClientException {
-        getServlet(MessageServletInterface.class).reprocessMessage(channelId, messageId, filterDestinations, reprocessMetaDataIds);
+    public void reprocessMessage(String channelId, Long messageId, boolean replace, boolean filterDestinations, Set<Integer> reprocessMetaDataIds) throws ClientException {
+        getServlet(MessageServletInterface.class).reprocessMessage(channelId, messageId, replace, filterDestinations, reprocessMetaDataIds);
     }
 
     /**
@@ -1754,8 +1767,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#removeMessage
      */
     @Override
-    public void removeMessage(String channelId, Long messageId) throws ClientException {
-        getServlet(MessageServletInterface.class).removeMessage(channelId, messageId);
+    public void removeMessage(String channelId, Long messageId, Integer metaDataId) throws ClientException {
+        getServlet(MessageServletInterface.class).removeMessage(channelId, messageId, metaDataId);
     }
 
     /**

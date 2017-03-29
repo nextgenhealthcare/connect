@@ -136,6 +136,12 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             messageBrowserShowAttachmentTypeDialogNoRadio.setSelected(true);
         }
 
+        if (userPreferences.getBoolean("showReprocessRemoveMessagesWarning", true)) {
+            reprocessRemoveMessagesWarningYesRadio.setSelected(true);
+        } else {
+            reprocessRemoveMessagesWarningNoRadio.setSelected(true);
+        }
+
         String importChannelCodeTemplateLibraries = userPreferences.get("importChannelCodeTemplateLibraries", null);
         if (importChannelCodeTemplateLibraries == null) {
             importChannelLibrariesAskRadio.setSelected(true);
@@ -229,6 +235,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             userPreferences.putBoolean("textSearchWarning", textSearchWarningYesRadio.isSelected());
             userPreferences.putBoolean("filterTransformerShowIteratorDialog", filterTransformerShowIteratorYesRadio.isSelected());
             userPreferences.putBoolean("messageBrowserShowAttachmentTypeDialog", messageBrowserShowAttachmentTypeDialogYesRadio.isSelected());
+            userPreferences.putBoolean("showReprocessRemoveMessagesWarning", reprocessRemoveMessagesWarningYesRadio.isSelected());
 
             if (importChannelLibrariesAskRadio.isSelected()) {
                 userPreferences.remove("importChannelCodeTemplateLibraries");
@@ -404,6 +411,20 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         messageBrowserShowAttachmentTypeDialogNoRadio.setToolTipText(toolTipText);
         messageBrowserShowAttachmentTypeDialogButtonGroup.add(messageBrowserShowAttachmentTypeDialogNoRadio);
 
+        reprocessRemoveMessagesWarningLabel = new JLabel("Reprocess/remove messages confirmation:");
+        ButtonGroup reprocessRemoveMessagesWarningButtonGroup = new ButtonGroup();
+        toolTipText = "<html>Show a confirmation dialog in the message browser when reprocessing<br/>or removing multiple messages that forces the user to type<br/>in \"REPROCESSALL\" or \"REMOVEALL\" first before proceeding.</html>";
+
+        reprocessRemoveMessagesWarningYesRadio = new MirthRadioButton("Yes");
+        reprocessRemoveMessagesWarningYesRadio.setBackground(systemSettingsPanel.getBackground());
+        reprocessRemoveMessagesWarningYesRadio.setToolTipText(toolTipText);
+        reprocessRemoveMessagesWarningButtonGroup.add(reprocessRemoveMessagesWarningYesRadio);
+
+        reprocessRemoveMessagesWarningNoRadio = new MirthRadioButton("No");
+        reprocessRemoveMessagesWarningNoRadio.setBackground(systemSettingsPanel.getBackground());
+        reprocessRemoveMessagesWarningNoRadio.setToolTipText(toolTipText);
+        reprocessRemoveMessagesWarningButtonGroup.add(reprocessRemoveMessagesWarningNoRadio);
+
         importChannelLibrariesLabel = new JLabel("Import code template libraries with channels:");
         importChannelLibrariesButtonGroup = new ButtonGroup();
 
@@ -575,6 +596,9 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         systemSettingsPanel.add(messageBrowserShowAttachmentTypeDialogLabel, "newline, right");
         systemSettingsPanel.add(messageBrowserShowAttachmentTypeDialogYesRadio, "split");
         systemSettingsPanel.add(messageBrowserShowAttachmentTypeDialogNoRadio);
+        systemSettingsPanel.add(reprocessRemoveMessagesWarningLabel, "newline, right");
+        systemSettingsPanel.add(reprocessRemoveMessagesWarningYesRadio, "split");
+        systemSettingsPanel.add(reprocessRemoveMessagesWarningNoRadio);
         systemSettingsPanel.add(importChannelLibrariesLabel, "newline, right");
         systemSettingsPanel.add(importChannelLibrariesYesRadio, "split");
         systemSettingsPanel.add(importChannelLibrariesNoRadio);
@@ -689,6 +713,9 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     private ButtonGroup messageBrowserShowAttachmentTypeDialogButtonGroup;
     private JRadioButton messageBrowserShowAttachmentTypeDialogYesRadio;
     private JRadioButton messageBrowserShowAttachmentTypeDialogNoRadio;
+    private JLabel reprocessRemoveMessagesWarningLabel;
+    private JRadioButton reprocessRemoveMessagesWarningYesRadio;
+    private JRadioButton reprocessRemoveMessagesWarningNoRadio;
     private JLabel importChannelLibrariesLabel;
     private ButtonGroup importChannelLibrariesButtonGroup;
     private JRadioButton importChannelLibrariesYesRadio;

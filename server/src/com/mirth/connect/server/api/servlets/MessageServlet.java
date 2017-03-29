@@ -192,11 +192,11 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
 
     @Override
     @CheckAuthorizedChannelId
-    public void reprocessMessage(final String channelId, Long messageId, boolean filterDestinations, Set<Integer> reprocessMetaDataIds) {
+    public void reprocessMessage(final String channelId, Long messageId, boolean replace, boolean filterDestinations, Set<Integer> reprocessMetaDataIds) {
         final MessageFilter filter = new MessageFilter();
         filter.setMinMessageId(messageId);
         filter.setMaxMessageId(messageId);
-        doReprocessMessages(channelId, filter, true, filterDestinations, reprocessMetaDataIds);
+        doReprocessMessages(channelId, filter, replace, filterDestinations, reprocessMetaDataIds);
     }
 
     private void doReprocessMessages(final String channelId, final MessageFilter filter, final boolean replace, boolean filterDestinations, Set<Integer> reprocessMetaDataIds) {
@@ -232,10 +232,15 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
 
     @Override
     @CheckAuthorizedChannelId
-    public void removeMessage(String channelId, Long messageId) {
+    public void removeMessage(String channelId, Long messageId, Integer metaDataId) {
         MessageFilter filter = new MessageFilter();
         filter.setMinMessageId(messageId);
         filter.setMaxMessageId(messageId);
+        if (metaDataId != null) {
+            List<Integer> metaDataIds = new ArrayList<Integer>();
+            metaDataIds.add(metaDataId);
+            filter.setIncludedMetaDataIds(metaDataIds);
+        }
         messageController.removeMessages(channelId, filter);
     }
 

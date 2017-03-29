@@ -10,8 +10,12 @@
 package com.mirth.connect.client.ui;
 
 import java.util.Set;
+import java.util.prefs.Preferences;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.ClientException;
 
@@ -127,6 +131,13 @@ public class RemoveMessagesDialog extends MirthDialog {
     }//GEN-LAST:event_noButtonActionPerformed
 
     private void yesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yesButtonActionPerformed
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("showReprocessRemoveMessagesWarning", true)) {
+            String result = JOptionPane.showInputDialog(this, "<html>This will remove <b>all</b> messages for the selected channel(s).<br><font size='1'><br></font>Type REMOVEALL and click the OK button to continue.</html>", "Remove All Messages", JOptionPane.WARNING_MESSAGE);
+            if (!StringUtils.equals(result, "REMOVEALL")) {
+                return;
+            }
+        }
+        
         final String workingId = parent.startWorking("Removing messages...");
         
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
