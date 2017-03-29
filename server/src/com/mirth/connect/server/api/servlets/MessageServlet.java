@@ -376,12 +376,12 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
         List<MetaDataSearchElement> metaDataSearchList = new ArrayList<MetaDataSearchElement>();
         if (CollectionUtils.isNotEmpty(metaDataSearches)) {
             for (MetaDataSearch search : metaDataSearches) {
-                metaDataSearchList.add(new MetaDataSearchElement(search.getColumnName(), search.getOperator().toString(), search.getValue(), false));
+                metaDataSearchList.add(new MetaDataSearchElement(search.getColumnName(), search.getOperator().toFullString(), search.getValue(), false));
             }
         }
         if (CollectionUtils.isNotEmpty(metaDataCaseInsensitiveSearches)) {
             for (MetaDataSearch search : metaDataCaseInsensitiveSearches) {
-                metaDataSearchList.add(new MetaDataSearchElement(search.getColumnName(), search.getOperator().toString(), search.getValue(), true));
+                metaDataSearchList.add(new MetaDataSearchElement(search.getColumnName(), search.getOperator().toFullString(), search.getValue(), true));
             }
         }
         filter.setMetaDataSearch(metaDataSearchList);

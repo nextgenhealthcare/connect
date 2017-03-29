@@ -11,11 +11,18 @@ package com.mirth.connect.client.core.api.providers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.inject.Singleton;
 import javax.ws.rs.ext.ParamConverter;
 import javax.ws.rs.ext.ParamConverterProvider;
 import javax.ws.rs.ext.Provider;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
 
@@ -86,11 +93,34 @@ public class MetaDataSearchParamConverterProvider implements ParamConverterProvi
 
         public static MetaDataSearch valueOf(String value) {
             if (value != null) {
-                for (MetaDataSearchOperator operator : MetaDataSearchOperator.values()) {
-                    String operatorValue = operator.toString();
-                    int index = value.indexOf(operatorValue);
-                    if (index > 0) {
-                        return new MetaDataSearch(value.substring(0, index).trim(), operator, value.substring(index + operatorValue.length()).trim());
+                value = value.replaceAll("^\\s+", "");
+                int spaceIndex = StringUtils.indexOf(value, ' ');
+
+                if (spaceIndex > 0) {
+                    String columnName = StringUtils.trim(StringUtils.substring(value, 0, spaceIndex));
+                    value = StringUtils.substring(value, spaceIndex).replaceAll("^\\s+", "");
+
+                    // Sort operators by longest first so "<" doesn't match incorrectly on "<=", etc.
+                    List<MetaDataSearchOperator> operators = new ArrayList<MetaDataSearchOperator>(Arrays.asList(MetaDataSearchOperator.values()));
+                    Collections.sort(operators, new Comparator<MetaDataSearchOperator>() {
+                        @Override
+                        public int compare(MetaDataSearchOperator o1, MetaDataSearchOperator o2) {
+                            int diff = o2.toString().length() - o1.toString().length();
+                            return diff == 0 ? o2.toString().compareTo(o1.toString()) : diff;
+                        }
+                    });
+
+                    MetaDataSearchOperator operator = null;
+                    for (MetaDataSearchOperator op : operators) {
+                        if (StringUtils.startsWithIgnoreCase(value, op.toString() + " ")) {
+                            operator = op;
+                            value = StringUtils.removeStartIgnoreCase(value, op.toString() + " ");
+                            break;
+                        }
+                    }
+
+                    if (StringUtils.isNotBlank(columnName) && operator != null) {
+                        return new MetaDataSearch(columnName, operator, value);
                     }
                 }
             }
@@ -99,7 +129,7 @@ public class MetaDataSearchParamConverterProvider implements ParamConverterProvi
 
         @Override
         public String toString() {
-            return new StringBuilder(columnName).append(' ').append(operator).append(' ').append(value).toString();
+            return new StringBuilder(StringUtils.trim(columnName)).append(' ').append(operator).append(' ').append(value).toString();
         }
     }
 }
