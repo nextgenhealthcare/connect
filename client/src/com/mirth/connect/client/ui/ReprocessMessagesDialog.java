@@ -118,6 +118,7 @@ public class ReprocessMessagesDialog extends MirthDialog {
                 if (showWarning && Preferences.userNodeForPackage(Mirth.class).getBoolean("showReprocessRemoveMessagesWarning", true)) {
                     String result = JOptionPane.showInputDialog(ReprocessMessagesDialog.this, "<html>This will reprocess all messages that match the current search criteria.<br/>To see how many messages will be reprocessed, close this dialog and<br/>click the Count button in the upper-right.<br><font size='1'><br></font>Type REPROCESSALL and click the OK button to continue.</html>", "Reprocess Results", JOptionPane.WARNING_MESSAGE);
                     if (!StringUtils.equals(result, "REPROCESSALL")) {
+                        parent.alertWarning(ReprocessMessagesDialog.this, "You must type REPROCESSALL to reprocess results.");
                         return;
                     }
                 }

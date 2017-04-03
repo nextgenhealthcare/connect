@@ -3446,6 +3446,7 @@ public class Frame extends JXFrame {
             if (userPreferences.getBoolean("showReprocessRemoveMessagesWarning", true)) {
                 String result = JOptionPane.showInputDialog(this, "<html>This will remove all messages that match the current search criteria.<br/>To see how many messages will be removed, close this dialog and<br/>click the Count button in the upper-right.<br><font size='1'><br></font>Type REMOVEALL and click the OK button to continue.</html>", "Remove Results", JOptionPane.WARNING_MESSAGE);
                 if (!StringUtils.equals(result, "REMOVEALL")) {
+                    alertWarning(this, "You must type REMOVEALL to remove results.");
                     return;
                 }
             }

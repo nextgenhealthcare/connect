@@ -134,6 +134,7 @@ public class RemoveMessagesDialog extends MirthDialog {
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("showReprocessRemoveMessagesWarning", true)) {
             String result = JOptionPane.showInputDialog(this, "<html>This will remove <b>all</b> messages for the selected channel(s).<br><font size='1'><br></font>Type REMOVEALL and click the OK button to continue.</html>", "Remove All Messages", JOptionPane.WARNING_MESSAGE);
             if (!StringUtils.equals(result, "REMOVEALL")) {
+                parent.alertWarning(this, "You must type REMOVEALL to remove all messages.");
                 return;
             }
         }
