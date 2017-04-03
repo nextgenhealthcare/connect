@@ -34,6 +34,8 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -47,8 +49,6 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.IconButton;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.util.ColorUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class MirthTagField extends JPanel {
     private static String TAG_TYPE = "tag";
@@ -121,7 +121,7 @@ public class MirthTagField extends JPanel {
         actionMap.put("Arrow.left", doNothing);
         actionMap.put("Arrow.right", doNothing);
 
-        mirthWebBrowser.setUserTags(cachedUserPreferenceTags);
+        mirthWebBrowser.setUserTags(cachedUserPreferenceTags, true);
     }
 
     private void initComponents(boolean channelContext) {
@@ -218,7 +218,7 @@ public class MirthTagField extends JPanel {
             tagAttributes.add(attributes);
         }
 
-        mirthWebBrowser.setUserTags(tagAttributes);
+        mirthWebBrowser.setUserTags(tagAttributes, true);
     }
 
     public void clear() {
@@ -238,7 +238,7 @@ public class MirthTagField extends JPanel {
         return mirthWebBrowser != null && StringUtils.isNotEmpty(mirthWebBrowser.getTags());
     }
 
-    public void update(Set<FilterCompletion> tags, boolean channelContext, boolean updateUserTags) {
+    public void update(Set<FilterCompletion> tags, boolean channelContext, boolean updateUserTags, boolean updateController) {
         Map<String, Map<String, String>> attributeMap = createAttributeMap(tags);
 
         if (mirthWebBrowser != null && MapUtils.isNotEmpty(attributeMap)) {
@@ -246,7 +246,7 @@ public class MirthTagField extends JPanel {
 
             if (updateUserTags) {
                 clearButton.setEnabled(CollectionUtils.isNotEmpty(cachedUserPreferenceTags));
-                mirthWebBrowser.setUserTags(cachedUserPreferenceTags);
+                mirthWebBrowser.setUserTags(cachedUserPreferenceTags, updateController);
             }
         }
 
@@ -272,7 +272,7 @@ public class MirthTagField extends JPanel {
 
     public void setUserPreferenceTags() {
         if (mirthWebBrowser != null) {
-            mirthWebBrowser.setUserTags(cachedUserPreferenceTags);
+            mirthWebBrowser.setUserTags(cachedUserPreferenceTags, true);
         }
     }
 

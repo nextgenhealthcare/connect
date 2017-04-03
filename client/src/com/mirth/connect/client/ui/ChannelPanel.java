@@ -424,7 +424,7 @@ public class ChannelPanel extends AbstractFramePanel {
             public void done() {
                 updateModel(getCurrentTableState());
                 updateTasks();
-                updateTags();
+                updateTags(false);
                 parent.setSaveEnabled(false);
             }
         };
@@ -549,7 +549,7 @@ public class ChannelPanel extends AbstractFramePanel {
         }
     }
 
-    private void updateTags() {
+    private void updateTags(boolean updateController) {
         Set<FilterCompletion> tags = new HashSet<FilterCompletion>();
         for (ChannelStatus status : channelStatuses.values()) {
             tags.add(new ChannelNameFilterCompletion(status.getChannel().getName()));
@@ -559,7 +559,7 @@ public class ChannelPanel extends AbstractFramePanel {
             tags.add(new TagFilterCompletion(channelTag));
         }
 
-        tagField.update(tags, false, true);
+        tagField.update(tags, false, true, updateController);
     }
 
     public void retrieveGroups() {

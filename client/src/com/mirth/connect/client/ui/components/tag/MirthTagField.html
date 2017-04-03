@@ -109,14 +109,16 @@
 	}
 	
 	// Loads all selected tags into the field, clearing previous tags that were set
-	function setUserTags(tags) {
+	function setUserTags(tags, updateController) {
 		if (!tags) {
 			tags = {};
 		}
 		updatePlaceholder();
 		$('#MirthTokenField').tokenfield('setTokens', JSON.parse(tags));
 		$(document).find('#MirthTokenField').data('bs.tokenfield').$input.val('');
-		clickController.updateTagSearch(getSelectedTags());
+		if (updateController) {
+			clickController.updateTagSearch(getSelectedTags());
+		}
 	}
 	
 	function insertTag(tag, type) {

@@ -195,7 +195,7 @@ public class DashboardPanel extends JPanel {
             tags.add(new TagFilterCompletion(channelTag));
         }
 
-        tagField.update(tags, false, updateUserTags);
+        tagField.update(tags, false, updateUserTags, true);
     }
 
     private void loadTablePlugins() {

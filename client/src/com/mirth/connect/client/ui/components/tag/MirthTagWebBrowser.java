@@ -121,8 +121,8 @@ public class MirthTagWebBrowser extends Region {
         doCall("setEnabled", convertToJSON(enable));
     }
 
-    public void setUserTags(List<Map<String, String>> tags) {
-        doCall("setUserTags", convertToJSON(tags));
+    public void setUserTags(List<Map<String, String>> tags, boolean updateController) {
+        doCall("setUserTags", convertToJSON(tags), updateController);
     }
 
     public void insertTag(String tagName) {
@@ -138,7 +138,7 @@ public class MirthTagWebBrowser extends Region {
     }
 
     public void clear() {
-        setUserTags(new ArrayList<Map<String, String>>());
+        setUserTags(new ArrayList<Map<String, String>>(), true);
         webController.setTags("");
     }
 

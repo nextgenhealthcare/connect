@@ -513,7 +513,7 @@ public class ChannelSetup extends JPanel {
         for (ChannelTag channelTag : parent.channelPanel.getCachedChannelTags()) {
             channelTags.add(new TagFilterCompletion(channelTag));
         }
-        tagsField.update(channelTags, true, true);
+        tagsField.update(channelTags, true, true, true);
         tagsField.setFocus(false);
 
         channelValidationFailed = false;
@@ -623,7 +623,7 @@ public class ChannelSetup extends JPanel {
         for (ChannelTag channelTag : parent.channelPanel.getCachedChannelTags()) {
             channelTags.add(new TagFilterCompletion(channelTag));
         }
-        tagsField.update(channelTags, true, false);
+        tagsField.update(channelTags, true, false, true);
 
         setDestinationVariableList();
         loadingChannel = false;
