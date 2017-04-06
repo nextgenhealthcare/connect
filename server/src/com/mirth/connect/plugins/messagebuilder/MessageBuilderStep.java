@@ -115,6 +115,26 @@ public class MessageBuilderStep extends Step implements FilterTransformerIterabl
                     String segmentName = segmentPart.getPropertyName();
 
                     if (!segmentPart.isNumberLiteral() && !indexVariables.contains(segmentName)) {
+                        // First make sure the base target object exists
+                        if (currentIndex > 2) {
+                            ExprPart baseSegmentPart = exprParts.get(currentIndex - 2);
+                            String baseSegmentName = baseSegmentPart.getPropertyName();
+
+                            if (!baseSegmentPart.isNumberLiteral() && !indexVariables.contains(baseSegmentName)) {
+                                String baseSegment = StringUtils.join(exprParts.subList(0, currentIndex - 1).toArray());
+                                script.append("if (typeof(").append(baseSegment).append("[0]) == 'undefined') {\n");
+
+                                // Segment excluding the index variable and the two properties before it
+                                String targetSegment = StringUtils.join(exprParts.subList(0, currentIndex - 2).toArray());
+
+                                // Convert base segment name to a string literal if needed
+                                if (!StringUtils.startsWithAny(baseSegmentName, "\"", "'")) {
+                                    baseSegmentName = "'" + StringEscapeUtils.escapeEcmaScript(baseSegmentName) + "'";
+                                }
+                                script.append("createSegment(").append(baseSegmentName).append(", ").append(targetSegment).append(");\n}\n");
+                            }
+                        }
+
                         // Segment including the index variable, e.g. tmp['OBR'][i]
                         String wholeSegment = StringUtils.join(exprParts.subList(0, currentIndex + 1).toArray());
                         script.append("if (typeof(").append(wholeSegment).append(") == 'undefined') {\n");
