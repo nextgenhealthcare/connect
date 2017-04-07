@@ -16,13 +16,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.server.tools.ScriptRunner;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 public class ChannelControllerTests extends TestCase {
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();

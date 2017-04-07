@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
@@ -23,8 +25,6 @@ import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.JavaScriptSharedUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class JavaScriptPanel extends EditorPanel<Step> {
 

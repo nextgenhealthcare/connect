@@ -36,6 +36,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.text.BadLocationException;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -48,8 +50,6 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.plugins.rulebuilder.RuleBuilderRule.Condition;
-
-import net.miginfocom.swing.MigLayout;
 
 public class RuleBuilderPanel extends EditorPanel<Rule> {
 

@@ -18,6 +18,8 @@ import java.util.UUID;
 import javax.swing.JButton;
 import javax.swing.JSeparator;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
@@ -28,8 +30,6 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.JavaScriptSharedUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class JavaScriptHttpAuthDialog extends MirthDialog {
 

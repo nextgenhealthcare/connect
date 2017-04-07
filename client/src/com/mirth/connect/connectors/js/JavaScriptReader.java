@@ -14,6 +14,8 @@ import java.util.UUID;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
@@ -24,8 +26,6 @@ import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.JavaScriptSharedUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class JavaScriptReader extends ConnectorSettingsPanel {
 

@@ -30,6 +30,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -45,8 +47,6 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.plugins.mapper.MapperStep.Scope;
-
-import net.miginfocom.swing.MigLayout;
 
 public class MapperPanel extends EditorPanel<Step> {
 

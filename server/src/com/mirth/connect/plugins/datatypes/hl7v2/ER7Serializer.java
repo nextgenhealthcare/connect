@@ -9,6 +9,14 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
+import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.model.Message;
+import ca.uhn.hl7v2.parser.DefaultXMLParser;
+import ca.uhn.hl7v2.parser.PipeParser;
+import ca.uhn.hl7v2.parser.XMLParser;
+import ca.uhn.hl7v2.util.Terser;
+import ca.uhn.hl7v2.validation.impl.NoValidation;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -21,14 +29,6 @@ import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-
-import ca.uhn.hl7v2.HL7Exception;
-import ca.uhn.hl7v2.model.Message;
-import ca.uhn.hl7v2.parser.DefaultXMLParser;
-import ca.uhn.hl7v2.parser.PipeParser;
-import ca.uhn.hl7v2.parser.XMLParser;
-import ca.uhn.hl7v2.util.Terser;
-import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 import com.mirth.connect.donkey.model.message.MessageSerializer;
 import com.mirth.connect.donkey.model.message.MessageSerializerException;

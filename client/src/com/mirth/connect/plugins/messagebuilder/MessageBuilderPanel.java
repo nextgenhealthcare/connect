@@ -26,6 +26,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -39,8 +41,6 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Step;
-
-import net.miginfocom.swing.MigLayout;
 
 public class MessageBuilderPanel extends EditorPanel<Step> {
 

@@ -1,13 +1,24 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * 
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL license a copy of which has
+ * been included with this distribution in the LICENSE.txt file.
+ */
+
 package com.mirth.connect.donkey.server.channel;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
 import com.mirth.connect.donkey.model.message.Status;
-
-import static org.junit.Assert.*;
 
 public class StatisticsTest {
 

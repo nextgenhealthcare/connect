@@ -84,6 +84,8 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.text.WordUtils;
@@ -122,8 +124,6 @@ import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.ScriptBuilderException;
-
-import net.miginfocom.swing.MigLayout;
 
 public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends FilterTransformerElement> extends JPanel implements DropTargetListener {
 

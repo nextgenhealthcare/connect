@@ -29,6 +29,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -39,8 +41,6 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.FilterTransformerElement;
 import com.mirth.connect.model.IteratorElement;
-
-import net.miginfocom.swing.MigLayout;
 
 public abstract class IteratorPanel<C extends FilterTransformerElement> extends EditorPanel<C> {
 

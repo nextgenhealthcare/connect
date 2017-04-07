@@ -22,14 +22,14 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.JavaScriptSharedUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class ScriptPanel extends JPanel {
 

@@ -31,6 +31,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.ui.ChannelSetup;
@@ -50,8 +52,6 @@ import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.util.JavaScriptSharedUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class SourceSettingsPanel extends JPanel {
 

@@ -18,6 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
@@ -27,8 +29,6 @@ import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Step;
-
-import net.miginfocom.swing.MigLayout;
 
 public class XsltStepPanel extends EditorPanel<Step> {
 

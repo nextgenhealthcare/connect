@@ -20,6 +20,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -28,8 +30,6 @@ import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.ViewContentDialog;
 import com.mirth.connect.client.ui.components.MirthTable;
-
-import net.miginfocom.swing.MigLayout;
 
 public class GlobalMapPanel extends JPanel {
 

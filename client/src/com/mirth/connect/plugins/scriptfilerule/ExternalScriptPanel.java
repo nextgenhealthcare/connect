@@ -14,13 +14,13 @@ import java.awt.event.ActionListener;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.editors.EditorPanel;
 import com.mirth.connect.model.Rule;
-
-import net.miginfocom.swing.MigLayout;
 
 public class ExternalScriptPanel extends EditorPanel<Rule> {
 
