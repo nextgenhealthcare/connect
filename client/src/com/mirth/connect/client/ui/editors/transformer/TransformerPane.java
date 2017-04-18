@@ -20,6 +20,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.MapperDropData;
 import com.mirth.connect.client.ui.MessageBuilderDropData;
@@ -124,6 +126,20 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
             connector.setResponseTransformer(properties);
         } else {
             connector.setTransformer(properties);
+
+            // If we're accepting a source transformer, make sure the destination inbound data types match the source outbound data type
+            if (connector.getMetaDataId() == 0) {
+                String sourceDataType = properties.getOutboundDataType();
+
+                for (Connector destinationConnector : PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getDestinationConnectors()) {
+                    String destinationDataType = destinationConnector.getTransformer().getInboundDataType();
+
+                    if (!StringUtils.equals(sourceDataType, destinationDataType)) {
+                        destinationConnector.getTransformer().setInboundDataType(sourceDataType);
+                        destinationConnector.getTransformer().setInboundProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(sourceDataType).getDefaultProperties());
+                    }
+                }
+            }
         }
     }
 

@@ -3035,6 +3035,17 @@ public class ChannelSetup extends JPanel {
             resourceIds.put(connector.getMetaDataId(), ((SourceConnectorPropertiesInterface) connector.getProperties()).getSourceConnectorProperties().getResourceIds());
             sourceConnectorTypeComboBox.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
 
+            // Make sure the destination inbound data types match the source outbound data type
+            String sourceDataType = connector.getTransformer().getOutboundDataType();
+            for (Connector destinationConnector : currentChannel.getDestinationConnectors()) {
+                String destinationDataType = destinationConnector.getTransformer().getInboundDataType();
+
+                if (!StringUtils.equals(sourceDataType, destinationDataType)) {
+                    destinationConnector.getTransformer().setInboundDataType(sourceDataType);
+                    destinationConnector.getTransformer().setInboundProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(sourceDataType).getDefaultProperties());
+                }
+            }
+
             updateAttachmentHandler(connector.getTransformer().getInboundDataType());
 
             sourceComponentShown(null);
@@ -3046,6 +3057,15 @@ public class ChannelSetup extends JPanel {
                     connector.setName(getNewDestinationName(destinationConnectors.size() + 1));
                 }
             }
+
+            // Make sure the destination inbound data types match the source outbound data type
+            String sourceDataType = currentChannel.getSourceConnector().getTransformer().getOutboundDataType();
+            String destinationDataType = connector.getTransformer().getInboundDataType();
+            if (!StringUtils.equals(sourceDataType, destinationDataType)) {
+                connector.getTransformer().setInboundDataType(sourceDataType);
+                connector.getTransformer().setInboundProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(sourceDataType).getDefaultProperties());
+            }
+
             currentChannel.addDestination(connector);
             // After adding the destination to the channel, make sure to update the cached resource ID map too
             resourceIds.put(connector.getMetaDataId(), ((DestinationConnectorPropertiesInterface) connector.getProperties()).getDestinationConnectorProperties().getResourceIds());

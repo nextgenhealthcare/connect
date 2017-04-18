@@ -391,9 +391,9 @@ public class JavaScriptBuilder {
 
         // Helper function to get the length of an XMLList or array
         builder.append("function getArrayOrXmlLength(obj) {\n");
-        builder.append("    if (typeof obj == 'xml') {\n");
+        builder.append("    if (typeof obj == 'xml' || obj instanceof java.lang.String) {\n");
         builder.append("        return obj.length();\n");
-        builder.append("    } else if (typeof obj != 'undefined') {\n");
+        builder.append("    } else if (typeof obj != 'undefined' && obj != null) {\n");
         builder.append("        return obj.length || 0;\n");
         builder.append("    }\n");
         builder.append("    return 0;\n");
