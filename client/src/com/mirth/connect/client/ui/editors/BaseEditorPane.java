@@ -84,8 +84,6 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.text.WordUtils;
@@ -124,6 +122,8 @@ import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.ScriptBuilderException;
+
+import net.miginfocom.swing.MigLayout;
 
 public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends FilterTransformerElement> extends JPanel implements DropTargetListener {
 
@@ -1068,7 +1068,13 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
         treeTable.addTreeWillExpandListener(new TreeWillExpandListener() {
             @Override
-            public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {}
+            public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
+                if (!updating.getAndSet(true)) {
+                    SwingUtilities.invokeLater(() -> {
+                        updating.set(false);
+                    });
+                }
+            }
 
             @Override
             public void treeWillCollapse(TreeExpansionEvent evt) throws ExpandVetoException {
@@ -1076,7 +1082,9 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     try {
                         saveData(treeTable.getSelectedRow());
                     } finally {
-                        updating.set(false);
+                        SwingUtilities.invokeLater(() -> {
+                            updating.set(false);
+                        });
                     }
                 }
             }
