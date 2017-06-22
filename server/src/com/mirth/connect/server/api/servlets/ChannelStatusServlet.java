@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.servlets.ChannelStatusServletInterface;
@@ -58,12 +59,26 @@ public class ChannelStatusServlet extends MirthServlet implements ChannelStatusS
     }
 
     @Override
-    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, boolean includeUndeployed) {
+    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, String filter, boolean includeUndeployed) {
+        List<DashboardStatus> statuses;
+
         if (CollectionUtils.isEmpty(channelIds)) {
-            return redactChannelStatuses(engineController.getChannelStatusList(null, includeUndeployed));
+            statuses = redactChannelStatuses(engineController.getChannelStatusList(null, includeUndeployed));
         } else {
-            return engineController.getChannelStatusList(redactChannelIds(channelIds), includeUndeployed);
+            statuses = engineController.getChannelStatusList(redactChannelIds(channelIds), includeUndeployed);
         }
+
+        // Avoid having to call the configuration controller unless necessary
+        if (StringUtils.isNotBlank(filter)) {
+            List<SearchFilter> searchFilterList = SearchFilterParser.parse(filter, configurationController.getChannelTags());
+            if (CollectionUtils.isNotEmpty(searchFilterList) && CollectionUtils.isNotEmpty(statuses)) {
+                for (SearchFilter searchFilter : searchFilterList) {
+                    searchFilter.filterDashboardStatuses(statuses);
+                }
+            }
+        }
+
+        return statuses;
     }
 
     @Override
@@ -73,13 +88,22 @@ public class ChannelStatusServlet extends MirthServlet implements ChannelStatusS
         Set<String> remainingChannelIds = redactChannelIds(engineController.getDeployedIds());
         int deployedCount = remainingChannelIds.size();
 
-        // First, filter out channels by ID
-        List<SearchFilter> searchFilterList = SearchFilterParser.parse(filter, configurationController.getChannelTags());
-        boolean filterDashboardStatuses = CollectionUtils.isNotEmpty(searchFilterList);
-        if (filterDashboardStatuses) {
-            for (SearchFilter searchFilter : searchFilterList) {
-                searchFilter.filterChannelIds(remainingChannelIds);
+        List<SearchFilter> searchFilterList;
+        boolean filterDashboardStatuses;
+
+        // Avoid having to call the configuration controller unless necessary
+        if (StringUtils.isNotBlank(filter)) {
+            // First, filter out channels by ID
+            searchFilterList = SearchFilterParser.parse(filter, configurationController.getChannelTags());
+            filterDashboardStatuses = CollectionUtils.isNotEmpty(searchFilterList);
+            if (filterDashboardStatuses) {
+                for (SearchFilter searchFilter : searchFilterList) {
+                    searchFilter.filterChannelIds(remainingChannelIds);
+                }
             }
+        } else {
+            searchFilterList = new ArrayList<SearchFilter>();
+            filterDashboardStatuses = false;
         }
 
         Set<String> channelIds;

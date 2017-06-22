@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +32,10 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @Path("/channels")
 @Api("Channel Status Operations")
 @Consumes(MediaType.APPLICATION_XML)
@@ -54,6 +54,7 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getChannelStatusList", display = "Get status list for specific channels", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<DashboardStatus> getChannelStatusList(// @formatter:off
             @Param("channelIds") @ApiParam(value = "The channel IDs to return dashboard statuses for. If absent, all statuses will be returned.") @QueryParam("channelId") Set<String> channelIds,
+            @Param("filter") @ApiParam(value = "The filter string to limit dashboard statuses with.") @QueryParam("filter") String filter,
             @Param("includeUndeployed") @ApiParam(value = "If true, statuses for undeployed channels will also be included.") @QueryParam("includeUndeployed") boolean includeUndeployed) throws ClientException;
     // @formatter:on
 

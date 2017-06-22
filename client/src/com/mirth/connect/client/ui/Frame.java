@@ -51,8 +51,6 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javafx.application.Platform;
-
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -145,6 +143,8 @@ import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
 import com.mirth.connect.util.DirectedAcyclicGraphNode;
 import com.mirth.connect.util.MigrationUtil;
+
+import javafx.application.Platform;
 
 /**
  * The main content frame for the Mirth Client Application. Extends JXFrame and sets up all content.
@@ -2189,7 +2189,8 @@ public class Frame extends JXFrame {
                         plugin.tableUpdate(status);
                     }
 
-                    DashboardChannelInfo dashboardStatusList = mirthClient.getDashboardChannelInfo(REFRESH_BLOCK_SIZE, dashboardPanel.getUserTags());
+                    String filter = dashboardPanel.getUserTags();
+                    DashboardChannelInfo dashboardStatusList = mirthClient.getDashboardChannelInfo(REFRESH_BLOCK_SIZE, filter);
                     status = dashboardStatusList.getDashboardStatuses();
                     Set<String> remainingIds = dashboardStatusList.getRemainingChannelIds();
                     deployedChannelCount = dashboardStatusList.getDeployedChannelCount();
@@ -2205,7 +2206,7 @@ public class Frame extends JXFrame {
 
                                 if (!it.hasNext() || statusChannelIds.size() == REFRESH_BLOCK_SIZE) {
                                     // Processing a new block, retrieve dashboard statuses from server
-                                    List<DashboardStatus> intermediateStatusList = mirthClient.getChannelStatusList(statusChannelIds);
+                                    List<DashboardStatus> intermediateStatusList = mirthClient.getChannelStatusList(statusChannelIds, filter);
                                     // Publish the intermediate statuses
                                     publish(intermediateStatusList.toArray(new DashboardStatus[intermediateStatusList.size()]));
                                     // Add the statuses to the master list
