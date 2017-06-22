@@ -17,6 +17,7 @@ APACHE-LICENSE-2.0.txt):
 	Apache XMLBeans [Mirth Connect only]
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
 	Guava 18.0 (https://code.google.com/p/guava-libraries)
+	Guice 4.1 (https://github.com/google/guice)
 	HikariCP 2.3.2 [Mirth Connect only]
 	Jackson Project (https://github.com/FasterXML/jackson)
 	Jasypt 1.7.1 [Mirth Connect only]
