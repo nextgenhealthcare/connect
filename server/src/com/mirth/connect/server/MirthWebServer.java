@@ -310,8 +310,10 @@ public class MirthWebServer extends Server {
         /*
          * We were previously disabling low and medium strength ciphers (MIRTH-1924). However with
          * MIRTH-3492, we're now always specifying an include list everywhere rather than an exclude
-         * list.
+         * list. Remove excluded lists first because Jetty sets them by default.
          */
+        contextFactory.setExcludeProtocols();
+        contextFactory.setExcludeCipherSuites();
         contextFactory.setIncludeProtocols(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsServerProtocols()));
         contextFactory.setIncludeCipherSuites(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()));
 
