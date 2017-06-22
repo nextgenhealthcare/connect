@@ -1062,7 +1062,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#getChannelStatusList
      */
     public List<DashboardStatus> getAllChannelStatuses() throws ClientException {
-        return getServlet(ChannelStatusServletInterface.class).getChannelStatusList(null, false);
+        return getServlet(ChannelStatusServletInterface.class).getChannelStatusList(null, null, false);
     }
 
     /**
@@ -1082,8 +1082,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * 
      * @see ChannelStatusServletInterface#getChannelStatusList
      */
-    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds) throws ClientException {
-        return getServlet(ChannelStatusServletInterface.class).getChannelStatusList(channelIds, false);
+    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, String filter) throws ClientException {
+        return getServlet(ChannelStatusServletInterface.class).getChannelStatusList(channelIds, filter, false);
     }
 
     /**
@@ -1093,8 +1093,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelStatusServletInterface#getChannelStatusList
      */
     @Override
-    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, boolean includeUndeployed) throws ClientException {
-        return getServlet(ChannelStatusServletInterface.class).getChannelStatusList(channelIds, includeUndeployed);
+    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, String filter, boolean includeUndeployed) throws ClientException {
+        return getServlet(ChannelStatusServletInterface.class).getChannelStatusList(channelIds, filter, includeUndeployed);
     }
 
     /**
