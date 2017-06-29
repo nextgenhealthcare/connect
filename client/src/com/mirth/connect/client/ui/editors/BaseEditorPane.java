@@ -1078,13 +1078,28 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
             @Override
             public void treeWillCollapse(TreeExpansionEvent evt) throws ExpandVetoException {
-                if (!updating.getAndSet(true)) {
-                    try {
-                        saveData(treeTable.getSelectedRow());
-                    } finally {
-                        SwingUtilities.invokeLater(() -> {
-                            updating.set(false);
-                        });
+                int selectedRow = treeTable.getSelectedRow();
+
+                if (isValidViewRow(selectedRow)) {
+                    if (!updating.getAndSet(true)) {
+                        final FilterTransformerTreeTableNode<T, C> selectedNode = getNodeAtRow(selectedRow);
+
+                        try {
+                            saveData(selectedRow);
+                        } finally {
+                            SwingUtilities.invokeLater(() -> {
+                                // Manually load new row data if the node after collapse is different
+                                int newSelectedRow = treeTable.getSelectedRow();
+                                if (isValidViewRow(newSelectedRow) && selectedNode != getNodeAtRow(newSelectedRow)) {
+                                    loadData(newSelectedRow);
+                                    updateTaskPane();
+                                    updateTable();
+                                    updateGeneratedCode();
+                                }
+
+                                updating.set(false);
+                            });
+                        }
                     }
                 }
             }
