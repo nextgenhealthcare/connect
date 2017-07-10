@@ -65,7 +65,6 @@ public class DICOMReceiver extends SourceConnector {
         try {
             dcmrcv.setPort(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId(), getChannel().getName())));
             dcmrcv.setHostname(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId(), getChannel().getName()));
-            dcmrcv.setAEtitle("DCMRCV");
 
             String[] only_def_ts = { UID.ImplicitVRLittleEndian };
             String[] native_le_ts = { UID.ImplicitVRLittleEndian };
@@ -90,9 +89,8 @@ public class DICOMReceiver extends SourceConnector {
             }
 
             String aeTitle = replacer.replaceValues(connectorProperties.getApplicationEntity(), getChannelId(), getChannel().getName());
-            if (StringUtils.isNotBlank(aeTitle)) {
-                dcmrcv.setAEtitle(aeTitle);
-            }
+            aeTitle = StringUtils.defaultIfBlank(aeTitle, null);
+            dcmrcv.setAEtitle(aeTitle);
 
             //TODO Allow variables
             int value = NumberUtils.toInt(connectorProperties.getReaper());
