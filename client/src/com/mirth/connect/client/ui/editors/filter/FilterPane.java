@@ -43,6 +43,7 @@ import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.FilterRulePlugin;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
 import com.mirth.connect.plugins.IteratorRulePlugin;
+import com.mirth.connect.util.StringUtil;
 
 public class FilterPane extends BaseEditorPane<Filter, Rule> {
 
@@ -189,7 +190,7 @@ public class FilterPane extends BaseEditorPane<Filter, Rule> {
 
     @Override
     protected boolean isModified(Filter properties) {
-        return super.isModified(properties) || !StringUtils.equals(originalInboundDataType, getInboundDataType()) || !Objects.equals(originalInboundDataTypeProperties, getInboundDataTypeProperties()) || !StringUtils.equals(originalInboundTemplate, getInboundTemplate());
+        return super.isModified(properties) || !StringUtils.equals(originalInboundDataType, getInboundDataType()) || !Objects.equals(originalInboundDataTypeProperties, getInboundDataTypeProperties()) || !StringUtil.equalsIgnoreNull(originalInboundTemplate, getInboundTemplate());
     }
 
     @Override

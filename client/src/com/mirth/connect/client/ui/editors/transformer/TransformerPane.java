@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,6 +40,7 @@ import com.mirth.connect.model.Transformer;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
 import com.mirth.connect.plugins.IteratorStepPlugin;
 import com.mirth.connect.plugins.TransformerStepPlugin;
+import com.mirth.connect.util.StringUtil;
 
 public class TransformerPane extends BaseEditorPane<Transformer, Step> {
 
@@ -219,5 +221,22 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
                 addNewElement(MirthTree.constructMessageBuilderStepName(null, data.getNode()), data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER, true);
             }
         }
+    }
+    
+    @Override
+    protected boolean isModified(Transformer properties) {
+        if (originalProperties == properties) {
+            return false;
+        } else if (originalProperties == null || properties == null) {
+            return true;
+        }
+        
+        return !StringUtil.equalsIgnoreNull(originalProperties.getInboundDataType(), properties.getInboundDataType()) ||
+                !StringUtil.equalsIgnoreNull(originalProperties.getOutboundDataType(), properties.getOutboundDataType()) ||
+                !StringUtil.equalsIgnoreNull(originalProperties.getInboundTemplate(), properties.getInboundTemplate()) ||
+                !StringUtil.equalsIgnoreNull(originalProperties.getOutboundTemplate(), properties.getOutboundTemplate()) ||
+                !Objects.equals(originalProperties.getInboundProperties(), properties.getInboundProperties()) ||
+                !Objects.equals(originalProperties.getOutboundProperties(), properties.getOutboundProperties()) ||
+                !Objects.equals(originalProperties.getElements(), properties.getElements());
     }
 }

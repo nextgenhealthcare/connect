@@ -125,6 +125,7 @@ import com.mirth.connect.util.ScriptBuilderException;
 
 import net.miginfocom.swing.MigLayout;
 
+@SuppressWarnings("serial")
 public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends FilterTransformerElement> extends JPanel implements DropTargetListener {
 
     private static final int TASK_ADD = 0;
@@ -149,7 +150,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     private Connector connector;
     private boolean response;
-    private T originalProperties;
+    protected T originalProperties;
     private AtomicBoolean updating = new AtomicBoolean(false);
     private DropTarget dropTarget;
     private Preferences userPreferences = Preferences.userNodeForPackage(Mirth.class);

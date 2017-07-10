@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.base.Strings;
+
 public class StringUtil {
     
     private static final Pattern pattern = Pattern.compile("xmlns:?[^=]*=[\\\"\\\"][^\\\"\\\"]*[\\\"\\\"]");
@@ -154,5 +156,18 @@ public class StringUtil {
         }
 
         return String.valueOf(object);
+    }
+    
+    /**
+     * A version of equals that treats null and "" as the same value
+     * @param str1
+     * @param str2
+     * @return
+     */
+    public static boolean equalsIgnoreNull(String str1, String str2) {
+        if (Strings.isNullOrEmpty(str1) && Strings.isNullOrEmpty(str2)) {
+            return true;
+        }
+        return StringUtils.equals(str1, str2);
     }
 }
