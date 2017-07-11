@@ -316,7 +316,9 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     public void setElements(List<C> elements) {
         DefaultMutableTreeTableNode root = new DefaultMutableTreeTableNode();
+        int sequenceNumber = 0;
         for (C element : elements) {
+            element.setSequenceNumber(String.valueOf(sequenceNumber++));
             root.add(createTreeTableNode(element));
         }
         treeTableModel.setRoot(root);
@@ -477,10 +479,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     public String replaceIteratorVariables(String expression) {
         return IteratorUtil.replaceIteratorVariables(expression, treeTable);
-    }
-
-    private FilterTransformerTreeTableNode<T, C> insertNode(C element) {
-        return insertNode((MutableTreeTableNode) treeTableModel.getRoot(), element);
     }
 
     private FilterTransformerTreeTableNode<T, C> insertNode(MutableTreeTableNode parent, C element) {
@@ -755,11 +753,9 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
          * When not appending, we replace the entire filter/transformer with the one being imported.
          */
         if (append) {
-            for (C element : properties.getElements()) {
-                insertNode(element);
-            }
-            updateSequenceNumbers();
-            updateTable();
+            T combinedProperties = getProperties();
+            combinedProperties.getElements().addAll(properties.getElements());
+            setProperties(connector, combinedProperties, response, false);
         } else {
             setProperties(connector, properties, response, false);
         }
