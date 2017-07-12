@@ -28,6 +28,7 @@ import java.util.EventObject;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,6 +63,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -458,6 +460,22 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
             }
         });
 
+        TableRowSorter<TableModel> rowSorter = new TableRowSorter<TableModel>(channelsTable.getModel());
+        rowSorter.setComparator(CHANNELS_SELECTED_COLUMN, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                // 0, 2, 1
+                if (Objects.equals(o1, o2)) {
+                    return 0;
+                } else if (o1 == 0 || (o1 == 2 && o2 == 1)) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+        });
+        channelsTable.setRowSorter(rowSorter);
+
         channelsTable.getColumnExt(CHANNELS_SELECTED_COLUMN).setMinWidth(20);
         channelsTable.getColumnExt(CHANNELS_SELECTED_COLUMN).setMaxWidth(20);
         channelsTable.getColumn(CHANNELS_SELECTED_COLUMN).setCellEditor(new TagSelectionCellEditor());
@@ -559,6 +577,7 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
                     channelsTable.getModel().setValueAt(MirthTriStateCheckBox.UNCHECKED, row, CHANNELS_SELECTED_COLUMN);
                 }
             }
+            channelsTable.updateUI();
         } finally {
             channelsTableAdjusting.set(false);
         }
