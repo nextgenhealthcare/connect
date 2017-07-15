@@ -65,8 +65,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ComparatorUtils;
@@ -87,6 +85,8 @@ import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.util.ColorUtil;
+
+import net.miginfocom.swing.MigLayout;
 
 public class SettingsPanelTags extends AbstractSettingsPanel {
 
@@ -577,7 +577,11 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
                     channelsTable.getModel().setValueAt(MirthTriStateCheckBox.UNCHECKED, row, CHANNELS_SELECTED_COLUMN);
                 }
             }
-            channelsTable.updateUI();
+            try {
+                channelsTable.updateUI();
+            } catch (Exception e) {
+                // The tags panel gets refreshed even when not currently shown, so this is okay
+            }
         } finally {
             channelsTableAdjusting.set(false);
         }
