@@ -1,0 +1,623 @@
+
+# /
+
+# /client/
+/client/logs
+/client/classes
+/client/dist
+/client/about.txt
+/client/bin
+/client/build
+/client/nbproject
+/client/build.xml
+/client/manifest.mf
+/client/.settings
+/client/nbbuild
+/client/nbdist
+/client/test_classes
+/client/junit-reports
+
+# /client/lib/
+/client/lib/mirth-client-core.jar
+/client/lib/*-shared.jar
+/client/lib/nblibraries-private.properties
+/client/lib/mirth-vocab.jar
+/client/lib/donkey-model.jar
+
+# /client/src/
+
+# /client/src/com/
+
+# /client/src/com/mirth/
+
+# /client/src/com/mirth/connect/
+
+# /client/src/com/mirth/connect/client/
+
+# /client/src/com/mirth/connect/client/ui/
+
+# /client/src/com/mirth/connect/client/ui/actions/
+
+# /client/src/com/mirth/connect/client/ui/browsers/
+
+# /client/src/com/mirth/connect/client/ui/browsers/event/
+
+# /client/src/com/mirth/connect/client/ui/browsers/message/
+
+# /client/src/com/mirth/connect/client/ui/components/
+
+# /client/src/com/mirth/connect/client/ui/editors/
+
+# /client/src/com/mirth/connect/client/ui/editors/filter/
+
+# /client/src/com/mirth/connect/client/ui/editors/transformer/
+
+# /client/src/com/mirth/connect/client/ui/extensionmanager/
+
+# /client/src/com/mirth/connect/client/ui/images/
+/client/src/com/mirth/connect/client/ui/images/Thumbs.db
+
+# /client/src/com/mirth/connect/client/ui/panels/
+
+# /client/src/com/mirth/connect/client/ui/panels/connectors/
+
+# /client/src/com/mirth/connect/client/ui/panels/reference/
+
+# /client/src/com/mirth/connect/client/ui/util/
+/client/src/com/mirth/connect/client/ui/util/DocParser.java
+
+# /client/src/com/mirth/connect/connectors/
+
+# /client/src/com/mirth/connect/connectors/dimse/
+
+# /client/src/com/mirth/connect/connectors/doc/
+
+# /client/src/com/mirth/connect/connectors/file/
+
+# /client/src/com/mirth/connect/connectors/http/
+
+# /client/src/com/mirth/connect/connectors/jdbc/
+
+# /client/src/com/mirth/connect/connectors/jms/
+
+# /client/src/com/mirth/connect/connectors/js/
+
+# /client/src/com/mirth/connect/connectors/smtp/
+
+# /client/src/com/mirth/connect/connectors/tcp/
+
+# /client/src/com/mirth/connect/connectors/vm/
+
+# /client/src/com/mirth/connect/connectors/ws/
+
+# /client/src/com/mirth/connect/plugins/
+/client/src/com/mirth/connect/plugins/sampledashboardcolumn
+
+# /client/src/com/mirth/connect/plugins/dashboardstatus/
+
+# /client/src/com/mirth/connect/plugins/dicomviewer/
+
+# /client/src/com/mirth/connect/plugins/imageviewer/
+
+# /client/src/com/mirth/connect/plugins/javascriptrule/
+
+# /client/src/com/mirth/connect/plugins/javascriptstep/
+
+# /client/src/com/mirth/connect/plugins/mapper/
+
+# /client/src/com/mirth/connect/plugins/messagebuilder/
+
+# /client/src/com/mirth/connect/plugins/pdfviewer/
+
+# /client/src/com/mirth/connect/plugins/rulebuilder/
+
+# /client/src/com/mirth/connect/plugins/scriptfilerule/
+
+# /client/src/com/mirth/connect/plugins/scriptfilestep/
+
+# /client/src/com/mirth/connect/plugins/serverlog/
+
+# /client/src/com/mirth/connect/plugins/xsltstep/
+
+# /client/src/org/
+
+# /client/src/org/netbeans/
+
+# /client/src/org/netbeans/api/
+
+# /client/src/org/netbeans/api/wizard/
+
+# /client/src/org/netbeans/api/wizard/displayer/
+
+# /client/src/org/syntax/
+
+# /client/src/org/syntax/jedit/
+
+# /client/src/org/syntax/jedit/tokenmarker/
+
+# /command/
+/command/.settings
+/command/bin
+/command/build
+/command/classes
+/command/dist
+
+# /command/conf/
+
+# /command/lib/
+/command/lib/mirth-client-core.jar
+/command/lib/donkey-model.jar
+
+# /command/src/
+
+# /command/src/com/
+
+# /command/src/com/mirth/
+
+# /command/src/com/mirth/connect/
+
+# /command/src/com/mirth/connect/cli/
+
+# /command/src/com/mirth/connect/cli/launcher/
+
+# /donkey/
+/donkey/classes
+/donkey/setup
+/donkey/bin
+/donkey/build
+/donkey/dist
+/donkey/donkeydb
+/donkey/nb-build.xml
+/donkey/nbproject
+/donkey/nbbuild
+/donkey/nbdist
+/donkey/test_classes
+/donkey/junit-reports
+
+# /donkey/conf/
+
+# /donkey/docs/
+
+# /donkey/donkeydbconf/
+
+# /donkey/lib/
+
+# /donkey/lib/commons/
+
+# /donkey/src/
+
+# /donkey/src/main/
+
+# /donkey/src/main/java/
+
+# /donkey/src/main/java/com/
+
+# /donkey/src/main/java/com/mirth/
+
+# /donkey/src/main/java/com/mirth/connect/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/model/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/model/channel/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/model/message/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/model/message/attachment/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/channel/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/channel/components/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/controllers/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/data/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/data/buffered/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/data/jdbc/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/data/passthru/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/data/timed/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/event/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/server/queue/
+
+# /donkey/src/main/java/com/mirth/connect/donkey/util/
+
+# /donkey/src/test/
+
+# /donkey/src/test/java/
+
+# /donkey/src/test/java/com/
+
+# /donkey/src/test/java/com/mirth/
+
+# /donkey/src/test/java/com/mirth/connect/
+
+# /donkey/src/test/java/com/mirth/connect/donkey/
+
+# /donkey/src/test/java/com/mirth/connect/donkey/test/
+
+# /donkey/src/test/java/com/mirth/connect/donkey/test/hl7/
+
+# /donkey/src/test/java/com/mirth/connect/donkey/test/util/
+
+# /generator/
+/generator/.settings
+/generator/bin
+/generator/classes
+/generator/dist
+/generator/model
+/generator/vocab
+
+# /generator/lib/
+
+# /generator/reference/
+
+# /generator/reference/21/
+
+# /generator/reference/22/
+
+# /generator/reference/23/
+
+# /generator/reference/231/
+
+# /generator/reference/24/
+
+# /generator/reference/25/
+
+# /generator/src/
+
+# /generator/src/com/
+
+# /generator/src/com/mirth/
+
+# /generator/src/com/mirth/connect/
+
+# /generator/src/com/mirth/connect/model/
+
+# /generator/src/com/mirth/connect/model/generator/
+
+# /generator/src/com/mirth/connect/model/generator/test/
+
+# /generator/src/com/mirth/connect/model/hl7v2/
+
+# /generator/templates/
+
+# /manager/
+/manager/.settings
+/manager/MANIFEST.MF
+/manager/bin
+/manager/build
+/manager/classes
+/manager/dist
+/manager/logs
+/manager/build.xml
+/manager/manifest.mf
+/manager/nbproject
+
+# /manager/lib/
+/manager/lib/donkey-model.jar
+/manager/lib/mirth-client-core.jar
+/manager/lib/mirth-crypto.jar
+/manager/lib/not-yet-commons-ssl-0.3.11.jar
+
+# /manager/src/
+
+# /manager/src/com/
+
+# /manager/src/com/mirth/
+
+# /manager/src/com/mirth/connect/
+
+# /manager/src/com/mirth/connect/manager/
+
+# /manager/src/com/mirth/connect/manager/components/
+
+# /manager/src/com/mirth/connect/manager/images/
+
+# /server/
+/server/mirthdb
+/server/logs
+/server/classes
+/server/setup
+/server/bin
+/server/dist
+/server/.settings
+/server/build
+/server/appdata
+/server/temp
+/server/nbbuild
+/server/nbproject
+/server/nb-build.xml
+/server/version.properties
+/server/installer
+/server/.classpath.bak
+/server/junit-reports
+/server/test_classes
+/server/testdist
+
+# /server/conf/
+/server/conf/mule-config.xml
+
+# /server/dbconf/
+
+# /server/dbconf/deltas/
+
+# /server/dbconf/derby/
+
+# /server/dbconf/mysql/
+
+# /server/dbconf/oracle/
+
+# /server/dbconf/postgres/
+
+# /server/dbconf/sqlserver/
+
+# /server/docs/
+/server/docs/javadocs
+
+# /server/lib/
+/server/lib/licenses
+/server/lib/opt
+/server/lib/commons-logging-1.0.4.jar
+/server/lib/itext-2.0.1.jar
+/server/lib/patch
+/server/lib/jdic.dll
+/server/lib/jdic.jar
+/server/lib/swing-layout-1.0.1.jar
+/server/lib/tray.dll
+/server/lib/looks-2.1.1.jar
+/server/lib/donkey
+
+# /server/lib/commons/
+
+# /server/lib/database/
+
+# /server/lib/extensions/
+
+# /server/lib/extensions/dicomviewer/
+
+# /server/lib/extensions/dimse/
+
+# /server/lib/extensions/doc/
+
+# /server/lib/extensions/file/
+
+# /server/lib/extensions/pdfviewer/
+
+# /server/lib/extensions/ws/
+
+# /server/lib/jetty/
+
+# /server/lib/jetty/jsp/
+
+# /server/public_html/
+/server/public_html/Thumbs.db
+
+# /server/public_html/css/
+
+# /server/public_html/images/
+
+# /server/public_html/js/
+
+# /server/src/
+
+# /server/src/com/
+
+# /server/src/com/eviware/
+
+# /server/src/com/eviware/soapui/
+
+# /server/src/com/eviware/soapui/resources/
+
+# /server/src/com/eviware/soapui/resources/conf/
+
+# /server/src/com/mirth/
+
+# /server/src/com/mirth/connect/
+
+# /server/src/com/mirth/connect/client/
+
+# /server/src/com/mirth/connect/client/core/
+
+# /server/src/com/mirth/connect/connectors/
+
+# /server/src/com/mirth/connect/connectors/dimse/
+
+# /server/src/com/mirth/connect/connectors/doc/
+
+# /server/src/com/mirth/connect/connectors/file/
+
+# /server/src/com/mirth/connect/connectors/file/filesystems/
+
+# /server/src/com/mirth/connect/connectors/file/filters/
+
+# /server/src/com/mirth/connect/connectors/http/
+
+# /server/src/com/mirth/connect/connectors/jdbc/
+
+# /server/src/com/mirth/connect/connectors/jms/
+
+# /server/src/com/mirth/connect/connectors/js/
+
+# /server/src/com/mirth/connect/connectors/smtp/
+
+# /server/src/com/mirth/connect/connectors/tcp/
+
+# /server/src/com/mirth/connect/connectors/vm/
+
+# /server/src/com/mirth/connect/connectors/ws/
+
+# /server/src/com/mirth/connect/model/
+
+# /server/src/com/mirth/connect/model/attachments/
+
+# /server/src/com/mirth/connect/model/converters/
+
+# /server/src/com/mirth/connect/model/filters/
+
+# /server/src/com/mirth/connect/model/filters/elements/
+
+# /server/src/com/mirth/connect/model/util/
+
+# /server/src/com/mirth/connect/plugins/
+/server/src/com/mirth/connect/plugins/Graphical Mapper Transformer Step.xml
+/server/src/com/mirth/connect/plugins/consoleconnectorstatus
+/server/src/com/mirth/connect/plugins/Console Connector Status Monitor Plugin.xml
+/server/src/com/mirth/connect/plugins/extendedhl7vocab
+/server/src/com/mirth/connect/plugins/Extended HL7 Vocabulary.xml
+/server/src/com/mirth/connect/plugins/Sample Dashboard Column Plugin.xml
+/server/src/com/mirth/connect/plugins/ExtensionParser.xml
+/server/src/com/mirth/connect/plugins/ExtensionRepositoryParser.java
+
+# /server/src/com/mirth/connect/plugins/dashboardstatus/
+
+# /server/src/com/mirth/connect/plugins/datapruner/
+
+# /server/src/com/mirth/connect/plugins/datatypes/delimited/
+
+# /server/src/com/mirth/connect/plugins/datatypes/dicom/
+
+# /server/src/com/mirth/connect/plugins/datatypes/edi/
+
+# /server/src/com/mirth/connect/plugins/datatypes/hl7v2/
+
+# /server/src/com/mirth/connect/plugins/datatypes/hl7v3/
+
+# /server/src/com/mirth/connect/plugins/datatypes/ncpdp/
+
+# /server/src/com/mirth/connect/plugins/datatypes/x12/
+
+# /server/src/com/mirth/connect/plugins/datatypes/xml/
+
+# /server/src/com/mirth/connect/plugins/dicomviewer/
+
+# /server/src/com/mirth/connect/plugins/imageviewer/
+
+# /server/src/com/mirth/connect/plugins/javascriptrule/
+
+# /server/src/com/mirth/connect/plugins/javascriptstep/
+
+# /server/src/com/mirth/connect/plugins/mapper/
+
+# /server/src/com/mirth/connect/plugins/messagebuilder/
+
+# /server/src/com/mirth/connect/plugins/pdfviewer/
+
+# /server/src/com/mirth/connect/plugins/rulebuilder/
+
+# /server/src/com/mirth/connect/plugins/scriptfilerule/
+
+# /server/src/com/mirth/connect/plugins/scriptfilestep/
+
+# /server/src/com/mirth/connect/plugins/serverlog/
+
+# /server/src/com/mirth/connect/plugins/textviewer/
+
+# /server/src/com/mirth/connect/plugins/xsltstep/
+
+# /server/src/com/mirth/connect/server/
+
+# /server/src/com/mirth/connect/server/builders/
+/server/src/com/mirth/connect/server/builders/VocalEZParser.java
+
+# /server/src/com/mirth/connect/server/controllers/
+
+# /server/src/com/mirth/connect/server/launcher/
+
+# /server/src/com/mirth/connect/server/mbeans/
+
+# /server/src/com/mirth/connect/server/servlets/
+
+# /server/src/com/mirth/connect/server/sqlmap/
+
+# /server/src/com/mirth/connect/server/sqlmap/extensions/
+
+# /server/src/com/mirth/connect/server/tools/
+
+# /server/src/com/mirth/connect/server/transformers/
+
+# /server/src/com/mirth/connect/server/util/
+
+# /server/src/com/mirth/connect/server/util/javascript/
+
+# /server/src/com/mirth/connect/util/
+/server/src/com/mirth/connect/util/GenerateExtensionUpdate.java
+
+# /server/src/org/
+
+# /server/src/org/apache/
+
+# /server/src/org/apache/commons/
+
+# /server/src/org/apache/commons/dbutils/
+
+# /server/src/org/mozilla/
+
+# /server/src/org/mozilla/javascript/
+
+# /server/src/org/mozilla/javascript/xmlimpl/
+
+# /simplesender/
+/simplesender/.settings
+/simplesender/bin
+
+# /simplesender/lib/
+
+# /simplesender/samples/
+
+# /simplesender/src/
+
+# /simplesender/src/com/
+
+# /simplesender/src/com/mirth/
+
+# /simplesender/src/com/mirth/connect/
+
+# /simplesender/src/com/mirth/connect/simplereceiver/
+
+# /simplesender/src/com/mirth/connect/simplesender/
+
+# /webadmin/
+/webadmin/build
+/webadmin/dist
+
+# /webadmin/WebContent/
+
+# /webadmin/WebContent/WEB-INF/
+
+# /webadmin/WebContent/WEB-INF/jsp/
+
+# /webadmin/WebContent/WEB-INF/jsp/common/
+
+# /webadmin/WebContent/WEB-INF/lib/
+
+# /webadmin/WebContent/css/
+
+# /webadmin/WebContent/images/
+
+# /webadmin/WebContent/images/ludo-jquery-treetable/
+
+# /webadmin/WebContent/js/
+
+# /webadmin/src/
+
+# /webadmin/src/com/
+
+# /webadmin/src/com/mirth/
+
+# /webadmin/src/com/mirth/connect/
+
+# /webadmin/src/com/mirth/connect/webadmin/
+
+# /webadmin/src/com/mirth/connect/webadmin/action/
+
+# /webadmin/src/com/mirth/connect/webadmin/utils/
+
