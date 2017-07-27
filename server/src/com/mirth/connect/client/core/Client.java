@@ -1026,8 +1026,9 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public synchronized void removeChannels(Set<String> channelIds) throws ClientException {
         if (CollectionUtils.size(channelIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
             removeChannelsPost(channelIds);
+        } else {
+            getServlet(ChannelServletInterface.class).removeChannels(channelIds);
         }
-        getServlet(ChannelServletInterface.class).removeChannels(channelIds);
     }
 
     /**
@@ -1867,8 +1868,9 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public void removeAllMessages(Set<String> channelIds, boolean restartRunningChannels, boolean clearStatistics) throws ClientException {
         if (CollectionUtils.size(channelIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
             removeAllMessagesPost(channelIds, restartRunningChannels, clearStatistics);
+        } else {
+            getServlet(MessageServletInterface.class).removeAllMessages(channelIds, restartRunningChannels, clearStatistics);
         }
-        getServlet(MessageServletInterface.class).removeAllMessages(channelIds, restartRunningChannels, clearStatistics);
     }
 
     /**
