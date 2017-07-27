@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,12 +22,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.Permissions;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.model.ChannelStatistics;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Path("/channels")
 @Api("Channel Statistics")
@@ -44,8 +46,25 @@ public interface ChannelStatisticsServletInterface extends BaseServletInterface 
     @ApiOperation("Returns the Statistics for all channels.")
     @MirthOperation(name = "getAllStatistics", display = "Get all statistics", permission = Permissions.CHANNELS_VIEW, auditable = false)
     public List<ChannelStatistics> getStatistics(//@formatter:off
-            @Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") @QueryParam("channelId") Set<String> channelIds, @Param("includeUndeployed") @ApiParam(value = "If true, statistics for undeployed channels will also be included.") @QueryParam("includeUndeployed") boolean includeUndeployed, @Param("includeMetadataIds") @ApiParam(value = "The ids of connectors to include. Cannot include and exclude connectors.") @QueryParam("includeMetadataId") Set<Integer> includeMetadataIds, @Param("excludeMetadataIds") @ApiParam(value = "The ids of connectors to exclude. Cannot include and exclude connectors.") @QueryParam("excludeMetadataId") Set<Integer> excludeMetadataIds, @Param("aggregateStats") @ApiParam(value = "If true, statistics will be aggregated into one result") @QueryParam("aggregateStats") boolean aggregateStats) throws ClientException;
-    // @formatter:on 
+            @Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") @QueryParam("channelId") Set<String> channelIds,
+            @Param("includeUndeployed") @ApiParam(value = "If true, statistics for undeployed channels will also be included.") @QueryParam("includeUndeployed") boolean includeUndeployed,
+            @Param("includeMetadataIds") @ApiParam(value = "The ids of connectors to include. Cannot include and exclude connectors.") @QueryParam("includeMetadataId") Set<Integer> includeMetadataIds,
+            @Param("excludeMetadataIds") @ApiParam(value = "The ids of connectors to exclude. Cannot include and exclude connectors.") @QueryParam("excludeMetadataId") Set<Integer> excludeMetadataIds,
+            @Param("aggregateStats") @ApiParam(value = "If true, statistics will be aggregated into one result") @QueryParam("aggregateStats") boolean aggregateStats) throws ClientException;
+    // @formatter:on
+
+    @POST
+    @Path("/statistics/_getStatistics")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @ApiOperation("Returns the Statistics for all channels. This is a POST request alternative to GET /statistics that may be used when there are too many channel IDs to include in the query parameters.")
+    @MirthOperation(name = "getAllStatistics", display = "Get all statistics", permission = Permissions.CHANNELS_VIEW, auditable = false)
+    public List<ChannelStatistics> getStatisticsPost(//@formatter:off
+            @Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") @FormDataParam("channelIds") Set<String> channelIds,
+            @Param("includeUndeployed") @ApiParam(value = "If true, statistics for undeployed channels will also be included.") @FormDataParam("includeUndeployed") boolean includeUndeployed,
+            @Param("includeMetadataIds") @ApiParam(value = "The ids of connectors to include. Cannot include and exclude connectors.") @FormDataParam("includeMetadataIds") Set<Integer> includeMetadataIds,
+            @Param("excludeMetadataIds") @ApiParam(value = "The ids of connectors to exclude. Cannot include and exclude connectors.") @FormDataParam("excludeMetadataIds") Set<Integer> excludeMetadataIds,
+            @Param("aggregateStats") @ApiParam(value = "If true, statistics will be aggregated into one result") @FormDataParam("aggregateStats") boolean aggregateStats) throws ClientException;
+    // @formatter:on
 
     @GET
     @Path("/{channelId}/statistics")

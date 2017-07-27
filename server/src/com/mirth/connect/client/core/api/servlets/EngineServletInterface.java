@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -29,6 +25,10 @@ import com.mirth.connect.client.core.Permissions;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Path("/channels")
 @Api("Channel Deployment Operations")
@@ -56,7 +56,7 @@ public interface EngineServletInterface extends BaseServletInterface {
     @ApiOperation("Deploys (or redeploys) selected channels.")
     @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void deployChannels(// @formatter:off
-            @Param("channelIds") @ApiParam(value = "The ID of the channel(s) to deploy. If absent, all channels will be deployed.") @QueryParam("channelId") Set<String> channelIds,
+            @Param("channelIds") @ApiParam(value = "The ID of the channel(s) to deploy. If absent, all channels will be deployed.") Set<String> channelIds,
             @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
     // @formatter:on
 
@@ -74,7 +74,7 @@ public interface EngineServletInterface extends BaseServletInterface {
     @ApiOperation("Undeploys selected channels.")
     @MirthOperation(name = "undeployChannels", display = "Undeploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void undeployChannels(// @formatter:off
-            @Param("channelIds") @ApiParam(value = "The ID of the channel(s) to undeploy. If absent, all channels will be undeployed.") @QueryParam("channelId") Set<String> channelIds,
+            @Param("channelIds") @ApiParam(value = "The ID of the channel(s) to undeploy. If absent, all channels will be undeployed.") Set<String> channelIds,
             @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
     // @formatter:on
 }

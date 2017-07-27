@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +37,10 @@ import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
 import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @Path("/")
 @Api("Code Templates")
 @Consumes(MediaType.APPLICATION_XML)
@@ -53,6 +53,15 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getCodeTemplateLibraries", display = "Get code template libraries", permission = Permissions.CODE_TEMPLATES_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<CodeTemplateLibrary> getCodeTemplateLibraries(// @formatter:off
             @Param("libraryIds") @ApiParam(value = "The ID of the library(s) to retrieve.") @QueryParam("libraryId") Set<String> libraryIds,
+            @Param("includeCodeTemplates") @ApiParam(value = "If true, full code templates will be included inside each library.", defaultValue = "false") @QueryParam("includeCodeTemplates") boolean includeCodeTemplates) throws ClientException;
+    // @formatter:on
+
+    @POST
+    @Path("/codeTemplateLibraries/_getCodeTemplateLibraries")
+    @ApiOperation("Retrieves multiple code template libraries by ID, or all libraries if not specified. This is a POST request alternative to GET /codeTemplateLibraries that may be used when there are too many library IDs to include in the query parameters.")
+    @MirthOperation(name = "getCodeTemplateLibraries", display = "Get code template libraries", permission = Permissions.CODE_TEMPLATES_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    public List<CodeTemplateLibrary> getCodeTemplateLibrariesPost(// @formatter:off
+            @Param("libraryIds") @ApiParam(value = "The ID of the library(s) to retrieve.") Set<String> libraryIds,
             @Param("includeCodeTemplates") @ApiParam(value = "If true, full code templates will be included inside each library.", defaultValue = "false") @QueryParam("includeCodeTemplates") boolean includeCodeTemplates) throws ClientException;
     // @formatter:on
 
@@ -79,6 +88,12 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @ApiOperation("Retrieves multiple code templates by ID, or all templates if not specified.")
     @MirthOperation(name = "getCodeTemplates", display = "Get code templates", permission = Permissions.CODE_TEMPLATES_VIEW)
     public List<CodeTemplate> getCodeTemplates(@Param("codeTemplateIds") @ApiParam(value = "The ID of the code template(s) to retrieve.") @QueryParam("codeTemplateId") Set<String> codeTemplateIds) throws ClientException;
+
+    @POST
+    @Path("/codeTemplates/_getCodeTemplates")
+    @ApiOperation("Retrieves multiple code templates by ID, or all templates if not specified. This is a POST request alternative to GET /codeTemplates that may be used when there are too many code template IDs to include in the query parameters.")
+    @MirthOperation(name = "getCodeTemplates", display = "Get code templates", permission = Permissions.CODE_TEMPLATES_VIEW)
+    public List<CodeTemplate> getCodeTemplatesPost(@Param("codeTemplateIds") @ApiParam(value = "The ID of the code template(s) to retrieve.") Set<String> codeTemplateIds) throws ClientException;
 
     @GET
     @Path("/codeTemplates/{codeTemplateId}")

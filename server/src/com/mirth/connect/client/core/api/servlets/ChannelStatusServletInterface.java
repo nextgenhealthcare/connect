@@ -58,6 +58,16 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
             @Param("includeUndeployed") @ApiParam(value = "If true, statuses for undeployed channels will also be included.") @QueryParam("includeUndeployed") boolean includeUndeployed) throws ClientException;
     // @formatter:on
 
+    @POST
+    @Path("/statuses/_getChannelStatusList")
+    @ApiOperation("Returns all channel dashboard statuses, or multiple statuses by channel ID. This is a POST request alternative to GET /statuses that may be used when there are too many channel IDs to include in the query parameters.")
+    @MirthOperation(name = "getChannelStatusList", display = "Get status list for specific channels", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    public List<DashboardStatus> getChannelStatusListPost(// @formatter:off
+            @Param("channelIds") @ApiParam(value = "The channel IDs to return dashboard statuses for. If absent, all statuses will be returned.") Set<String> channelIds,
+            @Param("filter") @ApiParam(value = "The filter string to limit dashboard statuses with.") @QueryParam("filter") String filter,
+            @Param("includeUndeployed") @ApiParam(value = "If true, statuses for undeployed channels will also be included.") @QueryParam("includeUndeployed") boolean includeUndeployed) throws ClientException;
+    // @formatter:on
+
     @GET
     @Path("/statuses/initial")
     @ApiOperation("Returns a DashboardChannelInfo object containing a partial channel status list and a set of remaining channel IDs.")

@@ -9,15 +9,12 @@
 
 package com.mirth.connect.plugins.globalmapviewer;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -29,6 +26,10 @@ import com.mirth.connect.client.core.Operation.ExecuteType;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Path("/extensions/globalmapviewer")
 @Api("Extension Services")
@@ -45,6 +46,15 @@ public interface GlobalMapServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getAllMaps", display = "Get global / global channel maps", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public Map<String, String> getAllMaps(// @formatter:off
             @Param("channelIds") @ApiParam(value = "The ID of the channel to retrieve global channel map information for.") @QueryParam("channelId") Set<String> channelIds,
+            @Param("includeGlobalMap") @ApiParam(value = "If true, the global map will be returned.") @QueryParam("includeGlobalMap") boolean includeGlobalMap) throws ClientException;
+    // @formatter:on
+
+    @POST
+    @Path("/maps/_getAllMaps")
+    @ApiOperation("Retrieves global and/or global channel map information. This is a POST request alternative to GET /maps/all that may be used when there are too many channel IDs to include in the query parameters.")
+    @MirthOperation(name = "getAllMaps", display = "Get global / global channel maps", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    public Map<String, String> getAllMapsPost(// @formatter:off
+            @Param("channelIds") @ApiParam(value = "The ID of the channel to retrieve global channel map information for.") Set<String> channelIds,
             @Param("includeGlobalMap") @ApiParam(value = "If true, the global map will be returned.") @QueryParam("includeGlobalMap") boolean includeGlobalMap) throws ClientException;
     // @formatter:on
 
