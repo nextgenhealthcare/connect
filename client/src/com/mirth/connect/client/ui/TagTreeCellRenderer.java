@@ -26,8 +26,6 @@ import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.mirth.connect.client.ui.components.tag.TagLabel;
@@ -35,6 +33,8 @@ import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.util.ColorUtil;
+
+import net.miginfocom.swing.MigLayout;
 
 public class TagTreeCellRenderer extends JPanel implements TreeCellRenderer {
     private static final int GAP = 4;
@@ -135,7 +135,7 @@ public class TagTreeCellRenderer extends JPanel implements TreeCellRenderer {
                 tags.sort(new Comparator<ChannelTag>() {
                     @Override
                     public int compare(ChannelTag tag1, ChannelTag tag2) {
-                        return tag1.getName().compareTo(tag2.getName());
+                        return tag1.getName().compareToIgnoreCase(tag2.getName());
                     }
                 });
 
