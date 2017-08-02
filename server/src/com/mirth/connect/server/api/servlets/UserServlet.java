@@ -77,7 +77,7 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
                 HttpSession session = request.getSession();
 
                 // The interval here (24 hours) matches the idle timeout set on the server for API connections.
-                session.setMaxInactiveInterval(86400000);
+                session.setMaxInactiveInterval(86400);
 
                 loginStatus = userController.authorizeUser(username, password);
                 username = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username);

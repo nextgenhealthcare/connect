@@ -51,7 +51,6 @@ import org.eclipse.jetty.server.session.DatabaseAdaptor;
 import org.eclipse.jetty.server.session.DefaultSessionCacheFactory;
 import org.eclipse.jetty.server.session.JDBCSessionDataStore.SessionTableSchema;
 import org.eclipse.jetty.server.session.JDBCSessionDataStoreFactory;
-import org.eclipse.jetty.server.session.SessionCache;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -123,7 +122,8 @@ public class MirthWebServer extends Server {
 
         // Session caching
         DefaultSessionCacheFactory sessionCacheFactory = new DefaultSessionCacheFactory();
-        sessionCacheFactory.setEvictionPolicy(SessionCache.EVICT_ON_SESSION_EXIT);
+        // Evict from the cache after 24 hours
+        sessionCacheFactory.setEvictionPolicy(86400);
         addBean(sessionCacheFactory);
 
         // Session data store
