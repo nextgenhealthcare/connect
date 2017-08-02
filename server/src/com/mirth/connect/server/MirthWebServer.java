@@ -14,6 +14,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.lang.annotation.Annotation;
 import java.security.KeyStore;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -30,6 +31,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpVersion;
@@ -45,6 +47,11 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.session.DatabaseAdaptor;
+import org.eclipse.jetty.server.session.DefaultSessionCacheFactory;
+import org.eclipse.jetty.server.session.JDBCSessionDataStore.SessionTableSchema;
+import org.eclipse.jetty.server.session.JDBCSessionDataStoreFactory;
+import org.eclipse.jetty.server.session.SessionCache;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -78,6 +85,7 @@ import com.mirth.connect.server.servlets.SwaggerServlet;
 import com.mirth.connect.server.servlets.WebStartServlet;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.PackagePredicate;
+import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MirthSSLUtil;
 
 public class MirthWebServer extends Server {
@@ -112,6 +120,33 @@ public class MirthWebServer extends Server {
 
         // add HTTPS listener
         sslConnector = createSSLConnector(CONNECTOR_SSL, mirthProperties);
+
+        // Session caching
+        DefaultSessionCacheFactory sessionCacheFactory = new DefaultSessionCacheFactory();
+        sessionCacheFactory.setEvictionPolicy(SessionCache.EVICT_ON_SESSION_EXIT);
+        addBean(sessionCacheFactory);
+
+        // Session data store
+        JDBCSessionDataStoreFactory jdbcSDSFactory = new JDBCSessionDataStoreFactory();
+
+        SessionTableSchema schema = new SessionTableSchema();
+        schema.setTableName("session");
+        jdbcSDSFactory.setSessionTableSchema(schema);
+
+        DatabaseAdaptor dbAdapter = new DatabaseAdaptor();
+        SqlSessionManager sqlSessionManager = SqlConfig.getSqlSessionManager();
+        sqlSessionManager.startManagedSession();
+        Connection connection = sqlSessionManager.getConnection();
+        try {
+            dbAdapter.adaptTo(connection.getMetaData());
+            dbAdapter.setDatasource(sqlSessionManager.getConfiguration().getEnvironment().getDataSource());
+        } finally {
+            if (sqlSessionManager.isManagedSessionStarted()) {
+                sqlSessionManager.close();
+            }
+        }
+        jdbcSDSFactory.setDatabaseAdaptor(dbAdapter);
+        addBean(jdbcSDSFactory);
 
         handlers = new HandlerList();
         String contextPath = mirthProperties.getString("http.contextpath", "");
@@ -350,7 +385,8 @@ public class MirthWebServer extends Server {
         // Add versioned Swagger bootstrap configuration servlet
         ServletHolder swaggerVersionedServlet = new ServletHolder(new SwaggerServlet(contextPath + baseAPI + apiPath, version, apiVersion, apiProviders.servletInterfacePackages, apiProviders.servletInterfaces, apiAllowHTTP));
         swaggerVersionedServlet.setInitOrder(2);
-        apiServletContextHandler.addServlet(swaggerVersionedServlet, "/swagger*");
+        apiServletContextHandler.addServlet(swaggerVersionedServlet, contextPath + baseAPI + apiPath + "/swagger.json");
+        apiServletContextHandler.addServlet(swaggerVersionedServlet, contextPath + baseAPI + apiPath + "/swagger.yaml");
 
         // Add Swagger UI web page servlet
         handlers.addHandler(getSwaggerContextHandler(contextPath, baseAPI, apiAllowHTTP, version));
