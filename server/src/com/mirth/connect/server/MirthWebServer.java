@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.lang.annotation.Annotation;
 import java.security.KeyStore;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -51,6 +52,8 @@ import org.eclipse.jetty.server.session.DatabaseAdaptor;
 import org.eclipse.jetty.server.session.DefaultSessionCacheFactory;
 import org.eclipse.jetty.server.session.JDBCSessionDataStore.SessionTableSchema;
 import org.eclipse.jetty.server.session.JDBCSessionDataStoreFactory;
+import org.eclipse.jetty.server.session.NullSessionCacheFactory;
+import org.eclipse.jetty.server.session.SessionDataStoreFactory;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -120,33 +123,36 @@ public class MirthWebServer extends Server {
         // add HTTPS listener
         sslConnector = createSSLConnector(CONNECTOR_SSL, mirthProperties);
 
-        // Session caching
-        DefaultSessionCacheFactory sessionCacheFactory = new DefaultSessionCacheFactory();
-        // Evict from the cache after 24 hours
-        sessionCacheFactory.setEvictionPolicy(86400);
-        addBean(sessionCacheFactory);
+        /*
+         * Allows users to decide whether to store session data in the database.
+         */
+        boolean sessionStore = Boolean.parseBoolean(mirthProperties.getString("server.api.sessionstore", "false"));
 
-        // Session data store
-        JDBCSessionDataStoreFactory jdbcSDSFactory = new JDBCSessionDataStoreFactory();
-
-        SessionTableSchema schema = new SessionTableSchema();
-        schema.setTableName("session");
-        jdbcSDSFactory.setSessionTableSchema(schema);
-
-        DatabaseAdaptor dbAdapter = new DatabaseAdaptor();
-        SqlSessionManager sqlSessionManager = SqlConfig.getSqlSessionManager();
-        sqlSessionManager.startManagedSession();
-        Connection connection = sqlSessionManager.getConnection();
-        try {
-            dbAdapter.adaptTo(connection.getMetaData());
-            dbAdapter.setDatasource(sqlSessionManager.getConfiguration().getEnvironment().getDataSource());
-        } finally {
-            if (sqlSessionManager.isManagedSessionStarted()) {
-                sqlSessionManager.close();
-            }
+        if (sessionStore) {
+            // The name of the table to create in the database
+            String sessionStoreTable = mirthProperties.getString("server.api.sessionstoretable", "sessiondata");
+            addBean(createSessionDataStoreFactory(sessionStoreTable));
         }
-        jdbcSDSFactory.setDatabaseAdaptor(dbAdapter);
-        addBean(jdbcSDSFactory);
+
+        /*
+         * Allows users to decide whether to use an L1 cache of session data at the JVM level. The
+         * null session cache will only be used if session storage is enabled.
+         * 
+         * "none": NullSessionCache
+         * 
+         * "default" / anything else: DefaultSessionCache
+         */
+        String sessionCacheProperty = mirthProperties.getString("server.api.sessioncache", "default");
+
+        if (StringUtils.equalsIgnoreCase(sessionCacheProperty, "none") && sessionStore) {
+            addBean(new NullSessionCacheFactory());
+        } else {
+            // Session caching
+            DefaultSessionCacheFactory sessionCacheFactory = new DefaultSessionCacheFactory();
+            // Evict from the cache after 24 hours
+            sessionCacheFactory.setEvictionPolicy(86400);
+            addBean(sessionCacheFactory);
+        }
 
         handlers = new HandlerList();
         String contextPath = mirthProperties.getString("http.contextpath", "");
@@ -595,5 +601,41 @@ public class MirthWebServer extends Server {
         }
 
         return builder.toString();
+    }
+
+    private SessionDataStoreFactory createSessionDataStoreFactory(String sessionStoreTable) throws SQLException {
+        JDBCSessionDataStoreFactory jdbcSDSFactory = new JDBCSessionDataStoreFactory();
+        SessionTableSchema schema = new SessionTableSchema();
+        schema.setTableName(sessionStoreTable);
+        jdbcSDSFactory.setSessionTableSchema(schema);
+
+        /*
+         * The default Jetty implementation doesn't account for SQL Server's "image" data type so we
+         * add that ourselves.
+         */
+        DatabaseAdaptor dbAdapter = new DatabaseAdaptor() {
+            @Override
+            public String getBlobType() {
+                if (_blobType == null && StringUtils.containsIgnoreCase(getDBName(), "sql server")) {
+                    setBlobType("image");
+                }
+                return super.getBlobType();
+            }
+        };
+
+        SqlSessionManager sqlSessionManager = SqlConfig.getSqlSessionManager();
+        sqlSessionManager.startManagedSession();
+        Connection connection = sqlSessionManager.getConnection();
+        try {
+            dbAdapter.adaptTo(connection.getMetaData());
+            dbAdapter.setDatasource(sqlSessionManager.getConfiguration().getEnvironment().getDataSource());
+        } finally {
+            if (sqlSessionManager.isManagedSessionStarted()) {
+                sqlSessionManager.close();
+            }
+        }
+        jdbcSDSFactory.setDatabaseAdaptor(dbAdapter);
+
+        return jdbcSDSFactory;
     }
 }
