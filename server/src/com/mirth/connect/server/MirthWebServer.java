@@ -149,8 +149,8 @@ public class MirthWebServer extends Server {
         } else {
             // Session caching
             DefaultSessionCacheFactory sessionCacheFactory = new DefaultSessionCacheFactory();
-            // Evict from the cache after 24 hours
-            sessionCacheFactory.setEvictionPolicy(86400);
+            // Evict from the cache after the inactive period has elapsed, default value is 72 hours (3 days)
+            sessionCacheFactory.setEvictionPolicy(configurationController.getMaxInactiveSessionInterval());
             addBean(sessionCacheFactory);
         }
 

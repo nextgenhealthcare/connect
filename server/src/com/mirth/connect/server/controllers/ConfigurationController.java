@@ -218,6 +218,11 @@ public abstract class ConfigurationController extends Controller {
      */
     public abstract String getBuildDate();
 
+    /**
+     * The maximum amount of time that a session can be idle before it is invalidated.
+     */
+    public abstract int getMaxInactiveSessionInterval();
+
     public abstract String[] getHttpsClientProtocols();
 
     public abstract String[] getHttpsServerProtocols();

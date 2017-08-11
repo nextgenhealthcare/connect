@@ -147,6 +147,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private int status = ConfigurationController.STATUS_UNAVAILABLE;
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
+    private int maxInactiveSessionInterval;
     private String[] httpsClientProtocols;
     private String[] httpsServerProtocols;
     private String[] httpsCipherSuites;
@@ -167,6 +168,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String PROPERTY_TEMP_DIR = "dir.tempdata";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
     private static final String CONFIGURATION_MAP_PATH = "configurationmap.path";
+    private static final String MAX_INACTIVE_SESSION_INTERVAL = "server.api.sessionmaxinactiveinterval";
     private static final String HTTPS_CLIENT_PROTOCOLS = "https.client.protocols";
     private static final String HTTPS_SERVER_PROTOCOLS = "https.server.protocols";
     private static final String HTTPS_CIPHER_SUITES = "https.ciphersuites";
@@ -251,6 +253,12 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             if (mirthConfig.getString(CHARSET) != null) {
                 System.setProperty(CHARSET, mirthConfig.getString(CHARSET));
+            }
+
+            // Default value is 72 hours (3 days), minimum is 1 minute
+            maxInactiveSessionInterval = NumberUtils.toInt(mirthConfig.getString(MAX_INACTIVE_SESSION_INTERVAL), 259200);
+            if (maxInactiveSessionInterval < 60) {
+                maxInactiveSessionInterval = 60;
             }
 
             String[] httpsClientProtocolsArray = mirthConfig.getStringArray(HTTPS_CLIENT_PROTOCOLS);
@@ -518,6 +526,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public String getBuildDate() {
         return versionConfig.getString("mirth.date");
+    }
+
+    @Override
+    public int getMaxInactiveSessionInterval() {
+        return maxInactiveSessionInterval;
     }
 
     @Override
