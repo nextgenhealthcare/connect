@@ -82,6 +82,11 @@ public class ChannelStatusServlet extends MirthServlet implements ChannelStatusS
     }
 
     @Override
+    public List<DashboardStatus> getChannelStatusListPost(Set<String> channelIds, String filter, boolean includeUndeployed) {
+        return getChannelStatusList(channelIds, filter, includeUndeployed);
+    }
+
+    @Override
     public DashboardChannelInfo getDashboardChannelInfo(int fetchSize, String filter) {
         // Return a partial dashboard status list, and a list of remaining channel IDs
         List<DashboardStatus> channelStatuses;

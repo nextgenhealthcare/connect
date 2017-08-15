@@ -55,6 +55,11 @@ public class CodeTemplateServlet extends MirthServlet implements CodeTemplateSer
     }
 
     @Override
+    public List<CodeTemplateLibrary> getCodeTemplateLibrariesPost(Set<String> libraryIds, boolean includeCodeTemplates) {
+        return getCodeTemplateLibraries(libraryIds, includeCodeTemplates);
+    }
+
+    @Override
     public CodeTemplateLibrary getCodeTemplateLibrary(String libraryId, boolean includeCodeTemplates) {
         try {
             List<CodeTemplateLibrary> libraries = codeTemplateController.getLibraries(Collections.singleton(libraryId), includeCodeTemplates);
@@ -86,6 +91,11 @@ public class CodeTemplateServlet extends MirthServlet implements CodeTemplateSer
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }
+    }
+    
+    @Override
+    public List<CodeTemplate> getCodeTemplatesPost(Set<String> codeTemplateIds) {
+        return getCodeTemplates(codeTemplateIds);
     }
 
     @Override

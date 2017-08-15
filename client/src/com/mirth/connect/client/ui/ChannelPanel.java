@@ -72,8 +72,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationException;
@@ -132,6 +130,8 @@ import com.mirth.connect.plugins.TaskPlugin;
 import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
 import com.mirth.connect.util.DirectedAcyclicGraphNode;
+
+import net.miginfocom.swing.MigLayout;
 
 public class ChannelPanel extends AbstractFramePanel {
 
@@ -3496,7 +3496,6 @@ public class ChannelPanel extends AbstractFramePanel {
             AbstractChannelTableNode child = (AbstractChannelTableNode) children.nextElement();
             if (child.isGroupNode() && tableState.getSelectedIds().contains(child.getGroupStatus().getGroup().getId()) || !child.isGroupNode() && tableState.getSelectedIds().contains(child.getChannelStatus().getChannel().getId())) {
                 TreePath path = new TreePath(new Object[] { root, child });
-                channelTable.getTreeSelectionModel().addSelectionPath(path);
                 selectionPaths.add(path);
             }
 
@@ -3505,19 +3504,20 @@ public class ChannelPanel extends AbstractFramePanel {
                     AbstractChannelTableNode channelNode = (AbstractChannelTableNode) channelNodes.nextElement();
                     if (tableState.getSelectedIds().contains(channelNode.getChannelStatus().getChannel().getId())) {
                         TreePath path = new TreePath(new Object[] { root, child, channelNode });
-                        channelTable.getTreeSelectionModel().addSelectionPath(path);
                         selectionPaths.add(path);
                     }
                 }
             }
         }
 
+        if (CollectionUtils.isNotEmpty(selectionPaths)) {
+            channelTable.getTreeSelectionModel().addSelectionPaths(selectionPaths.toArray(new TreePath[selectionPaths.size()]));
+        }
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                for (TreePath path : selectionPaths) {
-                    channelTable.getTreeSelectionModel().addSelectionPath(path);
-                }
+                channelTable.getTreeSelectionModel().addSelectionPaths(selectionPaths.toArray(new TreePath[selectionPaths.size()]));
             }
         });
     }

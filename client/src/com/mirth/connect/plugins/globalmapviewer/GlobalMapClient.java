@@ -84,12 +84,12 @@ public class GlobalMapClient extends DashboardTabPlugin {
             data = new Vector<Object>();
             Serializer serializer = ObjectXMLSerializer.getInstance();
             Map<String, String> globalMaps = null;
-            
+
             selectedRow = 0;
             String currentlySelectedMap = globalMapPanel.getSelectedMap();
             String currentlySelectedVar = globalMapPanel.getSelectedVar();
             try {
-                globalMaps = (Map<String, String>) PlatformUI.MIRTH_FRAME.mirthClient.getServlet(GlobalMapServletInterface.class).getAllMaps(channelIds, true);
+                globalMaps = (Map<String, String>) PlatformUI.MIRTH_FRAME.mirthClient.getServlet(GlobalMapServletInterface.class).getAllMapsPost(channelIds, true);
             } catch (ClientException e) {
                 if (e instanceof ForbiddenException) {
                     // Don't error. Let an empty map be processed
@@ -130,10 +130,10 @@ public class GlobalMapClient extends DashboardTabPlugin {
                         row.add(channelName);
                         row.add(StringUtil.valueOf(entryKey));
                         row.add(StringUtil.valueOf(entry.getValue()));
-                        
+
                         data.add(row);
-                        
-                        if(StringUtils.equals(entryKey, currentlySelectedVar) && StringUtils.equals(channelName, currentlySelectedMap)){
+
+                        if (StringUtils.equals(entryKey, currentlySelectedVar) && StringUtils.equals(channelName, currentlySelectedMap)) {
                             selectedRow = data.size();
                         }
                     }
@@ -153,8 +153,8 @@ public class GlobalMapClient extends DashboardTabPlugin {
                         row.add(StringUtil.valueOf(entry.getValue()));
 
                         data.add(row);
-                        
-                        if(StringUtils.equals(entryKey, currentlySelectedVar) && StringUtils.equals("<Global Map>", currentlySelectedMap)){
+
+                        if (StringUtils.equals(entryKey, currentlySelectedVar) && StringUtils.equals("<Global Map>", currentlySelectedMap)) {
                             selectedRow = data.size();
                         }
                     }

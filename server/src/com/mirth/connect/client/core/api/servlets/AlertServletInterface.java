@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +35,10 @@ import com.mirth.connect.model.alert.AlertInfo;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @Path("/alerts")
 @Api("Alerts")
 @Consumes(MediaType.APPLICATION_XML)
@@ -62,6 +62,12 @@ public interface AlertServletInterface extends BaseServletInterface {
     @ApiOperation("Retrieves multiple alerts by ID, or all alerts if not specified.")
     @MirthOperation(name = "getAlert", display = "Get alerts", permission = Permissions.ALERTS_VIEW)
     public List<AlertModel> getAlerts(@Param("alertIds") @ApiParam(value = "The ID of the alert(s). If absent, all alerts will be returned.") @QueryParam("alertId") Set<String> alertIds) throws ClientException;
+
+    @POST
+    @Path("/_getAlerts")
+    @ApiOperation("Retrieves multiple alerts by ID, or all alerts if not specified. This is a POST request alternative to GET /alerts that may be used when there are too many alert IDs to include in the query parameters.")
+    @MirthOperation(name = "getAlert", display = "Get alerts", permission = Permissions.ALERTS_VIEW)
+    public List<AlertModel> getAlertsPost(@Param("alertIds") @ApiParam(value = "The ID of the alert(s). If absent, all alerts will be returned.") Set<String> alertIds) throws ClientException;
 
     @GET
     @Path("/statuses")

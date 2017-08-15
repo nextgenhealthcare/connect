@@ -256,6 +256,11 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     }
 
     @Override
+    public void removeAllMessagesPost(Set<String> channelIds, boolean restartRunningChannels, boolean clearStatistics) {
+        removeAllMessages(channelIds, restartRunningChannels, clearStatistics);
+    }
+
+    @Override
     @CheckAuthorizedChannelId
     public void importMessage(String channelId, Message message) {
         try {
