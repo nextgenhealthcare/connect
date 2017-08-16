@@ -558,7 +558,7 @@ public class ChannelSetup extends JPanel {
         Collections.sort(tags, new Comparator<ChannelTag>() {
             @Override
             public int compare(ChannelTag tag1, ChannelTag tag2) {
-                return tag1.getName().compareTo(tag2.getName());
+                return tag1.getName().compareToIgnoreCase(tag2.getName());
             }
 
         });
