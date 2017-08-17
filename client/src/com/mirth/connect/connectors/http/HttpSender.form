@@ -105,7 +105,7 @@
                           <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="responseBinaryMimeTypesField" max="32767" attributes="1"/>
+                                  <Component id="responseBinaryMimeTypesField" pref="312" max="32767" attributes="1"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="includeMetadataYesRadio" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
@@ -130,22 +130,13 @@
                                   <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                                   <Component id="sendTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="postButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="getButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="putButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="0" attributes="0">
                                       <Component id="multipartYesButton" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="multipartNoButton" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <Component id="proxyAddressField" alignment="0" min="-2" pref="202" max="-2" attributes="0"/>
                                   <Component id="proxyPortField" alignment="0" min="-2" pref="56" max="-2" attributes="0"/>
-                                  <Component id="urlField" alignment="1" pref="300" max="32767" attributes="1"/>
+                                  <Component id="urlField" alignment="1" max="32767" attributes="1"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="authenticationTypeBasicRadio" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
@@ -164,6 +155,17 @@
                                   <Component id="testConnection" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="responseBinaryMimeTypesRegexCheckBox" alignment="1" min="-2" max="-2" attributes="0"/>
                               </Group>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="postButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="getButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="putButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="patchButton" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -204,6 +206,7 @@
                   <Component id="getButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="putButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="deleteButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="patchButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -923,6 +926,24 @@
         <Property name="text" type="java.lang.String" value="Regular Expression"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When a response comes in with a Content-Type header that&lt;br/&gt;matches one of these entries, the content will be encoded&lt;br/&gt;into a Base64 string. If Regular Expression is unchecked,&lt;br/&gt;specify multiple entries with commas. Otherwise, enter a&lt;br/&gt;valid regular expression to match MIME types against.&lt;/html&gt;"/>
       </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="patchButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="methodButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="PATCH"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects the HTTP operation used to send each message."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="patchButtonActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
