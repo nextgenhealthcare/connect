@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
@@ -307,9 +308,9 @@ public class HttpSender extends ConnectorSettingsPanel {
         queryParametersTable = new MirthTable();
 
         int j = 0;
-        Iterator i = properties.entrySet().iterator();
+        Iterator<Entry<String, List<String>>> i = properties.entrySet().iterator();
         while (i.hasNext()) {
-            Map.Entry entry = (Map.Entry) i.next();
+            Entry<String, List<String>> entry = (Entry<String, List<String>>) i.next();
 
             for (String keyValue : (ArrayList<String>) entry.getValue()) {
                 tableData[j][NAME_COLUMN] = (String) entry.getKey();
@@ -403,9 +404,9 @@ public class HttpSender extends ConnectorSettingsPanel {
         headersTable = new MirthTable();
 
         int j = 0;
-        Iterator i = properties.entrySet().iterator();
+        Iterator<Entry<String, List<String>>> i = properties.entrySet().iterator();
         while (i.hasNext()) {
-            Map.Entry entry = (Map.Entry) i.next();
+        	Entry<String, List<String>> entry = (Entry<String, List<String>>) i.next();
             for (String keyValue : (List<String>) entry.getValue()) {
                 tableData[j][NAME_COLUMN] = (String) entry.getKey();
                 tableData[j][VALUE_COLUMN] = keyValue;
