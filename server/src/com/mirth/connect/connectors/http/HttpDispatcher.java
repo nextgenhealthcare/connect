@@ -56,6 +56,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -509,6 +510,20 @@ public class HttpDispatcher extends DestinationConnector {
         } else if ("DELETE".equalsIgnoreCase(method)) {
             setQueryString(uriBuilder, queryParameters);
             httpMethod = new HttpDelete(uriBuilder.build());
+        } else if ("PATCH".equalsIgnoreCase(method)) {
+        	if (StringUtils.startsWithIgnoreCase(contentType.getMimeType(), ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
+                httpMethod = new HttpPatch(uriBuilder.build());
+                httpEntity = new UrlEncodedFormEntity(queryParameters, contentType.getCharset());
+            } else {
+                setQueryString(uriBuilder, queryParameters);
+                httpMethod = new HttpPatch(uriBuilder.build());
+
+                if (content instanceof String) {
+                    httpEntity = new StringEntity((String) content, contentType);
+                } else {
+                    httpEntity = new ByteArrayEntity((byte[]) content);
+                }
+            }
         }
 
         if (httpMethod instanceof HttpEntityEnclosingRequestBase) {
@@ -535,7 +550,7 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         // Only set the Content-Type for entity-enclosing methods, but not if multipart is used
-        if (("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method)) && !isMultipart) {
+        if (("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method) || "PATCH".equalsIgnoreCase(method)) && !isMultipart) {
             httpMethod.setHeader(HTTP.CONTENT_TYPE, contentType.toString());
         }
 
