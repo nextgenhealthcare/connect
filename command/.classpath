@@ -78,12 +78,12 @@
 	<classpathentry kind="lib" path="lib/velocity-tools-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-vfs2-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.7.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-jdk15on-151.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-151.jar"/>
-	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-151.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-4.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
