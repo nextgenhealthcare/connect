@@ -405,7 +405,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         // set the response headers
         for (Entry<String, List<String>> entry : connectorProperties.getResponseHeaders().entrySet()) {
             for (String headerValue : entry.getValue()) {
-                servletResponse.addHeader(entry.getKey(), replaceValues(headerValue, dispatchResult));
+                servletResponse.addHeader(replaceValues(entry.getKey(), dispatchResult), replaceValues(headerValue, dispatchResult));
             }
         }
 

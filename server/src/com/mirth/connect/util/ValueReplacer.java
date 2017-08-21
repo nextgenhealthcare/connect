@@ -82,6 +82,21 @@ public class ValueReplacer {
 
         return localMap;
     }
+    
+    public Map<String, List<String>> replaceKeysAndValuesInMap(Map<String, List<String>> map, ConnectorMessage connectorMessage) {
+        Map<String, List<String>> localMap = new HashMap<String, List<String>>();
+        
+        for (Entry<String, List<String>> entry : map.entrySet()) {
+            String key = replaceValues(entry.getKey(), connectorMessage);
+            
+            List<String> list = entry.getValue();
+            replaceValuesInList(list, connectorMessage);
+            
+            localMap.put(key, list);
+        }
+        
+        return localMap;
+    }
 
     /**
      * Replaces all values in a list. Uses the default context, which includes the global variable
