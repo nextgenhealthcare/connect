@@ -27,10 +27,10 @@ public class TemplateValueReplacerTests {
 	@Test
 	public void testReplaceValues() {		
 		// replaceValues(String template, String channelId, String channelname) calls loadContextFromMap(VelocityContext context, Map<String, ?> map) below
-		assertEquals(templateReplacer.replaceValues("value1", "channelId", "channelName"), "value1");
-		assertEquals(templateReplacer.replaceValues("$velocity1", "channelId", "channelName"), "valueOfVelocity1");
-		assertEquals(templateReplacer.replaceValues("$velocityUnknown", "channelId", "channelName"), "$velocityUnknown");
-		assertEquals(templateReplacer.replaceValues("unusedVelocity1", "channelId", "channelName"), "unusedVelocity1");
+		assertEquals("value1", templateReplacer.replaceValues("value1", "channelId", "channelName"));
+		assertEquals("valueOfVelocity1", templateReplacer.replaceValues("$velocity1", "channelId", "channelName"));
+		assertEquals("$velocityUnknown", templateReplacer.replaceValues("$velocityUnknown", "channelId", "channelName"));
+		assertEquals("unusedVelocity1", templateReplacer.replaceValues("unusedVelocity1", "channelId", "channelName"));
 	}
 
 	private class TestTemplateValueReplacer extends TemplateValueReplacer {

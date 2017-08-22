@@ -93,25 +93,25 @@ public class ValueReplacerTests {
 		assertTrue(replacedMap.containsKey("$velocityKeyUnknown2"));
 		
 		List<String> list = replacedMap.get("key1");
-		assertEquals(list.size(), 2);
+		assertEquals(2, list.size());
 		assertTrue(list.contains("value1"));
 		assertTrue(list.contains("valueOfVelocity1"));
 		
 		list = replacedMap.get("valueOfVelocityKey2");
-		assertEquals(list.size(), 2);
+		assertEquals(2, list.size());
 		assertTrue(list.contains("value2"));
 		assertTrue(list.contains("valueOfVelocity2"));
 		
 		list = replacedMap.get("key3");
-		assertEquals(list.size(), 1);
+		assertEquals(1, list.size());
 		assertTrue(list.contains("$velocityUnknown1"));
 		
 		list = replacedMap.get("$velocityKeyUnknown1");
-		assertEquals(list.size(), 1);
+		assertEquals(1, list.size());
 		assertTrue(list.contains("value3"));
 		
 		list = replacedMap.get("$velocityKeyUnknown2");
-		assertEquals(list.size(), 1);
+		assertEquals(1, list.size());
 		assertTrue(list.contains("$velocityUnknown2"));
 	}
 	

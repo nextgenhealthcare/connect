@@ -95,10 +95,7 @@ public class ValueReplacer {
         for (Entry<String, List<String>> entry : map.entrySet()) {
             String key = replaceValues(entry.getKey(), connectorMessage);
             
-            List<String> list = new ArrayList<String>();
-            for (String value : entry.getValue()) {
-            	list.add(value);
-            }
+            List<String> list = new ArrayList<>(entry.getValue());
             
             replaceValuesInList(list, connectorMessage);
             
