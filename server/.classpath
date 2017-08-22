@@ -168,11 +168,11 @@
 	<classpathentry kind="lib" path="lib/jackson-annotations-2.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-2.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.5.3.jar"/>
-	<classpathentry kind="lib" path="lib/rhino-1.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/zip4j_1.3.2.jar"/>
 	<classpathentry kind="lib" path="/Donkey/lib/guava-18.0.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
+	<classpathentry kind="lib" path="lib/rhino-1.7.7.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
