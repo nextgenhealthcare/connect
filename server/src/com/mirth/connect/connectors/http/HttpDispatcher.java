@@ -191,15 +191,8 @@ public class HttpDispatcher extends DestinationConnector {
         httpDispatcherProperties.setProxyAddress(replacer.replaceValues(httpDispatcherProperties.getProxyAddress(), connectorMessage));
         httpDispatcherProperties.setProxyPort(replacer.replaceValues(httpDispatcherProperties.getProxyPort(), connectorMessage));
         httpDispatcherProperties.setResponseBinaryMimeTypes(replacer.replaceValues(httpDispatcherProperties.getResponseBinaryMimeTypes(), connectorMessage));
-
-        for (List<String> list : httpDispatcherProperties.getHeaders().values()) {
-            replacer.replaceValuesInList(list, connectorMessage);
-        }
-
-        for (List<String> list : httpDispatcherProperties.getParameters().values()) {
-            replacer.replaceValuesInList(list, connectorMessage);
-        }
-
+        httpDispatcherProperties.setHeaders(replacer.replaceKeysAndValuesInMap(httpDispatcherProperties.getHeaders(), connectorMessage));
+        httpDispatcherProperties.setParameters(replacer.replaceKeysAndValuesInMap(httpDispatcherProperties.getParameters(), connectorMessage));
         httpDispatcherProperties.setUsername(replacer.replaceValues(httpDispatcherProperties.getUsername(), connectorMessage));
         httpDispatcherProperties.setPassword(replacer.replaceValues(httpDispatcherProperties.getPassword(), connectorMessage));
         httpDispatcherProperties.setContent(replacer.replaceValues(httpDispatcherProperties.getContent(), connectorMessage));
