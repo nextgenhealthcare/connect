@@ -68,8 +68,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
@@ -132,6 +130,8 @@ import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.plugins.ChannelTabPlugin;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.PropertyVerifier;
+
+import net.miginfocom.swing.MigLayout;
 
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends JPanel {
@@ -558,7 +558,7 @@ public class ChannelSetup extends JPanel {
         Collections.sort(tags, new Comparator<ChannelTag>() {
             @Override
             public int compare(ChannelTag tag1, ChannelTag tag2) {
-                return tag1.getName().compareTo(tag2.getName());
+                return tag1.getName().compareToIgnoreCase(tag2.getName());
             }
 
         });
@@ -1621,6 +1621,10 @@ public class ChannelSetup extends JPanel {
 
     private String validateTransformerSteps(Connector connector) {
         String errors = "";
+        Connector currentConnector = transformerPane.getConnector();
+        if (connector != currentConnector) {
+            transformerPane.setConnector(connector);
+        }
 
         for (Step step : connector.getTransformer().getElements()) {
             String validationMessage = this.transformerPane.validateElement(step);
@@ -1638,11 +1642,18 @@ public class ChannelSetup extends JPanel {
             }
         }
 
+        if (connector != currentConnector) {
+            transformerPane.setConnector(currentConnector);
+        }
         return errors;
     }
 
     private String validateFilterRules(Connector connector) {
         String errors = "";
+        Connector currentConnector = filterPane.getConnector();
+        if (connector != currentConnector) {
+            filterPane.setConnector(connector);
+        }
 
         for (Rule rule : connector.getFilter().getElements()) {
             String validationMessage = this.filterPane.validateElement(rule);
@@ -1651,6 +1662,9 @@ public class ChannelSetup extends JPanel {
             }
         }
 
+        if (connector != currentConnector) {
+            filterPane.setConnector(currentConnector);
+        }
         return errors;
     }
 

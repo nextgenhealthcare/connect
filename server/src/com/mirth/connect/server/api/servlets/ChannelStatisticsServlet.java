@@ -81,6 +81,11 @@ public class ChannelStatisticsServlet extends MirthServlet implements ChannelSta
     }
 
     @Override
+    public List<ChannelStatistics> getStatisticsPost(Set<String> channelIds, boolean includeUndeployed, Set<Integer> includeMetadataIds, Set<Integer> excludeMetadataIds, boolean aggregateStats) {
+        return getStatistics(channelIds, includeUndeployed, includeMetadataIds, excludeMetadataIds, aggregateStats);
+    }
+
+    @Override
     @CheckAuthorizedChannelId
     public ChannelStatistics getStatistics(String channelId) {
         ChannelStatistics channelStatistics = null;

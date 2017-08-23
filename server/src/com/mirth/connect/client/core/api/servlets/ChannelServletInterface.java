@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +37,10 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @Path("/channels")
 @Api("Channels")
 @Consumes(MediaType.APPLICATION_XML)
@@ -58,6 +58,12 @@ public interface ChannelServletInterface extends BaseServletInterface {
     @ApiOperation("Retrieve a list of all channels, or multiple channels by ID.")
     @MirthOperation(name = "getChannels", display = "Get channels", permission = Permissions.CHANNELS_VIEW)
     public List<Channel> getChannels(@Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") @QueryParam("channelId") Set<String> channelIds, @Param("pollingOnly") @ApiParam(value = "If true, only channels with polling source connectors will be returned.") @QueryParam("pollingOnly") boolean pollingOnly) throws ClientException;
+
+    @POST
+    @Path("/_getChannels")
+    @ApiOperation("Retrieve a list of all channels, or multiple channels by ID. This is a POST request alternative to GET /channels that may be used when there are too many channel IDs to include in the query parameters.")
+    @MirthOperation(name = "getChannels", display = "Get channels", permission = Permissions.CHANNELS_VIEW)
+    public List<Channel> getChannelsPost(@Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") Set<String> channelIds, @Param("pollingOnly") @ApiParam(value = "If true, only channels with polling source connectors will be returned.") @QueryParam("pollingOnly") boolean pollingOnly) throws ClientException;
 
     @GET
     @Path("/{channelId}")
@@ -145,4 +151,10 @@ public interface ChannelServletInterface extends BaseServletInterface {
     @ApiOperation("Removes the channels with the specified IDs.")
     @MirthOperation(name = "removeChannels", display = "Remove channels", permission = Permissions.CHANNELS_MANAGE)
     public void removeChannels(@Param("channelIds") @ApiParam(value = "The IDs of the channels to remove.", required = true) @QueryParam("channelId") Set<String> channelIds) throws ClientException;
+    
+    @POST
+    @Path("/_removeChannels")
+    @ApiOperation("Removes the channels with the specified IDs. This is a POST request alternative to DELETE /channels that may be used when there are too many channel IDs to include in the query parameters.")
+    @MirthOperation(name = "removeChannels", display = "Remove channels", permission = Permissions.CHANNELS_MANAGE)
+    public void removeChannelsPost(@Param("channelIds") @ApiParam(value = "The IDs of the channels to remove.", required = true) Set<String> channelIds) throws ClientException;
 }

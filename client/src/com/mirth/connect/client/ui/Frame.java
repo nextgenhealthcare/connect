@@ -51,6 +51,8 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javafx.application.Platform;
+
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -143,8 +145,6 @@ import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
 import com.mirth.connect.util.DirectedAcyclicGraphNode;
 import com.mirth.connect.util.MigrationUtil;
-
-import javafx.application.Platform;
 
 /**
  * The main content frame for the Mirth Client Application. Extends JXFrame and sets up all content.
@@ -1309,7 +1309,7 @@ public class Frame extends JXFrame {
                     this.dispose();
                     LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
                     return;
-                } else if (t.getCause() != null && t.getCause() instanceof HttpHostConnectException && StringUtils.contains(t.getCause().getMessage(), "Connection refused")) {
+                } else if (t.getCause() != null && t.getCause() instanceof HttpHostConnectException && (StringUtils.contains(t.getCause().getMessage(), "Connection refused") || StringUtils.contains(t.getCause().getMessage(), "Host is down"))) {
                     connectionError = true;
                     statusUpdaterExecutor.shutdownNow();
 
@@ -2014,21 +2014,25 @@ public class Frame extends JXFrame {
         tagUserProperties.put("initialTagsChannels", channelPanel.getUserTags());
 
         try {
-            try {
-                mirthClient.setUserPreferences(getCurrentUser(this).getId(), tagUserProperties);
-            } catch (ClientException e) {
-                alertThrowable(this, e);
-            }
-
-            mirthClient.logout();
-            mirthClient.close();
-            this.dispose();
-
-            if (!quit) {
-                LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
+            User currentUser = getCurrentUser(this);
+            if (currentUser != null) {
+                mirthClient.setUserPreferences(currentUser.getId(), tagUserProperties);
             }
         } catch (ClientException e) {
             alertThrowable(this, e);
+        }
+
+        try {
+            mirthClient.logout();
+        } catch (ClientException e) {
+            alertThrowable(this, e);
+        }
+
+        mirthClient.close();
+        this.dispose();
+
+        if (!quit) {
+            LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
         }
 
         return true;

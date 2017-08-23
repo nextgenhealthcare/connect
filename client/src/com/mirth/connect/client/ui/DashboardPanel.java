@@ -52,8 +52,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
@@ -84,6 +82,8 @@ import com.mirth.connect.plugins.DashboardPanelPlugin;
 import com.mirth.connect.plugins.DashboardTabPlugin;
 import com.mirth.connect.plugins.DashboardTablePlugin;
 
+import net.miginfocom.swing.MigLayout;
+
 public class DashboardPanel extends JPanel {
 
     private static final String STATUS_COLUMN_NAME = "Status";
@@ -108,6 +108,7 @@ public class DashboardPanel extends JPanel {
 
     private Set<String> defaultVisibleColumns;
     private Set<DeployedState> haltableStates = new HashSet<DeployedState>();
+    private ListSelectionListener listSelectionListener;
 
     public DashboardPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -380,7 +381,7 @@ public class DashboardPanel extends JPanel {
             }
         });
 
-        dashboardTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        listSelectionListener = new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent event) {
                 /*
                  * MIRTH-3199: Only update the panel plugin if the selection is finished. This does
@@ -394,7 +395,8 @@ public class DashboardPanel extends JPanel {
                  */
                 updatePopupMenu(!event.getValueIsAdjusting());
             }
-        });
+        };
+        dashboardTable.getSelectionModel().addListSelectionListener(listSelectionListener);
     }
 
     /**
@@ -1262,10 +1264,19 @@ public class DashboardPanel extends JPanel {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                /*
+                 * When setting selection paths the ListSelectionListener will be invoked
+                 * multiple times for each row, so remove and re-add it afterwards.
+                 */
+                dashboardTable.getSelectionModel().removeListSelectionListener(listSelectionListener);
+
                 try {
                     dashboardTable.getTreeSelectionModel().setSelectionPaths(selectionPaths.toArray(new TreePath[selectionPaths.size()]));
                 } catch (Exception e) {
                     // It's possible that the model changed already, just ignore this since it's only selecting nodes
+                } finally {
+                    dashboardTable.getSelectionModel().addListSelectionListener(listSelectionListener);
+                    updatePopupMenu(true);
                 }
             }
         });

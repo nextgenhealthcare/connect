@@ -44,7 +44,7 @@ public class AttachmentTypeDialog extends MirthDialog {
 
         setTitle("Select Attachment Viewer");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setPreferredSize(new Dimension(300, checkBox.isVisible() ? 155 : 133));
+        setPreferredSize(new Dimension(400, checkBox.isVisible() ? 162 : 140));
         pack();
         setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
         setVisible(true);
@@ -127,8 +127,8 @@ public class AttachmentTypeDialog extends MirthDialog {
             add(checkBox, "newline");
         }
         add(separator, "newline, growx");
-        add(okButton, "newline, right, w 45!, split 2");
-        add(cancelButton, "w 45!");
+        add(okButton, "newline, right, w 65!, split 2");
+        add(cancelButton, "w 65!");
     }
 
     private JLabel label;

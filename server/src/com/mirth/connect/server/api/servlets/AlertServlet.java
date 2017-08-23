@@ -88,6 +88,11 @@ public class AlertServlet extends MirthServlet implements AlertServletInterface 
     }
 
     @Override
+    public List<AlertModel> getAlertsPost(Set<String> alertIds) {
+        return getAlerts(alertIds);
+    }
+
+    @Override
     public List<AlertStatus> getAlertStatusList() {
         try {
             return alertController.getAlertStatusList();

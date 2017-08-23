@@ -124,6 +124,8 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class Client implements UserServletInterface, ConfigurationServletInterface, ChannelServletInterface, ChannelGroupServletInterface, ChannelStatusServletInterface, ChannelStatisticsServletInterface, EngineServletInterface, MessageServletInterface, EventServletInterface, AlertServletInterface, CodeTemplateServletInterface, DatabaseTaskServletInterface, UsageServletInterface, ExtensionServletInterface {
 
+    public static final int MAX_QUERY_PARAM_COLLECTION_SIZE = 100;
+
     private Logger logger = Logger.getLogger(this.getClass());
     private ServerConnection serverConnection;
     private javax.ws.rs.client.Client client;
@@ -887,7 +889,21 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      */
     @Override
     public List<Channel> getChannels(Set<String> channelIds, boolean pollingOnly) throws ClientException {
+        if (CollectionUtils.size(channelIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
+            return getChannelsPost(channelIds, pollingOnly);
+        }
         return getServlet(ChannelServletInterface.class).getChannels(channelIds, pollingOnly);
+    }
+
+    /**
+     * Retrieve multiple channels by ID. This is a POST request alternative to GET /channels that
+     * may be used when there are too many channel IDs to include in the query parameters.
+     * 
+     * @see ChannelServletInterface#getChannels
+     */
+    @Override
+    public List<Channel> getChannelsPost(Set<String> channelIds, boolean pollingOnly) throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannelsPost(channelIds, pollingOnly);
     }
 
     /**
@@ -1008,7 +1024,23 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      */
     @Override
     public synchronized void removeChannels(Set<String> channelIds) throws ClientException {
-        getServlet(ChannelServletInterface.class).removeChannels(channelIds);
+        if (CollectionUtils.size(channelIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
+            removeChannelsPost(channelIds);
+        } else {
+            getServlet(ChannelServletInterface.class).removeChannels(channelIds);
+        }
+    }
+
+    /**
+     * Removes the channels with the specified IDs. This is a POST request alternative to DELETE
+     * /channels that may be used when there are too many channel IDs to include in the query
+     * parameters.
+     * 
+     * @see ChannelServletInterface#removeChannels
+     */
+    @Override
+    public synchronized void removeChannelsPost(Set<String> channelIds) throws ClientException {
+        getServlet(ChannelServletInterface.class).removeChannelsPost(channelIds);
     }
 
     /**
@@ -1027,7 +1059,22 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      */
     @Override
     public List<ChannelGroup> getChannelGroups(Set<String> channelGroupIds) throws ClientException {
+        if (CollectionUtils.size(channelGroupIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
+            return getChannelGroupsPost(channelGroupIds);
+        }
         return getServlet(ChannelGroupServletInterface.class).getChannelGroups(channelGroupIds);
+    }
+
+    /**
+     * Retrieves selected channel groups. This is a POST request alternative to GET /channelgroups
+     * that may be used when there are too many channel group IDs to include in the query
+     * parameters.
+     * 
+     * @see ChannelGroupServletInterface#getChannelGroups
+     */
+    @Override
+    public List<ChannelGroup> getChannelGroupsPost(Set<String> channelGroupIds) throws ClientException {
+        return getServlet(ChannelGroupServletInterface.class).getChannelGroupsPost(channelGroupIds);
     }
 
     /**
@@ -1094,7 +1141,22 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      */
     @Override
     public List<DashboardStatus> getChannelStatusList(Set<String> channelIds, String filter, boolean includeUndeployed) throws ClientException {
+        if (CollectionUtils.size(channelIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
+            return getChannelStatusListPost(channelIds, filter, includeUndeployed);
+        }
         return getServlet(ChannelStatusServletInterface.class).getChannelStatusList(channelIds, filter, includeUndeployed);
+    }
+
+    /**
+     * Returns the channel status list for specific channel IDs. With option to include undeployed
+     * channels. This is a POST request alternative to GET /statuses that may be used when there are
+     * too many channel IDs to include in the query parameters.
+     * 
+     * @see ChannelStatusServletInterface#getChannelStatusList
+     */
+    @Override
+    public List<DashboardStatus> getChannelStatusListPost(Set<String> channelIds, String filter, boolean includeUndeployed) throws ClientException {
+        return getServlet(ChannelStatusServletInterface.class).getChannelStatusListPost(channelIds, filter, includeUndeployed);
     }
 
     /**
@@ -1406,7 +1468,23 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      */
     @Override
     public List<ChannelStatistics> getStatistics(Set<String> channelIds, boolean includeUndeployed, Set<Integer> includeMetadataIds, Set<Integer> excludeMetadataIds, boolean aggregateStats) throws ClientException {
+        if (CollectionUtils.size(channelIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
+            return getStatisticsPost(channelIds, includeUndeployed, includeMetadataIds, excludeMetadataIds, aggregateStats);
+        }
         return getServlet(ChannelStatisticsServletInterface.class).getStatistics(channelIds, includeUndeployed, includeMetadataIds, excludeMetadataIds, aggregateStats);
+    }
+
+    /**
+     * Returns the individual statistics for channels supplied. Has option to include undeployed
+     * channels, aggregate stats, and also include OR exclude connectors. This is a POST request
+     * alternative to GET /statistics that may be used when there are too many channel IDs to
+     * include in the query parameters.
+     * 
+     * @see ChannelStatisticsServletInterface#getStatistics
+     */
+    @Override
+    public List<ChannelStatistics> getStatisticsPost(Set<String> channelIds, boolean includeUndeployed, Set<Integer> includeMetadataIds, Set<Integer> excludeMetadataIds, boolean aggregateStats) throws ClientException {
+        return getServlet(ChannelStatisticsServletInterface.class).getStatisticsPost(channelIds, includeUndeployed, includeMetadataIds, excludeMetadataIds, aggregateStats);
     }
 
     /**
@@ -1788,7 +1866,23 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      */
     @Override
     public void removeAllMessages(Set<String> channelIds, boolean restartRunningChannels, boolean clearStatistics) throws ClientException {
-        getServlet(MessageServletInterface.class).removeAllMessages(channelIds, restartRunningChannels, clearStatistics);
+        if (CollectionUtils.size(channelIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
+            removeAllMessagesPost(channelIds, restartRunningChannels, clearStatistics);
+        } else {
+            getServlet(MessageServletInterface.class).removeAllMessages(channelIds, restartRunningChannels, clearStatistics);
+        }
+    }
+
+    /**
+     * Removes all messages for multiple specified channels. This is a POST request alternative to
+     * DELETE /_removeAllMessages that may be used when there are too many channel IDs to include in
+     * the query parameters.
+     * 
+     * @see MessageServletInterface#removeAllMessages
+     */
+    @Override
+    public void removeAllMessagesPost(Set<String> channelIds, boolean restartRunningChannels, boolean clearStatistics) throws ClientException {
+        getServlet(MessageServletInterface.class).removeAllMessagesPost(channelIds, restartRunningChannels, clearStatistics);
     }
 
     /**
@@ -1985,7 +2079,22 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      */
     @Override
     public List<AlertModel> getAlerts(Set<String> alertIds) throws ClientException {
+        if (CollectionUtils.size(alertIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
+            return getAlertsPost(alertIds);
+        }
         return getServlet(AlertServletInterface.class).getAlerts(alertIds);
+    }
+
+    /**
+     * Retrieves multiple alerts by ID, or all alerts if not specified. This is a POST request
+     * alternative to GET /alerts that may be used when there are too many alert IDs to include in
+     * the query parameters.
+     * 
+     * @see AlertServletInterface#getAlerts
+     */
+    @Override
+    public List<AlertModel> getAlertsPost(Set<String> alertIds) throws ClientException {
+        return getServlet(AlertServletInterface.class).getAlertsPost(alertIds);
     }
 
     /**
@@ -2098,7 +2207,22 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      */
     @Override
     public List<CodeTemplateLibrary> getCodeTemplateLibraries(Set<String> libraryIds, boolean includeCodeTemplates) throws ClientException {
+        if (CollectionUtils.size(libraryIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
+            return getCodeTemplateLibrariesPost(libraryIds, includeCodeTemplates);
+        }
         return getServlet(CodeTemplateServletInterface.class).getCodeTemplateLibraries(libraryIds, includeCodeTemplates);
+    }
+
+    /**
+     * Retrieves multiple code template libraries by ID, or all libraries if not specified. This is
+     * a POST request alternative to GET /codeTemplateLibraries that may be used when there are too
+     * many library IDs to include in the query parameters.
+     * 
+     * @see CodeTemplateServletInterface#getCodeTemplateLibraries
+     */
+    @Override
+    public List<CodeTemplateLibrary> getCodeTemplateLibrariesPost(Set<String> libraryIds, boolean includeCodeTemplates) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).getCodeTemplateLibrariesPost(libraryIds, includeCodeTemplates);
     }
 
     /**
@@ -2137,7 +2261,22 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      */
     @Override
     public List<CodeTemplate> getCodeTemplates(Set<String> codeTemplateIds) throws ClientException {
+        if (CollectionUtils.size(codeTemplateIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
+            return getCodeTemplatesPost(codeTemplateIds);
+        }
         return getServlet(CodeTemplateServletInterface.class).getCodeTemplates(codeTemplateIds);
+    }
+
+    /**
+     * Retrieves multiple code templates by ID, or all templates if not specified. This is a POST
+     * request alternative to GET /codeTemplates that may be used when there are too many code
+     * template IDs to include in the query parameters.
+     * 
+     * @see CodeTemplateServletInterface#getCodeTemplates
+     */
+    @Override
+    public List<CodeTemplate> getCodeTemplatesPost(Set<String> codeTemplateIds) throws ClientException {
+        return getServlet(CodeTemplateServletInterface.class).getCodeTemplatesPost(codeTemplateIds);
     }
 
     /**

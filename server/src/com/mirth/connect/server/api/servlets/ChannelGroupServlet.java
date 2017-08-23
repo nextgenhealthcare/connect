@@ -44,6 +44,11 @@ public class ChannelGroupServlet extends MirthServlet implements ChannelGroupSer
     }
 
     @Override
+    public List<ChannelGroup> getChannelGroupsPost(Set<String> channelGroupIds) {
+        return getChannelGroups(channelGroupIds);
+    }
+
+    @Override
     public boolean updateChannelGroups(Set<ChannelGroup> channelGroups, Set<String> channelGroupIds, boolean override) {
         try {
             return channelController.updateChannelGroups(channelGroups, channelGroupIds, override);

@@ -53,6 +53,11 @@ public class GlobalMapServlet extends MirthServlet implements GlobalMapServletIn
     }
 
     @Override
+    public Map<String, String> getAllMapsPost(Set<String> channelIds, boolean includeGlobalMap) throws ClientException {
+        return getAllMaps(channelIds, includeGlobalMap);
+    }
+
+    @Override
     public String getGlobalMap() throws ClientException {
         try {
             return MapUtil.serializeMap(serializer, new HashMap<String, Object>(GlobalVariableStore.getInstance().getVariables()));

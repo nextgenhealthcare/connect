@@ -84,6 +84,12 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
 
     @Override
     @DontCheckAuthorized
+    public List<Channel> getChannelsPost(Set<String> channelIds, boolean pollingOnly) {
+        return getChannels(channelIds, pollingOnly);
+    }
+
+    @Override
+    @DontCheckAuthorized
     public Channel getChannel(String channelId) {
         parameterMap.put("channelId", channelId);
         if (!isUserAuthorized() || isChannelRedacted(channelId)) {
@@ -195,6 +201,11 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
     @Override
     public void removeChannels(Set<String> channelIds) {
         engineController.removeChannels(redactChannelIds(channelIds), context, null);
+    }
+    
+    @Override
+    public void removeChannelsPost(Set<String> channelIds) {
+        removeChannels(channelIds);
     }
 
     private void retainPollingChannels(List<Channel> channels) {

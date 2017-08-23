@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +42,10 @@ import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.messagewriter.EncryptionType;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Path("/channels")
 @Api("Messages")
@@ -388,6 +388,16 @@ public interface MessageServletInterface extends BaseServletInterface {
     @MirthOperation(name = "removeAllMessages", display = "Remove all messages", permission = Permissions.MESSAGES_REMOVE_ALL)
     public void removeAllMessages(// @formatter:off
             @Param("channelIds") @ApiParam(value = "The IDs of the channels.", required = true) @QueryParam("channelId") Set<String> channelIds,
+            @Param("restartRunningChannels") @ApiParam(value = "If true, currently running channels will be stopped and restarted as part of the remove process. Otherwise, currently running channels will not be included.", defaultValue = "false") @QueryParam("restartRunningChannels") boolean restartRunningChannels,
+            @Param("clearStatistics") @ApiParam(value = "If true, message statistics will also be cleared.", defaultValue = "true") @QueryParam("clearStatistics") boolean clearStatistics) throws ClientException;
+    // @formatter:on
+
+    @POST
+    @Path("/_removeAllMessagesPost")
+    @ApiOperation("Removes all messages for multiple specified channels. This is a POST request alternative to DELETE /_removeAllMessages that may be used when there are too many channel IDs to include in the query parameters.")
+    @MirthOperation(name = "removeAllMessages", display = "Remove all messages", permission = Permissions.MESSAGES_REMOVE_ALL)
+    public void removeAllMessagesPost(// @formatter:off
+            @Param("channelIds") @ApiParam(value = "The IDs of the channels.", required = true) Set<String> channelIds,
             @Param("restartRunningChannels") @ApiParam(value = "If true, currently running channels will be stopped and restarted as part of the remove process. Otherwise, currently running channels will not be included.", defaultValue = "false") @QueryParam("restartRunningChannels") boolean restartRunningChannels,
             @Param("clearStatistics") @ApiParam(value = "If true, message statistics will also be cleared.", defaultValue = "true") @QueryParam("clearStatistics") boolean clearStatistics) throws ClientException;
     // @formatter:on

@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +30,10 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.model.ChannelGroup;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @Path("/channelgroups")
 @Api("Channel Groups")
 @Consumes(MediaType.APPLICATION_XML)
@@ -45,6 +45,12 @@ public interface ChannelGroupServletInterface extends BaseServletInterface {
     @ApiOperation("Retrieve a list of all channel groups, or multiple channel groups by ID.")
     @MirthOperation(name = "getChannelGroups", display = "Get channel groups", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<ChannelGroup> getChannelGroups(@Param("channelGroupIds") @ApiParam(value = "The IDs of the channel groups to retrieve. If absent, all groups will be retrieved.") @QueryParam("channelGroupId") Set<String> channelGroupIds) throws ClientException;
+
+    @POST
+    @Path("/_getChannelGroups")
+    @ApiOperation("Retrieve a list of all channel groups, or multiple channel groups by ID. This is a POST request alternative to GET /channelgroups that may be used when there are too many channel group IDs to include in the query parameters.")
+    @MirthOperation(name = "getChannelGroups", display = "Get channel groups", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    public List<ChannelGroup> getChannelGroupsPost(@Param("channelGroupIds") @ApiParam(value = "The IDs of the channel groups to retrieve. If absent, all groups will be retrieved.") Set<String> channelGroupIds) throws ClientException;
 
     @POST
     @Path("/_bulkUpdate")
