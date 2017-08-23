@@ -2,7 +2,7 @@
 	<name>Web Service Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.5.0</mirthVersion>
+	<mirthVersion>3.5.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth Connect to invoke remote Web Services over HTTP.</description>
 	<clientClassName>com.mirth.connect.connectors.ws.WebServiceSender</clientClassName>

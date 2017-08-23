@@ -2,7 +2,7 @@
 	<name>Document Writer</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.5.0</mirthVersion>
+	<mirthVersion>3.5.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to create RTF or PDF documents based on an HTML template. PDF files can be password protected.</description>
 	<clientClassName>com.mirth.connect.connectors.doc.DocumentWriter</clientClassName>
