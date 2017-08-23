@@ -76,6 +76,13 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
 
                 HttpSession session = request.getSession();
 
+                /*
+                 * Default is 72 hours (3 days). The default SSL connection timeout is 24 hours, but
+                 * session data can remain active after that period and persist across multiple
+                 * connections.
+                 */
+                session.setMaxInactiveInterval(configurationController.getMaxInactiveSessionInterval());
+
                 loginStatus = userController.authorizeUser(username, password);
                 username = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username);
 
@@ -94,9 +101,6 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
                         // set the sessions attributes
                         session.setAttribute(SESSION_USER, validUser.getId());
                         session.setAttribute(SESSION_AUTHORIZED, true);
-
-                        // this prevents the session from timing out
-                        session.setMaxInactiveInterval(-1);
 
                         // set the user status to logged in in the database
                         userController.loginUser(validUser);

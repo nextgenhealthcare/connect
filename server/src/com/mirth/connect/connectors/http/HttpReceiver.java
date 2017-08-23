@@ -61,10 +61,10 @@ import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpURI;
+import org.eclipse.jetty.security.AbstractLoginService.UserPrincipal;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.DefaultUserIdentity;
-import org.eclipse.jetty.security.MappedLoginService.KnownUser;
 import org.eclipse.jetty.security.ServerAuthException;
 import org.eclipse.jetty.security.UserAuthentication;
 import org.eclipse.jetty.server.Authentication;
@@ -917,7 +917,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                             return org.eclipse.jetty.server.Authentication.SEND_CONTINUE;
                         case SUCCESS:
-                            Principal userPrincipal = new KnownUser(StringUtils.trimToEmpty(result.getUsername()), null);
+                            Principal userPrincipal = new UserPrincipal(StringUtils.trimToEmpty(result.getUsername()), null);
                             Subject subject = new Subject();
                             subject.getPrincipals().add(userPrincipal);
                             return new UserAuthentication(getAuthMethod(), new DefaultUserIdentity(subject, userPrincipal, new String[] {
