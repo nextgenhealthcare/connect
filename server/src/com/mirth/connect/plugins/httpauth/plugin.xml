@@ -2,7 +2,7 @@
 	<name>HTTP Authentication Settings</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.5.0</mirthVersion>
+	<mirthVersion>3.5.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides advanced authentication support for HTTP-based source connectors.</description>
 	<serverClasses>

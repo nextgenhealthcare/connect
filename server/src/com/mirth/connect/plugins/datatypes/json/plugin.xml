@@ -2,7 +2,7 @@
 	<name>JSON Data Type</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.5.0</mirthVersion>
+	<mirthVersion>3.5.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides support for the JSON data type</description>
 	<serverClasses>
