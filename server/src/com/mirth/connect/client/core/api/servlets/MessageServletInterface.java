@@ -69,7 +69,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     // @formatter:on
 
     @POST
-    @Path("/{channelId}/messages")
+    @Path("/{channelId}/messagesWithObj")
     @ApiOperation("Processes a new message through a channel, using the RawMessage object.")
     @MirthOperation(name = "processMessages", display = "Process messages", permission = Permissions.MESSAGES_PROCESS, type = ExecuteType.ASYNC)
     public void processMessage(// @formatter:off
@@ -237,8 +237,8 @@ public interface MessageServletInterface extends BaseServletInterface {
     // @formatter:on
 
     @POST
-    @Path("/{channelId}/messages/_reprocess")
-    @ApiOperation("Reprocesses messages through a channel by specific filter criteria.")
+    @Path("/{channelId}/messages/_reprocessWithFilter")
+    @ApiOperation("Reprocesses messages through a channel filtering with a MessageFilter.")
     @MirthOperation(name = "reprocessMessages", display = "Reprocess messages", permission = Permissions.MESSAGES_REPROCESS_RESULTS, type = ExecuteType.ASYNC)
     public void reprocessMessages(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
@@ -402,7 +402,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     // @formatter:on
 
     @POST
-    @Path("/{channelId}/messages/_import")
+    @Path("/{channelId}/messages/_importFromPath")
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation("Imports messages into a channel from a path accessible by the server. The messages will not actually be processed through the channel, only imported.")
     @MirthOperation(name = "importMessageServer", display = "Import messages on the server", permission = Permissions.MESSAGES_IMPORT, type = ExecuteType.ASYNC)
@@ -413,7 +413,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     // @formatter:on
 
     @POST
-    @Path("/{channelId}/messages/_export")
+    @Path("/{channelId}/messages/_exportUsingFilter")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation("Exports messages into a specific directory path accessible by the server.")
     @MirthOperation(name = "exportMessage", display = "Export message", permission = Permissions.MESSAGES_EXPORT_SERVER, type = ExecuteType.ASYNC)
