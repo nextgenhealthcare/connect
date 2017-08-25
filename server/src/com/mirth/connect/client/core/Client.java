@@ -38,6 +38,7 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Configuration;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -1551,8 +1552,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * 
      * @see MessageServletInterface#processMessage
      */
-    public void processMessage(String channelId, String rawMessage) throws ClientException {
-        processMessage(channelId, rawMessage, null, null, false, false, null);
+    public Response processMessage(String channelId, String rawMessage) throws ClientException {
+        return processMessage(channelId, rawMessage, null, null, false, false, null);
     }
 
     /**
@@ -1561,8 +1562,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#processMessage
      */
     @Override
-    public void processMessage(String channelId, String rawData, Set<Integer> destinationMetaDataIds, Set<String> sourceMapEntries, boolean overwrite, boolean imported, Long originalMessageId) throws ClientException {
-        getServlet(MessageServletInterface.class).processMessage(channelId, rawData, destinationMetaDataIds, sourceMapEntries, overwrite, imported, originalMessageId);
+    public Response processMessage(String channelId, String rawData, Set<Integer> destinationMetaDataIds, Set<String> sourceMapEntries, boolean overwrite, boolean imported, Long originalMessageId) throws ClientException {
+        return getServlet(MessageServletInterface.class).processMessage(channelId, rawData, destinationMetaDataIds, sourceMapEntries, overwrite, imported, originalMessageId);
     }
 
     /**
@@ -1571,8 +1572,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#processMessage
      */
     @Override
-    public void processMessage(String channelId, RawMessage rawMessage) throws ClientException {
-        getServlet(MessageServletInterface.class).processMessage(channelId, rawMessage);
+    public Response processMessage(String channelId, RawMessage rawMessage) throws ClientException {
+        return getServlet(MessageServletInterface.class).processMessage(channelId, rawMessage);
     }
 
     /**
