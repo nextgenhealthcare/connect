@@ -390,7 +390,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         }
     }
 
-    private void sendResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult) throws Exception {
+    protected void sendResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult) throws Exception {
         ContentType contentType = ContentType.parse(replaceValues(connectorProperties.getResponseContentType(), dispatchResult));
         if (!connectorProperties.isResponseDataTypeBinary() && contentType.getCharset() == null) {
             /*
@@ -479,7 +479,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         }
     }
 
-    private void sendErrorResponse(HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
+    protected void sendErrorResponse(HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
         String responseError = ExceptionUtils.getStackTrace(t);
         logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
         eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), dispatchResult.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", t));
@@ -499,7 +499,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         servletResponse.getOutputStream().write(responseError.getBytes());
     }
 
-    private Object getMessage(Request request, Map<String, Object> sourceMap) throws IOException, ChannelException, MessagingException, DonkeyElementException, ParserConfigurationException {
+    protected Object getMessage(Request request, Map<String, Object> sourceMap) throws IOException, ChannelException, MessagingException, DonkeyElementException, ParserConfigurationException {
         HttpRequestMessage requestMessage = createRequestMessage(request, false);
 
         /*
@@ -523,7 +523,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         return rawMessageContent;
     }
 
-    private HttpRequestMessage createRequestMessage(Request request, boolean ignorePayload) throws IOException, MessagingException {
+    protected HttpRequestMessage createRequestMessage(Request request, boolean ignorePayload) throws IOException, MessagingException {
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setMethod(request.getMethod());
         requestMessage.setHeaders(HttpMessageConverter.convertFieldEnumerationToMap(request));
@@ -583,7 +583,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         return requestMessage;
     }
 
-    private void populateSourceMap(Request request, HttpRequestMessage requestMessage, Map<String, Object> sourceMap) {
+    protected void populateSourceMap(Request request, HttpRequestMessage requestMessage, Map<String, Object> sourceMap) {
         sourceMap.put("remoteAddress", requestMessage.getRemoteAddress());
         sourceMap.put("remotePort", request.getRemotePort());
         sourceMap.put("localAddress", StringUtils.trimToEmpty(request.getLocalAddr()));
@@ -737,7 +737,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         }
     }
 
-    private String replaceValues(String template, DispatchResult dispatchResult) {
+    protected String replaceValues(String template, DispatchResult dispatchResult) {
         ConnectorMessage mergedConnectorMessage = null;
 
         if (dispatchResult != null && dispatchResult.getProcessedMessage() != null) {
@@ -768,7 +768,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         return timeout;
     }
 
-    private Map<String, List<String>> extractParameters(Request request) {
+    protected Map<String, List<String>> extractParameters(Request request) {
         Map<String, List<String>> parameterMap = new HashMap<String, List<String>>();
 
         for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
@@ -785,7 +785,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         return parameterMap;
     }
 
-    private boolean parametersEqual(Map<String, List<String>> params1, Map<String, List<String>> params2) {
+    protected boolean parametersEqual(Map<String, List<String>> params1, Map<String, List<String>> params2) {
         if (!params1.keySet().equals(params2.keySet())) {
             return false;
         }
@@ -799,7 +799,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         return true;
     }
 
-    private String getRequestURL(Request request) {
+    protected String getRequestURL(Request request) {
         String requestURL = request.getRequestURL().toString();
 
         try {
