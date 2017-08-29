@@ -1547,7 +1547,7 @@ public class HttpSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_dataTypeBinaryRadioActionPerformed
 
     private void dataTypeTextRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dataTypeTextRadioActionPerformed
-        if (postButton.isSelected() || putButton.isSelected()) {
+        if (postButton.isSelected() || putButton.isSelected() || patchButton.isSelected()) {
             charsetEncodingLabel.setEnabled(true);
             charsetEncodingCombobox.setEnabled(true);
         }
