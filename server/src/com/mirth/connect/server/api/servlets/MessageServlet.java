@@ -17,11 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
@@ -49,6 +47,7 @@ import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.server.api.CheckAuthorizedChannelId;
 import com.mirth.connect.server.api.MirthServlet;
+import com.mirth.connect.server.api.providers.ResponseCodeFilter;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.MessageController;
@@ -57,20 +56,19 @@ import com.mirth.connect.util.MessageImporter.MessageImportException;
 import com.mirth.connect.util.messagewriter.EncryptionType;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
-
 public class MessageServlet extends MirthServlet implements MessageServletInterface {
 
     private static final Logger logger = Logger.getLogger(MessageServlet.class);
     private static final MessageController messageController = ControllerFactory.getFactory().createMessageController();
     private static final EngineController engineController = ControllerFactory.getFactory().createEngineController();
 
-    public MessageServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
-        super(request, sc);
+    public MessageServlet(@Context HttpServletRequest request, @Context ContainerRequestContext containerRequestContext, @Context SecurityContext sc) {
+        super(request, containerRequestContext, sc);
     }
 
     @Override
     @CheckAuthorizedChannelId
-    public Response processMessage(final String channelId, String rawData, Set<Integer> destinationMetaDataIds, Set<String> sourceMapEntries, boolean overwrite, boolean imported, Long originalMessageId) {
+    public Long processMessage(final String channelId, String rawData, Set<Integer> destinationMetaDataIds, Set<String> sourceMapEntries, boolean overwrite, boolean imported, Long originalMessageId) {
         Map<String, Object> sourceMap = new HashMap<String, Object>();
         if (CollectionUtils.isNotEmpty(sourceMapEntries)) {
             for (String entry : sourceMapEntries) {
@@ -91,32 +89,22 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
 
     @Override
     @CheckAuthorizedChannelId
-    public Response processMessage(final String channelId, final RawMessage rawMessage) {
-    	Callable<Response> processTask = new Callable<Response>() {
-        	@Override
-        	public Response call() {
-                try {
-                    DispatchResult result = engineController.dispatchRawMessage(channelId, rawMessage, true, true);
-                    return Response.status(Response.Status.CREATED).entity(result.getMessageId()).build();
-                } catch (ChannelException e) {
-                    // Do nothing. An error should have been logged.
-                } catch (BatchMessageException e) {
-                    logger.error("Error processing batch message", e);
-                }
-                return null;
-        	}
-        };
+    public Long processMessage(final String channelId, final RawMessage rawMessage) {
+        try {
+            DispatchResult result = engineController.dispatchRawMessage(channelId, rawMessage, true, true);
+            if (result != null) {
+                containerRequestContext.setProperty(ResponseCodeFilter.RESPONSE_CODE_PROPERTY, Response.Status.CREATED.getStatusCode());
+                return result.getMessageId();
+            }
+        } catch (ChannelException e) {
+            // Do nothing. An error should have been logged.
+        } catch (BatchMessageException e) {
+            logger.error("Error processing batch message", e);
+        }
+        
+        containerRequestContext.setProperty(ResponseCodeFilter.RESPONSE_CODE_PROPERTY, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
-       ExecutorService service = Executors.newFixedThreadPool(1);
-       Response response = null;
-       
-       try {
-    	   response = service.submit(processTask).get();
-       } catch (Exception e) {
-    	   logger.error("Error processing message", e);
-       }
-
-       return response;
+        return null;
     }
 
     @Override

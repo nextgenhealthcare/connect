@@ -1552,7 +1552,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * 
      * @see MessageServletInterface#processMessage
      */
-    public Response processMessage(String channelId, String rawMessage) throws ClientException {
+    public Long processMessage(String channelId, String rawMessage) throws ClientException {
         return processMessage(channelId, rawMessage, null, null, false, false, null);
     }
 
@@ -1562,7 +1562,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#processMessage
      */
     @Override
-    public Response processMessage(String channelId, String rawData, Set<Integer> destinationMetaDataIds, Set<String> sourceMapEntries, boolean overwrite, boolean imported, Long originalMessageId) throws ClientException {
+    public Long processMessage(String channelId, String rawData, Set<Integer> destinationMetaDataIds, Set<String> sourceMapEntries, boolean overwrite, boolean imported, Long originalMessageId) throws ClientException {
         return getServlet(MessageServletInterface.class).processMessage(channelId, rawData, destinationMetaDataIds, sourceMapEntries, overwrite, imported, originalMessageId);
     }
 
@@ -1572,7 +1572,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#processMessage
      */
     @Override
-    public Response processMessage(String channelId, RawMessage rawMessage) throws ClientException {
+    public Long processMessage(String channelId, RawMessage rawMessage) throws ClientException {
         return getServlet(MessageServletInterface.class).processMessage(channelId, rawMessage);
     }
 

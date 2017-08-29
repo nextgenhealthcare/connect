@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +22,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -48,6 +43,10 @@ import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.messagewriter.EncryptionType;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @Path("/channels")
 @Api("Messages")
 @Consumes(MediaType.APPLICATION_XML)
@@ -59,7 +58,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation("Processes a new message through a channel.")
     @MirthOperation(name = "processMessages", display = "Process messages", permission = Permissions.MESSAGES_PROCESS, type = ExecuteType.ASYNC)
-    public Response processMessage(// @formatter:off
+    public Long processMessage(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("rawData") @ApiParam(value = "The raw message data to process.", required = true) String rawData,
             @Param("destinationMetaDataIds") @ApiParam(value = "Indicates which destinations to send the message to.") @QueryParam("destinationMetaDataId") Set<Integer> destinationMetaDataIds,
@@ -73,7 +72,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Path("/{channelId}/messages")
     @ApiOperation("Processes a new message through a channel, using the RawMessage object.")
     @MirthOperation(name = "processMessages", display = "Process messages", permission = Permissions.MESSAGES_PROCESS, type = ExecuteType.ASYNC)
-    public Response processMessage(// @formatter:off
+    public Long processMessage(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("rawMessage") @ApiParam(value = "The RawMessage object to process.", required = true) RawMessage rawMessage) throws ClientException;
     // @formatter:on
