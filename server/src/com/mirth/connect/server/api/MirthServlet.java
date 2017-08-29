@@ -21,6 +21,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
@@ -51,6 +52,7 @@ public abstract class MirthServlet {
     protected static final String SESSION_AUTHORIZED = "authorized";
 
     protected HttpServletRequest request;
+    protected ContainerRequestContext containerRequestContext;
     protected SecurityContext sc;
     protected ServerEventContext context;
     protected Operation operation;
@@ -67,19 +69,36 @@ public abstract class MirthServlet {
     private int currentUserId;
 
     public MirthServlet(HttpServletRequest request, SecurityContext sc) {
-        this(request, sc, true);
+        this(request, null, sc);
+    }
+
+    public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc) {
+        this(request, containerRequestContext, sc, true);
     }
 
     public MirthServlet(HttpServletRequest request, SecurityContext sc, boolean initLogin) {
-        this(request, sc, null, initLogin);
+        this(request, null, sc, initLogin);
+    }
+
+    public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, boolean initLogin) {
+        this(request, containerRequestContext, sc, null, initLogin);
     }
 
     public MirthServlet(HttpServletRequest request, SecurityContext sc, String extensionName) {
-        this(request, sc, extensionName, true);
+        this(request, null, sc, extensionName);
+    }
+
+    public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, String extensionName) {
+        this(request, containerRequestContext, sc, extensionName, true);
     }
 
     public MirthServlet(HttpServletRequest request, SecurityContext sc, String extensionName, boolean initLogin) {
+        this(request, null, sc, extensionName, initLogin);
+    }
+
+    public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, String extensionName, boolean initLogin) {
         this.request = request;
+        this.containerRequestContext = containerRequestContext;
         this.sc = sc;
         this.extensionName = extensionName;
         parameterMap = new HashMap<String, Object>();

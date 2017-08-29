@@ -58,7 +58,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation("Processes a new message through a channel.")
     @MirthOperation(name = "processMessages", display = "Process messages", permission = Permissions.MESSAGES_PROCESS, type = ExecuteType.ASYNC)
-    public void processMessage(// @formatter:off
+    public Long processMessage(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("rawData") @ApiParam(value = "The raw message data to process.", required = true) String rawData,
             @Param("destinationMetaDataIds") @ApiParam(value = "Indicates which destinations to send the message to.") @QueryParam("destinationMetaDataId") Set<Integer> destinationMetaDataIds,
@@ -72,7 +72,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Path("/{channelId}/messagesWithObj")
     @ApiOperation("Processes a new message through a channel, using the RawMessage object.")
     @MirthOperation(name = "processMessages", display = "Process messages", permission = Permissions.MESSAGES_PROCESS, type = ExecuteType.ASYNC)
-    public void processMessage(// @formatter:off
+    public Long processMessage(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("rawMessage") @ApiParam(value = "The RawMessage object to process.", required = true) RawMessage rawMessage) throws ClientException;
     // @formatter:on
