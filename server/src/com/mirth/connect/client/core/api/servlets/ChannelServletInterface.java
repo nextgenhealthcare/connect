@@ -9,6 +9,10 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,10 +40,6 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @Path("/channels")
 @Api("Channels")
@@ -102,7 +102,7 @@ public interface ChannelServletInterface extends BaseServletInterface {
             @Param("enabled") @ApiParam(value = "Indicates whether the channels should be enabled or disabled.", required = true) @FormParam("enabled") boolean enabled) throws ClientException;
     // @formatter:on
 
-    @PUT
+    @POST
     @Path("/{channelId}/enabled/{enabled}")
     @ApiOperation("Enables/disables the specified channel.")
     @MirthOperation(name = "setChannelEnabled", display = "Set channel enabled flag", permission = Permissions.CHANNELS_MANAGE)
@@ -121,13 +121,13 @@ public interface ChannelServletInterface extends BaseServletInterface {
             @Param("initialState") @ApiParam(value = "The initial state of the channel.", allowableValues = "STARTED, PAUSED, STOPPED", required = true) @FormParam("initialState") DeployedState initialState) throws ClientException;
     // @formatter:on
 
-    @PUT
+    @POST
     @Path("/{channelId}/initialState/{initialState}")
     @ApiOperation("Sets the initial state for a single channel.")
     @MirthOperation(name = "setChannelInitialState", display = "Set channel initial state", permission = Permissions.CHANNELS_MANAGE)
     public void setChannelInitialState(// @formatter:off
             @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
-            @Param("initialState") @ApiParam(value = "The initial state of the channel.", allowableValues = "STARTED, PAUSED, STOPPED", required = true) @PathParam("initialState")  DeployedState initialState) throws ClientException;
+            @Param("initialState") @ApiParam(value = "The initial state of the channel.", allowableValues = "STARTED, PAUSED, STOPPED", required = true) @PathParam("initialState") DeployedState initialState) throws ClientException;
     // @formatter:on
 
     @PUT
@@ -151,7 +151,7 @@ public interface ChannelServletInterface extends BaseServletInterface {
     @ApiOperation("Removes the channels with the specified IDs.")
     @MirthOperation(name = "removeChannels", display = "Remove channels", permission = Permissions.CHANNELS_MANAGE)
     public void removeChannels(@Param("channelIds") @ApiParam(value = "The IDs of the channels to remove.", required = true) @QueryParam("channelId") Set<String> channelIds) throws ClientException;
-    
+
     @POST
     @Path("/_removeChannels")
     @ApiOperation("Removes the channels with the specified IDs. This is a POST request alternative to DELETE /channels that may be used when there are too many channel IDs to include in the query parameters.")
