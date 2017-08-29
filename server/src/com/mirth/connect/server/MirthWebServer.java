@@ -53,6 +53,9 @@ import org.eclipse.jetty.server.session.DefaultSessionCacheFactory;
 import org.eclipse.jetty.server.session.JDBCSessionDataStore.SessionTableSchema;
 import org.eclipse.jetty.server.session.JDBCSessionDataStoreFactory;
 import org.eclipse.jetty.server.session.NullSessionCacheFactory;
+import org.eclipse.jetty.server.session.NullSessionDataStore;
+import org.eclipse.jetty.server.session.SessionCache;
+import org.eclipse.jetty.server.session.SessionDataStore;
 import org.eclipse.jetty.server.session.SessionDataStoreFactory;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -241,6 +244,29 @@ public class MirthWebServer extends Server {
                 logger.debug("webApp File Path: " + file.getAbsolutePath());
 
                 WebAppContext webapp = new WebAppContext();
+
+                // Always use the default session cache for the webadmin context, since it stores the Client in memory
+                SessionHandler sessionHandler = new SessionHandler();
+
+                DefaultSessionCacheFactory sessionCacheFactory = new DefaultSessionCacheFactory();
+                // Evict from the cache after the inactive period has elapsed, default value is 72 hours (3 days)
+                sessionCacheFactory.setEvictionPolicy(configurationController.getMaxInactiveSessionInterval());
+                SessionCache sessionCache = sessionCacheFactory.getSessionCache(sessionHandler);
+
+                // Uses the same method as SessionHandler to determine the data store
+                SessionDataStore sessionDataStore = null;
+                SessionDataStoreFactory sessionDataStoreFactory = getBean(SessionDataStoreFactory.class);
+                if (sessionDataStoreFactory != null) {
+                    sessionDataStore = sessionDataStoreFactory.getSessionDataStore(sessionHandler);
+                } else {
+                    sessionDataStore = new NullSessionDataStore();
+                }
+                sessionCache.setSessionDataStore(sessionDataStore);
+
+                // Set the session cache directly on the handler so it doesn't use the server bean
+                sessionHandler.setSessionCache(sessionCache);
+                webapp.setSessionHandler(sessionHandler);
+
                 webapp.setContextPath(contextPath + "/" + file.getName().substring(0, file.getName().length() - 4));
                 webapp.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
 
