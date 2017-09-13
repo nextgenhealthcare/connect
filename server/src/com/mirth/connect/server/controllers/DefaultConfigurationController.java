@@ -303,9 +303,8 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             // Check for server GUID and generate a new one if it doesn't exist
-            PropertiesConfiguration serverIdConfig = new PropertiesConfiguration(new File(getApplicationDataDir(), "server.id"));
-
-            if ((serverIdConfig.getString("server.id") != null) && (serverIdConfig.getString("server.id").length() > 0)) {
+            PropertiesConfiguration serverIdConfig = new PropertiesConfiguration(new File(getApplicationDataDir(), "server.id"));        
+            if (!mirthConfig.getBoolean("server.id.ephemeral", false) && serverIdConfig.getString("server.id") != null && serverIdConfig.getString("server.id").length() > 0) {
                 serverId = serverIdConfig.getString("server.id");
             } else {
                 serverId = generateGuid();
