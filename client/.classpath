@@ -100,8 +100,8 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/wizard.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.10.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.7.jar"/>
 	<classpathentry kind="lib" path="lib/looks-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
@@ -144,9 +144,9 @@
 	<classpathentry kind="lib" path="lib/autocomplete-2.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/language_support.jar"/>
 	<classpathentry kind="lib" path="lib/javaparser-1.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-annotations-2.5.3.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-core-2.5.3.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-databind-2.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar"/>
 	<classpathentry kind="lib" path="lib/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="lib/javax.ws.rs-api-2.0.1.jar"/>
@@ -156,9 +156,9 @@
 	<classpathentry kind="lib" path="lib/commons-collections4-4.0.jar"/>
 	<classpathentry kind="lib" path="lib/reflections-0.9.10.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-common-2.22.1.jar"/>
-	<classpathentry kind="lib" path="lib/httpclient-4.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/httpcore-4.4.3.jar"/>
-	<classpathentry kind="lib" path="lib/httpmime-4.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.4.6.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/hk2-api-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/hk2-locator-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/hk2-utils-2.4.0-b31.jar"/>
@@ -170,7 +170,7 @@
 	<classpathentry kind="lib" path="lib/jersey-media-multipart-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/mimepull-1.9.6.jar"/>
 	<classpathentry kind="lib" path="lib/zip4j_1.3.2.jar"/>
-	<classpathentry kind="lib" path="lib/joda-time-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-2.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
