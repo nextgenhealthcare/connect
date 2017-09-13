@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +101,28 @@ public class TemplateValueReplacer extends ValueReplacer {
         for (int i = 0; i <= list.size() - 1; i++) {
             list.set(i, replaceValues(list.get(i), channelId, channelName));
         }
+    }
+
+    /**
+     * Replaces all keys and values in a map. Uses the default context along with the global channel
+     * map. The original map is not modified.
+     * 
+     * @return A cloned HashMap with all the replaced values.
+     */
+    public Map<String, List<String>> replaceKeysAndValuesInMap(Map<String, List<String>> map, String channelId, String channelName) {
+        Map<String, List<String>> localMap = new HashMap<String, List<String>>();
+
+        for (Entry<String, List<String>> entry : map.entrySet()) {
+            String key = replaceValues(entry.getKey(), channelId, channelName);
+
+            List<String> list = new ArrayList<>(entry.getValue());
+
+            replaceValuesInList(list, channelId, channelName);
+
+            localMap.put(key, list);
+        }
+
+        return localMap;
     }
 
     @Override

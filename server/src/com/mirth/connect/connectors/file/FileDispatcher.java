@@ -111,6 +111,10 @@ public class FileDispatcher extends DestinationConnector {
             sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), connectorMessage));
             sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), connectorMessage));
             sftpProperties.setConfigurationSettings(replacer.replaceValuesInMap(sftpProperties.getConfigurationSettings(), connectorMessage));
+        } else if (schemeProperties instanceof S3SchemeProperties) {
+            S3SchemeProperties s3Properties = (S3SchemeProperties) schemeProperties;
+
+            s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), connectorMessage));
         }
     }
 

@@ -48,14 +48,17 @@ public class FileConnectorServlet extends MirthServlet implements FileConnectorS
             username = replacer.replaceValues(username, channelId, channelName);
             password = replacer.replaceValues(password, channelId, channelName);
 
-            SftpSchemeProperties sftpProperties = null;
             if (schemeProperties instanceof SftpSchemeProperties) {
-                sftpProperties = (SftpSchemeProperties) schemeProperties;
+                SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
 
                 sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId, channelName));
                 sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId, channelName));
                 sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId, channelName));
                 sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId, channelName));
+            } else if (schemeProperties instanceof S3SchemeProperties) {
+                S3SchemeProperties s3Properties = (S3SchemeProperties) schemeProperties;
+
+                s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
             int timeout = Integer.parseInt(timeoutString);
@@ -71,7 +74,7 @@ public class FileConnectorServlet extends MirthServlet implements FileConnectorS
             }
             hostDisplayName += dir;
 
-            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, new FileSystemConnectionOptions(username, password, sftpProperties), addressHost, port, passive, secure, timeout);
+            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, new FileSystemConnectionOptions(username, password, schemeProperties), addressHost, port, passive, secure, timeout);
 
             FileSystemConnection connection = null;
 

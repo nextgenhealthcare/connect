@@ -304,6 +304,8 @@ public class FileConnector {
             } else {
                 schemeName = "http";
             }
+        } else if (scheme == FileScheme.S3) {
+            schemeName = "s3";
         } else {
             schemeName = scheme.getDisplayName();
         }

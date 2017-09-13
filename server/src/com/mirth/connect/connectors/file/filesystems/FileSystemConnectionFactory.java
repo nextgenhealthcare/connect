@@ -22,6 +22,7 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
 
 import com.mirth.connect.connectors.file.FileScheme;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
+import com.mirth.connect.connectors.file.S3SchemeProperties;
 import com.mirth.connect.connectors.file.SftpSchemeProperties;
 
 /**
@@ -98,6 +99,26 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
             poolKey.append(host);
             poolKey.append(":");
             poolKey.append(port);
+
+            return poolKey.toString();
+        } else if (scheme.equals(FileScheme.S3)) {
+            StringBuilder poolKey = new StringBuilder();
+            S3SchemeProperties s3SchemeProperties = (S3SchemeProperties) fileSystemOptions.getSchemeProperties();
+
+            poolKey.append("s3://");
+
+            if (!s3SchemeProperties.isUseDefaultCredentialProviderChain()) {
+                poolKey.append(username);
+                poolKey.append(':');
+                poolKey.append(password);
+            }
+
+            if (s3SchemeProperties.isUseTemporaryCredentials()) {
+                poolKey.append(":STS");
+            }
+
+            poolKey.append('@');
+            poolKey.append(host);
 
             return poolKey.toString();
         } else if (scheme.equals(FileScheme.SMB)) {

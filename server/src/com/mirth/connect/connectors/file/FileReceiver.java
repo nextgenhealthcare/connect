@@ -126,18 +126,22 @@ public class FileReceiver extends PollConnector {
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
             URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId, channelName));
 
-            SftpSchemeProperties sftpProperties  = null;
-            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties();
+            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties().clone();
+
             if (schemeProperties instanceof SftpSchemeProperties) {
-                sftpProperties = (SftpSchemeProperties) schemeProperties;
+                SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
 
                 sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId, channelName));
                 sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId, channelName));
                 sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId, channelName));
                 sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId, channelName));
+            } else if (schemeProperties instanceof S3SchemeProperties) {
+                S3SchemeProperties s3Properties = (S3SchemeProperties) schemeProperties;
+
+                s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
-            fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, sftpProperties);
+            fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, schemeProperties);
             FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
             fileConnector.releaseConnection(con, fileSystemOptions);
         } catch (URISyntaxException e1) {
@@ -177,17 +181,22 @@ public class FileReceiver extends PollConnector {
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
             filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), channelId, channelName);
 
-            SftpSchemeProperties sftpProperties = null;
-            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties();
+            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties().clone();
+
             if (schemeProperties instanceof SftpSchemeProperties) {
-                sftpProperties = (SftpSchemeProperties) schemeProperties.clone();
+                SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
 
                 sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId, channelName));
                 sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId, channelName));
                 sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId, channelName));
+                sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId, channelName));
+            } else if (schemeProperties instanceof S3SchemeProperties) {
+                S3SchemeProperties s3Properties = (S3SchemeProperties) schemeProperties;
+
+                s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
-            fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, sftpProperties);
+            fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, schemeProperties);
 
             if (connectorProperties.isDirectoryRecursion()) {
                 Set<String> visitedDirectories = new HashSet<String>();
