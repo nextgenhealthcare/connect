@@ -150,6 +150,10 @@
 	<classpathentry kind="lib" path="testlib/mockito-core-2.7.9.jar"/>
 	<classpathentry kind="lib" path="testlib/objenesis-2.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/guice-4.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/file/aws-java-sdk-core-1.11.194.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/file/aws-java-sdk-kms-1.11.194.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/file/aws-java-sdk-s3-1.11.194.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/file/aws-java-sdk-sts-1.11.194.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>

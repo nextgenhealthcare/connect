@@ -305,7 +305,7 @@ public class FileWriter extends ConnectorSettingsPanel {
                 fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if ((props.getScheme() != FileScheme.S3 && !props.isAnonymous()) || (props.getScheme() == FileScheme.S3 && !((S3SchemeProperties) props.getSchemeProperties()).isUseDefaultCredentialProviderChain())) {
+        if (props.getScheme() != FileScheme.S3 && !props.isAnonymous()) {
             if (props.getUsername().length() == 0) {
                 valid = false;
                 if (highlight) {
@@ -814,6 +814,8 @@ public class FileWriter extends ConnectorSettingsPanel {
             advancedSettingsButton.setEnabled(true);
             advancedProperties = new SftpSchemeProperties();
         } else if (scheme == FileScheme.S3) {
+            timeoutLabel.setEnabled(true);
+            timeoutField.setEnabled(true);
             advancedSettingsButton.setEnabled(true);
             advancedProperties = new S3SchemeProperties();
             usernameLabel.setText("AWS Access Key ID:");
