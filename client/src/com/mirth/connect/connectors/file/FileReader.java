@@ -1058,7 +1058,11 @@ public class FileReader extends ConnectorSettingsPanel {
                 setSummaryText();
             }
         } else if (selectedScheme == FileScheme.S3) {
-            // TODO
+        	AdvancedSettingsDialog dialog = new AdvancedS3SettingsDialog((S3SchemeProperties) advancedProperties);
+            if (dialog.wasSaved()) {
+                advancedProperties = dialog.getSchemeProperties();
+                setSummaryText();
+            }
         }
     }
 

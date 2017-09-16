@@ -852,7 +852,11 @@ public class FileWriter extends ConnectorSettingsPanel {
                 setSummaryText();
             }
         } else if (selectedScheme == FileScheme.S3) {
-            // TODO
+            AdvancedS3SettingsDialog dialog = new AdvancedS3SettingsDialog((S3SchemeProperties) advancedProperties);
+            if (dialog.wasSaved()) {
+                advancedProperties = dialog.getSchemeProperties();
+                setSummaryText();
+            }
         }
     }
 
