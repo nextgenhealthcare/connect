@@ -159,6 +159,8 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
             return new DefaultPooledObject<FileSystemConnection>(new FtpConnection(host, port, fileSystemOptions, passive, timeout));
         } else if (scheme.equals(FileScheme.SFTP)) {
             return new DefaultPooledObject<FileSystemConnection>(new SftpConnection(host, port, fileSystemOptions, timeout));
+        } else if (scheme.equals(FileScheme.S3)) {
+            return new DefaultPooledObject<FileSystemConnection>(new S3Connection(host, fileSystemOptions, timeout));
         } else if (scheme.equals(FileScheme.SMB)) {
             return new DefaultPooledObject<FileSystemConnection>(new SmbFileConnection(host, fileSystemOptions, timeout));
         } else if (scheme.equals(FileScheme.WEBDAV)) {

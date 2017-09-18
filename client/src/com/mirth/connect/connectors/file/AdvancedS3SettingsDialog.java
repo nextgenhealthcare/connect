@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * 
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL license a copy of which has
+ * been included with this distribution in the LICENSE.txt file.
+ */
+
 package com.mirth.connect.connectors.file;
 
 import java.awt.Color;
@@ -42,74 +51,82 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import net.miginfocom.swing.MigLayout;
 
 public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
-	
+
     private final String NAME_COLUMN_NAME = "Name";
     private final String VALUE_COLUMN_NAME = "Value";
-    
-	private boolean saved;
-	
-	public AdvancedS3SettingsDialog(S3SchemeProperties schemeProperties) {
-		setTitle("Method Settings");
+
+    private boolean saved;
+
+    public AdvancedS3SettingsDialog(S3SchemeProperties schemeProperties) {
+        setTitle("Method Settings");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setSize(new Dimension(600, 400));
-        setResizable(false);
         setLayout(new MigLayout("insets 8 8 0 8, novisualpadding, hidemode 3"));
         getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);
 
         initComponents();
         initLayout();
-        
+
         setFileSchemeProperties(schemeProperties);
 
         durationField.setBackground(null);
+        setPreferredSize(new Dimension(600, 400));
+        pack();
         setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
         setVisible(true);
-	}
+    }
 
-	@Override
-	public boolean wasSaved() {
-		return saved;
-	}
-	
-	@Override
-	public SchemeProperties getSchemeProperties() {
-		S3SchemeProperties props = new S3SchemeProperties();
-		
-		if (yesRadio.isSelected()) {
-			props.setUseTemporaryCredentials(true);
-		} else if (noRadio.isSelected()) {
-			props.setUseTemporaryCredentials(false);
-		}
-		
-		props.setDuration(NumberUtils.toInt(durationField.getText(), 7200));
+    @Override
+    public boolean wasSaved() {
+        return saved;
+    }
+
+    @Override
+    public SchemeProperties getSchemeProperties() {
+        S3SchemeProperties props = new S3SchemeProperties();
+
+        props.setUseDefaultCredentialProviderChain(useDefaultCredentialProviderChainYesRadio.isSelected());
+
+        if (yesRadio.isSelected()) {
+            props.setUseTemporaryCredentials(true);
+        } else if (noRadio.isSelected()) {
+            props.setUseTemporaryCredentials(false);
+        }
+
+        props.setDuration(NumberUtils.toInt(durationField.getText(), 7200));
 
         Map<String, List<String>> headers = new LinkedHashMap<>();
 
         for (int rowCount = 0; rowCount < customHttpHeadersTable.getRowCount(); rowCount++) {
-        	String name = (String) customHttpHeadersTable.getValueAt(rowCount, 0);
-        	List<String> values = headers.get(name);
-        	
-        	if (values == null) {
-        		values = new ArrayList<String>();
-        		headers.put(name, values);
-        	}
-        	
-        	values.add((String) customHttpHeadersTable.getValueAt(rowCount, 1));
+            String name = (String) customHttpHeadersTable.getValueAt(rowCount, 0);
+            List<String> values = headers.get(name);
+
+            if (values == null) {
+                values = new ArrayList<String>();
+                headers.put(name, values);
+            }
+
+            values.add((String) customHttpHeadersTable.getValueAt(rowCount, 1));
         }
 
-        props.setCustomHeaders(headers);		
-		
-		return props;
-	}
-	
-	public void setFileSchemeProperties(S3SchemeProperties schemeProperties) {
+        props.setCustomHeaders(headers);
+
+        return props;
+    }
+
+    public void setFileSchemeProperties(S3SchemeProperties schemeProperties) {
+
+        if (schemeProperties.isUseDefaultCredentialProviderChain()) {
+            useDefaultCredentialProviderChainYesRadio.setSelected(true);
+        } else {
+            useDefaultCredentialProviderChainNoRadio.setSelected(true);
+        }
 
         if (schemeProperties.isUseTemporaryCredentials()) {
-        	yesRadio.setSelected(true);
+            yesRadio.setSelected(true);
         } else {
-        	noRadio.setSelected(true);
+            noRadio.setSelected(true);
         }
-        
+
         durationField.setText(schemeProperties.getDuration() + "");
 
         Map<String, List<String>> headers = schemeProperties.getCustomHeaders();
@@ -118,35 +135,35 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
             model.setNumRows(0);
 
             for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-            	List<String> values = entry.getValue();
-            	for (String value : values) {
-            		model.addRow(new Object[] { entry.getKey(), value });
-            	}
+                List<String> values = entry.getValue();
+                for (String value : values) {
+                    model.addRow(new Object[] { entry.getKey(), value });
+                }
             }
 
             deleteButton.setEnabled(true);
         } else {
-        	customHttpHeadersTable.setModel(new RefreshTableModel(new Object[0][1], new String[] {
+            customHttpHeadersTable.setModel(new RefreshTableModel(new Object[0][1], new String[] {
                     "Name", "Value" }));
-        	customHttpHeadersTable.getColumnModel().getColumn(customHttpHeadersTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new CustomHttpHeadersTableCellEditor(true));
-        	customHttpHeadersTable.getColumnModel().getColumn(customHttpHeadersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new CustomHttpHeadersTableCellEditor(false));
+            customHttpHeadersTable.getColumnModel().getColumn(customHttpHeadersTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new CustomHttpHeadersTableCellEditor(true));
+            customHttpHeadersTable.getColumnModel().getColumn(customHttpHeadersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new CustomHttpHeadersTableCellEditor(false));
         }
-        
+
         useTemporaryRadioButtonActionPerformed();
-	}
-	
-	public boolean validateProperties() {
+    }
+
+    public boolean validateProperties() {
         boolean valid = true;
 
         String errors = "";
 
-		if (yesRadio.isSelected() && StringUtils.isEmpty(durationField.getText())) {
-			valid = false;
-			errors += "Duration cannot be blank.\n";
-			durationField.setBackground(UIConstants.INVALID_COLOR);
-		} else {
-			durationField.setBackground(null);
-		}
+        if (yesRadio.isSelected() && StringUtils.isEmpty(durationField.getText())) {
+            valid = false;
+            errors += "Duration cannot be blank.\n";
+            durationField.setBackground(UIConstants.INVALID_COLOR);
+        } else {
+            durationField.setBackground(null);
+        }
 
         if (StringUtils.isNotBlank(errors)) {
             PlatformUI.MIRTH_FRAME.alertError(this, errors);
@@ -155,9 +172,25 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
 
         return valid;
     }
-	
-	private void initComponents() {
-		useTemporaryCredentialsLabel = new JLabel("Use Temporary Credentials:");
+
+    private void initComponents() {
+        setBackground(UIConstants.BACKGROUND_COLOR);
+
+        useDefaultCredentialProviderChainLabel = new JLabel("Use Default Credential Provider Chain:");
+        ButtonGroup useDefaultCredentialProviderChainButtonGroup = new ButtonGroup();
+        String toolTipText = "<html>If enabled and no explicit credentials are provided, the default provider chain looks for credentials in this order:<br/><ul><li><b>Environment variables:</b> AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.</li><li><b>Java system properties:</b> aws.accessKeyId and aws.secretKey.</li><li><b>Default credentials profile file:</b> Typically located at ~/.aws/credentials (location can vary per platform).</li><li><b>ECS container credentials:</b> Loaded from an Amazon ECS environment variable.</li><li><b>Instance profile credentials:</b> Loaded from the EC2 metadata service.</li></ul></html>";
+
+        useDefaultCredentialProviderChainYesRadio = new JRadioButton("Yes");
+        useDefaultCredentialProviderChainYesRadio.setBackground(getBackground());
+        useDefaultCredentialProviderChainYesRadio.setToolTipText(toolTipText);
+        useDefaultCredentialProviderChainButtonGroup.add(useDefaultCredentialProviderChainYesRadio);
+
+        useDefaultCredentialProviderChainNoRadio = new JRadioButton("No");
+        useDefaultCredentialProviderChainNoRadio.setBackground(getBackground());
+        useDefaultCredentialProviderChainNoRadio.setToolTipText(toolTipText);
+        useDefaultCredentialProviderChainButtonGroup.add(useDefaultCredentialProviderChainNoRadio);
+
+        useTemporaryCredentialsLabel = new JLabel("Use Temporary Credentials:");
 
         yesRadio = new JRadioButton("Yes");
         yesRadio.setSelected(true);
@@ -180,24 +213,25 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
         noRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	useTemporaryRadioButtonActionPerformed();
+                useTemporaryRadioButtonActionPerformed();
             }
         });
 
         useTemporaryCredentialsButtonGroup = new ButtonGroup();
         useTemporaryCredentialsButtonGroup.add(yesRadio);
         useTemporaryCredentialsButtonGroup.add(noRadio);
-        
+
         durationLabel = new JLabel("Duration (s):");
         durationField = new JTextField();
         durationField.setDocument(new MirthFieldConstraints(0, false, false, true));
         durationField.setToolTipText("The duration that the temporary credentials are valid.");
-        
+
         customHttpHeadersLabel = new JLabel("Custom HTTP Headers:");
         customHttpHeadersTable = new MirthTable();
 
         Object[][] tableData = new Object[0][1];
-        customHttpHeadersTable.setModel(new RefreshTableModel(tableData, new String[] { "Name", "Value" }));
+        customHttpHeadersTable.setModel(new RefreshTableModel(tableData, new String[] { "Name",
+                "Value" }));
         customHttpHeadersTable.setOpaque(true);
         customHttpHeadersTable.getColumnModel().getColumn(customHttpHeadersTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new CustomHttpHeadersTableCellEditor(true));
         customHttpHeadersTable.getColumnModel().getColumn(customHttpHeadersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new CustomHttpHeadersTableCellEditor(false));
@@ -265,7 +299,7 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
                 }
             }
         });
-        
+
         okButton = new JButton("OK");
         okButton.addActionListener(new ActionListener() {
             @Override
@@ -280,22 +314,25 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
             public void actionPerformed(ActionEvent evt) {
                 dispose();
             }
-        });   
-	}
-	
-	private void initLayout() {
-		JPanel propertiesPanel = new JPanel(new MigLayout("insets 12, novisualpadding, hidemode 3, fillx", "[right][left]"));
+        });
+    }
+
+    private void initLayout() {
+        JPanel propertiesPanel = new JPanel(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gapy 6", "[right]13[left]", "[][][][grow]"));
         propertiesPanel.setBackground(UIConstants.BACKGROUND_COLOR);
         propertiesPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "Amazon S3 Advanced Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+
+        propertiesPanel.add(useDefaultCredentialProviderChainLabel);
+        propertiesPanel.add(useDefaultCredentialProviderChainYesRadio, "split 2");
+        propertiesPanel.add(useDefaultCredentialProviderChainNoRadio, "push, wrap");
 
         propertiesPanel.add(useTemporaryCredentialsLabel);
         propertiesPanel.add(yesRadio, "split 2");
         propertiesPanel.add(noRadio, "push, wrap");
-        
-        
+
         propertiesPanel.add(durationLabel);
         propertiesPanel.add(durationField, "w 100!, wrap");
-        
+
         propertiesPanel.add(customHttpHeadersLabel, "aligny top");
         propertiesPanel.add(customHttpHeadersScrollPane, "span, grow, split 2");
 
@@ -304,7 +341,7 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
         customHttpHeadersButtonPanel.add(newButton, "w 50!, wrap");
         customHttpHeadersButtonPanel.add(deleteButton, "w 50!");
         propertiesPanel.add(customHttpHeadersButtonPanel, "top");
-        
+
         add(propertiesPanel, "grow, push, top, wrap");
 
         JPanel buttonPanel = new JPanel(new MigLayout("insets 0 8 8 8, novisualpadding, hidemode 3, fill"));
@@ -314,16 +351,16 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
         buttonPanel.add(cancelButton, "w 50!");
 
         add(buttonPanel, "south, span");
-	}
-	
-	private void useTemporaryRadioButtonActionPerformed() {
-		durationLabel.setEnabled(yesRadio.isSelected());
-		durationField.setEnabled(yesRadio.isSelected());
-	}
-	
-	private void okButtonActionPerformed() {
-		if (customHttpHeadersTable.isEditing()) {
-			customHttpHeadersTable.getCellEditor().stopCellEditing();
+    }
+
+    private void useTemporaryRadioButtonActionPerformed() {
+        durationLabel.setEnabled(yesRadio.isSelected());
+        durationField.setEnabled(yesRadio.isSelected());
+    }
+
+    private void okButtonActionPerformed() {
+        if (customHttpHeadersTable.isEditing()) {
+            customHttpHeadersTable.getCellEditor().stopCellEditing();
         }
 
         if (!validateProperties()) {
@@ -333,9 +370,9 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
         saved = true;
         PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         dispose();
-	}
-	
-	class CustomHttpHeadersTableCellEditor extends TextFieldCellEditor {
+    }
+
+    class CustomHttpHeadersTableCellEditor extends TextFieldCellEditor {
         boolean checkProperties;
 
         public CustomHttpHeadersTableCellEditor(boolean checkProperties) {
@@ -365,22 +402,26 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
             return true;
         }
     }
-    
-	private JLabel useTemporaryCredentialsLabel;
-	private JRadioButton yesRadio;
-	private JRadioButton noRadio;
-	private ButtonGroup useTemporaryCredentialsButtonGroup;
-	
-	private JLabel durationLabel;
-	private JTextField durationField;
-	
-	private JLabel customHttpHeadersLabel;
+
+    private JLabel useDefaultCredentialProviderChainLabel;
+    private JRadioButton useDefaultCredentialProviderChainYesRadio;
+    private JRadioButton useDefaultCredentialProviderChainNoRadio;
+
+    private JLabel useTemporaryCredentialsLabel;
+    private JRadioButton yesRadio;
+    private JRadioButton noRadio;
+    private ButtonGroup useTemporaryCredentialsButtonGroup;
+
+    private JLabel durationLabel;
+    private JTextField durationField;
+
+    private JLabel customHttpHeadersLabel;
     private MirthTable customHttpHeadersTable;
     private JScrollPane customHttpHeadersScrollPane;
     private JButton newButton;
     private JButton deleteButton;
-	
-	private JButton okButton;
-	private JButton cancelButton;
-	
+
+    private JButton okButton;
+    private JButton cancelButton;
+
 }
