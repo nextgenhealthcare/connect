@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -33,6 +34,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.SimpleMaterialProvider;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.Credentials;
@@ -43,20 +45,20 @@ import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.S3SchemeProperties;
 
 public class S3Connection implements FileSystemConnection {
-    
+
     static final String DELIMITER = "/";
 
     public class S3FileInfo implements FileInfo {
-        
+
         private S3ObjectSummary summary;
         private String parent;
         private String name;
-        
+
         public S3FileInfo(S3ObjectSummary summary) {
             this.summary = summary;
             parent = summary.getBucketName();
             name = summary.getKey();
-            
+
             if (StringUtils.contains(summary.getKey(), DELIMITER)) {
                 int index = summary.getKey().lastIndexOf(DELIMITER);
                 parent += DELIMITER + summary.getKey().substring(0, index);
@@ -110,6 +112,8 @@ public class S3Connection implements FileSystemConnection {
         }
     }
 
+    private Logger logger = Logger.getLogger(getClass());
+    private String bucketName;
     private FileSystemConnectionOptions fileSystemOptions;
     private S3SchemeProperties schemeProps;
     private AmazonS3EncryptionClientBuilder clientBuilder;
@@ -117,7 +121,8 @@ public class S3Connection implements FileSystemConnection {
     private AWSSecurityTokenService sts;
     private int stsDuration;
 
-    public S3Connection(FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
+    public S3Connection(String bucketName, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
+        this.bucketName = bucketName;
         this.fileSystemOptions = fileSystemOptions;
         schemeProps = (S3SchemeProperties) fileSystemOptions.getSchemeProperties();
 
@@ -139,6 +144,7 @@ public class S3Connection implements FileSystemConnection {
             }
         } else {
             clientBuilder.setCredentials(createCredentialsProvider(fileSystemOptions));
+            clientBuilder.setEncryptionMaterials(new SimpleMaterialProvider());
             client = clientBuilder.build();
         }
     }
@@ -153,10 +159,10 @@ public class S3Connection implements FileSystemConnection {
     AWSCredentialsProvider createCredentialsProvider(FileSystemConnectionOptions fileSystemOptions) {
         S3SchemeProperties schemeProps = (S3SchemeProperties) fileSystemOptions.getSchemeProperties();
 
-        if (schemeProps.isUseDefaultCredentialProviderChain()) {
-            return new DefaultAWSCredentialsProviderChain();
-        } else if (StringUtils.isNotBlank(fileSystemOptions.getUsername()) && StringUtils.isNotBlank(fileSystemOptions.getPassword())) {
+        if (StringUtils.isNotBlank(fileSystemOptions.getUsername()) && StringUtils.isNotBlank(fileSystemOptions.getPassword())) {
             return new AWSStaticCredentialsProvider(new BasicAWSCredentials(fileSystemOptions.getUsername(), fileSystemOptions.getPassword()));
+        } else if (schemeProps.isUseDefaultCredentialProviderChain()) {
+            return new DefaultAWSCredentialsProviderChain();
         } else {
             return new AWSStaticCredentialsProvider(new AnonymousAWSCredentials());
         }
@@ -171,42 +177,49 @@ public class S3Connection implements FileSystemConnection {
             Credentials sessionCredentials = sessionTokenResult.getCredentials();
             BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(sessionCredentials.getAccessKeyId(), sessionCredentials.getSecretAccessKey(), sessionCredentials.getSessionToken());
             clientBuilder.setCredentials(new AWSStaticCredentialsProvider(basicSessionCredentials));
+            clientBuilder.setEncryptionMaterials(new SimpleMaterialProvider());
             client = clientBuilder.build();
         }
-        
+
         return client;
     }
-    
-    ListObjectsV2Request createListRequest(String fromDir) {
-        String bucketName = fromDir;
+
+    String getPrefix(String fromDir, boolean trailingDelimiter) {
         String prefix = null;
-        int index = fromDir.indexOf(DELIMITER);
-        if (index > 0) {
-            bucketName = fromDir.substring(0, index);
-            prefix = fromDir.substring(index + DELIMITER.length());
+        if (StringUtils.isNotBlank(fromDir) && !StringUtils.equals(fromDir, DELIMITER)) {
+            prefix = fromDir;
+            while (StringUtils.startsWith(prefix, DELIMITER)) {
+                prefix = prefix.substring(1);
+            }
+            if (trailingDelimiter && !StringUtils.endsWith(prefix, DELIMITER)) {
+                prefix += DELIMITER;
+            }
         }
-        
-        return new ListObjectsV2Request().withBucketName(bucketName).withPrefix(prefix).withDelimiter(DELIMITER);
+        return prefix;
+    }
+
+    ListObjectsV2Request createListRequest(String fromDir, boolean trailingPrefixDelimiter) {
+        return new ListObjectsV2Request().withBucketName(bucketName).withPrefix(getPrefix(fromDir, trailingPrefixDelimiter)).withDelimiter(DELIMITER);
     }
 
     @Override
     public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
         List<FileInfo> fileInfoList = new ArrayList<FileInfo>();
         AmazonS3 client = getClient();
-        
-        ListObjectsV2Request request = createListRequest(fromDir);
+
+        ListObjectsV2Request request = createListRequest(fromDir, true);
         ListObjectsV2Result result;
-        
+
         do {
             result = client.listObjectsV2(request);
-            
+
             for (S3ObjectSummary summary : result.getObjectSummaries()) {
                 fileInfoList.add(new S3FileInfo(summary));
             }
-            
+
             request.setContinuationToken(result.getNextContinuationToken());
         } while (result.isTruncated());
-        
+
         return fileInfoList;
     }
 
@@ -214,18 +227,18 @@ public class S3Connection implements FileSystemConnection {
     public List<String> listDirectories(String fromDir) throws Exception {
         List<String> directories = new ArrayList<String>();
         AmazonS3 client = getClient();
-        
-        ListObjectsV2Request request = createListRequest(fromDir);
+
+        ListObjectsV2Request request = createListRequest(fromDir, true);
         ListObjectsV2Result result;
-        
+
         do {
             result = client.listObjectsV2(request);
-            
+
             directories.addAll(result.getCommonPrefixes());
-            
+
             request.setContinuationToken(result.getNextContinuationToken());
         } while (result.isTruncated());
-        
+
         return directories;
     }
 
@@ -330,13 +343,30 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public boolean isValid() {
-        // TODO Auto-generated method stub
-        return false;
+        return client != null || sts != null;
     }
 
     @Override
     public boolean canRead(String readDir) {
-        // TODO Auto-generated method stub
+        try {
+            AmazonS3 client = getClient();
+            String prefix = getPrefix(readDir, true);
+            ListObjectsV2Request request = createListRequest(readDir, false);
+            ListObjectsV2Result result;
+
+            do {
+                result = client.listObjectsV2(request);
+
+                if (StringUtils.isBlank(prefix) || result.getCommonPrefixes().contains(prefix)) {
+                    return true;
+                }
+
+                request.setContinuationToken(result.getNextContinuationToken());
+            } while (result.isTruncated());
+        } catch (Exception e) {
+            logger.debug("Exception while attempting to read from S3 location \"" + readDir + "\".", e);
+        }
+
         return false;
     }
 
