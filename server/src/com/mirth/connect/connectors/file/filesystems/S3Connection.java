@@ -25,14 +25,20 @@ import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3EncryptionClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.Credentials;
 import com.amazonaws.services.securitytoken.model.GetSessionTokenRequest;
 import com.amazonaws.services.securitytoken.model.GetSessionTokenResult;
+import com.mirth.connect.connectors.file.FileConnectorException;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.S3SchemeProperties;
 
@@ -224,45 +230,68 @@ public class S3Connection implements FileSystemConnection {
     }
 
     @Override
-    public boolean exists(String file, String path) {
-        // TODO Auto-generated method stub
-        return false;
+    public boolean exists(String file, String path) throws Exception{
+        AmazonS3 client = getClient();
+        
+        return client.doesObjectExist(path, file);
     }
 
     @Override
     public InputStream readFile(String file, String fromDir) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        AmazonS3 client = getClient();
+        
+        GetObjectRequest objectRequest = new GetObjectRequest(fromDir, file);
+        S3Object fileObject = client.getObject(objectRequest);
+        S3ObjectInputStream objectInputStream = fileObject.getObjectContent();
+        
+        return objectInputStream;
     }
 
     @Override
     public void closeReadFile() throws Exception {
-        // TODO Auto-generated method stub
-
+        // nothing
     }
 
     @Override
     public boolean canAppend() {
-        // TODO Auto-generated method stub
+        // S3 doesn't allow appending
         return false;
     }
 
     @Override
     public void writeFile(String file, String toDir, boolean append, InputStream message) throws Exception {
-        // TODO Auto-generated method stub
-
+        AmazonS3 client = getClient();
+        
+        // TODO Figure out if ObjectMetadata is necessary
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        PutObjectRequest objectRequest = new PutObjectRequest(toDir, file, message, null);
+        client.putObject(objectRequest);
     }
 
     @Override
     public void delete(String file, String fromDir, boolean mayNotExist) throws Exception {
-        // TODO Auto-generated method stub
-
+        AmazonS3 client = getClient();
+        
+        client.deleteObject(fromDir, file);
+        
+        if (mayNotExist && exists(file, fromDir)) {
+            throw new FileConnectorException("File should not exist after deleting, bucket: " + fromDir + ", file: " + file);
+        }
     }
 
     @Override
     public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
-        // TODO Auto-generated method stub
-
+        AmazonS3 client =  getClient();
+        
+        try {
+            // copy to new bucket
+            client.copyObject(fromDir, fromName, toDir, toName);
+            
+            // delete original
+            delete(fromName, fromDir, false);
+        } catch (Exception e) {
+            throw new FileConnectorException("Error moving file from [bucket: " + fromDir + ", file: " + fromName + "] to [bucket: " + toDir + ", file: " + toName + "]", e);
+        }
     }
 
     @Override

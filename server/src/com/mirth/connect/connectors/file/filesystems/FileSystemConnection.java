@@ -47,7 +47,7 @@ public interface FileSystemConnection {
      * @param path
      *            The full path of the directory containing the file.
      */
-    public boolean exists(String file, String path);
+    public boolean exists(String file, String path) throws Exception;
 
     /**
      * Constructs and returns an InputStream to read the contents of the specified file in the
