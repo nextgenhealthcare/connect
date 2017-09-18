@@ -314,8 +314,7 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public boolean isValid() {
-        // TODO Auto-generated method stub
-        return false;
+        return client != null || sts != null;
     }
 
     @Override
