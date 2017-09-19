@@ -9,14 +9,19 @@
 
 package com.mirth.connect.connectors.file.filesystems;
 
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -43,6 +48,7 @@ import com.amazonaws.services.securitytoken.model.GetSessionTokenResult;
 import com.mirth.connect.connectors.file.FileConnectorException;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.S3SchemeProperties;
+import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 public class S3Connection implements FileSystemConnection {
 
@@ -199,22 +205,65 @@ public class S3Connection implements FileSystemConnection {
     }
 
     ListObjectsV2Request createListRequest(String fromDir, boolean trailingPrefixDelimiter) {
-        return new ListObjectsV2Request().withBucketName(bucketName).withPrefix(getPrefix(fromDir, trailingPrefixDelimiter)).withDelimiter(DELIMITER);
+        ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(bucketName).withPrefix(getPrefix(fromDir, trailingPrefixDelimiter)).withDelimiter(DELIMITER);
+        addCustomHeaders(request);
+        return request;
+    }
+
+    void addCustomHeaders(AmazonWebServiceRequest request) {
+        if (MapUtils.isNotEmpty(schemeProps.getCustomHeaders())) {
+            for (Entry<String, List<String>> entry : schemeProps.getCustomHeaders().entrySet()) {
+                for (String value : entry.getValue()) {
+                    request.putCustomRequestHeader(entry.getKey(), value);
+                }
+            }
+        }
     }
 
     @Override
     public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
+        String filePrefix = null;
+
+        FilenameFilter filenameFilter;
+        if (isRegex) {
+            filenameFilter = new RegexFilenameFilter(filenamePattern);
+        } else {
+            String[] wildcards = filenamePattern.trim().split("\\s*,\\s*");
+
+            // Take advantage of the S3 prefix option if the filename pattern is a simple ending wildcard
+            if (wildcards.length == 1 && StringUtils.length(wildcards[0]) > 1 && StringUtils.indexOf(wildcards[0], "*") == wildcards[0].length() - 1) {
+                filePrefix = wildcards[0].substring(0, wildcards[0].length() - 1);
+            }
+
+            filenameFilter = new WildcardFileFilter(wildcards);
+        }
+
         List<FileInfo> fileInfoList = new ArrayList<FileInfo>();
         AmazonS3 client = getClient();
 
         ListObjectsV2Request request = createListRequest(fromDir, true);
+        String dirPrefix = request.getPrefix();
+
+        // Add the file prefix if necessary
+        if (StringUtils.isNotBlank(filePrefix)) {
+            request.setPrefix(StringUtils.trimToEmpty(dirPrefix) + filePrefix);
+        }
+
         ListObjectsV2Result result;
 
         do {
             result = client.listObjectsV2(request);
 
             for (S3ObjectSummary summary : result.getObjectSummaries()) {
-                fileInfoList.add(new S3FileInfo(summary));
+                // Ignore the folder itself
+                if (!StringUtils.equals(summary.getKey(), dirPrefix)) {
+                    S3FileInfo fileInfo = new S3FileInfo(summary);
+
+                    // Validate against the filter before adding to the list 
+                    if ((filenameFilter == null || filenameFilter.accept(null, fileInfo.getName())) && (!ignoreDot || !StringUtils.startsWith(fileInfo.getName(), "."))) {
+                        fileInfoList.add(fileInfo);
+                    }
+                }
             }
 
             request.setContinuationToken(result.getNextContinuationToken());
@@ -252,18 +301,27 @@ public class S3Connection implements FileSystemConnection {
     @Override
     public InputStream readFile(String file, String fromDir) throws Exception {
         AmazonS3 client = getClient();
-        
-        GetObjectRequest objectRequest = new GetObjectRequest(fromDir, file);
-        S3Object fileObject = client.getObject(objectRequest);
-        S3ObjectInputStream objectInputStream = fileObject.getObjectContent();
-        
-        return objectInputStream;
+
+        if (StringUtils.equals(fromDir, bucketName)) {
+            fromDir = "";
+        } else {
+            fromDir = StringUtils.removeStart(fromDir, bucketName + DELIMITER);
+        }
+
+        String key = file;
+        if (StringUtils.isNotBlank(fromDir) && !StringUtils.equals(fromDir, DELIMITER)) {
+            key = fromDir + DELIMITER + key;
+        }
+
+        GetObjectRequest request = new GetObjectRequest(bucketName, key);
+        addCustomHeaders(request);
+
+        S3Object object = client.getObject(request);
+        return object.getObjectContent();
     }
 
     @Override
-    public void closeReadFile() throws Exception {
-        // nothing
-    }
+    public void closeReadFile() throws Exception {}
 
     @Override
     public boolean canAppend() {
@@ -309,27 +367,17 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public boolean isConnected() {
-        // TODO Auto-generated method stub
-        return false;
+        return isValid();
     }
 
     @Override
-    public void disconnect() {
-        // TODO Auto-generated method stub
-
-    }
+    public void disconnect() {}
 
     @Override
-    public void activate() {
-        // TODO Auto-generated method stub
-
-    }
+    public void activate() {}
 
     @Override
-    public void passivate() {
-        // TODO Auto-generated method stub
-
-    }
+    public void passivate() {}
 
     @Override
     public void destroy() {
