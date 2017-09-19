@@ -114,6 +114,7 @@ public class FileDispatcher extends DestinationConnector {
         } else if (schemeProperties instanceof S3SchemeProperties) {
             S3SchemeProperties s3Properties = (S3SchemeProperties) schemeProperties;
 
+            s3Properties.setRegion(replacer.replaceValues(s3Properties.getRegion(), connectorMessage));
             s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), connectorMessage));
         }
     }
@@ -145,14 +146,14 @@ public class FileDispatcher extends DestinationConnector {
         InputStream is = null;
 
         try {
-            uri = fileConnector.getEndpointURI(fileDispatcherProperties.getHost());
+            uri = FileConnector.getEndpointURI(fileDispatcherProperties.getHost(), fileDispatcherProperties.getScheme(), fileDispatcherProperties.getSchemeProperties(), fileDispatcherProperties.isSecure());
             String filename = fileDispatcherProperties.getOutputPattern();
 
             if (filename == null) {
                 throw new IOException("Filename is null");
             }
 
-            fileSystemOptions = new FileSystemConnectionOptions(uri, fileDispatcherProperties.getUsername(), fileDispatcherProperties.getPassword(), fileDispatcherProperties.getSchemeProperties());
+            fileSystemOptions = new FileSystemConnectionOptions(uri, fileDispatcherProperties.isAnonymous(), fileDispatcherProperties.getUsername(), fileDispatcherProperties.getPassword(), fileDispatcherProperties.getSchemeProperties());
             String path = fileConnector.getPathPart(uri);
             String template = fileDispatcherProperties.getTemplate();
 

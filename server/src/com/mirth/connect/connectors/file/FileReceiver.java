@@ -28,7 +28,6 @@ import java.util.Stack;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -124,7 +123,7 @@ public class FileReceiver extends PollConnector {
             String channelName = getChannel().getName();
             String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
-            URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId, channelName));
+            String host = replacer.replaceValues(connectorProperties.getHost(), channelId, channelName);
 
             SchemeProperties schemeProperties = connectorProperties.getSchemeProperties().clone();
 
@@ -138,10 +137,13 @@ public class FileReceiver extends PollConnector {
             } else if (schemeProperties instanceof S3SchemeProperties) {
                 S3SchemeProperties s3Properties = (S3SchemeProperties) schemeProperties;
 
+                s3Properties.setRegion(replacer.replaceValues(s3Properties.getRegion(), channelId, channelName));
                 s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
-            fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, schemeProperties);
+            URI uri = FileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
+
+            fileSystemOptions = new FileSystemConnectionOptions(uri, connectorProperties.isAnonymous(), username, password, schemeProperties);
             FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
             fileConnector.releaseConnection(con, fileSystemOptions);
         } catch (URISyntaxException e1) {
@@ -174,8 +176,7 @@ public class FileReceiver extends PollConnector {
         try {
             String channelId = getChannelId();
             String channelName = getChannel().getName();
-            URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId, channelName));
-            String readDir = fileConnector.getPathPart(uri);
+            String host = replacer.replaceValues(connectorProperties.getHost(), channelId, channelName);
 
             String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
@@ -193,10 +194,14 @@ public class FileReceiver extends PollConnector {
             } else if (schemeProperties instanceof S3SchemeProperties) {
                 S3SchemeProperties s3Properties = (S3SchemeProperties) schemeProperties;
 
+                s3Properties.setRegion(replacer.replaceValues(s3Properties.getRegion(), channelId, channelName));
                 s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
-            fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, schemeProperties);
+            URI uri = FileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
+            String readDir = fileConnector.getPathPart(uri);
+
+            fileSystemOptions = new FileSystemConnectionOptions(uri, connectorProperties.isAnonymous(), username, password, schemeProperties);
 
             if (connectorProperties.isDirectoryRecursion()) {
                 Set<String> visitedDirectories = new HashSet<String>();
@@ -372,7 +377,7 @@ public class FileReceiver extends PollConnector {
                     errorResponse = response != null && response.getStatus() == Status.ERROR;
                 } catch (Exception e) {
                     error = true;
-                    logger.error("Unable to dispatch message to channel " + getChannelId() + ": " + ExceptionUtils.getStackTrace(e));
+                    logger.error("Unable to dispatch message to channel " + getChannelId() + ". File: " + file.getAbsolutePath(), e);
                 } catch (Throwable t) {
                     error = true;
                     String errorMessage = "Error reading file " + file.getAbsolutePath() + "\n" + t.getMessage();

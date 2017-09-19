@@ -12,7 +12,7 @@
 	<library type="CLIENT" path="file-client.jar" />
 	<library type="SHARED" path="file-shared.jar" />
 	<library type="SERVER" path="file-server.jar" />
-	<library type="SERVER" path="lib/aws-java-sdk-core-1.11.194.jar" />
+	<library type="SHARED" path="lib/aws-java-sdk-core-1.11.194.jar" />
 	<library type="SERVER" path="lib/aws-java-sdk-kms-1.11.194.jar" />
 	<library type="SERVER" path="lib/aws-java-sdk-s3-1.11.194.jar" />
 	<library type="SERVER" path="lib/aws-java-sdk-sts-1.11.194.jar" />

@@ -19,6 +19,8 @@ import java.util.Map.Entry;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.AmazonWebServiceRequest;
@@ -119,7 +121,6 @@ public class S3Connection implements FileSystemConnection {
     }
 
     private Logger logger = Logger.getLogger(getClass());
-    private String bucketName;
     private FileSystemConnectionOptions fileSystemOptions;
     private S3SchemeProperties schemeProps;
     private AmazonS3EncryptionClientBuilder clientBuilder;
@@ -127,8 +128,7 @@ public class S3Connection implements FileSystemConnection {
     private AWSSecurityTokenService sts;
     private int stsDuration;
 
-    public S3Connection(String bucketName, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
-        this.bucketName = bucketName;
+    public S3Connection(FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
         this.fileSystemOptions = fileSystemOptions;
         schemeProps = (S3SchemeProperties) fileSystemOptions.getSchemeProperties();
 
@@ -139,6 +139,7 @@ public class S3Connection implements FileSystemConnection {
             AWSSecurityTokenServiceClientBuilder stsClientBuilder = AWSSecurityTokenServiceClientBuilder.standard();
             stsClientBuilder.setClientConfiguration(createClientConfiguration(timeout));
             stsClientBuilder.setCredentials(createCredentialsProvider(fileSystemOptions));
+            stsClientBuilder.setRegion(schemeProps.getRegion());
             sts = stsClientBuilder.build();
 
             // Abide by AWS duration restrictions
@@ -150,6 +151,7 @@ public class S3Connection implements FileSystemConnection {
             }
         } else {
             clientBuilder.setCredentials(createCredentialsProvider(fileSystemOptions));
+            clientBuilder.setRegion(schemeProps.getRegion());
             clientBuilder.setEncryptionMaterials(new SimpleMaterialProvider());
             client = clientBuilder.build();
         }
@@ -165,12 +167,12 @@ public class S3Connection implements FileSystemConnection {
     AWSCredentialsProvider createCredentialsProvider(FileSystemConnectionOptions fileSystemOptions) {
         S3SchemeProperties schemeProps = (S3SchemeProperties) fileSystemOptions.getSchemeProperties();
 
-        if (StringUtils.isNotBlank(fileSystemOptions.getUsername()) && StringUtils.isNotBlank(fileSystemOptions.getPassword())) {
-            return new AWSStaticCredentialsProvider(new BasicAWSCredentials(fileSystemOptions.getUsername(), fileSystemOptions.getPassword()));
+        if (fileSystemOptions.isAnonymous()) {
+            return new AWSStaticCredentialsProvider(new AnonymousAWSCredentials());
         } else if (schemeProps.isUseDefaultCredentialProviderChain()) {
             return new DefaultAWSCredentialsProviderChain();
         } else {
-            return new AWSStaticCredentialsProvider(new AnonymousAWSCredentials());
+            return new AWSStaticCredentialsProvider(new BasicAWSCredentials(fileSystemOptions.getUsername(), fileSystemOptions.getPassword()));
         }
     }
 
@@ -183,6 +185,7 @@ public class S3Connection implements FileSystemConnection {
             Credentials sessionCredentials = sessionTokenResult.getCredentials();
             BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(sessionCredentials.getAccessKeyId(), sessionCredentials.getSecretAccessKey(), sessionCredentials.getSessionToken());
             clientBuilder.setCredentials(new AWSStaticCredentialsProvider(basicSessionCredentials));
+            clientBuilder.setRegion(schemeProps.getRegion());
             clientBuilder.setEncryptionMaterials(new SimpleMaterialProvider());
             client = clientBuilder.build();
         }
@@ -190,22 +193,57 @@ public class S3Connection implements FileSystemConnection {
         return client;
     }
 
-    String getPrefix(String fromDir, boolean trailingDelimiter) {
+    Pair<String, String> getBucketNameAndPrefix(String fromDir) {
+        String bucketName = null;
         String prefix = null;
-        if (StringUtils.isNotBlank(fromDir) && !StringUtils.equals(fromDir, DELIMITER)) {
-            prefix = fromDir;
-            while (StringUtils.startsWith(prefix, DELIMITER)) {
-                prefix = prefix.substring(1);
+
+        if (StringUtils.isNotBlank(fromDir)) {
+            // Remove leading delimiters
+            while (StringUtils.startsWith(fromDir, DELIMITER)) {
+                fromDir = StringUtils.substring(fromDir, 1);
             }
-            if (trailingDelimiter && !StringUtils.endsWith(prefix, DELIMITER)) {
-                prefix += DELIMITER;
+
+            int index = StringUtils.indexOf(fromDir, DELIMITER);
+            if (index > 0) {
+                bucketName = StringUtils.substring(fromDir, 0, index);
+                prefix = StringUtils.trimToNull(StringUtils.substring(fromDir, index + 1));
+            } else {
+                // No delimiters
+                bucketName = fromDir;
             }
         }
-        return prefix;
+
+        return new ImmutablePair<String, String>(bucketName, prefix);
     }
 
-    ListObjectsV2Request createListRequest(String fromDir, boolean trailingPrefixDelimiter) {
-        ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(bucketName).withPrefix(getPrefix(fromDir, trailingPrefixDelimiter)).withDelimiter(DELIMITER);
+    String normalizeKey(String key, boolean leadingDelimiter, boolean trailingDelimiter) {
+        if (key != null) {
+            if (leadingDelimiter) {
+                if (!StringUtils.startsWith(key, DELIMITER)) {
+                    key = DELIMITER + key;
+                }
+            } else {
+                while (StringUtils.startsWith(key, DELIMITER)) {
+                    key = StringUtils.substring(key, 1);
+                }
+            }
+
+            if (trailingDelimiter) {
+                if (!StringUtils.endsWith(key, DELIMITER)) {
+                    key += DELIMITER;
+                }
+            } else {
+                while (StringUtils.endsWith(key, DELIMITER)) {
+                    key = StringUtils.substring(key, 0, key.length() - 1);
+                }
+            }
+        }
+
+        return key;
+    }
+
+    ListObjectsV2Request createListRequest(String bucketName, String prefix) {
+        ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(bucketName).withPrefix(prefix).withDelimiter(DELIMITER);
         addCustomHeaders(request);
         return request;
     }
@@ -241,8 +279,11 @@ public class S3Connection implements FileSystemConnection {
         List<FileInfo> fileInfoList = new ArrayList<FileInfo>();
         AmazonS3 client = getClient();
 
-        ListObjectsV2Request request = createListRequest(fromDir, true);
-        String dirPrefix = request.getPrefix();
+        Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
+        String bucketName = bucketNameAndPrefix.getLeft();
+        String dirPrefix = normalizeKey(bucketNameAndPrefix.getRight(), false, true);
+
+        ListObjectsV2Request request = createListRequest(bucketName, dirPrefix);
 
         // Add the file prefix if necessary
         if (StringUtils.isNotBlank(filePrefix)) {
@@ -277,13 +318,19 @@ public class S3Connection implements FileSystemConnection {
         List<String> directories = new ArrayList<String>();
         AmazonS3 client = getClient();
 
-        ListObjectsV2Request request = createListRequest(fromDir, true);
+        Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
+        String bucketName = bucketNameAndPrefix.getLeft();
+        String prefix = normalizeKey(bucketNameAndPrefix.getRight(), false, true);
+
+        ListObjectsV2Request request = createListRequest(bucketName, prefix);
         ListObjectsV2Result result;
 
         do {
             result = client.listObjectsV2(request);
 
-            directories.addAll(result.getCommonPrefixes());
+            for (String commonPrefix : result.getCommonPrefixes()) {
+                directories.add(bucketName + DELIMITER + commonPrefix);
+            }
 
             request.setContinuationToken(result.getNextContinuationToken());
         } while (result.isTruncated());
@@ -292,36 +339,32 @@ public class S3Connection implements FileSystemConnection {
     }
 
     @Override
-    public boolean exists(String file, String path) throws Exception{
+    public boolean exists(String file, String path) throws Exception {
         AmazonS3 client = getClient();
-        
-        if (StringUtils.equals(path, bucketName)) {
-            path = "";
-        } else {
-            path = StringUtils.removeStart(path, bucketName + DELIMITER);
-        }
+
+        Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(path);
+        String bucketName = bucketNameAndPrefix.getLeft();
+        String prefix = normalizeKey(bucketNameAndPrefix.getRight(), false, true);
 
         String key = file;
-        if (StringUtils.isNotBlank(path) && !StringUtils.equals(path, DELIMITER)) {
-            key = path + DELIMITER + key;
+        if (StringUtils.isNotBlank(prefix) && !StringUtils.equals(prefix, DELIMITER)) {
+            key = prefix + key;
         }
-        
-        return client.doesObjectExist(path, file);
+
+        return client.doesObjectExist(bucketName, key);
     }
 
     @Override
     public InputStream readFile(String file, String fromDir) throws Exception {
         AmazonS3 client = getClient();
 
-        if (StringUtils.equals(fromDir, bucketName)) {
-            fromDir = "";
-        } else {
-            fromDir = StringUtils.removeStart(fromDir, bucketName + DELIMITER);
-        }
+        Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
+        String bucketName = bucketNameAndPrefix.getLeft();
+        String prefix = normalizeKey(bucketNameAndPrefix.getRight(), false, true);
 
         String key = file;
-        if (StringUtils.isNotBlank(fromDir) && !StringUtils.equals(fromDir, DELIMITER)) {
-            key = fromDir + DELIMITER + key;
+        if (StringUtils.isNotBlank(prefix) && !StringUtils.equals(prefix, DELIMITER)) {
+            key = prefix + key;
         }
 
         GetObjectRequest request = new GetObjectRequest(bucketName, key);
@@ -343,91 +386,75 @@ public class S3Connection implements FileSystemConnection {
     @Override
     public void writeFile(String file, String toDir, boolean append, InputStream message) throws Exception {
         AmazonS3 client = getClient();
-        
-        if (StringUtils.equals(toDir, bucketName)) {
-            toDir = "";
-        } else {
-            toDir = StringUtils.removeStart(toDir, bucketName + DELIMITER);
-        }
-        
+
+        Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(toDir);
+        String bucketName = bucketNameAndPrefix.getLeft();
+        String prefix = normalizeKey(bucketNameAndPrefix.getRight(), false, true);
+
         String key = file;
-        if (StringUtils.isNotBlank(toDir) && !StringUtils.equals(toDir, DELIMITER)) {
-            key = toDir + DELIMITER + key;
+        if (StringUtils.isNotBlank(prefix) && !StringUtils.equals(prefix, DELIMITER)) {
+            key = prefix + key;
         }
-        
+
         PutObjectRequest putRequest = new PutObjectRequest(bucketName, key, message, null);
         addCustomHeaders(putRequest);
-        
+
         client.putObject(putRequest);
     }
 
     @Override
     public void delete(String file, String fromDir, boolean mayNotExist) throws Exception {
         AmazonS3 client = getClient();
-        
-        String fileOriginal = file;
-        String fromDirOriginal = fromDir;
-        
-        if (StringUtils.equals(fromDir, bucketName)) {
-            fromDir = "";
-        } else {
-            fromDir = StringUtils.removeStart(fromDir, bucketName + DELIMITER);
-        }
-        
+
+        Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
+        String bucketName = bucketNameAndPrefix.getLeft();
+        String prefix = normalizeKey(bucketNameAndPrefix.getRight(), false, true);
+
         String key = file;
-        if (StringUtils.isNotBlank(fromDir) && !StringUtils.equals(fromDir, DELIMITER)) {
-            key = fromDir + DELIMITER + key;
+        if (StringUtils.isNotBlank(prefix) && !StringUtils.equals(prefix, DELIMITER)) {
+            key = prefix + key;
         }
-        
+
         DeleteObjectRequest deleteRequest = new DeleteObjectRequest(bucketName, key);
         addCustomHeaders(deleteRequest);
-        
+
         client.deleteObject(deleteRequest);
-        
-        if (mayNotExist && exists(fileOriginal, fromDirOriginal)) {
-            throw new FileConnectorException("File should not exist after deleting, bucket: " + fromDirOriginal + ", file: " + fileOriginal);
+
+        if (mayNotExist && exists(file, fromDir)) {
+            throw new FileConnectorException("File should not exist after deleting, bucket: " + fromDir + ", file: " + file);
         }
     }
 
     @Override
     public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
-        AmazonS3 client =  getClient();
-        
+        AmazonS3 client = getClient();
+
+        Pair<String, String> fromBucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
+        String fromBucketName = fromBucketNameAndPrefix.getLeft();
+        String fromPrefix = normalizeKey(fromBucketNameAndPrefix.getRight(), false, true);
+
+        String fromKey = fromName;
+        if (StringUtils.isNotBlank(fromPrefix) && !StringUtils.equals(fromPrefix, DELIMITER)) {
+            fromKey = fromPrefix + fromKey;
+        }
+
+        Pair<String, String> toBucketNameAndPrefix = getBucketNameAndPrefix(toDir);
+        String toBucketName = toBucketNameAndPrefix.getLeft();
+        String toPrefix = normalizeKey(toBucketNameAndPrefix.getRight(), false, true);
+
+        String toKey = toName;
+        if (StringUtils.isNotBlank(toPrefix) && !StringUtils.equals(toPrefix, DELIMITER)) {
+            toKey = toPrefix + toKey;
+        }
+
         try {
-            String fromNameOriginal = fromName;
-            String fromDirOriginal = fromDir;
-            
-            // copy to new folder/bucket
-            if (StringUtils.equals(fromDir, bucketName)) {
-                fromDir = "";
-            } else {
-                fromDir = StringUtils.removeStart(fromDir, bucketName + DELIMITER);
-            }
-            
-            String fromKey = fromName;
-            if (StringUtils.isNotBlank(fromDir) && !StringUtils.equals(fromDir, DELIMITER)) {
-                fromKey = fromDir + DELIMITER + fromKey;
-            }
-            
-            if (StringUtils.equals(toDir, bucketName)) {
-                toDir = "";
-            } else {
-                toDir = StringUtils.removeStart(toDir, bucketName + DELIMITER);
-            }
-            
-            String toKey = toName;
-            if (StringUtils.isNotBlank(toDir) && !StringUtils.equals(toDir, DELIMITER)) {
-                toKey = toDir + DELIMITER + toKey;
-            }
-            
-            // TODO We need a way to specify a new bucket, for now we can move from one 'folder' to another within the same bucket
-            CopyObjectRequest copyRequest = new CopyObjectRequest(bucketName, fromKey, bucketName, toKey);
+            CopyObjectRequest copyRequest = new CopyObjectRequest(fromBucketName, fromKey, toBucketName, toKey);
             client.copyObject(copyRequest);
-            
+
             // delete original
-            delete(fromNameOriginal, fromDirOriginal, false);
+            delete(fromName, fromDir, false);
         } catch (Exception e) {
-            throw new FileConnectorException("Error moving file from [bucket: " + fromDir + ", file: " + fromName + "] to [bucket: " + toDir + ", file: " + toName + "]", e);
+            throw new FileConnectorException("Error moving file from [bucket: " + fromBucketName + ", key: " + fromKey + "] to [bucket: " + toBucketName + ", key: " + toKey + "]", e);
         }
     }
 
@@ -464,14 +491,19 @@ public class S3Connection implements FileSystemConnection {
     public boolean canRead(String readDir) {
         try {
             AmazonS3 client = getClient();
-            String prefix = getPrefix(readDir, true);
-            ListObjectsV2Request request = createListRequest(readDir, false);
+
+            Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(readDir);
+            String bucketName = bucketNameAndPrefix.getLeft();
+            String prefix = normalizeKey(bucketNameAndPrefix.getRight(), false, false);
+            String prefixWithTrailingDelimiter = normalizeKey(bucketNameAndPrefix.getRight(), false, true);
+
+            ListObjectsV2Request request = createListRequest(bucketName, prefix);
             ListObjectsV2Result result;
 
             do {
                 result = client.listObjectsV2(request);
 
-                if (StringUtils.isBlank(prefix) || result.getCommonPrefixes().contains(prefix)) {
+                if (StringUtils.isBlank(prefixWithTrailingDelimiter) || result.getCommonPrefixes().contains(prefixWithTrailingDelimiter)) {
                     return true;
                 }
 

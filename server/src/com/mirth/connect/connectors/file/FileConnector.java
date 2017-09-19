@@ -283,16 +283,16 @@ public class FileConnector {
         this.outputStream = outputStream;
     }
 
-    protected URI getEndpointURI(String host) throws URISyntaxException {
-        return getEndpointURI(host, scheme, secure);
-    }
-
-    public static URI getEndpointURI(String host, FileScheme scheme, boolean isSecure) throws URISyntaxException {
+    public static URI getEndpointURI(String host, FileScheme scheme, SchemeProperties schemeProperties, boolean isSecure) throws URISyntaxException {
         StringBuilder sspBuilder = new StringBuilder();
 
         sspBuilder.append("//");
         if (scheme == FileScheme.FILE && StringUtils.isNotBlank(host) && host.length() >= 3 && host.substring(1, 3).equals(":/")) {
             sspBuilder.append("/");
+        }
+
+        if (scheme == FileScheme.S3) {
+            sspBuilder.append(((S3SchemeProperties) schemeProperties).getRegion()).append('/');
         }
 
         sspBuilder.append(host);

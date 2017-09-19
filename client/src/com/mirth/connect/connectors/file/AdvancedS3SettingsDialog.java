@@ -24,7 +24,9 @@ import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -33,6 +35,8 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang.math.NumberUtils;
@@ -40,6 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.amazonaws.regions.Regions;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
@@ -56,15 +61,30 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
     private final String VALUE_COLUMN_NAME = "Value";
 
     private boolean saved;
+    private boolean updatingRegion;
 
-    public AdvancedS3SettingsDialog(S3SchemeProperties schemeProperties) {
-        setTitle("Method Settings");
+    public AdvancedS3SettingsDialog(S3SchemeProperties schemeProperties, boolean anonymous) {
+        setTitle("S3 Advanced Settings");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLayout(new MigLayout("insets 8 8 0 8, novisualpadding, hidemode 3"));
         getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);
 
         initComponents();
         initLayout();
+
+        if (anonymous) {
+            useDefaultCredentialProviderChainLabel.setEnabled(false);
+            anonymousWarningLabel.setVisible(true);
+            useDefaultCredentialProviderChainYesRadio.setEnabled(false);
+            useDefaultCredentialProviderChainNoRadio.setEnabled(false);
+            useTemporaryCredentialsLabel.setEnabled(false);
+            useTemporaryCredentialsYesRadio.setEnabled(false);
+            useTemporaryCredentialsNoRadio.setEnabled(false);
+            durationLabel.setEnabled(false);
+            durationField.setEnabled(false);
+        } else {
+            anonymousWarningLabel.setVisible(false);
+        }
 
         setFileSchemeProperties(schemeProperties);
 
@@ -86,13 +106,14 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
 
         props.setUseDefaultCredentialProviderChain(useDefaultCredentialProviderChainYesRadio.isSelected());
 
-        if (yesRadio.isSelected()) {
+        if (useTemporaryCredentialsYesRadio.isSelected()) {
             props.setUseTemporaryCredentials(true);
-        } else if (noRadio.isSelected()) {
+        } else if (useTemporaryCredentialsNoRadio.isSelected()) {
             props.setUseTemporaryCredentials(false);
         }
 
         props.setDuration(NumberUtils.toInt(durationField.getText(), 7200));
+        props.setRegion(regionField.getText());
 
         Map<String, List<String>> headers = new LinkedHashMap<>();
 
@@ -122,12 +143,20 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
         }
 
         if (schemeProperties.isUseTemporaryCredentials()) {
-            yesRadio.setSelected(true);
+            useTemporaryCredentialsYesRadio.setSelected(true);
         } else {
-            noRadio.setSelected(true);
+            useTemporaryCredentialsNoRadio.setSelected(true);
         }
 
         durationField.setText(schemeProperties.getDuration() + "");
+
+        updatingRegion = true;
+        try {
+            regionField.setText(schemeProperties.getRegion());
+            regionFieldUpdated();
+        } finally {
+            updatingRegion = false;
+        }
 
         Map<String, List<String>> headers = schemeProperties.getCustomHeaders();
         if (headers != null && headers.size() > 0) {
@@ -157,12 +186,20 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
 
         String errors = "";
 
-        if (yesRadio.isSelected() && StringUtils.isEmpty(durationField.getText())) {
+        if (useTemporaryCredentialsYesRadio.isSelected() && StringUtils.isEmpty(durationField.getText())) {
             valid = false;
             errors += "Duration cannot be blank.\n";
             durationField.setBackground(UIConstants.INVALID_COLOR);
         } else {
             durationField.setBackground(null);
+        }
+
+        if (StringUtils.isBlank(regionField.getText())) {
+            valid = false;
+            errors += "Region cannot be blank.\n";
+            regionField.setBackground(UIConstants.INVALID_COLOR);
+        } else {
+            regionField.setBackground(null);
         }
 
         if (StringUtils.isNotBlank(errors)) {
@@ -180,6 +217,9 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
         ButtonGroup useDefaultCredentialProviderChainButtonGroup = new ButtonGroup();
         String toolTipText = "<html>If enabled and no explicit credentials are provided, the default provider chain looks for credentials in this order:<br/><ul><li><b>Environment variables:</b> AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.</li><li><b>Java system properties:</b> aws.accessKeyId and aws.secretKey.</li><li><b>Default credentials profile file:</b> Typically located at ~/.aws/credentials (location can vary per platform).</li><li><b>ECS container credentials:</b> Loaded from an Amazon ECS environment variable.</li><li><b>Instance profile credentials:</b> Loaded from the EC2 metadata service.</li></ul></html>";
 
+        anonymousWarningLabel = new JLabel("Anonymous credentials are currently in use");
+        anonymousWarningLabel.setForeground(Color.RED);
+
         useDefaultCredentialProviderChainYesRadio = new JRadioButton("Yes");
         useDefaultCredentialProviderChainYesRadio.setBackground(getBackground());
         useDefaultCredentialProviderChainYesRadio.setToolTipText(toolTipText);
@@ -192,25 +232,25 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
 
         useTemporaryCredentialsLabel = new JLabel("Use Temporary Credentials:");
 
-        yesRadio = new JRadioButton("Yes");
-        yesRadio.setSelected(true);
-        yesRadio.setFocusable(false);
-        yesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
-        yesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        yesRadio.setToolTipText("Select whether or not to use temporary credentials.");
-        yesRadio.addActionListener(new ActionListener() {
+        useTemporaryCredentialsYesRadio = new JRadioButton("Yes");
+        useTemporaryCredentialsYesRadio.setSelected(true);
+        useTemporaryCredentialsYesRadio.setFocusable(false);
+        useTemporaryCredentialsYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        useTemporaryCredentialsYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useTemporaryCredentialsYesRadio.setToolTipText("Select whether or not to use temporary credentials.");
+        useTemporaryCredentialsYesRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 useTemporaryRadioButtonActionPerformed();
             }
         });
 
-        noRadio = new JRadioButton("No");
-        noRadio.setFocusable(false);
-        noRadio.setBackground(UIConstants.BACKGROUND_COLOR);
-        noRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        noRadio.setToolTipText("Select whether or not to use temporary credentials.");
-        noRadio.addActionListener(new ActionListener() {
+        useTemporaryCredentialsNoRadio = new JRadioButton("No");
+        useTemporaryCredentialsNoRadio.setFocusable(false);
+        useTemporaryCredentialsNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        useTemporaryCredentialsNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useTemporaryCredentialsNoRadio.setToolTipText("Select whether or not to use temporary credentials.");
+        useTemporaryCredentialsNoRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 useTemporaryRadioButtonActionPerformed();
@@ -218,13 +258,69 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
         });
 
         useTemporaryCredentialsButtonGroup = new ButtonGroup();
-        useTemporaryCredentialsButtonGroup.add(yesRadio);
-        useTemporaryCredentialsButtonGroup.add(noRadio);
+        useTemporaryCredentialsButtonGroup.add(useTemporaryCredentialsYesRadio);
+        useTemporaryCredentialsButtonGroup.add(useTemporaryCredentialsNoRadio);
 
-        durationLabel = new JLabel("Duration (s):");
+        durationLabel = new JLabel("Duration (seconds):");
         durationField = new JTextField();
         durationField.setDocument(new MirthFieldConstraints(0, false, false, true));
         durationField.setToolTipText("The duration that the temporary credentials are valid.");
+
+        regionLabel = new JLabel("Region:");
+
+        regionField = new JTextField();
+        regionField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void removeUpdate(DocumentEvent evt) {
+                update();
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent evt) {
+                update();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent evt) {
+                update();
+            }
+
+            private void update() {
+                if (!updatingRegion) {
+                    updatingRegion = true;
+                    try {
+                        regionFieldUpdated();
+                    } finally {
+                        updatingRegion = false;
+                    }
+                }
+            }
+        });
+
+        List<String> regions = new ArrayList<String>();
+        regions.add("Custom");
+        for (Regions region : Regions.values()) {
+            regions.add(region.getName());
+        }
+
+        regionComboBox = new JComboBox<String>();
+        regionComboBox.setModel(new DefaultComboBoxModel<String>(regions.toArray(new String[regions.size()])));
+        regionComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                if (!updatingRegion) {
+                    updatingRegion = true;
+                    try {
+                        String selectedRegion = (String) regionComboBox.getSelectedItem();
+                        if (!StringUtils.equals(selectedRegion, "Custom")) {
+                            regionComboBoxActionPerformed();
+                        }
+                    } finally {
+                        updatingRegion = false;
+                    }
+                }
+            }
+        });
 
         customHttpHeadersLabel = new JLabel("Custom HTTP Headers:");
         customHttpHeadersTable = new MirthTable();
@@ -318,22 +414,27 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
     }
 
     private void initLayout() {
-        JPanel propertiesPanel = new JPanel(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gapy 6", "[right]13[left]", "[][][][grow]"));
+        JPanel propertiesPanel = new JPanel(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gapy 6", "[right]13[grow]", "[][][][grow]"));
         propertiesPanel.setBackground(UIConstants.BACKGROUND_COLOR);
         propertiesPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "Amazon S3 Advanced Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
         propertiesPanel.add(useDefaultCredentialProviderChainLabel);
-        propertiesPanel.add(useDefaultCredentialProviderChainYesRadio, "split 2");
-        propertiesPanel.add(useDefaultCredentialProviderChainNoRadio, "push, wrap");
+        propertiesPanel.add(useDefaultCredentialProviderChainYesRadio, "split 3");
+        propertiesPanel.add(useDefaultCredentialProviderChainNoRadio);
+        propertiesPanel.add(anonymousWarningLabel, "gapleft 12");
 
-        propertiesPanel.add(useTemporaryCredentialsLabel);
-        propertiesPanel.add(yesRadio, "split 2");
-        propertiesPanel.add(noRadio, "push, wrap");
+        propertiesPanel.add(useTemporaryCredentialsLabel, "newline");
+        propertiesPanel.add(useTemporaryCredentialsYesRadio, "split 2");
+        propertiesPanel.add(useTemporaryCredentialsNoRadio);
 
-        propertiesPanel.add(durationLabel);
-        propertiesPanel.add(durationField, "w 100!, wrap");
+        propertiesPanel.add(durationLabel, "newline");
+        propertiesPanel.add(durationField, "w 100!");
 
-        propertiesPanel.add(customHttpHeadersLabel, "aligny top");
+        propertiesPanel.add(regionLabel, "newline");
+        propertiesPanel.add(regionField, "w 100!, split 2");
+        propertiesPanel.add(regionComboBox);
+
+        propertiesPanel.add(customHttpHeadersLabel, "newline, aligny top");
         propertiesPanel.add(customHttpHeadersScrollPane, "span, grow, split 2");
 
         JPanel customHttpHeadersButtonPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
@@ -354,8 +455,30 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
     }
 
     private void useTemporaryRadioButtonActionPerformed() {
-        durationLabel.setEnabled(yesRadio.isSelected());
-        durationField.setEnabled(yesRadio.isSelected());
+        durationLabel.setEnabled(useTemporaryCredentialsYesRadio.isSelected());
+        durationField.setEnabled(useTemporaryCredentialsYesRadio.isSelected());
+    }
+
+    private void regionFieldUpdated() {
+        String region = regionField.getText();
+        if (isCustomRegion(region)) {
+            regionComboBox.setSelectedItem("Custom");
+        } else {
+            regionComboBox.setSelectedItem(region);
+        }
+    }
+
+    private boolean isCustomRegion(String region) {
+        for (Regions regionValue : Regions.values()) {
+            if (StringUtils.equals(region, regionValue.getName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void regionComboBoxActionPerformed() {
+        regionField.setText((String) regionComboBox.getSelectedItem());
     }
 
     private void okButtonActionPerformed() {
@@ -404,16 +527,21 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
     }
 
     private JLabel useDefaultCredentialProviderChainLabel;
+    private JLabel anonymousWarningLabel;
     private JRadioButton useDefaultCredentialProviderChainYesRadio;
     private JRadioButton useDefaultCredentialProviderChainNoRadio;
 
     private JLabel useTemporaryCredentialsLabel;
-    private JRadioButton yesRadio;
-    private JRadioButton noRadio;
+    private JRadioButton useTemporaryCredentialsYesRadio;
+    private JRadioButton useTemporaryCredentialsNoRadio;
     private ButtonGroup useTemporaryCredentialsButtonGroup;
 
     private JLabel durationLabel;
     private JTextField durationField;
+
+    private JLabel regionLabel;
+    private JTextField regionField;
+    private JComboBox<String> regionComboBox;
 
     private JLabel customHttpHeadersLabel;
     private MirthTable customHttpHeadersTable;
@@ -423,5 +551,4 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
 
     private JButton okButton;
     private JButton cancelButton;
-
 }

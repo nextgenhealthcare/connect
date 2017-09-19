@@ -19,17 +19,21 @@ import java.util.Map.Entry;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+import com.amazonaws.regions.Regions;
+
 public class S3SchemeProperties extends SchemeProperties {
 
     private boolean useDefaultCredentialProviderChain;
     private boolean useTemporaryCredentials;
     private int duration;
+    private String region;
     private Map<String, List<String>> customHeaders;
 
     public S3SchemeProperties() {
         useDefaultCredentialProviderChain = true;
         useTemporaryCredentials = true;
         duration = 7200;
+        region = Regions.DEFAULT_REGION.getName();
 
         customHeaders = new LinkedHashMap<String, List<String>>();
         List<String> values = new ArrayList<String>();
@@ -38,8 +42,10 @@ public class S3SchemeProperties extends SchemeProperties {
     }
 
     public S3SchemeProperties(S3SchemeProperties props) {
+        useDefaultCredentialProviderChain = props.isUseDefaultCredentialProviderChain();
         useTemporaryCredentials = props.isUseTemporaryCredentials();
         duration = props.getDuration();
+        region = props.getRegion();
 
         customHeaders = new LinkedHashMap<String, List<String>>();
         if (MapUtils.isNotEmpty(props.getCustomHeaders())) {
@@ -73,6 +79,14 @@ public class S3SchemeProperties extends SchemeProperties {
         this.duration = duration;
     }
 
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
     public Map<String, List<String>> getCustomHeaders() {
         return customHeaders;
     }
@@ -87,6 +101,14 @@ public class S3SchemeProperties extends SchemeProperties {
         purgedProperties.put("useDefaultCredentialProviderChain", useDefaultCredentialProviderChain);
         purgedProperties.put("useTemporaryCredentials", useTemporaryCredentials);
         purgedProperties.put("duration", duration);
+
+        try {
+            // Only include region if it's a static identifier
+            Regions regionValue = Regions.fromName(region);
+            purgedProperties.put("region", regionValue.getName());
+        } catch (Exception e) {
+        }
+
         purgedProperties.put("customHeadersCount", customHeaders != null ? customHeaders.size() : 0);
         return purgedProperties;
     }
@@ -101,6 +123,16 @@ public class S3SchemeProperties extends SchemeProperties {
         StringBuilder builder = new StringBuilder();
 
         builder.append("Using ");
+
+        try {
+            // Only include region if it's a static identifier
+            Regions regionValue = Regions.fromName(region);
+            builder.append("region ").append(regionValue.getName());
+        } catch (Exception e) {
+            builder.append("variable region");
+        }
+        builder.append(", ");
+
         if (useDefaultCredentialProviderChain) {
             builder.append("Default Credential Provider Chain");
         } else {
@@ -119,7 +151,10 @@ public class S3SchemeProperties extends SchemeProperties {
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
 
+        builder.append("REGION: ").append(region).append(newLine);
+
         if (MapUtils.isNotEmpty(customHeaders)) {
+            builder.append(newLine);
             builder.append("[CUSTOM HEADERS]");
             builder.append(newLine);
 

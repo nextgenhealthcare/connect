@@ -966,12 +966,10 @@ public class FileReader extends ConnectorSettingsPanel {
     private void onSchemeChange(boolean enableHost, boolean anonymous, FileScheme scheme) {
         // act like the appropriate Anonymous button was selected.
         if (anonymous) {
-            anonymousNoRadio.setSelected(false);
             anonymousYesRadio.setSelected(true);
             anonymousYesActionPerformed(null);
         } else {
             anonymousNoRadio.setSelected(true);
-            anonymousYesRadio.setSelected(false);
             anonymousNoActionPerformed(null);
         }
 
@@ -1022,16 +1020,17 @@ public class FileReader extends ConnectorSettingsPanel {
             advancedSettingsButton.setEnabled(true);
             advancedProperties = new SftpSchemeProperties();
         } else if (scheme == FileScheme.S3) {
+            anonymousLabel.setEnabled(true);
+            anonymousYesRadio.setEnabled(true);
+            anonymousNoRadio.setEnabled(true);
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
             advancedSettingsButton.setEnabled(true);
             advancedProperties = new S3SchemeProperties();
             usernameLabel.setText("AWS Access Key ID:");
             usernameField.setToolTipText("The access key ID used to authenticate to AWS S3. This is optional when using the default credential provider chain.");
-            usernameField.setText("");
             passwordLabel.setText("AWS Secret Access Key:");
             passwordField.setToolTipText("The secret access key used to authenticate to AWS S3. This is optional when using the default credential provider chain.");
-            passwordField.setText("");
         } else if (scheme == FileScheme.WEBDAV) {
             anonymousLabel.setEnabled(true);
             anonymousYesRadio.setEnabled(true);
@@ -1058,7 +1057,7 @@ public class FileReader extends ConnectorSettingsPanel {
                 setSummaryText();
             }
         } else if (selectedScheme == FileScheme.S3) {
-        	AdvancedSettingsDialog dialog = new AdvancedS3SettingsDialog((S3SchemeProperties) advancedProperties);
+            AdvancedSettingsDialog dialog = new AdvancedS3SettingsDialog((S3SchemeProperties) advancedProperties, anonymousYesRadio.isSelected());
             if (dialog.wasSaved()) {
                 advancedProperties = dialog.getSchemeProperties();
                 setSummaryText();
@@ -1099,7 +1098,7 @@ public class FileReader extends ConnectorSettingsPanel {
                 onSchemeChange(true, false, FileScheme.SFTP);
                 hostLabel.setText("sftp://");
             } else if (scheme == FileScheme.S3) {
-                onSchemeChange(true, false, FileScheme.S3);
+                onSchemeChange(true, true, FileScheme.S3);
                 hostLabel.setText("S3 Bucket:");
             } // else if SMB is selected
             else if (scheme == FileScheme.SMB) {

@@ -118,7 +118,7 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
             }
 
             poolKey.append('@');
-            poolKey.append(host);
+            poolKey.append(s3SchemeProperties.getRegion());
 
             return poolKey.toString();
         } else if (scheme.equals(FileScheme.SMB)) {
@@ -160,7 +160,7 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
         } else if (scheme.equals(FileScheme.SFTP)) {
             return new DefaultPooledObject<FileSystemConnection>(new SftpConnection(host, port, fileSystemOptions, timeout));
         } else if (scheme.equals(FileScheme.S3)) {
-            return new DefaultPooledObject<FileSystemConnection>(new S3Connection(host, fileSystemOptions, timeout));
+            return new DefaultPooledObject<FileSystemConnection>(new S3Connection(fileSystemOptions, timeout));
         } else if (scheme.equals(FileScheme.SMB)) {
             return new DefaultPooledObject<FileSystemConnection>(new SmbFileConnection(host, fileSystemOptions, timeout));
         } else if (scheme.equals(FileScheme.WEBDAV)) {

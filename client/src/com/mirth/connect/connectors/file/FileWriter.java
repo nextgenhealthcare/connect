@@ -744,12 +744,10 @@ public class FileWriter extends ConnectorSettingsPanel {
     private void onSchemeChange(boolean enableHost, boolean anonymous, boolean allowAppend, FileScheme scheme) {
         // act like the appropriate Anonymous button was selected.
         if (anonymous) {
-            anonymousNoRadio.setSelected(false);
             anonymousYesRadio.setSelected(true);
             anonymousYesActionPerformed(null);
         } else {
             anonymousNoRadio.setSelected(true);
-            anonymousYesRadio.setSelected(false);
             anonymousNoActionPerformed(null);
         }
 
@@ -814,6 +812,9 @@ public class FileWriter extends ConnectorSettingsPanel {
             advancedSettingsButton.setEnabled(true);
             advancedProperties = new SftpSchemeProperties();
         } else if (scheme == FileScheme.S3) {
+            anonymousLabel.setEnabled(true);
+            anonymousYesRadio.setEnabled(true);
+            anonymousNoRadio.setEnabled(true);
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
             advancedSettingsButton.setEnabled(true);
@@ -852,7 +853,7 @@ public class FileWriter extends ConnectorSettingsPanel {
                 setSummaryText();
             }
         } else if (selectedScheme == FileScheme.S3) {
-            AdvancedS3SettingsDialog dialog = new AdvancedS3SettingsDialog((S3SchemeProperties) advancedProperties);
+            AdvancedS3SettingsDialog dialog = new AdvancedS3SettingsDialog((S3SchemeProperties) advancedProperties, anonymousYesRadio.isSelected());
             if (dialog.wasSaved()) {
                 advancedProperties = dialog.getSchemeProperties();
                 setSummaryText();
@@ -895,7 +896,7 @@ public class FileWriter extends ConnectorSettingsPanel {
                 onSchemeChange(true, false, true, FileScheme.SFTP);
                 hostLabel.setText("sftp://");
             } else if (scheme == FileScheme.S3) {
-                onSchemeChange(true, false, false, FileScheme.S3);
+                onSchemeChange(true, true, false, FileScheme.S3);
                 hostLabel.setText("S3 Bucket:");
             } // else if SMB is selected
             else if (scheme == FileScheme.SMB) {
