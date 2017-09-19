@@ -341,6 +341,9 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
             customHttpHeadersTable.setHighlighters(highlighter);
         }
 
+        customHttpHeadersTable.setToolTipText("These headers will be included on all PUT requests (writing objects).");
+        customHttpHeadersTable.getTableHeader().setToolTipText(customHttpHeadersTable.getToolTipText());
+
         customHttpHeadersScrollPane = new JScrollPane();
         customHttpHeadersScrollPane.getViewport().add(customHttpHeadersTable);
 
