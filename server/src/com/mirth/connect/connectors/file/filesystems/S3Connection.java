@@ -135,7 +135,7 @@ public class S3Connection implements FileSystemConnection {
         clientBuilder = new AmazonS3EncryptionClientBuilder();
         clientBuilder.setClientConfiguration(createClientConfiguration(timeout));
 
-        if (schemeProps.isUseTemporaryCredentials()) {
+        if (schemeProps.isUseTemporaryCredentials() && !fileSystemOptions.isAnonymous()) {
             AWSSecurityTokenServiceClientBuilder stsClientBuilder = AWSSecurityTokenServiceClientBuilder.standard();
             stsClientBuilder.setClientConfiguration(createClientConfiguration(timeout));
             stsClientBuilder.setCredentials(createCredentialsProvider(fileSystemOptions));
@@ -177,7 +177,7 @@ public class S3Connection implements FileSystemConnection {
     }
 
     AmazonS3 getClient() {
-        if (schemeProps.isUseTemporaryCredentials() && client == null) {
+        if (schemeProps.isUseTemporaryCredentials() && !fileSystemOptions.isAnonymous() && client == null) {
             GetSessionTokenRequest getSessionTokenRequest = new GetSessionTokenRequest();
             getSessionTokenRequest.setDurationSeconds(stsDuration);
 
