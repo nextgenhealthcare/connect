@@ -40,7 +40,9 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
@@ -123,13 +125,11 @@ public class S3Connection implements FileSystemConnection {
 
         @Override
         public void populateSourceMap(Map<String, Object> sourceMap) {
-            sourceMap.put("s3BucketName", summary.getBucketName());
-            sourceMap.put("s3ETag", summary.getETag());
-            sourceMap.put("s3Key", summary.getKey());
-            if (summary.getOwner() != null) {
-                sourceMap.put("s3Owner", summary.getOwner());
-            }
-            sourceMap.put("s3StorageClass", summary.getStorageClass());
+            addMetadataIfNotNull(sourceMap, "s3BucketName", summary.getBucketName());
+            addMetadataIfNotNull(sourceMap, "s3ETag", summary.getETag());
+            addMetadataIfNotNull(sourceMap, "s3Key", summary.getKey());
+            addMetadataIfNotNull(sourceMap, "s3Owner", summary.getOwner());
+            addMetadataIfNotNull(sourceMap, "s3StorageClass", summary.getStorageClass());
         }
     }
 
@@ -267,6 +267,27 @@ public class S3Connection implements FileSystemConnection {
         }
     }
 
+    void addMetadataIfNotNull(Map<String, Object> map, String key, Object value) {
+        if (map != null && value != null) {
+            map.put(key, value);
+        }
+    }
+
+    void populateObjectMetadata(Map<String, Object> map, ObjectMetadata objectMetadata) {
+        if (map != null) {
+            Map<String, List<String>> metadata = new HashMap<String, List<String>>();
+            for (Entry<String, Object> entry : objectMetadata.getRawMetadata().entrySet()) {
+                List<String> list = metadata.get(entry.getKey());
+                if (list == null) {
+                    list = new ArrayList<String>();
+                    metadata.put(entry.getKey(), list);
+                }
+                list.add(String.valueOf(entry.getValue()));
+            }
+            map.put("s3Metadata", new MessageHeaders(metadata));
+        }
+    }
+
     @Override
     public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
         String filePrefix = null;
@@ -380,18 +401,7 @@ public class S3Connection implements FileSystemConnection {
 
         S3Object object = client.getObject(request);
 
-        if (sourceMap != null) {
-            Map<String, List<String>> metadata = new HashMap<String, List<String>>();
-            for (Entry<String, Object> entry : object.getObjectMetadata().getRawMetadata().entrySet()) {
-                List<String> list = metadata.get(entry.getKey());
-                if (list == null) {
-                    list = new ArrayList<String>();
-                    metadata.put(entry.getKey(), list);
-                }
-                list.add(String.valueOf(entry.getValue()));
-            }
-            sourceMap.put("s3Metadata", new MessageHeaders(metadata));
-        }
+        populateObjectMetadata(sourceMap, object.getObjectMetadata());
 
         return object.getObjectContent();
     }
@@ -406,7 +416,7 @@ public class S3Connection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, InputStream message) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream message, Map<String, Object> connectorMap) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(toDir);
@@ -421,7 +431,19 @@ public class S3Connection implements FileSystemConnection {
         PutObjectRequest putRequest = new PutObjectRequest(bucketName, key, message, null);
         addCustomHeaders(putRequest);
 
-        client.putObject(putRequest);
+        PutObjectResult result = client.putObject(putRequest);
+
+        if (connectorMap != null) {
+            addMetadataIfNotNull(connectorMap, "s3ContentMD5", result.getContentMd5());
+            addMetadataIfNotNull(connectorMap, "s3ETag", result.getETag());
+            addMetadataIfNotNull(connectorMap, "s3ExpirationTime", result.getExpirationTime());
+            addMetadataIfNotNull(connectorMap, "s3ExpirationTimeRuleId", result.getExpirationTimeRuleId());
+            addMetadataIfNotNull(connectorMap, "s3SSEAlgorithm", result.getSSEAlgorithm());
+            addMetadataIfNotNull(connectorMap, "s3SSECustomerAlgorithm", result.getSSECustomerAlgorithm());
+            addMetadataIfNotNull(connectorMap, "s3SSECustomerKeyMd5", result.getSSECustomerKeyMd5());
+            addMetadataIfNotNull(connectorMap, "s3VersionId", result.getVersionId());
+            populateObjectMetadata(connectorMap, result.getMetadata());
+        }
     }
 
     @Override

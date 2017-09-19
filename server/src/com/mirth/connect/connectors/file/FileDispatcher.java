@@ -168,11 +168,11 @@ public class FileDispatcher extends DestinationConnector {
             } else if (fileDispatcherProperties.isTemporary()) {
                 String tempFilename = filename + ".tmp";
                 logger.debug("writing temp file: " + tempFilename);
-                fileSystemConnection.writeFile(tempFilename, path, false, is);
+                fileSystemConnection.writeFile(tempFilename, path, false, is, connectorMessage.getConnectorMap());
                 logger.debug("renaming temp file: " + filename);
                 fileSystemConnection.move(tempFilename, path, filename, path);
             } else {
-                fileSystemConnection.writeFile(filename, path, fileDispatcherProperties.isOutputAppend(), is);
+                fileSystemConnection.writeFile(filename, path, fileDispatcherProperties.isOutputAppend(), is, connectorMessage.getConnectorMap());
             }
 
             // update the message status to sent

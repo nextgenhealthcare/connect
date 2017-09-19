@@ -270,7 +270,7 @@ public class SmbFileConnection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String name, String dir, boolean append, InputStream is) throws Exception {
+    public void writeFile(String name, String dir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
         OutputStream os = null;
         SmbFile dst = null;
         SmbFile dstDir = null;

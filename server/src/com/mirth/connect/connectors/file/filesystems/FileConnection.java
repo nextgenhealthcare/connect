@@ -200,7 +200,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, InputStream is) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
         OutputStream os = null;
         File dstDir = new File(toDir);
 

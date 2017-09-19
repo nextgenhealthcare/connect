@@ -84,9 +84,12 @@ public interface FileSystemConnection {
      *            should be truncated first.
      * @param message
      *            The message to be written.
+     * @param connectorMap
+     *            The connector map associated with the message, if applicable. The subclass may
+     *            inject its own values here in addition to writing the file contents. May be null.
      * @throws Exception
      */
-    public void writeFile(String file, String toDir, boolean append, InputStream message) throws Exception;
+    public void writeFile(String file, String toDir, boolean append, InputStream message, Map<String, Object> connectorMap) throws Exception;
 
     /**
      * Removes the specified file from the specified directory.

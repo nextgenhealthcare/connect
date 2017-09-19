@@ -263,7 +263,7 @@ public class FtpConnection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, InputStream is) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
         cdmake(toDir);
 
         if (append) {
