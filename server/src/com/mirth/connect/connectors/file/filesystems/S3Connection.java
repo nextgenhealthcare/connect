@@ -31,13 +31,13 @@ import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3EncryptionClientBuilder;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.SimpleMaterialProvider;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
@@ -295,6 +295,17 @@ public class S3Connection implements FileSystemConnection {
     public boolean exists(String file, String path) throws Exception{
         AmazonS3 client = getClient();
         
+        if (StringUtils.equals(path, bucketName)) {
+            path = "";
+        } else {
+            path = StringUtils.removeStart(path, bucketName + DELIMITER);
+        }
+
+        String key = file;
+        if (StringUtils.isNotBlank(path) && !StringUtils.equals(path, DELIMITER)) {
+            key = path + DELIMITER + key;
+        }
+        
         return client.doesObjectExist(path, file);
     }
 
@@ -333,20 +344,48 @@ public class S3Connection implements FileSystemConnection {
     public void writeFile(String file, String toDir, boolean append, InputStream message) throws Exception {
         AmazonS3 client = getClient();
         
-        // TODO Figure out if ObjectMetadata is necessary
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        PutObjectRequest objectRequest = new PutObjectRequest(toDir, file, message, null);
-        client.putObject(objectRequest);
+        if (StringUtils.equals(toDir, bucketName)) {
+            toDir = "";
+        } else {
+            toDir = StringUtils.removeStart(toDir, bucketName + DELIMITER);
+        }
+        
+        String key = file;
+        if (StringUtils.isNotBlank(toDir) && !StringUtils.equals(toDir, DELIMITER)) {
+            key = toDir + DELIMITER + key;
+        }
+        
+        PutObjectRequest putRequest = new PutObjectRequest(bucketName, key, message, null);
+        addCustomHeaders(putRequest);
+        
+        client.putObject(putRequest);
     }
 
     @Override
     public void delete(String file, String fromDir, boolean mayNotExist) throws Exception {
         AmazonS3 client = getClient();
         
-        client.deleteObject(fromDir, file);
+        String fileOriginal = file;
+        String fromDirOriginal = fromDir;
         
-        if (mayNotExist && exists(file, fromDir)) {
-            throw new FileConnectorException("File should not exist after deleting, bucket: " + fromDir + ", file: " + file);
+        if (StringUtils.equals(fromDir, bucketName)) {
+            fromDir = "";
+        } else {
+            fromDir = StringUtils.removeStart(fromDir, bucketName + DELIMITER);
+        }
+        
+        String key = file;
+        if (StringUtils.isNotBlank(fromDir) && !StringUtils.equals(fromDir, DELIMITER)) {
+            key = fromDir + DELIMITER + key;
+        }
+        
+        DeleteObjectRequest deleteRequest = new DeleteObjectRequest(bucketName, key);
+        addCustomHeaders(deleteRequest);
+        
+        client.deleteObject(deleteRequest);
+        
+        if (mayNotExist && exists(fileOriginal, fromDirOriginal)) {
+            throw new FileConnectorException("File should not exist after deleting, bucket: " + fromDirOriginal + ", file: " + fileOriginal);
         }
     }
 
@@ -355,11 +394,38 @@ public class S3Connection implements FileSystemConnection {
         AmazonS3 client =  getClient();
         
         try {
-            // copy to new bucket
-            client.copyObject(fromDir, fromName, toDir, toName);
+            String fromNameOriginal = fromName;
+            String fromDirOriginal = fromDir;
+            
+            // copy to new folder/bucket
+            if (StringUtils.equals(fromDir, bucketName)) {
+                fromDir = "";
+            } else {
+                fromDir = StringUtils.removeStart(fromDir, bucketName + DELIMITER);
+            }
+            
+            String fromKey = fromName;
+            if (StringUtils.isNotBlank(fromDir) && !StringUtils.equals(fromDir, DELIMITER)) {
+                fromKey = fromDir + DELIMITER + fromKey;
+            }
+            
+            if (StringUtils.equals(toDir, bucketName)) {
+                toDir = "";
+            } else {
+                toDir = StringUtils.removeStart(toDir, bucketName + DELIMITER);
+            }
+            
+            String toKey = toName;
+            if (StringUtils.isNotBlank(toDir) && !StringUtils.equals(toDir, DELIMITER)) {
+                toKey = toDir + DELIMITER + toKey;
+            }
+            
+            // TODO We need a way to specify a new bucket, for now we can move from one 'folder' to another within the same bucket
+            CopyObjectRequest copyRequest = new CopyObjectRequest(bucketName, fromKey, bucketName, toKey);
+            client.copyObject(copyRequest);
             
             // delete original
-            delete(fromName, fromDir, false);
+            delete(fromNameOriginal, fromDirOriginal, false);
         } catch (Exception e) {
             throw new FileConnectorException("Error moving file from [bucket: " + fromDir + ", file: " + fromName + "] to [bucket: " + toDir + ", file: " + toName + "]", e);
         }
