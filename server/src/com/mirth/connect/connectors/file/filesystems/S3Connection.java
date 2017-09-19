@@ -34,7 +34,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3EncryptionClientBuilder;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -43,7 +43,6 @@ import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.SimpleMaterialProvider;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.Credentials;
@@ -137,7 +136,7 @@ public class S3Connection implements FileSystemConnection {
     private Logger logger = Logger.getLogger(getClass());
     private FileSystemConnectionOptions fileSystemOptions;
     private S3SchemeProperties schemeProps;
-    private AmazonS3EncryptionClientBuilder clientBuilder;
+    private AmazonS3ClientBuilder clientBuilder;
     private AmazonS3 client;
     private AWSSecurityTokenService sts;
     private int stsDuration;
@@ -146,7 +145,7 @@ public class S3Connection implements FileSystemConnection {
         this.fileSystemOptions = fileSystemOptions;
         schemeProps = (S3SchemeProperties) fileSystemOptions.getSchemeProperties();
 
-        clientBuilder = new AmazonS3EncryptionClientBuilder();
+        clientBuilder = AmazonS3ClientBuilder.standard();
         clientBuilder.setClientConfiguration(createClientConfiguration(timeout));
 
         if (schemeProps.isUseTemporaryCredentials() && !fileSystemOptions.isAnonymous()) {
@@ -166,7 +165,6 @@ public class S3Connection implements FileSystemConnection {
         } else {
             clientBuilder.setCredentials(createCredentialsProvider(fileSystemOptions));
             clientBuilder.setRegion(schemeProps.getRegion());
-            clientBuilder.setEncryptionMaterials(new SimpleMaterialProvider());
             client = clientBuilder.build();
         }
     }
@@ -200,7 +198,6 @@ public class S3Connection implements FileSystemConnection {
             BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(sessionCredentials.getAccessKeyId(), sessionCredentials.getSecretAccessKey(), sessionCredentials.getSessionToken());
             clientBuilder.setCredentials(new AWSStaticCredentialsProvider(basicSessionCredentials));
             clientBuilder.setRegion(schemeProps.getRegion());
-            clientBuilder.setEncryptionMaterials(new SimpleMaterialProvider());
             client = clientBuilder.build();
         }
 
@@ -257,9 +254,7 @@ public class S3Connection implements FileSystemConnection {
     }
 
     ListObjectsV2Request createListRequest(String bucketName, String prefix) {
-        ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(bucketName).withPrefix(prefix).withDelimiter(DELIMITER);
-        addCustomHeaders(request);
-        return request;
+        return new ListObjectsV2Request().withBucketName(bucketName).withPrefix(prefix).withDelimiter(DELIMITER);
     }
 
     void addCustomHeaders(AmazonWebServiceRequest request) {
@@ -382,7 +377,6 @@ public class S3Connection implements FileSystemConnection {
         }
 
         GetObjectRequest request = new GetObjectRequest(bucketName, key);
-        addCustomHeaders(request);
 
         S3Object object = client.getObject(request);
 
@@ -444,7 +438,6 @@ public class S3Connection implements FileSystemConnection {
         }
 
         DeleteObjectRequest deleteRequest = new DeleteObjectRequest(bucketName, key);
-        addCustomHeaders(deleteRequest);
 
         client.deleteObject(deleteRequest);
 
@@ -476,8 +469,16 @@ public class S3Connection implements FileSystemConnection {
         }
 
         try {
-            CopyObjectRequest copyRequest = new CopyObjectRequest(fromBucketName, fromKey, toBucketName, toKey);
-            client.copyObject(copyRequest);
+            if (fileSystemOptions.isAnonymous()) {
+                GetObjectRequest getRequest = new GetObjectRequest(fromBucketName, fromKey);
+                S3Object object = client.getObject(getRequest);
+                PutObjectRequest putRequest = new PutObjectRequest(toBucketName, toKey, object.getObjectContent(), null);
+                addCustomHeaders(putRequest);
+                client.putObject(putRequest);
+            } else {
+                CopyObjectRequest copyRequest = new CopyObjectRequest(fromBucketName, fromKey, toBucketName, toKey);
+                client.copyObject(copyRequest);
+            }
 
             // delete original
             delete(fromName, fromDir, false);
