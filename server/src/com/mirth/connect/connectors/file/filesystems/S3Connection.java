@@ -434,7 +434,6 @@ public class S3Connection implements FileSystemConnection {
         PutObjectResult result = client.putObject(putRequest);
 
         if (connectorMap != null) {
-            addMetadataIfNotNull(connectorMap, "s3ContentMD5", result.getContentMd5());
             addMetadataIfNotNull(connectorMap, "s3ETag", result.getETag());
             addMetadataIfNotNull(connectorMap, "s3ExpirationTime", result.getExpirationTime());
             addMetadataIfNotNull(connectorMap, "s3ExpirationTimeRuleId", result.getExpirationTimeRuleId());
