@@ -782,17 +782,19 @@ public class FileWriter extends ConnectorSettingsPanel {
         if (allowAppend) {
             fileExistsOverwriteRadio.setEnabled(true);
             fileExistsAppendRadio.setEnabled(true);
-            fileExistsLabel.setEnabled(true);
         } else {
             if (fileExistsAppendRadio.isSelected()) {
                 fileExistsOverwriteRadio.setSelected(true);
                 fileExistsAppendRadio.setSelected(false);
+                fileExistsOverwriteRadioActionPerformed(null);
             }
 
-            fileExistsOverwriteRadio.setEnabled(false);
             fileExistsAppendRadio.setEnabled(false);
-            fileExistsLabel.setEnabled(false);
         }
+
+        tempFileLabel.setEnabled(true);
+        tempFileYesRadio.setEnabled(true);
+        tempFileNoRadio.setEnabled(true);
 
         if (scheme.equals(FileScheme.FTP)) {
             anonymousLabel.setEnabled(true);
@@ -823,6 +825,10 @@ public class FileWriter extends ConnectorSettingsPanel {
             usernameField.setToolTipText("The access key ID used to authenticate to AWS S3. This is optional when using the default credential provider chain.");
             passwordLabel.setText("AWS Secret Access Key:");
             passwordField.setToolTipText("The secret access key used to authenticate to AWS S3. This is optional when using the default credential provider chain.");
+            tempFileLabel.setEnabled(false);
+            tempFileNoRadio.setSelected(true);
+            tempFileYesRadio.setEnabled(false);
+            tempFileNoRadio.setEnabled(false);
         } else if (scheme.equals(FileScheme.WEBDAV)) {
             anonymousLabel.setEnabled(true);
             anonymousYesRadio.setEnabled(true);
@@ -961,15 +967,21 @@ public class FileWriter extends ConnectorSettingsPanel {
     }
 
     private void fileExistsOverwriteRadioActionPerformed(ActionEvent evt) {
-        tempFileLabel.setEnabled(true);
-        tempFileYesRadio.setEnabled(true);
-        tempFileNoRadio.setEnabled(true);
+        FileScheme scheme = (FileScheme) schemeComboBox.getSelectedItem();
+        if (scheme != FileScheme.S3) {
+            tempFileLabel.setEnabled(true);
+            tempFileYesRadio.setEnabled(true);
+            tempFileNoRadio.setEnabled(true);
+        }
     }
 
     private void fileExistsErrorRadioActionPerformed(ActionEvent evt) {
-        tempFileLabel.setEnabled(true);
-        tempFileYesRadio.setEnabled(true);
-        tempFileNoRadio.setEnabled(true);
+        FileScheme scheme = (FileScheme) schemeComboBox.getSelectedItem();
+        if (scheme != FileScheme.S3) {
+            tempFileLabel.setEnabled(true);
+            tempFileYesRadio.setEnabled(true);
+            tempFileNoRadio.setEnabled(true);
+        }
     }
 
     private void fileTypeASCIIActionPerformed(ActionEvent evt) {

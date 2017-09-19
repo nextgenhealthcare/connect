@@ -34,11 +34,7 @@ public class S3SchemeProperties extends SchemeProperties {
         useTemporaryCredentials = true;
         duration = 7200;
         region = Regions.DEFAULT_REGION.getName();
-
         customHeaders = new LinkedHashMap<String, List<String>>();
-        List<String> values = new ArrayList<String>();
-        values.add("AES256");
-        customHeaders.put("x-amz-server-side​-encryption", values);
     }
 
     public S3SchemeProperties(S3SchemeProperties props) {
