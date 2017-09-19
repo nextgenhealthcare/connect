@@ -13,7 +13,9 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections4.MapUtils;
@@ -51,6 +53,7 @@ import com.mirth.connect.connectors.file.FileConnectorException;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.S3SchemeProperties;
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
+import com.mirth.connect.userutil.MessageHeaders;
 
 public class S3Connection implements FileSystemConnection {
 
@@ -117,6 +120,17 @@ public class S3Connection implements FileSystemConnection {
         @Override
         public boolean isReadable() {
             return true;
+        }
+
+        @Override
+        public void populateSourceMap(Map<String, Object> sourceMap) {
+            sourceMap.put("s3BucketName", summary.getBucketName());
+            sourceMap.put("s3ETag", summary.getETag());
+            sourceMap.put("s3Key", summary.getKey());
+            if (summary.getOwner() != null) {
+                sourceMap.put("s3Owner", summary.getOwner());
+            }
+            sourceMap.put("s3StorageClass", summary.getStorageClass());
         }
     }
 
@@ -355,7 +369,7 @@ public class S3Connection implements FileSystemConnection {
     }
 
     @Override
-    public InputStream readFile(String file, String fromDir) throws Exception {
+    public InputStream readFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
@@ -371,6 +385,20 @@ public class S3Connection implements FileSystemConnection {
         addCustomHeaders(request);
 
         S3Object object = client.getObject(request);
+
+        if (sourceMap != null) {
+            Map<String, List<String>> metadata = new HashMap<String, List<String>>();
+            for (Entry<String, Object> entry : object.getObjectMetadata().getRawMetadata().entrySet()) {
+                List<String> list = metadata.get(entry.getKey());
+                if (list == null) {
+                    list = new ArrayList<String>();
+                    metadata.put(entry.getKey(), list);
+                }
+                list.add(String.valueOf(entry.getValue()));
+            }
+            sourceMap.put("s3Metadata", new MessageHeaders(metadata));
+        }
+
         return object.getObjectContent();
     }
 

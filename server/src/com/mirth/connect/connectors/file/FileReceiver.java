@@ -334,12 +334,15 @@ public class FileReceiver extends PollConnector {
                 try {
                     Response response = null;
 
+                    // Allow implementation to inject custom source map variables
+                    file.populateSourceMap(sourceMap);
+
                     // ast: use the user-selected encoding
                     if (isProcessBatch()) {
                         FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
                         Reader in = null;
                         try {
-                            in = new InputStreamReader(con.readFile(file.getName(), file.getParent()), charsetEncoding);
+                            in = new InputStreamReader(con.readFile(file.getName(), file.getParent(), sourceMap), charsetEncoding);
                             BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(in), sourceMap);
 
                             Boolean messagesExist = dispatchBatchMessage(batchRawMessage, null);
@@ -356,9 +359,9 @@ public class FileReceiver extends PollConnector {
                     } else {
                         RawMessage rawMessage;
                         if (connectorProperties.isBinary()) {
-                            rawMessage = new RawMessage(getBytesFromFile(file));
+                            rawMessage = new RawMessage(getBytesFromFile(file, sourceMap));
                         } else {
-                            rawMessage = new RawMessage(new String(getBytesFromFile(file), charsetEncoding));
+                            rawMessage = new RawMessage(new String(getBytesFromFile(file, sourceMap), charsetEncoding));
                         }
 
                         rawMessage.setSourceMap(sourceMap);
@@ -507,13 +510,13 @@ public class FileReceiver extends PollConnector {
     }
 
     // Returns the contents of the file in a byte array.
-    private byte[] getBytesFromFile(FileInfo file) throws Exception {
+    private byte[] getBytesFromFile(FileInfo file, Map<String, Object> sourceMap) throws Exception {
         FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
 
         try {
             InputStream is = null;
             try {
-                is = con.readFile(file.getName(), file.getParent());
+                is = con.readFile(file.getName(), file.getParent(), sourceMap);
 
                 // Get the size of the file
                 long length = file.getSize();

@@ -98,7 +98,7 @@ public class FileConnectionTests {
 
         InputStream in = null;
         try {
-            in = fc.readFile(testFile.getName(), someFolder.getAbsolutePath());
+            in = fc.readFile(testFile.getName(), someFolder.getAbsolutePath(), null);
         } catch (FileConnectorException e) {
             fail("Threw a FileConnectorException");
         }
@@ -116,11 +116,7 @@ public class FileConnectionTests {
     /*
      * NOTHING TO TEST HERE
      * 
-     * @Test
-     * public void testCloseReadFile()
-     * {
-     * fail("Not yet implemented");
-     * }
+     * @Test public void testCloseReadFile() { fail("Not yet implemented"); }
      */
 
     @Test

@@ -11,6 +11,7 @@ package com.mirth.connect.connectors.file.filesystems;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The interface that must be implemented by a file system for it to be usable by the File
@@ -57,10 +58,13 @@ public interface FileSystemConnection {
      *            The name of the file to be read, with no path information.
      * @param fromDir
      *            The full path of the directory containing the file.
+     * @param sourceMap
+     *            The source map associated with the message, if applicable. The subclass may inject
+     *            its own values here in addition to reading the file contents. May be null.
      * @return An InputStream that reads the contents of the file.
      * @throws Exception
      */
-    public InputStream readFile(String file, String fromDir) throws Exception;
+    public InputStream readFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception;
 
     /** Must be called after readFile when reading is complete */
     public void closeReadFile() throws Exception;
