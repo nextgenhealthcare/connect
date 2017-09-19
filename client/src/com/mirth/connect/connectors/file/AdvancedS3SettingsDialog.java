@@ -61,9 +61,12 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
     private final String VALUE_COLUMN_NAME = "Value";
 
     private boolean saved;
+    private boolean anonymous;
     private boolean updatingRegion;
 
     public AdvancedS3SettingsDialog(S3SchemeProperties schemeProperties, boolean anonymous) {
+        this.anonymous = anonymous;
+
         setTitle("S3 Advanced Settings");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLayout(new MigLayout("insets 8 8 0 8, novisualpadding, hidemode 3"));
@@ -147,6 +150,7 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
         } else {
             useTemporaryCredentialsNoRadio.setSelected(true);
         }
+        useTemporaryRadioButtonActionPerformed();
 
         durationField.setText(schemeProperties.getDuration() + "");
 
@@ -455,8 +459,8 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
     }
 
     private void useTemporaryRadioButtonActionPerformed() {
-        durationLabel.setEnabled(useTemporaryCredentialsYesRadio.isSelected());
-        durationField.setEnabled(useTemporaryCredentialsYesRadio.isSelected());
+        durationLabel.setEnabled(useTemporaryCredentialsYesRadio.isSelected() && !anonymous);
+        durationField.setEnabled(useTemporaryCredentialsYesRadio.isSelected() && !anonymous);
     }
 
     private void regionFieldUpdated() {

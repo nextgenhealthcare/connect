@@ -22,7 +22,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
@@ -60,7 +59,6 @@ public class FileReader extends ConnectorSettingsPanel {
 
         setBackground(UIConstants.BACKGROUND_COLOR);
         setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0"));
 
         initComponents();
         initLayout();
@@ -831,118 +829,110 @@ public class FileReader extends ConnectorSettingsPanel {
     }
 
     private void initLayout() {
-        JPanel topPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 13 0 0, gapy 6", "[right]12[left]"));
-        topPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        topPanel.add(schemeLabel);
-        topPanel.add(schemeComboBox, "split 3");
-        topPanel.add(testConnectionButton);
-        topPanel.add(advancedSettingsButton, "h 22!, w 22!, wrap");
+        setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, gapy 6", "[right,175]12[left]"));
 
-        topPanel.add(summaryLabel);
-        topPanel.add(summaryField, "growx, wrap");
+        add(schemeLabel);
+        add(schemeComboBox, "split 3, spanx");
+        add(testConnectionButton);
+        add(advancedSettingsButton, "h 22!, w 22!");
 
-        topPanel.add(directoryLabel);
-        topPanel.add(directoryField, "w 200!, wrap");
+        add(summaryLabel, "newline");
+        add(summaryField, "growx, spanx");
 
-        topPanel.add(hostLabel);
-        topPanel.add(hostField, "w 200!, split 3");
-        topPanel.add(pathLabel, "gapleft 14");
-        topPanel.add(pathField, "gapleft 14, w 200!, wrap");
+        add(directoryLabel, "newline");
+        add(directoryField, "w 200!, spanx");
 
-        topPanel.add(filenameFilterLabel);
-        topPanel.add(fileNameFilterField, "w 200!, split 2");
-        topPanel.add(filenameFilterRegexCheckBox, "gapleft 8, wrap");
+        add(hostLabel, "newline");
+        add(hostField, "w 200!, split 3, spanx");
+        add(pathLabel, "gapleft 14");
+        add(pathField, "gapleft 14, w 200!");
 
-        topPanel.add(directoryRecursionLabel);
-        topPanel.add(directoryRecursionYesRadio, "split 2");
-        topPanel.add(directoryRecursionNoRadio, "wrap");
+        add(filenameFilterLabel, "newline");
+        add(fileNameFilterField, "w 200!, split 2, spanx");
+        add(filenameFilterRegexCheckBox, "gapleft 8");
 
-        topPanel.add(ignoreDotFilesLabel);
-        topPanel.add(ignoreDotFilesYesRadio, "split 2");
-        topPanel.add(ignoreDotFilesNoRadio, "wrap");
+        add(directoryRecursionLabel, "newline");
+        add(directoryRecursionYesRadio, "split 2, spanx");
+        add(directoryRecursionNoRadio);
 
-        topPanel.add(anonymousLabel);
-        topPanel.add(anonymousYesRadio, "split 2");
-        topPanel.add(anonymousNoRadio, "wrap");
+        add(ignoreDotFilesLabel, "newline");
+        add(ignoreDotFilesYesRadio, "split 2, spanx");
+        add(ignoreDotFilesNoRadio);
 
-        topPanel.add(usernameLabel);
-        topPanel.add(usernameField, "w 125!, wrap");
+        add(anonymousLabel, "newline");
+        add(anonymousYesRadio, "split 2, spanx");
+        add(anonymousNoRadio);
 
-        topPanel.add(passwordLabel);
-        topPanel.add(passwordField, "w 125!, wrap");
+        add(usernameLabel, "newline");
+        add(usernameField, "w 125!, spanx");
 
-        topPanel.add(timeoutLabel);
-        topPanel.add(timeoutField, "w 75!, wrap");
+        add(passwordLabel, "newline");
+        add(passwordField, "w 125!, spanx");
 
-        topPanel.add(secureModeLabel);
-        topPanel.add(secureModeYesRadio, "split 2");
-        topPanel.add(secureModeNoRadio, "wrap");
+        add(timeoutLabel, "newline");
+        add(timeoutField, "w 75!, spanx");
 
-        topPanel.add(passiveModeLabel);
-        topPanel.add(passiveModeYesRadio, "split 2");
-        topPanel.add(passiveModeNoRadio, "wrap");
+        add(secureModeLabel, "newline");
+        add(secureModeYesRadio, "split 2, spanx");
+        add(secureModeNoRadio);
 
-        topPanel.add(validateConnectionLabel);
-        topPanel.add(validateConnectionYesRadio, "split 2");
-        topPanel.add(validateConnectionNoRadio, "wrap");
+        add(passiveModeLabel, "newline");
+        add(passiveModeYesRadio, "split 2, spanx");
+        add(passiveModeNoRadio);
 
-        topPanel.add(afterProcessingActionLabel);
-        topPanel.add(afterProcessingActionComboBox, "w 55!, wrap");
-        add(topPanel, "wrap");
+        add(validateConnectionLabel, "newline");
+        add(validateConnectionYesRadio, "split 2, spanx");
+        add(validateConnectionNoRadio);
 
-        JPanel splitPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 18 0 0, gapy 6", "[right]12[left]"));
-        splitPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        splitPanel.add(moveToDirectoryLabel);
-        splitPanel.add(moveToDirectoryField, "w 250!, wrap");
+        add(afterProcessingActionLabel, "newline");
+        add(afterProcessingActionComboBox, "w 55!, spanx");
 
-        splitPanel.add(moveToFileNameLabel);
-        splitPanel.add(moveToFileNameField, "w 250!, wrap");
+        add(moveToDirectoryLabel, "newline");
+        add(moveToDirectoryField, "w 250!");
 
-        splitPanel.add(errorReadingActionLabel);
-        splitPanel.add(errorReadingActionComboBox, "w 55!, wrap");
+        add(variableListScrollPane, "spany 6, left, growy");
 
-        splitPanel.add(errorResponseActionLabel);
-        splitPanel.add(errorResponseActionComboBox, "w 140!, wrap");
+        add(moveToFileNameLabel, "newline");
+        add(moveToFileNameField, "w 250!");
 
-        splitPanel.add(errorMoveToDirectoryLabel);
-        splitPanel.add(errorMoveToDirectoryField, "w 250!, wrap");
+        add(errorReadingActionLabel, "newline");
+        add(errorReadingActionComboBox, "w 55!");
 
-        splitPanel.add(errorMoveToFileNameLabel);
-        splitPanel.add(errorMoveToFileNameField, "w 250!, wrap");
+        add(errorResponseActionLabel, "newline");
+        add(errorResponseActionComboBox, "w 140!");
 
-        add(splitPanel, "split 2");
-        add(variableListScrollPane, "aligny top, growy, wrap");
+        add(errorMoveToDirectoryLabel, "newline");
+        add(errorMoveToDirectoryField, "w 250!");
 
-        JPanel bottomPanel = new JPanel(new MigLayout("novisualpadding, hidemode 3, insets 0 60 0 0, gapy 6", "[right]12[left]"));
-        bottomPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        bottomPanel.add(checkFileAgeLabel);
-        bottomPanel.add(checkFileAgeYesRadio, "split 2");
-        bottomPanel.add(checkFileAgeNoRadio, "wrap");
+        add(errorMoveToFileNameLabel, "newline");
+        add(errorMoveToFileNameField, "w 250!");
 
-        bottomPanel.add(checkFileAgeLabel);
-        bottomPanel.add(checkFileAgeYesRadio, "split 2");
-        bottomPanel.add(checkFileAgeNoRadio, "wrap");
+        add(checkFileAgeLabel, "newline");
+        add(checkFileAgeYesRadio, "split 2, spanx");
+        add(checkFileAgeNoRadio);
 
-        bottomPanel.add(fileAgeLabel);
-        bottomPanel.add(fileAgeField, "w 75!, wrap");
+        add(checkFileAgeLabel, "newline");
+        add(checkFileAgeYesRadio, "split 2, spanx");
+        add(checkFileAgeNoRadio);
 
-        bottomPanel.add(fileSizeLabel);
-        bottomPanel.add(fileSizeMinimumField, "w 75!, split 4");
-        bottomPanel.add(fileSizeDashLabel);
-        bottomPanel.add(fileSizeMaximumField, "w 75!");
-        bottomPanel.add(ignoreFileSizeMaximumCheckBox, "wrap");
+        add(fileAgeLabel, "newline");
+        add(fileAgeField, "w 75!, spanx");
 
-        bottomPanel.add(sortFilesByLabel);
-        bottomPanel.add(sortByComboBox, "w 75!, wrap");
+        add(fileSizeLabel, "newline");
+        add(fileSizeMinimumField, "w 75!, split 4, spanx");
+        add(fileSizeDashLabel);
+        add(fileSizeMaximumField, "w 75!");
+        add(ignoreFileSizeMaximumCheckBox);
 
-        bottomPanel.add(fileTypeLabel);
-        bottomPanel.add(fileTypeBinary, "split 2");
-        bottomPanel.add(fileTypeText, "wrap");
+        add(sortFilesByLabel, "newline");
+        add(sortByComboBox, "w 75!, spanx");
 
-        bottomPanel.add(encodingLabel);
-        bottomPanel.add(charsetEncodingComboBox, "w 125!");
+        add(fileTypeLabel, "newline");
+        add(fileTypeBinary, "split 2, spanx");
+        add(fileTypeText);
 
-        add(bottomPanel);
+        add(encodingLabel, "newline");
+        add(charsetEncodingComboBox, "w 125!, spanx");
     }
 
     private void anonymousNoActionPerformed(ActionEvent evt) {
@@ -1001,6 +991,8 @@ public class FileReader extends ConnectorSettingsPanel {
         passwordLabel.setText("Password:");
         usernameField.setToolTipText("The user name used to gain access to the server.");
         passwordField.setToolTipText("The password used to gain access to the server.");
+        moveToDirectoryLabel.setText("Move-to Directory:");
+        errorMoveToDirectoryLabel.setText("Error Move-to Directory:");
 
         if (scheme == FileScheme.FTP) {
             anonymousLabel.setEnabled(true);
@@ -1031,6 +1023,8 @@ public class FileReader extends ConnectorSettingsPanel {
             usernameField.setToolTipText("The access key ID used to authenticate to AWS S3. This is optional when using the default credential provider chain.");
             passwordLabel.setText("AWS Secret Access Key:");
             passwordField.setToolTipText("The secret access key used to authenticate to AWS S3. This is optional when using the default credential provider chain.");
+            moveToDirectoryLabel.setText("Move-to S3 Bucket / Directory:");
+            errorMoveToDirectoryLabel.setText("Error Move-to S3 Bucket / Directory:");
         } else if (scheme == FileScheme.WEBDAV) {
             anonymousLabel.setEnabled(true);
             anonymousYesRadio.setEnabled(true);

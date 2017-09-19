@@ -821,10 +821,8 @@ public class FileWriter extends ConnectorSettingsPanel {
             advancedProperties = new S3SchemeProperties();
             usernameLabel.setText("AWS Access Key ID:");
             usernameField.setToolTipText("The access key ID used to authenticate to AWS S3. This is optional when using the default credential provider chain.");
-            usernameField.setText("");
             passwordLabel.setText("AWS Secret Access Key:");
             passwordField.setToolTipText("The secret access key used to authenticate to AWS S3. This is optional when using the default credential provider chain.");
-            passwordField.setText("");
         } else if (scheme.equals(FileScheme.WEBDAV)) {
             anonymousLabel.setEnabled(true);
             anonymousYesRadio.setEnabled(true);
