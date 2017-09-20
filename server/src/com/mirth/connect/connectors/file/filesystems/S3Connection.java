@@ -25,6 +25,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -148,7 +149,7 @@ public class S3Connection implements FileSystemConnection {
         clientBuilder = AmazonS3ClientBuilder.standard();
         clientBuilder.setClientConfiguration(createClientConfiguration(timeout));
 
-        if (schemeProps.isUseTemporaryCredentials() && !fileSystemOptions.isAnonymous()) {
+        if (isSTSEnabled()) {
             AWSSecurityTokenServiceClientBuilder stsClientBuilder = AWSSecurityTokenServiceClientBuilder.standard();
             stsClientBuilder.setClientConfiguration(createClientConfiguration(timeout));
             stsClientBuilder.setCredentials(createCredentialsProvider(fileSystemOptions));
@@ -167,6 +168,10 @@ public class S3Connection implements FileSystemConnection {
             clientBuilder.setRegion(schemeProps.getRegion());
             client = clientBuilder.build();
         }
+    }
+
+    boolean isSTSEnabled() {
+        return schemeProps.isUseTemporaryCredentials() && !fileSystemOptions.isAnonymous();
     }
 
     ClientConfiguration createClientConfiguration(int timeout) {
@@ -189,7 +194,7 @@ public class S3Connection implements FileSystemConnection {
     }
 
     AmazonS3 getClient() {
-        if (schemeProps.isUseTemporaryCredentials() && !fileSystemOptions.isAnonymous() && client == null) {
+        if (isSTSEnabled() && client == null) {
             GetSessionTokenRequest getSessionTokenRequest = new GetSessionTokenRequest();
             getSessionTokenRequest.setDurationSeconds(stsDuration);
 
@@ -290,6 +295,15 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
+        try {
+            return doListFiles(fromDir, filenamePattern, isRegex, ignoreDot);
+        } catch (AmazonServiceException e) {
+            handleException(e);
+            return doListFiles(fromDir, filenamePattern, isRegex, ignoreDot);
+        }
+    }
+
+    private List<FileInfo> doListFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
         String filePrefix = null;
 
         FilenameFilter filenameFilter;
@@ -345,6 +359,15 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public List<String> listDirectories(String fromDir) throws Exception {
+        try {
+            return doListDirectories(fromDir);
+        } catch (AmazonServiceException e) {
+            handleException(e);
+            return doListDirectories(fromDir);
+        }
+    }
+
+    private List<String> doListDirectories(String fromDir) throws Exception {
         List<String> directories = new ArrayList<String>();
         AmazonS3 client = getClient();
 
@@ -370,6 +393,15 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public boolean exists(String file, String path) throws Exception {
+        try {
+            return doExists(file, path);
+        } catch (AmazonServiceException e) {
+            handleException(e);
+            return doExists(file, path);
+        }
+    }
+
+    private boolean doExists(String file, String path) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(path);
@@ -386,6 +418,15 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public InputStream readFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception {
+        try {
+            return doReadFile(file, fromDir, sourceMap);
+        } catch (AmazonServiceException e) {
+            handleException(e);
+            return doReadFile(file, fromDir, sourceMap);
+        }
+    }
+
+    private InputStream doReadFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
@@ -417,6 +458,15 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public void writeFile(String file, String toDir, boolean append, InputStream message, Map<String, Object> connectorMap) throws Exception {
+        try {
+            doWriteFile(file, toDir, append, message, connectorMap);
+        } catch (AmazonServiceException e) {
+            handleException(e);
+            doWriteFile(file, toDir, append, message, connectorMap);
+        }
+    }
+
+    private void doWriteFile(String file, String toDir, boolean append, InputStream message, Map<String, Object> connectorMap) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(toDir);
@@ -447,6 +497,15 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public void delete(String file, String fromDir, boolean mayNotExist) throws Exception {
+        try {
+            doDelete(file, fromDir, mayNotExist);
+        } catch (AmazonServiceException e) {
+            handleException(e);
+            doDelete(file, fromDir, mayNotExist);
+        }
+    }
+
+    private void doDelete(String file, String fromDir, boolean mayNotExist) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
@@ -469,6 +528,15 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
+        try {
+            doMove(fromName, fromDir, toName, toDir);
+        } catch (AmazonServiceException e) {
+            handleException(e);
+            doMove(fromName, fromDir, toName, toDir);
+        }
+    }
+
+    private void doMove(String fromName, String fromDir, String toName, String toDir) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> fromBucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
@@ -572,4 +640,14 @@ public class S3Connection implements FileSystemConnection {
         return false;
     }
 
+    void handleException(AmazonServiceException e) throws AmazonServiceException {
+        if (isSTSEnabled() && StringUtils.equals(e.getErrorCode(), "ExpiredToken")) {
+            if (client != null) {
+                client.shutdown();
+                client = null;
+            }
+        } else {
+            throw e;
+        }
+    }
 }
