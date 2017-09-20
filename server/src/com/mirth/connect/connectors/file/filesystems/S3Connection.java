@@ -636,8 +636,14 @@ public class S3Connection implements FileSystemConnection {
 
     @Override
     public boolean canWrite(String writeDir) {
-        // TODO Auto-generated method stub
-        return false;
+        /*
+         * There's no foolproof way via the AWS SDK to determine whether objects can be written,
+         * other than actually trying to put an object. But there's no guarantee that we'll be able
+         * to delete the object after putting it, so instead of doing that we just delegate to
+         * canRead. It's not perfect and may produce false negatives if the bucket policy allows
+         * puts but not listing. But it's something.
+         */
+        return canRead(writeDir);
     }
 
     void handleException(AmazonServiceException e) throws AmazonServiceException {
