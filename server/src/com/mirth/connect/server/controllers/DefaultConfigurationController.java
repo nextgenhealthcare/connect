@@ -78,6 +78,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.common.base.Strings;
 import com.mirth.commons.encryption.Digester;
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.commons.encryption.KeyEncryptor;
@@ -160,6 +161,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static DatabaseSettings databaseConfig;
     private static String apiBypassword;
     private static int statsUpdateInterval;
+    private volatile boolean configMapLoaded = false;
 
     private static KeyEncryptor encryptor = null;
     private static Digester digester = null;
@@ -168,6 +170,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String PROPERTY_TEMP_DIR = "dir.tempdata";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
     private static final String CONFIGURATION_MAP_PATH = "configurationmap.path";
+    private static final String CONFIGURATION_MAP_LOCATION = "configurationmap.location";
     private static final String MAX_INACTIVE_SESSION_INTERVAL = "server.api.sessionmaxinactiveinterval";
     private static final String HTTPS_CLIENT_PROTOCOLS = "https.client.protocols";
     private static final String HTTPS_SERVER_PROTOCOLS = "https.server.protocols";
@@ -322,34 +325,36 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             statsUpdateInterval = NumberUtils.toInt(mirthConfig.getString(STATS_UPDATE_INTERVAL), DonkeyStatisticsUpdater.DEFAULT_UPDATE_INTERVAL);
 
-            // Check for configuration map properties
-            if (mirthConfig.getString(CONFIGURATION_MAP_PATH) != null) {
-                configurationFile = mirthConfig.getString(CONFIGURATION_MAP_PATH);
-            } else {
-                configurationFile = getApplicationDataDir() + File.separator + "configuration.properties";
-            }
-
             PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration();
             configurationMapProperties.setDelimiterParsingDisabled(true);
             configurationMapProperties.setListDelimiter((char) 0);
-            try {
-                configurationMapProperties.load(new File(configurationFile));
-            } catch (ConfigurationException e) {
-                logger.warn("Failed to find configuration map file");
+            if (Strings.isNullOrEmpty(mirthConfig.getString(CONFIGURATION_MAP_LOCATION)) || "file".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
+                // Check for configuration map properties
+                if (mirthConfig.getString(CONFIGURATION_MAP_PATH) != null) {
+                    configurationFile = mirthConfig.getString(CONFIGURATION_MAP_PATH);
+                } else {
+                    configurationFile = getApplicationDataDir() + File.separator + "configuration.properties";
+                }
+	            try {
+	                configurationMapProperties.load(new File(configurationFile));
+	                configMapLoaded = true;
+	            } catch (ConfigurationException e) {
+	                logger.warn("Failed to find configuration map file");
+	            }
+	
+	            Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
+	            Iterator<String> iterator = configurationMapProperties.getKeys();
+	
+	            while (iterator.hasNext()) {
+	                String key = iterator.next();
+	                String value = configurationMapProperties.getString(key);
+	                String comment = configurationMapProperties.getLayout().getCanonicalComment(key, false);
+	
+	                configurationMap.put(key, new ConfigurationProperty(value, comment));
+	            }
+	
+	            setConfigurationProperties(configurationMap, false);
             }
-
-            Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
-            Iterator<String> iterator = configurationMapProperties.getKeys();
-
-            while (iterator.hasNext()) {
-                String key = iterator.next();
-                String value = configurationMapProperties.getString(key);
-                String comment = configurationMapProperties.getLayout().getCanonicalComment(key, false);
-
-                configurationMap.put(key, new ConfigurationProperty(value, comment));
-            }
-
-            setConfigurationProperties(configurationMap, false);
         } catch (Exception e) {
             logger.error("Failed to initialize configuration controller", e);
         }
@@ -616,11 +621,13 @@ public class DefaultConfigurationController extends ConfigurationController {
         serverConfiguration.setResourceProperties(ObjectXMLSerializer.getInstance().deserialize(getResources(), ResourcePropertiesList.class));
         serverConfiguration.setChannelDependencies(getChannelDependencies());
 
+        serverConfiguration.setConfigurationMap(getConfigurationProperties());
+        
         return serverConfiguration;
     }
 
     @Override
-    public void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy) throws StartException, StopException, ControllerException, InterruptedException {
+    public void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy, boolean overwriteConfigMap) throws StartException, StopException, ControllerException, InterruptedException {
         ChannelController channelController = ControllerFactory.getFactory().createChannelController();
         AlertController alertController = ControllerFactory.getFactory().createAlertController();
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
@@ -715,7 +722,10 @@ public class DefaultConfigurationController extends ConfigurationController {
                     }
                 }
             }
-
+            if (overwriteConfigMap && serverConfiguration.getConfigurationMap() != null) {
+            	setConfigurationProperties(serverConfiguration.getConfigurationMap(), true);
+            }
+            
             if (serverConfiguration.getServerSettings() != null) {
                 // The server name must not be restored.
                 ServerSettings serverSettings = serverConfiguration.getServerSettings();
@@ -798,6 +808,24 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public synchronized Map<String, ConfigurationProperty> getConfigurationProperties() {
+    	try {
+	        if (!configMapLoaded && "database".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
+	        	// load configurations from database
+	        	String configSerialized = getProperty(PROPERTIES_CORE, "configuration.properties");
+                configMapLoaded = true;
+	        	
+	        	if (!Strings.isNullOrEmpty(configSerialized)) {
+	        		HashMap<String, ConfigurationProperty> configurationMap = (HashMap<String, ConfigurationProperty>) ObjectXMLSerializer.getInstance().deserialize(configSerialized, HashMap.class);
+	        		setConfigurationProperties(configurationMap, true);
+	        	} else {
+	        		// make a new blank one and save it
+	        		saveProperty(PROPERTIES_CORE, "configuration.properties", ObjectXMLSerializer.getInstance().serialize(new HashMap<String, ConfigurationProperty>()));
+	        	}
+	
+	        }
+    	} catch (ControllerException e) {
+            logger.error("Failed to load configuration map from database", e);
+    	}
         Map<String, ConfigurationProperty> map = new HashMap<String, ConfigurationProperty>();
 
         for (Entry<String, String> entry : configurationMap.entrySet()) {
@@ -1366,7 +1394,12 @@ public class DefaultConfigurationController extends ConfigurationController {
                 }
             }
 
-            configurationMapProperties.save(new File(configurationFile));
+            if (Strings.isNullOrEmpty(mirthConfig.getString(CONFIGURATION_MAP_LOCATION)) || "file".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
+            	configurationMapProperties.save(new File(configurationFile));
+            } else {
+            	// save to database
+            	saveProperty(PROPERTIES_CORE, "configuration.properties", ObjectXMLSerializer.getInstance().serialize(map));
+            }
         } catch (Exception e) {
             throw new ControllerException(e);
         }

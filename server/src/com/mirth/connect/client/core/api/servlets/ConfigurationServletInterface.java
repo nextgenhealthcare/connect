@@ -124,7 +124,8 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @MirthOperation(name = "setServerConfiguration", display = "Set server configuration", permission = Permissions.SERVER_CONFIGURATION_RESTORE, type = ExecuteType.ASYNC)
     public void setServerConfiguration(// @formatter:off
             @Param("serverConfiguration") @ApiParam(value = "The ServerConfiguration object containing all channels, users, alerts, and properties to update.", required = true) ServerConfiguration serverConfiguration,
-            @Param("deploy") @ApiParam(value = "If true, all enabled channels will be deployed after the configuration is restored.", defaultValue = "false") @QueryParam(value = "deploy") boolean deploy) throws ClientException;
+            @Param("deploy") @ApiParam(value = "If true, all enabled channels will be deployed after the configuration is restored.", defaultValue = "false") @QueryParam(value = "deploy") boolean deploy,
+            @Param("saveConfigMap") @ApiParam(value = "If true, overwrite the Configuration Map", defaultValue = "false") @QueryParam(value = "saveConfigMap") boolean saveConfigMap) throws ClientException;
     // @formatter:on
 
     @GET

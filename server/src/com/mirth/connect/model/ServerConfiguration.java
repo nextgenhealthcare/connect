@@ -38,6 +38,7 @@ import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
 import com.mirth.connect.util.ColorUtil;
+import com.mirth.connect.util.ConfigurationProperty;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverConfiguration")
@@ -55,6 +56,7 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
     private Map<String, Properties> pluginProperties = null;
     private ResourcePropertiesList resourceProperties = null;
     private Set<ChannelDependency> channelDependencies = null;
+    private Map<String, ConfigurationProperty> configurationMap = null;
 
     public List<AlertModel> getAlerts() {
         return this.alerts;
@@ -160,6 +162,14 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
         this.channelDependencies = channelDependencies;
     }
 
+    public Map<String, ConfigurationProperty> getConfigurationMap() {
+        return this.configurationMap;
+    }
+
+    public void setConfigurationMap(Map<String, ConfigurationProperty> configurationMap) {
+        this.configurationMap = configurationMap;
+    }
+
     @Override
     public String toAuditString() {
         StringBuilder builder = new StringBuilder();
@@ -174,7 +184,8 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
             builder.append("Number of resource properties=").append(CollectionUtils.size(resourceProperties.getList())).append(", ");
         }
         builder.append("channelDependencies=").append(channelDependencies).append(", ");
-        builder.append("Number of code template libraries=").append(CollectionUtils.size(codeTemplateLibraries)).append(']');
+        builder.append("Number of code template libraries=").append(CollectionUtils.size(codeTemplateLibraries)).append(", ");
+        builder.append("configurationMap=").append(configurationMap).append("]");
         return builder.toString();
     }
 

@@ -541,7 +541,7 @@ public class CommandLineInterface {
         out.println("deploy [timeout]\n\tDeploys all Channels with optional timeout (in seconds)\n");
         out.println("import \"path\" [force]\n\tImports channel specified by <path>.  Optional 'force' overwrites existing channels.\n");
         out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>\n");
-        out.println("importcfg \"path\" [nodeploy]\n\tImports configuration specified by <path>.  Optional 'nodeploy' stops channels from being deployed after importing.\n");
+        out.println("importcfg \"path\" [nodeploy] [overwriteconfigmap]\n\tImports configuration specified by <path>.  Optional 'nodeploy' stops channels from being deployed after importing.  Optional 'overwriteconfigmap' will overwrite the Configuration Map.\n");
         out.println("exportcfg \"path\"\n\tExports the configuration to <path>\n");
         out.println("importalert \"path\" [force]\n\tImports alert specified by <path>.  Optional 'force' overwrites existing alerts.\n");
         out.println("exportalert id|\"name\"|* \"path\"\n\tExports the specified alert to <path>\n");
@@ -768,11 +768,16 @@ public class CommandLineInterface {
         if (arguments.length >= 3 && arguments[2] == Token.NODEPLOY) {
             deploy = false;
         }
-
+        boolean overwriteConfigMap = false;
+        if (arguments.length >= 3 && arguments[3] == Token.OVERWRITECONFIGMAP) {
+            deploy = true;
+        }
+        
+        
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
         try {
-            client.setServerConfiguration(serializer.deserialize(FileUtils.readFileToString(fXml), ServerConfiguration.class), deploy);
+            client.setServerConfiguration(serializer.deserialize(FileUtils.readFileToString(fXml), ServerConfiguration.class), deploy, overwriteConfigMap);
         } catch (IOException e) {
             error("cannot read " + path, e);
             return;

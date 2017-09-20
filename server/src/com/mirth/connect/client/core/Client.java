@@ -581,8 +581,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ConfigurationServletInterface#setServerConfiguration
      */
     @Override
-    public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy) throws ClientException {
-        getServlet(ConfigurationServletInterface.class).setServerConfiguration(serverConfiguration, deploy);
+    public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy, boolean saveConfigMap) throws ClientException {
+        getServlet(ConfigurationServletInterface.class).setServerConfiguration(serverConfiguration, deploy, saveConfigMap);
     }
 
     /**
