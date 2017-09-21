@@ -111,7 +111,7 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/configuration")
-    @ApiOperation("Returns a ServerConfiguration object which contains all of the channels, users, alerts, confgiguration map, and properties stored on the Mirth Connect server.")
+    @ApiOperation("Returns a ServerConfiguration object which contains all of the channels, alerts, configuration map, and properties stored on the Mirth Connect server.")
     @MirthOperation(name = "getServerConfiguration", display = "Get server configuration", permission = Permissions.SERVER_CONFIGURATION_BACKUP)
     public ServerConfiguration getServerConfiguration(// @formatter:off
             @Param("initialState") @ApiParam(value = "The initial state to set all channels in the configuration to.", allowableValues = "STARTED, PAUSED, STOPPED") @QueryParam("initialState") DeployedState initialState,

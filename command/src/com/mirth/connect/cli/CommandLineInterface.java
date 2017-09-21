@@ -770,7 +770,7 @@ public class CommandLineInterface {
         }
         boolean overwriteConfigMap = false;
         if (arguments.length >= 3 && arguments[3] == Token.OVERWRITECONFIGMAP) {
-            deploy = true;
+        	overwriteConfigMap = true;
         }
         
         

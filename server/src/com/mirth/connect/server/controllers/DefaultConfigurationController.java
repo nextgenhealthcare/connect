@@ -325,10 +325,10 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             statsUpdateInterval = NumberUtils.toInt(mirthConfig.getString(STATS_UPDATE_INTERVAL), DonkeyStatisticsUpdater.DEFAULT_UPDATE_INTERVAL);
 
-            PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration();
-            configurationMapProperties.setDelimiterParsingDisabled(true);
-            configurationMapProperties.setListDelimiter((char) 0);
             if (Strings.isNullOrEmpty(mirthConfig.getString(CONFIGURATION_MAP_LOCATION)) || "file".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
+                PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration();
+                configurationMapProperties.setDelimiterParsingDisabled(true);
+                configurationMapProperties.setListDelimiter((char) 0);
                 // Check for configuration map properties
                 if (mirthConfig.getString(CONFIGURATION_MAP_PATH) != null) {
                     configurationFile = mirthConfig.getString(CONFIGURATION_MAP_PATH);
@@ -722,8 +722,12 @@ public class DefaultConfigurationController extends ConfigurationController {
                     }
                 }
             }
-            if (overwriteConfigMap && serverConfiguration.getConfigurationMap() != null) {
-            	setConfigurationProperties(serverConfiguration.getConfigurationMap(), true);
+            if (overwriteConfigMap) {
+            	if (serverConfiguration.getConfigurationMap() != null) {
+            		setConfigurationProperties(serverConfiguration.getConfigurationMap(), true);
+            	} else {
+            		setConfigurationProperties(new HashMap<String, ConfigurationProperty>(), true);
+            	}
             }
             
             if (serverConfiguration.getServerSettings() != null) {
@@ -1373,28 +1377,28 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     private void saveConfigurationProperties(Map<String, ConfigurationProperty> map) throws ControllerException {
         try {
-            PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration();
-            configurationMapProperties.setDelimiterParsingDisabled(true);
-            configurationMapProperties.setListDelimiter((char) 0);
-            configurationMapProperties.clear();
-
-            PropertiesConfigurationLayout layout = configurationMapProperties.getLayout();
-
-            Map<String, ConfigurationProperty> sortedMap = new TreeMap<String, ConfigurationProperty>(String.CASE_INSENSITIVE_ORDER);
-            sortedMap.putAll(map);
-
-            for (Entry<String, ConfigurationProperty> entry : sortedMap.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue().getValue();
-                String comment = entry.getValue().getComment();
-
-                if (StringUtils.isNotBlank(key)) {
-                    configurationMapProperties.addProperty(key, value);
-                    layout.setComment(key, StringUtils.isBlank(comment) ? null : comment);
-                }
-            }
-
             if (Strings.isNullOrEmpty(mirthConfig.getString(CONFIGURATION_MAP_LOCATION)) || "file".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
+                PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration();
+                configurationMapProperties.setDelimiterParsingDisabled(true);
+                configurationMapProperties.setListDelimiter((char) 0);
+                configurationMapProperties.clear();
+
+                PropertiesConfigurationLayout layout = configurationMapProperties.getLayout();
+
+                Map<String, ConfigurationProperty> sortedMap = new TreeMap<String, ConfigurationProperty>(String.CASE_INSENSITIVE_ORDER);
+                sortedMap.putAll(map);
+
+                for (Entry<String, ConfigurationProperty> entry : sortedMap.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue().getValue();
+                    String comment = entry.getValue().getComment();
+
+                    if (StringUtils.isNotBlank(key)) {
+                        configurationMapProperties.addProperty(key, value);
+                        layout.setComment(key, StringUtils.isBlank(comment) ? null : comment);
+                    }
+                }
+
             	configurationMapProperties.save(new File(configurationFile));
             } else {
             	// save to database
