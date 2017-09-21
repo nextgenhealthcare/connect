@@ -22,9 +22,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import net.miginfocom.swing.MigLayout;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
@@ -43,12 +40,14 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
 
+import net.miginfocom.swing.MigLayout;
+
 public class FileWriter extends ConnectorSettingsPanel {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
 
-    private String selectedScheme;
+    private FileScheme selectedScheme;
     private SchemeProperties advancedProperties;
 
     public FileWriter() {
@@ -56,7 +55,7 @@ public class FileWriter extends ConnectorSettingsPanel {
 
         setBackground(UIConstants.BACKGROUND_COLOR);
         setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, fill, gapy 6", "[right][left]"));
+        setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, fill, gapy 6", "[right,120][left]"));
 
         initComponents();
         initToolTips();
@@ -74,11 +73,11 @@ public class FileWriter extends ConnectorSettingsPanel {
     public ConnectorProperties getProperties() {
         FileDispatcherProperties properties = new FileDispatcherProperties();
 
-        properties.setScheme(FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem()));
+        properties.setScheme((FileScheme) schemeComboBox.getSelectedItem());
 
         properties.setSchemeProperties(advancedProperties);
 
-        if (schemeComboBox.getSelectedItem().equals(FileScheme.FILE.getDisplayName())) {
+        if (schemeComboBox.getSelectedItem() == FileScheme.FILE) {
             properties.setHost(directoryField.getText().replace('\\', '/'));
         } else {
             properties.setHost(hostField.getText() + "/" + pathField.getText());
@@ -181,9 +180,9 @@ public class FileWriter extends ConnectorSettingsPanel {
         logger.debug("setProperties: props=" + properties);
         FileDispatcherProperties props = (FileDispatcherProperties) properties;
 
-        selectedScheme = "";
+        selectedScheme = null;
         FileScheme scheme = props.getScheme();
-        schemeComboBox.setSelectedItem(scheme.getDisplayName());
+        schemeComboBox.setSelectedItem(scheme);
         schemeComboBoxActionPerformed(null);
 
         advancedProperties = props.getSchemeProperties();
@@ -210,13 +209,13 @@ public class FileWriter extends ConnectorSettingsPanel {
         if (props.isSecure()) {
             secureModeYesRadio.setSelected(true);
             secureModeNoRadio.setSelected(false);
-            if (scheme.equals(FileScheme.WEBDAV)) {
+            if (scheme == FileScheme.WEBDAV) {
                 hostLabel.setText("https://");
             }
         } else {
             secureModeYesRadio.setSelected(false);
             secureModeNoRadio.setSelected(true);
-            if (scheme.equals(FileScheme.WEBDAV)) {
+            if (scheme == FileScheme.WEBDAV) {
                 hostLabel.setText("http://");
             }
         }
@@ -306,7 +305,7 @@ public class FileWriter extends ConnectorSettingsPanel {
                 fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (!props.isAnonymous()) {
+        if (props.getScheme() != FileScheme.S3 && !props.isAnonymous()) {
             if (props.getUsername().length() == 0) {
                 valid = false;
                 if (highlight) {
@@ -355,7 +354,7 @@ public class FileWriter extends ConnectorSettingsPanel {
 
     @Override
     public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
-        if (FileScheme.FTP.getDisplayName().equalsIgnoreCase((String) schemeComboBox.getSelectedItem())) {
+        if (FileScheme.FTP == schemeComboBox.getSelectedItem()) {
             hostLabel.setText("ftp" + (connectorTypeDecoration != null && connectorTypeDecoration.getHighlightColor() != null ? "s" : "") + "://");
         }
     }
@@ -363,9 +362,8 @@ public class FileWriter extends ConnectorSettingsPanel {
     private void initComponents() {
         schemeLabel = new JLabel();
         schemeLabel.setText("Method:");
-        schemeComboBox = new MirthComboBox();
-        schemeComboBox.setModel(new DefaultComboBoxModel(new String[] { "file", "ftp", "sftp",
-                "smb", "webdav" }));
+        schemeComboBox = new MirthComboBox<FileScheme>();
+        schemeComboBox.setModel(new DefaultComboBoxModel<FileScheme>(FileScheme.values()));
         schemeComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 schemeComboBoxActionPerformed(evt);
@@ -614,8 +612,8 @@ public class FileWriter extends ConnectorSettingsPanel {
         encodingLabel.setText("Encoding:");
 
         charsetEncodingComboBox = new MirthComboBox();
-        charsetEncodingComboBox.setModel(new DefaultComboBoxModel(new String[] { "Default",
-                "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
+        charsetEncodingComboBox.setModel(new DefaultComboBoxModel(new String[] { "Default", "UTF-8",
+                "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
 
         templateLabel = new JLabel();
         templateLabel.setText("Template:");
@@ -746,12 +744,10 @@ public class FileWriter extends ConnectorSettingsPanel {
     private void onSchemeChange(boolean enableHost, boolean anonymous, boolean allowAppend, FileScheme scheme) {
         // act like the appropriate Anonymous button was selected.
         if (anonymous) {
-            anonymousNoRadio.setSelected(false);
             anonymousYesRadio.setSelected(true);
             anonymousYesActionPerformed(null);
         } else {
             anonymousNoRadio.setSelected(true);
-            anonymousYesRadio.setSelected(false);
             anonymousNoActionPerformed(null);
         }
 
@@ -778,21 +774,27 @@ public class FileWriter extends ConnectorSettingsPanel {
         timeoutField.setEnabled(false);
         advancedSettingsButton.setEnabled(false);
         advancedProperties = null;
+        usernameLabel.setText("Username:");
+        passwordLabel.setText("Password:");
+        usernameField.setToolTipText("The user name used to gain access to the server.");
+        passwordField.setToolTipText("The password used to gain access to the server.");
 
         if (allowAppend) {
             fileExistsOverwriteRadio.setEnabled(true);
             fileExistsAppendRadio.setEnabled(true);
-            fileExistsLabel.setEnabled(true);
         } else {
             if (fileExistsAppendRadio.isSelected()) {
                 fileExistsOverwriteRadio.setSelected(true);
                 fileExistsAppendRadio.setSelected(false);
+                fileExistsOverwriteRadioActionPerformed(null);
             }
 
-            fileExistsOverwriteRadio.setEnabled(false);
             fileExistsAppendRadio.setEnabled(false);
-            fileExistsLabel.setEnabled(false);
         }
+
+        tempFileLabel.setEnabled(true);
+        tempFileYesRadio.setEnabled(true);
+        tempFileNoRadio.setEnabled(true);
 
         if (scheme.equals(FileScheme.FTP)) {
             anonymousLabel.setEnabled(true);
@@ -811,6 +813,22 @@ public class FileWriter extends ConnectorSettingsPanel {
             timeoutField.setEnabled(true);
             advancedSettingsButton.setEnabled(true);
             advancedProperties = new SftpSchemeProperties();
+        } else if (scheme == FileScheme.S3) {
+            anonymousLabel.setEnabled(true);
+            anonymousYesRadio.setEnabled(true);
+            anonymousNoRadio.setEnabled(true);
+            timeoutLabel.setEnabled(true);
+            timeoutField.setEnabled(true);
+            advancedSettingsButton.setEnabled(true);
+            advancedProperties = new S3SchemeProperties();
+            usernameLabel.setText("AWS Access Key ID:");
+            usernameField.setToolTipText("The access key ID used to authenticate to AWS S3. This is optional when using the default credential provider chain.");
+            passwordLabel.setText("AWS Secret Access Key:");
+            passwordField.setToolTipText("The secret access key used to authenticate to AWS S3. This is optional when using the default credential provider chain.");
+            tempFileLabel.setEnabled(false);
+            tempFileNoRadio.setSelected(true);
+            tempFileYesRadio.setEnabled(false);
+            tempFileNoRadio.setEnabled(false);
         } else if (scheme.equals(FileScheme.WEBDAV)) {
             anonymousLabel.setEnabled(true);
             anonymousYesRadio.setEnabled(true);
@@ -832,8 +850,14 @@ public class FileWriter extends ConnectorSettingsPanel {
     }
 
     private void advancedFileSettingsActionPerformed() {
-        if (StringUtils.equals(selectedScheme, FileScheme.SFTP.getDisplayName())) {
+        if (selectedScheme == FileScheme.SFTP) {
             AdvancedSettingsDialog dialog = new AdvancedSftpSettingsDialog((SftpSchemeProperties) advancedProperties);
+            if (dialog.wasSaved()) {
+                advancedProperties = dialog.getSchemeProperties();
+                setSummaryText();
+            }
+        } else if (selectedScheme == FileScheme.S3) {
+            AdvancedS3SettingsDialog dialog = new AdvancedS3SettingsDialog((S3SchemeProperties) advancedProperties, anonymousYesRadio.isSelected());
             if (dialog.wasSaved()) {
                 advancedProperties = dialog.getSchemeProperties();
                 setSummaryText();
@@ -842,17 +866,19 @@ public class FileWriter extends ConnectorSettingsPanel {
     }
 
     private boolean isAdvancedDefault() {
-        if (StringUtils.equals(selectedScheme, FileScheme.SFTP.getDisplayName())) {
+        if (selectedScheme == FileScheme.SFTP) {
             return Objects.equals(advancedProperties, new SftpSchemeProperties());
+        } else if (selectedScheme == FileScheme.S3) {
+            return Objects.equals(advancedProperties, new S3SchemeProperties());
         }
         return true;
     }
 
     private void schemeComboBoxActionPerformed(ActionEvent evt) {
-        String text = (String) schemeComboBox.getSelectedItem();
+        FileScheme scheme = (FileScheme) schemeComboBox.getSelectedItem();
 
-        if (!text.equals(selectedScheme)) {
-            if (StringUtils.isNotEmpty(selectedScheme) && !isAdvancedDefault()) {
+        if (scheme != selectedScheme) {
+            if (selectedScheme != null && !isAdvancedDefault()) {
                 if (JOptionPane.showConfirmDialog(parent, "Are you sure you would like to change the scheme mode and lose all of the current properties?", "Select an Option", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
                     schemeComboBox.setSelectedItem(selectedScheme);
                     return;
@@ -860,26 +886,29 @@ public class FileWriter extends ConnectorSettingsPanel {
             }
 
             // if File is selected
-            if (text.equals(FileScheme.FILE.getDisplayName())) {
+            if (scheme == FileScheme.FILE) {
 
                 onSchemeChange(false, true, true, FileScheme.FILE);
             } // else if FTP is selected
-            else if (text.equals(FileScheme.FTP.getDisplayName())) {
+            else if (scheme == FileScheme.FTP) {
 
                 onSchemeChange(true, anonymousYesRadio.isSelected(), true, FileScheme.FTP);
                 hostLabel.setText("ftp://");
             } // else if SFTP is selected
-            else if (text.equals(FileScheme.SFTP.getDisplayName())) {
+            else if (scheme == FileScheme.SFTP) {
 
                 onSchemeChange(true, false, true, FileScheme.SFTP);
                 hostLabel.setText("sftp://");
+            } else if (scheme == FileScheme.S3) {
+                onSchemeChange(true, true, false, FileScheme.S3);
+                hostLabel.setText("S3 Bucket:");
             } // else if SMB is selected
-            else if (text.equals(FileScheme.SMB.getDisplayName())) {
+            else if (scheme == FileScheme.SMB) {
 
                 onSchemeChange(true, false, true, FileScheme.SMB);
                 hostLabel.setText("smb://");
             } // else if WEBDAV is selected
-            else if (text.equals(FileScheme.WEBDAV.getDisplayName())) {
+            else if (scheme == FileScheme.WEBDAV) {
 
                 onSchemeChange(true, anonymousYesRadio.isSelected(), false, FileScheme.WEBDAV);
                 if (secureModeYesRadio.isSelected()) {
@@ -892,7 +921,7 @@ public class FileWriter extends ConnectorSettingsPanel {
             decorateConnectorType();
         }
 
-        selectedScheme = text;
+        selectedScheme = scheme;
     }
 
     private void testConnectionActionPerformed(ActionEvent evt) {
@@ -938,15 +967,21 @@ public class FileWriter extends ConnectorSettingsPanel {
     }
 
     private void fileExistsOverwriteRadioActionPerformed(ActionEvent evt) {
-        tempFileLabel.setEnabled(true);
-        tempFileYesRadio.setEnabled(true);
-        tempFileNoRadio.setEnabled(true);
+        FileScheme scheme = (FileScheme) schemeComboBox.getSelectedItem();
+        if (scheme != FileScheme.S3) {
+            tempFileLabel.setEnabled(true);
+            tempFileYesRadio.setEnabled(true);
+            tempFileNoRadio.setEnabled(true);
+        }
     }
 
     private void fileExistsErrorRadioActionPerformed(ActionEvent evt) {
-        tempFileLabel.setEnabled(true);
-        tempFileYesRadio.setEnabled(true);
-        tempFileNoRadio.setEnabled(true);
+        FileScheme scheme = (FileScheme) schemeComboBox.getSelectedItem();
+        if (scheme != FileScheme.S3) {
+            tempFileLabel.setEnabled(true);
+            tempFileYesRadio.setEnabled(true);
+            tempFileNoRadio.setEnabled(true);
+        }
     }
 
     private void fileTypeASCIIActionPerformed(ActionEvent evt) {
@@ -993,7 +1028,7 @@ public class FileWriter extends ConnectorSettingsPanel {
     private JLabel passwordLabel;
     private MirthTextField pathField;
     private JLabel pathLabel;
-    private MirthComboBox schemeComboBox;
+    private MirthComboBox<FileScheme> schemeComboBox;
     private JLabel schemeLabel;
     private JLabel secureModeLabel;
     private MirthRadioButton secureModeNoRadio;

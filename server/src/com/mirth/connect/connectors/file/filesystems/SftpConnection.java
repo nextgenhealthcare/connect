@@ -93,6 +93,9 @@ public class SftpConnection implements FileSystemConnection {
             return true;
             // return (theFile.getAttrs().getPermissions() & MASK) != 0;
         }
+
+        @Override
+        public void populateSourceMap(Map<String, Object> sourceMap) {}
     }
 
     private static transient Log logger = LogFactory.getLog(SftpConnection.class);
@@ -255,7 +258,7 @@ public class SftpConnection implements FileSystemConnection {
     }
 
     @Override
-    public InputStream readFile(String file, String fromDir) throws Exception {
+    public InputStream readFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception {
         lastDir = fromDir;
         cwd(fromDir);
         return client.get(file);
@@ -274,7 +277,7 @@ public class SftpConnection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, InputStream is) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
         lastDir = toDir;
         cdmake(toDir);
         int mode = 0;

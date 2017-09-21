@@ -11,19 +11,20 @@ package com.mirth.connect.connectors.file;
 
 import java.net.URI;
 
-
 public class FileSystemConnectionOptions {
     private URI uri;
+    private boolean anonymous;
     private String username;
     private String password;
     private SchemeProperties schemeProperties;
 
-    public FileSystemConnectionOptions(String username, String password, SchemeProperties schemeProperties) {
-        this(null, username, password, schemeProperties);
+    public FileSystemConnectionOptions(boolean anonymous, String username, String password, SchemeProperties schemeProperties) {
+        this(null, anonymous, username, password, schemeProperties);
     }
 
-    public FileSystemConnectionOptions(URI uri, String username, String password, SchemeProperties schemeProperties) {
+    public FileSystemConnectionOptions(URI uri, boolean anonymous, String username, String password, SchemeProperties schemeProperties) {
         this.uri = uri;
+        this.anonymous = anonymous;
         this.username = username;
         this.password = password;
         this.schemeProperties = schemeProperties;
@@ -35,6 +36,14 @@ public class FileSystemConnectionOptions {
 
     public void setUri(URI uri) {
         this.uri = uri;
+    }
+
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
     }
 
     public String getUsername() {

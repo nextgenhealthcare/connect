@@ -14,8 +14,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+
+import com.mirth.connect.connectors.file.FileConnectorException;
+import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
+import com.mirth.connect.connectors.file.filters.SmbFilenameWildcardFilter;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
@@ -24,13 +32,6 @@ import jcifs.smb.SmbFileFilter;
 import jcifs.smb.SmbFileInputStream;
 import jcifs.smb.SmbFileOutputStream;
 import jcifs.smb.SmbFilenameFilter;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-
-import com.mirth.connect.connectors.file.FileConnectorException;
-import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
-import com.mirth.connect.connectors.file.filters.SmbFilenameWildcardFilter;
 
 /**
  * The SmbFileSystemConnection class for networked files
@@ -95,6 +96,9 @@ public class SmbFileConnection implements FileSystemConnection {
                 return false;
             }
         }
+
+        @Override
+        public void populateSourceMap(Map<String, Object> sourceMap) {}
     }
 
     private Logger logger = Logger.getLogger(getClass());
@@ -243,7 +247,7 @@ public class SmbFileConnection implements FileSystemConnection {
     }
 
     @Override
-    public InputStream readFile(String name, String dir) throws FileConnectorException {
+    public InputStream readFile(String name, String dir, Map<String, Object> sourceMap) throws FileConnectorException {
         SmbFile src = null;
 
         try {
@@ -266,7 +270,7 @@ public class SmbFileConnection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String name, String dir, boolean append, InputStream is) throws Exception {
+    public void writeFile(String name, String dir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
         OutputStream os = null;
         SmbFile dst = null;
         SmbFile dstDir = null;

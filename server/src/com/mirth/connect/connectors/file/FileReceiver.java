@@ -28,7 +28,6 @@ import java.util.Stack;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -124,20 +123,27 @@ public class FileReceiver extends PollConnector {
             String channelName = getChannel().getName();
             String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
-            URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId, channelName));
+            String host = replacer.replaceValues(connectorProperties.getHost(), channelId, channelName);
 
-            SftpSchemeProperties sftpProperties  = null;
-            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties();
+            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties().clone();
+
             if (schemeProperties instanceof SftpSchemeProperties) {
-                sftpProperties = (SftpSchemeProperties) schemeProperties;
+                SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
 
                 sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId, channelName));
                 sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId, channelName));
                 sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId, channelName));
                 sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId, channelName));
+            } else if (schemeProperties instanceof S3SchemeProperties) {
+                S3SchemeProperties s3Properties = (S3SchemeProperties) schemeProperties;
+
+                s3Properties.setRegion(replacer.replaceValues(s3Properties.getRegion(), channelId, channelName));
+                s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
-            fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, sftpProperties);
+            URI uri = FileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
+
+            fileSystemOptions = new FileSystemConnectionOptions(uri, connectorProperties.isAnonymous(), username, password, schemeProperties);
             FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
             fileConnector.releaseConnection(con, fileSystemOptions);
         } catch (URISyntaxException e1) {
@@ -170,24 +176,32 @@ public class FileReceiver extends PollConnector {
         try {
             String channelId = getChannelId();
             String channelName = getChannel().getName();
-            URI uri = fileConnector.getEndpointURI(replacer.replaceValues(connectorProperties.getHost(), channelId, channelName));
-            String readDir = fileConnector.getPathPart(uri);
+            String host = replacer.replaceValues(connectorProperties.getHost(), channelId, channelName);
 
             String username = replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName);
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
             filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), channelId, channelName);
 
-            SftpSchemeProperties sftpProperties = null;
-            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties();
+            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties().clone();
+
             if (schemeProperties instanceof SftpSchemeProperties) {
-                sftpProperties = (SftpSchemeProperties) schemeProperties.clone();
+                SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
 
                 sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId, channelName));
                 sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId, channelName));
                 sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId, channelName));
+                sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId, channelName));
+            } else if (schemeProperties instanceof S3SchemeProperties) {
+                S3SchemeProperties s3Properties = (S3SchemeProperties) schemeProperties;
+
+                s3Properties.setRegion(replacer.replaceValues(s3Properties.getRegion(), channelId, channelName));
+                s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
-            fileSystemOptions = new FileSystemConnectionOptions(uri, username, password, sftpProperties);
+            URI uri = FileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
+            String readDir = fileConnector.getPathPart(uri);
+
+            fileSystemOptions = new FileSystemConnectionOptions(uri, connectorProperties.isAnonymous(), username, password, schemeProperties);
 
             if (connectorProperties.isDirectoryRecursion()) {
                 Set<String> visitedDirectories = new HashSet<String>();
@@ -320,12 +334,15 @@ public class FileReceiver extends PollConnector {
                 try {
                     Response response = null;
 
+                    // Allow implementation to inject custom source map variables
+                    file.populateSourceMap(sourceMap);
+
                     // ast: use the user-selected encoding
                     if (isProcessBatch()) {
                         FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
                         Reader in = null;
                         try {
-                            in = new InputStreamReader(con.readFile(file.getName(), file.getParent()), charsetEncoding);
+                            in = new InputStreamReader(con.readFile(file.getName(), file.getParent(), sourceMap), charsetEncoding);
                             BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(in), sourceMap);
 
                             Boolean messagesExist = dispatchBatchMessage(batchRawMessage, null);
@@ -342,9 +359,9 @@ public class FileReceiver extends PollConnector {
                     } else {
                         RawMessage rawMessage;
                         if (connectorProperties.isBinary()) {
-                            rawMessage = new RawMessage(getBytesFromFile(file));
+                            rawMessage = new RawMessage(getBytesFromFile(file, sourceMap));
                         } else {
-                            rawMessage = new RawMessage(new String(getBytesFromFile(file), charsetEncoding));
+                            rawMessage = new RawMessage(new String(getBytesFromFile(file, sourceMap), charsetEncoding));
                         }
 
                         rawMessage.setSourceMap(sourceMap);
@@ -363,7 +380,7 @@ public class FileReceiver extends PollConnector {
                     errorResponse = response != null && response.getStatus() == Status.ERROR;
                 } catch (Exception e) {
                     error = true;
-                    logger.error("Unable to dispatch message to channel " + getChannelId() + ": " + ExceptionUtils.getStackTrace(e));
+                    logger.error("Unable to dispatch message to channel " + getChannelId() + ". File: " + file.getAbsolutePath(), e);
                 } catch (Throwable t) {
                     error = true;
                     String errorMessage = "Error reading file " + file.getAbsolutePath() + "\n" + t.getMessage();
@@ -493,13 +510,13 @@ public class FileReceiver extends PollConnector {
     }
 
     // Returns the contents of the file in a byte array.
-    private byte[] getBytesFromFile(FileInfo file) throws Exception {
+    private byte[] getBytesFromFile(FileInfo file, Map<String, Object> sourceMap) throws Exception {
         FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
 
         try {
             InputStream is = null;
             try {
-                is = con.readFile(file.getName(), file.getParent());
+                is = con.readFile(file.getName(), file.getParent(), sourceMap);
 
                 // Get the size of the file
                 long length = file.getSize();

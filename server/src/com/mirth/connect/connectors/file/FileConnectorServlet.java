@@ -34,33 +34,36 @@ public class FileConnectorServlet extends MirthServlet implements FileConnectorS
 
     @Override
     public ConnectionTestResponse testRead(String channelId, String channelName, FileReceiverProperties properties) {
-        return testReadOrWrite(channelId, channelName, properties.getHost(), properties.getUsername(), properties.getPassword(), properties.getSchemeProperties(), properties.getScheme(), properties.getTimeout(), properties.isSecure(), properties.isPassive(), true);
+        return testReadOrWrite(channelId, channelName, properties.getHost(), properties.isAnonymous(), properties.getUsername(), properties.getPassword(), properties.getSchemeProperties(), properties.getScheme(), properties.getTimeout(), properties.isSecure(), properties.isPassive(), true);
     }
 
     @Override
     public ConnectionTestResponse testWrite(String channelId, String channelName, FileDispatcherProperties properties) {
-        return testReadOrWrite(channelId, channelName, properties.getHost(), properties.getUsername(), properties.getPassword(), properties.getSchemeProperties(), properties.getScheme(), properties.getTimeout(), properties.isSecure(), properties.isPassive(), false);
+        return testReadOrWrite(channelId, channelName, properties.getHost(), properties.isAnonymous(), properties.getUsername(), properties.getPassword(), properties.getSchemeProperties(), properties.getScheme(), properties.getTimeout(), properties.isSecure(), properties.isPassive(), false);
     }
 
-    protected ConnectionTestResponse testReadOrWrite(String channelId, String channelName, String host, String username, String password, SchemeProperties schemeProperties, FileScheme scheme, String timeoutString, boolean secure, boolean passive, boolean read) {
+    protected ConnectionTestResponse testReadOrWrite(String channelId, String channelName, String host, boolean anonymous, String username, String password, SchemeProperties schemeProperties, FileScheme scheme, String timeoutString, boolean secure, boolean passive, boolean read) {
         try {
             host = replacer.replaceValues(host, channelId, channelName);
             username = replacer.replaceValues(username, channelId, channelName);
             password = replacer.replaceValues(password, channelId, channelName);
 
-            SftpSchemeProperties sftpProperties = null;
             if (schemeProperties instanceof SftpSchemeProperties) {
-                sftpProperties = (SftpSchemeProperties) schemeProperties;
+                SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
 
                 sftpProperties.setKeyFile(replacer.replaceValues(sftpProperties.getKeyFile(), channelId, channelName));
                 sftpProperties.setPassPhrase(replacer.replaceValues(sftpProperties.getPassPhrase(), channelId, channelName));
                 sftpProperties.setKnownHostsFile(replacer.replaceValues(sftpProperties.getKnownHostsFile(), channelId, channelName));
                 sftpProperties.setConfigurationSettings(replacer.replaceValues(sftpProperties.getConfigurationSettings(), channelId, channelName));
+            } else if (schemeProperties instanceof S3SchemeProperties) {
+                S3SchemeProperties s3Properties = (S3SchemeProperties) schemeProperties;
+
+                s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
             int timeout = Integer.parseInt(timeoutString);
 
-            URI address = FileConnector.getEndpointURI(host, scheme, secure);
+            URI address = FileConnector.getEndpointURI(host, scheme, schemeProperties, secure);
             String addressHost = address.getHost();
             int port = address.getPort();
             String dir = address.getPath();
@@ -71,7 +74,7 @@ public class FileConnectorServlet extends MirthServlet implements FileConnectorS
             }
             hostDisplayName += dir;
 
-            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, new FileSystemConnectionOptions(username, password, sftpProperties), addressHost, port, passive, secure, timeout);
+            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, new FileSystemConnectionOptions(anonymous, username, password, schemeProperties), addressHost, port, passive, secure, timeout);
 
             FileSystemConnection connection = null;
 

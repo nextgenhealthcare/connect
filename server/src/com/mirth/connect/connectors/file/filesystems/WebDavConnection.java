@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
@@ -73,6 +74,9 @@ public class WebDavConnection implements FileSystemConnection {
         public boolean isReadable() {
             return theFile.canRead();
         }
+
+        @Override
+        public void populateSourceMap(Map<String, Object> sourceMap) {}
     }
 
     private static transient Log logger = LogFactory.getLog(WebDavConnection.class);
@@ -180,7 +184,7 @@ public class WebDavConnection implements FileSystemConnection {
     }
 
     @Override
-    public InputStream readFile(String file, String fromDir) throws Exception {
+    public InputStream readFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception {
         String fullPath = getFullPath(fromDir, file);
 
         client.setPath(fullPath);
@@ -203,7 +207,7 @@ public class WebDavConnection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, InputStream is) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
         String fullPath = getFullPath(toDir, file);
 
         // first check if the toDir exists.

@@ -281,6 +281,8 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
             builder.append("ftp://");
         } else if (scheme == FileScheme.SFTP) {
             builder.append("sftp://");
+        } else if (scheme == FileScheme.S3) {
+            builder.append("s3://");
         } else if (scheme == FileScheme.SMB) {
             builder.append("smb://");
         } else if (scheme == FileScheme.WEBDAV) {

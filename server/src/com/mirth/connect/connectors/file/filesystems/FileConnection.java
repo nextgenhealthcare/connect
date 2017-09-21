@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -97,6 +98,9 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
 
             return this.theFile.canRead();
         }
+
+        @Override
+        public void populateSourceMap(Map<String, Object> sourceMap) {}
     }
 
     public FileConnection() {
@@ -174,7 +178,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
     }
 
     @Override
-    public InputStream readFile(String file, String fromDir) throws FileConnectorException {
+    public InputStream readFile(String file, String fromDir, Map<String, Object> sourceMap) throws FileConnectorException {
         try {
             File src = new File(fromDir, file);
             return new FileInputStream(src);
@@ -196,7 +200,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, InputStream is) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
         OutputStream os = null;
         File dstDir = new File(toDir);
 

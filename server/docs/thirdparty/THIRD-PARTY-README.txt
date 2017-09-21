@@ -4,6 +4,7 @@ Mirth Connect and Mirth Connect Command Line Interface include the following,
 which is distributed under the terms of the Apache License version 2.0 (see
 APACHE-LICENSE-2.0.txt):
 
+	Amazon Ion Java [Mirth Connect only] (https://github.com/amzn/ion-java)
 	Apache Commons
 	Apache Derby 10.10.1.1 [Mirth Connect only]
 	Apache Geronimo (only components needed for the JMS API) [Mirth Connect only]
@@ -15,6 +16,7 @@ APACHE-LICENSE-2.0.txt):
 	Apache Velocity Engine 1.7
 	Apache Velocity Tools 2.0
 	Apache XMLBeans [Mirth Connect only]
+	AWS SDK for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java)
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
 	Guava 18.0 (https://code.google.com/p/guava-libraries)
 	Guice 4.1 (https://github.com/google/guice)

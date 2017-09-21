@@ -98,7 +98,7 @@ public class FileConnectionTests {
 
         InputStream in = null;
         try {
-            in = fc.readFile(testFile.getName(), someFolder.getAbsolutePath());
+            in = fc.readFile(testFile.getName(), someFolder.getAbsolutePath(), null);
         } catch (FileConnectorException e) {
             fail("Threw a FileConnectorException");
         }
@@ -116,11 +116,7 @@ public class FileConnectionTests {
     /*
      * NOTHING TO TEST HERE
      * 
-     * @Test
-     * public void testCloseReadFile()
-     * {
-     * fail("Not yet implemented");
-     * }
+     * @Test public void testCloseReadFile() { fail("Not yet implemented"); }
      */
 
     @Test
@@ -131,7 +127,7 @@ public class FileConnectionTests {
         File testFile = new File("writeFile" + System.currentTimeMillis() + ".dat");
 
         try {
-            fc.writeFile(testFile.getName(), someFolder.getAbsolutePath(), false, new ByteArrayInputStream(byteTest));
+            fc.writeFile(testFile.getName(), someFolder.getAbsolutePath(), false, new ByteArrayInputStream(byteTest), null);
         } catch (Exception e) {
             fail("The FileConnection threw an exception, it should not have.");
         }
@@ -148,7 +144,7 @@ public class FileConnectionTests {
 
         // Verify that appending works
         try {
-            fc.writeFile(testFile.getName(), someFolder.getAbsolutePath(), true, new ByteArrayInputStream(byteTest));
+            fc.writeFile(testFile.getName(), someFolder.getAbsolutePath(), true, new ByteArrayInputStream(byteTest), null);
         } catch (Exception e) {
             fail("The FileConnection threw an exception, it should not have (when appending).");
         }

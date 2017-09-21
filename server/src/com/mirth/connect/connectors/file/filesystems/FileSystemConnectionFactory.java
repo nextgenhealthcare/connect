@@ -22,6 +22,7 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
 
 import com.mirth.connect.connectors.file.FileScheme;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
+import com.mirth.connect.connectors.file.S3SchemeProperties;
 import com.mirth.connect.connectors.file.SftpSchemeProperties;
 
 /**
@@ -100,6 +101,26 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
             poolKey.append(port);
 
             return poolKey.toString();
+        } else if (scheme.equals(FileScheme.S3)) {
+            StringBuilder poolKey = new StringBuilder();
+            S3SchemeProperties s3SchemeProperties = (S3SchemeProperties) fileSystemOptions.getSchemeProperties();
+
+            poolKey.append("s3://");
+
+            if (!s3SchemeProperties.isUseDefaultCredentialProviderChain()) {
+                poolKey.append(username);
+                poolKey.append(':');
+                poolKey.append(password);
+            }
+
+            if (s3SchemeProperties.isUseTemporaryCredentials()) {
+                poolKey.append(":STS");
+            }
+
+            poolKey.append('@');
+            poolKey.append(s3SchemeProperties.getRegion());
+
+            return poolKey.toString();
         } else if (scheme.equals(FileScheme.SMB)) {
             return "smb://" + username + ":" + password + "@" + host + ":" + port;
         } else if (scheme.equals(FileScheme.WEBDAV)) {
@@ -138,6 +159,8 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
             return new DefaultPooledObject<FileSystemConnection>(new FtpConnection(host, port, fileSystemOptions, passive, timeout));
         } else if (scheme.equals(FileScheme.SFTP)) {
             return new DefaultPooledObject<FileSystemConnection>(new SftpConnection(host, port, fileSystemOptions, timeout));
+        } else if (scheme.equals(FileScheme.S3)) {
+            return new DefaultPooledObject<FileSystemConnection>(new S3Connection(fileSystemOptions, timeout));
         } else if (scheme.equals(FileScheme.SMB)) {
             return new DefaultPooledObject<FileSystemConnection>(new SmbFileConnection(host, fileSystemOptions, timeout));
         } else if (scheme.equals(FileScheme.WEBDAV)) {

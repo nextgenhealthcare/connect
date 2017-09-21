@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
@@ -82,6 +83,8 @@ public class FtpConnection implements FileSystemConnection {
             // return theFile.hasPermission(access, permission);
         }
 
+        @Override
+        public void populateSourceMap(Map<String, Object> sourceMap) {}
     }
 
     private static transient Log logger = LogFactory.getLog(FtpConnection.class);
@@ -235,7 +238,7 @@ public class FtpConnection implements FileSystemConnection {
     }
 
     @Override
-    public InputStream readFile(String file, String fromDir) throws Exception {
+    public InputStream readFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception {
         if (!cwd(fromDir)) {
             logger.error("readFile.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());
             throw new IOException("Ftp error: " + client.getReplyCode());
@@ -260,7 +263,7 @@ public class FtpConnection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, InputStream is) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
         cdmake(toDir);
 
         if (append) {
