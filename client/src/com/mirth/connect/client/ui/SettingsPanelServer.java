@@ -417,8 +417,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
                 final JCheckBox deployChannelsCheckBox = new JCheckBox("Deploy all channels after import");
                 deployChannelsCheckBox.setSelected(true);
+                final JCheckBox overwriteConfigMap = new JCheckBox("Overwrite Configuration Map");
+                overwriteConfigMap.setSelected(false);
                 String warningMessage = "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels,\nalerts, server properties, and plugin properties.\n";
-                Object[] params = { warningMessage, new JLabel(" "), deployChannelsCheckBox };
+                Object[] params = { warningMessage, new JLabel(" "), deployChannelsCheckBox, overwriteConfigMap };
                 int option = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_OPTION);
 
                 if (option == JOptionPane.YES_OPTION) {
@@ -435,7 +437,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
                         public Void doInBackground() {
                             try {
-                                getFrame().mirthClient.setServerConfiguration(configuration, deployChannelsCheckBox.isSelected());
+                                getFrame().mirthClient.setServerConfiguration(configuration, deployChannelsCheckBox.isSelected(), overwriteConfigMap.isSelected());
                                 getFrame().channelPanel.clearChannelCache();
                                 doRefresh();
                                 getFrame().alertInformation(SettingsPanelServer.this, "Your configuration was successfully restored.");

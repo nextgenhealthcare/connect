@@ -168,9 +168,9 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
     }
 
     @Override
-    public void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy) {
+    public void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy, boolean saveConfigMap) {
         try {
-            configurationController.setServerConfiguration(serverConfiguration, deploy);
+            configurationController.setServerConfiguration(serverConfiguration, deploy, saveConfigMap);
         } catch (Exception e) {
             throw new MirthApiException(e);
         }

@@ -111,7 +111,7 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/configuration")
-    @ApiOperation("Returns a ServerConfiguration object which contains all of the channels, users, alerts and properties stored on the Mirth Connect server.")
+    @ApiOperation("Returns a ServerConfiguration object which contains all of the channels, alerts, configuration map, and properties stored on the Mirth Connect server.")
     @MirthOperation(name = "getServerConfiguration", display = "Get server configuration", permission = Permissions.SERVER_CONFIGURATION_BACKUP)
     public ServerConfiguration getServerConfiguration(// @formatter:off
             @Param("initialState") @ApiParam(value = "The initial state to set all channels in the configuration to.", allowableValues = "STARTED, PAUSED, STOPPED") @QueryParam("initialState") DeployedState initialState,
@@ -124,7 +124,8 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @MirthOperation(name = "setServerConfiguration", display = "Set server configuration", permission = Permissions.SERVER_CONFIGURATION_RESTORE, type = ExecuteType.ASYNC)
     public void setServerConfiguration(// @formatter:off
             @Param("serverConfiguration") @ApiParam(value = "The ServerConfiguration object containing all channels, users, alerts, and properties to update.", required = true) ServerConfiguration serverConfiguration,
-            @Param("deploy") @ApiParam(value = "If true, all enabled channels will be deployed after the configuration is restored.", defaultValue = "false") @QueryParam(value = "deploy") boolean deploy) throws ClientException;
+            @Param("deploy") @ApiParam(value = "If true, all enabled channels will be deployed after the configuration is restored.", defaultValue = "false") @QueryParam(value = "deploy") boolean deploy,
+            @Param("saveConfigMap") @ApiParam(value = "If true, overwrite the Configuration Map", defaultValue = "false") @QueryParam(value = "saveConfigMap") boolean saveConfigMap) throws ClientException;
     // @formatter:on
 
     @GET
