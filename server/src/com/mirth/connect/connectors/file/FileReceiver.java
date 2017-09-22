@@ -125,7 +125,10 @@ public class FileReceiver extends PollConnector {
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
             String host = replacer.replaceValues(connectorProperties.getHost(), channelId, channelName);
 
-            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties().clone();
+            SchemeProperties schemeProperties = null;
+            if (connectorProperties.getSchemeProperties() != null) {
+                schemeProperties = connectorProperties.getSchemeProperties().clone();
+            }
 
             if (schemeProperties instanceof SftpSchemeProperties) {
                 SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
@@ -182,7 +185,10 @@ public class FileReceiver extends PollConnector {
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
             filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), channelId, channelName);
 
-            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties().clone();
+            SchemeProperties schemeProperties = null;
+            if (connectorProperties.getSchemeProperties() != null) {
+                schemeProperties = connectorProperties.getSchemeProperties().clone();
+            }
 
             if (schemeProperties instanceof SftpSchemeProperties) {
                 SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
