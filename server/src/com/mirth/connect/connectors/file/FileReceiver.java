@@ -125,7 +125,10 @@ public class FileReceiver extends PollConnector {
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
             String host = replacer.replaceValues(connectorProperties.getHost(), channelId, channelName);
 
-            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties().clone();
+            SchemeProperties schemeProperties = null;
+            if (connectorProperties.getSchemeProperties() != null) {
+                schemeProperties = connectorProperties.getSchemeProperties().clone();
+            }
 
             if (schemeProperties instanceof SftpSchemeProperties) {
                 SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
@@ -141,7 +144,7 @@ public class FileReceiver extends PollConnector {
                 s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
-            URI uri = FileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
+            URI uri = fileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
 
             fileSystemOptions = new FileSystemConnectionOptions(uri, connectorProperties.isAnonymous(), username, password, schemeProperties);
             FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
@@ -182,7 +185,10 @@ public class FileReceiver extends PollConnector {
             String password = replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName);
             filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), channelId, channelName);
 
-            SchemeProperties schemeProperties = connectorProperties.getSchemeProperties().clone();
+            SchemeProperties schemeProperties = null;
+            if (connectorProperties.getSchemeProperties() != null) {
+                schemeProperties = connectorProperties.getSchemeProperties().clone();
+            }
 
             if (schemeProperties instanceof SftpSchemeProperties) {
                 SftpSchemeProperties sftpProperties = (SftpSchemeProperties) schemeProperties;
@@ -198,7 +204,7 @@ public class FileReceiver extends PollConnector {
                 s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
-            URI uri = FileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
+            URI uri = fileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
             String readDir = fileConnector.getPathPart(uri);
 
             fileSystemOptions = new FileSystemConnectionOptions(uri, connectorProperties.isAnonymous(), username, password, schemeProperties);

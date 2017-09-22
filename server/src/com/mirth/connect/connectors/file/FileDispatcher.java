@@ -146,7 +146,7 @@ public class FileDispatcher extends DestinationConnector {
         InputStream is = null;
 
         try {
-            uri = FileConnector.getEndpointURI(fileDispatcherProperties.getHost(), fileDispatcherProperties.getScheme(), fileDispatcherProperties.getSchemeProperties(), fileDispatcherProperties.isSecure());
+            uri = fileConnector.getEndpointURI(fileDispatcherProperties.getHost(), fileDispatcherProperties.getScheme(), fileDispatcherProperties.getSchemeProperties(), fileDispatcherProperties.isSecure());
             String filename = fileDispatcherProperties.getOutputPattern();
 
             if (filename == null) {
