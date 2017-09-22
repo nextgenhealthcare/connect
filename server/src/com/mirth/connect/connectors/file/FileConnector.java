@@ -39,7 +39,6 @@ public class FileConnector {
 
     private String channelId;
     private FileScheme scheme;
-    private SchemeProperties schemeProperties;
     private String timeout;
     private boolean passive;
     private boolean secure;
@@ -51,7 +50,6 @@ public class FileConnector {
         if (connectorProperties instanceof FileReceiverProperties) {
             FileReceiverProperties fileReceiverProperties = (FileReceiverProperties) connectorProperties;
             this.scheme = fileReceiverProperties.getScheme();
-            this.schemeProperties = fileReceiverProperties.getSchemeProperties();
             this.timeout = fileReceiverProperties.getTimeout();
             this.passive = fileReceiverProperties.isPassive();
             this.secure = fileReceiverProperties.isSecure();
@@ -59,7 +57,6 @@ public class FileConnector {
         } else if (connectorProperties instanceof FileDispatcherProperties) {
             FileDispatcherProperties fileDispatcherProperties = (FileDispatcherProperties) connectorProperties;
             this.scheme = fileDispatcherProperties.getScheme();
-            this.schemeProperties = fileDispatcherProperties.getSchemeProperties();
             this.timeout = fileDispatcherProperties.getTimeout();
             this.passive = fileDispatcherProperties.isPassive();
             this.secure = fileDispatcherProperties.isSecure();
@@ -286,10 +283,6 @@ public class FileConnector {
         this.outputStream = outputStream;
     }
 
-    protected URI getEndpointURI(String host) throws URISyntaxException {
-        return getEndpointURI(host, scheme, schemeProperties, secure);
-    }
-    
     public static URI getEndpointURI(String host, FileScheme scheme, SchemeProperties schemeProperties, boolean isSecure) throws URISyntaxException {
         StringBuilder sspBuilder = new StringBuilder();
 
