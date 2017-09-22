@@ -283,7 +283,7 @@ public class FileConnector {
         this.outputStream = outputStream;
     }
 
-    public static URI getEndpointURI(String host, FileScheme scheme, SchemeProperties schemeProperties, boolean isSecure) throws URISyntaxException {
+    public URI getEndpointURI(String host, FileScheme scheme, SchemeProperties schemeProperties, boolean isSecure) throws URISyntaxException {
         StringBuilder sspBuilder = new StringBuilder();
 
         sspBuilder.append("//");

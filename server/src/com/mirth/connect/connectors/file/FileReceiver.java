@@ -144,7 +144,7 @@ public class FileReceiver extends PollConnector {
                 s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
-            URI uri = FileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
+            URI uri = fileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
 
             fileSystemOptions = new FileSystemConnectionOptions(uri, connectorProperties.isAnonymous(), username, password, schemeProperties);
             FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
@@ -204,7 +204,7 @@ public class FileReceiver extends PollConnector {
                 s3Properties.setCustomHeaders(replacer.replaceKeysAndValuesInMap(s3Properties.getCustomHeaders(), channelId, channelName));
             }
 
-            URI uri = FileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
+            URI uri = fileConnector.getEndpointURI(host, connectorProperties.getScheme(), schemeProperties, connectorProperties.isSecure());
             String readDir = fileConnector.getPathPart(uri);
 
             fileSystemOptions = new FileSystemConnectionOptions(uri, connectorProperties.isAnonymous(), username, password, schemeProperties);
