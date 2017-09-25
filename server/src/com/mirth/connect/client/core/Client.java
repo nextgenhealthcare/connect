@@ -38,7 +38,6 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Configuration;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -581,8 +580,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ConfigurationServletInterface#setServerConfiguration
      */
     @Override
-    public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy, boolean saveConfigMap) throws ClientException {
-        getServlet(ConfigurationServletInterface.class).setServerConfiguration(serverConfiguration, deploy, saveConfigMap);
+    public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy, boolean overwriteConfigMap) throws ClientException {
+        getServlet(ConfigurationServletInterface.class).setServerConfiguration(serverConfiguration, deploy, overwriteConfigMap);
     }
 
     /**

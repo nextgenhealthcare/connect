@@ -764,16 +764,26 @@ public class CommandLineInterface {
 
         String path = arguments[1].getText();
         File fXml = new File(path);
+
         boolean deploy = true;
-        if (arguments.length >= 3 && arguments[2] == Token.NODEPLOY) {
-            deploy = false;
-        }
         boolean overwriteConfigMap = false;
-        if (arguments.length >= 3 && arguments[3] == Token.OVERWRITECONFIGMAP) {
-        	overwriteConfigMap = true;
+
+        if (arguments.length >= 3) {
+            if (arguments[2] == Token.NODEPLOY) {
+                deploy = false;
+            } else if (arguments[2] == Token.OVERWRITECONFIGMAP) {
+                overwriteConfigMap = true;
+            }
+
+            if (arguments.length >= 4) {
+                if (arguments[3] == Token.NODEPLOY) {
+                    deploy = false;
+                } else if (arguments[3] == Token.OVERWRITECONFIGMAP) {
+                    overwriteConfigMap = true;
+                }
+            }
         }
-        
-        
+
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
         try {
