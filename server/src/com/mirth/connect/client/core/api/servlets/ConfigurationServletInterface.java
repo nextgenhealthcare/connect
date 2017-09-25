@@ -125,7 +125,7 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     public void setServerConfiguration(// @formatter:off
             @Param("serverConfiguration") @ApiParam(value = "The ServerConfiguration object containing all channels, users, alerts, and properties to update.", required = true) ServerConfiguration serverConfiguration,
             @Param("deploy") @ApiParam(value = "If true, all enabled channels will be deployed after the configuration is restored.", defaultValue = "false") @QueryParam(value = "deploy") boolean deploy,
-            @Param("saveConfigMap") @ApiParam(value = "If true, overwrite the Configuration Map", defaultValue = "false") @QueryParam(value = "saveConfigMap") boolean saveConfigMap) throws ClientException;
+            @Param("overwriteConfigMap") @ApiParam(value = "If true, overwrite the Configuration Map", defaultValue = "false") @QueryParam(value = "overwriteConfigMap") boolean overwriteConfigMap) throws ClientException;
     // @formatter:on
 
     @GET
