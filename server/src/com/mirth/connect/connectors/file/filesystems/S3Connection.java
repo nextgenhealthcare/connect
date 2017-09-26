@@ -186,7 +186,7 @@ public class S3Connection implements FileSystemConnection {
 
         if (fileSystemOptions.isAnonymous()) {
             return new AWSStaticCredentialsProvider(new AnonymousAWSCredentials());
-        } else if (schemeProps.isUseDefaultCredentialProviderChain()) {
+        } else if (schemeProps.isUseDefaultCredentialProviderChain() && StringUtils.isBlank(fileSystemOptions.getUsername()) && StringUtils.isBlank(fileSystemOptions.getPassword())) {
             return new DefaultAWSCredentialsProviderChain();
         } else {
             return new AWSStaticCredentialsProvider(new BasicAWSCredentials(fileSystemOptions.getUsername(), fileSystemOptions.getPassword()));
