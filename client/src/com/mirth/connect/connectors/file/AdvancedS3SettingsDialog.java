@@ -192,7 +192,7 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
 
         durationField.setBackground(null);
         if (useTemporaryCredentialsYesRadio.isSelected()) {
-            if (useTemporaryCredentialsYesRadio.isSelected() && StringUtils.isEmpty(durationField.getText())) {
+            if (StringUtils.isEmpty(durationField.getText())) {
                 valid = false;
                 errors += "Duration cannot be blank.\n";
                 durationField.setBackground(UIConstants.INVALID_COLOR);
