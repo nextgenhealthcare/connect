@@ -31,7 +31,7 @@ public class S3SchemeProperties extends SchemeProperties {
 
     public S3SchemeProperties() {
         useDefaultCredentialProviderChain = true;
-        useTemporaryCredentials = true;
+        useTemporaryCredentials = false;
         duration = 7200;
         region = Regions.DEFAULT_REGION.getName();
         customHeaders = new LinkedHashMap<String, List<String>>();
