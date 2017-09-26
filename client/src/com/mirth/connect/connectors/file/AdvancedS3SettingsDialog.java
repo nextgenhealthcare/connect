@@ -39,6 +39,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -52,8 +54,6 @@ import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
-
-import net.miginfocom.swing.MigLayout;
 
 public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
 
@@ -190,12 +190,21 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
 
         String errors = "";
 
-        if (useTemporaryCredentialsYesRadio.isSelected() && StringUtils.isEmpty(durationField.getText())) {
-            valid = false;
-            errors += "Duration cannot be blank.\n";
-            durationField.setBackground(UIConstants.INVALID_COLOR);
-        } else {
-            durationField.setBackground(null);
+        durationField.setBackground(null);
+        if (useTemporaryCredentialsYesRadio.isSelected()) {
+            if (StringUtils.isBlank(durationField.getText())) {
+                valid = false;
+                errors += "Duration cannot be blank.\n";
+                durationField.setBackground(UIConstants.INVALID_COLOR);
+            } else {
+                int duration = NumberUtils.toInt(durationField.getText(), 0);
+
+                if (duration < 900 || duration > 129600) {
+                    valid = false;
+                    errors += "Duration must be between 900 seconds (15 minutes) and 129600 seconds (36 hours).\n";
+                    durationField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
         }
 
         if (StringUtils.isBlank(regionField.getText())) {
@@ -268,7 +277,7 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
         durationLabel = new JLabel("Duration (seconds):");
         durationField = new JTextField();
         durationField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        durationField.setToolTipText("The duration that the temporary credentials are valid.");
+        durationField.setToolTipText("<html>The duration that the temporary credentials are valid. Must be<br/>between 900 seconds (15 minutes) and 129600 seconds (36 hours).</html>");
 
         regionLabel = new JLabel("Region:");
 
