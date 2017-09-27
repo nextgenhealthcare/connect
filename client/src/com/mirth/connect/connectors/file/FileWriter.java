@@ -22,8 +22,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
@@ -41,6 +39,8 @@ import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
+
+import net.miginfocom.swing.MigLayout;
 
 public class FileWriter extends ConnectorSettingsPanel {
 
@@ -305,7 +305,7 @@ public class FileWriter extends ConnectorSettingsPanel {
                 fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (props.getScheme() != FileScheme.S3 && !props.isAnonymous()) {
+        if (!props.isAnonymous() && (props.getScheme() != FileScheme.S3 || !((S3SchemeProperties) props.getSchemeProperties()).isUseDefaultCredentialProviderChain())) {
             if (props.getUsername().length() == 0) {
                 valid = false;
                 if (highlight) {

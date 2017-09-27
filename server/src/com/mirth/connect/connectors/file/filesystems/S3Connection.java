@@ -135,12 +135,13 @@ public class S3Connection implements FileSystemConnection {
     }
 
     private Logger logger = Logger.getLogger(getClass());
-    private FileSystemConnectionOptions fileSystemOptions;
-    private S3SchemeProperties schemeProps;
-    private AmazonS3ClientBuilder clientBuilder;
-    private AmazonS3 client;
-    private AWSSecurityTokenService sts;
-    private int stsDuration;
+
+    FileSystemConnectionOptions fileSystemOptions;
+    S3SchemeProperties schemeProps;
+    AmazonS3ClientBuilder clientBuilder;
+    AmazonS3 client;
+    AWSSecurityTokenService sts;
+    int stsDuration;
 
     public S3Connection(FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
         this.fileSystemOptions = fileSystemOptions;
@@ -303,7 +304,7 @@ public class S3Connection implements FileSystemConnection {
         }
     }
 
-    private List<FileInfo> doListFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
+    List<FileInfo> doListFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
         String filePrefix = null;
 
         FilenameFilter filenameFilter;
@@ -367,7 +368,7 @@ public class S3Connection implements FileSystemConnection {
         }
     }
 
-    private List<String> doListDirectories(String fromDir) throws Exception {
+    List<String> doListDirectories(String fromDir) throws Exception {
         List<String> directories = new ArrayList<String>();
         AmazonS3 client = getClient();
 
@@ -401,7 +402,7 @@ public class S3Connection implements FileSystemConnection {
         }
     }
 
-    private boolean doExists(String file, String path) throws Exception {
+    boolean doExists(String file, String path) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(path);
@@ -426,7 +427,7 @@ public class S3Connection implements FileSystemConnection {
         }
     }
 
-    private InputStream doReadFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception {
+    InputStream doReadFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
@@ -466,7 +467,7 @@ public class S3Connection implements FileSystemConnection {
         }
     }
 
-    private void doWriteFile(String file, String toDir, boolean append, InputStream message, Map<String, Object> connectorMap) throws Exception {
+    void doWriteFile(String file, String toDir, boolean append, InputStream message, Map<String, Object> connectorMap) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(toDir);
@@ -505,7 +506,7 @@ public class S3Connection implements FileSystemConnection {
         }
     }
 
-    private void doDelete(String file, String fromDir, boolean mayNotExist) throws Exception {
+    void doDelete(String file, String fromDir, boolean mayNotExist) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
@@ -536,7 +537,7 @@ public class S3Connection implements FileSystemConnection {
         }
     }
 
-    private void doMove(String fromName, String fromDir, String toName, String toDir) throws Exception {
+    void doMove(String fromName, String fromDir, String toName, String toDir) throws Exception {
         AmazonS3 client = getClient();
 
         Pair<String, String> fromBucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
