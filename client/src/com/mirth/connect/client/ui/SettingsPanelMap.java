@@ -63,7 +63,11 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         if (PlatformUI.MIRTH_FRAME.alertRefresh()) {
             return;
         }
-
+    	// close any open cell editor before refreshing
+    	if (this.configurationMapTable.getCellEditor() != null) {
+    		this.configurationMapTable.getCellEditor().stopCellEditing();
+    	}
+    	
         final String workingId = getFrame().startWorking("Loading " + getTabName() + " settings...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -93,6 +97,11 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     }
 
     public boolean doSave() {
+    	// close any open cell editor before saving
+    	if (this.configurationMapTable.getCellEditor() != null) {
+    		this.configurationMapTable.getCellEditor().stopCellEditing();
+    	}
+    	
         final Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
         RefreshTableModel model = (RefreshTableModel) configurationMapTable.getModel();
         for (int i = 0; i < model.getRowCount(); i++) {
@@ -137,6 +146,11 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     }
 
     public void doImportMap() {
+    	// close any open cell editor before importing
+    	if (this.configurationMapTable.getCellEditor() != null) {
+    		this.configurationMapTable.getCellEditor().stopCellEditing();
+    	}
+    	
         File file = getFrame().browseForFile("PROPERTIES");
 
         if (file != null) {
@@ -166,6 +180,11 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     }
 
     public void doExportMap() {
+    	// close any open cell editor
+    	if (this.configurationMapTable.getCellEditor() != null) {
+    		this.configurationMapTable.getCellEditor().stopCellEditing();
+    	}
+    	
         if (isSaveEnabled()) {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings first?");
 
@@ -265,7 +284,6 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
 
         };
         configurationMapTable.getColumnExt("Key").setCellEditor(cellEditor);
-        configurationMapTable.getColumnExt("Value").setCellEditor(cellEditor);
         configurationMapTable.getColumnExt("Comment").setCellEditor(cellEditor);
         configurationMapTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent evt) {
