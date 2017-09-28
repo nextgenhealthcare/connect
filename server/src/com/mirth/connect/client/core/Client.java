@@ -560,7 +560,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ConfigurationServletInterface#getServerConfiguration
      */
     public ServerConfiguration getServerConfiguration() throws ClientException {
-        return getServlet(ConfigurationServletInterface.class).getServerConfiguration(null, false);
+        return getServlet(ConfigurationServletInterface.class).getServerConfiguration(null, false, false);
     }
 
     /**
@@ -570,8 +570,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ConfigurationServletInterface#getServerConfiguration
      */
     @Override
-    public ServerConfiguration getServerConfiguration(DeployedState initialState, boolean pollingOnly) throws ClientException {
-        return getServlet(ConfigurationServletInterface.class).getServerConfiguration(initialState, pollingOnly);
+    public ServerConfiguration getServerConfiguration(DeployedState initialState, boolean pollingOnly, boolean disableAlerts) throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getServerConfiguration(initialState, pollingOnly, disableAlerts);
     }
 
     /**

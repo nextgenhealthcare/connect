@@ -46,6 +46,7 @@ import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
+import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.api.DontCheckAuthorized;
 import com.mirth.connect.server.api.MirthServlet;
@@ -142,7 +143,7 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
     }
 
     @Override
-    public ServerConfiguration getServerConfiguration(DeployedState initialState, boolean pollingOnly) {
+    public ServerConfiguration getServerConfiguration(DeployedState initialState, boolean pollingOnly, boolean disableAlerts) {
         if (initialState != null && initialState != DeployedState.STARTED && initialState != DeployedState.PAUSED && initialState != DeployedState.STOPPED) {
             throw new MirthApiException("Initial state cannot be set to " + initialState + ".");
         }
@@ -150,13 +151,21 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
         try {
             ServerConfiguration config = configurationController.getServerConfiguration();
 
-            if (initialState != null) {
+            if (initialState != null || disableAlerts) {
                 // Avoid messing with any in-memory objects on the server
                 config = serializer.deserialize(serializer.serialize(config), ServerConfiguration.class);
 
-                for (Channel channel : config.getChannels()) {
-                    if (!pollingOnly || ArrayUtils.contains(channel.getSourceConnector().getProperties().getClass().getInterfaces(), PollConnectorPropertiesInterface.class)) {
-                        channel.getProperties().setInitialState(initialState);
+                if (initialState != null) {
+                    for (Channel channel : config.getChannels()) {
+                        if (!pollingOnly || ArrayUtils.contains(channel.getSourceConnector().getProperties().getClass().getInterfaces(), PollConnectorPropertiesInterface.class)) {
+                            channel.getProperties().setInitialState(initialState);
+                        }
+                    }
+                }
+
+                if (disableAlerts) {
+                    for (AlertModel alert : config.getAlerts()) {
+                        alert.setEnabled(false);
                     }
                 }
             }
