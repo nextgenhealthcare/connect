@@ -78,6 +78,10 @@ public class DefaultAlertWorker extends AlertWorker {
 
     @Override
     protected void processEvent(Event event) {
+        if (!accept(event)) {
+            return;
+        }
+
         if (event instanceof ErrorEvent) {
             ErrorEvent errorEvent = (ErrorEvent) event;
             String channelId = errorEvent.getChannelId();
@@ -140,9 +144,9 @@ public class DefaultAlertWorker extends AlertWorker {
                         context.put("error", fullErrorMessage);
                         context.put("errorMessage", (errorEvent.getThrowable() == null) ? "No exception message." : errorEvent.getThrowable().getMessage());
                         context.put("errorType", errorEvent.getType());
-						if (errorEvent.getMessageId() != null) {
-							context.put("messageId", errorEvent.getMessageId());
-						}
+                        if (errorEvent.getMessageId() != null) {
+                            context.put("messageId", errorEvent.getMessageId());
+                        }
 
                         triggerAction(alert, context);
                     }
