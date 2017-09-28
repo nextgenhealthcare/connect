@@ -80,10 +80,12 @@ public class PluginMetaDataConverter extends ReflectionConverter {
         // Extract class metadata
         String className = stringElement.getTextContent();
         String weight = stringElement.getAttribute("weight");
+        String conditionClass = stringElement.getAttribute("conditionClass");
 
         // Clear node attributes and value
         stringElement.setTextContent(null);
         stringElement.removeAttribute("weight");
+        stringElement.removeAttribute("conditionClass");
 
         // Update node name
         stringElement.setNodeName("pluginClass");
@@ -92,6 +94,9 @@ public class PluginMetaDataConverter extends ReflectionConverter {
         // Add the plugin weight if it exists.
         if (StringUtils.isNotBlank(weight)) {
             stringElement.addChildElement("weight", weight);
+        }
+        if (StringUtils.isNotBlank(conditionClass)) {
+            stringElement.addChildElement("conditionClass", conditionClass);
         }
     }
 }

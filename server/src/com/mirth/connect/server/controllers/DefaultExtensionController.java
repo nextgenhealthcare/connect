@@ -58,6 +58,7 @@ import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginClass;
+import com.mirth.connect.model.PluginClassCondition;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.AuthorizationPlugin;
@@ -202,15 +203,28 @@ public class DefaultExtensionController extends ExtensionController {
                     for (PluginClass pluginClass : pmd.getServerClasses()) {
                         String clazzName = pluginClass.getName();
                         int weight = pluginClass.getWeight();
-                        pluginNameMap.put(clazzName, pmd.getName());
+                        String conditionClass = pluginClass.getConditionClass();
 
-                        List<String> classList = weightedPlugins.get(weight);
-                        if (classList == null) {
-                            classList = new ArrayList<String>();
-                            weightedPlugins.put(weight, classList);
+                        boolean accept = true;
+                        if (StringUtils.isNotBlank(conditionClass)) {
+                            try {
+                                accept = ((PluginClassCondition) Class.forName(conditionClass).newInstance()).accept(pluginClass);
+                            } catch (Exception e) {
+                                logger.warn("Error instantiating plugin condition class \"" + conditionClass + "\".");
+                            }
                         }
 
-                        classList.add(clazzName);
+                        if (accept) {
+                            pluginNameMap.put(clazzName, pmd.getName());
+
+                            List<String> classList = weightedPlugins.get(weight);
+                            if (classList == null) {
+                                classList = new ArrayList<String>();
+                                weightedPlugins.put(weight, classList);
+                            }
+
+                            classList.add(clazzName);
+                        }
                     }
                 }
             } else {
