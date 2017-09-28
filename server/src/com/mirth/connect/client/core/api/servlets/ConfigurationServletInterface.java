@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +45,10 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Path("/server")
 @Api("Server Configuration")
@@ -115,7 +115,8 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getServerConfiguration", display = "Get server configuration", permission = Permissions.SERVER_CONFIGURATION_BACKUP)
     public ServerConfiguration getServerConfiguration(// @formatter:off
             @Param("initialState") @ApiParam(value = "The initial state to set all channels in the configuration to.", allowableValues = "STARTED, PAUSED, STOPPED") @QueryParam("initialState") DeployedState initialState,
-            @Param("pollingOnly") @ApiParam(value = "If true, and the initialState parameter is set, only channels with polling source connectors will have their initial states overwritten in the returned server configuration.") @QueryParam("pollingOnly") boolean pollingOnly) throws ClientException;
+            @Param("pollingOnly") @ApiParam(value = "If true, and the initialState parameter is set, only channels with polling source connectors will have their initial states overwritten in the returned server configuration.") @QueryParam("pollingOnly") boolean pollingOnly,
+            @Param("disableAlerts") @ApiParam(value = "If true, all alerts returned in the server configuration will be disabled.") @QueryParam("disableAlerts") boolean disableAlerts) throws ClientException;
     // @formatter:on
 
     @PUT
