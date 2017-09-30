@@ -489,7 +489,7 @@ public class JavaScriptUtil {
                 contextFactory = contextFactoryController.getGlobalScriptContextFactory();
 
                 if (!contextFactory.getId().equals(globalScriptContextFactoryId)) {
-                    ControllerFactory.getFactory().createScriptController().compileGlobalScripts(contextFactory);
+                    ControllerFactory.getFactory().createScriptController().compileGlobalScripts(contextFactory, false);
                     globalScriptContextFactoryId = contextFactory.getId();
                 }
             }

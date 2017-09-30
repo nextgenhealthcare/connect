@@ -116,7 +116,7 @@ public abstract class ScriptController extends Controller {
 
     public abstract void setGlobalScripts(Map<String, String> scripts) throws ControllerException;
 
-    public abstract void compileGlobalScripts(MirthContextFactory contextFactory);
+    public abstract void compileGlobalScripts(MirthContextFactory contextFactory, boolean multiServer);
 
     public abstract void compileChannelScripts(MirthContextFactory contextFactory, Channel channel) throws ScriptCompileException;
 
