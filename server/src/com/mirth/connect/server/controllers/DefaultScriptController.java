@@ -112,7 +112,7 @@ public class DefaultScriptController extends ScriptController {
 
     // Non-database actions
     @Override
-    public void compileGlobalScripts(MirthContextFactory contextFactory, boolean startup) {
+    public void compileGlobalScripts(MirthContextFactory contextFactory, boolean multiServer) {
         Map<String, String> globalScripts = null;
 
         try {
@@ -197,7 +197,7 @@ public class DefaultScriptController extends ScriptController {
         putGlobalScriptsToDB(scripts);
 
         try {
-            compileGlobalScripts(ControllerFactory.getFactory().createContextFactoryController().getGlobalScriptContextFactory(), false);
+            compileGlobalScripts(ControllerFactory.getFactory().createContextFactoryController().getGlobalScriptContextFactory(), true);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
