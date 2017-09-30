@@ -289,7 +289,7 @@ public class Mirth extends Thread {
                 logger.warn("Unable to initialize global script context factory.", e);
                 contextFactory = contextFactoryController.getGlobalContextFactory();
             }
-            scriptController.compileGlobalScripts(contextFactory);
+            scriptController.compileGlobalScripts(contextFactory, true);
 
             if (configurationController.isStartupDeploy()) {
                 engineController.startupDeploy();

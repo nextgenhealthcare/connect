@@ -433,7 +433,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             }
 
             // Re-compile the global scripts
-            scriptController.compileGlobalScripts(contextFactoryController.getGlobalScriptContextFactory());
+            scriptController.compileGlobalScripts(contextFactoryController.getGlobalScriptContextFactory(), false);
 
             return true;
         } catch (Exception e) {
@@ -465,7 +465,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             }
 
             // Re-compile the global scripts
-            scriptController.compileGlobalScripts(contextFactoryController.getGlobalScriptContextFactory());
+            scriptController.compileGlobalScripts(contextFactoryController.getGlobalScriptContextFactory(), false);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
