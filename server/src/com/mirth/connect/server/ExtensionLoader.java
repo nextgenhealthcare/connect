@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginClass;
+import com.mirth.connect.model.PluginClassCondition;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.tools.ClassPathResource;
@@ -68,7 +69,7 @@ public final class ExtensionLoader {
         loadExtensions();
         return connectorProtocolsMap;
     }
-    
+
     public Map<String, MetaData> getInvalidMetaData() {
         loadExtensions();
         return invalidMetaDataMap;
@@ -84,15 +85,27 @@ public final class ExtensionLoader {
 
             if (controllerClasses != null) {
                 for (PluginClass controllerClassModel : controllerClasses) {
-                    try {
-                        Class<?> pluginClass = Class.forName(controllerClassModel.getName());
-
-                        if (abstractClass.isAssignableFrom(pluginClass) && (highestPluginClassModel == null || highestPluginClassModel.getWeight() < controllerClassModel.getWeight())) {
-                            highestPluginClassModel = controllerClassModel;
-                            overrideClass = (Class<T>) pluginClass;
+                    boolean accept = true;
+                    String conditionClass = controllerClassModel.getConditionClass();
+                    if (StringUtils.isNotBlank(conditionClass)) {
+                        try {
+                            accept = ((PluginClassCondition) Class.forName(conditionClass).newInstance()).accept(controllerClassModel);
+                        } catch (Exception e) {
+                            logger.warn("Error instantiating plugin condition class \"" + conditionClass + "\".");
                         }
-                    } catch (Exception e) {
-                        logger.error("An error occurred while attempting to load \"" + controllerClassModel.getName() + "\" from plugin: " + pluginMetaData.getName(), e);
+                    }
+
+                    if (accept) {
+                        try {
+                            Class<?> pluginClass = Class.forName(controllerClassModel.getName());
+
+                            if (abstractClass.isAssignableFrom(pluginClass) && (highestPluginClassModel == null || highestPluginClassModel.getWeight() < controllerClassModel.getWeight())) {
+                                highestPluginClassModel = controllerClassModel;
+                                overrideClass = (Class<T>) pluginClass;
+                            }
+                        } catch (Exception e) {
+                            logger.error("An error occurred while attempting to load \"" + controllerClassModel.getName() + "\" from plugin: " + pluginMetaData.getName(), e);
+                        }
                     }
                 }
             }
@@ -154,8 +167,8 @@ public final class ExtensionLoader {
         if (!loadedExtensions) {
             try {
                 // match all of the file names for the extension
-                IOFileFilter nameFileFilter = new NameFileFilter(new String[] {
-                        "plugin.xml", "source.xml", "destination.xml" });
+                IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml",
+                        "source.xml", "destination.xml" });
                 // this is probably not needed, but we dont want to pick up directories,
                 // so we AND the two filters
                 IOFileFilter andFileFilter = new AndFileFilter(nameFileFilter, FileFilterUtils.fileFileFilter());
