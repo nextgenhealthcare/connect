@@ -18,6 +18,7 @@ public class PluginClass {
 
     private String name;
     private int weight;
+    private String conditionClass;
 
     public String getName() {
         return name;
@@ -33,6 +34,14 @@ public class PluginClass {
 
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    public String getConditionClass() {
+        return conditionClass;
+    }
+
+    public void setConditionClass(String conditionClass) {
+        this.conditionClass = conditionClass;
     }
 
     @Override

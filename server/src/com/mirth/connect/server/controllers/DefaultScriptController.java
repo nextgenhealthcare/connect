@@ -29,7 +29,7 @@ public class DefaultScriptController extends ScriptController {
     private Logger logger = Logger.getLogger(this.getClass());
     private static ScriptController instance = null;
 
-    private DefaultScriptController() {
+    protected DefaultScriptController() {
 
     }
 
@@ -112,7 +112,7 @@ public class DefaultScriptController extends ScriptController {
 
     // Non-database actions
     @Override
-    public void compileGlobalScripts(MirthContextFactory contextFactory) {
+    public void compileGlobalScripts(MirthContextFactory contextFactory, boolean multiServer) {
         Map<String, String> globalScripts = null;
 
         try {
@@ -194,14 +194,18 @@ public class DefaultScriptController extends ScriptController {
 
     @Override
     public void setGlobalScripts(Map<String, String> scripts) throws ControllerException {
-        for (Entry<String, String> entry : scripts.entrySet()) {
-            putScript(GLOBAL_GROUP_ID, entry.getKey().toString(), scripts.get(entry.getKey()));
-        }
+        putGlobalScriptsToDB(scripts);
 
         try {
-            compileGlobalScripts(ControllerFactory.getFactory().createContextFactoryController().getGlobalScriptContextFactory());
+            compileGlobalScripts(ControllerFactory.getFactory().createContextFactoryController().getGlobalScriptContextFactory(), true);
         } catch (Exception e) {
             throw new ControllerException(e);
+        }
+    }
+    
+    protected void putGlobalScriptsToDB(Map<String, String> scripts) throws ControllerException {
+        for (Entry<String, String> entry : scripts.entrySet()) {
+            putScript(GLOBAL_GROUP_ID, entry.getKey().toString(), scripts.get(entry.getKey()));
         }
     }
 }
