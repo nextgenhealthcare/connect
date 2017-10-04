@@ -68,6 +68,10 @@ public class DefaultAlertWorker extends AlertWorker {
 
     @Override
     protected void triggerAction(Alert alert, Map<String, Object> context) {
+        if (!acceptAlertAction(alert, context)) {
+            return;
+        }
+
         for (AlertActionGroup actionGroup : alert.getModel().getActionGroups()) {
             if (CollectionUtils.isNotEmpty(actionGroup.getActions())) {
                 actionExecutor.submit(new ActionTask(alert.getModel().getId(), actionGroup, context));
@@ -78,10 +82,6 @@ public class DefaultAlertWorker extends AlertWorker {
 
     @Override
     protected void processEvent(Event event) {
-        if (!accept(event)) {
-            return;
-        }
-
         if (event instanceof ErrorEvent) {
             ErrorEvent errorEvent = (ErrorEvent) event;
             String channelId = errorEvent.getChannelId();

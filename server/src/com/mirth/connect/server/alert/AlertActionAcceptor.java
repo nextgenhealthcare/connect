@@ -7,11 +7,11 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.event;
+package com.mirth.connect.server.alert;
 
-import com.mirth.connect.donkey.model.event.Event;
+import java.util.Map;
 
-public interface EventAcceptor {
+public interface AlertActionAcceptor {
 
-    public boolean accept(Event event);
+    public boolean acceptAlertAction(Alert alert, Map<String, Object> context);
 }

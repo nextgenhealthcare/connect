@@ -27,7 +27,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
@@ -39,12 +38,11 @@ import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
-import com.mirth.connect.server.event.EventAcceptor;
 import com.mirth.connect.server.event.EventListener;
 import com.mirth.connect.server.util.ServerSMTPConnectionFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
-public abstract class AlertWorker extends EventListener implements EventAcceptor {
+public abstract class AlertWorker extends EventListener implements AlertActionAcceptor {
     private static final String DEFAULT_SUBJECT = "Mirth Connect Alert";
 
     protected Logger logger = Logger.getLogger(this.getClass());
@@ -55,17 +53,17 @@ public abstract class AlertWorker extends EventListener implements EventAcceptor
 
     private AlertController alertController;
     private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
-    private List<EventAcceptor> eventAcceptors;
+    private List<AlertActionAcceptor> alertActionAcceptors;
 
     public AlertWorker() {
         super();
 
         for (ServerPlugin serverPlugin : extensionController.getServerPlugins()) {
-            if (serverPlugin instanceof EventAcceptor) {
-                if (eventAcceptors == null) {
-                    eventAcceptors = new ArrayList<EventAcceptor>();
+            if (serverPlugin instanceof AlertActionAcceptor) {
+                if (alertActionAcceptors == null) {
+                    alertActionAcceptors = new ArrayList<AlertActionAcceptor>();
                 }
-                eventAcceptors.add((EventAcceptor) serverPlugin);
+                alertActionAcceptors.add((AlertActionAcceptor) serverPlugin);
             }
         }
     }
@@ -102,10 +100,10 @@ public abstract class AlertWorker extends EventListener implements EventAcceptor
     }
 
     @Override
-    public boolean accept(Event event) {
-        if (CollectionUtils.isNotEmpty(eventAcceptors)) {
-            for (EventAcceptor acceptor : eventAcceptors) {
-                if (!acceptor.accept(event)) {
+    public boolean acceptAlertAction(Alert alert, Map<String, Object> context) {
+        if (CollectionUtils.isNotEmpty(alertActionAcceptors)) {
+            for (AlertActionAcceptor acceptor : alertActionAcceptors) {
+                if (!acceptor.acceptAlertAction(alert, context)) {
                     return false;
                 }
             }
