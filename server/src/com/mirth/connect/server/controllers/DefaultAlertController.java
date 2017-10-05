@@ -41,7 +41,7 @@ public class DefaultAlertController extends AlertController {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private Map<String, Protocol> alertActionProtocols = new LinkedHashMap<String, Protocol>();
 
-    private DefaultAlertController() {
+    protected DefaultAlertController() {
         addWorker(new DefaultAlertWorker());
         registerAlertActionProtocol(new EmailProtocol());
         registerAlertActionProtocol(new ChannelProtocol());
