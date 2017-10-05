@@ -68,6 +68,10 @@ public class DefaultAlertWorker extends AlertWorker {
 
     @Override
     protected void triggerAction(Alert alert, Map<String, Object> context) {
+        if (!acceptAlertAction(alert, context)) {
+            return;
+        }
+
         for (AlertActionGroup actionGroup : alert.getModel().getActionGroups()) {
             if (CollectionUtils.isNotEmpty(actionGroup.getActions())) {
                 actionExecutor.submit(new ActionTask(alert.getModel().getId(), actionGroup, context));
@@ -140,9 +144,9 @@ public class DefaultAlertWorker extends AlertWorker {
                         context.put("error", fullErrorMessage);
                         context.put("errorMessage", (errorEvent.getThrowable() == null) ? "No exception message." : errorEvent.getThrowable().getMessage());
                         context.put("errorType", errorEvent.getType());
-						if (errorEvent.getMessageId() != null) {
-							context.put("messageId", errorEvent.getMessageId());
-						}
+                        if (errorEvent.getMessageId() != null) {
+                            context.put("messageId", errorEvent.getMessageId());
+                        }
 
                         triggerAction(alert, context);
                     }

@@ -32,27 +32,37 @@ import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
+import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.server.alert.action.Protocol;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.event.EventListener;
 import com.mirth.connect.server.util.ServerSMTPConnectionFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
-public abstract class AlertWorker extends EventListener {
+public abstract class AlertWorker extends EventListener implements AlertActionAcceptor {
     private static final String DEFAULT_SUBJECT = "Mirth Connect Alert";
 
     protected Logger logger = Logger.getLogger(this.getClass());
     protected ExecutorService actionExecutor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     protected Map<String, Alert> enabledAlerts = new ConcurrentHashMap<String, Alert>();
     protected EventController eventController = ControllerFactory.getFactory().createEventController();
+    protected ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
     private AlertController alertController;
     private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
+    private List<AlertActionAcceptor> alertActionAcceptors = new ArrayList<AlertActionAcceptor>();
 
     public AlertWorker() {
         super();
+
+        for (ServerPlugin serverPlugin : extensionController.getServerPlugins()) {
+            if (serverPlugin instanceof AlertActionAcceptor) {
+                alertActionAcceptors.add((AlertActionAcceptor) serverPlugin);
+            }
+        }
     }
 
     public void enableAlert(AlertModel alertModel) {
@@ -84,6 +94,16 @@ public abstract class AlertWorker extends EventListener {
 
     public Alert getEnabledAlert(String alertId) {
         return enabledAlerts.get(alertId);
+    }
+
+    @Override
+    public boolean acceptAlertAction(Alert alert, Map<String, Object> context) {
+        for (AlertActionAcceptor acceptor : alertActionAcceptors) {
+            if (!acceptor.acceptAlertAction(alert, context)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected abstract void alertEnabled(Alert alert);
@@ -146,7 +166,7 @@ public abstract class AlertWorker extends EventListener {
                         recipients.add(recipient);
                     }
                 }
-                
+
                 if (alertController == null) {
                     alertController = ControllerFactory.getFactory().createAlertController();
                 }
