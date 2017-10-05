@@ -53,16 +53,13 @@ public abstract class AlertWorker extends EventListener implements AlertActionAc
 
     private AlertController alertController;
     private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
-    private List<AlertActionAcceptor> alertActionAcceptors;
+    private List<AlertActionAcceptor> alertActionAcceptors = new ArrayList<AlertActionAcceptor>();
 
     public AlertWorker() {
         super();
 
         for (ServerPlugin serverPlugin : extensionController.getServerPlugins()) {
             if (serverPlugin instanceof AlertActionAcceptor) {
-                if (alertActionAcceptors == null) {
-                    alertActionAcceptors = new ArrayList<AlertActionAcceptor>();
-                }
                 alertActionAcceptors.add((AlertActionAcceptor) serverPlugin);
             }
         }
@@ -101,11 +98,9 @@ public abstract class AlertWorker extends EventListener implements AlertActionAc
 
     @Override
     public boolean acceptAlertAction(Alert alert, Map<String, Object> context) {
-        if (CollectionUtils.isNotEmpty(alertActionAcceptors)) {
-            for (AlertActionAcceptor acceptor : alertActionAcceptors) {
-                if (!acceptor.acceptAlertAction(alert, context)) {
-                    return false;
-                }
+        for (AlertActionAcceptor acceptor : alertActionAcceptors) {
+            if (!acceptor.acceptAlertAction(alert, context)) {
+                return false;
             }
         }
         return true;
