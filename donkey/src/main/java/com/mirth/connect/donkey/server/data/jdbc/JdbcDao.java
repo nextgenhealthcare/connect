@@ -1012,12 +1012,49 @@ public class JdbcDao implements DonkeyDao {
         logger.debug(channelId + ": deleting all messages");
 
         try {
+            // delete tables without constraints
             cascadeMessageDelete("deleteAllMessagesCascadeAttachments", channelId);
             cascadeMessageDelete("deleteAllMessagesCascadeMetadata", channelId);
             cascadeMessageDelete("deleteAllMessagesCascadeContent", channelId);
+            
+            // remove constraints so truncate can execute 
+            if (querySource.queryExists("dropConstraintMessageContentTable")) {
+                prepareStatement("dropConstraintMessageContentTable", channelId).executeUpdate();
+            }
+            if (querySource.queryExists("dropConstraintMessageCustomMetaDataTable")) {
+                prepareStatement("dropConstraintMessageCustomMetaDataTable", channelId).executeUpdate();
+            }
+            
+            // delete
             cascadeMessageDelete("deleteAllMessagesCascadeConnectorMessage", channelId);
+            
+            // re-add constraints
+            if (querySource.queryExists("addConstraintMessageCustomMetaDataTable")) {
+                prepareStatement("addConstraintMessageCustomMetaDataTable", channelId).executeUpdate();
+            }
+            if (querySource.queryExists("addConstraintMessageContentTable")) {
+                prepareStatement("addConstraintMessageContentTable", channelId).executeUpdate();
+            }
 
+            //  remove constraints so truncate can execute
+            if (querySource.queryExists("dropConstraintConnectorMessageTable")) {
+                prepareStatement("dropConstraintConnectorMessageTable", channelId).executeUpdate();
+            }
+            if (querySource.queryExists("dropConstraintAttachmentTable")) {
+                prepareStatement("dropConstraintAttachmentTable", channelId).executeUpdate();
+            }
+            
+            // delete
             prepareStatement("deleteAllMessages", channelId).executeUpdate();
+            
+            // re-add constraints
+            if (querySource.queryExists("addConstraintAttachmentTable")) {
+                prepareStatement("addConstraintAttachmentTable", channelId).executeUpdate();
+            }
+            if (querySource.queryExists("addConstraintConnectorMessageTable")) {
+                prepareStatement("addConstraintConnectorMessageTable", channelId).executeUpdate();
+            }
+            
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }

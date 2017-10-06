@@ -206,12 +206,44 @@
 		WHERE ID = ?
 	</query>
 	
+	<query id="dropConstraintConnectorMessageTable">
+		ALTER TABLE D_MM${localChannelId} DROP CONSTRAINT D_MM${localChannelId}_FKEY
+	</query>
+
+	<query id="addConstraintConnectorMessageTable">
+		ALTER TABLE D_MM${localChannelId} ADD CONSTRAINT D_MM${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID) REFERENCES D_M${localChannelId}(ID) ON DELETE CASCADE
+	</query>
+	
+	<query id="dropConstraintAttachmentTable">
+		ALTER TABLE D_MA${localChannelId} DROP CONSTRAINT D_MA${localChannelId}_FKEY
+	</query>
+
+	<query id="addConstraintAttachmentTable">
+		ALTER TABLE D_MA${localChannelId} ADD CONSTRAINT D_MA${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID) REFERENCES D_M${localChannelId}(ID) ON DELETE CASCADE
+	</query>
+	
+	<query id="dropConstraintMessageContentTable">
+		ALTER TABLE D_MC${localChannelId} DROP CONSTRAINT D_MC${localChannelId}_FKEY
+	</query>
+	
+	<query id="addConstraintMessageContentTable">
+		ALTER TABLE D_MC${localChannelId} ADD CONSTRAINT D_MC${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID, METADATA_ID) REFERENCES D_MM${localChannelId}(MESSAGE_ID, ID) ON DELETE CASCADE
+	</query>
+	
+	<query id="dropConstraintMessageCustomMetaDataTable">
+		ALTER TABLE D_MCM${localChannelId} DROP CONSTRAINT D_MCM${localChannelId}_FKEY		
+	</query>
+	
+	<query id="addConstraintMessageCustomMetaDataTable">
+		ALTER TABLE D_MCM${localChannelId} ADD CONSTRAINT D_MCM${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID, METADATA_ID) REFERENCES D_MM${localChannelId}(MESSAGE_ID, ID) ON DELETE CASCADE
+	</query>
+	
 	<query id="deleteAllMessages">
-        DELETE FROM D_M${localChannelId}
+        TRUNCATE TABLE D_M${localChannelId}
 	</query>
 	
 	<query id="deleteAllMessagesCascadeConnectorMessage">
-		DELETE FROM D_MM${localChannelId}
+		TRUNCATE TABLE D_MM${localChannelId}
 	</query>
 	
 	<query id="deleteAllMessagesCascadeContent">
