@@ -866,10 +866,12 @@
 			<fileset dir="${lib.extensions}/serverlog" />
 		</copy>
 		<jar destfile="${plugins.serverlog}/serverlog-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/serverlog/ServerLogItem.class" />
 			<include name="com/mirth/connect/plugins/serverlog/ServerLogServletInterface.class" />
 		</jar>
 		<jar destfile="${plugins.serverlog}/serverlog-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/serverlog/**" />
+			<exclude name="com/mirth/connect/plugins/serverlog/ServerLogItem.class" />
 			<exclude name="com/mirth/connect/plugins/serverlog/ServerLogServletInterface.class" />
 		</jar>
 

@@ -11,20 +11,22 @@ package com.mirth.connect.plugins.serverlog;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
-import java.util.LinkedList;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.Operation.ExecuteType;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
+import com.mirth.connect.client.core.api.Param;
 
 @Path("/extensions/serverlog")
 @Api("Extension Services")
@@ -37,13 +39,10 @@ public interface ServerLogServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/")
-    @ApiOperation("Retrieves all server log entries.")
+    @ApiOperation("Retrieves server log entries.")
     @MirthOperation(name = "getMirthServerLogs", display = "View Server Log", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public LinkedList<String[]> getServerLogs() throws ClientException;
-
-    @POST
-    @Path("/_stop")
-    @ApiOperation("Tells the server to stop tracking server log entries for the current session.")
-    @MirthOperation(name = "removeSessionId", display = "Stop Server Log Session", type = ExecuteType.ASYNC, auditable = false)
-    public boolean stopSession() throws ClientException;
+    public List<ServerLogItem> getServerLogs(// @formatter:off
+            @Param("fetchSize") @ApiParam(value = "Specifies the maximum number of log items to return.", required = true, defaultValue = "100") @QueryParam("fetchSize") int fetchSize,
+            @Param("lastLogId") @ApiParam(value = "The last log ID the client retrieved. Only log items with a greater ID will be returned.") @QueryParam("lastLogId") Long lastLogId) throws ClientException;
+    // @formatter:on
 }

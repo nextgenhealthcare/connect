@@ -9,7 +9,7 @@
 
 package com.mirth.connect.plugins.serverlog;
 
-import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -27,12 +27,7 @@ public class ServerLogServlet extends MirthServlet implements ServerLogServletIn
     }
 
     @Override
-    public LinkedList<String[]> getServerLogs() {
-        return provider.getServerLogs(getSessionId());
-    }
-
-    @Override
-    public boolean stopSession() {
-        return provider.stopSession(getSessionId());
+    public List<ServerLogItem> getServerLogs(int fetchSize, Long lastLogId) {
+        return provider.getServerLogs(fetchSize, lastLogId);
     }
 }

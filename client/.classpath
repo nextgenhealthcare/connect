@@ -85,6 +85,7 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/rulebuilder/RuleBuilderRule$Condition"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/scriptfilerule/ExternalScriptRule"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/scriptfilestep/ExternalScriptStep"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/serverlog/ServerLogItem"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/serverlog/ServerLogServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/xsltstep/XsltStep"/>
 			<accessrule kind="nonaccessible" pattern="*/**"/>
