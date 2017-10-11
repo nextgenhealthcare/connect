@@ -28,6 +28,8 @@ public class ServerLogItem implements Serializable {
     private String message;
     private String throwableInformation;
 
+    public ServerLogItem() {}
+
     public ServerLogItem(String message) {
         this(null, null, null, null, null, null, message, null);
     }
