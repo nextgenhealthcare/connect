@@ -17,9 +17,11 @@ import javax.swing.JComponent;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ForbiddenException;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardTabPlugin;
+import com.mirth.connect.plugins.DashboardTablePlugin;
 
 public class ServerLogClient extends DashboardTabPlugin {
     private ServerLogPanel serverLogPanel;
@@ -28,6 +30,7 @@ public class ServerLogClient extends DashboardTabPlugin {
     private int currentServerLogSize;
     private boolean receivedNewLogs;
     private Long lastLogId;
+    private String currentServerId;
 
     public ServerLogClient(String name) {
         super(name);
@@ -113,7 +116,20 @@ public class ServerLogClient extends DashboardTabPlugin {
     // used for setting actions to be called for updating when there is no status selected
     @Override
     public void update() {
-        if (!serverLogPanel.isPaused() && receivedNewLogs) {
+        boolean serverIdChanged = false;
+        String serverId = null;
+        for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
+            serverId = plugin.getServerId();
+            if (serverId != null) {
+                break;
+            }
+        }
+        if (currentServerId != serverId) {
+            currentServerId = serverId;
+            serverIdChanged = true;
+        }
+
+        if (!serverLogPanel.isPaused() && (receivedNewLogs || serverIdChanged)) {
             // for mirth.log, channel being selected does not matter. display either way.
             serverLogPanel.updateTable(serverLogs);
         }
