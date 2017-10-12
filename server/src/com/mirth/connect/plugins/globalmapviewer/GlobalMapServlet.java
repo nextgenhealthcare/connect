@@ -9,7 +9,6 @@
 
 package com.mirth.connect.plugins.globalmapviewer;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,48 +18,35 @@ import javax.ws.rs.core.SecurityContext;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.api.MirthApiException;
-import com.mirth.connect.donkey.util.MapUtil;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.api.CheckAuthorizedChannelId;
 import com.mirth.connect.server.api.MirthServlet;
-import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
-import com.mirth.connect.server.util.GlobalVariableStore;
 
 public class GlobalMapServlet extends MirthServlet implements GlobalMapServletInterface {
 
-    private static final ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+    private static final GlobalMapController globalMapController = GlobalMapController.getInstance();
 
     public GlobalMapServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc, PLUGIN_POINT);
     }
 
     @Override
-    public Map<String, String> getAllMaps(Set<String> channelIds, boolean includeGlobalMap) throws ClientException {
+    public Map<String, Map<String, String>> getAllMaps(Set<String> channelIds, boolean includeGlobalMap) throws ClientException {
         try {
-            Map<String, String> serializedMaps = new HashMap<String, String>();
-
-            if (includeGlobalMap) {
-                serializedMaps.put(null, MapUtil.serializeMap(serializer, new HashMap<String, Object>(GlobalVariableStore.getInstance().getVariables())));
-            }
-            for (String channelId : channelIds) {
-                serializedMaps.put(channelId, MapUtil.serializeMap(serializer, new HashMap<String, Object>(GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables())));
-            }
-
-            return serializedMaps;
+            return globalMapController.getAllMaps(channelIds, includeGlobalMap);
         } catch (Exception e) {
             throw new MirthApiException(e);
         }
     }
 
     @Override
-    public Map<String, String> getAllMapsPost(Set<String> channelIds, boolean includeGlobalMap) throws ClientException {
+    public Map<String, Map<String, String>> getAllMapsPost(Set<String> channelIds, boolean includeGlobalMap) throws ClientException {
         return getAllMaps(channelIds, includeGlobalMap);
     }
 
     @Override
     public String getGlobalMap() throws ClientException {
         try {
-            return MapUtil.serializeMap(serializer, new HashMap<String, Object>(GlobalVariableStore.getInstance().getVariables()));
+            return globalMapController.getGlobalMap();
         } catch (Exception e) {
             throw new MirthApiException(e);
         }
@@ -70,7 +56,7 @@ public class GlobalMapServlet extends MirthServlet implements GlobalMapServletIn
     @CheckAuthorizedChannelId
     public String getGlobalChannelMap(String channelId) throws ClientException {
         try {
-            return MapUtil.serializeMap(serializer, new HashMap<String, Object>(GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables()));
+            return globalMapController.getGlobalChannelMap(channelId);
         } catch (Exception e) {
             throw new MirthApiException(e);
         }
