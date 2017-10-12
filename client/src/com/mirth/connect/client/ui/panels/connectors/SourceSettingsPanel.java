@@ -321,7 +321,7 @@ public class SourceSettingsPanel extends JPanel {
         queueWarningLabel.setForeground(Color.RED);
 
         queueBufferSizeLabel = new JLabel("Queue Buffer Size:");
-        queueBufferSizeField = new JTextField();
+        queueBufferSizeField = new MirthTextField();
         queueBufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         queueBufferSizeField.setToolTipText("<html>The buffer size for the source queue.<br/>Up to this many connector messages may<br/>be held in memory at once when queuing.</html>");
 
