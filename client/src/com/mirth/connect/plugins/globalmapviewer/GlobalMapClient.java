@@ -63,6 +63,11 @@ public class GlobalMapClient extends DashboardTabPlugin {
         final Set<String> channelIds = new HashSet<String>();
         // Use this map to look up channel names from channel Ids
         final Map<String, String> channelNameMap = new HashMap<String, String>();
+        /*
+         * We can't just use a final String here because it's set inside the invokeAndWait call and
+         * it's illegal to set a final local field of an enclosing class. So instead we just use a
+         * Set and add a single element.
+         */
         final Set<String> selectedServer = new HashSet<String>();
 
         // Determine which global channel maps to retrieve
