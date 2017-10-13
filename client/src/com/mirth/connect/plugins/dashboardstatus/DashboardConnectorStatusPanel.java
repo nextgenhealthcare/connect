@@ -253,17 +253,16 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
      * This method won't be called when it's in the PAUSED state.
      * @param channelLogs
      */
-    public synchronized void updateTable(LinkedList<String[]> channelLogs) {
+    public synchronized void updateTable(LinkedList<ConnectionLogItem> channelLogs) {
         Object[][] tableData;
         if (channelLogs != null) {
             tableData = new Object[channelLogs.size()][6];
             int tableSize = 0;
             for (int i = 0; i < channelLogs.size(); i++) {
-                String[] row = channelLogs.get(i);
+                ConnectionLogItem logItem = channelLogs.get(i);
                 
-                String channelId = row[6];
-                String metaDataIdString = row[7];
-                Integer metaDataId = Integer.parseInt(metaDataIdString);
+                String channelId = logItem.getChannelId();
+                Integer metaDataId = logItem.getMetadataId().intValue();
                 
                 // If there are multiple selected channels defined (not null), then 
                 // check to make sure this channel log row is one of those channels.
@@ -284,38 +283,38 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                 if (addRow) {
                     tableSize++;
 
-                    tableData[i][0] = row[0];       // Id (hidden)
-                    tableData[i][1] = row[2];       // Timestamp
-                    tableData[i][2] = row[1];       // Channel Name (hidden when viewing a specific channel)
-                    tableData[i][3] = row[3];       // Connector Info
+                    tableData[i][0] = logItem.getLogId();       	// Id (hidden)
+                    tableData[i][1] = logItem.getDateAdded();       // Timestamp
+                    tableData[i][2] = logItem.getChannelName();   	// Channel Name (hidden when viewing a specific channel)
+                    tableData[i][3] = logItem.getConnectorType();   // Connector Info
 
-                    if (row[4].equalsIgnoreCase("IDLE")) {
+                    if (logItem.getEventState().equalsIgnoreCase("IDLE")) {
                         tableData[i][4] = new CellData(yellowBullet, "Idle");
-                    } else if (row[4].equalsIgnoreCase("READING")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("READING")) {
                         tableData[i][4] = new CellData(greenBullet, "Reading");
-                    } else if (row[4].equalsIgnoreCase("WRITING")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("WRITING")) {
                         tableData[i][4] = new CellData(greenBullet, "Writing");
-                    } else if (row[4].equalsIgnoreCase("POLLING")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("POLLING")) {
                         tableData[i][4] = new CellData(greenBullet, "Polling");
-                    } else if (row[4].equalsIgnoreCase("RECEIVING")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("RECEIVING")) {
                         tableData[i][4] = new CellData(greenBullet, "Receiving");
-                    } else if (row[4].equalsIgnoreCase("SENDING")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("SENDING")) {
                         tableData[i][4] = new CellData(greenBullet, "Sending");
-                    } else if (row[4].equalsIgnoreCase("WAITING FOR RESPONSE")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("WAITING FOR RESPONSE")) {
                         tableData[i][4] = new CellData(yellowBullet, "Waiting for Response");
-                    } else if (row[4].equalsIgnoreCase("CONNECTED")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("CONNECTED")) {
                         tableData[i][4] = new CellData(greenBullet, "Connected");
-                    } else if (row[4].equalsIgnoreCase("CONNECTING")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("CONNECTING")) {
                         tableData[i][4] = new CellData(yellowBullet, "Connecting");
-                    } else if (row[4].equalsIgnoreCase("DISCONNECTED")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("DISCONNECTED")) {
                         tableData[i][4] = new CellData(redBullet, "Disconnected");
-                    } else if (row[4].equalsIgnoreCase("INFO")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("INFO")) {
                         tableData[i][4] = new CellData(blueBullet, "Info");
-                    } else if (row[4].equalsIgnoreCase("FAILURE")) {
+                    } else if (logItem.getEventState().equalsIgnoreCase("FAILURE")) {
                         tableData[i][4] = new CellData(blackBullet, "Failure");
                     }
 
-                    tableData[i][5] = row[5];       // Infomation
+                    tableData[i][5] = logItem.getInformation();       // Infomation
                 }
             }
 

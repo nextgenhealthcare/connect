@@ -25,14 +25,19 @@ import com.mirth.connect.plugins.DashboardTabPlugin;
 public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     private DashboardConnectorStatusPanel dcsp;
     private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
-    private ConcurrentHashMap<String, LinkedList<String[]>> connectorInfoLogs;
+    private static final int FETCH_SIZE = 999; 
+    private ConcurrentHashMap<String, LinkedList<ConnectionLogItem>> connectorInfoLogs;
     private int currentDashboardLogSize;
     private String selectedChannelId;
+    private boolean shouldResetLogs;
+    private Map<String, Long> lastLogIdByChannelId;
 
     /** Creates a new instance of DashboardConnectorStatusClient */
     public DashboardConnectorStatusClient(String name) {
         super(name);
-        connectorInfoLogs = new ConcurrentHashMap<String, LinkedList<String[]>>();
+        shouldResetLogs = true;
+        lastLogIdByChannelId = new ConcurrentHashMap<>();
+        connectorInfoLogs = new ConcurrentHashMap<>();
         dcsp = new DashboardConnectorStatusPanel(this);
         currentDashboardLogSize = dcsp.getCurrentDashboardLogSize();
     }
@@ -60,7 +65,7 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
         // update (refresh) log only if the new logsize got smaller.
         if (newDashboardLogSize < currentDashboardLogSize) {
             // get the currentChannelLog
-            LinkedList<String[]> newChannelLog = connectorInfoLogs.get(selectedChannel);
+            LinkedList<ConnectionLogItem> newChannelLog = connectorInfoLogs.get(selectedChannel);
             // if log size got reduced...  remove that much extra LastRows.
             synchronized (this) {
                 while (newDashboardLogSize < newChannelLog.size()) {
@@ -93,12 +98,11 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
             status = statuses.get(0);
         }
 
-        boolean channelsDeployed = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).startSession();
-
-        if (channelsDeployed) {
+        if (shouldResetLogs) {
             // clear out all the Dashboard Logs, and reset all the channel states to RESUMED.
             connectorInfoLogs.clear();
             dcsp.resetAllChannelStates();
+            shouldResetLogs = false;
         }
 
         // If there are more than one channels selected, use state: NO_CHANNEL_SELECTED
@@ -109,22 +113,24 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
             // channel is selected.
             selectedChannelId = status.getChannelId();
         }
+        
+        Long lastLogId = lastLogIdByChannelId.get(selectedChannelId);
 
         //get states from server only if the client's channel log is not in the paused state.
         if (!dcsp.isPaused(selectedChannelId)) {
-            LinkedList<String[]> connectionInfoLogsReceived = new LinkedList<String[]>();
+            LinkedList<ConnectionLogItem> connectionInfoLogsReceived = new LinkedList<>();
             try {
                 if (status == null) {
-                    connectionInfoLogsReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getAllChannelLogs();
+                    connectionInfoLogsReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getAllChannelLogs(FETCH_SIZE, lastLogId);
                 } else {
-                    connectionInfoLogsReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getChannelLog(selectedChannelId);
+                    connectionInfoLogsReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getChannelLog(selectedChannelId, FETCH_SIZE, lastLogId);
                 }
             } catch (ClientException e) {
                 parent.alertThrowable(parent, e, false);
             }
 
             // grab the channel's log from the HashMap, if not exist, create one.
-            LinkedList<String[]> channelLog = getChannelLog();
+            LinkedList<ConnectionLogItem> channelLog = getChannelLog();
 
             synchronized (this) {
                 for (int i = connectionInfoLogsReceived.size() - 1; i >= 0; i--) {
@@ -133,6 +139,8 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
                     }
                     channelLog.addFirst(connectionInfoLogsReceived.get(i));
                 }
+                
+                lastLogIdByChannelId.put(selectedChannelId, channelLog.getFirst().getLogId());
             }
             connectorInfoLogs.put(selectedChannelId, channelLog);
         }
@@ -194,13 +202,8 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     @Override
     public void reset() {
         clearLog(NO_CHANNEL_SELECTED);
-
-        // invoke method to remove everything involving this client's sessionId.
-        try {
-            PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).stopSession();
-        } catch (ClientException e) {
-            parent.alertThrowable(parent, e);
-        }
+        
+        shouldResetLogs = true;
     }
 
     @Override
@@ -208,11 +211,11 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
         return "Connection Log";
     }
 
-    private LinkedList<String[]> getChannelLog() {
+    private LinkedList<ConnectionLogItem> getChannelLog() {
         if (connectorInfoLogs.containsKey(selectedChannelId)) {
             return connectorInfoLogs.get(selectedChannelId);
         } else {
-            return new LinkedList<String[]>();
+            return new LinkedList<>();
         }
     }
 }
