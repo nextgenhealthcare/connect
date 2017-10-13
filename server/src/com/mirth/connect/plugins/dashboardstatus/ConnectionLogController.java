@@ -1,13 +1,11 @@
 package com.mirth.connect.plugins.dashboardstatus;
 
 import java.awt.Color;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.Event;
@@ -17,8 +15,6 @@ import com.mirth.connect.server.ExtensionLoader;
 
 public abstract class ConnectionLogController {
 	
-    private Map<String, Object[]> connectorStateMap = new ConcurrentHashMap<String, Object[]>();
-
 	private static ConnectionLogController instance = null;
 
     public static ConnectionLogController getInstance() {
@@ -35,8 +31,9 @@ public abstract class ConnectionLogController {
         }
     }
     
-    public abstract void processEvent(Event event);
-    public abstract LinkedList<ConnectionLogItem> getChannelLog(Object object, int fetchSize, Long lastLogId);
+    public abstract ConnectionLogItem processEvent(Event event);
+    public abstract LinkedList<ConnectionLogItem> getChannelLog(String channelId, int fetchSize, Long lastLogId);
+    public abstract Map<String, Object[]> getConnectorStateMap();
     
     public Set<EventType> getEventTypes() {
         Set<EventType> EventTypes = new HashSet<EventType>();
@@ -54,10 +51,6 @@ public abstract class ConnectionLogController {
         }
 
         return null;
-    }
-    
-    public Map<String, Object[]> getConnectorStateMap() {
-        return new HashMap<String, Object[]>(connectorStateMap);
     }
     
     public Color getColor(ConnectionStatusEventType type) {

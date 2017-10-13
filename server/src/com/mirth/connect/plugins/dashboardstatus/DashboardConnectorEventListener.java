@@ -44,8 +44,8 @@ public class DashboardConnectorEventListener extends EventListener {
         return logController.getConnectorStateMap();
     }
 
-    public synchronized LinkedList<ConnectionLogItem> getChannelLog(Object object, int fetchSize, Long lastLogId) {
-        return logController.getChannelLog(object, fetchSize, lastLogId);
+    public synchronized LinkedList<ConnectionLogItem> getChannelLog(String channelId, int fetchSize, Long lastLogId) {
+        return logController.getChannelLog(channelId, fetchSize, lastLogId);
     }
 
     public Color getColor(ConnectionStatusEventType type) {

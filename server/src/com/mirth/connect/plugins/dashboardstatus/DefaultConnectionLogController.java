@@ -3,6 +3,7 @@ package com.mirth.connect.plugins.dashboardstatus;
 import java.awt.Color;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +35,9 @@ public class DefaultConnectionLogController extends ConnectionLogController {
 	
 	
 	@Override
-    public void processEvent(Event event) {
+    public ConnectionLogItem processEvent(Event event) {
+		ConnectionLogItem connectionLogItem = null;
+		
         if (event instanceof ConnectionStatusEvent) {
             ConnectionStatusEvent connectionStatusEvent = (ConnectionStatusEvent) event;
             String channelId = connectionStatusEvent.getChannelId();
@@ -133,7 +136,7 @@ public class DefaultConnectionLogController extends ConnectionLogController {
                         channelLog.removeLast();
                     }
                     
-                    ConnectionLogItem connectionLogItem = new ConnectionLogItem(logId, null, channelId, metaDataId.longValue(), dateFormat.format(timestamp), 
+                    connectionLogItem = new ConnectionLogItem(logId, null, channelId, metaDataId.longValue(), dateFormat.format(timestamp), 
                     		channelName, connectorType, ((ConnectionStatusEvent) event).getState().toString(), information);
                     channelLog.addFirst(connectionLogItem);
 
@@ -150,31 +153,31 @@ public class DefaultConnectionLogController extends ConnectionLogController {
             }
 
         }
+        
+        return connectionLogItem;
     }
 	
 	@Override
-	public synchronized LinkedList<ConnectionLogItem> getChannelLog(Object object, int fetchSize, Long lastLogId) {
-        String channelName;
+	public synchronized LinkedList<ConnectionLogItem> getChannelLog(String channelId, int fetchSize, Long lastLogId) {
         LinkedList<ConnectionLogItem> channelLog;
 
-        if (object == null) {
+        if (channelId == null) {
             /*
              * object is null - no channel is selected. return the latest entire log entries of all
              * channels combined. ONLY new entries.
              */
-            channelName = "No Channel Selected";
+        	channelId = "No Channel Selected";
             channelLog = entireConnectorInfoLogs;
         } else {
             // object is not null - a channel is selected. return the latest
             // (LOG_SIZE) of that particular channel.
-            channelName = object.toString();
             // return only the newly added log entries for the client with
             // matching sessionId.
-            channelLog = connectorInfoLogs.get(channelName);
+            channelLog = connectorInfoLogs.get(channelId);
 
             if (channelLog == null) {
                 channelLog = new LinkedList<>();
-                connectorInfoLogs.put(channelName, channelLog);
+                connectorInfoLogs.put(channelId, channelLog);
             }
         }
 
@@ -211,4 +214,8 @@ public class DefaultConnectionLogController extends ConnectionLogController {
         return null;
     }
 	
+	@Override
+	public Map<String, Object[]> getConnectorStateMap() {
+        return new HashMap<String, Object[]>(connectorStateMap);
+    }
 }
