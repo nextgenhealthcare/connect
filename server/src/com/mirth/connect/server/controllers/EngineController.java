@@ -38,7 +38,7 @@ public interface EngineController {
 
     public List<ChannelFuture> submitTasks(List<ChannelTask> tasks, ChannelTaskHandler handler);
 
-    public void startupDeploy() throws StartException, StopException, InterruptedException;
+    public void startupDeploy(boolean deployChannels) throws StartException, StopException, InterruptedException;
 
     public void deployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler);
 
