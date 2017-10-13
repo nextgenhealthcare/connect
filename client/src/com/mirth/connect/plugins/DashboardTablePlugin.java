@@ -45,4 +45,8 @@ public abstract class DashboardTablePlugin extends DashboardPanelPlugin {
      * greater weight.
      */
     public void onDashboardInit(MirthTreeTable table) {}
+
+    public String getServerId() {
+        return null;
+    }
 }

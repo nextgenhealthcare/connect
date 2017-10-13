@@ -9,6 +9,8 @@
 
 package com.mirth.connect.plugins.serverlog;
 
+import java.util.Date;
+
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
@@ -29,19 +31,24 @@ public class ArrayAppender extends AppenderSkeleton {
             return;
         }
 
-        // get the complete stack trace, if applicable.
+        String level = String.valueOf(loggingEvent.getLevel());
+        Date date = new Date(loggingEvent.getTimeStamp());
+        String threadName = loggingEvent.getThreadName();
+        String category = loggingEvent.getLoggerName();
+        String lineNumber = loggingEvent.getLocationInformation().getLineNumber();
+        String message = String.valueOf(loggingEvent.getMessage());
+
+        String throwableInformation = null;
         if (loggingEvent.getThrowableStrRep() != null) {
             String[] completeLogTrace = loggingEvent.getThrowableStrRep();
             StringBuffer logText = new StringBuffer();
             for (String aCompleteLogTrace : completeLogTrace) {
                 logText.append(aCompleteLogTrace);
             }
-            // pass the new log message to ServerLogProvider.
-            serverLogProvider.newServerLogReceived(this.layout.format(loggingEvent) + logText.toString());
-        } else {
-            // pass the new log message to ServerLogProvider.
-            serverLogProvider.newServerLogReceived(this.layout.format(loggingEvent));
+            throwableInformation = logText.toString();
         }
+
+        serverLogProvider.newServerLogReceived(level, date, threadName, category, lineNumber, message, throwableInformation);
     }
 
     public boolean requiresLayout() {

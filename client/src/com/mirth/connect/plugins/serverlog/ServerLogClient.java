@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.serverlog;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,21 +17,24 @@ import javax.swing.JComponent;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ForbiddenException;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardTabPlugin;
+import com.mirth.connect.plugins.DashboardTablePlugin;
 
 public class ServerLogClient extends DashboardTabPlugin {
     private ServerLogPanel serverLogPanel;
-    private LinkedList<String[]> serverLogs;
-    private static final String[] unauthorizedLog = new String[] { "0",
-            "You are not authorized to view the server log." };
+    private LinkedList<ServerLogItem> serverLogs;
+    private static final ServerLogItem unauthorizedLog = new ServerLogItem("You are not authorized to view the server log.");
     private int currentServerLogSize;
     private boolean receivedNewLogs;
+    private Long lastLogId;
+    private String currentServerId;
 
     public ServerLogClient(String name) {
         super(name);
-        serverLogs = new LinkedList<String[]>();
+        serverLogs = new LinkedList<ServerLogItem>();
         serverLogPanel = new ServerLogPanel(this);
         currentServerLogSize = serverLogPanel.getCurrentServerLogSize();
     }
@@ -66,13 +70,13 @@ public class ServerLogClient extends DashboardTabPlugin {
         receivedNewLogs = false;
 
         if (!serverLogPanel.isPaused()) {
-            LinkedList<String[]> serverLogReceived = new LinkedList<String[]>();
+            List<ServerLogItem> serverLogReceived = new ArrayList<ServerLogItem>();
             //get logs from server
             try {
-                serverLogReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(ServerLogServletInterface.class).getServerLogs();
+                serverLogReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(ServerLogServletInterface.class).getServerLogs(currentServerLogSize, lastLogId);
             } catch (ClientException e) {
                 if (e instanceof ForbiddenException) {
-                    LinkedList<String[]> unauthorizedLogs = new LinkedList<String[]>();
+                    LinkedList<ServerLogItem> unauthorizedLogs = new LinkedList<ServerLogItem>();
                     // Add the unauthorized log message if it's not already there.
                     if (serverLogs.isEmpty() || !serverLogs.getLast().equals(unauthorizedLog)) {
                         unauthorizedLogs.add(unauthorizedLog);
@@ -86,6 +90,11 @@ public class ServerLogClient extends DashboardTabPlugin {
 
             if (serverLogReceived.size() > 0) {
                 receivedNewLogs = true;
+
+                ServerLogItem latestItem = serverLogReceived.get(0);
+                if (latestItem.getId() != null && latestItem.getId() > 0) {
+                    lastLogId = latestItem.getId();
+                }
 
                 synchronized (this) {
                     for (int i = serverLogReceived.size() - 1; i >= 0; i--) {
@@ -107,7 +116,20 @@ public class ServerLogClient extends DashboardTabPlugin {
     // used for setting actions to be called for updating when there is no status selected
     @Override
     public void update() {
-        if (!serverLogPanel.isPaused() && receivedNewLogs) {
+        boolean serverIdChanged = false;
+        String serverId = null;
+        for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
+            serverId = plugin.getServerId();
+            if (serverId != null) {
+                break;
+            }
+        }
+        if (currentServerId != serverId) {
+            currentServerId = serverId;
+            serverIdChanged = true;
+        }
+
+        if (!serverLogPanel.isPaused() && (receivedNewLogs || serverIdChanged)) {
             // for mirth.log, channel being selected does not matter. display either way.
             serverLogPanel.updateTable(serverLogs);
         }
@@ -140,17 +162,6 @@ public class ServerLogClient extends DashboardTabPlugin {
     @Override
     public void reset() {
         clearLog();
-
-        // invoke method to remove everything involving this client's sessionId.
-        try {
-            // FYI, method below returns a boolean value.
-            // returned 'true' - sessionId found and removed.
-            // returned 'false' - sessionId not found. - should never be this case.
-            // either way, the sessionId is gone.
-            PlatformUI.MIRTH_FRAME.mirthClient.getServlet(ServerLogServletInterface.class).stopSession();
-        } catch (ClientException e) {
-            parent.alertThrowable(parent, e);
-        }
     }
 
     @Override
