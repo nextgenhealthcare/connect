@@ -63,6 +63,7 @@ public interface DashboardConnectorStatusServletInterface extends BaseServletInt
     @ApiOperation("Retrieves connection logs for all channels.")
     @MirthOperation(name = "getConnectionInfoLogs", display = "Get channel connection logs", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public LinkedList<ConnectionLogItem> getAllChannelLogs(//@formatter:off
+    		@Param("serverId") @ApiParam(value = "The server ID to retrieve logs for. Logs for all servers are retrieved is this parameter is not specified.") @QueryParam("serverId") String serverId,
     		@Param("fetchSize") @ApiParam(value = "Specifies the maximum number of log items to return.", required = true, defaultValue = "100") @QueryParam("fetchSize") int fetchSize,
     		@Param("lastLogId") @ApiParam(value = "The last log ID the client retrieved. Only log items with a greater ID will be returned.") @QueryParam("lastLogId") Long lastLogId) throws ClientException;
     //@formatter:on
@@ -72,6 +73,7 @@ public interface DashboardConnectorStatusServletInterface extends BaseServletInt
     @ApiOperation("Retrieves connection logs for a specific channel.")
     @MirthOperation(name = "getConnectionInfoLogs", display = "Get channel connection logs", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public LinkedList<ConnectionLogItem> getChannelLog(// @formatter:off
+    		@Param("serverId") @ApiParam(value = "The server ID to retrieve logs for. Logs for all servers are retrieved is this parameter is not specified.") @QueryParam("serverId") String serverId,
     		@Param("channelId") @ApiParam(value = "The channel ID to retrieve logs for.", required = true) @PathParam("channelId") String channelId,
     		@Param("fetchSize") @ApiParam(value = "Specifies the maximum number of log items to return.", required = true, defaultValue = "100") @QueryParam("fetchSize") int fetchSize,
     		@Param("lastLogId") @ApiParam(value = "The last log ID the client retrieved. Only log items with a greater ID will be returned.") @QueryParam("lastLogId") Long lastLogId) throws ClientException;

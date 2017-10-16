@@ -158,7 +158,7 @@ public class DefaultConnectionLogController extends ConnectionLogController {
     }
 	
 	@Override
-	public synchronized LinkedList<ConnectionLogItem> getChannelLog(String channelId, int fetchSize, Long lastLogId) {
+	public synchronized LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId, int fetchSize, Long lastLogId) {
         LinkedList<ConnectionLogItem> channelLog;
 
         if (channelId == null) {

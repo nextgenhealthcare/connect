@@ -121,9 +121,9 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
             LinkedList<ConnectionLogItem> connectionInfoLogsReceived = new LinkedList<>();
             try {
                 if (status == null) {
-                    connectionInfoLogsReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getAllChannelLogs(FETCH_SIZE, lastLogId);
+                    connectionInfoLogsReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getAllChannelLogs(null, FETCH_SIZE, lastLogId);
                 } else {
-                    connectionInfoLogsReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getChannelLog(selectedChannelId, FETCH_SIZE, lastLogId);
+                    connectionInfoLogsReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getChannelLog(null, selectedChannelId, FETCH_SIZE, lastLogId);
                 }
             } catch (ClientException e) {
                 parent.alertThrowable(parent, e, false);

@@ -32,7 +32,7 @@ public abstract class ConnectionLogController {
     }
     
     public abstract ConnectionLogItem processEvent(Event event);
-    public abstract LinkedList<ConnectionLogItem> getChannelLog(String channelId, int fetchSize, Long lastLogId);
+    public abstract LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId, int fetchSize, Long lastLogId);
     public abstract Map<String, Object[]> getConnectorStateMap();
     
     public Set<EventType> getEventTypes() {
