@@ -15,7 +15,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.JMenuItem;
@@ -25,12 +27,14 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.plugins.DashboardTablePlugin;
 
 public class ServerLogPanel extends javax.swing.JPanel {
 
@@ -168,12 +172,25 @@ public class ServerLogPanel extends javax.swing.JPanel {
      */
     public synchronized void updateTable(LinkedList<ServerLogItem> serverLogs) {
         Object[][] tableData;
+
         if (serverLogs != null) {
-            tableData = new Object[serverLogs.size()][2];
-            for (int i = 0; i < serverLogs.size(); i++) {
-                tableData[i][0] = serverLogs.get(i).getId(); // Id (hidden) - used to keep track of which log entries are sent new.
-                tableData[i][1] = serverLogs.get(i); // Log Information
+            List<Object[]> dataList = new ArrayList<Object[]>();
+
+            String serverId = null;
+            for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
+                serverId = plugin.getServerId();
+                if (serverId != null) {
+                    break;
+                }
             }
+
+            for (ServerLogItem item : serverLogs) {
+                if (serverId == null || serverId.equals(item.getServerId())) {
+                    dataList.add(new Object[] { item.getId(), item });
+                }
+            }
+
+            tableData = dataList.toArray(new Object[dataList.size()][]);
         } else {
             tableData = new Object[0][2];
         }

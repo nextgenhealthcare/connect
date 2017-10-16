@@ -24,11 +24,13 @@ import org.apache.log4j.PatternLayout;
 import com.mirth.connect.client.core.api.util.OperationUtil;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.plugins.ServicePlugin;
+import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class ServerLogProvider implements ServicePlugin {
 
     private static long logId = 1;
 
+    private String serverId;
     private ServerLogController logController;
 
     @Override
@@ -43,6 +45,7 @@ public class ServerLogProvider implements ServicePlugin {
         arrayAppender.setLayout(patternLayout);
         patternLayout.activateOptions();
         Logger.getRootLogger().addAppender(arrayAppender);
+        serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
         logController = ServerLogController.getInstance();
     }
 
@@ -51,7 +54,7 @@ public class ServerLogProvider implements ServicePlugin {
     }
 
     public synchronized void newServerLogReceived(String level, Date date, String threadName, String category, String lineNumber, String message, String throwableInformation) {
-        logController.addLogItem(new ServerLogItem(logId, level, date, threadName, category, lineNumber, message, throwableInformation));
+        logController.addLogItem(new ServerLogItem(serverId, logId, level, date, threadName, category, lineNumber, message, throwableInformation));
         logId++;
     }
 

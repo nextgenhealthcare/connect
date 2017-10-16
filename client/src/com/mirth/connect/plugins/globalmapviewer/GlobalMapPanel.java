@@ -33,10 +33,16 @@ import com.mirth.connect.client.ui.components.MirthTable;
 
 public class GlobalMapPanel extends JPanel {
 
+    private static final int SERVER_ID_COLUMN = 0;
+    private static final int CHANNEL_COLUMN = 1;
+    private static final int KEY_COLUMN = 2;
+    private static final int VALUE_COLUMN = 3;
+
     public GlobalMapPanel() {
         initComponents();
     }
 
+    private String selectedServer;
     private String selectedMap;
     private String selectedVar;
 
@@ -51,8 +57,8 @@ public class GlobalMapPanel extends JPanel {
         mapTable.setEditable(false);
         mapTable.setFocusable(false);
         mapTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        mapTable.setModel(new RefreshTableModel(new String[][] {}, new String[] { "Channel", "Key",
-                "Value" }));
+        mapTable.setModel(new RefreshTableModel(new String[][] {}, new String[] { "Server Id",
+                "Channel", "Key", "Value" }));
         mapTable.addMouseListener(new MouseAdapter() {
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -62,7 +68,7 @@ public class GlobalMapPanel extends JPanel {
                 }
 
                 if (evt.getClickCount() >= 2) {
-                    new ViewContentDialog((String) mapTable.getModel().getValueAt(mapTable.convertRowIndexToModel(row), 2));
+                    new ViewContentDialog((String) mapTable.getModel().getValueAt(mapTable.convertRowIndexToModel(row), VALUE_COLUMN));
                 }
             }
         });
@@ -70,9 +76,11 @@ public class GlobalMapPanel extends JPanel {
         mapTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent event) {
                 if (mapTable.getSelectedRow() != -1) {
-                    selectedMap = (String) mapTable.getValueAt(mapTable.getSelectedRow(), 0);
-                    selectedVar = (String) mapTable.getValueAt(mapTable.getSelectedRow(), 1);
+                    selectedServer = (String) mapTable.getValueAt(mapTable.getSelectedRow(), SERVER_ID_COLUMN);
+                    selectedMap = (String) mapTable.getValueAt(mapTable.getSelectedRow(), CHANNEL_COLUMN);
+                    selectedVar = (String) mapTable.getValueAt(mapTable.getSelectedRow(), KEY_COLUMN);
                 } else {
+                    selectedServer = null;
                     selectedMap = null;
                     selectedVar = null;
                 }
@@ -97,6 +105,10 @@ public class GlobalMapPanel extends JPanel {
         if (selectedRow > 0 && selectedRow <= mapTable.getRowCount()) {
             mapTable.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
         }
+    }
+
+    public String getSelectedServer() {
+        return selectedServer;
     }
 
     public String getSelectedMap() {

@@ -19,6 +19,7 @@ public class ServerLogItem implements Serializable {
 
     public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss,SSS");
 
+    private String serverId;
     private Long id;
     private String level;
     private Date date;
@@ -31,10 +32,11 @@ public class ServerLogItem implements Serializable {
     public ServerLogItem() {}
 
     public ServerLogItem(String message) {
-        this(null, null, null, null, null, null, message, null);
+        this(null, null, null, null, null, null, null, message, null);
     }
 
-    public ServerLogItem(Long id, String level, Date date, String threadName, String category, String lineNumber, String message, String throwableInformation) {
+    public ServerLogItem(String serverId, Long id, String level, Date date, String threadName, String category, String lineNumber, String message, String throwableInformation) {
+        this.serverId = serverId;
         this.id = id;
         this.level = level;
         this.date = date;
@@ -43,6 +45,14 @@ public class ServerLogItem implements Serializable {
         this.lineNumber = lineNumber;
         this.message = message;
         this.throwableInformation = throwableInformation;
+    }
+
+    public String getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
     }
 
     public Long getId() {

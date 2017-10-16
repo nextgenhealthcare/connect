@@ -158,49 +158,62 @@ public class WebServiceReceiver extends SourceConnector {
 
         AcceptMessage acceptMessageWebService = null;
 
+        // Store the current context classloader so we can restore it later
+        ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
+
         try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
-            Class<?> clazz = Class.forName(replacer.replaceValues(connectorProperties.getClassName(), channelId, channelName), true, contextFactory.getApplicationClassLoader());
+            try {
+                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
 
-            if (clazz.getSuperclass().equals(AcceptMessage.class)) {
-                Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-                for (int i = 0; i < constructors.length; i++) {
-                    Class<?>[] parameters = constructors[i].getParameterTypes();
-                    if ((parameters.length == 1) && parameters[0].equals(this.getClass())) {
-                        acceptMessageWebService = (AcceptMessage) constructors[i].newInstance(new Object[] { this });
+                // Set the current thread context classloader in case custom web service classes need it 
+                Thread.currentThread().setContextClassLoader(contextFactory.getApplicationClassLoader());
+
+                Class<?> clazz = Class.forName(replacer.replaceValues(connectorProperties.getClassName(), channelId, channelName), true, contextFactory.getApplicationClassLoader());
+
+                if (clazz.getSuperclass().equals(AcceptMessage.class)) {
+                    Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+                    for (int i = 0; i < constructors.length; i++) {
+                        Class<?>[] parameters = constructors[i].getParameterTypes();
+                        if ((parameters.length == 1) && parameters[0].equals(this.getClass())) {
+                            acceptMessageWebService = (AcceptMessage) constructors[i].newInstance(new Object[] {
+                                    this });
+                        }
                     }
-                }
 
-                if (acceptMessageWebService == null) {
-                    logger.error("Custom web service class must implement the constructor: public AcceptMessage(WebServiceReceiver webServiceReceiver)");
+                    if (acceptMessageWebService == null) {
+                        logger.error("Custom web service class must implement the constructor: public AcceptMessage(WebServiceReceiver webServiceReceiver)");
+                    }
+                } else {
+                    logger.error("Custom web service class must extend com.mirth.connect.connectors.ws.AcceptMessage");
                 }
-            } else {
-                logger.error("Custom web service class must extend com.mirth.connect.connectors.ws.AcceptMessage");
+            } catch (Exception e) {
+                logger.error("Custom web service class initialization failed", e);
             }
-        } catch (Exception e) {
-            logger.error("Custom web service class initialization failed", e);
+
+            if (acceptMessageWebService == null) {
+                logger.error("Custom web service class initialization failed, using DefaultAcceptMessage");
+                acceptMessageWebService = new DefaultAcceptMessage(this);
+            }
+
+            webServiceEndpoint = Endpoint.create(connectorProperties.getSoapBinding().getValue(), acceptMessageWebService);
+            Binding binding = webServiceEndpoint.getBinding();
+            List<Handler> handlerChain = new LinkedList<Handler>();
+            handlerChain.add(new LoggingSOAPHandler(this));
+            binding.setHandlerChain(handlerChain);
+
+            String serviceName = replacer.replaceValues(connectorProperties.getServiceName(), channelId, channelName);
+            HttpContext context = server.createContext("/services/" + serviceName);
+
+            // Set a security authenticator if needed
+            if (authenticatorProvider != null) {
+                context.setAuthenticator(createAuthenticator());
+            }
+
+            webServiceEndpoint.publish(context);
+        } finally {
+            // Restore the thread context classloader
+            Thread.currentThread().setContextClassLoader(currentContextClassLoader);
         }
-
-        if (acceptMessageWebService == null) {
-            logger.error("Custom web service class initialization failed, using DefaultAcceptMessage");
-            acceptMessageWebService = new DefaultAcceptMessage(this);
-        }
-
-        webServiceEndpoint = Endpoint.create(connectorProperties.getSoapBinding().getValue(), acceptMessageWebService);
-        Binding binding = webServiceEndpoint.getBinding();
-        List<Handler> handlerChain = new LinkedList<Handler>();
-        handlerChain.add(new LoggingSOAPHandler(this));
-        binding.setHandlerChain(handlerChain);
-
-        String serviceName = replacer.replaceValues(connectorProperties.getServiceName(), channelId, channelName);
-        HttpContext context = server.createContext("/services/" + serviceName);
-
-        // Set a security authenticator if needed
-        if (authenticatorProvider != null) {
-            context.setAuthenticator(createAuthenticator());
-        }
-
-        webServiceEndpoint.publish(context);
 
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
     }

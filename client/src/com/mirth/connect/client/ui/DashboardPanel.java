@@ -215,7 +215,7 @@ public class DashboardPanel extends JPanel {
         repaint();
     }
 
-    private void loadPanelPlugin(final DashboardPanelPlugin plugin) {
+    public void loadPanelPlugin(final DashboardPanelPlugin plugin) {
         final List<DashboardStatus> selectedStatuses = getSelectedStatuses();
 
         QueuingSwingWorkerTask<Void, Void> task = new QueuingSwingWorkerTask<Void, Void>(plugin.getPluginPointName(), "Updating " + plugin.getPluginPointName() + " dashboard plugin...") {
@@ -246,7 +246,7 @@ public class DashboardPanel extends JPanel {
         new QueuingSwingWorker<Void, Void>(task, true).executeDelegate();
     }
 
-    private DashboardTabPlugin getCurrentTabPlugin() {
+    public DashboardTabPlugin getCurrentTabPlugin() {
         return LoadedExtensions.getInstance().getDashboardTabPlugins().get(tabPane.getTitleAt(tabPane.getSelectedIndex()));
     }
 

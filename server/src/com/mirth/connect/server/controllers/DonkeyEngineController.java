@@ -162,7 +162,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     private Donkey donkey = Donkey.getInstance();
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = Logger.getLogger(DonkeyEngineController.class);
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
@@ -232,8 +232,12 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public void startupDeploy() {
-        deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
+    public void startupDeploy(boolean deployChannels) {
+        if (deployChannels) {
+            deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
+        } else {
+            logger.info("Property \"server.startupdeploy\" is disabled. Skipping initial deployment of channels...");
+        }
     }
 
     @Override
