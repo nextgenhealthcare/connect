@@ -88,6 +88,7 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/serverlog/ServerLogItem"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/serverlog/ServerLogServletInterface"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/xsltstep/XsltStep"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/dashboardstatus/ConnectionLogItem"/>
 			<accessrule kind="nonaccessible" pattern="*/**"/>
 		</accessrules>
 	</classpathentry>

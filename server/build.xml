@@ -621,10 +621,12 @@
 			<fileset dir="${lib.extensions}/dashboardstatus" />
 		</copy>
 		<jar destfile="${plugins.dashboardstatus}/dashboardstatus-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/dashboardstatus/ConnectionLogItem.class" />
 			<include name="com/mirth/connect/plugins/dashboardstatus/DashboardConnectorStatusServletInterface.class" />
 		</jar>
 		<jar destfile="${plugins.dashboardstatus}/dashboardstatus-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/dashboardstatus/**" />
+			<exclude name="com/mirth/connect/plugins/dashboardstatus/ConnectionLogItem.class" />
 			<exclude name="com/mirth/connect/plugins/dashboardstatus/DashboardConnectorStatusServletInterface.class" />
 		</jar>
 		
