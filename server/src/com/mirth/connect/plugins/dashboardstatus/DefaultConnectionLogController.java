@@ -35,9 +35,8 @@ public class DefaultConnectionLogController extends ConnectionLogController {
 	
 	
 	@Override
-    public ConnectionLogItem processEvent(Event event) {
-		ConnectionLogItem connectionLogItem = null;
-		
+    public void processEvent(Event event) {
+
         if (event instanceof ConnectionStatusEvent) {
             ConnectionStatusEvent connectionStatusEvent = (ConnectionStatusEvent) event;
             String channelId = connectionStatusEvent.getChannelId();
@@ -136,7 +135,7 @@ public class DefaultConnectionLogController extends ConnectionLogController {
                         channelLog.removeLast();
                     }
                     
-                    connectionLogItem = new ConnectionLogItem(logId, null, channelId, metaDataId.longValue(), dateFormat.format(timestamp), 
+                    ConnectionLogItem connectionLogItem = new ConnectionLogItem(logId, null, channelId, metaDataId.longValue(), dateFormat.format(timestamp), 
                     		channelName, connectorType, ((ConnectionStatusEvent) event).getState().toString(), information);
                     channelLog.addFirst(connectionLogItem);
 
@@ -153,8 +152,6 @@ public class DefaultConnectionLogController extends ConnectionLogController {
             }
 
         }
-        
-        return connectionLogItem;
     }
 	
 	@Override
