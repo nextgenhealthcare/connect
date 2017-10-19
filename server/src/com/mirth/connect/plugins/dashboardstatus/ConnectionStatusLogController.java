@@ -13,14 +13,14 @@ import com.mirth.connect.donkey.server.event.EventType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.server.ExtensionLoader;
 
-public abstract class ConnectionLogController {
+public abstract class ConnectionStatusLogController {
 	
-	private static ConnectionLogController instance = null;
+	private static ConnectionStatusLogController instance = null;
 
-    public static ConnectionLogController getInstance() {
+    public static ConnectionStatusLogController getInstance() {
         synchronized (DefaultConnectionLogController.class) {
             if (instance == null) {
-                instance = ExtensionLoader.getInstance().getControllerInstance(ConnectionLogController.class);
+                instance = ExtensionLoader.getInstance().getControllerInstance(ConnectionStatusLogController.class);
 
                 if (instance == null) {
                     instance = new DefaultConnectionLogController();
@@ -34,6 +34,7 @@ public abstract class ConnectionLogController {
     public abstract void processEvent(Event event);
     public abstract LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId, int fetchSize, Long lastLogId);
     public abstract Map<String, Object[]> getConnectorStateMap();
+    public abstract Map<String, Map<String, List<ConnectionStateItem>>> getConnectionStatesForServer(String serverId);
     
     public Set<EventType> getEventTypes() {
         Set<EventType> EventTypes = new HashSet<EventType>();

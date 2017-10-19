@@ -21,10 +21,10 @@ import com.mirth.connect.server.event.EventListener;
 
 public class DashboardConnectorEventListener extends EventListener {
 
-    private ConnectionLogController logController;
+    private ConnectionStatusLogController logController;
     
     public DashboardConnectorEventListener() {
-		logController = ConnectionLogController.getInstance();
+		logController = ConnectionStatusLogController.getInstance();
 	}
 
     @Override

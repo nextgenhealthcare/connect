@@ -3,8 +3,10 @@ package com.mirth.connect.plugins.dashboardstatus;
 import java.awt.Color;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,21 +15,24 @@ import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Strings;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ConnectorCountEvent;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
-public class DefaultConnectionLogController extends ConnectionLogController {
+public class DefaultConnectionLogController extends ConnectionStatusLogController {
 	
     private Logger logger = Logger.getLogger(this.getClass());
 
     private static final int MAX_LOG_SIZE = 1000;
     private static long logId = 1;
     private Map<String, Object[]> connectorStateMap = new ConcurrentHashMap<String, Object[]>();
+    private Map<String, ConnectionStatusEventType> connectorStateTypeMap = new ConcurrentHashMap<String, ConnectionStatusEventType>();
     private Map<String, AtomicInteger> connectorCountMap = new ConcurrentHashMap<String, AtomicInteger>();
     private Map<String, Integer> maxConnectionMap = new ConcurrentHashMap<String, Integer>();
     private Map<String, LinkedList<ConnectionLogItem>> connectorInfoLogs = new ConcurrentHashMap<>();
@@ -47,8 +52,6 @@ public class DefaultConnectionLogController extends ConnectionLogController {
             String connectorId = channelId + "_" + metaDataId;
 
             ConnectionStatusEventType eventType = connectionStatusEvent.getState();
-
-            ConnectionStatusEventType connectionStatusEventType = eventType;
             Integer connectorCount = null;
             Integer maximum = null;
 
@@ -82,16 +85,16 @@ public class DefaultConnectionLogController extends ConnectionLogController {
                 connectorCount = count.get();
 
                 if (connectorCount == 0) {
-                    connectionStatusEventType = ConnectionStatusEventType.IDLE;
+                	eventType = ConnectionStatusEventType.IDLE;
                 } else {
-                    connectionStatusEventType = ConnectionStatusEventType.CONNECTED;
+                	eventType = ConnectionStatusEventType.CONNECTED;
                 }
             }
 
             String stateString = null;
-            if (connectionStatusEventType.isState()) {
-                Color color = getColor(connectionStatusEventType);
-                stateString = connectionStatusEventType.toString();
+            if (eventType.isState()) {
+                Color color = getColor(eventType);
+                stateString = eventType.toString();
                 if (connectorCount != null) {
                     if (maximum != null && connectorCount.equals(maximum)) {
                         stateString += " <font color='red'>(" + connectorCount + ")</font>";
@@ -150,7 +153,10 @@ public class DefaultConnectionLogController extends ConnectionLogController {
                     connectorInfoLogs.put(channelId, channelLog);
                 }
             }
-
+            
+            if (eventType.isState()) {
+            	connectorStateTypeMap.put(connectorId, eventType);
+            }
         }
     }
 	
@@ -215,4 +221,32 @@ public class DefaultConnectionLogController extends ConnectionLogController {
 	public Map<String, Object[]> getConnectorStateMap() {
         return new HashMap<String, Object[]>(connectorStateMap);
     }
+
+	@Override
+	public Map<String, Map<String, List<ConnectionStateItem>>> getConnectionStatesForServer(String serverId) {
+		// serverId is unused for default implementation, as it has no knowledge of clustering. It will use the server id for this server. The Clustering version of this interface will need serverId
+		String thisServerId = ConfigurationController.getInstance().getServerId();
+		Map<String, List<ConnectionStateItem>> buildMap = new HashMap<>();
+		// connectorId is ${channelId} + "_" + ${metadataId}
+		for(String connectorId : connectorStateMap.keySet()) {
+			String channelId = connectorId.substring(0, connectorId.lastIndexOf('_'));
+			String metadataId = connectorId.substring(connectorId.lastIndexOf('_')+1);
+			int connectorCount = connectorCountMap.get(connectorId).get();
+			ConnectionStateItem stateItem = new ConnectionStateItem(thisServerId, channelId, metadataId, connectorStateTypeMap.get(connectorId), connectorCount, maxConnectionMap.get(connectorId));
+			
+			if (buildMap.containsKey(channelId)) {
+				buildMap.get(channelId).add(stateItem);
+				
+			} else {
+				List<ConnectionStateItem> list = new ArrayList<ConnectionStateItem>();
+				list.add(stateItem);
+				buildMap.put(channelId, list);
+			}
+			
+		}
+		Map<String, Map<String, List<ConnectionStateItem>>> toReturn = new HashMap<>();
+		toReturn.put(thisServerId, buildMap);
+		return toReturn;
+	}
+	
 }
