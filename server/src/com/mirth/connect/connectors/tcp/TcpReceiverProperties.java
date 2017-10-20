@@ -87,9 +87,17 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         return sourceConnectorProperties;
     }
 
+    public void setSourceConnectorProperties(SourceConnectorProperties sourceConnectorProperties) {
+        this.sourceConnectorProperties = sourceConnectorProperties;
+    }
+
     @Override
     public ListenerConnectorProperties getListenerConnectorProperties() {
         return listenerConnectorProperties;
+    }
+
+    public void setListenerConnectorProperties(ListenerConnectorProperties listenerConnectorProperties) {
+        this.listenerConnectorProperties = listenerConnectorProperties;
     }
 
     public TransmissionModeProperties getTransmissionModeProperties() {
