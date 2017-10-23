@@ -35,8 +35,8 @@ public class DashboardConnectorStatusServlet extends MirthServlet implements Das
     }
 
     @Override
-    public Map<String, Object[]> getConnectorStateMap() {
-        return monitor.getConnectorListener().getConnectorStateMap("");
+    public Map<String, Object[]> getConnectorStateMap(String serverId) {
+        return monitor.getConnectorListener().getConnectorStateMap(serverId);
     }
 
     @Override

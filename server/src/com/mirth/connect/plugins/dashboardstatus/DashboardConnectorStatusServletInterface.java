@@ -43,7 +43,10 @@ public interface DashboardConnectorStatusServletInterface extends BaseServletInt
     @Path("/connectorStates")
     @ApiOperation("Retrieves all dashboard connector states.")
     @MirthOperation(name = "getStates", display = "Get dashboard connector states", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public Map<String, Object[]> getConnectorStateMap() throws ClientException;
+    public Map<String, Object[]> getConnectorStateMap(// @formatter:off
+    		@Param("serverId") @ApiParam(value = "The server ID to retrieve connector statuses for. Connector Statuses across all servers are retrieved is this parameter is not specified.") @QueryParam("serverId") String serverId
+	) throws ClientException;
+    //@formatter:on
 
     @GET
     @Path("/channelStates")

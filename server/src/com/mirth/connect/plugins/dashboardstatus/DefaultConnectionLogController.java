@@ -15,7 +15,6 @@ import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 
-import com.google.common.base.Strings;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
@@ -217,8 +216,12 @@ public class DefaultConnectionLogController extends ConnectionStatusLogControlle
         return null;
     }
 	
+	/**
+	 * Get connector states. Does not use serverId, but is provided for subclasses to use in Clustering.
+	 * 
+	 */
 	@Override
-	public Map<String, Object[]> getConnectorStateMap(String channelId) {
+	public Map<String, Object[]> getConnectorStateMap(String serverId) {
         return new HashMap<String, Object[]>(connectorStateMap);
     }
 
