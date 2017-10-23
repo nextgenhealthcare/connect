@@ -218,7 +218,7 @@ public class DefaultConnectionLogController extends ConnectionStatusLogControlle
     }
 	
 	@Override
-	public Map<String, Object[]> getConnectorStateMap() {
+	public Map<String, Object[]> getConnectorStateMap(String channelId) {
         return new HashMap<String, Object[]>(connectorStateMap);
     }
 

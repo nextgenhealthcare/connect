@@ -40,8 +40,8 @@ public class DashboardConnectorEventListener extends EventListener {
         logController.processEvent(event);
     }
 
-    public Map<String, Object[]> getConnectorStateMap() {
-        return logController.getConnectorStateMap();
+    public Map<String, Object[]> getConnectorStateMap(String serverId) {
+        return logController.getConnectorStateMap(serverId);
     }
 
     public synchronized LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId, int fetchSize, Long lastLogId) {

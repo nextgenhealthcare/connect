@@ -33,7 +33,7 @@ public abstract class ConnectionStatusLogController {
     
     public abstract void processEvent(Event event);
     public abstract LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId, int fetchSize, Long lastLogId);
-    public abstract Map<String, Object[]> getConnectorStateMap();
+    public abstract Map<String, Object[]> getConnectorStateMap(String serverId);
     public abstract Map<String, Map<String, List<ConnectionStateItem>>> getConnectionStatesForServer(String serverId);
     
     public Set<EventType> getEventTypes() {

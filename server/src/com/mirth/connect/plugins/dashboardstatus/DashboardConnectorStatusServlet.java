@@ -36,12 +36,12 @@ public class DashboardConnectorStatusServlet extends MirthServlet implements Das
 
     @Override
     public Map<String, Object[]> getConnectorStateMap() {
-        return monitor.getConnectorListener().getConnectorStateMap();
+        return monitor.getConnectorListener().getConnectorStateMap("");
     }
 
     @Override
     public Map<String, String> getChannelStates() {
-        Map<String, Object[]> connectorStates = redactChannelIds(monitor.getConnectorListener().getConnectorStateMap());
+        Map<String, Object[]> connectorStates = redactChannelIds(monitor.getConnectorListener().getConnectorStateMap(""));
         Map<String, String> channelStates = new HashMap<String, String>();
 
         for (Entry<String, Object[]> entry : connectorStates.entrySet()) {
@@ -59,7 +59,7 @@ public class DashboardConnectorStatusServlet extends MirthServlet implements Das
     @Override
     @CheckAuthorizedChannelId
     public String getChannelState(String channelId) {
-        Object[] stateArray = monitor.getConnectorListener().getConnectorStateMap().get(channelId + "_0");
+        Object[] stateArray = monitor.getConnectorListener().getConnectorStateMap("").get(channelId + "_0");
         if (stateArray == null) {
             throw new MirthApiException(Status.NOT_FOUND);
         } else {
