@@ -261,6 +261,10 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
         return destinationConnectorProperties;
     }
 
+    public void setDestinationConnectorProperties(DestinationConnectorProperties destinationConnectorProperties) {
+        this.destinationConnectorProperties = destinationConnectorProperties;
+    }
+
     @Override
     public ConnectorProperties clone() {
         return new TcpDispatcherProperties(this);
