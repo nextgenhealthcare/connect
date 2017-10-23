@@ -12,9 +12,11 @@ package com.mirth.connect.plugins.dashboardstatus;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JComponent;
@@ -49,32 +51,38 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     public void clearLog(String selectedChannelId) {
     	String serverId = getSelectedServerId();
     	if (serverId == null) {
-    		serverId = NO_SERVER_SELECTED;
+    		for (String srvId : lastLogIdByServerId.keySet()) {
+    			clearLog(srvId, selectedChannelId);
+    		}
+    	} else {
+    		clearLog(serverId, selectedChannelId);
     	}
-
+    	
+    	dcsp.updateTable(null);
+    }
+    
+    private void clearLog(String serverId, String selectedChannelId) {
     	// If any statuses are selected, delete the logs for the corresponding channels.
     	// If no statuses are selected (all logs are being shown), delete the NO_CHANNEL_SELECTED logs.
+    	if (serverId == null) {
+    		serverId = NO_SERVER_SELECTED;
+    	}
+    	
     	if (connectorInfoLogs.containsKey(serverId)) {
     		Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(serverId);
     		
-    		if (selectedChannelId.equals(NO_CHANNEL_SELECTED)) {
-    			
-    			if (selectedStatuses != null && selectedStatuses.size() > 0) {
-    				for (DashboardStatus status : selectedStatuses) {
-    					if (serverLog.containsKey(status.getChannelId())) {
-    						serverLog.remove(status.getChannelId());
-    					}
-    				}
-    			} else {
-    				serverLog.remove(selectedChannelId);
-    			}
-    			
-    		} else if (serverLog.containsKey(selectedChannelId)) {
-        		serverLog.remove(selectedChannelId);
-        	}
-    	}
-
-        dcsp.updateTable(null);
+			if (selectedChannelId.equals(NO_CHANNEL_SELECTED)
+					&& (selectedStatuses != null && selectedStatuses.size() > 0)) {
+				
+				for (DashboardStatus status : selectedStatuses) {
+					if (serverLog.containsKey(status.getChannelId())) {
+						serverLog.remove(status.getChannelId());
+					}
+				}
+			} else if (serverLog.containsKey(selectedChannelId)) {
+				serverLog.remove(selectedChannelId);
+			}
+		}
     }
 
     public void resetLogSize(int newDashboardLogSize, String selectedChannel) {
@@ -158,16 +166,13 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
 
             synchronized (this) {
                 for (int i = connectionInfoLogsReceived.size() - 1; i >= 0; i--) {
-                    while (currentDashboardLogSize <= channelLog.size()) {
-                        channelLog.removeLast();
-                    }
                     channelLog.addFirst(connectionInfoLogsReceived.get(i));
                 }
-                
-                Long newLastLogId = channelLog.getFirst().getLogId();
-                if (!lastLogIdByChannelId.containsKey(channelId) || newLastLogId > lastLogIdByChannelId.get(channelId)) {
-                	lastLogIdByChannelId.put(channelId, newLastLogId);
+                while (channelLog.size() > currentDashboardLogSize) {
+                    channelLog.removeLast();
                 }
+
+                lastLogIdByChannelId.put(channelId, channelLog.getFirst().getLogId());
             }
 
             Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(serverId);
@@ -189,7 +194,6 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     // used for setting actions to be called for updating when there is a status selected
     @Override
     public void update(List<DashboardStatus> statuses) {
-        // If there are more than one channels selected, create an array of those names
         Map<String, List<Integer>> selectedConnectorMap = null;
 
         if (statuses != null) {
@@ -253,9 +257,13 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     	
     	// Get logs for all selected channels and return a combined list
     	List<ConnectionLogItem> items = new ArrayList<>();
+    	Set<String> selectedChannelIds = new HashSet<>();
     	
     	for (DashboardStatus status : statuses) {
-    		items.addAll(getChannelLog(status.getChannelId()));
+    		if (!selectedChannelIds.contains(status.getChannelId())) {
+    			items.addAll(getChannelLog(status.getChannelId()));
+    			selectedChannelIds.add(status.getChannelId());
+    		}
     	}
     	
     	items.sort(new Comparator<ConnectionLogItem>() {
