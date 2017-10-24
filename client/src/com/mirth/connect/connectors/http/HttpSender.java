@@ -45,7 +45,6 @@ import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
@@ -590,24 +589,17 @@ public class HttpSender extends ConnectorSettingsPanel {
             }
         }
 
-        if (props.getMethod().equalsIgnoreCase("post") || props.getMethod().equalsIgnoreCase("put")) {
-            if (props.getContentType().length() == 0) {
+        if (props.getMethod().equalsIgnoreCase("post") || props.getMethod().equalsIgnoreCase("put") || props.getMethod().equalsIgnoreCase("patch")) {
+        	if (props.getContentType().length() == 0) {
                 valid = false;
                 if (highlight) {
                     contentTypeField.setBackground(UIConstants.INVALID_COLOR);
                 }
             }
-
+        	
             if (isUsingFormUrlEncoded(props.getContentType())) {
                 if (MapUtils.isEmpty(props.getParameters())) {
                     valid = false;
-                }
-            } else {
-                if (props.getContent().length() == 0) {
-                    valid = false;
-                    if (highlight) {
-                        contentTextArea.setBackground(UIConstants.INVALID_COLOR);
-                    }
                 }
             }
         }
