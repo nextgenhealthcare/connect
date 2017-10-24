@@ -21,10 +21,12 @@ import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.CellData;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.ImageCellRenderer;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
+import com.mirth.connect.plugins.DashboardTablePlugin;
 
 public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
@@ -108,7 +110,14 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     public void tableUpdate(List<DashboardStatus> status) {
         // get states from server
         try {
-            currentStates = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getConnectorStateMap();
+        	String serverId = "";
+            for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
+                serverId = plugin.getServerId();
+                if (serverId != null) {
+                    break;
+                }
+            }
+            currentStates = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getConnectorStateMap(serverId);
         } catch (ClientException e) {
             // we can safely ignore this
             currentStates = null;
