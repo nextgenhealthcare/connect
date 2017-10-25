@@ -139,4 +139,5 @@ public class UIConstants {
     // for data types
     public static final String DATATYPE_DEFAULT = "HL7V2";
     public static final String DATATYPE_XML = "XML";
+    public static final String DATATYPE_JSON = "JSON";
 }

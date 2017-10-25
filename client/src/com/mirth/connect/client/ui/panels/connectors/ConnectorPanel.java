@@ -23,8 +23,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import net.miginfocom.swing.MigLayout;
-
 import com.mirth.connect.client.ui.AbstractConnectorPropertiesPanel;
 import com.mirth.connect.client.ui.ChannelSetup;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
@@ -41,6 +39,8 @@ import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.InvalidConnectorPluginProperties;
 import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
+
+import net.miginfocom.swing.MigLayout;
 
 public class ConnectorPanel extends JPanel {
     private ChannelSetup channelSetup;
@@ -319,9 +319,9 @@ public class ConnectorPanel extends JPanel {
     public TransferMode getTransferMode() {
         return getConnectorSettingsPanel().getTransferMode();
     }
-
-    public boolean requiresXmlDataType() {
-        return getConnectorSettingsPanel().requiresXmlDataType();
+    
+    public String getRequiredDataType() {
+    	return getConnectorSettingsPanel().getRequiredDataType();
     }
 
     public void updatedField(String field) {
