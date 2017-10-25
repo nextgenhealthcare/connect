@@ -32,7 +32,7 @@ import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public abstract class ConnectorSettingsPanel extends JPanel {
-
+	
     protected ConnectorPanel connectorPanel;
 
     private Map<String, SwingWorker<Object, Void>> workerMap = new ConcurrentHashMap<String, SwingWorker<Object, Void>>();
@@ -89,8 +89,8 @@ public abstract class ConnectorSettingsPanel extends JPanel {
         return TransferMode.VELOCITY;
     }
 
-    public boolean requiresXmlDataType() {
-        return false;
+    public String getRequiredDataType() {
+    	return null;
     }
 
     public List<String> getScripts(ConnectorProperties properties) {

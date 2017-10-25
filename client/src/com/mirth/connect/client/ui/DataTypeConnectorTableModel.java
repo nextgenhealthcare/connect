@@ -56,8 +56,8 @@ public class DataTypeConnectorTableModel extends SortableTreeTableModel {
         	
         	// If the cell is an inbound column
         	if (column == DataTypesDialog.INBOUND_COLUMN) {
-        		// Disable if the channel requires an XML data type or if the cell belongs to a destination connector
-        		if (destinations.contains(tableNode.getContainerIndex()) || (tableNode.getContainerIndex() == 0 && PlatformUI.MIRTH_FRAME.channelEditPanel.requiresXmlDataType())) {
+        		// Disable if the channel requires a particular data type or if the cell belongs to a destination connector
+        		if (destinations.contains(tableNode.getContainerIndex()) || (tableNode.getContainerIndex() == 0 && PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredDataType() != null)) {
         			editable = false;
         		}
         	}

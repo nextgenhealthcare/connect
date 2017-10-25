@@ -2568,8 +2568,8 @@ public class ChannelSetup extends JPanel {
             sourceConnectorPanel.setProperties(props);
         }
 
-        // Set the source data type to XML if necessary
-        checkAndSetXmlDataType();
+        // Set the required source data type if necessary
+        checkAndSetRequiredDataType();
 
         sourceConnectorScrollPane.repaint();
 
@@ -2993,22 +2993,24 @@ public class ChannelSetup extends JPanel {
     }
 
     /**
-     * Returns true if this channel requires XML as a source data type, and false if it does not.
+     * Returns the required source data type of this channel.
      */
-    public boolean requiresXmlDataType() {
-        return sourceConnectorPanel.requiresXmlDataType();
+    public String getRequiredDataType() {
+    	return sourceConnectorPanel.getRequiredDataType();
     }
 
     /**
-     * Check if the source data type is required to be XML, and set it if necessary.
+     * Check if there is a required source data type, and set if if necessary.
      */
-    public void checkAndSetXmlDataType() {
-        if (requiresXmlDataType() && !currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(UIConstants.DATATYPE_XML)) {
-            DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(UIConstants.DATATYPE_XML).getDefaultProperties();
+    public void checkAndSetRequiredDataType() {
+    	String requiredDataType = getRequiredDataType();
+    	if (requiredDataType != null && !currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(requiredDataType)) {
+    		DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(requiredDataType).getDefaultProperties();
 
-            currentChannel.getSourceConnector().getTransformer().setInboundDataType(UIConstants.DATATYPE_XML);
+            currentChannel.getSourceConnector().getTransformer().setInboundDataType(requiredDataType);
             currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);
-        }
+    	}
+
     }
 
     public void updateComponentShown() {

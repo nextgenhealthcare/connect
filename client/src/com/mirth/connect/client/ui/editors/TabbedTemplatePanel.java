@@ -22,8 +22,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.FunctionList;
@@ -36,6 +34,8 @@ import com.mirth.connect.client.ui.panels.reference.VariableReferenceTable;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
+
+import net.miginfocom.swing.MigLayout;
 
 public class TabbedTemplatePanel extends JPanel {
 
@@ -66,11 +66,11 @@ public class TabbedTemplatePanel extends JPanel {
 
     /**
      * Sets the the inbound and outbound data types and properties to be enabled. The inbound data
-     * type may be disabled if XML is required.
+     * type may be disabled if a specific data type is required.
      */
     public void setSourceView() {
         boolean inboundEnabled = true;
-        if (PlatformUI.MIRTH_FRAME.channelEditPanel.requiresXmlDataType()) {
+        if (PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredDataType() != null) {
             inboundEnabled = false;
         }
         messageTemplatePanel.setDataTypeEnabled(inboundEnabled, true, true, true, TransformerType.SOURCE);
