@@ -20,12 +20,9 @@ public class ConnectionStateItem {
 		this.connectionCount = new AtomicInteger(connectionCount);
 		this.maxConnectionCount = new AtomicInteger(maxConnectionCount);
 	}
-	
-	public int incrementConnectionCount() {
-		return connectionCount.incrementAndGet();
-	}
-	public int deccrementConnectionCount() {
-		return connectionCount.decrementAndGet();
+
+	public int addToConnectionCount(int value) {
+		return connectionCount.addAndGet(value);
 	}
 
 	public String getServerId() {
