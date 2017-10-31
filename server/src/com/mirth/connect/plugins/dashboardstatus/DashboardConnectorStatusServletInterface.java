@@ -9,19 +9,15 @@
 
 package com.mirth.connect.plugins.dashboardstatus;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.LinkedList;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.mirth.connect.client.core.ClientException;
@@ -29,6 +25,10 @@ import com.mirth.connect.client.core.Operation.ExecuteType;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Path("/extensions/dashboardstatus")
 @Api("Extension Services")
@@ -43,7 +43,10 @@ public interface DashboardConnectorStatusServletInterface extends BaseServletInt
     @Path("/connectorStates")
     @ApiOperation("Retrieves all dashboard connector states.")
     @MirthOperation(name = "getStates", display = "Get dashboard connector states", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public Map<String, Object[]> getConnectorStateMap() throws ClientException;
+    public Map<String, Object[]> getConnectorStateMap(// @formatter:off
+    		@Param("serverId") @ApiParam(value = "The server ID to retrieve connector statuses for. Connector Statuses across all servers are retrieved is this parameter is not specified.") @QueryParam("serverId") String serverId
+	) throws ClientException;
+    //@formatter:on
 
     @GET
     @Path("/channelStates")
@@ -62,23 +65,21 @@ public interface DashboardConnectorStatusServletInterface extends BaseServletInt
     @Path("/connectionLogs")
     @ApiOperation("Retrieves connection logs for all channels.")
     @MirthOperation(name = "getConnectionInfoLogs", display = "Get channel connection logs", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public LinkedList<String[]> getAllChannelLogs() throws ClientException;
+    public LinkedList<ConnectionLogItem> getAllChannelLogs(//@formatter:off
+    		@Param("serverId") @ApiParam(value = "The server ID to retrieve logs for. Logs for all servers are retrieved is this parameter is not specified.") @QueryParam("serverId") String serverId,
+    		@Param("fetchSize") @ApiParam(value = "Specifies the maximum number of log items to return.", required = true, defaultValue = "100") @QueryParam("fetchSize") int fetchSize,
+    		@Param("lastLogId") @ApiParam(value = "The last log ID the client retrieved. Only log items with a greater ID will be returned.") @QueryParam("lastLogId") Long lastLogId) throws ClientException;
+    //@formatter:on
 
     @GET
-    @Path("/connectionLogs/{channelName}")
+    @Path("/connectionLogs/{channelId}")
     @ApiOperation("Retrieves connection logs for a specific channel.")
     @MirthOperation(name = "getConnectionInfoLogs", display = "Get channel connection logs", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public LinkedList<String[]> getChannelLog(@Param("channelName") @ApiParam(value = "The name of the channel to retrieve logs for.", required = true) @PathParam("channelName") String channelName) throws ClientException;
+    public LinkedList<ConnectionLogItem> getChannelLog(// @formatter:off
+    		@Param("serverId") @ApiParam(value = "The server ID to retrieve logs for. Logs for all servers are retrieved is this parameter is not specified.") @QueryParam("serverId") String serverId,
+    		@Param("channelId") @ApiParam(value = "The channel ID to retrieve logs for.", required = true) @PathParam("channelId") String channelId,
+    		@Param("fetchSize") @ApiParam(value = "Specifies the maximum number of log items to return.", required = true, defaultValue = "100") @QueryParam("fetchSize") int fetchSize,
+    		@Param("lastLogId") @ApiParam(value = "The last log ID the client retrieved. Only log items with a greater ID will be returned.") @QueryParam("lastLogId") Long lastLogId) throws ClientException;
+    //@formatter:on
 
-    @POST
-    @Path("/connectionLogs/_startSession")
-    @ApiOperation("Starts a connection log session if one isn't already running. Returns true if a session was created.")
-    @MirthOperation(name = "startSession", display = "Start connection log session", type = ExecuteType.ASYNC, auditable = false)
-    public boolean startSession() throws ClientException;
-
-    @POST
-    @Path("/connectionLogs/_stopSession")
-    @ApiOperation("Tells the server to stop tracking connection log entries for the current session.")
-    @MirthOperation(name = "stopSession", display = "Stop connection log session", type = ExecuteType.ASYNC, auditable = false)
-    public void stopSession() throws ClientException;
 }

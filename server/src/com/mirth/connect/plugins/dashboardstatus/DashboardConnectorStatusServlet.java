@@ -35,13 +35,13 @@ public class DashboardConnectorStatusServlet extends MirthServlet implements Das
     }
 
     @Override
-    public Map<String, Object[]> getConnectorStateMap() {
-        return monitor.getConnectorListener().getConnectorStateMap();
+    public Map<String, Object[]> getConnectorStateMap(String serverId) {
+        return monitor.getConnectorListener().getConnectorStateMap(serverId);
     }
 
     @Override
     public Map<String, String> getChannelStates() {
-        Map<String, Object[]> connectorStates = redactChannelIds(monitor.getConnectorListener().getConnectorStateMap());
+        Map<String, Object[]> connectorStates = redactChannelIds(monitor.getConnectorListener().getConnectorStateMap(""));
         Map<String, String> channelStates = new HashMap<String, String>();
 
         for (Entry<String, Object[]> entry : connectorStates.entrySet()) {
@@ -59,7 +59,7 @@ public class DashboardConnectorStatusServlet extends MirthServlet implements Das
     @Override
     @CheckAuthorizedChannelId
     public String getChannelState(String channelId) {
-        Object[] stateArray = monitor.getConnectorListener().getConnectorStateMap().get(channelId + "_0");
+        Object[] stateArray = monitor.getConnectorListener().getConnectorStateMap("").get(channelId + "_0");
         if (stateArray == null) {
             throw new MirthApiException(Status.NOT_FOUND);
         } else {
@@ -68,22 +68,13 @@ public class DashboardConnectorStatusServlet extends MirthServlet implements Das
     }
 
     @Override
-    public LinkedList<String[]> getAllChannelLogs() {
-        return monitor.getConnectorListener().getChannelLog(null, getSessionId());
+    public LinkedList<ConnectionLogItem> getAllChannelLogs(String serverId, int fetchSize, Long lastLogId) {
+        return monitor.getConnectorListener().getChannelLog(serverId, null, fetchSize, lastLogId);
     }
 
     @Override
-    public LinkedList<String[]> getChannelLog(String channelName) {
-        return monitor.getConnectorListener().getChannelLog(channelName, getSessionId());
+    public LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId, int fetchSize, Long lastLogId) {
+        return monitor.getConnectorListener().getChannelLog(serverId, channelId, fetchSize, lastLogId);
     }
-
-    @Override
-    public boolean startSession() {
-        return monitor.getConnectorListener().startSession(getSessionId());
-    }
-
-    @Override
-    public void stopSession() {
-        monitor.getConnectorListener().removeSession(getSessionId());
-    }
+    
 }
