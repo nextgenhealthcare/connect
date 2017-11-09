@@ -303,8 +303,16 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             soapActionField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
         }
     }
+    
+    protected DefinitionServiceMap getCurrentServiceMap() {
+    	return currentServiceMap;
+    }
+    
+    protected void setCurrentServiceMap(DefinitionServiceMap serviceMap) {
+    	currentServiceMap = serviceMap;
+    }
 
-    private void loadServiceMap() {
+    protected void loadServiceMap() {
         // First reset the service/port/operation
         serviceComboBox.setModel(new DefaultComboBoxModel());
         portComboBox.setModel(new DefaultComboBoxModel());
@@ -1045,13 +1053,22 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     }
 
     private void generateEnvelopeActionPerformed(ActionEvent evt) {
-        if (soapEnvelopeTextArea.getText().length() > 0 || soapActionField.getText().length() > 0) {
+        generateEnvelope();
+    }
+    
+    protected void generateEnvelope() {
+    	generateEnvelope(((WebServiceDispatcherProperties) getFilledProperties()).getWsdlUrl(), getChannelId(), getChannelName(), true);
+    }
+    
+    protected void generateEnvelope(String wsdlUrl, String channelId, String channelName, boolean buildOptional) {
+    	if (soapEnvelopeTextArea.getText().length() > 0 || soapActionField.getText().length() > 0) {
             if (!parent.alertOkCancel(parent, "This will replace your current SOAP envelope and SOAP action. Press OK to continue.")) {
                 return;
             }
         }
 
         final WebServiceDispatcherProperties props = (WebServiceDispatcherProperties) getFilledProperties();
+        props.setWsdlUrl(wsdlUrl);
 
         ResponseHandler isWsdlCachedHandler = new ResponseHandler() {
             @Override
@@ -1080,7 +1097,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                                 };
 
                                 try {
-                                    getServlet(WebServiceConnectorServletInterface.class, "Retrieving SOAP action...", "There was an error retrieving the SOAP action.\n\n", getSoapActionHandler).getSoapAction(getChannelId(), getChannelName(), props.getWsdlUrl(), props.getUsername(), props.getPassword(), props.getService(), props.getPort(), props.getOperation());
+                                    getServlet(WebServiceConnectorServletInterface.class, "Retrieving SOAP action...", "There was an error retrieving the SOAP action.\n\n", getSoapActionHandler).getSoapAction(channelId, channelName, props.getWsdlUrl(), props.getUsername(), props.getPassword(), props.getService(), props.getPort(), props.getOperation());
                                 } catch (ClientException e) {
                                     // Should not happen
                                 }
@@ -1088,7 +1105,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                         };
 
                         try {
-                            getServlet(WebServiceConnectorServletInterface.class, "Generating envelope...", "There was an error generating the envelope.\n\n", generateEnvelopeHandler).generateEnvelope(getChannelId(), getChannelName(), props.getWsdlUrl(), props.getUsername(), props.getPassword(), props.getService(), props.getPort(), props.getOperation());
+                            getServlet(WebServiceConnectorServletInterface.class, "Generating envelope...", "There was an error generating the envelope.\n\n", generateEnvelopeHandler).generateEnvelope(channelId, channelName, props.getWsdlUrl(), props.getUsername(), props.getPassword(), props.getService(), props.getPort(), props.getOperation(), buildOptional);
                         } catch (ClientException e) {
                             // Should not happen
                         }
@@ -1100,7 +1117,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         };
 
         try {
-            getServlet(WebServiceConnectorServletInterface.class, "Checking if WSDL is cached...", "Error checking if the wsdl is cached: ", isWsdlCachedHandler).isWsdlCached(getChannelId(), getChannelName(), props.getWsdlUrl(), props.getUsername(), props.getPassword());
+            getServlet(WebServiceConnectorServletInterface.class, "Checking if WSDL is cached...", "Error checking if the wsdl is cached: ", isWsdlCachedHandler).isWsdlCached(channelId, channelName, props.getWsdlUrl(), props.getUsername(), props.getPassword());
         } catch (ClientException e) {
             // Should not happen
         }
