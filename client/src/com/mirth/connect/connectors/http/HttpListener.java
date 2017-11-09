@@ -247,7 +247,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     }
     
     @Override
-    public String getRequiredDataType() {
+    public String getRequiredInboundDataType() {
     	if (((HttpReceiverProperties) getProperties()).isXmlBody()) {
     		return UIConstants.DATATYPE_XML;
     	} else {

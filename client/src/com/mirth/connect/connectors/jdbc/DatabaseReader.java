@@ -329,7 +329,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     }
     
     @Override
-    public String getRequiredDataType() {
+    public String getRequiredInboundDataType() {
     	return UIConstants.DATATYPE_XML;
     }
 

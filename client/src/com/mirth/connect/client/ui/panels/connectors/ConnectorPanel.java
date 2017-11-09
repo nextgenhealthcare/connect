@@ -320,8 +320,12 @@ public class ConnectorPanel extends JPanel {
         return getConnectorSettingsPanel().getTransferMode();
     }
     
-    public String getRequiredDataType() {
-    	return getConnectorSettingsPanel().getRequiredDataType();
+    public String getRequiredInboundDataType() {
+    	return getConnectorSettingsPanel().getRequiredInboundDataType();
+    }
+
+    public String getRequiredOutboundDataType() {
+    	return getConnectorSettingsPanel().getRequiredOutboundDataType();
     }
 
     public void updatedField(String field) {

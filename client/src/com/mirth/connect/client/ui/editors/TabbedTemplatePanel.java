@@ -70,10 +70,14 @@ public class TabbedTemplatePanel extends JPanel {
      */
     public void setSourceView() {
         boolean inboundEnabled = true;
-        if (PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredDataType() != null) {
+        if (PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredInboundDataType() != null) {
             inboundEnabled = false;
         }
-        messageTemplatePanel.setDataTypeEnabled(inboundEnabled, true, true, true, TransformerType.SOURCE);
+        boolean outboundEnabled = true;
+        if (PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredOutboundDataType() != null) {
+            outboundEnabled = false;
+        }
+        messageTemplatePanel.setDataTypeEnabled(inboundEnabled, true, outboundEnabled, true, TransformerType.SOURCE);
         setContextType(ContextType.SOURCE_FILTER_TRANSFORMER);
     }
 

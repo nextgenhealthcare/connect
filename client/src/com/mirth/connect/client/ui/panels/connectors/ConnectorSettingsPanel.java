@@ -89,10 +89,14 @@ public abstract class ConnectorSettingsPanel extends JPanel {
         return TransferMode.VELOCITY;
     }
 
-    public String getRequiredDataType() {
+    public String getRequiredInboundDataType() {
     	return null;
     }
 
+    public String getRequiredOutboundDataType() {
+    	return null;
+    }
+    
     public List<String> getScripts(ConnectorProperties properties) {
         return new ArrayList<String>();
     }
