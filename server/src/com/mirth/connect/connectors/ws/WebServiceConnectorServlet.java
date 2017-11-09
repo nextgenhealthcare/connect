@@ -115,15 +115,15 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
     }
 
     @Override
-    public String generateEnvelope(String channelId, String channelName, String wsdlUrl, String username, String password, String service, String port, String operation) {
+    public String generateEnvelope(String channelId, String channelName, String wsdlUrl, String username, String password, String service, String port, String operation, boolean buildOptional) {
         try {
             wsdlUrl = getWsdlUrl(channelId, channelName, wsdlUrl, username, password);
-            return buildEnvelope(getCachedWsdlInterface(wsdlUrl, service, port, channelId, channelName), operation);
+            return buildEnvelope(getCachedWsdlInterface(wsdlUrl, service, port, channelId, channelName), operation, buildOptional);
         } catch (Exception e) {
             throw new MirthApiException(e);
         }
     }
-
+    
     @Override
     public String getSoapAction(String channelId, String channelName, String wsdlUrl, String username, String password, String service, String port, String operation) {
         try {
@@ -280,10 +280,10 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
         }
     }
 
-    private String buildEnvelope(WsdlInterface wsdlInterface, String operationName) throws Exception {
+    private String buildEnvelope(WsdlInterface wsdlInterface, String operationName, boolean buildOptional) throws Exception {
         SoapMessageBuilder messageBuilder = wsdlInterface.getMessageBuilder();
         BindingOperation bindingOperation = wsdlInterface.getOperationByName(operationName).getBindingOperation();
-        return messageBuilder.buildSoapMessageFromInput(bindingOperation, true);
+        return messageBuilder.buildSoapMessageFromInput(bindingOperation, buildOptional);
     }
 
     /*
