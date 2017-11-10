@@ -24,8 +24,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.mozilla.javascript.Context;
@@ -49,6 +47,8 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.util.JavaScriptSharedUtil;
+
+import net.miginfocom.swing.MigLayout;
 
 public class DatabaseReader extends ConnectorSettingsPanel {
     private List<DriverInfo> drivers;
@@ -327,10 +327,10 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         return (error.length() == 0) ? null : error.toString();
     }
-
+    
     @Override
-    public boolean requiresXmlDataType() {
-        return true;
+    public String getRequiredInboundDataType() {
+    	return UIConstants.DATATYPE_XML;
     }
 
     private void update() {

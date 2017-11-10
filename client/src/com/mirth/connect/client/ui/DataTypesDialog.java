@@ -359,7 +359,8 @@ public class DataTypesDialog extends MirthDialog {
 			DataTypeConnectorTableNode tableNode = (DataTypeConnectorTableNode) node;
 			TransformerType type = transformerContainer.get(tableNode.getContainerIndex()).getType();
 			
-			if (!(PlatformUI.MIRTH_FRAME.channelEditPanel.requiresXmlDataType() && type == TransformerType.SOURCE) && ((!updateDestinationInbound && (Boolean) tableNode.getValueAt(SELECTION_COLUMN) && type != TransformerType.DESTINATION) || (updateDestinationInbound && type == TransformerType.DESTINATION))) {
+			if (!(PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredInboundDataType() != null && type == TransformerType.SOURCE) 
+					&& ((!updateDestinationInbound && (Boolean) tableNode.getValueAt(SELECTION_COLUMN) && type != TransformerType.DESTINATION) || (updateDestinationInbound && type == TransformerType.DESTINATION))) {
 				DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
 				Transformer transformer = transformerContainer.get(tableNode.getContainerIndex()).getTransformer();
 				
@@ -445,10 +446,11 @@ public class DataTypesDialog extends MirthDialog {
                     
                     inboundPropertiesPanel.setDataTypeProperties(inboundDataType, new DataTypePropertiesContainer(transformer.getInboundProperties(), type));
                     inboundPropertiesPanel.getDataTypeComboBox().getModel().setSelectedItem(inboundDataType);
-                    inboundPropertiesPanel.getDataTypeComboBox().setEnabled(!(type == TransformerType.DESTINATION || (type == TransformerType.SOURCE && PlatformUI.MIRTH_FRAME.channelEditPanel.requiresXmlDataType())));
+                    inboundPropertiesPanel.getDataTypeComboBox().setEnabled(!(type == TransformerType.DESTINATION || (type == TransformerType.SOURCE && PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredInboundDataType() != null)));
                     
                     outboundPropertiesPanel.setDataTypeProperties(outboundDataType, new DataTypePropertiesContainer(transformer.getOutboundProperties(), type));
                     outboundPropertiesPanel.getDataTypeComboBox().getModel().setSelectedItem(outboundDataType);
+                    outboundPropertiesPanel.getDataTypeComboBox().setEnabled(type == TransformerType.DESTINATION || (type == TransformerType.SOURCE && PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredOutboundDataType() == null));
                 	} else {
                 	    // Need to set a type for the null value because of overloaded method
                 		DataTypePropertiesContainer propertiesContainer = null;

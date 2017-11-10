@@ -245,10 +245,14 @@ public class HttpListener extends ConnectorSettingsPanel {
         usingHttps = connectorTypeDecoration != null;
         updateHttpUrl();
     }
-
+    
     @Override
-    public boolean requiresXmlDataType() {
-        return ((HttpReceiverProperties) getProperties()).isXmlBody();
+    public String getRequiredInboundDataType() {
+    	if (((HttpReceiverProperties) getProperties()).isXmlBody()) {
+    		return UIConstants.DATATYPE_XML;
+    	} else {
+    		return null;
+    	}
     }
 
     public void updateHttpUrl() {
@@ -1144,7 +1148,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void messageContentPlainBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentPlainBodyRadioActionPerformed
-        parent.channelEditPanel.checkAndSetXmlDataType();
+    	parent.channelEditPanel.checkAndSetRequiredDataType();
         parseMultipartLabel.setEnabled(false);
         parseMultipartYesRadio.setEnabled(false);
         parseMultipartNoRadio.setEnabled(false);
@@ -1183,7 +1187,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_responseHeadersDeleteButtonActionPerformed
 
     private void messageContentXmlBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentXmlBodyRadioActionPerformed
-        parent.channelEditPanel.checkAndSetXmlDataType();
+    	parent.channelEditPanel.checkAndSetRequiredDataType();
         parseMultipartLabel.setEnabled(true);
         parseMultipartYesRadio.setEnabled(true);
         parseMultipartNoRadio.setEnabled(true);

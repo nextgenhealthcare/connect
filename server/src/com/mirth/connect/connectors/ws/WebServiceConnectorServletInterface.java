@@ -84,7 +84,8 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
             @Param(value = "password", excludeFromAudit = true) @ApiParam(value = "Password used to authenticate to the web server.") @FormParam("password") String password,
             @Param("service") @ApiParam(value = "The service name for the WSDL operation.") @FormParam("service") String service,
             @Param("port") @ApiParam(value = "The port / endpoint name for the service.") @FormParam("port") String port,
-            @Param("operation") @ApiParam(value = "The name of the operation to generate an envelope for.") @FormParam("operation") String operation) throws ClientException;
+            @Param("operation") @ApiParam(value = "The name of the operation to generate an envelope for.") @FormParam("operation") String operation, 
+            @Param("buildOptional") @ApiParam(value = "Whether to include optional fields in the envelope.") @FormParam("buildOptional") boolean buildOptional) throws ClientException;
     // @formatter:on
 
     @POST
