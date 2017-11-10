@@ -43,6 +43,8 @@ import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -64,6 +66,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -159,6 +162,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static DatabaseSettings databaseConfig;
     private static String apiBypassword;
     private static int statsUpdateInterval;
+    private ReadWriteLock vacuumLock = new ReentrantReadWriteLock();
 
     private static KeyEncryptor encryptor = null;
     private static Digester digester = null;
@@ -857,6 +861,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         logger.debug("retrieving properties: category=" + category);
         Properties properties = new Properties();
 
+        vacuumLock.readLock().lock();
         try {
             List<KeyValuePair> result = SqlConfig.getSqlSessionManager().selectList("Configuration.selectPropertiesForCategory", category);
 
@@ -865,6 +870,8 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
         } catch (Exception e) {
             logger.error("Could not retrieve properties: category=" + category, e);
+        } finally {
+            vacuumLock.readLock().unlock();
         }
 
         return properties;
@@ -886,13 +893,16 @@ public class DefaultConfigurationController extends ConfigurationController {
     public String getProperty(String category, String name) {
         logger.debug("retrieving property: category=" + category + ", name=" + name);
 
+        vacuumLock.readLock().lock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
             parameterMap.put("name", name);
             return (String) SqlConfig.getSqlSessionManager().selectOne("Configuration.selectProperty", parameterMap);
         } catch (Exception e) {
-            logger.warn("Could not retrieve property: category=" + category + ", name=" + name, e);
+            logger.error("Could not retrieve property: category=" + category + ", name=" + name, e);
+        } finally {
+            vacuumLock.readLock().unlock();
         }
 
         return null;
@@ -915,10 +925,25 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
-                SqlConfig.getSqlSessionManager().update("Configuration.vacuumConfigurationTable");
+                vacuumConfigurationTable();
             }
         } catch (Exception e) {
             logger.error("Could not store property: category=" + category + ", name=" + name, e);
+        }
+    }
+    
+    public void vacuumConfigurationTable() {
+        vacuumLock.writeLock().lock();
+        SqlSession session = SqlConfig.getSqlSessionManager().openSession(false);
+        try {
+            if (DatabaseUtil.statementExists("Configuration.lockBeforeVacuum")) {
+                session.update("Configuration.lockBeforeVacuum");
+            }
+            session.update("Configuration.vacuumConfigurationTable");
+            session.commit();
+        } finally {
+            session.close();
+            vacuumLock.writeLock().unlock();
         }
     }
 
