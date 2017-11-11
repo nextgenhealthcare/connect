@@ -43,8 +43,6 @@ import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -122,6 +120,7 @@ import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.StatementLock;
 import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
 import com.mirth.connect.util.ConfigurationProperty;
@@ -140,6 +139,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public static final String PROPERTIES_CHANNEL_METADATA = "channelMetadata";
     public static final String PROPERTIES_CHANNEL_TAGS = "channelTags";
     public static final String SECRET_KEY_ALIAS = "encryption";
+    private static final String VACUUM_LOCK_STATEMENT_ID = "Configuration.vacuumConfigurationTable";
 
     private Logger logger = Logger.getLogger(this.getClass());
     private String appDataDir = null;
@@ -860,7 +860,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         logger.debug("retrieving properties: category=" + category);
         Properties properties = new Properties();
 
-        VacuumLock.getInstance().readLock();
+        StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
         try {
             List<KeyValuePair> result = SqlConfig.getSqlSessionManager().selectList("Configuration.selectPropertiesForCategory", category);
 
@@ -870,7 +870,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         } catch (Exception e) {
             logger.error("Could not retrieve properties: category=" + category, e);
         } finally {
-            VacuumLock.getInstance().readUnlock();
+            StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readUnlock();
         }
 
         return properties;
@@ -879,7 +879,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public void removePropertiesForGroup(String category) {
         logger.debug("deleting all properties: category=" + category);
 
-        VacuumLock.getInstance().readLock();
+        StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
@@ -887,7 +887,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         } catch (Exception e) {
             logger.error("Could not delete properties: category=" + category);
         } finally {
-            VacuumLock.getInstance().readUnlock();
+            StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -895,7 +895,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public String getProperty(String category, String name) {
         logger.debug("retrieving property: category=" + category + ", name=" + name);
 
-        VacuumLock.getInstance().readLock();
+        StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
@@ -904,7 +904,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         } catch (Exception e) {
             logger.error("Could not retrieve property: category=" + category + ", name=" + name, e);
         } finally {
-            VacuumLock.getInstance().readUnlock();
+            StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readUnlock();
         }
 
         return null;
@@ -914,7 +914,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public void saveProperty(String category, String name, String value) {
         logger.debug("storing property: category=" + category + ", name=" + name);
 
-        VacuumLock.getInstance().writeLock();
+        StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).writeLock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
@@ -933,52 +933,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         } catch (Exception e) {
             logger.error("Could not store property: category=" + category + ", name=" + name, e);
         } finally {
-            VacuumLock.getInstance().writeUnlock();
-        }
-    }
-    
-    /*
-     * VacuumLock must be instantiated lazily because DatabaseUtil.statementExists relies on
-     * DefaultConfigurationController being instantiated.
-     */
-    private static class VacuumLock {
-        private boolean vacuumLockRequired;
-        private ReadWriteLock vacuumLock = new ReentrantReadWriteLock(true);
-        public static VacuumLock instance = null;
-        
-        private VacuumLock(boolean lockRequired) {
-            this.vacuumLockRequired = lockRequired;
-        };
-        
-        public static synchronized VacuumLock getInstance() {
-            if (instance == null) {
-                instance = new VacuumLock(DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable"));
-            }
-            return instance;
-        }
-        
-        public void readLock() {
-            if (vacuumLockRequired) {
-                vacuumLock.readLock().lock();
-            }
-        }
-        
-        public void readUnlock() {
-            if (vacuumLockRequired) {
-                vacuumLock.readLock().unlock();
-            }
-        }
-        
-        public void writeLock() {
-            if (vacuumLockRequired) {
-                vacuumLock.writeLock().lock();
-            }
-        }
-        
-        public void writeUnlock() {
-            if (vacuumLockRequired) {
-                vacuumLock.writeLock().unlock();
-            }
+            StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).writeUnlock();
         }
     }
     
@@ -986,8 +941,8 @@ public class DefaultConfigurationController extends ConfigurationController {
         SqlSession session = null;
         try {
             session = SqlConfig.getSqlSessionManager().openSession(false);
-            if (DatabaseUtil.statementExists("Configuration.lockBeforeVacuum")) {
-                session.update("Configuration.lockBeforeVacuum");
+            if (DatabaseUtil.statementExists("Configuration.lockConfigurationTable")) {
+                session.update("Configuration.lockConfigurationTable");
             }
             session.update("Configuration.vacuumConfigurationTable");
             session.commit();
@@ -1004,7 +959,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public void removeProperty(String category, String name) {
         logger.debug("deleting property: category=" + category + ", name=" + name);
 
-        VacuumLock.getInstance().readLock();
+        StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
@@ -1013,7 +968,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         } catch (Exception e) {
             logger.error("Could not delete property: category=" + category + ", name=" + name, e);
         } finally {
-            VacuumLock.getInstance().readUnlock();
+            StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readUnlock();
         }
     }
 

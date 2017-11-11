@@ -35,7 +35,7 @@
 		</if>
 	</delete>
 
-	<update id="lockBeforeVacuum">
+	<update id="lockConfigurationTable">
 		LOCK TABLE CONFIGURATION IN EXCLUSIVE MODE
 	</update>
 
