@@ -98,10 +98,11 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
 		}
 		Long clusterLastLogId = clusterLastLogIdByChannelId.get(channelId);
 		
+		LinkedList<ConnectionLogItem> logItems = null;
 		if (serverLog.containsKey(channelId)) {
-			serverLog.remove(channelId);
+			logItems = serverLog.remove(channelId);
 		}
-
+		
 		if (serverId.equals(NO_SERVER_SELECTED)) {
 			// Update lastClusterLogIdWhenCleared. Its values are used when getting channel logs from the servlet and
 			// ensures that servers will not re-fetch the same logs that we already cleared in the Cluster.
@@ -109,10 +110,29 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
 				lastClusterLogIdWhenCleared.put(channelId, clusterLastLogId);
 			}
 		} else {
-			// Clear the logs on the Cluster as well.
+			// Delete all of the logs, that were just removed, from the Cluster's logs
 			Map<String, LinkedList<ConnectionLogItem>> clusterLog = connectorInfoLogs.get(NO_SERVER_SELECTED);
-			if (clusterLog != null && clusterLog.containsKey(channelId)) {
-				clusterLog.remove(channelId);
+			if (clusterLog == null) {
+				clusterLog = new HashMap<>();
+				connectorInfoLogs.put(NO_SERVER_SELECTED, clusterLog);
+			}
+			
+			LinkedList<ConnectionLogItem> clusterLogItems = clusterLog.get(channelId);
+			
+			if (clusterLogItems != null && logItems != null) {
+				Set<Long> logIdsToRemove = new HashSet<>();
+				for (ConnectionLogItem item : logItems) {
+					logIdsToRemove.add(item.getLogId());
+				}
+				
+				LinkedList<ConnectionLogItem> prunedClusterLogItems = new LinkedList<>();
+				for (ConnectionLogItem item : clusterLogItems) {
+					if (!logIdsToRemove.contains(item.getLogId())) {
+						prunedClusterLogItems.add(item);
+					}
+				}
+				
+				clusterLog.put(channelId, prunedClusterLogItems);
 			}
 
 			if (lastLogId != null && (clusterLastLogId == null || lastLogId > clusterLastLogId)) {
@@ -325,12 +345,15 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     }
     
     private LinkedList<ConnectionLogItem> getChannelLog(String channelId) {
-    	
     	String serverId = getSelectedServerId();
 		if (serverId == null) {
 			serverId = NO_SERVER_SELECTED;
 		}
 		
+    	return getChannelLog(serverId, channelId);
+    }
+    
+    private LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId) {
 		if (connectorInfoLogs.containsKey(serverId)) {
 			Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(serverId);
 			if (serverLog.containsKey(channelId)) {
