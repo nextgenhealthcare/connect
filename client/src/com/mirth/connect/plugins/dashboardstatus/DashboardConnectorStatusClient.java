@@ -38,7 +38,6 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     private boolean shouldResetLogs;
     private Map<String, Map<String, Long>> lastLogIdByServerId;
     
-    private Map<String, Long> lastClusterLogIdWhenCleared;	// Maps channelId -> lastLogId
 
     /** Creates a new instance of DashboardConnectorStatusClient */
     public DashboardConnectorStatusClient(String name) {
@@ -46,7 +45,6 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
         shouldResetLogs = true;
         lastLogIdByServerId = new ConcurrentHashMap<>();
         connectorInfoLogs = new ConcurrentHashMap<>();
-        lastClusterLogIdWhenCleared = new ConcurrentHashMap<>();
         dcsp = new DashboardConnectorStatusPanel(this);
         currentDashboardLogSize = dcsp.getCurrentDashboardLogSize();
     }
@@ -66,81 +64,26 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     }
     
 	private void clearLog(String serverId, String selectedChannelId) {
-
-		if (connectorInfoLogs.containsKey(serverId)) {
+		Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(serverId);
+		
+		if (serverLog != null) {
 			if (selectedChannelId.equals(NO_CHANNEL_SELECTED)
 					&& (selectedStatuses != null && selectedStatuses.size() > 0)) {
 				// One or more statuses are selected, so delete the logs for the
 				// corresponding channels.
 				for (DashboardStatus status : selectedStatuses) {
-					clearLogAcrossServers(serverId, status.getChannelId());
-				}
-			} else {
-				clearLogAcrossServers(serverId, selectedChannelId);
-			}
-		}
-	}
-	
-	private void clearLogAcrossServers(String serverId, String channelId) {
-		Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(serverId);
-		
-		Map<String, Long> lastLogIdByChannelId = lastLogIdByServerId.get(serverId);
-		if (lastLogIdByChannelId == null) {
-			lastLogIdByChannelId = new HashMap<>();
-			lastLogIdByServerId.put(serverId, lastLogIdByChannelId);
-		}
-		Long lastLogId = lastLogIdByChannelId.get(channelId);
-		
-		Map<String, Long> clusterLastLogIdByChannelId = lastLogIdByServerId.get(NO_SERVER_SELECTED);
-		if (clusterLastLogIdByChannelId == null) {
-			clusterLastLogIdByChannelId = new HashMap<>();
-			lastLogIdByServerId.put(NO_SERVER_SELECTED, clusterLastLogIdByChannelId);
-		}
-		Long clusterLastLogId = clusterLastLogIdByChannelId.get(channelId);
-		
-		LinkedList<ConnectionLogItem> logItems = null;
-		if (serverLog.containsKey(channelId)) {
-			logItems = serverLog.remove(channelId);
-		}
-		
-		if (serverId.equals(NO_SERVER_SELECTED)) {
-			// Update lastClusterLogIdWhenCleared. Its values are used when getting channel logs from the servlet and
-			// ensures that servers will not re-fetch the same logs that we already cleared in the Cluster.
-			if (clusterLastLogId != null) {
-				lastClusterLogIdWhenCleared.put(channelId, clusterLastLogId);
-			}
-		} else {
-			// Delete all of the logs, that were just removed, from the Cluster's logs
-			Map<String, LinkedList<ConnectionLogItem>> clusterLog = connectorInfoLogs.get(NO_SERVER_SELECTED);
-			if (clusterLog == null) {
-				clusterLog = new HashMap<>();
-				connectorInfoLogs.put(NO_SERVER_SELECTED, clusterLog);
-			}
-			
-			LinkedList<ConnectionLogItem> clusterLogItems = clusterLog.get(channelId);
-			
-			if (clusterLogItems != null && logItems != null) {
-				Set<Long> logIdsToRemove = new HashSet<>();
-				for (ConnectionLogItem item : logItems) {
-					logIdsToRemove.add(item.getLogId());
-				}
-				
-				LinkedList<ConnectionLogItem> prunedClusterLogItems = new LinkedList<>();
-				for (ConnectionLogItem item : clusterLogItems) {
-					if (!logIdsToRemove.contains(item.getLogId())) {
-						prunedClusterLogItems.add(item);
+					if (serverLog.containsKey(status.getChannelId())) {
+						serverLog.remove(status.getChannelId());
 					}
 				}
-				
-				clusterLog.put(channelId, prunedClusterLogItems);
-			}
-
-			if (lastLogId != null && (clusterLastLogId == null || lastLogId > clusterLastLogId)) {
-				clusterLastLogIdByChannelId.put(channelId, lastLogId);
+			} else {
+				if (serverLog.containsKey(selectedChannelId)) {
+					serverLog.remove(selectedChannelId);
+				}
 			}
 		}
 	}
-    
+	    
     public void resetLogSize(int newDashboardLogSize, String selectedChannel) {
 
         // the log size is always set to 1000 on the server.
@@ -204,12 +147,6 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
         }
         
         Long lastLogId = lastLogIdByChannelId.get(channelId);
-        
-        Long lastClusterLogId = lastClusterLogIdWhenCleared.get(channelId);
-        if (lastClusterLogId != null &&
-        		(lastLogId == null || lastClusterLogId > lastLogId)) {
-        	lastLogId = lastClusterLogId;
-        }
 
         //get states from server only if the client's channel log is not in the paused state.
         if (!dcsp.isPaused(channelId)) {
@@ -224,25 +161,49 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
                 parent.alertThrowable(parent, e, false);
             }
 
-            LinkedList<ConnectionLogItem> channelLog = getChannelLog(channelId);
-
+            // Store each log item by server and channel
+            Map<String, LinkedList<ConnectionLogItem>> channelLogs = new HashMap<>();
             synchronized (this) {
                 for (int i = connectionInfoLogsReceived.size() - 1; i >= 0; i--) {
+                	ConnectionLogItem item = connectionInfoLogsReceived.get(i);
+                	
+                	LinkedList<ConnectionLogItem> channelLog = channelLogs.get(item.getServerId());
+                	if (channelLog == null) {
+                		channelLog = getChannelLog(channelId);
+                		channelLogs.put(item.getServerId(), channelLog);
+                	}
+                	
                     channelLog.addFirst(connectionInfoLogsReceived.get(i));
+                    while (channelLog.size() > currentDashboardLogSize) {
+                        channelLog.removeLast();
+                    }
+                    
+                    if (i == 0) {
+                    	lastLogIdByChannelId.put(channelId, item.getLogId());
+                    }
                 }
-                while (channelLog.size() > currentDashboardLogSize) {
-                    channelLog.removeLast();
-                }
-
-                lastLogIdByChannelId.put(channelId, channelLog.getFirst().getLogId());
             }
 
-            Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(serverId);
-            if (serverLog == null) {
-            	serverLog = new HashMap<>();
-            	connectorInfoLogs.put(serverId, serverLog);
+            // Cache the server logs and update "last log IDs"
+            for (String srvId : channelLogs.keySet()) {
+				Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(srvId);
+				if (serverLog == null) {
+					serverLog = new HashMap<>();
+					connectorInfoLogs.put(srvId, serverLog);
+				}
+				serverLog.put(channelId, channelLogs.get(srvId));
+				
+				Map<String, Long> srvLogIdByChannelId = lastLogIdByServerId.get(srvId);
+				if (srvLogIdByChannelId == null) {
+					srvLogIdByChannelId = new HashMap<>();
+					lastLogIdByServerId.put(srvId, srvLogIdByChannelId);
+				}
+				Long currentSrvLogId = srvLogIdByChannelId.get(channelId);
+				Long newSrvLogId = channelLogs.get(srvId).getFirst().getLogId();
+				if (currentSrvLogId == null || newSrvLogId > currentSrvLogId) {
+					srvLogIdByChannelId.put(channelId, newSrvLogId);
+				}
             }
-            serverLog.put(channelId, channelLog);
         }
     }
 
@@ -347,10 +308,14 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     private LinkedList<ConnectionLogItem> getChannelLog(String channelId) {
     	String serverId = getSelectedServerId();
 		if (serverId == null) {
-			serverId = NO_SERVER_SELECTED;
+			LinkedList<ConnectionLogItem> items = new LinkedList<>();
+			for (String srvId : connectorInfoLogs.keySet()) {
+				items.addAll(getChannelLog(srvId, channelId));
+			}
+			return items;
+		} else {
+			return getChannelLog(serverId, channelId);
 		}
-		
-    	return getChannelLog(serverId, channelId);
     }
     
     private LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId) {
