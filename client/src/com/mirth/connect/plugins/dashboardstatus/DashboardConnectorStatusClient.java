@@ -52,11 +52,13 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     public void clearLog(String selectedChannelId) {
     	String serverId = getSelectedServerId();
     	
-    	if (serverId == null) {
+    	if (serverId == null) {    		
     		for (String srvId : lastLogIdByServerId.keySet()) {
     			clearLog(srvId, selectedChannelId);
+    			updateServerLastLogId(srvId, selectedChannelId);
     		}
     	} else {
+    		removeLogsFromCluster(serverId, selectedChannelId);
     		clearLog(serverId, selectedChannelId);
     	}
     	
@@ -67,21 +69,95 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
 		Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(serverId);
 		
 		if (serverLog != null) {
-			if (selectedChannelId.equals(NO_CHANNEL_SELECTED)
-					&& (selectedStatuses != null && selectedStatuses.size() > 0)) {
-				// One or more statuses are selected, so delete the logs for the
-				// corresponding channels.
-				for (DashboardStatus status : selectedStatuses) {
-					if (serverLog.containsKey(status.getChannelId())) {
-						serverLog.remove(status.getChannelId());
-					}
-				}
-			} else {
-				if (serverLog.containsKey(selectedChannelId)) {
-					serverLog.remove(selectedChannelId);
-				}
+			List<String> channelIds = getSelectedChannelIds(selectedChannelId);
+
+			for (String channelId : channelIds) {
+				serverLog.remove(channelId);
 			}
 		}
+	}
+	
+	/*
+	 * Updates the last log IDs for the server to the max of its values and the cluster's values
+	 */
+	private void updateServerLastLogId(String serverId, String selectedChannelId) {
+		List<String> channelIds = getSelectedChannelIds(selectedChannelId);
+		
+		for (String channelId : channelIds) {
+			Map<String, Long> clusterLastLogIds = lastLogIdByServerId.get(NO_SERVER_SELECTED);
+			
+			Long clusterLastLogId = null;
+			if (clusterLastLogIds != null) {
+				clusterLastLogId = clusterLastLogIds.get(channelId);
+			}
+
+			Map<String, Long> lastLogIds = lastLogIdByServerId.get(serverId);
+			if (lastLogIds == null) {
+				lastLogIds = new HashMap<>();
+				lastLogIdByServerId.put(serverId, lastLogIds);
+			}
+
+			Long lastLogId = lastLogIds.get(channelId);
+
+			if (clusterLastLogId != null && (lastLogId == null || clusterLastLogId > lastLogId)) {
+				lastLogIds.put(channelId, clusterLastLogId);
+			}
+		}
+	}
+	
+	private void removeLogsFromCluster(String serverId, String selectedChannelId) {
+		Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(serverId);
+		
+		if (serverLog != null) {
+			List<String> channelIds = getSelectedChannelIds(selectedChannelId);
+			
+			Set<Long> logIdsToRemove = new HashSet<>();
+			
+			for (String channelId : channelIds) {
+				// We get channels logs for the Cluster, which also updates its last log IDs, before deleting logs from it.
+				// This prevents us from missing out on fetching logs that we have not yet fetched.
+				getChannelLogs(NO_SERVER_SELECTED, channelId);
+				
+				Map<String, LinkedList<ConnectionLogItem>> clusterLog = connectorInfoLogs.get(NO_SERVER_SELECTED);
+				if (clusterLog == null) {
+					clusterLog = new HashMap<>();
+					connectorInfoLogs.put(NO_SERVER_SELECTED, clusterLog);
+				}
+				
+				if (clusterLog.containsKey(channelId)) {
+					List<ConnectionLogItem> items = serverLog.get(channelId);
+					for (ConnectionLogItem item : items) {
+						logIdsToRemove.add(item.getLogId());
+					}
+
+					LinkedList<ConnectionLogItem> prunedClusterLog = new LinkedList<>();
+					for (ConnectionLogItem item : clusterLog.get(channelId)) {
+						if (!logIdsToRemove.contains(item.getLogId())) {
+							prunedClusterLog.add(item);
+						}
+					}
+
+					clusterLog.put(channelId, prunedClusterLog);
+				}
+			}
+			
+			
+		}
+	}
+	
+	private List<String> getSelectedChannelIds(String selectedChannelId) {
+		List<String> channelIds = new ArrayList<String>();
+		
+		if (selectedChannelId.equals(NO_CHANNEL_SELECTED)
+				&& (selectedStatuses != null && selectedStatuses.size() > 0)) {
+			for (DashboardStatus status : selectedStatuses) {
+				channelIds.add(status.getChannelId());
+			}
+		} else {
+			channelIds.add(selectedChannelId);
+		}
+		
+		return channelIds;
 	}
 	    
     public void resetLogSize(int newDashboardLogSize, String selectedChannel) {
@@ -160,62 +236,30 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
                 parent.alertThrowable(parent, e, false);
             }
 
-			// Store each log item by server and channel ID. Note we're grouping by the channelId method argument, not the channelId of each ConnectionLogItem,
-            // because when no channel is selected, we want to group them under the NO_CHANNEL_SELECTED channel ID. 
-			Map<String, LinkedList<ConnectionLogItem>> channelLogs = new HashMap<>();
+            LinkedList<ConnectionLogItem> channelLog = getChannelLog(serverId, channelId);
 			for (int i = connectionInfoLogsReceived.size() - 1; i >= 0; i--) {
 				ConnectionLogItem item = connectionInfoLogsReceived.get(i);
-
-				LinkedList<ConnectionLogItem> channelLog = channelLogs.get(item.getServerId());
-				if (channelLog == null) {
-					channelLog = getChannelLog(item.getServerId(), channelId);
-					channelLogs.put(item.getServerId(), channelLog);
-				}
-
-				// Only add the log if it is newer than the last log added to its specific server-channel log.
-				// This prevents us from re-fetching logs for the Cluster when they have already been cleared for a server.
-				Map<String, Long> srvLogIdByChannelId = lastLogIdByServerId.get(item.getServerId());
-				Long srvLogId = null;
-				if (srvLogIdByChannelId != null) {
-					srvLogId = srvLogIdByChannelId.get(channelId);
-				}
-
-				if (srvLogId == null || item.getLogId() > srvLogId) {
-					channelLog.addFirst(item);
-					while (channelLog.size() > currentDashboardLogSize) {
-						channelLog.removeLast();
-					}
-				}
-
-				if (i == 0) {
-					lastLogIdByChannelId.put(channelId, item.getLogId());
+				channelLog.addFirst(item);
+				
+				// Create lastLogId entries for any servers we see
+				if (!lastLogIdByServerId.containsKey(item.getServerId())) {
+					lastLogIdByServerId.put(item.getServerId(), new HashMap<>());
 				}
 			}
-
-			for (String srvId : channelLogs.keySet()) {
-				// Cache the server logs
-				Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(srvId);
-				if (serverLog == null) {
-					serverLog = new HashMap<>();
-					connectorInfoLogs.put(srvId, serverLog);
-				}
-				serverLog.put(channelId, channelLogs.get(srvId));
-
-				// Update the lastLogId for server-channel
-				Map<String, Long> srvLogIdByChannelId = lastLogIdByServerId.get(srvId);
-				if (srvLogIdByChannelId == null) {
-					srvLogIdByChannelId = new HashMap<>();
-					lastLogIdByServerId.put(srvId, srvLogIdByChannelId);
-				}
-
-				Long currentSrvLogId = srvLogIdByChannelId.get(channelId);
-				Long newSrvLogId = null;
-				if (!channelLogs.get(srvId).isEmpty()) {
-					newSrvLogId = channelLogs.get(srvId).getFirst().getLogId();
-				}
-				if (currentSrvLogId == null || (newSrvLogId != null && newSrvLogId > currentSrvLogId)) {
-					srvLogIdByChannelId.put(channelId, newSrvLogId);
-				}
+			while (channelLog.size() > currentDashboardLogSize) {
+				channelLog.removeLast();
+			}
+			
+			Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(serverId);
+			if (serverLog == null) {
+				serverLog = new HashMap<>();
+				connectorInfoLogs.put(serverId, serverLog);
+			}
+			
+			serverLog.put(channelId, channelLog);
+			
+			if (!connectionInfoLogsReceived.isEmpty()) {
+				lastLogIdByChannelId.put(channelId, connectionInfoLogsReceived.getFirst().getLogId());
 			}
 		}
     }
@@ -319,16 +363,8 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     }
     
     private LinkedList<ConnectionLogItem> getChannelLog(String channelId) {
-    	String serverId = getSelectedServerId();
-		if (serverId == null) {
-			LinkedList<ConnectionLogItem> items = new LinkedList<>();
-			for (String srvId : connectorInfoLogs.keySet()) {
-				items.addAll(getChannelLog(srvId, channelId));
-			}
-			return items;
-		} else {
-			return getChannelLog(serverId, channelId);
-		}
+    	String server = getSelectedServerId();
+		return getChannelLog(server == null ? NO_SERVER_SELECTED : server, channelId);
     }
     
     private LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId) {
