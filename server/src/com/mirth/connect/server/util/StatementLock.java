@@ -12,7 +12,7 @@ public class StatementLock {
     
     private StatementLock(boolean lockRequired) {
         this.vacuumLockRequired = lockRequired;
-        this.vacuumLock = new ReentrantReadWriteLock(true);
+        this.vacuumLock = lockRequired?new ReentrantReadWriteLock(true):null;
     }
     
     /**
