@@ -32,9 +32,9 @@ public class StatementLock {
                 return statementLock;
             }
             
-            StatementLock instance = new StatementLock(DatabaseUtil.statementExists(statementId));
-            instances.put(statementId, instance);
-            return instance;
+            statementLock = new StatementLock(DatabaseUtil.statementExists(statementId));
+            instances.put(statementId, statementLock);
+            return statementLock;
         }
     }
     
