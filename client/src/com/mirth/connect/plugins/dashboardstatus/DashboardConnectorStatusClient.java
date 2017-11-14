@@ -242,7 +242,7 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
 				channelLog.addFirst(item);
 				
 				// Create lastLogId entries for any servers we see
-				if (!lastLogIdByServerId.containsKey(item.getServerId())) {
+				if (item.getServerId() != null && !lastLogIdByServerId.containsKey(item.getServerId())) {
 					lastLogIdByServerId.put(item.getServerId(), new HashMap<>());
 				}
 			}
