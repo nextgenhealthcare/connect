@@ -37,8 +37,6 @@ import com.mirth.connect.server.util.Pre22PasswordChecker;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.StatementLock;
 
-import apple.laf.JRSUIConstants.State;
-
 public class DefaultUserController extends UserController {
     private static final String VACUUM_LOCK_PERSON_STATEMENT_ID = "User.vacuumPersonTable";
     private static final String VACUUM_LOCK_PREFERENCES_STATEMENT_ID = "User.vacuumPersonPreferencesTable";

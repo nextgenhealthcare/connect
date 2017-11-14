@@ -1,17 +1,18 @@
 package com.mirth.connect.server.util;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StatementLock {
     private boolean vacuumLockRequired;
-    private ReadWriteLock vacuumLock = new ReentrantReadWriteLock(true);
-    private static Map<String, StatementLock> instances = new HashMap<>();
+    private ReadWriteLock vacuumLock;
+    private static Map<String, StatementLock> instances = new ConcurrentHashMap<>();
     
     private StatementLock(boolean lockRequired) {
         this.vacuumLockRequired = lockRequired;
+        this.vacuumLock = new ReentrantReadWriteLock(true);
     }
     
     /**
@@ -20,13 +21,15 @@ public class StatementLock {
      * @return
      */
     public static StatementLock getInstance(String statementId) {
-        if (instances.containsKey(statementId)) {
-            return instances.get(statementId);
+        StatementLock statementLock = instances.get(statementId);
+        if (statementLock != null) {
+            return statementLock;
         }
         
         synchronized (StatementLock.class) {
-            if (instances.containsKey(statementId)) {
-                return instances.get(statementId);
+            statementLock = instances.get(statementId);
+            if (statementLock != null) {
+                return statementLock;
             }
             
             StatementLock instance = new StatementLock(DatabaseUtil.statementExists(statementId));
