@@ -122,6 +122,10 @@
 		SET LOGGED_IN = 0
 	</update>
 	
+	<update id="lockPersonTable">
+        LOCK TABLE PERSON IN EXCLUSIVE MODE
+    </update>
+	
 	<select id="vacuumPersonTable" statementType="CALLABLE">
 		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'PERSON', 0)}
 	</select>
@@ -131,21 +135,25 @@
 		FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{value}
 	</select>
+	
 	<select id='selectPreference' parameterType='java.util.Map' resultType='java.lang.String'>
 		SELECT VALUE
 		FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{person_id} AND NAME = #{name}
 	</select>
+	
 	<insert id='insertPreference' parameterType='java.util.Map'>
 		INSERT INTO
 		PERSON_PREFERENCE (PERSON_ID, NAME, VALUE)
 		VALUES (#{person_id}, #{name}, #{value})
 	</insert>
+	
 	<update id='updatePreference' parameterType='java.util.Map'>
 		UPDATE PERSON_PREFERENCE
 		SET VALUE = #{value}
 		WHERE PERSON_ID = #{person_id} AND NAME = #{name}
 	</update>
+	
 	<delete id='deletePreference' parameterType='java.util.Map'>
 		DELETE FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{person_id}
@@ -153,4 +161,12 @@
 			AND NAME = #{name}
 		</if>
 	</delete>
+	
+	<update id="lockPersonPreferencesTable">
+		LOCK TABLE PERSON_PREFERENCE IN EXCLUSIVE MODE
+	</update>
+
+	<select id="vacuumPersonPreferencesTable" statementType="CALLABLE">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'PERSON_PREFERENCE', 0)}
+	</select>
 </mapper>

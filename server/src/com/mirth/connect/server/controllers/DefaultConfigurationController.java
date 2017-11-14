@@ -937,6 +937,9 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
     
+    /**
+     * When calling this method, a StatementLock writeLock should surround it
+     */
     public void vacuumConfigurationTable() {
         SqlSession session = null;
         try {
