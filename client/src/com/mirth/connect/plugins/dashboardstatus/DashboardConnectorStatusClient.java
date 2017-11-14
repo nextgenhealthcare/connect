@@ -139,13 +139,12 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
         }
     }
     
-    private void getChannelLogs(String serverId, String channelId) {
+    private synchronized void getChannelLogs(String serverId, String channelId) {
     	Map<String, Long> lastLogIdByChannelId = lastLogIdByServerId.get(serverId);
         if (lastLogIdByChannelId == null) {
         	lastLogIdByChannelId = new HashMap<>();
         	lastLogIdByServerId.put(serverId, lastLogIdByChannelId);
         }
-        
         Long lastLogId = lastLogIdByChannelId.get(channelId);
 
         //get states from server only if the client's channel log is not in the paused state.
@@ -161,50 +160,64 @@ public class DashboardConnectorStatusClient extends DashboardTabPlugin {
                 parent.alertThrowable(parent, e, false);
             }
 
-            // Store each log item by server and channel
-            Map<String, LinkedList<ConnectionLogItem>> channelLogs = new HashMap<>();
-            synchronized (this) {
-                for (int i = connectionInfoLogsReceived.size() - 1; i >= 0; i--) {
-                	ConnectionLogItem item = connectionInfoLogsReceived.get(i);
-                	
-                	LinkedList<ConnectionLogItem> channelLog = channelLogs.get(item.getServerId());
-                	if (channelLog == null) {
-                		channelLog = getChannelLog(channelId);
-                		channelLogs.put(item.getServerId(), channelLog);
-                	}
-                	
-                    channelLog.addFirst(connectionInfoLogsReceived.get(i));
-                    while (channelLog.size() > currentDashboardLogSize) {
-                        channelLog.removeLast();
-                    }
-                    
-                    if (i == 0) {
-                    	lastLogIdByChannelId.put(channelId, item.getLogId());
-                    }
-                }
-            }
+			// Store each log item by server and channel ID. Note we're grouping by the channelId method argument, not the channelId of each ConnectionLogItem,
+            // because when no channel is selected, we want to group them under the NO_CHANNEL_SELECTED channel ID. 
+			Map<String, LinkedList<ConnectionLogItem>> channelLogs = new HashMap<>();
+			for (int i = connectionInfoLogsReceived.size() - 1; i >= 0; i--) {
+				ConnectionLogItem item = connectionInfoLogsReceived.get(i);
 
-            // Cache the server logs and update "last log IDs"
-            for (String srvId : channelLogs.keySet()) {
+				LinkedList<ConnectionLogItem> channelLog = channelLogs.get(item.getServerId());
+				if (channelLog == null) {
+					channelLog = getChannelLog(item.getServerId(), channelId);
+					channelLogs.put(item.getServerId(), channelLog);
+				}
+
+				// Only add the log if it is newer than the last log added to its specific server-channel log.
+				// This prevents us from re-fetching logs for the Cluster when they have already been cleared for a server.
+				Map<String, Long> srvLogIdByChannelId = lastLogIdByServerId.get(item.getServerId());
+				Long srvLogId = null;
+				if (srvLogIdByChannelId != null) {
+					srvLogId = srvLogIdByChannelId.get(channelId);
+				}
+
+				if (srvLogId == null || item.getLogId() > srvLogId) {
+					channelLog.addFirst(item);
+					while (channelLog.size() > currentDashboardLogSize) {
+						channelLog.removeLast();
+					}
+				}
+
+				if (i == 0) {
+					lastLogIdByChannelId.put(channelId, item.getLogId());
+				}
+			}
+
+			for (String srvId : channelLogs.keySet()) {
+				// Cache the server logs
 				Map<String, LinkedList<ConnectionLogItem>> serverLog = connectorInfoLogs.get(srvId);
 				if (serverLog == null) {
 					serverLog = new HashMap<>();
 					connectorInfoLogs.put(srvId, serverLog);
 				}
 				serverLog.put(channelId, channelLogs.get(srvId));
-				
+
+				// Update the lastLogId for server-channel
 				Map<String, Long> srvLogIdByChannelId = lastLogIdByServerId.get(srvId);
 				if (srvLogIdByChannelId == null) {
 					srvLogIdByChannelId = new HashMap<>();
 					lastLogIdByServerId.put(srvId, srvLogIdByChannelId);
 				}
+
 				Long currentSrvLogId = srvLogIdByChannelId.get(channelId);
-				Long newSrvLogId = channelLogs.get(srvId).getFirst().getLogId();
-				if (currentSrvLogId == null || newSrvLogId > currentSrvLogId) {
+				Long newSrvLogId = null;
+				if (!channelLogs.get(srvId).isEmpty()) {
+					newSrvLogId = channelLogs.get(srvId).getFirst().getLogId();
+				}
+				if (currentSrvLogId == null || (newSrvLogId != null && newSrvLogId > currentSrvLogId)) {
 					srvLogIdByChannelId.put(channelId, newSrvLogId);
 				}
-            }
-        }
+			}
+		}
     }
 
     // used for setting actions to be called for updating when there is no status selected
