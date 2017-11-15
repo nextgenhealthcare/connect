@@ -35,6 +35,10 @@
 		</if>
 	</delete>
 
+	<update id="lockConfigurationTable">
+		LOCK TABLE CONFIGURATION IN EXCLUSIVE MODE
+	</update>
+
 	<select id="vacuumConfigurationTable" statementType="CALLABLE">
 		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'CONFIGURATION', 0)}
 	</select>

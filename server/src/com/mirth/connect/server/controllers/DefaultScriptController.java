@@ -15,17 +15,22 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
+import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.StatementLock;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class DefaultScriptController extends ScriptController {
+    private static final String VACUUM_LOCK_SCRIPT_STATEMENT_ID = "Script.vacuumScriptTable";
+    
     private Logger logger = Logger.getLogger(this.getClass());
     private static ScriptController instance = null;
 
@@ -59,6 +64,7 @@ public class DefaultScriptController extends ScriptController {
     public void putScript(String groupId, String id, String script) throws ControllerException {
         logger.debug("adding script: groupId=" + groupId + ", id=" + id);
 
+        StatementLock.getInstance(VACUUM_LOCK_SCRIPT_STATEMENT_ID).readLock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("groupId", groupId);
@@ -72,6 +78,8 @@ public class DefaultScriptController extends ScriptController {
             }
         } catch (PersistenceException e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_SCRIPT_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -86,6 +94,7 @@ public class DefaultScriptController extends ScriptController {
     public String getScript(String groupId, String id) throws ControllerException {
         logger.debug("retrieving script: groupId=" + groupId + ", id=" + id);
 
+        StatementLock.getInstance(VACUUM_LOCK_SCRIPT_STATEMENT_ID).readLock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("groupId", groupId);
@@ -93,6 +102,8 @@ public class DefaultScriptController extends ScriptController {
             return (String) SqlConfig.getSqlSessionManager().selectOne("Script.getScript", parameterMap);
         } catch (PersistenceException e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_SCRIPT_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -103,10 +114,38 @@ public class DefaultScriptController extends ScriptController {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("groupId", groupId);
 
+        StatementLock.getInstance(VACUUM_LOCK_SCRIPT_STATEMENT_ID).writeLock();
         try {
             SqlConfig.getSqlSessionManager().delete("Script.deleteScript", parameterMap);
+            
+            if (DatabaseUtil.statementExists("Script.vacuumScriptTable")) {
+                vacuumScriptTable();
+            }
         } catch (PersistenceException e) {
             throw new ControllerException("Error deleting scripts", e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_SCRIPT_STATEMENT_ID).writeUnlock();
+        }
+    }
+    
+    /**
+     * When calling this method, a StatementLock writeLock should surround it
+     */
+    public void vacuumScriptTable() {
+        SqlSession session = null;
+        try {
+            session = SqlConfig.getSqlSessionManager().openSession(false);
+            if (DatabaseUtil.statementExists("Script.lockScriptTable")) {
+                session.update("Script.lockScriptTable");
+            }
+            session.update("Script.vacuumScriptTable");
+            session.commit();
+        } catch (Exception e) {
+            logger.error("Could not compress Script table", e);
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 

@@ -33,6 +33,10 @@
 		</where>
 	</delete>
 	
+	<update id="lockScriptTable">
+		LOCK TABLE SCRIPT IN EXCLUSIVE MODE
+	</update>
+	
 	<select id="vacuumScriptTable" statementType="CALLABLE">
 		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'SCRIPT', 0)}
 	</select>
