@@ -21,6 +21,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.api.InvocationHandlerRecorder;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.model.ConnectorMetaData;
@@ -73,6 +74,7 @@ public class LoadedExtensions {
     private Map<String, ConnectorSettingsPanel> connectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> sourceConnectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> destinationConnectors = new TreeMap<String, ConnectorSettingsPanel>();
+    private InvocationHandlerRecorder recorder;
     private static LoadedExtensions instance = null;
     private Logger logger = Logger.getLogger(this.getClass());
 
@@ -322,6 +324,10 @@ public class LoadedExtensions {
         if (plugin instanceof TaskPlugin) {
             taskPlugins.put(plugin.getPluginPointName(), (TaskPlugin) plugin);
         }
+
+        if (plugin instanceof InvocationHandlerRecorder) {
+            recorder = (InvocationHandlerRecorder) plugin;
+        }
     }
 
     private void clearExtensionMaps() {
@@ -429,6 +435,10 @@ public class LoadedExtensions {
 
     public Map<String, TaskPlugin> getTaskPlugins() {
         return taskPlugins;
+    }
+
+    public InvocationHandlerRecorder getRecorder() {
+        return recorder;
     }
 
     public Map<String, ConnectorSettingsPanel> getConnectors() {
