@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
@@ -38,11 +39,14 @@ import com.mirth.connect.plugins.CodeTemplateServerPlugin;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.StatementLock;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 
 public class DefaultCodeTemplateController extends CodeTemplateController {
 
     private static CodeTemplateController instance = null;
+    private static final String VACUUM_LOCK_CODE_TEMPLATE_STATEMENT_ID = "CodeTemplate.vacuumCodeTemplateTable";
+    private static final String VACUUM_LOCK_LIBRARY_STATEMENT_ID = "CodeTemplate.vacuumLibraryTable";
 
     private Logger logger = Logger.getLogger(getClass());
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
@@ -191,28 +195,40 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         }
 
         // Remove libraries
-        for (CodeTemplateLibrary library : librariesToRemove) {
-            try {
+        StatementLock.getInstance(VACUUM_LOCK_LIBRARY_STATEMENT_ID).readLock();
+        try {
+            for (CodeTemplateLibrary library : librariesToRemove) {
                 SqlConfig.getSqlSessionManager().delete("CodeTemplate.deleteLibrary", library.getId());
-
-                if (DatabaseUtil.statementExists("CodeTemplate.vacuumLibraryTable")) {
-                    SqlConfig.getSqlSessionManager().update("CodeTemplate.vacuumLibraryTable");
-                }
 
                 // Invoke the code template plugins
                 for (CodeTemplateServerPlugin codeTemplateServerPlugin : extensionController.getCodeTemplateServerPlugins().values()) {
                     codeTemplateServerPlugin.remove(library, context);
                 }
-            } catch (Exception e) {
-                throw new ControllerException(e);
             }
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_LIBRARY_STATEMENT_ID).readUnlock();
         }
 
+        // Vacuum
+        StatementLock.getInstance(VACUUM_LOCK_LIBRARY_STATEMENT_ID).writeLock();
+        try {
+            if (DatabaseUtil.statementExists("CodeTemplate.vacuumLibraryTable")) {
+                vacuumLibraryTable();
+            }
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_LIBRARY_STATEMENT_ID).writeUnlock();
+        }
+        
         // Insert or update libraries
-        for (CodeTemplateLibrary library : libraries) {
-            // Only if it actually changed
-            if (!unchangedLibraryIds.contains(library.getId())) {
-                try {
+        StatementLock.getInstance(VACUUM_LOCK_LIBRARY_STATEMENT_ID).readLock();
+        try {
+            for (CodeTemplateLibrary library : libraries) {
+                // Only if it actually changed
+                if (!unchangedLibraryIds.contains(library.getId())) {
                     library.setLastModified(Calendar.getInstance());
 
                     Map<String, Object> params = new HashMap<String, Object>();
@@ -234,13 +250,57 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
                     for (CodeTemplateServerPlugin codeTemplateServerPlugin : extensionController.getCodeTemplateServerPlugins().values()) {
                         codeTemplateServerPlugin.save(library, context);
                     }
-                } catch (Exception e) {
-                    throw new ControllerException(e);
                 }
             }
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_LIBRARY_STATEMENT_ID).readUnlock();
         }
 
         return true;
+    }
+    
+    /**
+     * When calling this method, a StatementLock writeLock should surround it
+     */
+    public void vacuumLibraryTable() {
+        SqlSession session = null;
+        try {
+            session = SqlConfig.getSqlSessionManager().openSession(false);
+            if (DatabaseUtil.statementExists("CodeTemplate.lockLibraryTable")) {
+                session.update("CodeTemplate.lockLibraryTable");
+            }
+            session.update("CodeTemplate.vacuumLibraryTable");
+            session.commit();
+        } catch (Exception e) {
+            logger.error("Could not compress Code Template Library table", e);
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+    
+    /**
+     * When calling this method, a StatementLock writeLock should surround it
+     */
+    public void vacuumCodeTemplateTable() {
+        SqlSession session = null;
+        try {
+            session = SqlConfig.getSqlSessionManager().openSession(false);
+            if (DatabaseUtil.statementExists("CodeTemplate.lockCodeTemplateTable")) {
+                session.update("CodeTemplate.lockCodeTemplateTable");
+            }
+            session.update("CodeTemplate.vacuumCodeTemplateTable");
+            session.commit();
+        } catch (Exception e) {
+            logger.error("Could not compress Code Template table", e);
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
     }
 
     @Override
@@ -369,6 +429,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             codeTemplate.setRevision(currentRevision + 1);
         }
 
+        StatementLock.getInstance(VACUUM_LOCK_CODE_TEMPLATE_STATEMENT_ID).readLock();
         try {
             for (CodeTemplateLibrary library : getLibraries(null, true)) {
                 Set<String> codeTemplateNames = new HashSet<String>();
@@ -441,6 +502,8 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
                 throw (ControllerException) e;
             }
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_CODE_TEMPLATE_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -452,11 +515,12 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             return;
         }
 
+        StatementLock.getInstance(VACUUM_LOCK_CODE_TEMPLATE_STATEMENT_ID).writeLock();
         try {
             SqlConfig.getSqlSessionManager().delete("CodeTemplate.deleteCodeTemplate", codeTemplate.getId());
 
             if (DatabaseUtil.statementExists("CodeTemplate.vacuumCodeTemplateTable")) {
-                SqlConfig.getSqlSessionManager().update("CodeTemplate.vacuumCodeTemplateTable");
+                vacuumCodeTemplateTable();
             }
 
             // Invoke the code template plugins
@@ -468,6 +532,8 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             scriptController.compileGlobalScripts(contextFactoryController.getGlobalScriptContextFactory());
         } catch (Exception e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_CODE_TEMPLATE_STATEMENT_ID).writeUnlock();
         }
 
         // Update any libraries that were using the code template
