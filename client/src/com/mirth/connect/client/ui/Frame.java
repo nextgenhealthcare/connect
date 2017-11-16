@@ -411,6 +411,8 @@ public class Frame extends JXFrame {
         // Now it's okay to start the plugins
         LoadedExtensions.getInstance().startPlugins();
 
+        mirthClient.setRecorder(LoadedExtensions.getInstance().getRecorder());
+
         statusBar = new StatusBar();
         statusBar.setBorder(BorderFactory.createEmptyBorder());
 

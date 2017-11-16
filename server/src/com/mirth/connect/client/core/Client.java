@@ -56,6 +56,7 @@ import com.mirth.commons.encryption.Encryptor;
 import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.connect.client.core.Operation.ExecuteType;
 import com.mirth.connect.client.core.api.BaseServletInterface;
+import com.mirth.connect.client.core.api.InvocationHandlerRecorder;
 import com.mirth.connect.client.core.api.providers.MetaDataSearchParamConverterProvider.MetaDataSearch;
 import com.mirth.connect.client.core.api.servlets.AlertServletInterface;
 import com.mirth.connect.client.core.api.servlets.ChannelGroupServletInterface;
@@ -131,6 +132,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     private javax.ws.rs.client.Client client;
     private URI api;
     private AtomicBoolean closed = new AtomicBoolean(false);
+    private InvocationHandlerRecorder recorder;
 
     /**
      * Instantiates a new Mirth client with a connection to the specified server.
@@ -254,6 +256,10 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
                             T resource = WebResourceFactory.newResource(servletInterface, target);
                             Object result = method.invoke(resource, args);
 
+                            if (recorder != null) {
+                                recorder.recordInvocation(method, args, result, null);
+                            }
+
                             // Make sure to return the right type
                             if (result == null && method.getReturnType().isPrimitive()) {
                                 return method.getReturnType() == boolean.class ? false : (byte) 0x00;
@@ -267,11 +273,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
                             if (cause instanceof ProcessingException && cause.getCause() != null) {
                                 cause = cause.getCause();
                             }
-                            if (cause instanceof ClientException) {
-                                throw (ClientException) cause;
-                            } else {
-                                throw new ClientException(cause);
+
+                            if (!(cause instanceof ClientException)) {
+                                cause = new ClientException(cause);
                             }
+
+                            if (recorder != null) {
+                                recorder.recordInvocation(method, args, null, cause);
+                            }
+
+                            throw (ClientException) cause;
                         }
                     }
                 });
@@ -279,6 +290,10 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
 
     public ServerConnection getServerConnection() {
         return serverConnection;
+    }
+
+    public void setRecorder(InvocationHandlerRecorder recorder) {
+        this.recorder = recorder;
     }
 
     public void close() {
