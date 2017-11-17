@@ -3016,12 +3016,6 @@ public class ChannelSetup extends JPanel {
 
             currentChannel.getSourceConnector().getTransformer().setInboundDataType(requiredInboundDataType);
             currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);
-    	} // if no required type, default to HL7v2
-    	if (requiredInboundDataType == null) {
-    		DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(UIConstants.DATATYPE_DEFAULT).getDefaultProperties();
-
-            currentChannel.getSourceConnector().getTransformer().setInboundDataType(UIConstants.DATATYPE_DEFAULT);
-            currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);
     	}
 
     	String requiredOutboundDataType = getRequiredOutboundDataType();
@@ -3035,18 +3029,7 @@ public class ChannelSetup extends JPanel {
             	destination.getTransformer().setInboundDataType(requiredOutboundDataType);
             	destination.getTransformer().setInboundProperties(defaultProperties);
             }
-    	} // if no required type, default to HL7v2
-    	if (requiredOutboundDataType == null) {
-    		DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(UIConstants.DATATYPE_DEFAULT).getDefaultProperties();
-
-            currentChannel.getSourceConnector().getTransformer().setOutboundDataType(UIConstants.DATATYPE_DEFAULT);
-            currentChannel.getSourceConnector().getTransformer().setOutboundProperties(defaultProperties);
-            
-            for (Connector destination : currentChannel.getDestinationConnectors()) {
-            	destination.getTransformer().setInboundDataType(UIConstants.DATATYPE_DEFAULT);
-            	destination.getTransformer().setInboundProperties(defaultProperties);
-            }
-        }
+    	}
 	} 
 
     public void updateComponentShown() {
