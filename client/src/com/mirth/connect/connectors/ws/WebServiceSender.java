@@ -1078,11 +1078,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                         ResponseHandler generateEnvelopeHandler = new ResponseHandler() {
                             @Override
                             public void handle(Object response) {
-                                String generatedEnvelope = (String) response;
-                                if (generatedEnvelope != null) {
-                                    soapEnvelopeTextArea.setText(generatedEnvelope);
-                                    parent.setSaveEnabled(true);
-                                }
+                                setSoapEnvelopeText((String) response);
 
                                 ResponseHandler getSoapActionHandler = new ResponseHandler() {
                                     @Override
@@ -1121,6 +1117,13 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         } catch (ClientException e) {
             // Should not happen
         }
+    }
+    
+    protected void setSoapEnvelopeText(String text) {
+    	if (text != null) {
+    		soapEnvelopeTextArea.setText(text);
+    		parent.setSaveEnabled(true);
+    	}
     }
 
     private void serviceComboBoxActionPerformed(ActionEvent evt) {
