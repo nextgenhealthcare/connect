@@ -13,12 +13,15 @@ public class ChannelException extends Exception {
     private boolean stopped;
 
     public ChannelException(boolean stopped) {
-        super();
-        this.stopped = stopped;
+        this(stopped, null, "");
     }
 
     public ChannelException(boolean stopped, Throwable cause) {
-        super(cause);
+        this(stopped, cause, "");
+    }
+
+    public ChannelException(boolean stopped, Throwable cause, String message) {
+        super(message, cause);
         this.stopped = stopped;
     }
 
