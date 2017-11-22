@@ -482,7 +482,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     protected void sendErrorResponse(HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
         String responseError = ExceptionUtils.getStackTrace(t);
         logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
-        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), dispatchResult.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", t));
+        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), dispatchResult == null? null : dispatchResult.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", t));
 
         if (dispatchResult != null) {
             // TODO decide if we still want to send back the exception content or something else?
