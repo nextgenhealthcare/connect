@@ -195,7 +195,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         portComboBox.setSelectedItem(props.getPort());
         locationURIComboBox.setSelectedItem(props.getLocationURI());
         operationComboBox.setSelectedItem(props.getOperation());
-        generateEnvelopeButton.setEnabled(!isDefaultOperations());
+        updateGenerateEnvelopeButtonEnabled();
 
         parent.setSaveEnabled(enabled);
 
@@ -1167,7 +1167,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                             operationComboBox.setSelectedIndex(0);
                         }
 
-                        generateEnvelopeButton.setEnabled(!isDefaultOperations());
+                        updateGenerateEnvelopeButtonEnabled();
                     } else {
                         operationComboBox.setModel(new DefaultComboBoxModel());
                     }
@@ -1188,6 +1188,10 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 }
             }
         }
+    }
+    
+    protected void updateGenerateEnvelopeButtonEnabled() {
+        generateEnvelopeButton.setEnabled(!isDefaultOperations());
     }
 
     private void headersNewButtonActionPerformed(ActionEvent evt) {
