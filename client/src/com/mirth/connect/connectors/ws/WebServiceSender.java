@@ -195,7 +195,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         portComboBox.setSelectedItem(props.getPort());
         locationURIComboBox.setSelectedItem(props.getLocationURI());
         operationComboBox.setSelectedItem(props.getOperation());
+<<<<<<< HEAD
         updateGenerateEnvelopeButtonEnabled();
+=======
+        setGenerateEnvelopeButtonEnabled(!isDefaultOperations());
+>>>>>>> branch 'feature/ROCKSOLID-1009-pix-connector' of ssh://git@bitbucket.nextgen.com:7999/mc/connect.git
 
         parent.setSaveEnabled(enabled);
 
@@ -1164,7 +1168,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                             operationComboBox.setSelectedIndex(0);
                         }
 
+<<<<<<< HEAD
                         updateGenerateEnvelopeButtonEnabled();
+=======
+                        setGenerateEnvelopeButtonEnabled(!isDefaultOperations());
+>>>>>>> branch 'feature/ROCKSOLID-1009-pix-connector' of ssh://git@bitbucket.nextgen.com:7999/mc/connect.git
                     } else {
                         operationComboBox.setModel(new DefaultComboBoxModel());
                     }
@@ -1187,8 +1195,13 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         }
     }
     
+<<<<<<< HEAD
     protected void updateGenerateEnvelopeButtonEnabled() {
         generateEnvelopeButton.setEnabled(!isDefaultOperations());
+=======
+    protected void setGenerateEnvelopeButtonEnabled(boolean enabled) {
+        generateEnvelopeButton.setEnabled(enabled);
+>>>>>>> branch 'feature/ROCKSOLID-1009-pix-connector' of ssh://git@bitbucket.nextgen.com:7999/mc/connect.git
     }
 
     private void headersNewButtonActionPerformed(ActionEvent evt) {
