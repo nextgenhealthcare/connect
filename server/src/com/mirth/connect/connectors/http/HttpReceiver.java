@@ -141,7 +141,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         }
 
         // load the default configuration
-        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
+        String configurationClass = getConfigurationClass();
 
         try {
             configuration = (HttpConfiguration) Class.forName(configurationClass).newInstance();
@@ -323,6 +323,11 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     @Override
     public void onHalt() throws ConnectorTaskException {
         onStop();
+    }
+    
+    @Override
+    protected String getConfigurationClass() {
+    	return configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
     }
 
     private class RequestHandler extends AbstractHandler {

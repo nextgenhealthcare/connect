@@ -111,7 +111,7 @@ public class TcpReceiver extends SourceConnector {
         }
 
         // load the default configuration
-        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "tcpConfigurationClass");
+        String configurationClass = getConfigurationClass();
 
         try {
             configuration = (TcpConfiguration) Class.forName(configurationClass).newInstance();
@@ -501,6 +501,11 @@ public class TcpReceiver extends SourceConnector {
         } finally {
             finishDispatch(dispatchResult);
         }
+    }
+    
+    @Override
+    protected String getConfigurationClass() {
+    	return configurationController.getProperty(connectorProperties.getProtocol(), "tcpConfigurationClass");
     }
 
     protected class TcpReader implements Callable<Throwable>, BatchMessageReceiver {
