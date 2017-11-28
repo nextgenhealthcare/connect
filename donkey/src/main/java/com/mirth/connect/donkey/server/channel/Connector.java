@@ -125,4 +125,8 @@ public abstract class Connector {
     public void setResourceIds(Set<String> resourceIds) {
         this.resourceIds = resourceIds;
     }
+    
+    protected String getConfigurationClass() {
+    	return null;
+    }
 }

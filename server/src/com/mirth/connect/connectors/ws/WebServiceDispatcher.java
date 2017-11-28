@@ -139,7 +139,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         this.connectorProperties = (WebServiceDispatcherProperties) getConnectorProperties();
 
         // load the default configuration
-        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
+        String configurationClass = getConfigurationClass();
 
         try {
             configuration = (WebServiceConfiguration) Class.forName(configurationClass).newInstance();
@@ -225,6 +225,11 @@ public class WebServiceDispatcher extends DestinationConnector {
             }
         }
         dispatchContainers.clear();
+    }
+    
+    @Override
+    protected String getConfigurationClass() {
+    	return configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
     }
 
     private String sourceToXmlString(Source source) throws TransformerConfigurationException, TransformerException {

@@ -92,7 +92,7 @@ public class TcpDispatcher extends DestinationConnector {
         }
 
         // load the default configuration
-        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "tcpConfigurationClass");
+        String configurationClass = getConfigurationClass();
 
         try {
             configuration = (TcpConfiguration) Class.forName(configurationClass).newInstance();
@@ -347,6 +347,11 @@ public class TcpDispatcher extends DestinationConnector {
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
+    }
+    
+    @Override
+    protected String getConfigurationClass() {
+    	return configurationController.getProperty(connectorProperties.getProtocol(), "tcpConfigurationClass");
     }
 
     private void closeSocketQuietly(String socketKey) {

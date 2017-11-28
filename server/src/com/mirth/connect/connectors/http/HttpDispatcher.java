@@ -133,7 +133,7 @@ public class HttpDispatcher extends DestinationConnector {
         this.connectorProperties = (HttpDispatcherProperties) getConnectorProperties();
 
         // load the default configuration
-        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
+        String configurationClass = getConfigurationClass();
 
         try {
             configuration = (HttpConfiguration) Class.forName(configurationClass).newInstance();
@@ -416,6 +416,11 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
+    }
+    
+    @Override
+    protected String getConfigurationClass() {
+    	return configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
     }
 
     public RegistryBuilder<ConnectionSocketFactory> getSocketFactoryRegistry() {

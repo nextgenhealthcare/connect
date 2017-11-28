@@ -90,7 +90,7 @@ public class WebServiceReceiver extends SourceConnector {
         this.connectorProperties = (WebServiceReceiverProperties) getConnectorProperties();
 
         // load the default configuration
-        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
+        String configurationClass = getConfigurationClass();
 
         try {
             configuration = (WebServiceConfiguration) Class.forName(configurationClass).newInstance();
@@ -257,6 +257,11 @@ public class WebServiceReceiver extends SourceConnector {
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
         finishDispatch(dispatchResult);
+    }
+    
+    @Override
+    protected String getConfigurationClass() {
+    	return configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
     }
 
     public String processData(String message) {
