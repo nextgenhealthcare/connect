@@ -2566,9 +2566,11 @@ public class ChannelSetup extends JPanel {
             ConnectorProperties props = sourceConnector.getProperties();
             ((SourceConnectorPropertiesInterface) props).getSourceConnectorProperties().setResourceIds(resourceIds.get(sourceConnector.getMetaDataId()));
             sourceConnectorPanel.setProperties(props);
+        } else {
+        	checkAndSetInitialDataType();
         }
 
-        // Set the required source data type if necessary
+        // Set the required data type, if necessary
         checkAndSetRequiredDataType();
 
         sourceConnectorScrollPane.repaint();
@@ -3007,6 +3009,13 @@ public class ChannelSetup extends JPanel {
     }
     
     /**
+     * Returns the initial, or default, outbound data type of this channel.
+     */
+    private String getInitialOutboundDataType() {
+    	return sourceConnectorPanel.getInitialOutboundDataType();
+    }
+
+    /**
      * Check if there is a required source data type, and set if if necessary.
      */
     public void checkAndSetRequiredDataType() {
@@ -3031,6 +3040,21 @@ public class ChannelSetup extends JPanel {
             }
     	}
 	} 
+    
+    public void checkAndSetInitialDataType() {
+    	String outboundDataType = getInitialOutboundDataType();
+    	if (outboundDataType != null && !currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(outboundDataType)) {
+    		DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(outboundDataType).getDefaultProperties();
+
+            currentChannel.getSourceConnector().getTransformer().setOutboundDataType(outboundDataType);
+            currentChannel.getSourceConnector().getTransformer().setOutboundProperties(defaultProperties);
+            
+            for (Connector destination : currentChannel.getDestinationConnectors()) {
+            	destination.getTransformer().setInboundDataType(outboundDataType);
+            	destination.getTransformer().setInboundProperties(defaultProperties);
+            }
+    	}
+    }
 
     public void updateComponentShown() {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {

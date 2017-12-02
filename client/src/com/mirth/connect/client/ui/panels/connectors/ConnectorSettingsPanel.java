@@ -97,6 +97,10 @@ public abstract class ConnectorSettingsPanel extends JPanel {
     	return null;
     }
     
+    public String getInitialOutboundDataType() {
+    	return null;
+    }
+    
     public List<String> getScripts(ConnectorProperties properties) {
         return new ArrayList<String>();
     }
