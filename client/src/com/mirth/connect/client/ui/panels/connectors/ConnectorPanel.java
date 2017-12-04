@@ -327,6 +327,10 @@ public class ConnectorPanel extends JPanel {
     public String getRequiredOutboundDataType() {
     	return getConnectorSettingsPanel().getRequiredOutboundDataType();
     }
+    
+    public String getInitialOutboundDataType() {
+    	return getConnectorSettingsPanel().getInitialOutboundDataType();
+    }
 
     public void updatedField(String field) {
         getConnectorSettingsPanel().updatedField(field);
