@@ -46,11 +46,11 @@ public class JsonXmlUtil {
 
     public static String xmlToJson(String xmlStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         //convert xml to json
-        JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(true).autoPrimitive(true).prettyPrint(true).build();
+        JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(true).autoPrimitive(true).prettyPrint(false).build();
         return xmlToJson(config, xmlStr);
     }
 
-    protected static String xmlToJson(JsonXMLConfig config, String xmlStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+    public static String xmlToJson(JsonXMLConfig config, String xmlStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         try (InputStream inputStream = IOUtils.toInputStream(xmlStr);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             // create source (XML)
@@ -74,14 +74,17 @@ public class JsonXmlUtil {
         return jsonToXml(config, jsonStr);
     }
 
-    protected static String jsonToXml(JsonXMLConfig config, String jsonStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+    public static String jsonToXml(JsonXMLConfig config, String jsonStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         try (InputStream inputStream = IOUtils.toInputStream(jsonStr);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             XMLStreamReader reader = new JsonXMLInputFactory(config).createXMLStreamReader(inputStream);
             Source source = new StAXSource(reader);
 
             XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
-            Result result = new StAXResult(new PrettyXMLStreamWriter(writer));
+            if (config.isPrettyPrint()) {
+                writer = new PrettyXMLStreamWriter(writer);
+            }
+            Result result = new StAXResult(writer);
 
             TransformerFactory.newInstance().newTransformer().transform(source, result);
             return outputStream.toString();

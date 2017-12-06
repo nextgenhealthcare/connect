@@ -9,6 +9,11 @@
 
 package com.mirth.connect.userutil;
 
+import com.mirth.connect.util.JsonXmlUtil;
+
+import de.odysseus.staxon.json.JsonXMLConfig;
+import de.odysseus.staxon.json.JsonXMLConfigBuilder;
+
 /**
  * Provides XML utility methods.
  */
@@ -73,5 +78,36 @@ public class XmlUtil {
      */
     public static String encode(char[] text, int start, int length) {
         return com.mirth.connect.util.MirthXmlUtil.encode(text, start, length);
+    }
+
+    /**
+     * Converts an XML string to JSON.
+     * 
+     * @param xmlString
+     *            The XML string to convert.
+     * @return The converted JSON string.
+     */
+    public static String toJson(String xmlString) throws Exception {
+        return JsonXmlUtil.xmlToJson(xmlString);
+    }
+
+    /**
+     * Converts an XML string to JSON.
+     * 
+     * @param xmlString
+     *            The XML string to convert.
+     * @param autoArray
+     *            If true, sibling nodes with the same tag name will be consolidated into a JSON
+     *            array. If false, multiple properties with the same name will be present.
+     * @param autoPrimitive
+     *            If true, element text will be converted to JSON primitive values where applicable.
+     *            If false, element text will always be converted to string values.
+     * @param prettyPrint
+     *            Whether or not to fully indent the JSON output.
+     * @return The converted JSON string.
+     */
+    public static String toJson(String xmlString, boolean autoArray, boolean autoPrimitive, boolean prettyPrint) throws Exception {
+        JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(autoArray).autoPrimitive(autoPrimitive).prettyPrint(prettyPrint).build();
+        return JsonXmlUtil.xmlToJson(config, xmlString);
     }
 }

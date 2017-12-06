@@ -9,7 +9,11 @@
 
 package com.mirth.connect.userutil;
 
+import com.mirth.connect.util.JsonXmlUtil;
 import com.mirth.connect.util.MirthJsonUtil;
+
+import de.odysseus.staxon.json.JsonXMLConfig;
+import de.odysseus.staxon.json.JsonXMLConfigBuilder;
 
 /**
  * Provides JSON utility methods.
@@ -37,5 +41,33 @@ public class JsonUtil {
      */
     public static String escape(String input) {
         return MirthJsonUtil.escape(input);
+    }
+
+    /**
+     * Converts a JSON string to XML.
+     * 
+     * @param jsonString
+     *            The JSON string to convert.
+     * @return The converted XML string.
+     */
+    public static String toXml(String jsonString) throws Exception {
+        return JsonXmlUtil.jsonToXml(jsonString);
+    }
+
+    /**
+     * Converts a JSON string to XML.
+     * 
+     * @param jsonString
+     *            The JSON string to convert.
+     * @param multiplePI
+     *            If true, the <code>&lt;? xml-multiple ... ?&gt;</code> processing instruction will
+     *            be included for arrays.
+     * @param prettyPrint
+     *            Whether or not to fully indent the XML output.
+     * @return The converted XML string.
+     */
+    public static String toXml(String jsonString, boolean multiplePI, boolean prettyPrint) throws Exception {
+        JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(multiplePI).prettyPrint(prettyPrint).build();
+        return JsonXmlUtil.jsonToXml(config, jsonString);
     }
 }

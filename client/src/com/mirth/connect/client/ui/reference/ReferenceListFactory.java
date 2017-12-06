@@ -391,6 +391,12 @@ public class ReferenceListFactory {
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Strip Namespaces", "Remove namespaces from an XML string", "var ${newMessage} = ${message}.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Parse HTTP Headers", "Takes the string of an HTTP Response and returns it represented as a map for easy access.", "var ${headers} = HTTPUtil.parseHeaders(${header});"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Remove Illegal XML Characters", "Removes illegal XML characters like control characters that cause a parsing error in e4x (\\x00-\\x1F besides TAB, LF, and CR)", "var ${newMessage} = ${message}.replace(/[\\x00-\\x08]|[\\x0B-\\x0C]|[\\x0E-\\x1F]/g, '');\n"));
+        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Pretty Print XML", "Formats an XML string with indented markup.", "XmlUtil.prettyPrint(${xmlString})"));
+        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Pretty Print JSON", "Formats an JSON string with indented markup.", "JsonUtil.prettyPrint(${jsonString})"));
+
+        // Conversion references
+        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.CONVERSION.toString(), "Convert XML to JSON", "Converts an XML string to JSON.", "XmlUtil.toJson(${xmlString})"));
+        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.CONVERSION.toString(), "Convert JSON to XML", "Converts a JSON string to XML.", "JsonUtil.toXml(${jsonString})"));
 
         // Date references
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.DATE.toString(), "Get Date Object From Pattern", "Parse a date according to specified pattern", "var ${date} = DateUtil.getDate(${pattern}, ${date});"));
