@@ -29,6 +29,7 @@ APACHE-LICENSE-2.0.txt):
 	Not-Yet-Commons-SSL 0.3.11
 	Quartz Scheduler 2.1.7 [Mirth Connect only]
 	SQLite JDBC Driver 3.7.2 [Mirth Connect only] (https://bitbucket.org/xerial/sqlite-jdbc)
+	StAXON 1.3 [Mirth Connect only] (https://github.com/beckchr/staxon)
 	Swagger Core 1.5.4 (https://github.com/swagger-api/swagger-core)
 	Swagger UI 2.1.3 (http://swagger.io/swagger-ui/)
 	webdavclient4j 0.92 [Mirth Connect only] (http://sourceforge.net/projects/webdavclient4j/)

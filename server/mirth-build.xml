@@ -133,7 +133,6 @@
 		</copy>
 		
 		<antcall target="test-run" />
-		<antcall target="remove-classes" />
 	</target>
 
 	<target name="dist" depends="build-manager, build-cli, build-webadmin">
