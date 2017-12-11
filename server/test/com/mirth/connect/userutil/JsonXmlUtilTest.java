@@ -18,36 +18,44 @@ public class JsonXmlUtilTest {
 
     private static final String XML1 = "<?xml version=\"1.0\" ?><root><node1><id>123</id><id>456</id><name></name><flag>true</flag></node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></root>";
     private static final String XML2 = "<?xml version=\"1.0\" ?><root><node1><?xml-multiple id?><id>123</id><id>456</id><name></name><flag>true</flag></node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></root>";
+    private static final String XML3 = "<?xml version=\"1.0\" ?><soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Body><v3:PRPA_IN201301UV02 ITSVersion=\"XML_1.0\" xmlns:v3=\"urn:hl7-org:v3\"><soapenv:id root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"/></v3:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
     private static final String JSON1 = "{\"root\":{\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON2 = "{\"root\":{\"node1\":{\"id\":123,\"id\":456,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON3 = "{\"root\":{\"node1\":{\"id\":[\"123\",\"456\"],\"name\":null,\"flag\":\"true\"},\"node2\":{\"id\":\"789\",\"name\":\"testing\",\"flag\":\"false\"}}}";
+    private static final String JSON4 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"@root\":\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"}}}}}";
 
     @Test
     public void testXmlToJson1() throws Exception {
         // No pretty printing
-        assertEquals(JSON1, XmlUtil.toJson(XML1));
-        assertEquals(JSON1, XmlUtil.toJson(XML1, true, true, false));
+        assertEquals(JSON1, XmlUtil.toJson(XML1, false));
+        assertEquals(JSON1, XmlUtil.toJson(XML1, true, true, false, false));
     }
 
     @Test
     public void testXmlToJson2() throws Exception {
         // Pretty printing
-        assertFalse(JSON1.equals(XmlUtil.toJson(XML1, true, true, true)));
-        assertEquals(JsonUtil.prettyPrint(JSON1), JsonUtil.prettyPrint(XmlUtil.toJson(XML1, true, true, true)));
+        assertFalse(JSON1.equals(XmlUtil.toJson(XML1, true, true, true, false)));
+        assertEquals(JsonUtil.prettyPrint(JSON1), JsonUtil.prettyPrint(XmlUtil.toJson(XML1, true, true, true, false)));
     }
 
     @Test
     public void testXmlToJson3() throws Exception {
         // Auto-array
-        assertEquals(JSON2, XmlUtil.toJson(XML1, false, true, false));
+        assertEquals(JSON2, XmlUtil.toJson(XML1, false, true, false, false));
     }
 
     @Test
     public void testXmlToJson4() throws Exception {
         // Auto-primitive
-        assertEquals(JSON3, XmlUtil.toJson(XML1, true, false, false));
+        assertEquals(JSON3, XmlUtil.toJson(XML1, true, false, false, false));
     }
 
+    @Test
+    public void testXmlToJson5() throws Exception {
+        // Stripping bound prefixes on
+        assertEquals(JSON4, XmlUtil.toJson(XML3, true));
+    }
+    
     @Test
     public void testJsonToXml1() throws Exception {
         // No pretty printing
