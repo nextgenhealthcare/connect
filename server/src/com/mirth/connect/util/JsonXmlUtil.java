@@ -250,7 +250,6 @@ public class JsonXmlUtil {
         private Stack<String> prefixStack;
         
         public StrippingStreamWriterDelegate() {
-            super();
             prefixStack = new Stack<>();
         }
         
