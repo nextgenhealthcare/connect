@@ -85,12 +85,12 @@ public class XmlUtil {
      * 
      * @param xmlString
      *            The XML string to convert.
-     * @param stripBoundPrefixes
-     *            Whether or not to strip prefixes for easier parsing
+     * @param normalizeNamespaces
+     *            Whether or not to normalize namespaces by stripping prefixes.
      * @return The converted JSON string.
      */
-    public static String toJson(String xmlString, boolean stripBoundPrefixes) throws Exception {
-        return JsonXmlUtil.xmlToJson(xmlString, stripBoundPrefixes);
+    public static String toJson(String xmlString, boolean normalizeNamespaces) throws Exception {
+        return JsonXmlUtil.xmlToJson(xmlString, normalizeNamespaces);
     }
 
     /**
@@ -106,12 +106,12 @@ public class XmlUtil {
      *            If false, element text will always be converted to string values.
      * @param prettyPrint
      *            Whether or not to fully indent the JSON output.
-     * @param stripBoundPrefixes
-     *            Whether or not to strip prefixes for easier parsing
+     * @param normalizeNamespaces
+     *            Whether or not to normalize namespaces by stripping prefixes.
      * @return The converted JSON string.
      */
-    public static String toJson(String xmlString, boolean autoArray, boolean autoPrimitive, boolean prettyPrint, boolean stripBoundPrefixes) throws Exception {
+    public static String toJson(String xmlString, boolean autoArray, boolean autoPrimitive, boolean prettyPrint, boolean normalizeNamespaces) throws Exception {
         JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(autoArray).autoPrimitive(autoPrimitive).prettyPrint(prettyPrint).build();
-        return JsonXmlUtil.xmlToJson(config, xmlString, stripBoundPrefixes);
+        return JsonXmlUtil.xmlToJson(config, xmlString, normalizeNamespaces);
     }
 }
