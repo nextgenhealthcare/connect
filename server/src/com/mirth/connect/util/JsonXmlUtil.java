@@ -46,6 +46,10 @@ import de.odysseus.staxon.xml.util.PrettyXMLStreamWriter;
 
 public class JsonXmlUtil {
 
+    public static String xmlToJson(String xmlStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+        return xmlToJson(xmlStr, true);
+    }
+    
     public static String xmlToJson(String xmlStr, boolean stripBoundPrefixes) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         //convert xml to json
         JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(true).autoPrimitive(true).prettyPrint(false).build();

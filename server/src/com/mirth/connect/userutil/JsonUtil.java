@@ -44,14 +44,15 @@ public class JsonUtil {
     }
 
     /**
-     * Converts a JSON string to XML.
+     * Converts a JSON string to XML. This is the same as calling toXml(String jsonString, boolean multiplePI, boolean prettyPrint)
+     * with multiplePI = false and prettyPrint = false
      * 
      * @param jsonString
      *            The JSON string to convert.
      * @return The converted XML string.
      */
     public static String toXml(String jsonString) throws Exception {
-        return JsonXmlUtil.jsonToXml(jsonString);
+        return toXml(jsonString, false, false);
     }
 
     /**
