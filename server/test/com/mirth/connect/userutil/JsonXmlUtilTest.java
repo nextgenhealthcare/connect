@@ -55,6 +55,13 @@ public class JsonXmlUtilTest {
         // Stripping bound prefixes on
         assertEquals(JSON4, XmlUtil.toJson(XML3, true));
     }
+
+    @Test
+    public void testXmlToJson6() throws Exception {
+        // Stripping bound prefixes by default
+        assertEquals(JSON4, XmlUtil.toJson(XML3));
+    }
+    
     
     @Test
     public void testJsonToXml1() throws Exception {

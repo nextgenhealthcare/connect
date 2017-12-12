@@ -81,6 +81,17 @@ public class XmlUtil {
     }
 
     /**
+     * Converts an XML string to JSON, while stripping bound namespace prefixes.
+     * 
+     * @param xmlString
+     *            The XML string to convert.
+     * @return The converted JSON string.
+     */
+    public static String toJson(String xmlString) throws Exception {
+        return JsonXmlUtil.xmlToJson(xmlString, true);
+    }
+    
+    /**
      * Converts an XML string to JSON.
      * 
      * @param xmlString
