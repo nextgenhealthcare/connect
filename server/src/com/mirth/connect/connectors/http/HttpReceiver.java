@@ -430,9 +430,9 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         servletResponse.setContentType(contentType.toString());
 
         // set the response headers
-        for (Entry<String, List<String>> entry : connectorProperties.getResponseHeaders().entrySet()) {
+        for (Entry<String, List<String>> entry : responseHeaders.entrySet()) {
             for (String headerValue : entry.getValue()) {
-                servletResponse.addHeader(replaceValues(entry.getKey(), dispatchResult), replaceValues(headerValue, dispatchResult));
+                servletResponse.addHeader(entry.getKey(), headerValue);
             }
         }
 
