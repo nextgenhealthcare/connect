@@ -19,10 +19,14 @@ public class JsonXmlUtilTest {
     private static final String XML1 = "<?xml version=\"1.0\" ?><root><node1><id>123</id><id>456</id><name></name><flag>true</flag></node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></root>";
     private static final String XML2 = "<?xml version=\"1.0\" ?><root><node1><?xml-multiple id?><id>123</id><id>456</id><name></name><flag>true</flag></node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></root>";
     private static final String XML3 = "<?xml version=\"1.0\" ?><soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Body><v3:PRPA_IN201301UV02 ITSVersion=\"XML_1.0\" xmlns:v3=\"urn:hl7-org:v3\"><soapenv:id root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"/></v3:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
+    private static final String XML4 = "<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:test=\"testing\"><Body><v3:PRPA_IN201301UV02 ITSVersion=\"XML_1.0\" xmlns:v3=\"urn:hl7-org:v3\"><soapenv:id root=\"\"/></v3:PRPA_IN201301UV02></Body></soapenv:Envelope>";
+    private static final String XML5 = "<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><Body xmlns=\"http://www.w3.org/2003/05/soap-envelope\"><v3:PRPA_IN201301UV02 ITSVersion=\"XML_1.0\" xmlns:v3=\"urn:hl7-org:v3\"><v3:id root=\"\"/></v3:PRPA_IN201301UV02></Body></soapenv:Envelope>";
     private static final String JSON1 = "{\"root\":{\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON2 = "{\"root\":{\"node1\":{\"id\":123,\"id\":456,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON3 = "{\"root\":{\"node1\":{\"id\":[\"123\",\"456\"],\"name\":null,\"flag\":\"true\"},\"node2\":{\"id\":\"789\",\"name\":\"testing\",\"flag\":\"false\"}}}";
     private static final String JSON4 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"@root\":\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"}}}}}";
+    private static final String JSON5 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"@xmlns\":\"\",\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"@root\":\"\"}}}}}";
+    private static final String JSON6 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@root\":\"\"}}}}}";
 
     @Test
     public void testXmlToJson1() throws Exception {
@@ -57,6 +61,18 @@ public class JsonXmlUtilTest {
     }
     
     @Test
+    public void testXmlToJson6() throws Exception {
+    	// Stripping bound prefixes on
+    	assertEquals(JSON5, XmlUtil.toJson(XML4, true));
+    }
+    
+    @Test
+    public void testXmlToJson7() throws Exception {
+    	// Stripping bound prefixes on
+    	assertEquals(JSON6, XmlUtil.toJson(XML5, true));
+    }
+    
+    @Test
     public void testJsonToXml1() throws Exception {
         // No pretty printing
         assertEquals(XML1, JsonUtil.toXml(JSON1));
@@ -75,4 +91,5 @@ public class JsonXmlUtilTest {
         // Multiple PI
         assertEquals(XML2, JsonUtil.toXml(JSON1, true, false));
     }
+
 }
