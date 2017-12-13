@@ -226,10 +226,10 @@ public class WebServiceDispatcher extends DestinationConnector {
         }
         dispatchContainers.clear();
     }
-    
+
     @Override
     protected String getConfigurationClass() {
-    	return configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
+        return configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
     }
 
     private String sourceToXmlString(Source source) throws TransformerConfigurationException, TransformerException {
@@ -560,6 +560,8 @@ public class WebServiceDispatcher extends DestinationConnector {
                         result = task.call();
                     }
 
+                    handleSOAPResult(connectorProperties, connectorMessage, result);
+
                     if (webServiceDispatcherProperties.isOneWay()) {
                         responseStatusMessage = "Invoked one way operation successfully.";
                     } else {
@@ -636,6 +638,8 @@ public class WebServiceDispatcher extends DestinationConnector {
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
     }
+
+    protected void handleSOAPResult(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage, SOAPMessage result) {}
 
     private class DispatchContainer {
         /*
