@@ -15,8 +15,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.xml.XMLConstants;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -33,6 +40,11 @@ import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
@@ -41,10 +53,11 @@ import de.odysseus.staxon.json.JsonXMLOutputFactory;
 import de.odysseus.staxon.json.stream.JsonStreamFactory;
 import de.odysseus.staxon.json.stream.JsonStreamSource;
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
-import de.odysseus.staxon.util.StreamWriterDelegate;
 import de.odysseus.staxon.xml.util.PrettyXMLStreamWriter;
 
 public class JsonXmlUtil {
+	
+	static final String SEPARATOR = ":";
 
     public static String xmlToJson(String xmlStr, boolean stripBoundPrefixes) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         //convert xml to json
@@ -62,15 +75,17 @@ public class JsonXmlUtil {
             // create result (JSON)
             JsonStreamFactory streamFactory = new CorrectedJsonStreamFactory();
             XMLStreamWriter writer = new JsonXMLOutputFactory(config, streamFactory).createXMLStreamWriter(outputStream);
-            if (stripBoundPrefixes) {
-                writer = new StrippingStreamWriterDelegate(writer);
-            }
             Result result = new StAXResult(writer);
 
             // copy source to result via "identity transform"
             TransformerFactory.newInstance().newTransformer().transform(source, result);
-            return outputStream.toString();
-
+            String jsonString = outputStream.toString();
+            
+            if (stripBoundPrefixes) {
+            	jsonString = normalizeNamespaces(jsonString);
+            }
+            
+            return jsonString;
         }
     }
 
@@ -95,6 +110,112 @@ public class JsonXmlUtil {
             return outputStream.toString();
         }
     }
+
+	@SuppressWarnings("unchecked")
+	private static String normalizeNamespaces(String jsonString) {
+		try {
+			ObjectMapper mapper = new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, false);
+			JsonNode jsonObject = mapper.readValue(jsonString, JsonNode.class);
+			return mapper.writeValueAsString(normalizeJsonObject(jsonObject));
+		} catch (Exception e) {
+			return jsonString;
+		}
+	}
+
+	private static LinkedHashMap<String, Object> normalizeJsonObject(JsonNode jsonObject) {
+		// Using LinkedHashMaps to preserve order of fields
+		LinkedHashMap<String, Object> normalizedJsonObject = new LinkedHashMap<>();
+		normalizeJsonObject(jsonObject, null, null, new HashMap<>(), normalizedJsonObject);
+		return normalizedJsonObject;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void normalizeJsonObject(JsonNode jsonObject, String jsonObjectKey,
+			String currentNamespace, Map<String, Deque<String>> namespaceStackByPrefix,
+			Map<String, Object> normalizedJsonObject) {
+		
+		Iterator<Map.Entry<String,JsonNode>> it = jsonObject.fields();
+		while (it.hasNext()) {
+			Entry<String, JsonNode> field = it.next();
+			String key = field.getKey();
+			
+			Pair<String, String> splitName = splitPrefixAndLocalName(key);
+			String prefix = splitName.getLeft();
+			String localName = splitName.getRight();
+
+			// "@xmlns" can be either the prefix or localName, depending on if
+			// there is a bound prefix
+			if (prefix.equals("@xmlns") || localName.equals("@xmlns")) {
+				String nsPrefix = prefix.equals("@xmlns") ? localName : XMLConstants.DEFAULT_NS_PREFIX;
+
+				Deque<String> namespaceStack = namespaceStackByPrefix.get(nsPrefix);
+				if (namespaceStack == null) {
+					namespaceStack = new ArrayDeque<>();
+					namespaceStackByPrefix.put(nsPrefix, namespaceStack);
+				}
+
+				String namespace = field.getValue().asText();
+				namespaceStack.push(namespace);
+
+				// Only add the @xmlns attribute if its prefix is the same as
+				// its parent field's prefix, and if its namespace isn't already the 
+				// current namespace
+				if (splitPrefixAndLocalName(jsonObjectKey).getLeft().equals(nsPrefix)
+						&& (currentNamespace == null || !namespace.equals(currentNamespace))) {
+					normalizedJsonObject.put("@xmlns", namespace);
+					currentNamespace = namespace;
+				}
+			} else if (field.getValue().isObject()) {
+				JsonNode innerJsonObject = field.getValue();
+				LinkedHashMap<String, Object> newNormalizedObject = new LinkedHashMap<>();
+
+				// If the inner JSON object does not contain an @xmlns
+				// attribute, we need to add one if the object's namespace isn't
+				// the current namespace
+				String namespaceTag = "@xmlns" + (XMLConstants.DEFAULT_NS_PREFIX.equals(prefix) ? "" : (":" + prefix));
+				if (!innerJsonObject.has(namespaceTag)) {
+					Deque<String> namespaceStack = namespaceStackByPrefix.get(prefix);
+					boolean isNamespaceStackEmpty = (namespaceStack == null || namespaceStack.isEmpty()); 
+					
+					if (!isNamespaceStackEmpty && !namespaceStack.peek().equals(currentNamespace)) {
+						String namespace = namespaceStack.peek();
+						newNormalizedObject.put("@xmlns", namespace);
+					} else if (isNamespaceStackEmpty && !XMLConstants.NULL_NS_URI.equals(currentNamespace)) {
+						newNormalizedObject.put("@xmlns", XMLConstants.NULL_NS_URI);
+					}
+				}
+
+				normalizedJsonObject.put(localName, newNormalizedObject);
+				normalizeJsonObject(innerJsonObject, key, currentNamespace, namespaceStackByPrefix,
+						newNormalizedObject);
+			} else {
+				normalizedJsonObject.put(localName, field.getValue());
+			}
+		}
+
+		// Pop namespace stack
+		if (jsonObjectKey != null) {
+			Deque<String> namespaceStack = namespaceStackByPrefix.get(jsonObjectKey);
+			if (namespaceStack != null && !namespaceStack.isEmpty()) {
+				namespaceStack.pop();
+			}
+		}
+	}
+
+	private static Pair<String, String> splitPrefixAndLocalName(String key) {
+		int separatorLocation = key.indexOf(SEPARATOR);
+
+		String prefix, localName;
+		if (separatorLocation != -1) {
+			prefix = key.substring(0, separatorLocation);
+			localName = key.substring(separatorLocation + 1);
+		} else {
+			prefix = XMLConstants.DEFAULT_NS_PREFIX;
+			localName = key;
+		}
+
+		return Pair.of(prefix, localName);
+	}
 
     /*
      * The sole purpose of the CorrectedJsonStreamFactory class is to correct some weirdness in the
@@ -192,115 +313,6 @@ public class JsonXmlUtil {
         @Override
         public JsonStreamTarget createJsonStreamTarget(Writer writer, boolean prettyPrint) throws IOException {
             return new MyJsonStreamTarget(delegate.createJsonStreamTarget(writer, prettyPrint));
-        }
-    }
-    
-    /*
-     * When "strip bound prefixes" is true this class gets used
-     * 
-     * An example of stripping bound prefixes:
-     * 
-     * <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
-     *   <soapenv:Body>
-     *     <v3:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:v3="urn:hl7-org:v3">
-     *       <soapenv:id root="{{$guid}}"/>
-     *     </v3:PRPA_IN201301UV02>
-     *   </soapenv:Body>
-     * </soapenv:Envelope>
-     * 
-     * the XML above would normally convert to:
-     * 
-     * {
-     *   "soapenv:Envelope" : {
-     *     "@xmlns:soapenv" : "http://www.w3.org/2003/05/soap-envelope",
-     *     "soapenv:Body" : {
-     *       "v3:PRPA_IN201301UV02" : {
-     *         "@xmlns:v3" : "urn:hl7-org:v3",
-     *         "@ITSVersion" : "XML_1.0",
-     *         "soapenv:id" : {
-     *           "@root" : "11111111-1111-1111-1111-111111111111"
-     *         }
-     *       }
-     *     }
-     *   }
-     * }
-     * 
-     * but with bound prefixes stripped it converts to:
-     * 
-     * {
-     *   "Envelope" : {
-     *     "@xmlns" : "http://www.w3.org/2003/05/soap-envelope",
-     *     "Body" : {
-     *       "PRPA_IN201301UV02" : {
-     *         "@xmlns" : "urn:hl7-org:v3",
-     *         "@ITSVersion" : "XML_1.0",
-     *         "id" : {
-     *           "@xmlns" : "http://www.w3.org/2003/05/soap-envelope",
-     *           "@root" : "11111111-1111-1111-1111-111111111111"
-     *         }
-     *       }
-     *     }
-     *   }
-     * }
-     * 
-     * which makes it a lot easier to work with.
-     */
-    public static class StrippingStreamWriterDelegate extends StreamWriterDelegate {
-        static final String SEPARATOR = ":";
-        private Stack<String> prefixStack;
-        
-        public StrippingStreamWriterDelegate() {
-            prefixStack = new Stack<>();
-        }
-        
-        public StrippingStreamWriterDelegate(XMLStreamWriter parent) {
-            super(parent);
-            prefixStack = new Stack<>();
-        }
-        
-        @Override
-        public void writeEndElement() throws XMLStreamException {
-            super.writeEndElement();
-            prefixStack.pop();
-        }
-        
-        @Override
-        public void writeNamespace(String prefix, String namespaceURI) throws XMLStreamException {
-            // instead of writing: "@xmlns:prefix" : namespaceuri 
-            // this will write: "@xmlns" : namespaceuri
-            super.writeNamespace("xmlns", namespaceURI);
-        }
-        
-        @Override
-        public void writeStartElement(String localName) throws XMLStreamException {
-            int separatorLocation = localName.indexOf(SEPARATOR);
-            
-            // separator found
-            if (separatorLocation != -1) {
-                String prefix = localName.substring(0, separatorLocation);
-                String namespaceURI = getNamespaceContext().getNamespaceURI(prefix);
-                
-                // get local name with prefix stripped off
-                String newLocalName = localName.substring(separatorLocation+1);
-                super.writeStartElement(newLocalName);
-                
-                // write the namespace in the case where the namespace isn't automatically written and 
-                // in the case where not writing it would cause the element to fall under an incorrect namespace
-                if (!namespaceURI.equals("") && !prefixStack.isEmpty() && !prefixStack.peek().equals(prefix)) {
-                    writeNamespace(prefix, namespaceURI);
-                }
-                prefixStack.push(prefix);
-            } else {
-                super.writeStartElement(localName);
-                
-                // write the empty namespace in the case where the namespace isn't automatically written and
-                // in the case where not writing it would cause the element to fall under an incorrect namespace
-                if (prefixStack.isEmpty() || !prefixStack.peek().equals("")) {
-                    // this will end up as: "@xmlns" : ""
-                    writeNamespace("xmlns", "");
-                }
-                prefixStack.push("");
-            }
         }
     }
 }
