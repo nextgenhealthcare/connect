@@ -111,7 +111,6 @@ public class JsonXmlUtil {
         }
     }
 
-	@SuppressWarnings("unchecked")
 	private static String normalizeNamespaces(String jsonString) {
 		try {
 			ObjectMapper mapper = new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, false);
@@ -129,7 +128,6 @@ public class JsonXmlUtil {
 		return normalizedJsonObject;
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void normalizeJsonObject(JsonNode jsonObject, String jsonObjectKey,
 			String currentNamespace, Map<String, Deque<String>> namespaceStackByPrefix,
 			Map<String, Object> normalizedJsonObject) {
