@@ -44,6 +44,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
@@ -86,7 +87,7 @@ public class JsonXmlUtil {
             String jsonString = outputStream.toString();
             
             if (normalizeNamespaces) {
-            	jsonString = normalizeNamespaces(jsonString);
+            	jsonString = normalizeNamespaces(jsonString, config.isPrettyPrint());
             }
             
             return jsonString;
@@ -115,9 +116,12 @@ public class JsonXmlUtil {
         }
     }
 
-	private static String normalizeNamespaces(String jsonString) {
+	private static String normalizeNamespaces(String jsonString, boolean prettyPrint) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
+			if (prettyPrint) {
+				mapper.enable(SerializationFeature.INDENT_OUTPUT);
+			}
 			JsonNode jsonObject = mapper.readValue(jsonString, JsonNode.class);
 			return mapper.writeValueAsString(normalizeJsonObject(jsonObject));
 		} catch (Exception e) {
