@@ -113,7 +113,7 @@ public class JsonXmlUtil {
 
 	private static String normalizeNamespaces(String jsonString) {
 		try {
-			ObjectMapper mapper = new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, false);
+			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonObject = mapper.readValue(jsonString, JsonNode.class);
 			return mapper.writeValueAsString(normalizeJsonObject(jsonObject));
 		} catch (Exception e) {
@@ -123,7 +123,7 @@ public class JsonXmlUtil {
 
 	private static LinkedHashMap<String, Object> normalizeJsonObject(JsonNode jsonObject) {
 		// Using LinkedHashMaps to preserve order of fields
-		LinkedHashMap<String, Object> normalizedJsonObject = new LinkedHashMap<>();
+		LinkedHashMap<String, Object> normalizedJsonObject = new LinkedHashMap<>();		
 		normalizeJsonObject(jsonObject, null, null, new HashMap<>(), normalizedJsonObject);
 		return normalizedJsonObject;
 	}
@@ -173,13 +173,26 @@ public class JsonXmlUtil {
 				String namespaceTag = "@xmlns" + (XMLConstants.DEFAULT_NS_PREFIX.equals(prefix) ? "" : (":" + prefix));
 				if (!innerJsonObject.has(namespaceTag)) {
 					Deque<String> namespaceStack = namespaceStackByPrefix.get(prefix);
-					boolean isNamespaceStackEmpty = (namespaceStack == null || namespaceStack.isEmpty()); 
+					if (namespaceStack == null) {
+						namespaceStack = new ArrayDeque<>();
+						namespaceStackByPrefix.put(prefix, namespaceStack);
+					}
 					
-					if (!isNamespaceStackEmpty && !namespaceStack.peek().equals(currentNamespace)) {
+					if (!namespaceStack.isEmpty() && !namespaceStack.peek().equals(currentNamespace)) {
 						String namespace = namespaceStack.peek();
 						newNormalizedObject.put("@xmlns", namespace);
-					} else if (isNamespaceStackEmpty && !XMLConstants.NULL_NS_URI.equals(currentNamespace)) {
+						namespaceStack.push(namespace);
+						
+						if (jsonObjectKey == null) {
+							currentNamespace = namespace;
+						}
+					} else if (namespaceStack.isEmpty() && !XMLConstants.NULL_NS_URI.equals(currentNamespace)) {
 						newNormalizedObject.put("@xmlns", XMLConstants.NULL_NS_URI);
+						namespaceStack.push(XMLConstants.NULL_NS_URI);
+						
+						if (jsonObjectKey == null) {
+							currentNamespace = XMLConstants.NULL_NS_URI;
+						}
 					}
 				}
 
@@ -193,7 +206,7 @@ public class JsonXmlUtil {
 
 		// Pop namespace stack
 		if (jsonObjectKey != null) {
-			Deque<String> namespaceStack = namespaceStackByPrefix.get(jsonObjectKey);
+			Deque<String> namespaceStack = namespaceStackByPrefix.get(splitPrefixAndLocalName(jsonObjectKey).getLeft());
 			if (namespaceStack != null && !namespaceStack.isEmpty()) {
 				namespaceStack.pop();
 			}

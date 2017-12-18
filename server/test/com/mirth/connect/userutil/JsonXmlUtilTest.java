@@ -15,18 +15,25 @@ import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 
 public class JsonXmlUtilTest {
-
+	
     private static final String XML1 = "<?xml version=\"1.0\" ?><root><node1><id>123</id><id>456</id><name></name><flag>true</flag></node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></root>";
     private static final String XML2 = "<?xml version=\"1.0\" ?><root><node1><?xml-multiple id?><id>123</id><id>456</id><name></name><flag>true</flag></node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></root>";
     private static final String XML3 = "<?xml version=\"1.0\" ?><soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Body><v3:PRPA_IN201301UV02 ITSVersion=\"XML_1.0\" xmlns:v3=\"urn:hl7-org:v3\"><soapenv:id root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"/></v3:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
     private static final String XML4 = "<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:test=\"testing\"><Body><v3:PRPA_IN201301UV02 ITSVersion=\"XML_1.0\" xmlns:v3=\"urn:hl7-org:v3\"><soapenv:id root=\"\"/></v3:PRPA_IN201301UV02></Body></soapenv:Envelope>";
     private static final String XML5 = "<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><Body xmlns=\"http://www.w3.org/2003/05/soap-envelope\"><v3:PRPA_IN201301UV02 ITSVersion=\"XML_1.0\" xmlns:v3=\"urn:hl7-org:v3\"><v3:id root=\"\"/></v3:PRPA_IN201301UV02></Body></soapenv:Envelope>";
+    private static final String XML6 = "<?xml version=\"1.0\" ?><root xmlns=\"http://test1.com\"><node1 xmlns=\"http://test2.com\"><id>123</id><name/><flag>true</flag></node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></root>";
+    private static final String XML7 = "<?xml version=\"1.0\" ?><v1:root xmlns:v1=\"http://test1.com\" xmlns=\"http://testdefault1.com\"><v2:node1 xmlns:v2=\"http://test2.com\"><id>123</id><name/><flag>true</flag></v2:node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></v1:root>";
+    private static final String XML8 = "<?xml version=\"1.0\" ?><v1:root xmlns:v1=\"http://test1.com\" xmlns=\"http://testdefault1.com\"><v2:node1 xmlns:v2=\"http://test2.com\"><id>123</id><name/><flag>true</flag><v1:node2><name/><id>234</id><node3><id>345</id></node3></v1:node2></v2:node1><node4><id>789</id><name>testing</name><flag>false</flag></node4></v1:root>";
     private static final String JSON1 = "{\"root\":{\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON2 = "{\"root\":{\"node1\":{\"id\":123,\"id\":456,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON3 = "{\"root\":{\"node1\":{\"id\":[\"123\",\"456\"],\"name\":null,\"flag\":\"true\"},\"node2\":{\"id\":\"789\",\"name\":\"testing\",\"flag\":\"false\"}}}";
     private static final String JSON4 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"@root\":\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"}}}}}";
     private static final String JSON5 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"@xmlns\":\"\",\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"@root\":\"\"}}}}}";
     private static final String JSON6 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@root\":\"\"}}}}}";
+    private static final String JSON7 = "{\"root\":{\"@xmlns\":\"\",\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
+    private static final String JSON8 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":123,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
+    private static final String JSON9 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":123,\"name\":null,\"flag\":true},\"node2\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
+    private static final String JSON10 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":123,\"name\":null,\"flag\":true,\"node2\":{\"@xmlns\":\"http://test1.com\",\"name\":null,\"id\":234,\"node3\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":345}}},\"node4\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
 
     @Test
     public void testXmlToJson1() throws Exception {
@@ -70,6 +77,30 @@ public class JsonXmlUtilTest {
     public void testXmlToJson7() throws Exception {
     	// Stripping bound prefixes on
     	assertEquals(JSON6, XmlUtil.toJson(XML5, true));
+    }
+    
+    @Test
+    public void testXmlToJson8() throws Exception {
+    	// Stripping bound prefixes on, but no declared prefixes or namespaces in input
+    	assertEquals(JSON7, XmlUtil.toJson(XML1, true));
+    }
+    
+    @Test
+    public void testXmlToJson9() throws Exception {
+    	// Stripping bound prefixes on, with no declared prefixes in input and the default namespace changes
+    	assertEquals(JSON8, XmlUtil.toJson(XML6, true));
+    } 
+    
+    @Test
+    public void textXmlToJson10() throws Exception {
+    	// Stripping bound prefixes on. Prefixed node declares namespace for its prefix and the default namespace.
+    	assertEquals(JSON9, XmlUtil.toJson(XML7, true));
+    }
+    
+    @Test
+    public void textXmlToJson11() throws Exception {
+    	// Stripping bound prefixes on. More complex nesting of namespaces and prefixes.
+    	assertEquals(JSON10, XmlUtil.toJson(XML8, true));
     }
     
     @Test
