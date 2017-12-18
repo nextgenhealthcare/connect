@@ -44,7 +44,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
@@ -57,7 +56,7 @@ import de.odysseus.staxon.xml.util.PrettyXMLStreamWriter;
 
 public class JsonXmlUtil {
 	
-	static final String SEPARATOR = ":";
+	private static final String SEPARATOR = ":";
 
     public static String xmlToJson(String xmlStr, boolean stripBoundPrefixes) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         //convert xml to json
@@ -123,20 +122,19 @@ public class JsonXmlUtil {
 
 	private static LinkedHashMap<String, Object> normalizeJsonObject(JsonNode jsonObject) {
 		// Using LinkedHashMaps to preserve order of fields
-		LinkedHashMap<String, Object> normalizedJsonObject = new LinkedHashMap<>();		
+		LinkedHashMap<String, Object> normalizedJsonObject = new LinkedHashMap<>();
 		normalizeJsonObject(jsonObject, null, null, new HashMap<>(), normalizedJsonObject);
 		return normalizedJsonObject;
 	}
 
-	private static void normalizeJsonObject(JsonNode jsonObject, String jsonObjectKey,
-			String currentNamespace, Map<String, Deque<String>> namespaceStackByPrefix,
-			Map<String, Object> normalizedJsonObject) {
-		
-		Iterator<Map.Entry<String,JsonNode>> it = jsonObject.fields();
+	private static void normalizeJsonObject(JsonNode jsonObject, String jsonObjectKey, String currentNamespace,
+			Map<String, Deque<String>> namespaceStackByPrefix, Map<String, Object> normalizedJsonObject) {
+
+		Iterator<Map.Entry<String, JsonNode>> it = jsonObject.fields();
 		while (it.hasNext()) {
 			Entry<String, JsonNode> field = it.next();
 			String key = field.getKey();
-			
+
 			Pair<String, String> splitName = splitPrefixAndLocalName(key);
 			String prefix = splitName.getLeft();
 			String localName = splitName.getRight();
@@ -155,9 +153,8 @@ public class JsonXmlUtil {
 				String namespace = field.getValue().asText();
 				namespaceStack.push(namespace);
 
-				// Only add the @xmlns attribute if its prefix is the same as
-				// its parent field's prefix, and if its namespace isn't already the 
-				// current namespace
+				// Only add the @xmlns attribute if the current namespace is
+				// changing
 				if (splitPrefixAndLocalName(jsonObjectKey).getLeft().equals(nsPrefix)
 						&& (currentNamespace == null || !namespace.equals(currentNamespace))) {
 					normalizedJsonObject.put("@xmlns", namespace);
@@ -168,8 +165,8 @@ public class JsonXmlUtil {
 				LinkedHashMap<String, Object> newNormalizedObject = new LinkedHashMap<>();
 
 				// If the inner JSON object does not contain an @xmlns
-				// attribute, we need to add one if the object's namespace isn't
-				// the current namespace
+				// attribute, we need to add one to the normalized object if the
+				// object's namespace isn't the current namespace
 				String namespaceTag = "@xmlns" + (XMLConstants.DEFAULT_NS_PREFIX.equals(prefix) ? "" : (":" + prefix));
 				if (!innerJsonObject.has(namespaceTag)) {
 					Deque<String> namespaceStack = namespaceStackByPrefix.get(prefix);
@@ -177,19 +174,19 @@ public class JsonXmlUtil {
 						namespaceStack = new ArrayDeque<>();
 						namespaceStackByPrefix.put(prefix, namespaceStack);
 					}
-					
+
 					if (!namespaceStack.isEmpty() && !namespaceStack.peek().equals(currentNamespace)) {
 						String namespace = namespaceStack.peek();
 						newNormalizedObject.put("@xmlns", namespace);
 						namespaceStack.push(namespace);
-						
+
 						if (jsonObjectKey == null) {
 							currentNamespace = namespace;
 						}
 					} else if (namespaceStack.isEmpty() && !XMLConstants.NULL_NS_URI.equals(currentNamespace)) {
 						newNormalizedObject.put("@xmlns", XMLConstants.NULL_NS_URI);
 						namespaceStack.push(XMLConstants.NULL_NS_URI);
-						
+
 						if (jsonObjectKey == null) {
 							currentNamespace = XMLConstants.NULL_NS_URI;
 						}
