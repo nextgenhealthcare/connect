@@ -58,13 +58,18 @@ public class JsonXmlUtil {
 	
 	private static final String SEPARATOR = ":";
 
-    public static String xmlToJson(String xmlStr, boolean stripBoundPrefixes) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+	public static String xmlToJson(String xmlStr) throws IOException, XMLStreamException, FactoryConfigurationError,
+			TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+		return xmlToJson(xmlStr, true);
+	}
+
+    public static String xmlToJson(String xmlStr, boolean normalizeNamespaces) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         //convert xml to json
         JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(true).autoPrimitive(true).prettyPrint(false).build();
-        return xmlToJson(config, xmlStr, stripBoundPrefixes);
+        return xmlToJson(config, xmlStr, normalizeNamespaces);
     }
 
-    public static String xmlToJson(JsonXMLConfig config, String xmlStr, boolean stripBoundPrefixes) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+    public static String xmlToJson(JsonXMLConfig config, String xmlStr, boolean normalizeNamespaces) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         try (InputStream inputStream = IOUtils.toInputStream(xmlStr);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             // create source (XML)
@@ -80,7 +85,7 @@ public class JsonXmlUtil {
             TransformerFactory.newInstance().newTransformer().transform(source, result);
             String jsonString = outputStream.toString();
             
-            if (stripBoundPrefixes) {
+            if (normalizeNamespaces) {
             	jsonString = normalizeNamespaces(jsonString);
             }
             

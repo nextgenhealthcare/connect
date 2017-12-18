@@ -66,39 +66,46 @@ public class JsonXmlUtilTest {
         // Stripping bound prefixes on
         assertEquals(JSON4, XmlUtil.toJson(XML3, true));
     }
-    
+
     @Test
     public void testXmlToJson6() throws Exception {
+        // Stripping bound prefixes by default
+        assertEquals(JSON4, XmlUtil.toJson(XML3));
+    }
+    
+    
+    @Test
+    public void testXmlToJson7() throws Exception {
     	// Stripping bound prefixes on
     	assertEquals(JSON5, XmlUtil.toJson(XML4, true));
     }
     
     @Test
-    public void testXmlToJson7() throws Exception {
+    public void testXmlToJson8() throws Exception {
     	// Stripping bound prefixes on
     	assertEquals(JSON6, XmlUtil.toJson(XML5, true));
     }
     
     @Test
-    public void testXmlToJson8() throws Exception {
+    public void testXmlToJson9() throws Exception {
     	// Stripping bound prefixes on, but no declared prefixes or namespaces in input
     	assertEquals(JSON7, XmlUtil.toJson(XML1, true));
     }
     
     @Test
-    public void testXmlToJson9() throws Exception {
+    public void testXmlToJson10() throws Exception {
     	// Stripping bound prefixes on, with no declared prefixes in input and the default namespace changes
     	assertEquals(JSON8, XmlUtil.toJson(XML6, true));
     } 
     
     @Test
-    public void textXmlToJson10() throws Exception {
+    public void textXmlToJson11() throws Exception {
     	// Stripping bound prefixes on. Prefixed node declares namespace for its prefix and the default namespace.
     	assertEquals(JSON9, XmlUtil.toJson(XML7, true));
     }
     
     @Test
-    public void textXmlToJson11() throws Exception {
+    public void textXmlToJson12() throws Exception {
     	// Stripping bound prefixes on. More complex nesting of namespaces and prefixes.
     	assertEquals(JSON10, XmlUtil.toJson(XML8, true));
     }
