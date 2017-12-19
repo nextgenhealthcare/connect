@@ -43,6 +43,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.NullNode;
 
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
@@ -188,20 +189,28 @@ public class JsonXmlUtil {
 				normalizeJsonObject(innerJsonObject, key, innerCurrentNamespace, innerNamespacesByPrefix,
 						innerNormalizedObject);
 			} else {
-				if (localName.startsWith("$") || localName.startsWith("@")) {
+				if (localName.startsWith("@")) {
 					normalizedJsonObject.put(localName, field.getValue());
+				} else if(localName.startsWith("$")) {
+					if (!(field.getValue() instanceof NullNode)) {
+						normalizedJsonObject.put(localName, field.getValue());
+					}
 				} else if (namespacesByPrefix.containsKey(prefix)
 						&& !namespacesByPrefix.get(prefix).equals(currentNamespace)) {
 					LinkedHashMap<String, Object> innerNormalizedObject = new LinkedHashMap<>();
 					String namespace = namespacesByPrefix.get(prefix);
 					innerNormalizedObject.put("@xmlns", namespace);
-					innerNormalizedObject.put("$", field.getValue());
+					if (!(field.getValue() instanceof NullNode)) {
+						innerNormalizedObject.put("$", field.getValue());
+					}
 					normalizedJsonObject.put(localName, innerNormalizedObject);
 				} else if (!namespacesByPrefix.containsKey(prefix)
 						&& !XMLConstants.NULL_NS_URI.equals(currentNamespace)) {
 					LinkedHashMap<String, Object> innerNormalizedObject = new LinkedHashMap<>();
 					innerNormalizedObject.put("@xmlns", XMLConstants.NULL_NS_URI);
-					innerNormalizedObject.put("$", field.getValue());
+					if (!(field.getValue() instanceof NullNode)) {
+						innerNormalizedObject.put("$", field.getValue());
+					}
 					normalizedJsonObject.put(localName, innerNormalizedObject);
 				} else {
 					normalizedJsonObject.put(localName, field.getValue());
