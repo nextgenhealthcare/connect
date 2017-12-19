@@ -25,6 +25,9 @@ public class JsonXmlUtilTest {
     private static final String XML7 = "<?xml version=\"1.0\" ?><v1:root xmlns:v1=\"http://test1.com\" xmlns=\"http://testdefault1.com\"><v2:node1 xmlns:v2=\"http://test2.com\"><id>123</id><name/><flag>true</flag></v2:node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></v1:root>";
     private static final String XML8 = "<?xml version=\"1.0\" ?><v1:root xmlns:v1=\"http://test1.com\" xmlns=\"http://testdefault1.com\"><v2:node1 xmlns:v2=\"http://test2.com\"><id>123</id><name/><flag>true</flag><v1:node2><name/><id>234</id><node3><id>345</id></node3></v1:node2></v2:node1><node4><id>789</id><name>testing</name><flag>false</flag></node4></v1:root>";
     private static final String XML9 = "<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Header xmlns:wsa=\"http://www.w3.org/2005/08/addressing\"><wsa:To>https://fake.hie.com:9002/pixpdq/PIXManager_Service</wsa:To><wsa:ReplyTo><wsa:Address>http://www.w3.org/2005/08/addressing/anonymous</wsa:Address></wsa:ReplyTo><wsa:MessageID>urn:uuid:14d6b384-54d2-9254-35b3-530717f6bc9a</wsa:MessageID><wsa:Action>urn:hl7-org:v3:PRPA_IN201301UV02</wsa:Action></soapenv:Header><soapenv:Body><cda:PRPA_IN201301UV02 xmlns:cda=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"></cda:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
+    private static final String XML10 = "<?xml version=\"1.0\" ?><Envelope xmlns=\"http://www.w3.org/2003/05/soap-envelope\"><Body><PRPA_IN201301UV02 xmlns=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"><id xmlns=\"http://www.w3.org/2003/05/soap-envelope\" root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"></id></PRPA_IN201301UV02></Body></Envelope>";
+    private static final String XML11 = "<?xml version=\"1.0\" ?><soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Body><v3:PRPA_IN201301UV02 ITSVersion=\"XML_1.0\" xmlns:v3=\"urn:hl7-org:v3\"><soapenv:id root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\" xmlns:soapenv=\"http://www.somedomain.org/soap-envelope\"><v3:test><soapenv:test/></v3:test></soapenv:id></v3:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
+    private static final String XML12 = "<?xml version=\"1.0\" ?><Envelope xmlns=\"http://www.w3.org/2003/05/soap-envelope\"><Body><PRPA_IN201301UV02 xmlns=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"><id xmlns=\"http://www.somedomain.org/soap-envelope\" root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"><test xmlns=\"urn:hl7-org:v3\"><test xmlns=\"http://www.w3.org/2004/05/soap-envelope\"></test></test></id></PRPA_IN201301UV02></Body></Envelope>";
     private static final String JSON1 = "{\"root\":{\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON2 = "{\"root\":{\"node1\":{\"id\":123,\"id\":456,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON3 = "{\"root\":{\"node1\":{\"id\":[\"123\",\"456\"],\"name\":null,\"flag\":\"true\"},\"node2\":{\"id\":\"789\",\"name\":\"testing\",\"flag\":\"false\"}}}";
@@ -138,4 +141,17 @@ public class JsonXmlUtilTest {
         assertEquals(XML2, JsonUtil.toXml(JSON1, true, false));
     }
 
+    @Test
+    public void testXmlToJsonToXml1() throws Exception {
+        String json = XmlUtil.toJson(XML3, true, true, false, true);
+        assertEquals(JSON4, json);
+        assertEquals(XML10, JsonUtil.toXml(json, false, false));
+    }
+
+    @Test
+    public void testXmlToJsonToXml2() throws Exception {
+        String json = XmlUtil.toJson(XML11, true, true, false, true);
+        String xml = JsonUtil.toXml(json, false, false);
+        assertEquals(XML12, xml);
+    }
 }
