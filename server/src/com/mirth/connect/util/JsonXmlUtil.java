@@ -162,47 +162,47 @@ public class JsonXmlUtil {
 				}
 			} else if (field.getValue().isObject()) {
 				JsonNode innerJsonObject = field.getValue();
-				LinkedHashMap<String, Object> newNormalizedObject = new LinkedHashMap<>();
+				LinkedHashMap<String, Object> innerNormalizedObject = new LinkedHashMap<>();
 
 				// If the inner JSON object does not contain an @xmlns
 				// attribute, we need to add one to the normalized object if the
-				// object's namespace isn't the current namespace
+				// inner object's namespace isn't the current namespace
 				String namespaceTag = "@xmlns" + (XMLConstants.DEFAULT_NS_PREFIX.equals(prefix) ? "" : (":" + prefix));
-				Map<String, String> newNamespacesByPrefix = new HashMap<>(namespacesByPrefix);
-				String newCurrentNamespace = currentNamespace;
+				Map<String, String> innerNamespacesByPrefix = new HashMap<>(namespacesByPrefix);
+				String innerCurrentNamespace = currentNamespace;
 
 				if (!innerJsonObject.has(namespaceTag)) {
 					if (namespacesByPrefix.containsKey(prefix)
 							&& !namespacesByPrefix.get(prefix).equals(currentNamespace)) {
 						String namespace = namespacesByPrefix.get(prefix);
-						newNormalizedObject.put("@xmlns", namespace);
-						newCurrentNamespace = namespace;
+						innerNormalizedObject.put("@xmlns", namespace);
+						innerCurrentNamespace = namespace;
 					} else if (!namespacesByPrefix.containsKey(prefix)
 							&& !XMLConstants.NULL_NS_URI.equals(currentNamespace)) {
-						newNormalizedObject.put("@xmlns", XMLConstants.NULL_NS_URI);
-						newCurrentNamespace = XMLConstants.NULL_NS_URI;
+						innerNormalizedObject.put("@xmlns", XMLConstants.NULL_NS_URI);
+						innerCurrentNamespace = XMLConstants.NULL_NS_URI;
 					}
 				}
 
-				normalizedJsonObject.put(localName, newNormalizedObject);
-				normalizeJsonObject(innerJsonObject, key, newCurrentNamespace, newNamespacesByPrefix,
-						newNormalizedObject);
+				normalizedJsonObject.put(localName, innerNormalizedObject);
+				normalizeJsonObject(innerJsonObject, key, innerCurrentNamespace, innerNamespacesByPrefix,
+						innerNormalizedObject);
 			} else {
 				if (localName.startsWith("$") || localName.startsWith("@")) {
 					normalizedJsonObject.put(localName, field.getValue());
 				} else if (namespacesByPrefix.containsKey(prefix)
 						&& !namespacesByPrefix.get(prefix).equals(currentNamespace)) {
-					LinkedHashMap<String, Object> newNormalizedObject = new LinkedHashMap<>();
+					LinkedHashMap<String, Object> innerNormalizedObject = new LinkedHashMap<>();
 					String namespace = namespacesByPrefix.get(prefix);
-					newNormalizedObject.put("@xmlns", namespace);
-					newNormalizedObject.put("$", field.getValue());
-					normalizedJsonObject.put(localName, newNormalizedObject);
+					innerNormalizedObject.put("@xmlns", namespace);
+					innerNormalizedObject.put("$", field.getValue());
+					normalizedJsonObject.put(localName, innerNormalizedObject);
 				} else if (!namespacesByPrefix.containsKey(prefix)
 						&& !XMLConstants.NULL_NS_URI.equals(currentNamespace)) {
-					LinkedHashMap<String, Object> newNormalizedObject = new LinkedHashMap<>();
-					newNormalizedObject.put("@xmlns", XMLConstants.NULL_NS_URI);
-					newNormalizedObject.put("$", field.getValue());
-					normalizedJsonObject.put(localName, newNormalizedObject);
+					LinkedHashMap<String, Object> innerNormalizedObject = new LinkedHashMap<>();
+					innerNormalizedObject.put("@xmlns", XMLConstants.NULL_NS_URI);
+					innerNormalizedObject.put("$", field.getValue());
+					normalizedJsonObject.put(localName, innerNormalizedObject);
 				} else {
 					normalizedJsonObject.put(localName, field.getValue());
 				}
