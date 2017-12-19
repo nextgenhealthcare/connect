@@ -24,6 +24,7 @@ public class JsonXmlUtilTest {
     private static final String XML6 = "<?xml version=\"1.0\" ?><root xmlns=\"http://test1.com\"><node1 xmlns=\"http://test2.com\"><id>123</id><name/><flag>true</flag></node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></root>";
     private static final String XML7 = "<?xml version=\"1.0\" ?><v1:root xmlns:v1=\"http://test1.com\" xmlns=\"http://testdefault1.com\"><v2:node1 xmlns:v2=\"http://test2.com\"><id>123</id><name/><flag>true</flag></v2:node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></v1:root>";
     private static final String XML8 = "<?xml version=\"1.0\" ?><v1:root xmlns:v1=\"http://test1.com\" xmlns=\"http://testdefault1.com\"><v2:node1 xmlns:v2=\"http://test2.com\"><id>123</id><name/><flag>true</flag><v1:node2><name/><id>234</id><node3><id>345</id></node3></v1:node2></v2:node1><node4><id>789</id><name>testing</name><flag>false</flag></node4></v1:root>";
+    private static final String XML9 = "<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Header xmlns:wsa=\"http://www.w3.org/2005/08/addressing\"><wsa:To>https://fake.hie.com:9002/pixpdq/PIXManager_Service</wsa:To><wsa:ReplyTo><wsa:Address>http://www.w3.org/2005/08/addressing/anonymous</wsa:Address></wsa:ReplyTo><wsa:MessageID>urn:uuid:14d6b384-54d2-9254-35b3-530717f6bc9a</wsa:MessageID><wsa:Action>urn:hl7-org:v3:PRPA_IN201301UV02</wsa:Action></soapenv:Header><soapenv:Body><cda:PRPA_IN201301UV02 xmlns:cda=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"></cda:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
     private static final String JSON1 = "{\"root\":{\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON2 = "{\"root\":{\"node1\":{\"id\":123,\"id\":456,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON3 = "{\"root\":{\"node1\":{\"id\":[\"123\",\"456\"],\"name\":null,\"flag\":\"true\"},\"node2\":{\"id\":\"789\",\"name\":\"testing\",\"flag\":\"false\"}}}";
@@ -32,8 +33,9 @@ public class JsonXmlUtilTest {
     private static final String JSON6 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@root\":\"\"}}}}}";
     private static final String JSON7 = "{\"root\":{\"@xmlns\":\"\",\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON8 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":123,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
-    private static final String JSON9 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":123,\"name\":null,\"flag\":true},\"node2\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
-    private static final String JSON10 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":123,\"name\":null,\"flag\":true,\"node2\":{\"@xmlns\":\"http://test1.com\",\"name\":null,\"id\":234,\"node3\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":345}}},\"node4\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
+    private static final String JSON9 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":123},\"name\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":null},\"flag\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":true}},\"node2\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
+    private static final String JSON10 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":123},\"name\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":null},\"flag\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":true},\"node2\":{\"@xmlns\":\"http://test1.com\",\"name\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":null},\"id\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":234},\"node3\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":345}}},\"node4\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
+    private static final String JSON11 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Header\":{\"To\":{\"@xmlns\":\"http://www.w3.org/2005/08/addressing\",\"$\":\"https://fake.hie.com:9002/pixpdq/PIXManager_Service\"},\"ReplyTo\":{\"@xmlns\":\"http://www.w3.org/2005/08/addressing\",\"Address\":\"http://www.w3.org/2005/08/addressing/anonymous\"},\"MessageID\":{\"@xmlns\":\"http://www.w3.org/2005/08/addressing\",\"$\":\"urn:uuid:14d6b384-54d2-9254-35b3-530717f6bc9a\"},\"Action\":{\"@xmlns\":\"http://www.w3.org/2005/08/addressing\",\"$\":\"urn:hl7-org:v3:PRPA_IN201301UV02\"}},\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\"}}}}";
 
     @Test
     public void testXmlToJson1() throws Exception {
@@ -108,6 +110,12 @@ public class JsonXmlUtilTest {
     public void textXmlToJson12() throws Exception {
     	// Stripping bound prefixes on. More complex nesting of namespaces and prefixes.
     	assertEquals(JSON10, XmlUtil.toJson(XML8, true));
+    }
+    
+    @Test
+    public void textXmlToJson13() throws Exception {
+    	// Stripping bound prefixes on. More complex nesting of namespaces and prefixes.
+    	assertEquals(JSON11, XmlUtil.toJson(XML9, true));
     }
     
     @Test
