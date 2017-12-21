@@ -12,7 +12,10 @@ package com.mirth.connect.donkey.model.message;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 
 public class RawMessage implements Serializable {
     private boolean overwrite;
@@ -23,6 +26,7 @@ public class RawMessage implements Serializable {
     private Collection<Integer> destinationMetaDataIds;
     private Map<String, Object> sourceMap = new HashMap<String, Object>();
     private Boolean binary;
+    private List<Attachment> attachments;
 
     public RawMessage(String rawData) {
         this(rawData, null);
@@ -33,6 +37,10 @@ public class RawMessage implements Serializable {
     }
 
     public RawMessage(String rawData, Collection<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
+        this(rawData, destinationMetaDataIds, sourceMap, null);
+    }
+
+    public RawMessage(String rawData, Collection<Integer> destinationMetaDataIds, Map<String, Object> sourceMap, List<Attachment> attachments) {
         this.rawData = rawData;
 
         if (sourceMap != null) {
@@ -41,6 +49,7 @@ public class RawMessage implements Serializable {
 
         this.destinationMetaDataIds = destinationMetaDataIds;
         this.binary = false;
+        this.attachments = attachments;
     }
 
     public RawMessage(byte[] rawBytes) {
@@ -52,6 +61,10 @@ public class RawMessage implements Serializable {
     }
 
     public RawMessage(byte[] rawBytes, Collection<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
+        this(rawBytes, destinationMetaDataIds, sourceMap, null);
+    }
+
+    public RawMessage(byte[] rawBytes, Collection<Integer> destinationMetaDataIds, Map<String, Object> sourceMap, List<Attachment> attachments) {
         this.rawBytes = rawBytes;
 
         if (sourceMap != null) {
@@ -60,6 +73,7 @@ public class RawMessage implements Serializable {
 
         this.destinationMetaDataIds = destinationMetaDataIds;
         this.binary = true;
+        this.attachments = attachments;
     }
 
     public boolean isOverwrite() {
@@ -114,20 +128,30 @@ public class RawMessage implements Serializable {
         return binary;
     }
 
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
+    }
+
     public void clearMessage() {
         this.rawBytes = null;
         this.rawData = null;
+        this.attachments = null;
     }
-    
+
     @Override
-    public String toString(){
-    	StringBuilder builder = new StringBuilder();
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
         builder.append(getClass().getName()).append('[');
         builder.append("overwrite=").append(overwrite).append(", ");
         builder.append("imported=").append(imported).append(", ");
         builder.append("originalMessageId=").append(originalMessageId).append(", ");
         builder.append("destinationMetaDataIds=").append(destinationMetaDataIds).append(", ");
-        builder.append("binary=").append(binary).append(']');
+        builder.append("binary=").append(binary).append(", ");
+        builder.append("attachmentCount=").append(attachments != null ? attachments.size() : 0).append(']');
         return builder.toString();
     }
 }

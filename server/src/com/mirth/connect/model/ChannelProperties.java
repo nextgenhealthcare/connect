@@ -47,6 +47,7 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
         messageStorageMode = MessageStorageMode.DEVELOPMENT;
         encryptData = false;
         initialState = DeployedState.STARTED;
+        storeAttachments = true;
         metaDataColumns = new ArrayList<MetaDataColumn>();
         attachmentProperties = AttachmentHandlerType.NONE.getDefaultProperties();
         resourceIds = new LinkedHashMap<String, String>();

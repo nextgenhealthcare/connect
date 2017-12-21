@@ -1378,6 +1378,19 @@ public class Channel implements Runnable {
         // The source map is read-only so we wrap it in an unmodifiable map
         sourceMessage.setSourceMap(Collections.unmodifiableMap(sourceMap));
 
+        // Insert attachments injected with the raw message first
+        if (CollectionUtils.isNotEmpty(rawMessage.getAttachments())) {
+            for (Attachment attachment : rawMessage.getAttachments()) {
+                ThreadUtils.checkInterruptedStatus();
+
+                if (storageSettings.isStoreAttachments()) {
+                    dao.insertMessageAttachment(channelId, messageId, attachment);
+                }
+            }
+
+            rawMessage.setAttachments(null);
+        }
+
         if (attachmentHandlerProvider != null && attachmentHandlerProvider.canExtractAttachments()) {
             ThreadUtils.checkInterruptedStatus();
             AttachmentHandler attachmentHandler = attachmentHandlerProvider.getHandler();

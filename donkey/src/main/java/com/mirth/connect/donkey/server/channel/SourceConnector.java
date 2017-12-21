@@ -246,7 +246,7 @@ public abstract class SourceConnector extends Connector {
                     }
 
                     // Create a new RawMessage to be dispatched
-                    RawMessage rawMessage = new RawMessage(message, destinationMetaDataIds, sourceMap);
+                    RawMessage rawMessage = new RawMessage(message, destinationMetaDataIds, sourceMap, batchRawMessage.getAttachments());
 
                     DispatchResult dispatchResult = null;
                     try {
@@ -259,6 +259,9 @@ public abstract class SourceConnector extends Connector {
                         if (batchAdaptor.getBatchSequenceId() == 1) {
                             batchSet = dispatchResult.getMessageId();
                         }
+
+                        // Clear attachments from the batch raw message
+                        batchRawMessage.setAttachments(null);
 
                         try {
                             // Allow the response handler to process the result
