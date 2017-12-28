@@ -15,11 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.FactoryConfigurationError;
@@ -40,23 +36,18 @@ import javax.xml.transform.stax.StAXSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.NullNode;
-
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
 import de.odysseus.staxon.json.JsonXMLInputFactory;
 import de.odysseus.staxon.json.JsonXMLOutputFactory;
+import de.odysseus.staxon.json.JsonXMLStreamWriter;
 import de.odysseus.staxon.json.stream.JsonStreamFactory;
 import de.odysseus.staxon.json.stream.JsonStreamSource;
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
+import de.odysseus.staxon.util.StreamWriterDelegate;
 import de.odysseus.staxon.xml.util.PrettyXMLStreamWriter;
 
 public class JsonXmlUtil {
-	
-	private static final String SEPARATOR = ":";
 
 	public static String xmlToJson(String xmlStr) throws IOException, XMLStreamException, FactoryConfigurationError,
 			TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
@@ -78,16 +69,21 @@ public class JsonXmlUtil {
 
             // create result (JSON)
             JsonStreamFactory streamFactory = new CorrectedJsonStreamFactory();
-            XMLStreamWriter writer = new JsonXMLOutputFactory(config, streamFactory).createXMLStreamWriter(outputStream);
+            XMLStreamWriter writer;
+            
+            if (normalizeNamespaces) {
+            	JsonXMLOutputFactory outputFactory = new NormalizeJsonXMLOutputFactory(config, streamFactory);
+            	writer = new NormalizeJsonStreamWriterDelegate(outputFactory.createXMLStreamWriter(outputStream));
+            } else {
+            	JsonXMLOutputFactory outputFactory = new JsonXMLOutputFactory(config, streamFactory);
+            	writer = outputFactory.createXMLStreamWriter(outputStream);
+            }
+            
             Result result = new StAXResult(writer);
 
             // copy source to result via "identity transform"
             TransformerFactory.newInstance().newTransformer().transform(source, result);
             String jsonString = outputStream.toString();
-            
-            if (normalizeNamespaces) {
-            	jsonString = normalizeNamespaces(jsonString, config.isPrettyPrint());
-            }
             
             return jsonString;
         }
@@ -114,124 +110,48 @@ public class JsonXmlUtil {
             return outputStream.toString();
         }
     }
+	
+	private static class NormalizeJsonXMLOutputFactory extends JsonXMLOutputFactory {
 
-	private static String normalizeNamespaces(String jsonString, boolean prettyPrint) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			if (prettyPrint) {
-				mapper.enable(SerializationFeature.INDENT_OUTPUT);
-			}
-			JsonNode jsonObject = mapper.readValue(jsonString, JsonNode.class);
-			return mapper.writeValueAsString(normalizeJsonObject(jsonObject));
-		} catch (Exception e) {
-			return jsonString;
+		@SuppressWarnings("unused")
+		public NormalizeJsonXMLOutputFactory() throws FactoryConfigurationError {
 		}
-	}
 
-	private static LinkedHashMap<String, Object> normalizeJsonObject(JsonNode jsonObject) {
-		// Using LinkedHashMaps to preserve order of fields
-		LinkedHashMap<String, Object> normalizedJsonObject = new LinkedHashMap<>();
-		normalizeJsonObject(jsonObject, null, null, new HashMap<>(), normalizedJsonObject);
-		return normalizedJsonObject;
-	}
+		@SuppressWarnings("unused")
+		public NormalizeJsonXMLOutputFactory(JsonStreamFactory streamFactory) {
+			super(streamFactory);
+		}
 
-	private static void normalizeJsonObject(JsonNode jsonObject, String jsonObjectKey, String currentNamespace,
-			Map<String, String> namespacesByPrefix, Map<String, Object> normalizedJsonObject) {
+		public NormalizeJsonXMLOutputFactory(JsonXMLConfig config, JsonStreamFactory streamFactory) {
+			super(config, streamFactory);
+		}
 
-		Iterator<Map.Entry<String, JsonNode>> it = jsonObject.fields();
-		while (it.hasNext()) {
-			Entry<String, JsonNode> field = it.next();
-			String key = field.getKey();
+		@SuppressWarnings("unused")
+		public NormalizeJsonXMLOutputFactory(JsonXMLConfig config) throws FactoryConfigurationError {
+			super(config);
+		}
 
-			Pair<String, String> splitName = splitPrefixAndLocalName(key);
-			String prefix = splitName.getLeft();
-			String localName = splitName.getRight();
-
-			// "@xmlns" can be either the prefix or localName, depending on if
-			// there is a bound prefix
-			if (prefix.equals("@xmlns") || localName.equals("@xmlns")) {
-				String nsPrefix = prefix.equals("@xmlns") ? localName : XMLConstants.DEFAULT_NS_PREFIX;
-				String namespace = field.getValue().asText();
-				namespacesByPrefix.put(nsPrefix, namespace);
-
-				// Only add the @xmlns attribute if the current namespace is
-				// changing
-				if (splitPrefixAndLocalName(jsonObjectKey).getLeft().equals(nsPrefix)
-						&& (currentNamespace == null || !namespace.equals(currentNamespace))) {
-					normalizedJsonObject.put("@xmlns", namespace);
-					currentNamespace = namespace;
-				}
-			} else if (field.getValue().isObject()) {
-				JsonNode innerJsonObject = field.getValue();
-				LinkedHashMap<String, Object> innerNormalizedObject = new LinkedHashMap<>();
-
-				// If the inner JSON object does not contain an @xmlns
-				// attribute, we need to add one to the normalized object if the
-				// inner object's namespace isn't the current namespace
-				String namespaceTag = "@xmlns" + (XMLConstants.DEFAULT_NS_PREFIX.equals(prefix) ? "" : (":" + prefix));
-				Map<String, String> innerNamespacesByPrefix = new HashMap<>(namespacesByPrefix);
-				String innerCurrentNamespace = currentNamespace;
-
-				if (!innerJsonObject.has(namespaceTag)) {
-					if (namespacesByPrefix.containsKey(prefix)
-							&& !namespacesByPrefix.get(prefix).equals(currentNamespace)) {
-						String namespace = namespacesByPrefix.get(prefix);
-						innerNormalizedObject.put("@xmlns", namespace);
-						innerCurrentNamespace = namespace;
-					} else if (!namespacesByPrefix.containsKey(prefix)
-							&& !XMLConstants.NULL_NS_URI.equals(currentNamespace)) {
-						innerNormalizedObject.put("@xmlns", XMLConstants.NULL_NS_URI);
-						innerCurrentNamespace = XMLConstants.NULL_NS_URI;
-					}
-				}
-
-				normalizedJsonObject.put(localName, innerNormalizedObject);
-				normalizeJsonObject(innerJsonObject, key, innerCurrentNamespace, innerNamespacesByPrefix,
-						innerNormalizedObject);
-			} else {
-				if (localName.startsWith("@")) {
-					normalizedJsonObject.put(localName, field.getValue());
-				} else if(localName.startsWith("$")) {
-					if (!(field.getValue() instanceof NullNode)) {
-						normalizedJsonObject.put(localName, field.getValue());
-					}
-				} else if (namespacesByPrefix.containsKey(prefix)
-						&& !namespacesByPrefix.get(prefix).equals(currentNamespace)) {
-					LinkedHashMap<String, Object> innerNormalizedObject = new LinkedHashMap<>();
-					String namespace = namespacesByPrefix.get(prefix);
-					innerNormalizedObject.put("@xmlns", namespace);
-					if (!(field.getValue() instanceof NullNode)) {
-						innerNormalizedObject.put("$", field.getValue());
-					}
-					normalizedJsonObject.put(localName, innerNormalizedObject);
-				} else if (!namespacesByPrefix.containsKey(prefix)
-						&& !XMLConstants.NULL_NS_URI.equals(currentNamespace)) {
-					LinkedHashMap<String, Object> innerNormalizedObject = new LinkedHashMap<>();
-					innerNormalizedObject.put("@xmlns", XMLConstants.NULL_NS_URI);
-					if (!(field.getValue() instanceof NullNode)) {
-						innerNormalizedObject.put("$", field.getValue());
-					}
-					normalizedJsonObject.put(localName, innerNormalizedObject);
-				} else {
-					normalizedJsonObject.put(localName, field.getValue());
-				}
+		@Override
+		public JsonXMLStreamWriter createXMLStreamWriter(OutputStream stream) throws XMLStreamException {
+			try {
+				return new NormalizeJsonXMLStreamWriter(
+						decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(),
+						multiplePI, namespaceSeparator, namespaceDeclarations);
+			} catch (IOException e) {
+				throw new XMLStreamException(e);
 			}
 		}
-	}
 
-	private static Pair<String, String> splitPrefixAndLocalName(String key) {
-		int separatorLocation = key.indexOf(SEPARATOR);
-
-		String prefix, localName;
-		if (separatorLocation != -1) {
-			prefix = key.substring(0, separatorLocation);
-			localName = key.substring(separatorLocation + 1);
-		} else {
-			prefix = XMLConstants.DEFAULT_NS_PREFIX;
-			localName = key;
+		@Override
+		public JsonXMLStreamWriter createXMLStreamWriter(Writer stream) throws XMLStreamException {
+			try {
+				return new NormalizeJsonXMLStreamWriter(
+						decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(),
+						multiplePI, namespaceSeparator, namespaceDeclarations);
+			} catch (IOException e) {
+				throw new XMLStreamException(e);
+			}
 		}
-
-		return Pair.of(prefix, localName);
 	}
 
     /*
@@ -332,4 +252,94 @@ public class JsonXmlUtil {
             return new MyJsonStreamTarget(delegate.createJsonStreamTarget(writer, prettyPrint));
         }
     }
+    
+
+    private static class NormalizeJsonStreamWriterDelegate extends StreamWriterDelegate {
+        private static final String SEPARATOR = ":";
+        
+        public NormalizeJsonStreamWriterDelegate(XMLStreamWriter parent) {
+            super(parent);
+        }
+        
+        @Override
+        public void writeStartElement(String localName) throws XMLStreamException {
+        	Pair<String, String> splitPair = splitPrefixAndLocalName(localName);
+        	String prefix = splitPair.getLeft();
+        	String local = splitPair.getRight();
+        	super.writeStartElement(local);
+            
+            if (!prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
+            	writeAttribute("xmlnsprefix", prefix);
+            }
+        }
+        
+        @Override
+        public void writeAttribute(String localName, String value) throws XMLStreamException {
+        	System.out.println(localName + ", " + value);
+        	super.writeAttribute(localName, value);
+        }
+
+        @Override
+        public void writeAttribute(String prefix, String namespaceURI, String localName, String value)
+        		throws XMLStreamException {
+        	System.out.println(prefix + ", " + namespaceURI + ", " + localName + ", " + value);
+
+            if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
+            	super.writeAttribute(prefix, namespaceURI, localName, value);
+            } else {
+            	super.writeStartElement("@" + localName);
+            	writeAttribute("xmlnsprefix", prefix);
+            	writeAttribute("$", value);
+            	super.writeEndElement();
+            }
+        }
+        
+        private static Pair<String, String> splitPrefixAndLocalName(String key) {
+    		int separatorLocation = key.indexOf(SEPARATOR);
+
+    		String prefix, localName;
+    		if (separatorLocation != -1) {
+    			prefix = key.substring(0, separatorLocation);
+    			localName = key.substring(separatorLocation + 1);
+    		} else {
+    			prefix = XMLConstants.DEFAULT_NS_PREFIX;
+    			localName = key;
+    		}
+
+    		return Pair.of(prefix, localName);
+    	}
+    }
+    
+    private static class NormalizeJsonXMLStreamWriter extends JsonXMLStreamWriter {
+
+		public NormalizeJsonXMLStreamWriter(JsonStreamTarget target, boolean repairNamespaces, boolean multiplePI,
+				char namespaceSeparator, boolean namespaceDeclarations) {
+			super(target, repairNamespaces, multiplePI, namespaceSeparator, namespaceDeclarations);
+		}
+
+		public NormalizeJsonXMLStreamWriter(JsonStreamTarget target, Map<String, String> repairNamespaces,
+				boolean multiplePI, char namespaceSeparator, boolean namespaceDeclarations) {
+			super(target, repairNamespaces, multiplePI, namespaceSeparator, namespaceDeclarations);
+		}
+
+		@Override
+		protected void writeAttr(String prefix, String localName, String namespaceURI, String value) throws XMLStreamException {
+			String name = XMLConstants.DEFAULT_NS_PREFIX.equals(prefix) ? localName : prefix + namespaceSeparator + localName;
+			try {
+				if (!getScope().getInfo().startObjectWritten) {
+					target.startObject();
+					getScope().getInfo().startObjectWritten = true;
+				}
+				
+				if (localName.equals("$")) {
+					target.name("$");
+				} else {
+					target.name('@' + name);
+				}
+				target.value(value);
+			} catch (IOException e) {
+				throw new XMLStreamException("Cannot write attribute: " + name, e);
+			}
+		}
+	}
 }
