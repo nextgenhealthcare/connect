@@ -15,12 +15,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -40,14 +44,18 @@ import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
 import de.odysseus.staxon.json.JsonXMLInputFactory;
 import de.odysseus.staxon.json.JsonXMLOutputFactory;
+import de.odysseus.staxon.json.JsonXMLStreamReader;
 import de.odysseus.staxon.json.JsonXMLStreamWriter;
 import de.odysseus.staxon.json.stream.JsonStreamFactory;
 import de.odysseus.staxon.json.stream.JsonStreamSource;
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
+import de.odysseus.staxon.json.stream.JsonStreamToken;
 import de.odysseus.staxon.util.StreamWriterDelegate;
 import de.odysseus.staxon.xml.util.PrettyXMLStreamWriter;
 
 public class JsonXmlUtil {
+	
+	private static final String SEPARATOR = ":";
 
 	public static String xmlToJson(String xmlStr) throws IOException, XMLStreamException, FactoryConfigurationError,
 			TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
@@ -72,7 +80,7 @@ public class JsonXmlUtil {
             XMLStreamWriter writer;
             
             if (normalizeNamespaces) {
-            	JsonXMLOutputFactory outputFactory = new NormalizeJsonXMLOutputFactory(config, streamFactory);
+            	JsonXMLOutputFactory outputFactory = new NormalizeJsonOutputFactory(config, streamFactory);
             	writer = new NormalizeJsonStreamWriterDelegate(outputFactory.createXMLStreamWriter(outputStream));
             } else {
             	JsonXMLOutputFactory outputFactory = new JsonXMLOutputFactory(config, streamFactory);
@@ -83,9 +91,7 @@ public class JsonXmlUtil {
 
             // copy source to result via "identity transform"
             TransformerFactory.newInstance().newTransformer().transform(source, result);
-            String jsonString = outputStream.toString();
-            
-            return jsonString;
+            return outputStream.toString();
         }
     }
 
@@ -96,11 +102,12 @@ public class JsonXmlUtil {
 
     public static String jsonToXml(JsonXMLConfig config, String jsonStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         try (InputStream inputStream = IOUtils.toInputStream(jsonStr);
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            XMLStreamReader reader = new JsonXMLInputFactory(config).createXMLStreamReader(inputStream);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            XMLStreamReader reader = new NormalizeXMLInputFactory(config).createXMLStreamReader(inputStream);
+            Map<String, Deque<String>> prefixByTag = ((NormalizeXMLStreamReader) reader).prefixByTag;
             Source source = new StAXSource(reader);
 
-            XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
+            XMLStreamWriter writer = new NormalizeXMLStreamWriterDelegate(XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream), prefixByTag);
             if (config.isPrettyPrint()) {
                 writer = new PrettyXMLStreamWriter(writer);
             }
@@ -111,49 +118,6 @@ public class JsonXmlUtil {
         }
     }
 	
-	private static class NormalizeJsonXMLOutputFactory extends JsonXMLOutputFactory {
-
-		@SuppressWarnings("unused")
-		public NormalizeJsonXMLOutputFactory() throws FactoryConfigurationError {
-		}
-
-		@SuppressWarnings("unused")
-		public NormalizeJsonXMLOutputFactory(JsonStreamFactory streamFactory) {
-			super(streamFactory);
-		}
-
-		public NormalizeJsonXMLOutputFactory(JsonXMLConfig config, JsonStreamFactory streamFactory) {
-			super(config, streamFactory);
-		}
-
-		@SuppressWarnings("unused")
-		public NormalizeJsonXMLOutputFactory(JsonXMLConfig config) throws FactoryConfigurationError {
-			super(config);
-		}
-
-		@Override
-		public JsonXMLStreamWriter createXMLStreamWriter(OutputStream stream) throws XMLStreamException {
-			try {
-				return new NormalizeJsonXMLStreamWriter(
-						decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(),
-						multiplePI, namespaceSeparator, namespaceDeclarations);
-			} catch (IOException e) {
-				throw new XMLStreamException(e);
-			}
-		}
-
-		@Override
-		public JsonXMLStreamWriter createXMLStreamWriter(Writer stream) throws XMLStreamException {
-			try {
-				return new NormalizeJsonXMLStreamWriter(
-						decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(),
-						multiplePI, namespaceSeparator, namespaceDeclarations);
-			} catch (IOException e) {
-				throw new XMLStreamException(e);
-			}
-		}
-	}
-
     /*
      * The sole purpose of the CorrectedJsonStreamFactory class is to correct some weirdness in the
      * Staxon library where a default namespace ("@xmlns") would get turned into ("@xmlns:xmlns")
@@ -253,10 +217,37 @@ public class JsonXmlUtil {
         }
     }
     
+    private static class NormalizeJsonOutputFactory extends JsonXMLOutputFactory {
+
+		public NormalizeJsonOutputFactory(JsonXMLConfig config, JsonStreamFactory streamFactory) {
+			super(config, streamFactory);
+		}
+
+		@Override
+		public JsonXMLStreamWriter createXMLStreamWriter(OutputStream stream) throws XMLStreamException {
+			try {
+				return new NormalizeJsonStreamWriter(
+						decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(),
+						multiplePI, namespaceSeparator, namespaceDeclarations);
+			} catch (IOException e) {
+				throw new XMLStreamException(e);
+			}
+		}
+
+		@Override
+		public JsonXMLStreamWriter createXMLStreamWriter(Writer stream) throws XMLStreamException {
+			try {
+				return new NormalizeJsonStreamWriter(
+						decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(),
+						multiplePI, namespaceSeparator, namespaceDeclarations);
+			} catch (IOException e) {
+				throw new XMLStreamException(e);
+			}
+		}
+	}
 
     private static class NormalizeJsonStreamWriterDelegate extends StreamWriterDelegate {
-        private static final String SEPARATOR = ":";
-        
+
         public NormalizeJsonStreamWriterDelegate(XMLStreamWriter parent) {
             super(parent);
         }
@@ -310,14 +301,14 @@ public class JsonXmlUtil {
     	}
     }
     
-    private static class NormalizeJsonXMLStreamWriter extends JsonXMLStreamWriter {
+    private static class NormalizeJsonStreamWriter extends JsonXMLStreamWriter {
 
-		public NormalizeJsonXMLStreamWriter(JsonStreamTarget target, boolean repairNamespaces, boolean multiplePI,
+		public NormalizeJsonStreamWriter(JsonStreamTarget target, boolean repairNamespaces, boolean multiplePI,
 				char namespaceSeparator, boolean namespaceDeclarations) {
 			super(target, repairNamespaces, multiplePI, namespaceSeparator, namespaceDeclarations);
 		}
 
-		public NormalizeJsonXMLStreamWriter(JsonStreamTarget target, Map<String, String> repairNamespaces,
+		public NormalizeJsonStreamWriter(JsonStreamTarget target, Map<String, String> repairNamespaces,
 				boolean multiplePI, char namespaceSeparator, boolean namespaceDeclarations) {
 			super(target, repairNamespaces, multiplePI, namespaceSeparator, namespaceDeclarations);
 		}
@@ -342,4 +333,98 @@ public class JsonXmlUtil {
 			}
 		}
 	}
+    
+    private static class NormalizeXMLInputFactory extends JsonXMLInputFactory {
+
+		public NormalizeXMLInputFactory(JsonXMLConfig config) throws FactoryConfigurationError {
+			super(config);
+		}
+
+		@Override
+		public JsonXMLStreamReader createXMLStreamReader(InputStream stream) throws XMLStreamException {
+			try {
+				return new NormalizeXMLStreamReader(decorate(streamFactory.createJsonStreamSource(stream)), multiplePI, namespaceSeparator, namespaceMappings);
+			} catch (IOException e) {
+				throw new XMLStreamException(e);
+			}
+		}
+	}
+    
+    private static class NormalizeXMLStreamReader extends JsonXMLStreamReader {
+    	public Map<String, Deque<String>> prefixByTag;
+    	private String currentTagName;
+    	
+		public NormalizeXMLStreamReader(JsonStreamSource decorate, boolean multiplePI, char namespaceSeparator,
+				Map<String, String> namespaceMappings) throws XMLStreamException {
+			super(decorate, multiplePI, namespaceSeparator, namespaceMappings);
+		}
+    	
+		protected void consumeName(ScopeInfo info) throws XMLStreamException, IOException {
+			String fieldName = source.name();
+			if (fieldName.startsWith("@")) {
+				fieldName = fieldName.substring(1);
+				if (source.peek() == JsonStreamToken.VALUE) {
+					String value = source.value().text;
+					if (fieldName.equals("xmlnsprefix")) {
+						if (prefixByTag == null) {
+							prefixByTag = new HashMap<>();
+						}
+						
+						Deque<String> prefixes = prefixByTag.get(currentTagName);
+						if (prefixes == null) {
+							prefixes = new ArrayDeque<>();
+							prefixByTag.put(currentTagName, prefixes);
+						}
+						
+						prefixes.addLast(value);
+					} else {
+						readAttrNsDecl(fieldName, value);
+					}
+				} else if (XMLConstants.XMLNS_ATTRIBUTE.equals(fieldName)) { // badgerfish
+					source.startObject();
+					while (source.peek() == JsonStreamToken.NAME) {
+						String prefix = source.name();
+						if ("$".equals(prefix)) {
+							readNsDecl(XMLConstants.DEFAULT_NS_PREFIX, source.value().text);
+						} else {
+							readNsDecl(prefix, source.value().text);
+						}
+					}
+					source.endObject();
+				} else {
+					throw new IllegalStateException("Expected attribute value");
+				}
+			} else if ("$".equals(fieldName)) {
+				readData(source.value(), XMLStreamConstants.CHARACTERS);
+			} else {
+				info.currentTagName = fieldName;
+			}
+		}
+		
+		protected void readStartElementTag(String name) throws XMLStreamException {
+			currentTagName = name;
+			super.readStartElementTag(name);
+		}
+    }
+
+    private static class NormalizeXMLStreamWriterDelegate extends StreamWriterDelegate {
+    	private Map<String, Deque<String>> prefixByTag;
+    	
+        public NormalizeXMLStreamWriterDelegate(XMLStreamWriter parent, Map<String, Deque<String>> prefixByTag) {
+            super(parent);
+            this.prefixByTag = prefixByTag;
+        }
+        
+        @Override
+        public void writeStartElement(String localName) throws XMLStreamException {
+        	if (prefixByTag != null && prefixByTag.containsKey(localName)) {
+        		Deque<String> prefixes = prefixByTag.get(localName);
+        		if (!prefixes.isEmpty()) {
+        			localName = prefixes.removeFirst() + SEPARATOR + localName;
+        		}
+        	}
+        	super.writeStartElement(localName);
+        }
+    }
+    
 }
