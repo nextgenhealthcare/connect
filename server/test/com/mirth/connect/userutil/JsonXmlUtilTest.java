@@ -12,6 +12,11 @@ package com.mirth.connect.userutil;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.junit.Test;
 
 public class JsonXmlUtilTest {
@@ -28,17 +33,24 @@ public class JsonXmlUtilTest {
     private static final String XML10 = "<?xml version=\"1.0\" ?><Envelope xmlns=\"http://www.w3.org/2003/05/soap-envelope\"><Body><PRPA_IN201301UV02 xmlns=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"><id xmlns=\"http://www.w3.org/2003/05/soap-envelope\" root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"></id></PRPA_IN201301UV02></Body></Envelope>";
     private static final String XML11 = "<?xml version=\"1.0\" ?><soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Body><v3:PRPA_IN201301UV02 ITSVersion=\"XML_1.0\" xmlns:v3=\"urn:hl7-org:v3\"><soapenv:id root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\" xmlns:soapenv=\"http://www.somedomain.org/soap-envelope\"><v3:test><soapenv:test/></v3:test></soapenv:id></v3:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
     private static final String XML12 = "<?xml version=\"1.0\" ?><Envelope xmlns=\"http://www.w3.org/2003/05/soap-envelope\"><Body><PRPA_IN201301UV02 xmlns=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"><id xmlns=\"http://www.somedomain.org/soap-envelope\" root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"><test xmlns=\"urn:hl7-org:v3\"><test xmlns=\"http://www.somedomain.org/soap-envelope\"></test></test></id></PRPA_IN201301UV02></Body></Envelope>";
+    private static final String XML13 = "<?xml version=\"1.0\" ?><env:Envelope xmlns:env=\"soap\"><env:Body><Test value=\"abc\"><ValueWithoutAttr>123</ValueWithoutAttr><ValueWithAttr attr=\"test\">123</ValueWithAttr></Test></env:Body></env:Envelope>";
+    private static final String XML14 = "<Root xmlns:ns1=\"ns1\" xmlns:ns2=\"ns2\"><ns1:Child ns1:value=\"val1\" ns2:value=\"val2\"/><ns2:Child>test</ns2:Child><Child>test2</Child></Root>";
+    
     private static final String JSON1 = "{\"root\":{\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON2 = "{\"root\":{\"node1\":{\"id\":123,\"id\":456,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON3 = "{\"root\":{\"node1\":{\"id\":[\"123\",\"456\"],\"name\":null,\"flag\":\"true\"},\"node2\":{\"id\":\"789\",\"name\":\"testing\",\"flag\":\"false\"}}}";
-    private static final String JSON4 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"@root\":\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"}}}}}";
-    private static final String JSON5 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"@xmlns\":\"\",\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"@root\":\"\"}}}}}";
-    private static final String JSON6 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@root\":\"\"}}}}}";
-    private static final String JSON7 = "{\"root\":{\"@xmlns\":\"\",\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
+    private static final String JSON4 = "{\"Envelope\":{\"@xmlnsprefix\":\"soapenv\",\"@xmlns:soapenv\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"@xmlnsprefix\":\"soapenv\",\"PRPA_IN201301UV02\":{\"@xmlnsprefix\":\"v3\",\"@xmlns:v3\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@xmlnsprefix\":\"soapenv\",\"@root\":\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"}}}}}";
+    private static final String JSON5 = "{\"Envelope\":{\"@xmlnsprefix\":\"soapenv\",\"@xmlns:soapenv\":\"http://www.w3.org/2003/05/soap-envelope\",\"@xmlns:test\":\"testing\",\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlnsprefix\":\"v3\",\"@xmlns:v3\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@xmlnsprefix\":\"soapenv\",\"@root\":\"\"}}}}}";
+    private static final String JSON6 = "{\"Envelope\":{\"@xmlnsprefix\":\"soapenv\",\"@xmlns:soapenv\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"PRPA_IN201301UV02\":{\"@xmlnsprefix\":\"v3\",\"@xmlns:v3\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"id\":{\"@xmlnsprefix\":\"v3\",\"@root\":\"\"}}}}}";
+    private static final String JSON7 = "{\"root\":{\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON8 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":123,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
-    private static final String JSON9 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":123},\"name\":{\"@xmlns\":\"http://testdefault1.com\"},\"flag\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":true}},\"node2\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
-    private static final String JSON10 = "{\"root\":{\"@xmlns\":\"http://test1.com\",\"node1\":{\"@xmlns\":\"http://test2.com\",\"id\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":123},\"name\":{\"@xmlns\":\"http://testdefault1.com\"},\"flag\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":true},\"node2\":{\"@xmlns\":\"http://test1.com\",\"name\":{\"@xmlns\":\"http://testdefault1.com\"},\"id\":{\"@xmlns\":\"http://testdefault1.com\",\"$\":234},\"node3\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":345}}},\"node4\":{\"@xmlns\":\"http://testdefault1.com\",\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
-    private static final String JSON11 = "{\"Envelope\":{\"@xmlns\":\"http://www.w3.org/2003/05/soap-envelope\",\"Header\":{\"To\":{\"@xmlns\":\"http://www.w3.org/2005/08/addressing\",\"$\":\"https://fake.hie.com:9002/pixpdq/PIXManager_Service\"},\"ReplyTo\":{\"@xmlns\":\"http://www.w3.org/2005/08/addressing\",\"Address\":\"http://www.w3.org/2005/08/addressing/anonymous\"},\"MessageID\":{\"@xmlns\":\"http://www.w3.org/2005/08/addressing\",\"$\":\"urn:uuid:14d6b384-54d2-9254-35b3-530717f6bc9a\"},\"Action\":{\"@xmlns\":\"http://www.w3.org/2005/08/addressing\",\"$\":\"urn:hl7-org:v3:PRPA_IN201301UV02\"}},\"Body\":{\"PRPA_IN201301UV02\":{\"@xmlns\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\"}}}}";
+    private static final String JSON9 = "{\"root\":{\"@xmlnsprefix\":\"v1\",\"@xmlns:v1\":\"http://test1.com\",\"@xmlns\":\"http://testdefault1.com\",\"node1\":{\"@xmlnsprefix\":\"v2\",\"@xmlns:v2\":\"http://test2.com\",\"id\":123,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
+    private static final String JSON10 = "{\"root\":{\"@xmlnsprefix\":\"v1\",\"@xmlns:v1\":\"http://test1.com\",\"@xmlns\":\"http://testdefault1.com\",\"node1\":{\"@xmlnsprefix\":\"v2\",\"@xmlns:v2\":\"http://test2.com\",\"id\":123,\"name\":null,\"flag\":true,\"node2\":{\"@xmlnsprefix\":\"v1\",\"name\":null,\"id\":234,\"node3\":{\"id\":345}}},\"node4\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
+    private static final String JSON11 = "{\"Envelope\":{\"@xmlnsprefix\":\"soapenv\",\"@xmlns:soapenv\":\"http://www.w3.org/2003/05/soap-envelope\",\"Header\":{\"@xmlnsprefix\":\"soapenv\",\"@xmlns:wsa\":\"http://www.w3.org/2005/08/addressing\",\"To\":{\"@xmlnsprefix\":\"wsa\",\"$\":\"https://fake.hie.com:9002/pixpdq/PIXManager_Service\"},\"ReplyTo\":{\"@xmlnsprefix\":\"wsa\",\"Address\":{\"@xmlnsprefix\":\"wsa\",\"$\":\"http://www.w3.org/2005/08/addressing/anonymous\"}},\"MessageID\":{\"@xmlnsprefix\":\"wsa\",\"$\":\"urn:uuid:14d6b384-54d2-9254-35b3-530717f6bc9a\"},\"Action\":{\"@xmlnsprefix\":\"wsa\",\"$\":\"urn:hl7-org:v3:PRPA_IN201301UV02\"}},\"Body\":{\"@xmlnsprefix\":\"soapenv\",\"PRPA_IN201301UV02\":{\"@xmlnsprefix\":\"cda\",\"@xmlns:cda\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\"}}}}";
+    private static final String JSON12 = "{\"Envelope\":{\"@xmlnsprefix\":\"env\",\"@xmlns:env\":\"soap\",\"Body\":{\"@xmlnsprefix\":\"env\",\"Test\":{\"@value\":\"abc\",\"ValueWithoutAttr\":123,\"ValueWithAttr\":{\"@attr\":\"test\",\"$\":123}}}}}";
+    private static final String JSON13 = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"Child\":[{\"@xmlnsprefix\":\"ns1\",\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},{\"@xmlnsprefix\":\"ns2\",\"$\":\"val2\"}]},{\"@xmlnsprefix\":\"ns2\",\"$\":\"test\"},\"test2\"]}}";
+    
+    private static final String XML_FILE_1 = "test-json-xml-util-input01.xml";
 
     @Test
     public void testXmlToJson1() throws Exception {
@@ -78,7 +90,6 @@ public class JsonXmlUtilTest {
         assertEquals(JSON4, XmlUtil.toJson(XML3));
     }
     
-    
     @Test
     public void testXmlToJson7() throws Exception {
     	// Stripping bound prefixes on
@@ -104,21 +115,36 @@ public class JsonXmlUtilTest {
     } 
     
     @Test
-    public void textXmlToJson11() throws Exception {
+    public void testXmlToJson11() throws Exception {
     	// Stripping bound prefixes on. Prefixed node declares namespace for its prefix and the default namespace.
     	assertEquals(JSON9, XmlUtil.toJson(XML7, true));
     }
     
     @Test
-    public void textXmlToJson12() throws Exception {
+    public void testXmlToJson12() throws Exception {
     	// Stripping bound prefixes on. More complex nesting of namespaces and prefixes.
     	assertEquals(JSON10, XmlUtil.toJson(XML8, true));
     }
     
     @Test
-    public void textXmlToJson13() throws Exception {
+    public void testXmlToJson13() throws Exception {
     	// Stripping bound prefixes on. More complex nesting of namespaces and prefixes.
     	assertEquals(JSON11, XmlUtil.toJson(XML9, true));
+    }
+    
+    @Test
+    public void testXmlToJson14() throws Exception {
+    	String xml = readFile(XML_FILE_1);
+    }
+    
+    @Test
+    public void testXmlToJson15() throws Exception {
+    	assertEquals(JSON12, XmlUtil.toJson(XML13, true));
+    }
+    
+    @Test
+    public void testXmlToJson16() throws Exception {
+    	assertEquals(JSON13, XmlUtil.toJson(XML14, true));
     }
     
     @Test
@@ -142,6 +168,11 @@ public class JsonXmlUtilTest {
     }
     
     @Test
+    public void testJsonToXml4() throws Exception {
+    	assertEquals(XML13, JsonUtil.toXml(JSON12, false, false));
+    }
+    
+    @Test
     public void testXmlToJsonToXml1() throws Exception {
         String json = XmlUtil.toJson(XML3, true, true, false, true);
         assertEquals(JSON4, json);
@@ -153,5 +184,26 @@ public class JsonXmlUtilTest {
         String json = XmlUtil.toJson(XML11, true, true, false, true);
         String xml = JsonUtil.toXml(json, false, false);
         assertEquals(XML12, xml);
+    }
+    
+    private static String readFile(String filename) throws FileNotFoundException, IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader("tests/" + filename))) {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
+            return sb.toString();
+        }
+    }
+    
+    private static String getTrimmedXMLVersionFromConverted(String convertedXmlString, String xmlFromFile) {
+        if (convertedXmlString.indexOf("<?xml version=\"1.0\" ?>\n") == 0 && xmlFromFile.indexOf("<?xml version=\"1.0\" ?>\n") != 0) {
+            convertedXmlString = convertedXmlString.substring("<?xml version=\"1.0\" ?>\n".length());
+        }
+        return convertedXmlString;
     }
 }
