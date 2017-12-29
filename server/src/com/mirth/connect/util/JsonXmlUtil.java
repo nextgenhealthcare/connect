@@ -265,16 +265,8 @@ public class JsonXmlUtil {
         }
         
         @Override
-        public void writeAttribute(String localName, String value) throws XMLStreamException {
-        	System.out.println(localName + ", " + value);
-        	super.writeAttribute(localName, value);
-        }
-
-        @Override
         public void writeAttribute(String prefix, String namespaceURI, String localName, String value)
         		throws XMLStreamException {
-        	System.out.println(prefix + ", " + namespaceURI + ", " + localName + ", " + value);
-
             if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
             	super.writeAttribute(prefix, namespaceURI, localName, value);
             } else {
