@@ -22,6 +22,7 @@ import javax.xml.XMLConstants;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
+import de.odysseus.staxon.base.AbstractXMLStreamScope;
 import de.odysseus.staxon.base.AbstractXMLStreamWriter;
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
 
@@ -64,7 +65,7 @@ public class JsonXMLStreamWriter extends AbstractXMLStreamWriter<JsonXMLStreamWr
 		public boolean startObjectWritten = false;
 		boolean pendingStartArray = false;
 
-		void addText(String data) {
+		public void addText(String data) {
 			if (leadData == null) { // first event?
 				this.leadData = data;
 			} else {
@@ -74,19 +75,19 @@ public class JsonXMLStreamWriter extends AbstractXMLStreamWriter<JsonXMLStreamWr
 				builder.append(data);
 			}
 		}
-		boolean hasData() {
+		public boolean hasData() {
 			return leadData != null;
 		}
 		Object getData() {
 			return builder == null ? (hasData() ? leadData : null) : builder.toString();
 		}
-		void setData(Object data) {
+		public void setData(Object data) {
 			this.leadData = data;
 			this.builder = null;
 		}
 	}
 
-	static boolean isWhitespace(Object data) {
+	protected static boolean isWhitespace(Object data) {
 		if (data == null) {
 			return false;
 		}
@@ -102,7 +103,7 @@ public class JsonXMLStreamWriter extends AbstractXMLStreamWriter<JsonXMLStreamWr
 	protected final JsonStreamTarget target;
 	private final boolean multiplePI;
 	private final boolean autoEndArray;
-	private final boolean skipSpace;
+	protected final boolean skipSpace;
 	protected final char namespaceSeparator;
 	private final boolean namespaceDeclarations;
 

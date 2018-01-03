@@ -217,6 +217,7 @@ public class JsonXmlUtil {
         }
     }
     
+    // XML -> JSON
     private static class NormalizeJsonOutputFactory extends JsonXMLOutputFactory {
 
 		public NormalizeJsonOutputFactory(JsonXMLConfig config, JsonStreamFactory streamFactory) {
@@ -313,7 +314,10 @@ public class JsonXmlUtil {
 					target.startObject();
 					getScope().getInfo().startObjectWritten = true;
 				}
-				
+
+				// The only change from the super method implementation is that
+				// we don't put a "$" in front of any attributes that start with
+				// "@".
 				if (localName.equals("$")) {
 					target.name("$");
 				} else {
@@ -324,8 +328,48 @@ public class JsonXmlUtil {
 				throw new XMLStreamException("Cannot write attribute: " + name, e);
 			}
 		}
+		
+		@Override
+		protected void writeData(Object data, int type) throws XMLStreamException {
+			switch(type) {
+			case XMLStreamConstants.CHARACTERS:
+			case XMLStreamConstants.CDATA:
+				if (getScope().isRoot() && !isStartDocumentWritten()) {
+					try {
+						target.value(data);
+					} catch (IOException e) {
+						throw new XMLStreamException("Cannot write data", e);
+					}
+				} else {
+					if (data == null) {
+						throw new XMLStreamException("Cannot write null data");
+					}
+					if (getScope().getLastChild() == null && getScope().getInfo().hasData()) {
+						if (data instanceof String) {
+							getScope().getInfo().addText(data.toString());
+						} else {
+							throw new XMLStreamException("Cannot append primitive data: " + data);
+						}
+					} else if (getScope().getLastChild() == null) {
+						getScope().getInfo().setData(data);
+					} else if (getScope().getLastChild().getLocalName().startsWith("@")) {
+						if (data instanceof String) {
+							getScope().getInfo().addText(data.toString());
+						} else {
+							throw new XMLStreamException("Cannot append primitive data: " + data);
+						}
+					}
+				}
+				break;
+			case XMLStreamConstants.COMMENT: // ignore comments
+				break;
+			default:
+				throw new UnsupportedOperationException("Cannot write data of type " + type);
+			}
+		}
 	}
     
+    // JSON -> XML
     private static class NormalizeXMLInputFactory extends JsonXMLInputFactory {
 
 		public NormalizeXMLInputFactory(JsonXMLConfig config) throws FactoryConfigurationError {
@@ -372,7 +416,7 @@ public class JsonXmlUtil {
 					} else {
 						readAttrNsDecl(fieldName, value);
 					}
-				} else if (XMLConstants.XMLNS_ATTRIBUTE.equals(fieldName)) { // badgerfish
+				} else if (XMLConstants.XMLNS_ATTRIBUTE.equals(fieldName)) {
 					source.startObject();
 					while (source.peek() == JsonStreamToken.NAME) {
 						String prefix = source.name();
@@ -383,9 +427,23 @@ public class JsonXmlUtil {
 						}
 					}
 					source.endObject();
+				} else if (source.peek() == JsonStreamToken.START_OBJECT) {
+					source.startObject();
+					String prefix = XMLConstants.DEFAULT_NS_PREFIX;
+					while (source.peek() == JsonStreamToken.NAME) {
+						String name = source.name();
+						String text = source.value().text;
+						
+						if (name.equals("@xmlnsprefix")) {
+							prefix = text; 
+						} else if (name.equals("$")) {
+							readAttrNsDecl(prefix + SEPARATOR + fieldName, text);
+						}
+					}
+					source.endObject();
 				} else {
 					throw new IllegalStateException("Expected attribute value");
-				}
+				}				
 			} else if ("$".equals(fieldName)) {
 				readData(source.value(), XMLStreamConstants.CHARACTERS);
 			} else {
