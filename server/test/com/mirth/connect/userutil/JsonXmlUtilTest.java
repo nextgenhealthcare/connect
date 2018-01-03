@@ -30,11 +30,12 @@ public class JsonXmlUtilTest {
     private static final String XML7 = "<?xml version=\"1.0\" ?><v1:root xmlns:v1=\"http://test1.com\" xmlns=\"http://testdefault1.com\"><v2:node1 xmlns:v2=\"http://test2.com\"><id>123</id><name/><flag>true</flag></v2:node1><node2><id>789</id><name>testing</name><flag>false</flag></node2></v1:root>";
     private static final String XML8 = "<?xml version=\"1.0\" ?><v1:root xmlns:v1=\"http://test1.com\" xmlns=\"http://testdefault1.com\"><v2:node1 xmlns:v2=\"http://test2.com\"><id>123</id><name/><flag>true</flag><v1:node2><name/><id>234</id><node3><id>345</id></node3></v1:node2></v2:node1><node4><id>789</id><name>testing</name><flag>false</flag></node4></v1:root>";
     private static final String XML9 = "<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Header xmlns:wsa=\"http://www.w3.org/2005/08/addressing\"><wsa:To>https://fake.hie.com:9002/pixpdq/PIXManager_Service</wsa:To><wsa:ReplyTo><wsa:Address>http://www.w3.org/2005/08/addressing/anonymous</wsa:Address></wsa:ReplyTo><wsa:MessageID>urn:uuid:14d6b384-54d2-9254-35b3-530717f6bc9a</wsa:MessageID><wsa:Action>urn:hl7-org:v3:PRPA_IN201301UV02</wsa:Action></soapenv:Header><soapenv:Body><cda:PRPA_IN201301UV02 xmlns:cda=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"></cda:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
-    private static final String XML10 = "<?xml version=\"1.0\" ?><Envelope xmlns=\"http://www.w3.org/2003/05/soap-envelope\"><Body><PRPA_IN201301UV02 xmlns=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"><id xmlns=\"http://www.w3.org/2003/05/soap-envelope\" root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"></id></PRPA_IN201301UV02></Body></Envelope>";
+    private static final String XML10 = "<?xml version=\"1.0\" ?><soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Body><v3:PRPA_IN201301UV02 xmlns:v3=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"><soapenv:id root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"></soapenv:id></v3:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
     private static final String XML11 = "<?xml version=\"1.0\" ?><soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Body><v3:PRPA_IN201301UV02 ITSVersion=\"XML_1.0\" xmlns:v3=\"urn:hl7-org:v3\"><soapenv:id root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\" xmlns:soapenv=\"http://www.somedomain.org/soap-envelope\"><v3:test><soapenv:test/></v3:test></soapenv:id></v3:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
-    private static final String XML12 = "<?xml version=\"1.0\" ?><Envelope xmlns=\"http://www.w3.org/2003/05/soap-envelope\"><Body><PRPA_IN201301UV02 xmlns=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"><id xmlns=\"http://www.somedomain.org/soap-envelope\" root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"><test xmlns=\"urn:hl7-org:v3\"><test xmlns=\"http://www.somedomain.org/soap-envelope\"></test></test></id></PRPA_IN201301UV02></Body></Envelope>";
+    private static final String XML12 = "<?xml version=\"1.0\" ?><soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Body><v3:PRPA_IN201301UV02 xmlns:v3=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"><soapenv:id xmlns:soapenv=\"http://www.somedomain.org/soap-envelope\" root=\"abfaa36c-a569-4d7c-b0f0-dee9c41cacd2\"><v3:test><soapenv:test></soapenv:test></v3:test></soapenv:id></v3:PRPA_IN201301UV02></soapenv:Body></soapenv:Envelope>";
     private static final String XML13 = "<?xml version=\"1.0\" ?><env:Envelope xmlns:env=\"soap\"><env:Body><Test value=\"abc\"><ValueWithoutAttr>123</ValueWithoutAttr><ValueWithAttr attr=\"test\">123</ValueWithAttr></Test></env:Body></env:Envelope>";
     private static final String XML14 = "<Root xmlns:ns1=\"ns1\" xmlns:ns2=\"ns2\"><ns1:Child ns1:value=\"val1\" ns2:value=\"val2\"/><ns2:Child>test</ns2:Child><Child>test2</Child></Root>";
+    private static final String XML15 = "<?xml version=\"1.0\"?><Book isbn=\"1234\" pfx:cover=\"hard\" xmlns=\"http://www.library.com\" xmlns:pfx=\"http://www.library.com\"><Title>Sherlock Holmes</Title><Author>Arthur Conan Doyle</Author></Book>";
     
     private static final String JSON1 = "{\"root\":{\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON2 = "{\"root\":{\"node1\":{\"id\":123,\"id\":456,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
@@ -49,8 +50,11 @@ public class JsonXmlUtilTest {
     private static final String JSON11 = "{\"Envelope\":{\"@xmlnsprefix\":\"soapenv\",\"@xmlns:soapenv\":\"http://www.w3.org/2003/05/soap-envelope\",\"Header\":{\"@xmlnsprefix\":\"soapenv\",\"@xmlns:wsa\":\"http://www.w3.org/2005/08/addressing\",\"To\":{\"@xmlnsprefix\":\"wsa\",\"$\":\"https://fake.hie.com:9002/pixpdq/PIXManager_Service\"},\"ReplyTo\":{\"@xmlnsprefix\":\"wsa\",\"Address\":{\"@xmlnsprefix\":\"wsa\",\"$\":\"http://www.w3.org/2005/08/addressing/anonymous\"}},\"MessageID\":{\"@xmlnsprefix\":\"wsa\",\"$\":\"urn:uuid:14d6b384-54d2-9254-35b3-530717f6bc9a\"},\"Action\":{\"@xmlnsprefix\":\"wsa\",\"$\":\"urn:hl7-org:v3:PRPA_IN201301UV02\"}},\"Body\":{\"@xmlnsprefix\":\"soapenv\",\"PRPA_IN201301UV02\":{\"@xmlnsprefix\":\"cda\",\"@xmlns:cda\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\"}}}}";
     private static final String JSON12 = "{\"Envelope\":{\"@xmlnsprefix\":\"env\",\"@xmlns:env\":\"soap\",\"Body\":{\"@xmlnsprefix\":\"env\",\"Test\":{\"@value\":\"abc\",\"ValueWithoutAttr\":123,\"ValueWithAttr\":{\"@attr\":\"test\",\"$\":123}}}}}";
     private static final String JSON13 = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"Child\":[{\"@xmlnsprefix\":\"ns1\",\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},{\"@xmlnsprefix\":\"ns2\",\"$\":\"val2\"}]},{\"@xmlnsprefix\":\"ns2\",\"$\":\"test\"},\"test2\"]}}";
+    private static final String JSON14 = "{\"Book\":{\"@xmlns\":\"http://www.library.com\",\"@xmlns:pfx\":\"http://www.library.com\",\"@isbn\":\"1234\",\"@cover\":{\"@xmlnsprefix\":\"pfx\",\"$\":\"hard\"},\"Title\":\"Sherlock Holmes\",\"Author\":\"Arthur Conan Doyle\"}}";
     
-    private static final String XML_FILE_1 = "test-json-xml-util-input01.xml";
+    private static final String XML_FILE_INPUT_1 = "test-json-xml-util-input01.xml";
+    private static final String JSON_FILE_OUTPUT_1 = "test-json-xml-util-output01.json";
+    private static final String XML_FILE_OUTPUT_2 = "test-json-xml-util-output02.xml";     
 
     @Test
     public void testXmlToJson1() throws Exception {
@@ -134,7 +138,9 @@ public class JsonXmlUtilTest {
     
     @Test
     public void testXmlToJson14() throws Exception {
-    	String xml = readFile(XML_FILE_1);
+    	String xml = readFile(XML_FILE_INPUT_1);
+    	String json = readFile(JSON_FILE_OUTPUT_1);
+    	assertEquals(json, XmlUtil.toJson(xml, true));
     }
     
     @Test
@@ -145,6 +151,11 @@ public class JsonXmlUtilTest {
     @Test
     public void testXmlToJson16() throws Exception {
     	assertEquals(JSON13, XmlUtil.toJson(XML14, true));
+    }
+    
+    @Test
+    public void testXmlToJson17() throws Exception {
+    	assertEquals(JSON14, XmlUtil.toJson(XML15, true));
     }
     
     @Test
@@ -186,6 +197,14 @@ public class JsonXmlUtilTest {
         assertEquals(XML12, xml);
     }
     
+    @Test
+    public void testXmlToJsonToXml3() throws Exception {
+    	String xml = readFile(XML_FILE_INPUT_1);
+    	String xmlToJson = XmlUtil.toJson(xml, true);
+    	String expectedXml = readFile(XML_FILE_OUTPUT_2);
+    	assertEquals(expectedXml, JsonUtil.toXml(xmlToJson, false, false));
+    }
+    
     private static String readFile(String filename) throws FileNotFoundException, IOException {
         try (BufferedReader br = new BufferedReader(new FileReader("tests/" + filename))) {
             StringBuilder sb = new StringBuilder();
@@ -196,14 +215,8 @@ public class JsonXmlUtilTest {
                 sb.append(System.lineSeparator());
                 line = br.readLine();
             }
-            return sb.toString();
+            
+            return sb.toString().trim();
         }
-    }
-    
-    private static String getTrimmedXMLVersionFromConverted(String convertedXmlString, String xmlFromFile) {
-        if (convertedXmlString.indexOf("<?xml version=\"1.0\" ?>\n") == 0 && xmlFromFile.indexOf("<?xml version=\"1.0\" ?>\n") != 0) {
-            convertedXmlString = convertedXmlString.substring("<?xml version=\"1.0\" ?>\n".length());
-        }
-        return convertedXmlString;
     }
 }
