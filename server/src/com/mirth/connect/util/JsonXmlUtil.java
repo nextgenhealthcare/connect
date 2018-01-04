@@ -316,8 +316,7 @@ public class JsonXmlUtil {
 				}
 
 				// The only change from the super method implementation is that
-				// we don't put a "$" in front of any attributes that start with
-				// "@".
+				// we don't put an "@" in front of any "$" attributes.
 				if (localName.equals("$")) {
 					target.name("$");
 				} else {
@@ -353,6 +352,10 @@ public class JsonXmlUtil {
 					} else if (getScope().getLastChild() == null) {
 						getScope().getInfo().setData(data);
 					} else if (getScope().getLastChild().getLocalName().startsWith("@")) {
+						// Added this case to make sure we don't mistakenly think we're dealing
+						// with mixed content. In our XML to JSON conversion, attributes
+						// can be objects and can have attributes of their own, which the original
+						// implementation did not support.
 						if (data instanceof String) {
 							getScope().getInfo().addText(data.toString());
 						} else {
@@ -403,7 +406,9 @@ public class JsonXmlUtil {
 				fieldName = fieldName.substring(1);
 				if (source.peek() == JsonStreamToken.VALUE) {
 					String value = source.value().text;
+					
 					if (fieldName.equals("xmlnsprefix")) {
+						// Store the prefix to prepend to the tag name later
 						if (prefixByTag == null) {
 							prefixByTag = new HashMap<>();
 						}
@@ -430,6 +435,8 @@ public class JsonXmlUtil {
 					}
 					source.endObject();
 				} else if (source.peek() == JsonStreamToken.START_OBJECT) {
+					// Handles attributes that are objects with attributes of their own
+					// and possibly with a bound prefix
 					source.startObject();
 					String prefix = XMLConstants.DEFAULT_NS_PREFIX;
 					while (source.peek() == JsonStreamToken.NAME) {
