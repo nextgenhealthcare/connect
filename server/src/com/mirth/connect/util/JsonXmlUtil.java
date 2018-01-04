@@ -358,6 +358,8 @@ public class JsonXmlUtil {
 						} else {
 							throw new XMLStreamException("Cannot append primitive data: " + data);
 						}
+					} else if (!skipSpace || !isWhitespace(data)) {
+						throw new XMLStreamException("Mixed content is not supported: '" + data + "'");
 					}
 				}
 				break;
