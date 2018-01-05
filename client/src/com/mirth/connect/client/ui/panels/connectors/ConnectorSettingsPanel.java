@@ -99,19 +99,19 @@ public abstract class ConnectorSettingsPanel extends JPanel {
     }
     
     public String getInitialInboundDataType() {
-        return UIConstants.DATATYPE_DEFAULT;
+        return null;
     }
     
     public String getInitialOutboundDataType() {
-        return UIConstants.DATATYPE_DEFAULT;
+        return null;
     }
     
     public String getInitialInboundResponseDataType() {
-        return getRequiredOutboundDataType() != null ? getRequiredOutboundDataType() : getInitialOutboundDataType();
+        return null;
     }
     
     public String getInitialOutboundResponseDataType() {
-        return getInitialInboundResponseDataType();
+        return null;
     }
     
     public List<String> getScripts(ConnectorProperties properties) {
