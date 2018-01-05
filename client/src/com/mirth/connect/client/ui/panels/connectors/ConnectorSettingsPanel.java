@@ -28,6 +28,7 @@ import org.glassfish.jersey.internal.util.ReflectionHelper;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
@@ -90,15 +91,27 @@ public abstract class ConnectorSettingsPanel extends JPanel {
     }
 
     public String getRequiredInboundDataType() {
-    	return null;
+        return null;
     }
 
     public String getRequiredOutboundDataType() {
-    	return null;
+        return null;
+    }
+    
+    public String getInitialInboundDataType() {
+        return null;
     }
     
     public String getInitialOutboundDataType() {
-    	return null;
+        return null;
+    }
+    
+    public String getInitialInboundResponseDataType() {
+        return null;
+    }
+    
+    public String getInitialOutboundResponseDataType() {
+        return null;
     }
     
     public List<String> getScripts(ConnectorProperties properties) {
