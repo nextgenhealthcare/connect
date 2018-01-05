@@ -1148,7 +1148,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void messageContentPlainBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentPlainBodyRadioActionPerformed
-    	parent.channelEditPanel.checkAndSetRequiredDataType();
+        parent.channelEditPanel.checkAndSetSourceDataType();
         parseMultipartLabel.setEnabled(false);
         parseMultipartYesRadio.setEnabled(false);
         parseMultipartNoRadio.setEnabled(false);
@@ -1187,7 +1187,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_responseHeadersDeleteButtonActionPerformed
 
     private void messageContentXmlBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentXmlBodyRadioActionPerformed
-    	parent.channelEditPanel.checkAndSetRequiredDataType();
+        parent.channelEditPanel.checkAndSetSourceDataType();
         parseMultipartLabel.setEnabled(true);
         parseMultipartYesRadio.setEnabled(true);
         parseMultipartNoRadio.setEnabled(true);

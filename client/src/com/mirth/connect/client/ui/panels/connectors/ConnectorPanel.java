@@ -321,17 +321,29 @@ public class ConnectorPanel extends JPanel {
     }
     
     public String getRequiredInboundDataType() {
-    	return getConnectorSettingsPanel().getRequiredInboundDataType();
+        return getConnectorSettingsPanel().getRequiredInboundDataType();
     }
 
     public String getRequiredOutboundDataType() {
-    	return getConnectorSettingsPanel().getRequiredOutboundDataType();
+        return getConnectorSettingsPanel().getRequiredOutboundDataType();
     }
     
-    public String getInitialOutboundDataType() {
-    	return getConnectorSettingsPanel().getInitialOutboundDataType();
+    public String getInitialInboundDataType() {
+        return getConnectorSettingsPanel().getInitialInboundDataType();
     }
 
+    public String getInitialOutboundDataType() {
+        return getConnectorSettingsPanel().getInitialOutboundDataType();
+    }
+
+    public String getInitialInboundResponseDataType() {
+        return getConnectorSettingsPanel().getInitialInboundResponseDataType();
+    }
+    
+    public String getInitialOutboundResponseDataType() {
+        return getConnectorSettingsPanel().getInitialOutboundResponseDataType();
+    }
+    
     public void updatedField(String field) {
         getConnectorSettingsPanel().updatedField(field);
     }
