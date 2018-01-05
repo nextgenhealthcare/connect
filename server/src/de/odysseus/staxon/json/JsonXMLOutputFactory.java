@@ -110,14 +110,14 @@ public class JsonXMLOutputFactory extends AbstractXMLOutputFactory {
 	 */
 	public static final String PROP_PRETTY_PRINT = "JsonXMLOutputFactory.prettyPrint";
 
-	protected JsonStreamFactory streamFactory;
-	protected boolean multiplePI;
+	private JsonStreamFactory streamFactory;
+	private boolean multiplePI;
 	private QName virtualRoot;
 	private boolean autoArray;
 	private boolean autoPrimitive;
-	protected boolean prettyPrint;
-	protected char namespaceSeparator;
-	protected boolean namespaceDeclarations;
+	private boolean prettyPrint;
+	private char namespaceSeparator;
+	private boolean namespaceDeclarations;
 	private Map<String, String> namespaceMappings;
 
 	public JsonXMLOutputFactory() throws FactoryConfigurationError {
@@ -149,7 +149,7 @@ public class JsonXMLOutputFactory extends AbstractXMLOutputFactory {
 		super.setProperty(IS_REPAIRING_NAMESPACES, config.isRepairingNamespaces());
 	}
 		
-	protected JsonStreamTarget decorate(JsonStreamTarget target) {
+	private JsonStreamTarget decorate(JsonStreamTarget target) {
 		if (virtualRoot != null) {
 			target = new RemoveRootTarget(target, virtualRoot, namespaceSeparator);
 		}
@@ -171,7 +171,7 @@ public class JsonXMLOutputFactory extends AbstractXMLOutputFactory {
 		}
 	}
 	
-	protected Map<String, String> repairNamespacesMap() {
+	private Map<String, String> repairNamespacesMap() {
 		if (Boolean.TRUE.equals(getProperty(IS_REPAIRING_NAMESPACES))) {
 			if (namespaceMappings == null || namespaceMappings.isEmpty()) {
 				return Collections.<String, String>emptyMap();

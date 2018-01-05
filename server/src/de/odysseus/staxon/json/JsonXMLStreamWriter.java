@@ -58,13 +58,13 @@ import de.odysseus.staxon.json.stream.JsonStreamTarget;
  * if the name would have been omitted and collection were empty).</p>
  */
 public class JsonXMLStreamWriter extends AbstractXMLStreamWriter<JsonXMLStreamWriter.ScopeInfo> {
-	protected static class ScopeInfo extends JsonXMLStreamScopeInfo {
+	static class ScopeInfo extends JsonXMLStreamScopeInfo {
 		private Object leadData = null;
 		private StringBuilder builder = null;
-		public boolean startObjectWritten = false;
+		boolean startObjectWritten = false;
 		boolean pendingStartArray = false;
 
-		public void addText(String data) {
+		void addText(String data) {
 			if (leadData == null) { // first event?
 				this.leadData = data;
 			} else {
@@ -74,19 +74,19 @@ public class JsonXMLStreamWriter extends AbstractXMLStreamWriter<JsonXMLStreamWr
 				builder.append(data);
 			}
 		}
-		public boolean hasData() {
+		boolean hasData() {
 			return leadData != null;
 		}
 		Object getData() {
 			return builder == null ? (hasData() ? leadData : null) : builder.toString();
 		}
-		public void setData(Object data) {
+		void setData(Object data) {
 			this.leadData = data;
 			this.builder = null;
 		}
 	}
 
-	protected static boolean isWhitespace(Object data) {
+	static boolean isWhitespace(Object data) {
 		if (data == null) {
 			return false;
 		}
@@ -99,11 +99,11 @@ public class JsonXMLStreamWriter extends AbstractXMLStreamWriter<JsonXMLStreamWr
 		return true;
 	}
 
-	protected final JsonStreamTarget target;
+	private final JsonStreamTarget target;
 	private final boolean multiplePI;
 	private final boolean autoEndArray;
-	protected final boolean skipSpace;
-	protected final char namespaceSeparator;
+	private final boolean skipSpace;
+	private final char namespaceSeparator;
 	private final boolean namespaceDeclarations;
 
 	private boolean documentArray = false;

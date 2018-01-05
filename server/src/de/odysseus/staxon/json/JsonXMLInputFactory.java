@@ -81,12 +81,12 @@ public class JsonXMLInputFactory extends AbstractXMLInputFactory {
 	 */
 	public static final String PROP_NAMESPACE_MAPPINGS = "JsonXMLInputFactory.namespaceMappings";
 
-	protected final JsonStreamFactory streamFactory;
+	private final JsonStreamFactory streamFactory;
 
-	protected boolean multiplePI;
+	private boolean multiplePI;
 	private QName virtualRoot;
-	protected char namespaceSeparator;
-	protected Map<String, String> namespaceMappings;
+	private char namespaceSeparator;
+	private Map<String, String> namespaceMappings;
 
 	public JsonXMLInputFactory() throws FactoryConfigurationError {
 		this(JsonXMLConfig.DEFAULT);
@@ -118,7 +118,7 @@ public class JsonXMLInputFactory extends AbstractXMLInputFactory {
 		super.setProperty(SUPPORT_DTD, Boolean.FALSE);
 	}
 	
-	protected JsonStreamSource decorate(JsonStreamSource source) {
+	private JsonStreamSource decorate(JsonStreamSource source) {
 		if (virtualRoot != null) {
 			source = new AddRootSource(source, virtualRoot, namespaceSeparator);
 		}

@@ -41,15 +41,15 @@ import de.odysseus.staxon.json.stream.JsonStreamToken;
  * to indicate array starts (<code>'['</code>).</p>
  */
 public class JsonXMLStreamReader extends AbstractXMLStreamReader<JsonXMLStreamReader.ScopeInfo> {
-	public static class ScopeInfo extends JsonXMLStreamScopeInfo {
-		public String currentTagName;
+	static class ScopeInfo extends JsonXMLStreamScopeInfo {
+		private String currentTagName;
 	}
 	
-	protected final JsonStreamSource source;
-	protected final boolean multiplePI;
+	private final JsonStreamSource source;
+	private final boolean multiplePI;
 	private final char namespaceSeparator;
 	
-	protected boolean documentArray = false;
+	private boolean documentArray = false;
 
 	/**
 	 * Create reader instance.
@@ -87,7 +87,7 @@ public class JsonXMLStreamReader extends AbstractXMLStreamReader<JsonXMLStreamRe
 		super.initialize();
 	}
 
-	protected void readStartElementTag(String name) throws XMLStreamException {
+	private void readStartElementTag(String name) throws XMLStreamException {
 		int separator = name.indexOf(namespaceSeparator);
 		if (separator < 0) {
 			readStartElementTag(XMLConstants.DEFAULT_NS_PREFIX, name, null, new ScopeInfo());
@@ -96,7 +96,7 @@ public class JsonXMLStreamReader extends AbstractXMLStreamReader<JsonXMLStreamRe
 		}
 	}
 	
-	protected void readAttrNsDecl(String name, String value) throws XMLStreamException {
+	private void readAttrNsDecl(String name, String value) throws XMLStreamException {
 		int separator = name.indexOf(namespaceSeparator);
 		if (separator < 0) {
 			if (XMLConstants.XMLNS_ATTRIBUTE.equals(name)) {
@@ -113,11 +113,11 @@ public class JsonXMLStreamReader extends AbstractXMLStreamReader<JsonXMLStreamRe
 		}
 	}
 
-	protected void readData(Value value, int type) throws XMLStreamException {
+	private void readData(Value value, int type) throws XMLStreamException {
 		readData(value.text, value.data, type);
 	}
 
-	protected void consumeName(ScopeInfo info) throws XMLStreamException, IOException {
+	private void consumeName(ScopeInfo info) throws XMLStreamException, IOException {
 		String fieldName = source.name();
 		if (fieldName.startsWith("@")) {
 			fieldName = fieldName.substring(1);
