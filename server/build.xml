@@ -109,6 +109,7 @@
 			<include name="com/mirth/connect/util/**" />
 			<include name="org/mozilla/**" />
 			<include name="org/glassfish/jersey/**" />
+			<include name="de/**" />
 
 			<include name="version.properties" />
 		</jar>
@@ -1161,9 +1162,9 @@
 		<delete dir="${test_classes}" />
 		
 		<path id="testclasspath">
-			<path refid="classpath" />
 			<fileset dir="testlib" includes="**/*.jar" />
 			<dirset dir="${classes}"/>
+			<path refid="classpath" />
 		</path>
 	</target>
 	
