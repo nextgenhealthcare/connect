@@ -2558,6 +2558,8 @@ public class ChannelSetup extends JPanel {
                 props = sourceConnectorPanel.getProperties();
                 ((SourceConnectorPropertiesInterface) props).getSourceConnectorProperties().setResourceIds(resourceIds.get(sourceConnector.getMetaDataId()));
                 sourceConnector.setProperties(props);
+                
+                checkAndSetSourceDataType();
             }
 
             sourceConnector.setTransportName((String) sourceConnectorTypeComboBox.getSelectedItem());
@@ -2870,6 +2872,8 @@ public class ChannelSetup extends JPanel {
             destinationConnector.setProperties(props);
 
             setResourceIds();
+            
+            checkAndSetDestinationAndResponseDataType();
         }
 
         destinationVariableList.setTransferMode(destinationConnectorPanel.getTransferMode());
@@ -2987,12 +2991,6 @@ public class ChannelSetup extends JPanel {
         c.setTransformer(oldTransformer);
         c.setFilter(oldFilter);
         c.setResponseTransformer(oldResponseTransformer);
-        
-        if (isDestination) {
-            checkAndSetDestinationAndResponseDataType();
-        } else {
-            checkAndSetSourceDataType();
-        }
     }
 
     /**
