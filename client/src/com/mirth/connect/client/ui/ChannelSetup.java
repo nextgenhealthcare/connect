@@ -2559,6 +2559,8 @@ public class ChannelSetup extends JPanel {
                 props = sourceConnectorPanel.getProperties();
                 ((SourceConnectorPropertiesInterface) props).getSourceConnectorProperties().setResourceIds(resourceIds.get(sourceConnector.getMetaDataId()));
                 sourceConnector.setProperties(props);
+                
+                checkAndSetSourceDataType();
             }
 
             sourceConnector.setTransportName((String) sourceConnectorTypeComboBox.getSelectedItem());
@@ -2567,12 +2569,7 @@ public class ChannelSetup extends JPanel {
             ConnectorProperties props = sourceConnector.getProperties();
             ((SourceConnectorPropertiesInterface) props).getSourceConnectorProperties().setResourceIds(resourceIds.get(sourceConnector.getMetaDataId()));
             sourceConnectorPanel.setProperties(props);
-        } else {
-        	checkAndSetInitialDataType();
         }
-
-        // Set the required data type, if necessary
-        checkAndSetRequiredDataType();
 
         sourceConnectorScrollPane.repaint();
 
@@ -2876,6 +2873,8 @@ public class ChannelSetup extends JPanel {
             destinationConnector.setProperties(props);
 
             setResourceIds();
+            
+            checkAndSetDestinationAndResponseDataType();
         }
 
         destinationVariableList.setTransferMode(destinationConnectorPanel.getTransferMode());
@@ -2999,64 +2998,123 @@ public class ChannelSetup extends JPanel {
      * Returns the required source data type of this channel.
      */
     public String getRequiredInboundDataType() {
-    	return sourceConnectorPanel.getRequiredInboundDataType();
+        return sourceConnectorPanel.getRequiredInboundDataType();
     }
 
     /**
      * Returns the required source data type of this channel.
      */
     public String getRequiredOutboundDataType() {
-    	return sourceConnectorPanel.getRequiredOutboundDataType();
+        return sourceConnectorPanel.getRequiredOutboundDataType();
     }
     
     /**
-     * Returns the initial, or default, outbound data type of this channel.
+     * Returns the initial, or default, source inbound data type of this channel.
+     */
+    public String getInitialInboundDataType() {
+        return sourceConnectorPanel.getInitialInboundDataType();
+    }
+    
+    /**
+     * Returns the initial, or default, source outbound data type of this channel.
      */
     private String getInitialOutboundDataType() {
-    	return sourceConnectorPanel.getInitialOutboundDataType();
+        return sourceConnectorPanel.getInitialOutboundDataType();
     }
-
-    /**
-     * Check if there is a required source data type, and set if if necessary.
-     */
-    public void checkAndSetRequiredDataType() {
-    	String requiredInboundDataType = getRequiredInboundDataType();
-    	if (requiredInboundDataType != null && !currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(requiredInboundDataType)) {
-    		DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(requiredInboundDataType).getDefaultProperties();
-
-            currentChannel.getSourceConnector().getTransformer().setInboundDataType(requiredInboundDataType);
-            currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);
-    	}
-
-    	String requiredOutboundDataType = getRequiredOutboundDataType();
-    	if (requiredOutboundDataType != null && !currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(requiredOutboundDataType)) {
-    		DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(requiredOutboundDataType).getDefaultProperties();
-
-            currentChannel.getSourceConnector().getTransformer().setOutboundDataType(requiredOutboundDataType);
-            currentChannel.getSourceConnector().getTransformer().setOutboundProperties(defaultProperties);
-            
-            for (Connector destination : currentChannel.getDestinationConnectors()) {
-            	destination.getTransformer().setInboundDataType(requiredOutboundDataType);
-            	destination.getTransformer().setInboundProperties(defaultProperties);
-            }
-    	}
-	} 
     
-    public void checkAndSetInitialDataType() {
-    	String outboundDataType = getInitialOutboundDataType();
-    	if (outboundDataType != null && !currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(outboundDataType)) {
-    		DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(outboundDataType).getDefaultProperties();
+    /*
+     * Set Data Types for source inbound and outbound which also means destination inbound
+     */
+    public void checkAndSetSourceDataType() {
+        // Inbound
+        String requiredInboundDataType = getRequiredInboundDataType();
+        String initialInboundDataType = getInitialInboundDataType();
+        String inboundDataType = requiredInboundDataType != null ? requiredInboundDataType : initialInboundDataType;
+        if (inboundDataType != null && !currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(inboundDataType)) {
+            DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(inboundDataType).getDefaultProperties();
+
+            currentChannel.getSourceConnector().getTransformer().setInboundDataType(inboundDataType);
+            currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);
+        }
+        
+        // Outbound
+        String requiredOutboundDataType = getRequiredOutboundDataType();
+        String initialOutboundDataType = getInitialOutboundDataType();
+        String outboundDataType = requiredOutboundDataType != null ? requiredOutboundDataType : initialOutboundDataType;
+        if (outboundDataType != null && !currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(outboundDataType)) {
+            DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(outboundDataType).getDefaultProperties();
 
             currentChannel.getSourceConnector().getTransformer().setOutboundDataType(outboundDataType);
             currentChannel.getSourceConnector().getTransformer().setOutboundProperties(defaultProperties);
-            
+
             for (Connector destination : currentChannel.getDestinationConnectors()) {
-            	destination.getTransformer().setInboundDataType(outboundDataType);
-            	destination.getTransformer().setInboundProperties(defaultProperties);
+                destination.getTransformer().setInboundDataType(outboundDataType);
+                destination.getTransformer().setInboundProperties(defaultProperties);
             }
-    	}
+        }
     }
 
+    /**
+     * Returns the required data type for the selected destination of this channel.
+     */
+    public String getRequiredOutboundDestinationDataType() {
+        return destinationConnectorPanel.getRequiredOutboundDataType();
+    }
+    
+    /**
+     * Returns the initial, or default, outbound data type for the selected destination of this channel.
+     */
+    private String getInitialOutboundDestinationDataType() {
+        return destinationConnectorPanel.getInitialOutboundDataType();
+    }
+    
+    /**
+     * Returns the initial, or default, inbound data type for the selected destination response of this channel.
+     */
+    public String getInitialInboundResponseDataType() {
+        return destinationConnectorPanel.getInitialInboundResponseDataType();
+    }
+    
+    /**
+     * Returns the initial, or default, outbound data type for the selected destination response of this channel.
+     */
+    public String getInitialOutboundResponseDataType() {
+        return destinationConnectorPanel.getInitialOutboundResponseDataType();
+    }
+    
+    /**
+     * Set Data types specified by selected destination for destination and response
+     */
+    public void checkAndSetDestinationAndResponseDataType() {
+        // Destination inbound set by source outbound
+        
+        // Destination outbound
+        String requiredOutboundDataType = getRequiredOutboundDestinationDataType();
+        String initialOutboundDataType = getInitialOutboundDestinationDataType();
+        String outboundDataType = requiredOutboundDataType != null ? requiredOutboundDataType : initialOutboundDataType;
+        if (outboundDataType != null && !currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getTransformer().getOutboundDataType().equals(outboundDataType)) {
+            DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(outboundDataType).getDefaultProperties();
+            currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getTransformer().setOutboundDataType(outboundDataType);
+            currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getTransformer().setOutboundProperties(defaultProperties);
+        }
+        
+        // Response inbound
+        String responseInboundDataType = getInitialInboundResponseDataType();
+        if (responseInboundDataType != null && !currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().getOutboundDataType().equals(responseInboundDataType)) {
+            DataTypeProperties defaultResponseInboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(responseInboundDataType).getDefaultProperties();
+            currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().setInboundDataType(responseInboundDataType);
+            currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().setInboundProperties(defaultResponseInboundProperties);
+        }
+        
+        // Response outbound
+        String responseOutboundDataType = getInitialOutboundResponseDataType();
+        if (responseOutboundDataType!= null && !currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().getOutboundDataType().equals(responseOutboundDataType)) {
+            DataTypeProperties defaultResponseOutboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(responseOutboundDataType).getDefaultProperties();
+            currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().setOutboundDataType(responseOutboundDataType);
+            currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().setOutboundProperties(defaultResponseOutboundProperties);
+        }
+    }
+    
     public void updateComponentShown() {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
             sourceComponentShown(null);
