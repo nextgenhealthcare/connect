@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
+import com.google.inject.Inject;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
@@ -40,6 +41,7 @@ import com.mirth.connect.donkey.util.SerializerProvider;
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
 public class Donkey {
+    @Inject
     private static Donkey instance;
 
     public static Donkey getInstance() {

@@ -68,6 +68,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
@@ -130,8 +132,6 @@ import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.plugins.ChannelTabPlugin;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.PropertyVerifier;
-
-import net.miginfocom.swing.MigLayout;
 
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends JPanel {
@@ -2386,7 +2386,8 @@ public class ChannelSetup extends JPanel {
         channelPropertiesPanel.add(attachmentLabel, "newline, right");
         channelPropertiesPanel.add(attachmentComboBox, "w 108!, split 2");
         channelPropertiesPanel.add(attachmentPropertiesButton, "gapbefore 6");
-        channelPropertiesPanel.add(attachmentStoreCheckBox);
+        channelPropertiesPanel.add(attachmentStoreCheckBox, "split 2");
+        channelPropertiesPanel.add(attachmentWarningLabel, "gapbefore 12");
         channelPropertiesPanel.add(tagsLabel, "newline, right");
         channelPropertiesPanel.add(tagsField, "sx, growx");
 
@@ -2670,8 +2671,8 @@ public class ChannelSetup extends JPanel {
                 break;
 
             default:
-                attachmentStoreCheckBox.setSelected(type != AttachmentHandlerType.NONE);
-                attachmentStoreCheckBox.setEnabled(type != AttachmentHandlerType.NONE);
+                attachmentStoreCheckBox.setSelected(true);
+                attachmentStoreCheckBox.setEnabled(true);
                 break;
         }
 
@@ -2768,7 +2769,7 @@ public class ChannelSetup extends JPanel {
             default:
                 if (!attachmentStoreCheckBox.isEnabled()) {
                     attachmentStoreCheckBox.setSelected(attachmentComboBox.getSelectedItem() != AttachmentHandlerType.NONE);
-                    attachmentStoreCheckBox.setEnabled(attachmentComboBox.getSelectedItem() != AttachmentHandlerType.NONE);
+                    attachmentStoreCheckBox.setEnabled(true);
                 }
                 break;
         }

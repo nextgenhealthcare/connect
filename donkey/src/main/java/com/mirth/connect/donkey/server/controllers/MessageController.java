@@ -19,6 +19,7 @@ import javax.activation.UnsupportedDataTypeException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
+import com.google.inject.Inject;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Status;
@@ -29,6 +30,7 @@ import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.util.StringUtil;
 
 public class MessageController {
+    @Inject
     private static MessageController instance;
 
     public static MessageController getInstance() {
