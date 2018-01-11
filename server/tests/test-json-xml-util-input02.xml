@@ -1,0 +1,32 @@
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:urn="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0" xmlns:urn1="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0" xmlns:urn2="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+   <soap:Header/>
+   <soap:Body>
+      <urn:AdhocQueryRequest id="?" comment="?" federated="?" federation="?" startIndex="?" maxResults="?">
+         <!--Optional:-->
+         <urn1:RequestSlotList>
+            <!--Zero or more repetitions:-->
+            <urn2:Slot name="?" slotType="?">
+               <urn2:ValueList>
+                  <!--Zero or more repetitions:-->
+                  <urn2:Value>?</urn2:Value>
+               </urn2:ValueList>
+            </urn2:Slot>
+         </urn1:RequestSlotList>
+         <urn:ResponseOption returnType="?" returnComposedObjects="?"/>
+         <urn:AdhocQuery id="?" home="?" lid="?" objectType="?" status="?">
+            <!--Zero or more repetitions:-->
+            <urn2:Slot name="?" slotType="?">
+               <urn2:ValueList>
+                  <!--Zero or more repetitions:-->
+                  <urn2:Value>?</urn2:Value>
+               </urn2:ValueList>
+            </urn2:Slot>
+            <!--Optional:-->
+            <urn2:Name>
+               <!--Zero or more repetitions:-->
+               <urn2:LocalizedString xml:lang="?" charset="?" value="?"/>
+            </urn2:Name>
+         </urn:AdhocQuery>
+      </urn:AdhocQueryRequest>
+   </soap:Body>
+</soap:Envelope>

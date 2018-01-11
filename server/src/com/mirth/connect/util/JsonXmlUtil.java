@@ -268,6 +268,16 @@ public class JsonXmlUtil {
         @Override
         public void writeAttribute(String prefix, String namespaceURI, String localName, String value)
         		throws XMLStreamException {
+        	
+        	// XML has special attributes that are prefixed with "xml". This causes problems
+        	// because the namespace for the prefix does not have to be declared, so we have to
+        	// handle that special case.
+        	if (prefix != null && "xml".equals(prefix)) {
+        		prefix = XMLConstants.DEFAULT_NS_PREFIX;
+        		namespaceURI = XMLConstants.NULL_NS_URI;
+        		localName = "xml" + SEPARATOR + localName;
+        	}
+        	
             if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
             	super.writeAttribute(prefix, namespaceURI, localName, value);
             } else {
