@@ -53,8 +53,11 @@ public class JsonXmlUtilTest {
     private static final String JSON14 = "{\"Book\":{\"@xmlns\":\"http://www.library.com\",\"@xmlns:pfx\":\"http://www.library.com\",\"@isbn\":\"1234\",\"@cover\":{\"@xmlnsprefix\":\"pfx\",\"$\":\"hard\"},\"Title\":\"Sherlock Holmes\",\"Author\":\"Arthur Conan Doyle\"}}";
     
     private static final String XML_FILE_INPUT_1 = "test-json-xml-util-input01.xml";
+    private static final String XML_FILE_INPUT_2 = "test-json-xml-util-input02.xml";
+    
     private static final String JSON_FILE_OUTPUT_1 = "test-json-xml-util-output01.json";
-    private static final String XML_FILE_OUTPUT_2 = "test-json-xml-util-output02.xml";     
+    private static final String XML_FILE_OUTPUT_2 = "test-json-xml-util-output02.xml";  
+    private static final String JSON_FILE_OUTPUT_3 = "test-json-xml-util-output03.json";
 
     @Test
     public void testXmlToJson1() throws Exception {
@@ -156,6 +159,14 @@ public class JsonXmlUtilTest {
     @Test
     public void testXmlToJson17() throws Exception {
     	assertEquals(JSON14, XmlUtil.toJson(XML15, true));
+    }
+    
+    @Test
+    public void testXmlToJson19() throws Exception {
+    	// Tests converting a SOAP envelope that has a xml:lang attribute in it.
+    	String xml = readFile(XML_FILE_INPUT_2);
+    	String json = readFile(JSON_FILE_OUTPUT_3);
+    	assertEquals(json, XmlUtil.toJson(xml, true));
     }
     
     @Test
