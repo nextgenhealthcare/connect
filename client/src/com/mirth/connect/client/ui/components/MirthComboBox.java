@@ -38,7 +38,7 @@ public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
                 comboBoxChanged(evt);
             }
         });
-        this.addKeyListener(new KeyListener() {
+        this.getEditor().getEditorComponent().addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
                 boolean isAccelerated = (((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0) || ((e.getModifiers() & InputEvent.CTRL_MASK) > 0));
@@ -47,7 +47,11 @@ public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
                 }
             }
 
-            public void keyReleased(KeyEvent e) {}
+            public void keyReleased(KeyEvent e) {
+            	if (canEnableSave) {
+                    parent.setSaveEnabled(true);
+                }
+            }
 
             public void keyTyped(KeyEvent e) {}
         });

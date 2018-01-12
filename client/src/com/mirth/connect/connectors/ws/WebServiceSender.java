@@ -47,8 +47,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -80,6 +78,8 @@ import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+
+import net.miginfocom.swing.MigLayout;
 
 public class WebServiceSender extends ConnectorSettingsPanel {
 
@@ -121,9 +121,9 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         WebServiceDispatcherProperties properties = new WebServiceDispatcherProperties();
 
         properties.setWsdlUrl(wsdlUrlField.getText());
-        properties.setService(StringUtils.trimToEmpty((String) serviceComboBox.getSelectedItem()));
-        properties.setPort(StringUtils.trimToEmpty((String) portComboBox.getSelectedItem()));
-        properties.setLocationURI(StringUtils.trimToEmpty((String) locationURIComboBox.getSelectedItem()));
+        properties.setService(StringUtils.trimToEmpty((String) serviceComboBox.getEditor().getItem()));
+        properties.setPort(StringUtils.trimToEmpty((String) portComboBox.getEditor().getItem()));
+        properties.setLocationURI(StringUtils.trimToEmpty((String) locationURIComboBox.getEditor().getItem()));
         properties.setSocketTimeout(socketTimeoutField.getText());
         properties.setSoapAction(soapActionField.getText());
 
