@@ -957,7 +957,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     }
 
     private void getOperationsButtonActionPerformed(ActionEvent evt) {
-        if (StringUtils.isNotBlank((String) serviceComboBox.getSelectedItem()) || StringUtils.isNotBlank((String) portComboBox.getSelectedItem()) || StringUtils.isNotBlank((String) locationURIComboBox.getSelectedItem()) || !isDefaultOperations()) {
+        if (StringUtils.isNotBlank((String) serviceComboBox.getEditor().getItem()) || StringUtils.isNotBlank((String) portComboBox.getEditor().getItem()) || StringUtils.isNotBlank((String) locationURIComboBox.getEditor().getItem()) || !isDefaultOperations()) {
             if (!parent.alertOkCancel(parent, "This will replace your current service, port, location URI, and operation list. Press OK to continue.")) {
                 return;
             }
@@ -1127,10 +1127,10 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     }
 
     private void serviceComboBoxActionPerformed(ActionEvent evt) {
-        String selectedPort = (String) portComboBox.getSelectedItem();
+        String selectedPort = (String) portComboBox.getEditor().getItem();
 
         if (currentServiceMap != null) {
-            DefinitionPortMap portMap = currentServiceMap.getMap().get((String) serviceComboBox.getSelectedItem());
+            DefinitionPortMap portMap = currentServiceMap.getMap().get((String) serviceComboBox.getEditor().getItem());
 
             if (portMap != null) {
                 portComboBox.setModel(new DefaultComboBoxModel(portMap.getMap().keySet().toArray()));
@@ -1148,11 +1148,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
     private void portComboBoxActionPerformed(ActionEvent evt) {
         if (currentServiceMap != null) {
-            DefinitionPortMap portMap = currentServiceMap.getMap().get((String) serviceComboBox.getSelectedItem());
+            DefinitionPortMap portMap = currentServiceMap.getMap().get((String) serviceComboBox.getEditor().getItem());
 
             if (portMap != null) {
-                PortInformation portInformation = portMap.getMap().get((String) portComboBox.getSelectedItem());
-                String selectedLocationURI = (String) locationURIComboBox.getSelectedItem();
+                PortInformation portInformation = portMap.getMap().get((String) portComboBox.getEditor().getItem());
+                String selectedLocationURI = (String) locationURIComboBox.getEditor().getItem();
 
                 if (portInformation != null) {
                     List<String> operationList = portInformation.getOperations();

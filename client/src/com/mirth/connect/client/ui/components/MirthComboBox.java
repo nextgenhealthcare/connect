@@ -27,6 +27,7 @@ public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
     private Frame parent;
     private boolean autoResizeDropdown = false;
     private boolean canEnableSave = true;
+    private Object initialValue = "";
 
     public MirthComboBox() {
         super();
@@ -48,7 +49,8 @@ public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
             }
 
             public void keyReleased(KeyEvent e) {
-            	if (canEnableSave) {
+            	if (canEnableSave && !(getEditor().getItem()).equals(initialValue)) {
+            		initialValue = getEditor().getItem();
                     parent.setSaveEnabled(true);
                 }
             }
@@ -65,6 +67,12 @@ public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
 
     public void setCanEnableSave(boolean canEnableSave) {
         this.canEnableSave = canEnableSave;
+    }
+    
+    @Override
+    public void setSelectedItem(Object anObject) {
+    	initialValue = anObject;
+    	super.setSelectedItem(anObject);
     }
 
     @Override
