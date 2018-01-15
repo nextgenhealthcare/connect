@@ -27,6 +27,7 @@ public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
     private Frame parent;
     private boolean autoResizeDropdown = false;
     private boolean canEnableSave = true;
+    private Object initialValue = "";
 
     public MirthComboBox() {
         super();
@@ -38,7 +39,7 @@ public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
                 comboBoxChanged(evt);
             }
         });
-        this.addKeyListener(new KeyListener() {
+        this.getEditor().getEditorComponent().addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
                 boolean isAccelerated = (((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0) || ((e.getModifiers() & InputEvent.CTRL_MASK) > 0));
@@ -47,7 +48,12 @@ public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
                 }
             }
 
-            public void keyReleased(KeyEvent e) {}
+            public void keyReleased(KeyEvent e) {
+            	if (canEnableSave && !(getEditor().getItem()).equals(initialValue)) {
+            		initialValue = getEditor().getItem();
+                    parent.setSaveEnabled(true);
+                }
+            }
 
             public void keyTyped(KeyEvent e) {}
         });
@@ -61,6 +67,12 @@ public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
 
     public void setCanEnableSave(boolean canEnableSave) {
         this.canEnableSave = canEnableSave;
+    }
+    
+    @Override
+    public void setSelectedItem(Object anObject) {
+    	initialValue = anObject;
+    	super.setSelectedItem(anObject);
     }
 
     @Override
