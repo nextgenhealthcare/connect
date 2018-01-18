@@ -261,7 +261,7 @@ public class WebServiceDispatcher extends DestinationConnector {
             dispatchContainer.setCurrentServiceName(serviceName);
             dispatchContainer.setCurrentPortName(portName);
 
-            URL endpointUrl = getWsdlUrl(dispatchContainer);
+            URL endpointUrl = getWsdlUrl(webServiceDispatcherProperties, dispatchContainer);
             QName serviceQName = QName.valueOf(serviceName);
             QName portQName = QName.valueOf(portName);
 
@@ -298,7 +298,7 @@ public class WebServiceDispatcher extends DestinationConnector {
      * @return
      * @throws Exception
      */
-    private URL getWsdlUrl(DispatchContainer dispatchContainer) throws Exception {
+    protected URL getWsdlUrl(WebServiceDispatcherProperties webServiceDispatcherProperties, DispatchContainer dispatchContainer) throws Exception {
         URI uri = new URI(dispatchContainer.getCurrentWsdlUrl());
 
         // If the URL points to file, just return it
@@ -641,7 +641,7 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     protected void handleSOAPResult(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage, SOAPMessage result) {}
 
-    private class DispatchContainer {
+    protected class DispatchContainer {
         /*
          * Dispatch object used for pooling the soap connection, and the current properties used to
          * create the dispatch object
