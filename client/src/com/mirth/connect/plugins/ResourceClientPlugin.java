@@ -21,5 +21,5 @@ public abstract class ResourceClientPlugin extends ClientPlugin {
 
     public abstract ResourcePropertiesPanel getPropertiesPanel();
 
-    public void resourcesRefreshed() {}
+    public void resourcesRefreshed(String selectedResourceId) {}
 }
