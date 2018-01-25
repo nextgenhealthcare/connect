@@ -9,8 +9,7 @@
 
 package com.mirth.connect.client.ui;
 
-import java.awt.Dialog;
-import java.awt.Frame;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -20,33 +19,17 @@ import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 
 public abstract class MirthDialog extends JDialog {
-    public MirthDialog(Frame owner) {
-        super(owner);
-        registerCloseAction();
+
+    public MirthDialog(Window owner) {
+        this(owner, false);
     }
 
-    public MirthDialog(Dialog owner) {
-        super(owner);
-        registerCloseAction();
+    public MirthDialog(Window owner, boolean modal) {
+        this(owner, "", modal);
     }
 
-    public MirthDialog(Frame owner, boolean modal) {
-        super(owner, modal);
-        registerCloseAction();
-    }
-
-    public MirthDialog(Frame owner, String title, boolean modal) {
-        super(owner, title, modal);
-        registerCloseAction();
-    }
-
-    public MirthDialog(Dialog owner, boolean modal) {
-        super(owner, modal);
-        registerCloseAction();
-    }
-
-    public MirthDialog(Dialog owner, String title, boolean modal) {
-        super(owner, title, modal);
+    public MirthDialog(Window owner, String title, boolean modal) {
+        super(owner, title, modal ? DEFAULT_MODALITY_TYPE : ModalityType.MODELESS);
         registerCloseAction();
     }
 
