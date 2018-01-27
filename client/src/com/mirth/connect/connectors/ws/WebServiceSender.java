@@ -47,6 +47,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -78,8 +80,6 @@ import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-
-import net.miginfocom.swing.MigLayout;
 
 public class WebServiceSender extends ConnectorSettingsPanel {
 
@@ -311,12 +311,20 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     protected void setCurrentServiceMap(DefinitionServiceMap serviceMap) {
     	currentServiceMap = serviceMap;
     }
+    
+    protected boolean canSetLocationURI() {
+        return true;
+    }
 
     protected void loadServiceMap() {
         // First reset the service/port/operation
         serviceComboBox.setModel(new DefaultComboBoxModel());
         portComboBox.setModel(new DefaultComboBoxModel());
-        locationURIComboBox.setModel(new DefaultComboBoxModel());
+        
+        if (canSetLocationURI()) {
+            locationURIComboBox.setModel(new DefaultComboBoxModel());
+        }
+        
         operationComboBox.setModel(new DefaultComboBoxModel(new String[] {
                 WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
 
@@ -967,7 +975,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         currentServiceMap = null;
         serviceComboBox.setModel(new DefaultComboBoxModel());
         portComboBox.setModel(new DefaultComboBoxModel());
-        locationURIComboBox.setModel(new DefaultComboBoxModel());
+        
+        if (canSetLocationURI()) {
+            locationURIComboBox.setModel(new DefaultComboBoxModel());
+        }
+        
         operationComboBox.setModel(new DefaultComboBoxModel(new String[] {
                 WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
         operationComboBox.setSelectedIndex(0);
@@ -1172,18 +1184,22 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                         operationComboBox.setModel(new DefaultComboBoxModel());
                     }
 
-                    if (StringUtils.isNotBlank(portInformation.getLocationURI())) {
-                        locationURIComboBox.setModel(new DefaultComboBoxModel(new String[] {
-                                portInformation.getLocationURI() }));
-                    } else {
-                        locationURIComboBox.setModel(new DefaultComboBoxModel());
+                    if (canSetLocationURI()) {
+                        if (StringUtils.isNotBlank(portInformation.getLocationURI())) {
+                            locationURIComboBox.setModel(new DefaultComboBoxModel(new String[] {
+                                    portInformation.getLocationURI() }));
+                        } else {
+                            locationURIComboBox.setModel(new DefaultComboBoxModel());
+                        }
                     }
                 } else {
-                    locationURIComboBox.setModel(new DefaultComboBoxModel());
+                    if (canSetLocationURI()) {
+                        locationURIComboBox.setModel(new DefaultComboBoxModel());
+                    }
                     operationComboBox.setModel(new DefaultComboBoxModel());
                 }
 
-                if (StringUtils.isNotBlank(selectedLocationURI)) {
+                if (canSetLocationURI() && StringUtils.isNotBlank(selectedLocationURI)) {
                     locationURIComboBox.setSelectedItem(selectedLocationURI);
                 }
             }
