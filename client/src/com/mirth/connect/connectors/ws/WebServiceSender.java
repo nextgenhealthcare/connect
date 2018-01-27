@@ -303,15 +303,15 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             soapActionField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
         }
     }
-    
+
     protected DefinitionServiceMap getCurrentServiceMap() {
-    	return currentServiceMap;
+        return currentServiceMap;
     }
-    
+
     protected void setCurrentServiceMap(DefinitionServiceMap serviceMap) {
-    	currentServiceMap = serviceMap;
+        currentServiceMap = serviceMap;
     }
-    
+
     protected boolean canSetLocationURI() {
         return true;
     }
@@ -320,11 +320,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         // First reset the service/port/operation
         serviceComboBox.setModel(new DefaultComboBoxModel());
         portComboBox.setModel(new DefaultComboBoxModel());
-        
+
         if (canSetLocationURI()) {
             locationURIComboBox.setModel(new DefaultComboBoxModel());
         }
-        
+
         operationComboBox.setModel(new DefaultComboBoxModel(new String[] {
                 WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
 
@@ -975,11 +975,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         currentServiceMap = null;
         serviceComboBox.setModel(new DefaultComboBoxModel());
         portComboBox.setModel(new DefaultComboBoxModel());
-        
+
         if (canSetLocationURI()) {
             locationURIComboBox.setModel(new DefaultComboBoxModel());
         }
-        
+
         operationComboBox.setModel(new DefaultComboBoxModel(new String[] {
                 WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
         operationComboBox.setSelectedIndex(0);
@@ -1067,13 +1067,13 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private void generateEnvelopeActionPerformed(ActionEvent evt) {
         generateEnvelope();
     }
-    
+
     protected void generateEnvelope() {
-    	generateEnvelope(((WebServiceDispatcherProperties) getFilledProperties()).getWsdlUrl(), getChannelId(), getChannelName(), true);
+        generateEnvelope(((WebServiceDispatcherProperties) getFilledProperties()).getWsdlUrl(), getChannelId(), getChannelName(), true);
     }
-    
+
     protected void generateEnvelope(String wsdlUrl, String channelId, String channelName, boolean buildOptional) {
-    	if (soapEnvelopeTextArea.getText().length() > 0 || soapActionField.getText().length() > 0) {
+        if (soapEnvelopeTextArea.getText().length() > 0 || soapActionField.getText().length() > 0) {
             if (!parent.alertOkCancel(parent, "This will replace your current SOAP envelope and SOAP action. Press OK to continue.")) {
                 return;
             }
@@ -1130,12 +1130,12 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             // Should not happen
         }
     }
-    
+
     protected void setSoapEnvelopeText(String text) {
-    	if (text != null) {
-    		soapEnvelopeTextArea.setText(text);
-    		parent.setSaveEnabled(true);
-    	}
+        if (text != null) {
+            soapEnvelopeTextArea.setText(text);
+            parent.setSaveEnabled(true);
+        }
     }
 
     private void serviceComboBoxActionPerformed(ActionEvent evt) {
@@ -1205,7 +1205,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             }
         }
     }
-    
+
     protected void updateGenerateEnvelopeButtonEnabled() {
         generateEnvelopeButton.setEnabled(!isDefaultOperations());
     }
