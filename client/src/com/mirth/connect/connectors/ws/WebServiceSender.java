@@ -330,6 +330,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
         if (currentServiceMap != null) {
             serviceComboBox.setModel(new DefaultComboBoxModel(currentServiceMap.getMap().keySet().toArray()));
+
+            // If at least one service exists, make sure to trigger the action performed handler
+            if (serviceComboBox.getModel().getSize() > 0) {
+                serviceComboBox.setSelectedIndex(0);
+            }
         }
     }
 
@@ -596,9 +601,28 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String soapAction = "";
-                if (WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN.equals(operationComboBox.getSelectedItem())) {
-                    soapAction = (String) operationComboBox.getSelectedItem();
+
+                // Leave SOAP Action empty if Press Get Operations is selected
+                if (!WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN.equals(operationComboBox.getSelectedItem())) {
+                    String selectedOperation = (String) operationComboBox.getSelectedItem();
+
+                    if (currentServiceMap != null) {
+                        DefinitionPortMap portMap = currentServiceMap.getMap().get(serviceComboBox.getSelectedItem());
+
+                        if (portMap != null) {
+                            PortInformation portInfo = portMap.getMap().get(portComboBox.getSelectedItem());
+
+                            if (portInfo != null && CollectionUtils.isNotEmpty(portInfo.getOperations()) && CollectionUtils.isNotEmpty(portInfo.getActions())) {
+                                int index = portInfo.getOperations().indexOf(selectedOperation);
+
+                                if (index >= 0 && index < portInfo.getActions().size()) {
+                                    soapAction = portInfo.getActions().get(index);
+                                }
+                            }
+                        }
+                    }
                 }
+
                 soapActionField.setText(soapAction);
             }
         });
