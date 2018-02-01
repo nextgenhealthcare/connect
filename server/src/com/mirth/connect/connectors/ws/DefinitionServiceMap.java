@@ -40,19 +40,29 @@ public class DefinitionServiceMap implements Serializable {
 
     public static class PortInformation implements Serializable {
         private List<String> operations;
+        private List<String> actions;
         private String locationURI;
 
         public PortInformation(List<String> operations) {
             this(operations, null);
         }
 
-        public PortInformation(List<String> operations, String locationURI) {
+        public PortInformation(List<String> operations, List<String> actions) {
+            this(operations, actions, null);
+        }
+
+        public PortInformation(List<String> operations, List<String> actions, String locationURI) {
             this.operations = operations;
+            this.actions = actions;
             this.locationURI = locationURI;
         }
 
         public List<String> getOperations() {
             return operations;
+        }
+
+        public List<String> getActions() {
+            return actions;
         }
 
         public String getLocationURI() {

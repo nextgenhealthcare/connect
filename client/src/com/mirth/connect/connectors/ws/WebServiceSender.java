@@ -601,7 +601,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String soapAction = "";
-                
+
                 // Leave SOAP Action empty if Press Get Operations is selected
                 if (!WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN.equals(operationComboBox.getSelectedItem())) {
                     String selectedOperation = (String) operationComboBox.getSelectedItem();
