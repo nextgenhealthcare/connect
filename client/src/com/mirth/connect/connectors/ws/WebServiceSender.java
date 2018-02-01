@@ -596,7 +596,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String soapAction = "";
-                if (WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN.equals(operationComboBox.getSelectedItem())) {
+                if (!WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN.equals(operationComboBox.getSelectedItem())) {
                     soapAction = (String) operationComboBox.getSelectedItem();
                 }
                 soapActionField.setText(soapAction);
