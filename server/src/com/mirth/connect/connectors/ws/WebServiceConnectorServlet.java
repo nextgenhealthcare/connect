@@ -123,7 +123,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
             throw new MirthApiException(e);
         }
     }
-    
+
     @Override
     public String getSoapAction(String channelId, String channelName, String wsdlUrl, String username, String password, String service, String port, String operation) {
         try {
@@ -262,7 +262,13 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                             }
                             logger.debug("        Interface: " + bindingInterface);
                             if (bindingInterface != null) {
-                                definitionPortMap.getMap().put(portQName, new PortInformation(operations, locationURI));
+                                List<String> actions = new ArrayList<String>();
+
+                                for (String operation : operations) {
+                                    actions.add(bindingInterface.getOperationByName(operation).getAction());
+                                }
+
+                                definitionPortMap.getMap().put(portQName, new PortInformation(operations, actions, locationURI));
                                 wsdlInterfacePortMap.put(portQName, bindingInterface);
                             }
                         }
