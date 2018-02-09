@@ -348,7 +348,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                 try {
                     messageContent = getMessage(baseRequest, sourceMap, attachments);
                 } catch (Throwable t) {
-                    sendErrorResponse(servletResponse, dispatchResult, t);
+                    sendErrorResponse(baseRequest, servletResponse, dispatchResult, t);
                 }
 
                 if (messageContent != null) {
@@ -367,7 +367,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                                 dispatchResult = responseHandler.getResultForResponse();
                                 sendResponse(baseRequest, servletResponse, dispatchResult);
                             } catch (Throwable t) {
-                                sendErrorResponse(servletResponse, dispatchResult, t);
+                                sendErrorResponse(baseRequest, servletResponse, dispatchResult, t);
                             }
                         }
                     } else {
@@ -383,7 +383,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
                             sendResponse(baseRequest, servletResponse, dispatchResult);
                         } catch (Throwable t) {
-                            sendErrorResponse(servletResponse, dispatchResult, t);
+                            sendErrorResponse(baseRequest, servletResponse, dispatchResult, t);
                         } finally {
                             finishDispatch(dispatchResult);
                         }
@@ -507,7 +507,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         }
     }
 
-    protected void sendErrorResponse(HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
+    protected void sendErrorResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
         String responseError = ExceptionUtils.getStackTrace(t);
         logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
         eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), dispatchResult == null ? null : dispatchResult.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", t));
