@@ -639,7 +639,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
     }
 
-    protected void handleSOAPResult(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage, SOAPMessage result) {}
+    protected void handleSOAPResult(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage, SOAPMessage result) throws Exception {}
 
     protected class DispatchContainer {
         /*
