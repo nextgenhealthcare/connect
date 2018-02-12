@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
@@ -32,8 +33,11 @@ import com.mirth.connect.server.alert.action.Protocol;
 import com.mirth.connect.server.alert.action.UserProtocol;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.StatementLock;
 
 public class DefaultAlertController extends AlertController {
+    private static final String VACUUM_LOCK_ALERT_STATEMENT_ID = "Alert.vacuumAlertTable";
+    
     private Logger logger = Logger.getLogger(this.getClass());
 
     private static AlertController instance = null;
@@ -131,6 +135,7 @@ public class DefaultAlertController extends AlertController {
     public AlertModel getAlert(String alertId) throws ControllerException {
         logger.debug("getting alert");
 
+        StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readLock();
         try {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
             List<Map<String, Object>> rows = SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", alertId);
@@ -146,6 +151,8 @@ public class DefaultAlertController extends AlertController {
             return null;
         } catch (Exception e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -153,6 +160,7 @@ public class DefaultAlertController extends AlertController {
     public List<AlertModel> getAlerts() throws ControllerException {
         logger.debug("getting alert");
 
+        StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readLock();
         try {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
             List<Map<String, Object>> rows = SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", null);
@@ -169,6 +177,8 @@ public class DefaultAlertController extends AlertController {
             return alerts;
         } catch (Exception e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -178,18 +188,19 @@ public class DefaultAlertController extends AlertController {
             return;
         }
 
-        if (alert.getName() != null) {
-            Map<String, Object> params = new HashMap<String, Object>();
-
-            params.put("id", alert.getId());
-            params.put("name", alert.getName());
-
-            if ((Boolean) SqlConfig.getSqlSessionManager().selectOne("Alert.getAlertNameExists", params)) {
-                throw new ControllerException("An alert with that name already exists.");
-            }
-        }
-
+        StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readLock();
         try {
+            if (alert.getName() != null) {
+                Map<String, Object> params = new HashMap<String, Object>();
+
+                params.put("id", alert.getId());
+                params.put("name", alert.getName());
+
+                if ((Boolean) SqlConfig.getSqlSessionManager().selectOne("Alert.getAlertNameExists", params)) {
+                    throw new ControllerException("An alert with that name already exists.");
+                }
+            }
+            
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
             boolean alertExists = CollectionUtils.isNotEmpty(SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", alert.getId()));
@@ -214,6 +225,8 @@ public class DefaultAlertController extends AlertController {
             }
         } catch (Exception e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -221,6 +234,7 @@ public class DefaultAlertController extends AlertController {
     public void removeAlert(String alertId) throws ControllerException {
         logger.debug("removing alert");
 
+        StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).writeLock();
         try {
             if (alertId != null) {
                 disableAlert(alertId);
@@ -229,11 +243,34 @@ public class DefaultAlertController extends AlertController {
                 SqlConfig.getSqlSessionManager().delete("Alert.deleteAlert", alertId);
 
                 if (DatabaseUtil.statementExists("Alert.vacuumAlertTable")) {
-                    SqlConfig.getSqlSessionManager().update("Alert.vacuumAlertTable");
+                    vacuumAlertTable();
                 }
             }
         } catch (Exception e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).writeUnlock();
+        }
+    }
+    
+    /**
+     * When calling this method, a StatementLock writeLock should surround it
+     */
+    public void vacuumAlertTable() {
+        SqlSession session = null;
+        try {
+            session = SqlConfig.getSqlSessionManager().openSession(false);
+            if (DatabaseUtil.statementExists("Alert.lockAlertTable")) {
+                session.update("Alert.lockAlertTable");
+            }
+            session.update("Alert.vacuumAlertTable");
+            session.commit();
+        } catch (Exception e) {
+            logger.error("Could not compress Alert table", e);
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 

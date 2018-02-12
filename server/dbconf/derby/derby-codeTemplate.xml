@@ -96,9 +96,17 @@
 		</where>
 	</delete>
 	
+	<update id="lockLibraryTable">
+		LOCK TABLE CODE_TEMPLATE_LIBRARY IN EXCLUSIVE MODE
+	</update>
+	
 	<select id="vacuumLibraryTable" statementType="CALLABLE">
 		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'CODE_TEMPLATE_LIBRARY', 0)}
 	</select>
+	
+	<update id="lockCodeTemplateTable">
+		LOCK TABLE CODE_TEMPLATE IN EXCLUSIVE MODE
+	</update>
 	
 	<select id="vacuumCodeTemplateTable" statementType="CALLABLE">
 		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'CODE_TEMPLATE', 0)}

@@ -19,6 +19,7 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Digester;
@@ -34,8 +35,12 @@ import com.mirth.connect.server.util.LoginRequirementsChecker;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.Pre22PasswordChecker;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.StatementLock;
 
 public class DefaultUserController extends UserController {
+    private static final String VACUUM_LOCK_PERSON_STATEMENT_ID = "User.vacuumPersonTable";
+    private static final String VACUUM_LOCK_PREFERENCES_STATEMENT_ID = "User.vacuumPersonPreferencesTable";
+    
     private Logger logger = Logger.getLogger(this.getClass());
     private ExtensionController extensionController = null;
 
@@ -60,20 +65,26 @@ public class DefaultUserController extends UserController {
     }
 
     public void resetUserStatus() {
+        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
             SqlConfig.getSqlSessionManager().update("User.resetUserStatus");
         } catch (PersistenceException e) {
             logger.error("Could not reset user status.");
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
     }
 
     public List<User> getAllUsers() throws ControllerException {
         logger.debug("getting all users");
 
+        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
             return SqlConfig.getSqlSessionManager().selectList("User.getUser");
         } catch (PersistenceException e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -84,6 +95,7 @@ public class DefaultUserController extends UserController {
             throw new ControllerException("Error getting user: Both user ID and user name cannot be null.");
         }
 
+        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
             User user = new User();
             user.setId(userId);
@@ -91,10 +103,13 @@ public class DefaultUserController extends UserController {
             return SqlConfig.getSqlSessionManager().selectOne("User.getUser", user);
         } catch (PersistenceException e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
     }
 
     public synchronized void updateUser(User user) throws ControllerException {
+        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
             User existingUserByName = getUser(null, user.getUsername());
 
@@ -126,10 +141,13 @@ public class DefaultUserController extends UserController {
             }
         } catch (PersistenceException e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
     }
 
     public List<String> checkOrUpdateUserPassword(Integer userId, String plainPassword) throws ControllerException {
+        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
             Digester digester = ControllerFactory.getFactory().createConfigurationController().getDigester();
             PasswordRequirements passwordRequirements = ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements();
@@ -173,6 +191,8 @@ public class DefaultUserController extends UserController {
             return null;
         } catch (PersistenceException e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -187,20 +207,66 @@ public class DefaultUserController extends UserController {
             throw new ControllerException("Error removing user: You cannot remove yourself");
         }
 
+        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).writeLock();
         try {
             User user = new User();
             user.setId(userId);
             SqlConfig.getSqlSessionManager().delete("User.deleteUser", user);
 
             if (DatabaseUtil.statementExists("User.vacuumPersonTable")) {
-                SqlConfig.getSqlSessionManager().update("User.vacuumPersonTable");
+                vacuumPersonTable();
             }
         } catch (PersistenceException e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).writeUnlock();
+        }
+    }
+    
+    /**
+     * When calling this method, a StatementLock writeLock should surround it
+     */
+    public void vacuumPersonTable() {
+        SqlSession session = null;
+        try {
+            session = SqlConfig.getSqlSessionManager().openSession(false);
+            if (DatabaseUtil.statementExists("User.lockPersonTable")) {
+                session.update("User.lockPersonTable");
+            }
+            session.update("User.vacuumPersonTable");
+            session.commit();
+        } catch (Exception e) {
+            logger.error("Could not compress Person table", e);
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+    
+    /**
+     * When calling this method, a StatementLock writeLock should surround it
+     */
+    public void vacuumPersonPreferencesTable() {
+        SqlSession session = null;
+        try {
+            session = SqlConfig.getSqlSessionManager().openSession(false);
+            if (DatabaseUtil.statementExists("User.lockPersonPreferencesTable")) {
+                session.update("User.lockPersonPreferencesTable");
+            }
+            session.update("User.vacuumPersonPreferencesTable");
+            session.commit();
+        } catch (Exception e) {
+            logger.error("Could not compress Person Preference table", e);
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 
     public LoginStatus authorizeUser(String username, String plainPassword) throws ControllerException {
+        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
             // Invoke and return from the Authorization Plugin if one exists
             if (extensionController == null) {
@@ -323,6 +389,8 @@ public class DefaultUserController extends UserController {
             return loginStatus;
         } catch (Exception e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -332,6 +400,7 @@ public class DefaultUserController extends UserController {
     }
 
     public void loginUser(User user) throws ControllerException {
+        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", user.getId());
@@ -340,23 +409,30 @@ public class DefaultUserController extends UserController {
             SqlConfig.getSqlSessionManager().update("User.loginUser", params);
         } catch (Exception e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
     }
 
     public void logoutUser(User user) throws ControllerException {
+        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
             SqlConfig.getSqlSessionManager().update("User.logoutUser", user.getId());
         } catch (Exception e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
-
     }
 
     public boolean isUserLoggedIn(Integer userId) throws ControllerException {
+        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
             return (Boolean) SqlConfig.getSqlSessionManager().selectOne("User.isUserLoggedIn", userId);
         } catch (Exception e) {
             throw new ControllerException(e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -398,6 +474,7 @@ public class DefaultUserController extends UserController {
     public void setUserPreference(Integer userId, String name, String value) {
         logger.debug("storing preference: user id=" + userId + ", name=" + name);
 
+        StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).writeLock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("person_id", userId);
@@ -411,10 +488,12 @@ public class DefaultUserController extends UserController {
             }
 
             if (DatabaseUtil.statementExists("User.vacuumPersonPreferencesTable")) {
-                SqlConfig.getSqlSessionManager().update("User.vacuumPersonPreferencesTable");
+                vacuumPersonPreferencesTable();
             }
         } catch (Exception e) {
             logger.error("Could not store preference: user id=" + userId + ", name=" + name, e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).writeUnlock();
         }
     }
 
@@ -423,6 +502,7 @@ public class DefaultUserController extends UserController {
         logger.debug("retrieving preferences: user id=" + userId);
         Properties properties = new Properties();
 
+        StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readLock();
         try {
             List<KeyValuePair> result = SqlConfig.getSqlSessionManager().selectList("User.selectPreferencesForUser", userId);
 
@@ -433,6 +513,8 @@ public class DefaultUserController extends UserController {
             }
         } catch (Exception e) {
             logger.error("Could not retrieve preferences: user id=" + userId, e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readUnlock();
         }
 
         return properties;
@@ -442,6 +524,7 @@ public class DefaultUserController extends UserController {
     public String getUserPreference(Integer userId, String name) {
         logger.debug("retrieving preference: user id=" + userId + ", name=" + name);
 
+        StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readLock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("person_id", userId);
@@ -449,6 +532,8 @@ public class DefaultUserController extends UserController {
             return (String) SqlConfig.getSqlSessionManager().selectOne("User.selectPreference", parameterMap);
         } catch (Exception e) {
             logger.warn("Could not retrieve preference: user id=" + userId + ", name=" + name, e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readUnlock();
         }
 
         return null;
@@ -457,12 +542,15 @@ public class DefaultUserController extends UserController {
     public void removePreferencesForUser(int id) {
         logger.debug("deleting all preferences: user id=" + id);
 
+        StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readLock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("person_id", id);
             SqlConfig.getSqlSessionManager().delete("User.deletePreference", parameterMap);
         } catch (Exception e) {
             logger.error("Could not delete preferences: user id=" + id);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readUnlock();
         }
     }
 
@@ -470,6 +558,7 @@ public class DefaultUserController extends UserController {
     public void removePreference(int id, String name) {
         logger.debug("deleting preference: user id=" + id + ", name=" + name);
 
+        StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readLock();
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", id);
@@ -477,6 +566,8 @@ public class DefaultUserController extends UserController {
             SqlConfig.getSqlSessionManager().delete("User.deletePreference", parameterMap);
         } catch (Exception e) {
             logger.error("Could not delete preference: user id=" + id + ", name=" + name, e);
+        } finally {
+            StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readUnlock();
         }
     }
 }

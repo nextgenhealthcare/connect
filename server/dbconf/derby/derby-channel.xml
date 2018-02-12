@@ -61,6 +61,10 @@
 		</where>
 	</delete>
 	
+	<update id="lockChannelTable">
+		LOCK TABLE CHANNEL IN EXCLUSIVE MODE
+	</update>
+	
 	<select id="vacuumChannelTable" statementType="CALLABLE">
 		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'CHANNEL', 0)}
 	</select>
@@ -96,4 +100,12 @@
 			<if test='value != null'>ID=#{value}</if>
 		</where>
 	</delete>
+	
+	<update id="lockChannelGroupTable">
+		LOCK TABLE CHANNEL_GROUP IN EXCLUSIVE MODE
+	</update>
+
+	<select id="vacuumChannelGroupTable" statementType="CALLABLE">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'CHANNEL_GROUP', 0)}
+	</select>
 </mapper>
