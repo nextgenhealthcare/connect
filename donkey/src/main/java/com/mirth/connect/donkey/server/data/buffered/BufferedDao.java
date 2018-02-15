@@ -56,7 +56,7 @@ public class BufferedDao implements DonkeyDao {
     public void setDecryptData(boolean decryptData) {
         this.decryptData = decryptData;
     }
-    
+
     @Override
     public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
         this.statisticsUpdater = statisticsUpdater;
@@ -111,6 +111,7 @@ public class BufferedDao implements DonkeyDao {
                     case BATCH_INSERT_MESSAGE_CONTENT: dao.batchInsertMessageContent((MessageContent) p[0]); break;
                     case EXECUTE_BATCH_INSERT_MESSAGE_CONTENT: dao.executeBatchInsertMessageContent((String) p[0]); break;
                     case INSERT_MESSAGE_ATTACHMENT: dao.insertMessageAttachment((String) p[0], (Long) p[1], (Attachment) p[2]); break;
+                    case UPDATE_MESSAGE_ATTACHMENT: dao.updateMessageAttachment((String) p[0], (Long) p[1], (Attachment) p[2]); break;
                     case INSERT_META_DATA: dao.insertMetaData((ConnectorMessage) p[0], (List<MetaDataColumn>) p[1]); break;
                     case STORE_META_DATA: dao.storeMetaData((ConnectorMessage) p[0], (List<MetaDataColumn>) p[1]); break;
                     case STORE_MESSAGE_CONTENT: dao.storeMessageContent((MessageContent) p[0]); break;
@@ -174,8 +175,8 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps, boolean updateStats) {
-        tasks.add(new DaoTask(DaoTaskType.INSERT_CONNECTOR_MESSAGE, new Object[] {
-                connectorMessage, storeMaps, updateStats }));
+        tasks.add(new DaoTask(DaoTaskType.INSERT_CONNECTOR_MESSAGE, new Object[] { connectorMessage,
+                storeMaps, updateStats }));
     }
 
     @Override
@@ -185,17 +186,25 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public void batchInsertMessageContent(MessageContent messageContent) {
-        tasks.add(new DaoTask(DaoTaskType.BATCH_INSERT_MESSAGE_CONTENT, new Object[] { messageContent }));
+        tasks.add(new DaoTask(DaoTaskType.BATCH_INSERT_MESSAGE_CONTENT, new Object[] {
+                messageContent }));
     }
 
     @Override
     public void executeBatchInsertMessageContent(String channelId) {
-        tasks.add(new DaoTask(DaoTaskType.EXECUTE_BATCH_INSERT_MESSAGE_CONTENT, new Object[] { channelId }));
+        tasks.add(new DaoTask(DaoTaskType.EXECUTE_BATCH_INSERT_MESSAGE_CONTENT, new Object[] {
+                channelId }));
     }
 
     @Override
     public void insertMessageAttachment(String channelId, long messageId, Attachment attachment) {
         tasks.add(new DaoTask(DaoTaskType.INSERT_MESSAGE_ATTACHMENT, new Object[] { channelId,
+                messageId, attachment }));
+    }
+
+    @Override
+    public void updateMessageAttachment(String channelId, long messageId, Attachment attachment) {
+        tasks.add(new DaoTask(DaoTaskType.UPDATE_MESSAGE_ATTACHMENT, new Object[] { channelId,
                 messageId, attachment }));
     }
 
@@ -254,7 +263,8 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public void markAsProcessed(String channelId, long messageId) {
-        tasks.add(new DaoTask(DaoTaskType.MARK_AS_PROCESSED, new Object[] { channelId, messageId }));
+        tasks.add(new DaoTask(DaoTaskType.MARK_AS_PROCESSED, new Object[] { channelId,
+                messageId }));
     }
 
     @Override
@@ -304,7 +314,8 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public void createChannel(String channelId, long localChannelId) {
-        tasks.add(new DaoTask(DaoTaskType.CREATE_CHANNEL, new Object[] { channelId, localChannelId }));
+        tasks.add(new DaoTask(DaoTaskType.CREATE_CHANNEL, new Object[] { channelId,
+                localChannelId }));
     }
 
     @Override

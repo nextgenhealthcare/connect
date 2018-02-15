@@ -58,7 +58,7 @@ public class TimedDao implements DonkeyDao {
     public void setDecryptData(boolean decryptData) {
         dao.setDecryptData(decryptData);
     }
-    
+
     @Override
     public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
         dao.setStatisticsUpdater(statisticsUpdater);
@@ -152,6 +152,17 @@ public class TimedDao implements DonkeyDao {
             dao.insertMessageAttachment(channelId, messageId, attachment);
         } finally {
             timer.log("insertMessageAttachment", System.currentTimeMillis() - startTime);
+        }
+    }
+
+    @Override
+    public void updateMessageAttachment(String channelId, long messageId, Attachment attachment) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            dao.updateMessageAttachment(channelId, messageId, attachment);
+        } finally {
+            timer.log("updateMessageAttachment", System.currentTimeMillis() - startTime);
         }
     }
 

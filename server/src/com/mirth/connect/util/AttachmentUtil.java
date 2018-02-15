@@ -11,6 +11,7 @@ package com.mirth.connect.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.Base64Util;
 
 public class AttachmentUtil {
+
     public static void writeToFile(String filePath, Attachment attachment, boolean binary) throws IOException {
         File file = new File(filePath);
         if (!file.canWrite()) {
@@ -34,6 +36,19 @@ public class AttachmentUtil {
 
         if (attachment != null && StringUtils.isNotEmpty(filePath)) {
             FileUtils.writeByteArrayToFile(file, binary ? Base64Util.decodeBase64(attachment.getContent()) : attachment.getContent());
+        }
+    }
+
+    public static void decodeBase64(List<Attachment> attachments) {
+        for (Attachment attachment : attachments) {
+            decodeBase64(attachment);
+        }
+    }
+
+    public static void decodeBase64(Attachment attachment) {
+        try {
+            attachment.setContent(Base64Util.decodeBase64(attachment.getContent()));
+        } catch (IOException e) {
         }
     }
 }

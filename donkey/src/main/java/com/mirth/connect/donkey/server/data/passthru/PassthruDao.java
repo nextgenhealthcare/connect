@@ -175,6 +175,9 @@ public class PassthruDao implements DonkeyDao {
     public void insertMessageAttachment(String channelId, long messageId, Attachment attachment) {}
 
     @Override
+    public void updateMessageAttachment(String channelId, long messageId, Attachment attachment) {}
+
+    @Override
     public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {}
 
     @Override

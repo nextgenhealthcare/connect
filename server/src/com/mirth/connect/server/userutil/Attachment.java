@@ -9,6 +9,8 @@
 
 package com.mirth.connect.server.userutil;
 
+import java.io.UnsupportedEncodingException;
+
 /**
  * Used to store and retrieve details about message attachments such as the ID, MIME type, and
  * content.
@@ -36,6 +38,42 @@ public class Attachment {
     public Attachment(String id, byte[] content, String type) {
         this.id = id;
         this.content = content;
+        this.type = type;
+    }
+
+    /**
+     * Instantiates a new Attachment with String data using UTF-8 charset encoding.
+     * 
+     * @param id
+     *            The unique ID of the attachment.
+     * @param content
+     *            The string representation of the attachment content.
+     * @param type
+     *            The MIME type of the attachment.
+     * @throws UnsupportedEncodingException
+     */
+    public Attachment(String id, String content, String type) throws UnsupportedEncodingException {
+        this.id = id;
+        setContentString(content);
+        this.type = type;
+    }
+
+    /**
+     * Instantiates a new Attachment with String data and a given charset encoding.
+     * 
+     * @param id
+     *            The unique ID of the attachment.
+     * @param content
+     *            The string representation of the attachment content.
+     * @param charset
+     *            The charset encoding to convert the string to bytes with.
+     * @param type
+     *            The MIME type of the attachment.
+     * @throws UnsupportedEncodingException
+     */
+    public Attachment(String id, String content, String charset, String type) throws UnsupportedEncodingException {
+        this.id = id;
+        setContentString(content, charset);
         this.type = type;
     }
 
@@ -73,6 +111,26 @@ public class Attachment {
     }
 
     /**
+     * Returns the content of the attachment as a string, using UTF-8 encoding.
+     * 
+     * @throws UnsupportedEncodingException
+     */
+    public String getContentString() throws UnsupportedEncodingException {
+        return getContentString("UTF-8");
+    }
+
+    /**
+     * Returns the content of the attachment as a string, using the specified charset encoding.
+     * 
+     * @param charset
+     *            The charset encoding to convert the content bytes to a string with.
+     * @throws UnsupportedEncodingException
+     */
+    public String getContentString(String charset) throws UnsupportedEncodingException {
+        return new String(content, charset);
+    }
+
+    /**
      * Sets the content of the attachment.
      * 
      * @param content
@@ -80,6 +138,30 @@ public class Attachment {
      */
     public void setContent(byte[] content) {
         this.content = content;
+    }
+
+    /**
+     * Sets the content of the attachment, using UTF-8 encoding.
+     * 
+     * @param content
+     *            The string representation of the attachment content.
+     * @throws UnsupportedEncodingException
+     */
+    public void setContentString(String content) throws UnsupportedEncodingException {
+        setContentString(content, "UTF-8");
+    }
+
+    /**
+     * Sets the content of the attachment, using the specified charset encoding.
+     * 
+     * @param content
+     *            The string representation of the attachment content.
+     * @param charset
+     *            The charset encoding to convert the string to bytes with.
+     * @throws UnsupportedEncodingException
+     */
+    public void setContentString(String content, String charset) throws UnsupportedEncodingException {
+        this.content = content.getBytes(charset);
     }
 
     /**

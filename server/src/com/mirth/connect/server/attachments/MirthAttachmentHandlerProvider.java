@@ -10,6 +10,7 @@
 package com.mirth.connect.server.attachments;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import com.mirth.connect.donkey.util.StringUtil;
 import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.util.DICOMMessageUtil;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
+import com.mirth.connect.util.AttachmentUtil;
 
 public abstract class MirthAttachmentHandlerProvider implements AttachmentHandlerProvider {
 
@@ -378,14 +380,44 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
         return false;
     }
 
+    public List<String> getMessageAttachmentIds(ImmutableConnectorMessage message) throws MessageSerializerException {
+        return getMessageAttachmentIds(message.getChannelId(), message.getMessageId());
+    }
+
+    public List<String> getMessageAttachmentIds(String channelId, Long messageId) throws MessageSerializerException {
+        List<String> attachmentIds = new ArrayList<String>();
+        try {
+            List<Attachment> attachments = messageController.getMessageAttachmentIds(channelId, messageId);
+
+            for (Attachment attachment : attachments) {
+                attachmentIds.add(attachment.getId());
+            }
+        } catch (Exception e) {
+            throw new MessageSerializerException(e.getMessage());
+        }
+        return attachmentIds;
+    }
+
     public List<Attachment> getMessageAttachments(ImmutableConnectorMessage message) throws MessageSerializerException {
         return getMessageAttachments(message.getChannelId(), message.getMessageId());
     }
 
+    public List<Attachment> getMessageAttachments(ImmutableConnectorMessage message, boolean base64Decode) throws MessageSerializerException {
+        return getMessageAttachments(message.getChannelId(), message.getMessageId(), base64Decode);
+    }
+
     public List<Attachment> getMessageAttachments(String channelId, Long messageId) throws MessageSerializerException {
+        return getMessageAttachments(channelId, messageId, false);
+    }
+
+    public List<Attachment> getMessageAttachments(String channelId, Long messageId, boolean base64Decode) throws MessageSerializerException {
         List<Attachment> attachments;
         try {
             attachments = messageController.getMessageAttachment(channelId, messageId);
+
+            if (base64Decode) {
+                AttachmentUtil.decodeBase64(attachments);
+            }
         } catch (Exception e) {
             throw new MessageSerializerException(e.getMessage());
         }
@@ -393,8 +425,18 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
     }
 
     public Attachment getMessageAttachment(String channelId, Long messageId, String attachmentId) throws MessageSerializerException {
+        return getMessageAttachment(channelId, messageId, attachmentId, false);
+    }
+
+    public Attachment getMessageAttachment(String channelId, Long messageId, String attachmentId, boolean base64Decode) throws MessageSerializerException {
         try {
-            return messageController.getMessageAttachment(channelId, attachmentId, messageId);
+            Attachment attachment = messageController.getMessageAttachment(channelId, attachmentId, messageId);
+
+            if (base64Decode) {
+                AttachmentUtil.decodeBase64(attachment);
+            }
+
+            return attachment;
         } catch (Exception e) {
             throw new MessageSerializerException(e.getMessage());
         }

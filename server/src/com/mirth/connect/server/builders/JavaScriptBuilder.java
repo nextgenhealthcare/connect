@@ -442,20 +442,53 @@ public class JavaScriptBuilder {
     }
 
     private static void appendAttachmentFunctions(StringBuilder builder, Set<String> scriptOptions) {
+        // Helper function to access attachment IDs (returns List<String>)
+        builder.append("function getAttachmentIds(channelId, messageId) {\n");
+        builder.append("    if (arguments.length == 2) {\n");
+        builder.append("        return AttachmentUtil.getMessageAttachmentIds(channelId, messageId);\n");
+        builder.append("    } else {\n");
+        builder.append("        return AttachmentUtil.getMessageAttachmentIds(connectorMessage);\n");
+        builder.append("    }\n");
+        builder.append("}\n");
+
         // Helper function to access attachments (returns List<Attachment>)
-        builder.append("function getAttachments() {");
-        builder.append("return AttachmentUtil.getMessageAttachments(connectorMessage);");
+        builder.append("function getAttachments(base64Decode) {\n");
+        builder.append("    return AttachmentUtil.getMessageAttachments(connectorMessage, !!base64Decode || false);\n");
+        builder.append("}\n");
+
+        // Helper function to access a specific attachment (returns Attachment)
+        builder.append("function getAttachment() {\n");
+        builder.append("    if (arguments.length >= 3) {\n");
+        builder.append("        return AttachmentUtil.getMessageAttachment(arguments[0], arguments[1], arguments[2], !!arguments[3] || false);\n");
+        builder.append("    } else {\n");
+        builder.append("        return AttachmentUtil.getMessageAttachment(connectorMessage, arguments[0], !!arguments[1] || false);\n");
+        builder.append("    }\n");
+        builder.append("}\n");
+        
+        // Helper function to update a specific attachment (returns Attachment)
+        builder.append("function updateAttachment() {\n");
+        builder.append("    if (arguments.length >= 5) {\n");
+        builder.append("        return AttachmentUtil.updateAttachment(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], !!arguments[5] || false);\n");
+        builder.append("    } else if (arguments.length >= 3) {\n");
+        builder.append("        if (arguments[2] && arguments[2] instanceof Attachment) {\n");
+        builder.append("            return AttachmentUtil.updateAttachment(arguments[0], arguments[1], arguments[2], !!arguments[3] || false);\n");
+        builder.append("        } else {\n");
+        builder.append("            return AttachmentUtil.updateAttachment(connectorMessage, arguments[0], arguments[1], arguments[2], !!arguments[3] || false);\n");
+        builder.append("        }\n");
+        builder.append("    } else {\n");
+        builder.append("        return AttachmentUtil.updateAttachment(connectorMessage, arguments[0], !!arguments[1] || false);\n");
+        builder.append("    }\n");
         builder.append("}\n");
 
         // Helper function to set attachment
         if (scriptOptions != null && scriptOptions.contains("useAttachmentList")) {
 
-            builder.append("function addAttachment(data, type) {\n");
-            builder.append("return AttachmentUtil.addAttachment(mirth_attachments, data, type);\n");
+            builder.append("function addAttachment(data, type, base64Encode) {\n");
+            builder.append("return AttachmentUtil.addAttachment(mirth_attachments, data, type, !!base64Encode || false);\n");
             builder.append("}\n");
         } else {
-            builder.append("function addAttachment(data, type) {\n");
-            builder.append("return AttachmentUtil.createAttachment(connectorMessage, data, type);\n");
+            builder.append("function addAttachment(data, type, base64Encode) {\n");
+            builder.append("return AttachmentUtil.createAttachment(connectorMessage, data, type, !!base64Encode || false);\n");
             builder.append("}\n");
         }
     }

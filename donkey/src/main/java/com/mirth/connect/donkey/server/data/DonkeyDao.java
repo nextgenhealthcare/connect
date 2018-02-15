@@ -34,6 +34,8 @@ public interface DonkeyDao {
 
     public void insertMessageAttachment(String channelId, long messageId, Attachment attachment);
 
+    public void updateMessageAttachment(String channelId, long messageId, Attachment attachment);
+
     public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns);
 
     public void storeMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns);
