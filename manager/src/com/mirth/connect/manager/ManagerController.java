@@ -153,9 +153,13 @@ public class ManagerController {
     }
 
     private String startMirth() {
-        String httpPort = getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT);
+        String httpPortResult = null;
+        if (isUsingHttp()) {
+            String httpPort = getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT);
+            httpPortResult = testPort(httpPort, "WebStart");
+        }
+
         String httpsPort = getServerProperties().getString(ManagerConstants.SERVER_ADMINISTRATOR_PORT);
-        String httpPortResult = testPort(httpPort, "WebStart");
         String httpsPortResult = testPort(httpsPort, "Administrator");
 
         if (httpPortResult != null || httpsPortResult != null) {
@@ -305,12 +309,15 @@ public class ManagerController {
     }
 
     public void launchAdministrator(String maxHeapSize) {
-        String port = getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT);
+        boolean usingHttp = isUsingHttp();
+
+        String port = getServerProperties().getString(usingHttp ? ManagerConstants.SERVER_WEBSTART_PORT : ManagerConstants.SERVER_ADMINISTRATOR_PORT);
         String contextPath = getContextPath();
 
         try {
             maxHeapSize = StringUtils.isBlank(maxHeapSize) ? "512m" : maxHeapSize;
-            String cmd = ManagerConstants.CMD_WEBSTART_PREFIX + port + contextPath + ManagerConstants.CMD_WEBSTART_SUFFIX + "?maxHeapSize=" + maxHeapSize + "&time=" + new Date().getTime();
+            String scheme = usingHttp ? "http" : "https";
+            String cmd = ManagerConstants.CMD_WEBSTART_PREFIX1 + scheme + ManagerConstants.CMD_WEBSTART_PREFIX2 + port + contextPath + ManagerConstants.CMD_WEBSTART_SUFFIX + "?maxHeapSize=" + maxHeapSize + "&time=" + new Date().getTime();
 
             if (CmdUtil.execCmd(new String[] { cmd }, false) != 0) {
                 PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Administator could not be launched.");
@@ -318,6 +325,10 @@ public class ManagerController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isUsingHttp() {
+        return getServerProperties().containsKey(ManagerConstants.SERVER_WEBSTART_PORT) && getServerProperties().getInt(ManagerConstants.SERVER_WEBSTART_PORT) > 0;
     }
 
     public PropertiesConfiguration getServerProperties() {
@@ -365,7 +376,8 @@ public class ManagerController {
 
             for (int i = 0; (i < apps.length) && !editorOpened; i++) {
                 try {
-                    String output = CmdUtil.execCmdWithErrorOutput(new String[] { apps[i] + " \"" + path + "\"" });
+                    String output = CmdUtil.execCmdWithErrorOutput(new String[] {
+                            apps[i] + " \"" + path + "\"" });
 
                     if (output.length() == 0) {
                         editorOpened = true;

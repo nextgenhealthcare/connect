@@ -115,13 +115,18 @@ public class MirthWebServer extends Server {
         Logger.getLogger(WadlGeneratorJAXBGrammarGenerator.class).setLevel(Level.OFF);
 
         String baseAPI = "/api";
-        boolean apiAllowHTTP = Boolean.parseBoolean(mirthProperties.getString("server.api.allowhttp", "false"));
 
-        // add HTTP listener
-        connector = new ServerConnector(this);
-        connector.setName(CONNECTOR);
-        connector.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
-        connector.setPort(mirthProperties.getInt("http.port"));
+        boolean usingHttp = mirthProperties.containsKey("http.port") && mirthProperties.getInt("http.port") > 0;
+
+        boolean apiAllowHTTP = usingHttp && Boolean.parseBoolean(mirthProperties.getString("server.api.allowhttp", "false"));
+
+        if (usingHttp) {
+            // add HTTP listener
+            connector = new ServerConnector(this);
+            connector.setName(CONNECTOR);
+            connector.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
+            connector.setPort(mirthProperties.getInt("http.port"));
+        }
 
         // add HTTPS listener
         sslConnector = createSSLConnector(CONNECTOR_SSL, mirthProperties);
@@ -311,7 +316,12 @@ public class MirthWebServer extends Server {
         handlers.addHandler(defaultHandler);
 
         setHandler(handlers);
-        setConnectors(new Connector[] { connector, sslConnector });
+
+        if (usingHttp) {
+            setConnectors(new Connector[] { connector, sslConnector });
+        } else {
+            setConnectors(new Connector[] { sslConnector });
+        }
     }
 
     public void startup() throws Exception {
@@ -329,7 +339,7 @@ public class MirthWebServer extends Server {
             }
             start();
         }
-        logger.debug("started jetty web server on ports: " + connector.getPort() + ", " + sslConnector.getPort());
+        logger.debug("started jetty web server on ports: " + (connector != null ? connector.getPort() + ", " : "") + sslConnector.getPort());
     }
 
     private ServerConnector createSSLConnector(String name, PropertiesConfiguration mirthProperties) throws Exception {

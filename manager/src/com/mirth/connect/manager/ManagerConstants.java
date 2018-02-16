@@ -46,7 +46,8 @@ public class ManagerConstants {
     public static final String PATH_SERVICE_VMOPTIONS = "mcservice.vmoptions";
 
     // Webstart commands
-    public static final String CMD_WEBSTART_PREFIX = "javaws http://localhost:";
+    public static final String CMD_WEBSTART_PREFIX1 = "javaws ";
+    public static final String CMD_WEBSTART_PREFIX2 = "://localhost:";
     public static final String CMD_WEBSTART_SUFFIX = "/webstart.jnlp";
     public static final String CMD_TEST_JETTY_PREFIX = "https://localhost:";
 
