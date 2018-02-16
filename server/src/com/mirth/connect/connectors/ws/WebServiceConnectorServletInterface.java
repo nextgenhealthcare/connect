@@ -26,6 +26,7 @@ import com.mirth.connect.client.core.Operation.ExecuteType;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/connectors/ws")
 @Api("Connector Services")
@@ -103,5 +104,15 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
             @Param("service") @ApiParam(value = "The service name for the WSDL operation.") @FormParam("service") String service,
             @Param("port") @ApiParam(value = "The port / endpoint name for the service.") @FormParam("port") String port,
             @Param("operation") @ApiParam(value = "The name of the operation to generate an envelope for.") @FormParam("operation") String operation) throws ClientException;
+    // @formatter:on
+
+    @POST
+    @Path("/_testConnection")
+    @ApiOperation("Tests whether a connection can be successfully established to the destination endpoint.")
+    @MirthOperation(name = "testConnection", display = "Test Web Service Connection", type = ExecuteType.ASYNC, auditable = false)
+    public ConnectionTestResponse testConnection(// @formatter:off
+            @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
+            @Param("channelName") @ApiParam(value = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
+            @Param("properties") @ApiParam(value = "The Web Service Sender properties to use.", required = true) WebServiceDispatcherProperties properties) throws ClientException;
     // @formatter:on
 }

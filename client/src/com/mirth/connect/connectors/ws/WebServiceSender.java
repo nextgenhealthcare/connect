@@ -74,18 +74,18 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
-import com.mirth.connect.connectors.http.SSLWarningPanel;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.DefinitionPortMap;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 public class WebServiceSender extends ConnectorSettingsPanel {
 
-    private static final ImageIcon ICON_LOCK_X = new ImageIcon(Frame.class.getResource("images/lock_x.png"));
-    private static final Color COLOR_SSL_NOT_CONFIGURED = new Color(0xFFF099);
-    private static final String SSL_TOOL_TIP = "<html>The default system certificate store will be used for this connection.<br/>As a result, certain security options are not available and mutual<br/>authentication (two-way authentication) is not supported.</html>";
+    protected static final ImageIcon ICON_LOCK_X = new ImageIcon(Frame.class.getResource("images/lock_x.png"));
+    protected static final Color COLOR_SSL_NOT_CONFIGURED = new Color(0xFFF099);
+    protected static final String SSL_TOOL_TIP = "<html>The default system certificate store will be used for this connection.<br/>As a result, certain security options are not available and mutual<br/>authentication (two-way authentication) is not supported.</html>";
 
     private final int ID_COLUMN_NUMBER = 0;
     private final int CONTENT_COLUMN_NUMBER = 1;
@@ -277,13 +277,14 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         urlFieldChanged();
         serviceComboBox.setBackground(new Color(0xDEDEDE));
         portComboBox.setBackground(new Color(0xDEDEDE));
+        locationURIComboBox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
         socketTimeoutField.setBackground(null);
         soapEnvelopeTextArea.setBackground(null);
     }
 
     @Override
     public ConnectorTypeDecoration getConnectorTypeDecoration() {
-        if (isUsingHttps(wsdlUrlField.getText()) || isUsingHttps(soapActionField.getText())) {
+        if (isUsingHttps(wsdlUrlField.getText()) || isUsingHttps(String.valueOf(locationURIComboBox.getSelectedItem()))) {
             return new ConnectorTypeDecoration(Mode.DESTINATION, "(SSL Not Configured)", ICON_LOCK_X, SSL_TOOL_TIP, sslWarningPanel, COLOR_SSL_NOT_CONFIGURED);
         } else {
             return new ConnectorTypeDecoration(Mode.DESTINATION);
@@ -297,10 +298,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             wsdlUrlField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
             wsdlUrlField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
             wsdlUrlField.setBackground(connectorTypeDecoration.getHighlightColor());
-            soapActionField.setIcon(connectorTypeDecoration.getIcon());
-            soapActionField.setBackground(connectorTypeDecoration.getHighlightColor());
-            soapActionField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
-            soapActionField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
+            locationURIComboBox.setBackground(connectorTypeDecoration.getHighlightColor() != null ? connectorTypeDecoration.getHighlightColor() : UIConstants.COMBO_BOX_BACKGROUND);
         }
     }
 
@@ -338,7 +336,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         }
     }
 
-    private boolean isUsingHttps(String url) {
+    protected boolean isUsingHttps(String url) {
         if (StringUtils.isNotBlank(url)) {
             try {
                 URI hostURI = new URI(url);
@@ -527,6 +525,14 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             }
         });
 
+        wsdlUrlTestConnectionButton = new JButton("Test Connection");
+        wsdlUrlTestConnectionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                testConnectionButtonActionPerformed(true);
+            }
+        });
+
         serviceLabel = new JLabel("Service:");
         serviceComboBox = new MirthEditableComboBox();
         serviceComboBox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
@@ -550,6 +556,14 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         locationURILabel = new JLabel("Location URI:");
         locationURIComboBox = new MirthEditableComboBox();
         locationURIComboBox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
+
+        locationURITestConnectionButton = new JButton("Test Connection");
+        locationURITestConnectionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                testConnectionButtonActionPerformed(false);
+            }
+        });
 
         socketTimeoutLabel = new JLabel("Socket Timeout (ms):");
         socketTimeoutField = new MirthTextField();
@@ -924,14 +938,16 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gapy 6", "[]12[grow][]"));
 
         add(wsdlUrlLabel, "right");
-        add(wsdlUrlField, "growx, sx, split 2");
+        add(wsdlUrlField, "growx, sx, split 3");
         add(getOperationsButton);
+        add(wsdlUrlTestConnectionButton);
         add(serviceLabel, "newline, right");
         add(serviceComboBox, "growx, sx");
         add(portLabel, "newline, right");
         add(portComboBox, "growx, sx");
         add(locationURILabel, "newline, right");
-        add(locationURIComboBox, "growx, sx");
+        add(locationURIComboBox, "growx, sx, split 2");
+        add(locationURITestConnectionButton);
         add(socketTimeoutLabel, "newline, right");
         add(socketTimeoutField, "w 75!");
         add(authenticationLabel, "newline, right");
@@ -1049,6 +1065,60 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
         try {
             getServlet(WebServiceConnectorServletInterface.class, "Getting operations...", "Error caching WSDL. Please check the WSDL URL and authentication settings.\n\n", handler).cacheWsdlFromUrl(getChannelId(), getChannelName(), (WebServiceDispatcherProperties) getFilledProperties());
+        } catch (ClientException e) {
+            // Should not happen
+        }
+    }
+
+    protected boolean canTestConnection(boolean wsdlUrl) {
+        if (wsdlUrl) {
+            if (StringUtils.isBlank(wsdlUrlField.getText())) {
+                parent.alertError(parent, "WSDL URL is blank.");
+                return false;
+            }
+        } else if (StringUtils.isBlank(String.valueOf(locationURIComboBox.getSelectedItem()))) {
+            parent.alertError(parent, "Location URI is blank.");
+            return false;
+        }
+
+        return true;
+    }
+
+    protected WebServiceDispatcherProperties getTestConnectionPropeties() {
+        return (WebServiceDispatcherProperties) getFilledProperties();
+    }
+
+    private void testConnectionButtonActionPerformed(boolean wsdlUrl) {
+        if (!canTestConnection(wsdlUrl)) {
+            return;
+        }
+
+        WebServiceDispatcherProperties properties = getTestConnectionPropeties();
+
+        // Blank out the other property so that it isn't tested
+        if (wsdlUrl) {
+            properties.setLocationURI("");
+        } else {
+            properties.setWsdlUrl("");
+        }
+
+        ResponseHandler handler = new ResponseHandler() {
+            @Override
+            public void handle(Object response) {
+                ConnectionTestResponse connectionTestResponse = (ConnectionTestResponse) response;
+
+                if (connectionTestResponse == null) {
+                    parent.alertError(parent, "Failed to invoke service.");
+                } else if (connectionTestResponse.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                    parent.alertInformation(parent, connectionTestResponse.getMessage());
+                } else {
+                    parent.alertWarning(parent, connectionTestResponse.getMessage());
+                }
+            }
+        };
+
+        try {
+            getServlet(WebServiceConnectorServletInterface.class, "Testing connection...", "Error testing Web Service connection: ", handler).testConnection(getChannelId(), getChannelName(), properties);
         } catch (ClientException e) {
             // Should not happen
         }
@@ -1272,12 +1342,14 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     protected JLabel wsdlUrlLabel;
     protected MirthIconTextField wsdlUrlField;
     protected JButton getOperationsButton;
+    protected JButton wsdlUrlTestConnectionButton;
     protected JLabel serviceLabel;
     protected MirthEditableComboBox serviceComboBox;
     protected JLabel portLabel;
     protected MirthEditableComboBox portComboBox;
     protected JLabel locationURILabel;
     protected MirthEditableComboBox locationURIComboBox;
+    protected JButton locationURITestConnectionButton;
     protected JLabel socketTimeoutLabel;
     protected MirthTextField socketTimeoutField;
     protected JLabel authenticationLabel;
