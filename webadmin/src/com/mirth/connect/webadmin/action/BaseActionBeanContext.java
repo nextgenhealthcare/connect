@@ -74,6 +74,22 @@ public class BaseActionBeanContext extends ActionBeanContext {
         getRequest().getSession().setAttribute("serverAddress", serverAddress);
     }
 
+    public String getCurrentScheme() {
+        return (String) getRequest().getSession().getAttribute("currentScheme");
+    }
+
+    public void setCurrentScheme(String currentScheme) {
+        getRequest().getSession().setAttribute("currentScheme", currentScheme);
+    }
+
+    public String getCurrentPort() {
+        return (String) getRequest().getSession().getAttribute("currentPort");
+    }
+
+    public void setCurrentPort(String currentPort) {
+        getRequest().getSession().setAttribute("currentPort", currentPort);
+    }
+
     public String getMaxHeapSize() {
         return (String) getRequest().getSession().getAttribute("maxHeapSize");
     }

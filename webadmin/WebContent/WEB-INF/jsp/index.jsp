@@ -240,7 +240,7 @@
         </script>
         <script type="text/javascript">
        		function launchAdministrator(){
-       			window.location.href = 'http://' + window.location.hostname + ':${actionBean.context.httpPort}${actionBean.context.contextPath}/webstart.jnlp?time=' + new Date().getTime() + '&maxHeapSize=' + $('#maxHeapSizeSelect').val();
+       			window.location.href = '${actionBean.context.currentScheme}://' + window.location.hostname + ':${actionBean.context.currentPort}${actionBean.context.contextPath}/webstart.jnlp?time=' + new Date().getTime() + '&maxHeapSize=' + $('#maxHeapSizeSelect').val();
        		}
         </script>
     </body>
