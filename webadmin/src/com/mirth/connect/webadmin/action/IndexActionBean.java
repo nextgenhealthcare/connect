@@ -67,6 +67,8 @@ public class IndexActionBean extends BaseActionBean {
             }
         }
 
+        context.setCurrentScheme(request.getScheme());
+        context.setCurrentPort(String.valueOf(request.getServerPort()));
         context.setHttpsPort(httpsPort);
         context.setHttpPort(httpPort);
         context.setContextPath(contextPath);
