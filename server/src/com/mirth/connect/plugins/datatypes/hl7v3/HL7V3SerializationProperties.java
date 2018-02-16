@@ -20,7 +20,7 @@ import com.mirth.connect.model.datatype.SerializationProperties;
 
 public class HL7V3SerializationProperties extends SerializationProperties {
 
-    private boolean stripNamespaces = true;
+    private boolean stripNamespaces = false;
 
     @Override
     public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
