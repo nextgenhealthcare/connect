@@ -11,6 +11,7 @@ package com.mirth.connect.connectors.ws;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -56,7 +57,9 @@ import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.DefinitionPortMap;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.server.api.MirthServlet;
+import com.mirth.connect.server.util.ConnectorUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 public class WebServiceConnectorServlet extends MirthServlet implements WebServiceConnectorServletInterface {
 
@@ -133,6 +136,29 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
         } catch (Exception e) {
             throw new MirthApiException(e);
         }
+    }
+
+    @Override
+    public ConnectionTestResponse testConnection(String channelId, String channelName, WebServiceDispatcherProperties properties) {
+        try {
+            // Test the Location URI first if populated. Otherwise test the WSDL URL
+            if (StringUtils.isNotBlank(properties.getLocationURI())) {
+                return testConnection(channelId, channelName, properties.getLocationURI());
+            } else if (StringUtils.isNotBlank(properties.getWsdlUrl())) {
+                return testConnection(channelId, channelName, properties.getWsdlUrl());
+            } else {
+                throw new Exception("Both WSDL URL and Location URI are blank. At least one must be populated in order to test connection.");
+            }
+        } catch (Exception e) {
+            throw new MirthApiException(e);
+        }
+    }
+
+    protected ConnectionTestResponse testConnection(String channelId, String channelName, String urlString) throws Exception {
+        URL url = new URL(replacer.replaceValues(urlString, channelId, channelName));
+        int port = url.getPort();
+        // If no port was provided, default to port 80 or 443.
+        return ConnectorUtil.testConnection(url.getHost(), (port == -1) ? (StringUtils.equalsIgnoreCase(url.getProtocol(), "https") ? 443 : 80) : port, MAX_TIMEOUT);
     }
 
     protected String getWsdlUrl(String channelId, String channelName, String wsdlUrl, String username, String password) throws Exception {
