@@ -452,14 +452,6 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
             channelsTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
 
-        channelsTable.setRowFilter(new RowFilter<TableModel, Integer>() {
-            @Override
-            public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
-                String name = entry.getStringValue(CHANNELS_NAME_COLUMN);
-                return StringUtils.containsIgnoreCase(name, StringUtils.trim(channelFilterField.getText()));
-            }
-        });
-
         TableRowSorter<TableModel> rowSorter = new TableRowSorter<TableModel>(channelsTable.getModel());
         rowSorter.setComparator(CHANNELS_SELECTED_COLUMN, new Comparator<Integer>() {
             @Override
@@ -475,6 +467,16 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
             }
         });
         channelsTable.setRowSorter(rowSorter);
+
+        RowFilter<TableModel, Integer> rowFilter = new RowFilter<TableModel, Integer>() {
+            @Override
+            public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
+                String name = entry.getStringValue(CHANNELS_NAME_COLUMN);
+                return StringUtils.containsIgnoreCase(name, channelFilterField.getText());
+            }
+        };
+        rowSorter.setRowFilter(rowFilter);
+        channelsTable.setRowFilter(rowFilter);
 
         channelsTable.getColumnExt(CHANNELS_SELECTED_COLUMN).setMinWidth(20);
         channelsTable.getColumnExt(CHANNELS_SELECTED_COLUMN).setMaxWidth(20);
