@@ -26,6 +26,7 @@ import com.mirth.commons.encryption.Digester;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.LoginStatus;
+import com.mirth.connect.model.LoginStatus.Status;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.User;
 import com.mirth.connect.server.ExtensionLoader;
@@ -282,7 +283,7 @@ public class DefaultUserController extends UserController {
                  * authentication.
                  */
                 if (loginStatus != null) {
-                    return loginStatus;
+                    return handleSecondaryAuthentication(username, loginStatus);
                 }
             }
 
@@ -386,11 +387,7 @@ public class DefaultUserController extends UserController {
                 loginStatus = new LoginStatus(LoginStatus.Status.FAIL, failMessage);
             }
 
-            if (extensionController.getMultiFactorAuthenticationPlugin() != null) {
-                loginStatus = extensionController.getMultiFactorAuthenticationPlugin().authenticate(username, loginStatus);
-            }
-
-            return loginStatus;
+            return handleSecondaryAuthentication(username, loginStatus);
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
@@ -573,5 +570,12 @@ public class DefaultUserController extends UserController {
         } finally {
             StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readUnlock();
         }
+    }
+
+    private LoginStatus handleSecondaryAuthentication(String username, LoginStatus loginStatus) {
+        if (loginStatus != null && extensionController.getMultiFactorAuthenticationPlugin() != null && (loginStatus.getStatus() == Status.SUCCESS || loginStatus.getStatus() == Status.SUCCESS_GRACE_PERIOD)) {
+            loginStatus = extensionController.getMultiFactorAuthenticationPlugin().authenticate(username, loginStatus);
+        }
+        return loginStatus;
     }
 }
