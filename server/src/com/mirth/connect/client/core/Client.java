@@ -231,8 +231,12 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
         return getServlet(servletInterface, null);
     }
 
+    public <T> T getServlet(Class<T> servletInterface, ExecuteType executeType) {
+        return getServlet(servletInterface, executeType, null);
+    }
+
     @SuppressWarnings("unchecked")
-    public <T> T getServlet(final Class<T> servletInterface, final ExecuteType executeType) {
+    public <T> T getServlet(final Class<T> servletInterface, final ExecuteType executeType, final Map<String, List<String>> customHeaders) {
         return (T) Proxy.newProxyInstance(AccessController.doPrivileged(ReflectionHelper.getClassLoaderPA(servletInterface)), new Class[] {
                 servletInterface }, new InvocationHandler() {
                     @Override
@@ -247,6 +251,10 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
 
                             if (executeType != null) {
                                 target.property(ServerConnection.EXECUTE_TYPE_PROPERTY, executeType);
+                            }
+
+                            if (customHeaders != null) {
+                                target.property(ServerConnection.CUSTOM_HEADERS_PROPERTY, customHeaders);
                             }
 
                             if (args == null && method.getName().equals("toString")) {

@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -38,11 +34,17 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @Path("/users")
 @Api("Users")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface UserServletInterface extends BaseServletInterface {
+
+    public static final String LOGIN_DATA_HEADER = "X-Mirth-Login-Data";
 
     @POST
     @Path("/_login")

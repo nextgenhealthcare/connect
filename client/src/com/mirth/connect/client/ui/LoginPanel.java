@@ -26,9 +26,11 @@ import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.core.UnauthorizedException;
+import com.mirth.connect.model.ExtendedLoginStatus;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.plugins.MultiFactorAuthenticationClientPlugin;
 import com.mirth.connect.util.MirthSSLUtil;
 
 public class LoginPanel extends javax.swing.JFrame {
@@ -438,88 +440,26 @@ public class LoginPanel extends javax.swing.JFrame {
 
                     // If SUCCESS or SUCCESS_GRACE_PERIOD
                     if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
-                        try {
-                            String serverName = client.getServerSettings().getServerName();
-                            if (!StringUtils.isBlank(serverName)) {
-                                PlatformUI.SERVER_NAME = serverName;
-                            } else {
-                                PlatformUI.SERVER_NAME = null;
-                            }
-                        } catch (ClientException e) {
-                            PlatformUI.SERVER_NAME = null;
-                        }
-
-                        try {
-                            String database = (String) client.getAbout().get("database");
-                            if (!StringUtils.isBlank(database)) {
-                                PlatformUI.SERVER_DATABASE = database;
-                            } else {
-                                PlatformUI.SERVER_DATABASE = null;
-                            }
-                        } catch (ClientException e) {
-                            PlatformUI.SERVER_DATABASE = null;
-                        }
-
-                        try {
-                            Map<String, String[]> map = client.getProtocolsAndCipherSuites();
-                            PlatformUI.SERVER_HTTPS_SUPPORTED_PROTOCOLS = map.get(MirthSSLUtil.KEY_SUPPORTED_PROTOCOLS);
-                            PlatformUI.SERVER_HTTPS_ENABLED_CLIENT_PROTOCOLS = map.get(MirthSSLUtil.KEY_ENABLED_CLIENT_PROTOCOLS);
-                            PlatformUI.SERVER_HTTPS_ENABLED_SERVER_PROTOCOLS = map.get(MirthSSLUtil.KEY_ENABLED_SERVER_PROTOCOLS);
-                            PlatformUI.SERVER_HTTPS_SUPPORTED_CIPHER_SUITES = map.get(MirthSSLUtil.KEY_SUPPORTED_CIPHER_SUITES);
-                            PlatformUI.SERVER_HTTPS_ENABLED_CIPHER_SUITES = map.get(MirthSSLUtil.KEY_ENABLED_CIPHER_SUITES);
-                        } catch (ClientException e) {
-                        }
-
-                        PlatformUI.USER_NAME = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username.getText());
-                        setStatus("Authenticated...");
-                        new Mirth(client);
-                        LoginPanel.getInstance().setVisible(false);
-
-                        User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
-                        Properties userPreferences = new Properties();
-                        Set<String> preferenceNames = new HashSet<String>();
-                        preferenceNames.add("firstlogin");
-                        preferenceNames.add("checkForNotifications");
-                        preferenceNames.add("showNotificationPopup");
-                        preferenceNames.add("archivedNotifications");
-                        try {
-                            userPreferences = client.getUserPreferences(currentUser.getId(), preferenceNames);
-
-                            // Display registration dialog if it's the user's first time logging in
-                            String firstlogin = userPreferences.getProperty("firstlogin");
-                            if (firstlogin == null || BooleanUtils.toBoolean(firstlogin)) {
-                                new FirstLoginDialog(currentUser);
-                            } else if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD) {
-                                new ChangePasswordDialog(currentUser, loginStatus.getMessage());
-                            }
-
-                            // Check for new notifications from update server if enabled
-                            String checkForNotifications = userPreferences.getProperty("checkForNotifications");
-                            if (checkForNotifications == null || BooleanUtils.toBoolean(checkForNotifications)) {
-                                Set<Integer> archivedNotifications = new HashSet<Integer>();
-                                String archivedNotificationString = userPreferences.getProperty("archivedNotifications");
-                                if (archivedNotificationString != null) {
-                                    archivedNotifications = ObjectXMLSerializer.getInstance().deserialize(archivedNotificationString, Set.class);
-                                }
-                                // Update the Other Tasks pane with the unarchived notification count
-                                int unarchivedNotifications = ConnectServiceUtil.getNotificationCount(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, LoadedExtensions.getInstance().getExtensionVersions(), archivedNotifications, PlatformUI.HTTPS_PROTOCOLS, PlatformUI.HTTPS_CIPHER_SUITES);
-                                PlatformUI.MIRTH_FRAME.updateNotificationTaskName(unarchivedNotifications);
-
-                                // Display notification dialog if enabled and if there are new notifications
-                                String showNotificationPopup = userPreferences.getProperty("showNotificationPopup");
-                                if (showNotificationPopup == null || BooleanUtils.toBoolean(showNotificationPopup)) {
-                                    if (unarchivedNotifications > 0) {
-                                        new NotificationDialog();
-                                    }
-                                }
-                            }
-                        } catch (ClientException e) {
-                            PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e);
-                        }
-
-                        PlatformUI.MIRTH_FRAME.sendUsageStatistics();
+                        handleSuccess(loginStatus);
                     } else {
+                        // Assume failure unless overridden by a plugin
                         errorOccurred = true;
+
+                        if (loginStatus instanceof ExtendedLoginStatus) {
+                            ExtendedLoginStatus extendedLoginStatus = (ExtendedLoginStatus) loginStatus;
+                            String updatedUsername = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username.getText());
+                            MultiFactorAuthenticationClientPlugin plugin = (MultiFactorAuthenticationClientPlugin) Class.forName(extendedLoginStatus.getClientPluginClass()).newInstance();
+
+                            loginStatus = plugin.authenticate(LoginPanel.this, client, updatedUsername, loginStatus);
+
+                            if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
+                                errorOccurred = false;
+                                handleSuccess(loginStatus);
+                            }
+                        }
+                    }
+
+                    if (errorOccurred) {
                         if (loginStatus != null) {
                             errorTextArea.setText(loginStatus.getMessage());
                         } else {
@@ -541,6 +481,89 @@ public class LoginPanel extends javax.swing.JFrame {
                 }
 
                 return null;
+            }
+
+            private void handleSuccess(LoginStatus loginStatus) throws ClientException {
+                try {
+                    String serverName = client.getServerSettings().getServerName();
+                    if (!StringUtils.isBlank(serverName)) {
+                        PlatformUI.SERVER_NAME = serverName;
+                    } else {
+                        PlatformUI.SERVER_NAME = null;
+                    }
+                } catch (ClientException e) {
+                    PlatformUI.SERVER_NAME = null;
+                }
+
+                try {
+                    String database = (String) client.getAbout().get("database");
+                    if (!StringUtils.isBlank(database)) {
+                        PlatformUI.SERVER_DATABASE = database;
+                    } else {
+                        PlatformUI.SERVER_DATABASE = null;
+                    }
+                } catch (ClientException e) {
+                    PlatformUI.SERVER_DATABASE = null;
+                }
+
+                try {
+                    Map<String, String[]> map = client.getProtocolsAndCipherSuites();
+                    PlatformUI.SERVER_HTTPS_SUPPORTED_PROTOCOLS = map.get(MirthSSLUtil.KEY_SUPPORTED_PROTOCOLS);
+                    PlatformUI.SERVER_HTTPS_ENABLED_CLIENT_PROTOCOLS = map.get(MirthSSLUtil.KEY_ENABLED_CLIENT_PROTOCOLS);
+                    PlatformUI.SERVER_HTTPS_ENABLED_SERVER_PROTOCOLS = map.get(MirthSSLUtil.KEY_ENABLED_SERVER_PROTOCOLS);
+                    PlatformUI.SERVER_HTTPS_SUPPORTED_CIPHER_SUITES = map.get(MirthSSLUtil.KEY_SUPPORTED_CIPHER_SUITES);
+                    PlatformUI.SERVER_HTTPS_ENABLED_CIPHER_SUITES = map.get(MirthSSLUtil.KEY_ENABLED_CIPHER_SUITES);
+                } catch (ClientException e) {
+                }
+
+                PlatformUI.USER_NAME = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username.getText());
+                setStatus("Authenticated...");
+                new Mirth(client);
+                LoginPanel.getInstance().setVisible(false);
+
+                User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
+                Properties userPreferences = new Properties();
+                Set<String> preferenceNames = new HashSet<String>();
+                preferenceNames.add("firstlogin");
+                preferenceNames.add("checkForNotifications");
+                preferenceNames.add("showNotificationPopup");
+                preferenceNames.add("archivedNotifications");
+                try {
+                    userPreferences = client.getUserPreferences(currentUser.getId(), preferenceNames);
+
+                    // Display registration dialog if it's the user's first time logging in
+                    String firstlogin = userPreferences.getProperty("firstlogin");
+                    if (firstlogin == null || BooleanUtils.toBoolean(firstlogin)) {
+                        new FirstLoginDialog(currentUser);
+                    } else if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD) {
+                        new ChangePasswordDialog(currentUser, loginStatus.getMessage());
+                    }
+
+                    // Check for new notifications from update server if enabled
+                    String checkForNotifications = userPreferences.getProperty("checkForNotifications");
+                    if (checkForNotifications == null || BooleanUtils.toBoolean(checkForNotifications)) {
+                        Set<Integer> archivedNotifications = new HashSet<Integer>();
+                        String archivedNotificationString = userPreferences.getProperty("archivedNotifications");
+                        if (archivedNotificationString != null) {
+                            archivedNotifications = ObjectXMLSerializer.getInstance().deserialize(archivedNotificationString, Set.class);
+                        }
+                        // Update the Other Tasks pane with the unarchived notification count
+                        int unarchivedNotifications = ConnectServiceUtil.getNotificationCount(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, LoadedExtensions.getInstance().getExtensionVersions(), archivedNotifications, PlatformUI.HTTPS_PROTOCOLS, PlatformUI.HTTPS_CIPHER_SUITES);
+                        PlatformUI.MIRTH_FRAME.updateNotificationTaskName(unarchivedNotifications);
+
+                        // Display notification dialog if enabled and if there are new notifications
+                        String showNotificationPopup = userPreferences.getProperty("showNotificationPopup");
+                        if (showNotificationPopup == null || BooleanUtils.toBoolean(showNotificationPopup)) {
+                            if (unarchivedNotifications > 0) {
+                                new NotificationDialog();
+                            }
+                        }
+                    }
+                } catch (ClientException e) {
+                    PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                }
+
+                PlatformUI.MIRTH_FRAME.sendUsageStatistics();
             }
 
             public void done() {}
