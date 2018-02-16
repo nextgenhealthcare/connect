@@ -64,6 +64,7 @@ import com.mirth.connect.plugins.AuthorizationPlugin;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.CodeTemplateServerPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
+import com.mirth.connect.plugins.MultiFactorAuthenticationPlugin;
 import com.mirth.connect.plugins.ResourcePlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
@@ -87,6 +88,7 @@ public class DefaultExtensionController extends ExtensionController {
     private Map<String, DataTypeServerPlugin> dataTypePlugins = new LinkedHashMap<String, DataTypeServerPlugin>();
     private Map<String, ResourcePlugin> resourcePlugins = new LinkedHashMap<String, ResourcePlugin>();
     private Map<String, TransmissionModeProvider> transmissionModeProviders = new LinkedHashMap<String, TransmissionModeProvider>();
+    private MultiFactorAuthenticationPlugin multiFactorAuthenticationPlugin = null;
     private AuthorizationPlugin authorizationPlugin = null;
     private ExtensionLoader extensionLoader = ExtensionLoader.getInstance();
 
@@ -304,6 +306,18 @@ public class DefaultExtensionController extends ExtensionController {
                         serverPlugins.add(authorizationPlugin);
                         logger.debug("sucessfully loaded server authorization plugin: " + serverPlugin.getPluginPointName());
                     }
+
+                    if (serverPlugin instanceof MultiFactorAuthenticationPlugin) {
+                        MultiFactorAuthenticationPlugin multiFactorAuthenticationPlugin = (MultiFactorAuthenticationPlugin) serverPlugin;
+
+                        if (this.multiFactorAuthenticationPlugin != null) {
+                            throw new Exception("Multiple Multi-Factor Authentication Plugins are not permitted.");
+                        }
+
+                        this.multiFactorAuthenticationPlugin = multiFactorAuthenticationPlugin;
+                        serverPlugins.add(multiFactorAuthenticationPlugin);
+                        logger.debug("sucessfully loaded server multi-factor authentication plugin: " + serverPlugin.getPluginPointName());
+                    }
                 } catch (Exception e) {
                     logger.error("Error instantiating plugin: " + pluginName, e);
                 }
@@ -347,6 +361,11 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public AuthorizationPlugin getAuthorizationPlugin() {
         return authorizationPlugin;
+    }
+
+    @Override
+    public MultiFactorAuthenticationPlugin getMultiFactorAuthenticationPlugin() {
+        return multiFactorAuthenticationPlugin;
     }
 
     /* ********************************************************************** */

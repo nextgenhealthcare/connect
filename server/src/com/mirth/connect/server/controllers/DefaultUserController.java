@@ -40,7 +40,7 @@ import com.mirth.connect.server.util.StatementLock;
 public class DefaultUserController extends UserController {
     private static final String VACUUM_LOCK_PERSON_STATEMENT_ID = "User.vacuumPersonTable";
     private static final String VACUUM_LOCK_PREFERENCES_STATEMENT_ID = "User.vacuumPersonPreferencesTable";
-    
+
     private Logger logger = Logger.getLogger(this.getClass());
     private ExtensionController extensionController = null;
 
@@ -222,7 +222,7 @@ public class DefaultUserController extends UserController {
             StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).writeUnlock();
         }
     }
-    
+
     /**
      * When calling this method, a StatementLock writeLock should surround it
      */
@@ -243,7 +243,7 @@ public class DefaultUserController extends UserController {
             }
         }
     }
-    
+
     /**
      * When calling this method, a StatementLock writeLock should surround it
      */
@@ -384,6 +384,10 @@ public class DefaultUserController extends UserController {
                     failMessage += " " + loginRequirementsChecker.getStrikesRemaining() + " login attempt(s) remaining for \"" + username + "\" until the account is locked for " + loginRequirementsChecker.getPrintableLockoutPeriod() + ".";
                 }
                 loginStatus = new LoginStatus(LoginStatus.Status.FAIL, failMessage);
+            }
+
+            if (extensionController.getMultiFactorAuthenticationPlugin() != null) {
+                loginStatus = extensionController.getMultiFactorAuthenticationPlugin().authenticate(username, loginStatus);
             }
 
             return loginStatus;

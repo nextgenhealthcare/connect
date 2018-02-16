@@ -24,6 +24,7 @@ import com.mirth.connect.plugins.AuthorizationPlugin;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.CodeTemplateServerPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
+import com.mirth.connect.plugins.MultiFactorAuthenticationPlugin;
 import com.mirth.connect.plugins.ResourcePlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
@@ -190,6 +191,8 @@ public abstract class ExtensionController extends Controller {
     public abstract Map<String, TransmissionModeProvider> getTransmissionModeProviders();
 
     public abstract AuthorizationPlugin getAuthorizationPlugin();
+
+    public abstract MultiFactorAuthenticationPlugin getMultiFactorAuthenticationPlugin();
 
     public abstract List<ServerPlugin> getServerPlugins();
 
