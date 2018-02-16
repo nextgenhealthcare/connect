@@ -526,6 +526,109 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
+    public void updateMessageAttachment(String channelId, long messageId, Attachment attachment) {
+        logger.debug(channelId + "/" + messageId + ": updating message attachment");
+
+        try {
+            PreparedStatement segmentCountStatement = prepareStatement("selectMessageAttachmentSegmentCount", channelId);
+            segmentCountStatement.setString(1, attachment.getId());
+            segmentCountStatement.setLong(2, messageId);
+
+            ResultSet segmentCountResult = segmentCountStatement.executeQuery();
+            segmentCountResult.next();
+            int totalSegmentCount = segmentCountResult.getInt(1);
+
+            PreparedStatement updateStatement = prepareStatement("updateMessageAttachment", channelId);
+            updateStatement.setString(1, attachment.getType());
+            updateStatement.setString(4, attachment.getId());
+            updateStatement.setLong(5, messageId);
+
+            PreparedStatement insertStatement = prepareStatement("insertMessageAttachment", channelId);
+            insertStatement.setString(1, attachment.getId());
+            insertStatement.setLong(2, messageId);
+            insertStatement.setString(3, attachment.getType());
+
+            // The size of each segment of the attachment.
+            int chunkSize = 10000000;
+
+            // Use an input stream on the attachment content to segment the data.
+            ByteArrayInputStream inputStream = null;
+
+            boolean done = false;
+            int currentSegmentId = 1;
+
+            while (!done) {
+                PreparedStatement statement;
+                int segmentIdIndex;
+                int attachmentSizeIndex;
+                int contentIndex;
+
+                if (currentSegmentId <= totalSegmentCount) {
+                    statement = updateStatement;
+                    segmentIdIndex = 6;
+                    attachmentSizeIndex = 2;
+                    contentIndex = 3;
+                } else {
+                    statement = insertStatement;
+                    segmentIdIndex = 4;
+                    attachmentSizeIndex = 5;
+                    contentIndex = 6;
+                }
+
+                // Set the segment number
+                statement.setInt(segmentIdIndex, currentSegmentId);
+
+                if (attachment.getContent().length <= chunkSize) {
+                    // If there is only one segment, just store it
+                    statement.setInt(attachmentSizeIndex, attachment.getContent().length);
+                    statement.setBytes(contentIndex, attachment.getContent());
+                    statement.executeUpdate();
+                    currentSegmentId++;
+                    done = true;
+                } else {
+                    if (inputStream == null) {
+                        inputStream = new ByteArrayInputStream(attachment.getContent());
+                    }
+
+                    // As long as there are bytes left
+                    if (inputStream.available() > 0) {
+                        // Determine the segment size. If there are more bytes left than the chunk size, the size is the chunk size. Otherwise it is the number of remaining bytes
+                        int segmentSize = Math.min(chunkSize, inputStream.available());
+                        // Create a byte array to store the chunk
+                        byte[] segment = new byte[segmentSize];
+                        // Read the chunk from the input stream to the byte array
+                        inputStream.read(segment, 0, segmentSize);
+                        // Set the segment size
+                        statement.setInt(attachmentSizeIndex, segmentSize);
+                        // Set the byte data
+                        statement.setBytes(contentIndex, segment);
+                        // Perform the update
+                        statement.executeUpdate();
+                        currentSegmentId++;
+                    } else {
+                        done = true;
+                    }
+                }
+            }
+
+            // Clear the parameters because the data held in memory could be quite large.
+            updateStatement.clearParameters();
+            insertStatement.clearParameters();
+
+            // Delete lingering segments
+            if (totalSegmentCount >= currentSegmentId) {
+                PreparedStatement deleteStatement = prepareStatement("deleteMessageAttachmentLingeringSegments", channelId);
+                deleteStatement.setString(1, attachment.getId());
+                deleteStatement.setLong(2, messageId);
+                deleteStatement.setInt(3, currentSegmentId);
+                deleteStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        }
+    }
+
+    @Override
     public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
         logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": inserting custom meta data");
         PreparedStatement statement = null;
@@ -1016,7 +1119,7 @@ public class JdbcDao implements DonkeyDao {
             cascadeMessageDelete("deleteAllMessagesCascadeAttachments", channelId);
             cascadeMessageDelete("deleteAllMessagesCascadeMetadata", channelId);
             cascadeMessageDelete("deleteAllMessagesCascadeContent", channelId);
-            
+
             // remove constraints so truncate can execute 
             if (querySource.queryExists("dropConstraintMessageContentTable")) {
                 prepareStatement("dropConstraintMessageContentTable", channelId).executeUpdate();
@@ -1024,10 +1127,10 @@ public class JdbcDao implements DonkeyDao {
             if (querySource.queryExists("dropConstraintMessageCustomMetaDataTable")) {
                 prepareStatement("dropConstraintMessageCustomMetaDataTable", channelId).executeUpdate();
             }
-            
+
             // delete
             cascadeMessageDelete("deleteAllMessagesCascadeConnectorMessage", channelId);
-            
+
             // re-add constraints
             if (querySource.queryExists("addConstraintMessageCustomMetaDataTable")) {
                 prepareStatement("addConstraintMessageCustomMetaDataTable", channelId).executeUpdate();
@@ -1043,10 +1146,10 @@ public class JdbcDao implements DonkeyDao {
             if (querySource.queryExists("dropConstraintAttachmentTable")) {
                 prepareStatement("dropConstraintAttachmentTable", channelId).executeUpdate();
             }
-            
+
             // delete
             prepareStatement("deleteAllMessages", channelId).executeUpdate();
-            
+
             // re-add constraints
             if (querySource.queryExists("addConstraintAttachmentTable")) {
                 prepareStatement("addConstraintAttachmentTable", channelId).executeUpdate();
@@ -1054,7 +1157,7 @@ public class JdbcDao implements DonkeyDao {
             if (querySource.queryExists("addConstraintConnectorMessageTable")) {
                 prepareStatement("addConstraintConnectorMessageTable", channelId).executeUpdate();
             }
-            
+
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }
@@ -2700,7 +2803,7 @@ public class JdbcDao implements DonkeyDao {
     /**
      * Returns a prepared statement from the statementSource for the given channelId.
      */
-    private PreparedStatement prepareStatement(String queryId, String channelId) throws SQLException {
+    PreparedStatement prepareStatement(String queryId, String channelId) throws SQLException {
         Long localChannelId = null;
 
         if (channelId != null) {

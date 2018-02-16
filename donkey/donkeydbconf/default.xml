@@ -28,6 +28,24 @@
 		VALUES (?, ?, ?, ?, ?, ?)
 	</query>
 	
+	<query id="updateMessageAttachment">
+		UPDATE D_MA${localChannelId}
+		SET TYPE = ?, ATTACHMENT_SIZE = ?, CONTENT = ?
+		WHERE ID = ? AND MESSAGE_ID = ? AND SEGMENT_ID = ?
+	</query>
+	
+	<query id="selectMessageAttachmentSegmentCount">
+		SELECT COUNT(ID) AS SEGMENT_COUNT
+		FROM D_MA${localChannelId}
+		WHERE ID = ? AND MESSAGE_ID = ? 
+	</query>
+	
+	<query id="deleteMessageAttachmentLingeringSegments">
+		DELETE
+		FROM D_MA${localChannelId}
+		WHERE ID = ? AND MESSAGE_ID = ? AND SEGMENT_ID <![CDATA[ >= ]]> ?
+	</query>
+	
 	<query id="selectMessageAttachmentSize">
 		SELECT sum(ATTACHMENT_SIZE) AS ATTACHMENT_SIZE
 		FROM D_MA${localChannelId}

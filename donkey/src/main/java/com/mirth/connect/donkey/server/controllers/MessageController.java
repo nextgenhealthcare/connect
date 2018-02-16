@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.server.controllers;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -27,6 +28,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
+import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.StringUtil;
 
 public class MessageController {
@@ -48,6 +50,10 @@ public class MessageController {
     private MessageController() {}
 
     public Attachment createAttachment(Object data, String type) throws UnsupportedDataTypeException {
+        return createAttachment(data, type, false);
+    }
+
+    public Attachment createAttachment(Object data, String type, boolean base64Encode) throws UnsupportedDataTypeException {
         byte[] byteData;
 
         if (data instanceof byte[]) {
@@ -56,6 +62,13 @@ public class MessageController {
             byteData = StringUtil.getBytesUncheckedChunked((String) data, Constants.ATTACHMENT_CHARSET);
         } else {
             throw new UnsupportedDataTypeException("Attachment can be of type String or byte[]");
+        }
+
+        if (base64Encode) {
+            try {
+                byteData = Base64Util.encodeBase64(byteData);
+            } catch (IOException e) {
+            }
         }
 
         Attachment attachment = new Attachment();
@@ -70,6 +83,18 @@ public class MessageController {
 
         try {
             dao.insertMessageAttachment(channelId, messageId, attachment);
+
+            dao.commit();
+        } finally {
+            dao.close();
+        }
+    }
+
+    public void updateAttachment(Attachment attachment, String channelId, Long messageId) {
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
+
+        try {
+            dao.updateMessageAttachment(channelId, messageId, attachment);
 
             dao.commit();
         } finally {
