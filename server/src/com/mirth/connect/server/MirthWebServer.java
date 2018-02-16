@@ -115,9 +115,10 @@ public class MirthWebServer extends Server {
         Logger.getLogger(WadlGeneratorJAXBGrammarGenerator.class).setLevel(Level.OFF);
 
         String baseAPI = "/api";
-        boolean apiAllowHTTP = Boolean.parseBoolean(mirthProperties.getString("server.api.allowhttp", "false"));
 
         boolean usingHttp = mirthProperties.containsKey("http.port") && mirthProperties.getInt("http.port") > 0;
+
+        boolean apiAllowHTTP = usingHttp && Boolean.parseBoolean(mirthProperties.getString("server.api.allowhttp", "false"));
 
         if (usingHttp) {
             // add HTTP listener
