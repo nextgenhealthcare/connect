@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,6 +28,8 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -80,6 +83,7 @@ public class ServerConnection implements Connector {
 
     public static final String EXECUTE_TYPE_PROPERTY = "executeType";
     public static final String OPERATION_PROPERTY = "operation";
+    public static final String CUSTOM_HEADERS_PROPERTY = "customHeaders";
 
     private static final int CONNECT_TIMEOUT = 10000;
     private static final int IDLE_TIMEOUT = 300000;
@@ -130,6 +134,7 @@ public class ServerConnection implements Connector {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public ClientResponse apply(ClientRequest request) {
         Operation operation = (Operation) request.getConfiguration().getProperty(OPERATION_PROPERTY);
         if (operation == null) {
@@ -141,6 +146,8 @@ public class ServerConnection implements Connector {
             executeType = operation.getExecuteType();
         }
 
+        Map<String, List<String>> customHeaders = (Map<String, List<String>>) request.getConfiguration().getProperty(CUSTOM_HEADERS_PROPERTY);
+
         if (logger.isDebugEnabled()) {
             StringBuilder debugMessage = new StringBuilder(operation.getDisplayName()).append('\n');
             debugMessage.append(request.getMethod()).append(' ').append(request.getUri());
@@ -150,11 +157,11 @@ public class ServerConnection implements Connector {
         try {
             switch (executeType) {
                 case SYNC:
-                    return executeSync(request, operation);
+                    return executeSync(request, operation, customHeaders);
                 case ASYNC:
-                    return executeAsync(request);
+                    return executeAsync(request, customHeaders);
                 case ABORT_PENDING:
-                    return executeAbortPending(request);
+                    return executeAbortPending(request, customHeaders);
             }
         } catch (ClientException e) {
             throw new ProcessingException(e);
@@ -226,7 +233,7 @@ public class ServerConnection implements Connector {
     /**
      * Allows one request at a time.
      */
-    private synchronized ClientResponse executeSync(ClientRequest request, Operation operation) throws ClientException {
+    private synchronized ClientResponse executeSync(ClientRequest request, Operation operation, Map<String, List<String>> customHeaders) throws ClientException {
         synchronized (currentOp) {
             currentOp.setName(operation.getName());
             currentOp.setDisplayName(operation.getDisplayName());
@@ -238,7 +245,7 @@ public class ServerConnection implements Connector {
         boolean shouldClose = true;
 
         try {
-            requestBase = setupRequestBase(request, ExecuteType.SYNC);
+            requestBase = setupRequestBase(request, customHeaders, ExecuteType.SYNC);
             response = client.execute(requestBase);
             ClientResponse responseContext = handleResponse(request, requestBase, response, true);
             if (responseContext.hasEntity()) {
@@ -278,13 +285,13 @@ public class ServerConnection implements Connector {
     /**
      * Allows multiple simultaneous requests.
      */
-    private ClientResponse executeAsync(ClientRequest request) throws ClientException {
+    private ClientResponse executeAsync(ClientRequest request, Map<String, List<String>> customHeaders) throws ClientException {
         HttpRequestBase requestBase = null;
         CloseableHttpResponse response = null;
         boolean shouldClose = true;
 
         try {
-            requestBase = setupRequestBase(request, ExecuteType.ASYNC);
+            requestBase = setupRequestBase(request, customHeaders, ExecuteType.ASYNC);
             response = client.execute(requestBase);
             ClientResponse responseContext = handleResponse(request, requestBase, response);
             if (responseContext.hasEntity()) {
@@ -319,7 +326,7 @@ public class ServerConnection implements Connector {
      * The requests sent through this channel will be aborted on the client side when a new request
      * arrives. Currently there is no guarantee of the order that pending requests will be sent.
      */
-    private ClientResponse executeAbortPending(ClientRequest request) throws ClientException {
+    private ClientResponse executeAbortPending(ClientRequest request, Map<String, List<String>> customHeaders) throws ClientException {
         // TODO: Make order sequential
         abortTask.incrementRequestsInQueue();
 
@@ -336,7 +343,7 @@ public class ServerConnection implements Connector {
                 abortPendingClientContext = HttpClientContext.create();
                 abortPendingClientContext.setRequestConfig(requestConfig);
 
-                requestBase = setupRequestBase(request, ExecuteType.ABORT_PENDING);
+                requestBase = setupRequestBase(request, customHeaders, ExecuteType.ABORT_PENDING);
 
                 abortTask.setAbortAllowed(true);
                 response = client.execute(requestBase, abortPendingClientContext);
@@ -406,13 +413,25 @@ public class ServerConnection implements Connector {
         return requestBase;
     }
 
-    private HttpRequestBase setupRequestBase(ClientRequest request, ExecuteType executeType) {
+    private HttpRequestBase setupRequestBase(ClientRequest request, Map<String, List<String>> customHeaders, ExecuteType executeType) {
         HttpRequestBase requestBase = getRequestBase(executeType, request.getMethod());
         requestBase.setURI(request.getUri());
 
         for (Entry<String, List<String>> entry : request.getStringHeaders().entrySet()) {
             for (String value : entry.getValue()) {
                 requestBase.addHeader(entry.getKey(), value);
+            }
+        }
+
+        if (MapUtils.isNotEmpty(customHeaders)) {
+            for (Entry<String, List<String>> entry : customHeaders.entrySet()) {
+                String key = entry.getKey();
+
+                if (CollectionUtils.isNotEmpty(entry.getValue())) {
+                    for (String value : entry.getValue()) {
+                        requestBase.addHeader(key, value);
+                    }
+                }
             }
         }
 
