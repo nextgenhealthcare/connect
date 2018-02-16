@@ -12,8 +12,8 @@ package com.mirth.connect.manager;
 public class ManagerConstants {
 
     // Server ports
-    public static final String SERVER_WEBSTART_PORT = "http.port";
-    public static final String SERVER_ADMINISTRATOR_PORT = "https.port";
+    public static final String SERVER_HTTP_PORT = "http.port";
+    public static final String SERVER_HTTPS_PORT = "https.port";
 
     // Configurable directories
     public static final String DIR_APPDATA = "dir.appdata";

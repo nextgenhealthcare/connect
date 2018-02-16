@@ -155,11 +155,11 @@ public class ManagerController {
     private String startMirth() {
         String httpPortResult = null;
         if (isUsingHttp()) {
-            String httpPort = getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT);
+            String httpPort = getServerProperties().getString(ManagerConstants.SERVER_HTTP_PORT);
             httpPortResult = testPort(httpPort, "WebStart");
         }
 
-        String httpsPort = getServerProperties().getString(ManagerConstants.SERVER_ADMINISTRATOR_PORT);
+        String httpsPort = getServerProperties().getString(ManagerConstants.SERVER_HTTPS_PORT);
         String httpsPortResult = testPort(httpsPort, "Administrator");
 
         if (httpPortResult != null || httpsPortResult != null) {
@@ -311,7 +311,7 @@ public class ManagerController {
     public void launchAdministrator(String maxHeapSize) {
         boolean usingHttp = isUsingHttp();
 
-        String port = getServerProperties().getString(usingHttp ? ManagerConstants.SERVER_WEBSTART_PORT : ManagerConstants.SERVER_ADMINISTRATOR_PORT);
+        String port = getServerProperties().getString(usingHttp ? ManagerConstants.SERVER_HTTP_PORT : ManagerConstants.SERVER_HTTPS_PORT);
         String contextPath = getContextPath();
 
         try {
@@ -328,7 +328,7 @@ public class ManagerController {
     }
 
     public boolean isUsingHttp() {
-        return getServerProperties().containsKey(ManagerConstants.SERVER_WEBSTART_PORT) && getServerProperties().getInt(ManagerConstants.SERVER_WEBSTART_PORT) > 0;
+        return getServerProperties().containsKey(ManagerConstants.SERVER_HTTP_PORT) && getServerProperties().getInt(ManagerConstants.SERVER_HTTP_PORT) > 0;
     }
 
     public PropertiesConfiguration getServerProperties() {

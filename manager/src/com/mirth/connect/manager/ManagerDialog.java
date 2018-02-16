@@ -203,11 +203,11 @@ public class ManagerDialog extends JDialog {
         serverPanel.setBackground(new Color(255, 255, 255));
         serverPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
-        webstartPortLabel = new JLabel("Web Start Port:");
-        webstartPortField = new MirthTextField();
+        httpPortLabel = new JLabel("HTTP Port:");
+        httpPortField = new MirthTextField();
 
-        adminPortLabel = new JLabel("Administrator Port:");
-        adminPortField = new MirthTextField();
+        httpsPortLabel = new JLabel("HTTPS Port:");
+        httpsPortField = new MirthTextField();
 
         serverMemoryLabel = new JLabel("Server Memory (mb):");
         serverMemoryField = new MirthTextField();
@@ -382,13 +382,13 @@ public class ManagerDialog extends JDialog {
         servicePanel.add(refreshLabel, "wrap");
         servicePanel.add(startup, "span, push");
 
-        serverPanel.add(webstartPortLabel);
-        serverPanel.add(webstartPortField, "w 55!, h 22!");
+        serverPanel.add(httpPortLabel);
+        serverPanel.add(httpPortField, "w 55!, h 22!");
         serverPanel.add(mainLogLevelLabel);
         serverPanel.add(mainLogLevelCombobox, "w 80!, wrap");
 
-        serverPanel.add(adminPortLabel);
-        serverPanel.add(adminPortField, "w 55!, h 22!");
+        serverPanel.add(httpsPortLabel);
+        serverPanel.add(httpsPortField, "w 55!, h 22!");
         serverPanel.add(databaseLogLevelLabel);
         serverPanel.add(databaseLogLevelCombobox, "w 80!, wrap");
 
@@ -533,8 +533,8 @@ public class ManagerDialog extends JDialog {
         serverMemoryField.setText(managerController.getServiceXmx());
         serverVersionField.setText(managerController.getServerVersion());
         javaVersionField.setText(System.getProperty("java.version"));
-        webstartPortField.setText(managerController.getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT));
-        adminPortField.setText(managerController.getServerProperties().getString(ManagerConstants.SERVER_ADMINISTRATOR_PORT));
+        httpPortField.setText(managerController.getServerProperties().getString(ManagerConstants.SERVER_HTTP_PORT));
+        httpsPortField.setText(managerController.getServerProperties().getString(ManagerConstants.SERVER_HTTPS_PORT));
 
         boolean applyEnabled = isApplyEnabled();
 
@@ -588,8 +588,8 @@ public class ManagerDialog extends JDialog {
             managerController.getLog4jProperties().reload();
         }
 
-        managerController.getServerProperties().setProperty(ManagerConstants.SERVER_WEBSTART_PORT, webstartPortField.getText());
-        managerController.getServerProperties().setProperty(ManagerConstants.SERVER_ADMINISTRATOR_PORT, adminPortField.getText());
+        managerController.getServerProperties().setProperty(ManagerConstants.SERVER_HTTP_PORT, httpPortField.getText());
+        managerController.getServerProperties().setProperty(ManagerConstants.SERVER_HTTPS_PORT, httpsPortField.getText());
 
         managerController.getServerProperties().setProperty(ManagerConstants.DATABASE_TYPE, ((String) databaseTypeCombobox.getSelectedItem()));
         managerController.getServerProperties().setProperty(ManagerConstants.DATABASE_URL, databaseUrlField.getText());
@@ -667,10 +667,10 @@ public class ManagerDialog extends JDialog {
 
     // Server Panel, a lot of the labels can probably just be added to the layout...
     private JPanel serverPanel;
-    private JLabel webstartPortLabel;
-    private MirthTextField webstartPortField;
-    private JLabel adminPortLabel;
-    private MirthTextField adminPortField;
+    private JLabel httpPortLabel;
+    private MirthTextField httpPortField;
+    private JLabel httpsPortLabel;
+    private MirthTextField httpsPortField;
     private JLabel serverMemoryLabel;
     private MirthTextField serverMemoryField;
     private JList serverLogFiles;
