@@ -1661,7 +1661,12 @@ public class CommandLineInterface {
             channelIds.add(channel.getId());
         }
 
-        client.deployChannels(channelIds);
+        // Only deploy if the wildcard is being used, or if any channels were actually matched
+        if (CollectionUtils.isNotEmpty(channelIds) || arguments[2] == Token.WILDCARD) {
+            client.deployChannels(channelIds);
+        } else {
+            out.println("No channels matched ID or name \"" + arguments[2].getText() + "\".");
+        }
     }
 
     private void commandChannelUndeploy(Token[] arguments) throws ClientException {
@@ -1671,7 +1676,12 @@ public class CommandLineInterface {
             channelIds.add(channel.getId());
         }
 
-        client.undeployChannels(channelIds);
+        // Only undeploy if the wildcard is being used, or if any channels were actually matched
+        if (CollectionUtils.isNotEmpty(channelIds) || arguments[2] == Token.WILDCARD) {
+            client.undeployChannels(channelIds);
+        } else {
+            out.println("No channels matched ID or name \"" + arguments[2].getText() + "\".");
+        }
     }
 
     /**
