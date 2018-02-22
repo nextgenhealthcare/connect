@@ -2536,12 +2536,10 @@ public class ChannelPanel extends AbstractFramePanel {
                 dashboardStatusMap.put(status.getChannelId(), status);
             }
 
-            // Remove any dashboard statuses that are already contained in a non-default channel group
+            // Remove any dashboard statuses that are already contained in a channel group
             for (ChannelGroupStatus groupStatus : this.groupStatuses.values()) {
-                if (!StringUtils.equals(groupStatus.getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
-                    for (Channel channel : groupStatus.getGroup().getChannels()) {
-                        dashboardStatusMap.remove(channel.getId());
-                    }
+                for (Channel channel : groupStatus.getGroup().getChannels()) {
+                    dashboardStatusMap.remove(channel.getId());
                 }
             }
 
