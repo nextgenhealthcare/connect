@@ -2561,12 +2561,34 @@ public class ChannelPanel extends AbstractFramePanel {
 
                 // Add each channel to the default group
                 for (DashboardStatus status : dashboardStatusMap.values()) {
-                    defaultGroup.getChannels().add(new Channel(status.getChannelId()));
+                    // Make sure not to add channels that already exist in the default group
+                    boolean found = false;
+                    for (Channel channel : defaultGroup.getChannels()) {
+                        if (StringUtils.equals(channel.getId(), status.getChannelId())) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        defaultGroup.getChannels().add(new Channel(status.getChannelId()));
+                    }
 
                     // If the channel status happens to exist, add that as well
                     ChannelStatus channelStatus = this.channelStatuses.get(status.getChannelId());
                     if (channelStatus != null) {
-                        defaultGroupChannelStatuses.add(channelStatus);
+                        // Make sure not to add channel statuses that already exist in the default group
+                        found = false;
+                        for (ChannelStatus defaultGroupChannelStatus : defaultGroupChannelStatuses) {
+                            if (defaultGroupChannelStatus.getChannel() != null && StringUtils.equals(defaultGroupChannelStatus.getChannel().getId(), status.getChannelId())) {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found) {
+                            defaultGroupChannelStatuses.add(channelStatus);
+                        }
                     }
                 }
             }
