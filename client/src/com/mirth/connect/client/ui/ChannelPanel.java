@@ -2528,6 +2528,53 @@ public class ChannelPanel extends AbstractFramePanel {
         }
     }
 
+    public void updateDefaultChannelGroup(List<DashboardStatus> statuses) {
+        if (statuses != null && this.groupStatuses != null) {
+            // Build up a map by the channel ID for convenience
+            Map<String, DashboardStatus> dashboardStatusMap = new HashMap<String, DashboardStatus>();
+            for (DashboardStatus status : statuses) {
+                dashboardStatusMap.put(status.getChannelId(), status);
+            }
+
+            // Remove any dashboard statuses that are already contained in a non-default channel group
+            for (ChannelGroupStatus groupStatus : this.groupStatuses.values()) {
+                if (!StringUtils.equals(groupStatus.getGroup().getId(), ChannelGroup.DEFAULT_ID)) {
+                    for (Channel channel : groupStatus.getGroup().getChannels()) {
+                        dashboardStatusMap.remove(channel.getId());
+                    }
+                }
+            }
+
+            /*
+             * If the status map is not empty, it means there are extra channels not in any group
+             * and not in the cached group statuses. We need to add those to the default channel
+             * group.
+             */
+            if (!dashboardStatusMap.isEmpty()) {
+                // Get the default group if it exists, otherwise create it
+                ChannelGroupStatus defaultGroupStatus = this.groupStatuses.get(ChannelGroup.DEFAULT_ID);
+                if (defaultGroupStatus == null) {
+                    ChannelGroup defaultGroup = ChannelGroup.getDefaultGroup();
+                    defaultGroupStatus = new ChannelGroupStatus(defaultGroup, new ArrayList<ChannelStatus>());
+                    this.groupStatuses.put(defaultGroup.getId(), defaultGroupStatus);
+                }
+                ChannelGroup defaultGroup = defaultGroupStatus.getGroup();
+                List<ChannelStatus> defaultGroupChannelStatuses = defaultGroupStatus.getChannelStatuses();
+
+                // Add each channel to the default group
+                for (DashboardStatus status : dashboardStatusMap.values()) {
+                    defaultGroup.getChannels().add(new Channel(status.getChannelId()));
+
+                    // If the channel status happens to exist, add that as well
+                    ChannelStatus channelStatus = this.channelStatuses.get(status.getChannelId());
+                    if (channelStatus != null) {
+                        defaultGroupChannelStatuses.add(channelStatus);
+                    }
+                }
+            }
+        }
+    }
+
     private void updateChannelGroups(List<ChannelGroup> channelGroups) {
         if (channelGroups != null) {
             this.groupStatuses.clear();
