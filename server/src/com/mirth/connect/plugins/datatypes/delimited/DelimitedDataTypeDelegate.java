@@ -33,7 +33,7 @@ public class DelimitedDataTypeDelegate implements DataTypeDelegate {
     }
 
     @Override
-    public SerializationType getSerializationType() {
+    public SerializationType getDefaultSerializationType() {
         return SerializationType.XML;
     }
 

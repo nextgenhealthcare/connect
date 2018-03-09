@@ -43,8 +43,8 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
     /**
      * Get the serialization type
      */
-    final public SerializationType getSerializationType() {
-        return getDataTypeDelegate().getSerializationType();
+    final public SerializationType getDefaultSerializationType() {
+        return getDataTypeDelegate().getDefaultSerializationType();
     }
 
     /**
@@ -97,7 +97,7 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
     public String getNodeText(MessageVocabulary vocabulary, Element element) {
         return getNodeText(vocabulary, element.getNodeName());
     }
-    
+
     /**
      * Get the node text for a given element in the tree.
      */

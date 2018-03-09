@@ -18,16 +18,18 @@ public class DataType {
     private MessageSerializer serializer;
     private AutoResponder autoResponder;
     private SerializationType serializationType;
+    private SerializationType templateSerializationType;
 
     public DataType(String type, MessageSerializer serializer, AutoResponder autoResponder) {
-        this(type, serializer, autoResponder, SerializationType.XML);
+        this(type, serializer, autoResponder, SerializationType.XML, SerializationType.XML);
     }
 
-    public DataType(String type, MessageSerializer serializer, AutoResponder autoResponder, SerializationType serializationType) {
+    public DataType(String type, MessageSerializer serializer, AutoResponder autoResponder, SerializationType serializationType, SerializationType templateSerializationType) {
         this.type = type;
         this.serializer = serializer;
         this.autoResponder = autoResponder;
         this.serializationType = serializationType;
+        this.templateSerializationType = templateSerializationType;
     }
 
     public String getType() {
@@ -44,5 +46,9 @@ public class DataType {
 
     public SerializationType getSerializationType() {
         return serializationType;
+    }
+
+    public SerializationType getTemplateSerializationType() {
+        return templateSerializationType;
     }
 }
