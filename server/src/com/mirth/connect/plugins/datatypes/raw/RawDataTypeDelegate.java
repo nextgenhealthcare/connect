@@ -33,7 +33,7 @@ public class RawDataTypeDelegate implements DataTypeDelegate {
     }
 
     @Override
-    public SerializationType getSerializationType() {
+    public SerializationType getDefaultSerializationType() {
         return SerializationType.RAW;
     }
 

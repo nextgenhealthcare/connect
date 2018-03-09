@@ -21,7 +21,7 @@ public class HL7v2DataTypeDelegate implements DataTypeDelegate {
     public String getName() {
         return "HL7V2";
     }
-    
+
     @Override
     public IMessageSerializer getSerializer(SerializerProperties properties) {
         return new ER7Serializer(properties);
@@ -31,12 +31,12 @@ public class HL7v2DataTypeDelegate implements DataTypeDelegate {
     public boolean isBinary() {
         return false;
     }
-    
+
     @Override
-    public SerializationType getSerializationType() {
+    public SerializationType getDefaultSerializationType() {
         return SerializationType.XML;
     }
-    
+
     @Override
     public DataTypeProperties getDefaultProperties() {
         return new HL7v2DataTypeProperties();

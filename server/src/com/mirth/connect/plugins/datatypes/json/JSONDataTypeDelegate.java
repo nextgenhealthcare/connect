@@ -33,7 +33,7 @@ public class JSONDataTypeDelegate implements DataTypeDelegate {
     }
 
     @Override
-    public SerializationType getSerializationType() {
+    public SerializationType getDefaultSerializationType() {
         return SerializationType.JSON;
     }
 

@@ -20,7 +20,7 @@ import com.mirth.connect.server.controllers.ExtensionController;
 
 public class DataTypeFactory {
 
-    public static DataType getDataType(String dataType, DataTypeProperties dataTypeProperties) {
+    public static DataType getDataType(String dataType, DataTypeProperties dataTypeProperties, boolean inbound) {
         // Get the data type plugin
         DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(dataType);
 
@@ -34,10 +34,41 @@ public class DataTypeFactory {
             autoResponder = new DefaultAutoResponder();
         }
 
-        // Get the serialization type
-        SerializationType serializationType = dataTypePlugin.getSerializationType();
+        // Get the serialization types
+        SerializationType serializationType = getSerializationType(dataTypePlugin, dataTypeProperties, inbound);
+        SerializationType templateSerializationType = getSerializationType(dataTypePlugin, dataTypeProperties, true);
 
         // Return the data type
-        return new DataType(dataType, serializer, autoResponder, serializationType);
+        return new DataType(dataType, serializer, autoResponder, serializationType, templateSerializationType);
+    }
+
+    public static SerializationType getSerializationType(String dataType, DataTypeProperties dataTypeProperties, boolean useSerializationProperties) {
+        DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(dataType);
+        return getSerializationType(dataTypePlugin, dataTypeProperties, useSerializationProperties);
+    }
+
+    public static SerializationType getSerializationType(DataTypeServerPlugin dataTypePlugin, DataTypeProperties dataTypeProperties, boolean useSerializationProperties) {
+        SerializationType serializationType = null;
+
+        /*
+         * Attempt to get the serialization type from the Serialization properties (if inbound) or
+         * Deserialization properties (if outbound). If the properties don't exist or the returned
+         * serialization type is null, use the data type default serialization type.
+         */
+        if (dataTypeProperties != null) {
+            if (useSerializationProperties) {
+                if (dataTypeProperties.getSerializationProperties() != null) {
+                    serializationType = dataTypeProperties.getSerializationProperties().getSerializationType();
+                }
+            } else if (dataTypeProperties.getDeserializationProperties() != null) {
+                serializationType = dataTypeProperties.getDeserializationProperties().getSerializationType();
+            }
+        }
+
+        if (serializationType == null) {
+            serializationType = dataTypePlugin.getDefaultSerializationType();
+        }
+
+        return serializationType;
     }
 }

@@ -33,7 +33,7 @@ public class HL7V3DataTypeDelegate implements DataTypeDelegate {
     }
 
     @Override
-    public SerializationType getSerializationType() {
+    public SerializationType getDefaultSerializationType() {
         return SerializationType.XML;
     }
 

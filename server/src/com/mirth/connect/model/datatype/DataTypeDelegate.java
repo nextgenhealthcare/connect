@@ -32,7 +32,7 @@ public interface DataTypeDelegate {
     /**
      * Get the serialization type
      */
-    public SerializationType getSerializationType();
+    public SerializationType getDefaultSerializationType();
 
     /**
      * Get the default properties of the data type. Must not return null.

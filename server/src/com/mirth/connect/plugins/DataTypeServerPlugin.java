@@ -47,8 +47,8 @@ public abstract class DataTypeServerPlugin implements ServerPlugin {
     /**
      * Get the serialization type
      */
-    final public SerializationType getSerializationType() {
-        return getDataTypeDelegate().getSerializationType();
+    final public SerializationType getDefaultSerializationType() {
+        return getDataTypeDelegate().getDefaultSerializationType();
     }
 
     /**
