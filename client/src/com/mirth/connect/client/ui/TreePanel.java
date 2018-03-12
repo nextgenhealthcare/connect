@@ -367,7 +367,15 @@ public class TreePanel extends javax.swing.JPanel {
 
             DataTypeClientPlugin clientPlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType);
 
-            switch (clientPlugin.getSerializationType()) {
+            SerializationType serializationType = null;
+            if (dataTypeProperties != null && dataTypeProperties.getSerializationProperties() != null) {
+                serializationType = dataTypeProperties.getSerializationProperties().getSerializationType();
+            }
+            if (serializationType == null) {
+                serializationType = clientPlugin.getDefaultSerializationType();
+            }
+
+            switch (serializationType) {
                 case JSON:
                     try {
                         serializer = clientPlugin.getSerializer(dataTypeProperties.getSerializerProperties());

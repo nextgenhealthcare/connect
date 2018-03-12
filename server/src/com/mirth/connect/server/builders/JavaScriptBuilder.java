@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.Rule;
@@ -29,11 +30,11 @@ import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.util.JavaScriptConstants;
-import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.controllers.CodeTemplateController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.message.DataTypeFactory;
 import com.mirth.connect.util.CodeTemplateUtil;
 import com.mirth.connect.util.ScriptBuilderException;
 
@@ -138,9 +139,9 @@ public class JavaScriptBuilder {
 
         StringBuilder builder = new StringBuilder();
 
-        DataTypeServerPlugin inboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType());
+        SerializationType inboundSerializationType = DataTypeFactory.getSerializationType(transformer.getInboundDataType(), transformer.getInboundProperties(), true);
 
-        switch (inboundServerPlugin.getSerializationType()) {
+        switch (inboundSerializationType) {
             case JSON:
                 builder.append("msg = JSON.parse(connectorMessage.getTransformedData());\n");
                 break;
@@ -160,9 +161,9 @@ public class JavaScriptBuilder {
 
         // Turn the outbound template into an E4X XML object, if there is one
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-            DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
+            SerializationType templateSerializationType = DataTypeFactory.getSerializationType(transformer.getOutboundDataType(), transformer.getOutboundProperties(), true);
 
-            switch (outboundServerPlugin.getSerializationType()) {
+            switch (templateSerializationType) {
                 case JSON:
                     builder.append("tmp = JSON.parse(template);\n");
                     break;
@@ -192,9 +193,9 @@ public class JavaScriptBuilder {
 
         StringBuilder builder = new StringBuilder();
 
-        DataTypeServerPlugin inboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType());
+        SerializationType inboundSerializationType = DataTypeFactory.getSerializationType(transformer.getInboundDataType(), transformer.getInboundProperties(), true);
 
-        switch (inboundServerPlugin.getSerializationType()) {
+        switch (inboundSerializationType) {
             case JSON:
                 // Turn the inbound message into a JavaScript object
                 builder.append("msg = JSON.parse(connectorMessage.getResponseTransformedData());\n");
@@ -214,9 +215,9 @@ public class JavaScriptBuilder {
         }
 
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-            DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
+            SerializationType templateSerializationType = DataTypeFactory.getSerializationType(transformer.getOutboundDataType(), transformer.getOutboundProperties(), true);
 
-            switch (outboundServerPlugin.getSerializationType()) {
+            switch (templateSerializationType) {
                 case JSON:
                     // Turn the outbound template into a JavaScript object, if there is one
                     builder.append("tmp = JSON.parse(template);\n");
@@ -464,7 +465,7 @@ public class JavaScriptBuilder {
         builder.append("        return AttachmentUtil.getMessageAttachment(connectorMessage, arguments[0], !!arguments[1] || false);\n");
         builder.append("    }\n");
         builder.append("}\n");
-        
+
         // Helper function to update a specific attachment (returns Attachment)
         builder.append("function updateAttachment() {\n");
         builder.append("    if (arguments.length >= 5) {\n");

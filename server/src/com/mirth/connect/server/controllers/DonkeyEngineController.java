@@ -1330,8 +1330,8 @@ public class DonkeyEngineController implements EngineController {
         Transformer transformer = connectorModel.getTransformer();
         Filter filter = connectorModel.getFilter();
 
-        DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties());
-        DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties());
+        DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties(), true);
+        DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties(), false);
 
         // Check the conditions for skipping transformation
         // 1. Script is not empty
@@ -1359,7 +1359,8 @@ public class DonkeyEngineController implements EngineController {
             MessageSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
 
             // Serialize template to XML only if serialization type is XML
-            if (outboundServerPlugin.isBinary() || outboundServerPlugin.getSerializationType() != SerializationType.XML) {
+            SerializationType templateSerializationType = DataTypeFactory.getSerializationType(outboundServerPlugin, transformer.getOutboundProperties(), true);
+            if (outboundServerPlugin.isBinary() || templateSerializationType != SerializationType.XML) {
                 template = transformer.getOutboundTemplate();
             } else {
                 try {
@@ -1387,8 +1388,8 @@ public class DonkeyEngineController implements EngineController {
         String template = null;
         Transformer transformer = connectorModel.getResponseTransformer();
 
-        DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties());
-        DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties());
+        DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties(), true);
+        DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties(), false);
 
         // Check the conditions for skipping transformation
         // 1. Script is not empty
@@ -1416,7 +1417,8 @@ public class DonkeyEngineController implements EngineController {
             MessageSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
 
             // Serialize template to XML only if serialization type is XML
-            if (outboundServerPlugin.isBinary() || outboundServerPlugin.getSerializationType() != SerializationType.XML) {
+            SerializationType templateSerializationType = DataTypeFactory.getSerializationType(outboundServerPlugin, transformer.getOutboundProperties(), true);
+            if (outboundServerPlugin.isBinary() || templateSerializationType != SerializationType.XML) {
                 template = transformer.getOutboundTemplate();
             } else {
                 try {
@@ -1497,8 +1499,8 @@ public class DonkeyEngineController implements EngineController {
 
         Transformer transformerModel = connectorModel.getTransformer();
 
-        connector.setInboundDataType(DataTypeFactory.getDataType(transformerModel.getInboundDataType(), transformerModel.getInboundProperties()));
-        connector.setOutboundDataType(DataTypeFactory.getDataType(transformerModel.getOutboundDataType(), transformerModel.getOutboundProperties()));
+        connector.setInboundDataType(DataTypeFactory.getDataType(transformerModel.getInboundDataType(), transformerModel.getInboundProperties(), true));
+        connector.setOutboundDataType(DataTypeFactory.getDataType(transformerModel.getOutboundDataType(), transformerModel.getOutboundProperties(), false));
     }
 
     private MetaDataReplacer createMetaDataReplacer(com.mirth.connect.model.Connector connectorModel) {

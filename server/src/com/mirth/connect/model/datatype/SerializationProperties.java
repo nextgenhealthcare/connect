@@ -9,6 +9,16 @@
 
 package com.mirth.connect.model.datatype;
 
+import com.mirth.connect.donkey.model.message.SerializationType;
+
 public abstract class SerializationProperties extends DataTypePropertiesGroup {
 
+    /**
+     * If this returns null, the data type default serialization type will be used.
+     */
+    public SerializationType getSerializationType() {
+        return null;
+    }
+
+    public void setSerializationType(SerializationType serializationType) {}
 }
