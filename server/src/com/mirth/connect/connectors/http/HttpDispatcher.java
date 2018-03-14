@@ -115,12 +115,12 @@ public class HttpDispatcher extends DestinationConnector {
     private static final Pattern AUTH_HEADER_PATTERN = Pattern.compile("([^\\s=,]+)\\s*=\\s*([^=,;\"\\s]+|\"([^\"]|\\\\[\\s\\S])*(?<!\\\\)\")");
     private static final int MAX_MAP_SIZE = 100;
 
-    private Logger logger = Logger.getLogger(this.getClass());
-    private HttpDispatcherProperties connectorProperties;
+    protected Logger logger = Logger.getLogger(this.getClass());
+    protected HttpDispatcherProperties connectorProperties;
 
-    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    protected ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    protected EventController eventController = ControllerFactory.getFactory().createEventController();
+    protected TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     private Map<Long, CloseableHttpClient> clients = new ConcurrentHashMap<Long, CloseableHttpClient>();
     private HttpConfiguration configuration;
