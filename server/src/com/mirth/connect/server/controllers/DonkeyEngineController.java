@@ -1358,16 +1358,19 @@ public class DonkeyEngineController implements EngineController {
             DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
             MessageSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
 
-            // Serialize template to XML only if serialization type is XML
+            // Serialize template based on serialization type
             SerializationType templateSerializationType = DataTypeFactory.getSerializationType(outboundServerPlugin, transformer.getOutboundProperties(), true);
-            if (outboundServerPlugin.isBinary() || templateSerializationType != SerializationType.XML) {
-                template = transformer.getOutboundTemplate();
-            } else {
-                try {
+
+            try {
+                if (outboundServerPlugin.isBinary() || templateSerializationType == SerializationType.RAW) {
+                    template = transformer.getOutboundTemplate();
+                } else if (templateSerializationType == SerializationType.JSON) {
+                    template = serializer.toJSON(transformer.getOutboundTemplate());
+                } else {
                     template = serializer.toXML(transformer.getOutboundTemplate());
-                } catch (MessageSerializerException e) {
-                    throw new MessageSerializerException("Error serializing transformer outbound template for connector \"" + connectorModel.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
                 }
+            } catch (MessageSerializerException e) {
+                throw new MessageSerializerException("Error serializing transformer outbound template for connector \"" + connectorModel.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
             }
 
             runFilterTransformer = true;
@@ -1416,16 +1419,19 @@ public class DonkeyEngineController implements EngineController {
             DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
             MessageSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
 
-            // Serialize template to XML only if serialization type is XML
+            // Serialize template based on serialization type
             SerializationType templateSerializationType = DataTypeFactory.getSerializationType(outboundServerPlugin, transformer.getOutboundProperties(), true);
-            if (outboundServerPlugin.isBinary() || templateSerializationType != SerializationType.XML) {
-                template = transformer.getOutboundTemplate();
-            } else {
-                try {
+
+            try {
+                if (outboundServerPlugin.isBinary() || templateSerializationType == SerializationType.RAW) {
+                    template = transformer.getOutboundTemplate();
+                } else if (templateSerializationType == SerializationType.JSON) {
+                    template = serializer.toJSON(transformer.getOutboundTemplate());
+                } else {
                     template = serializer.toXML(transformer.getOutboundTemplate());
-                } catch (MessageSerializerException e) {
-                    throw new MessageSerializerException("Error serializing response transformer outbound template for connector \"" + connectorModel.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
                 }
+            } catch (MessageSerializerException e) {
+                throw new MessageSerializerException("Error serializing response transformer outbound template for connector \"" + connectorModel.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
             }
 
             runResponseTransformer = true;
