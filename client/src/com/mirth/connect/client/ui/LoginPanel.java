@@ -447,14 +447,17 @@ public class LoginPanel extends javax.swing.JFrame {
 
                         if (loginStatus instanceof ExtendedLoginStatus) {
                             ExtendedLoginStatus extendedLoginStatus = (ExtendedLoginStatus) loginStatus;
-                            String updatedUsername = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username.getText());
-                            MultiFactorAuthenticationClientPlugin plugin = (MultiFactorAuthenticationClientPlugin) Class.forName(extendedLoginStatus.getClientPluginClass()).newInstance();
 
-                            loginStatus = plugin.authenticate(LoginPanel.this, client, updatedUsername, loginStatus);
+                            if (StringUtils.isNotBlank(extendedLoginStatus.getClientPluginClass())) {
+                                String updatedUsername = StringUtils.defaultString(loginStatus.getUpdatedUsername(), username.getText());
+                                MultiFactorAuthenticationClientPlugin plugin = (MultiFactorAuthenticationClientPlugin) Class.forName(extendedLoginStatus.getClientPluginClass()).newInstance();
 
-                            if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
-                                errorOccurred = false;
-                                handleSuccess(loginStatus);
+                                loginStatus = plugin.authenticate(LoginPanel.this, client, updatedUsername, loginStatus);
+
+                                if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
+                                    errorOccurred = false;
+                                    handleSuccess(loginStatus);
+                                }
                             }
                         }
                     }
