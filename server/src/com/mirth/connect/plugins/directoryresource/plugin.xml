@@ -2,7 +2,7 @@
 	<name>Directory Resource Plugin</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.5.1</mirthVersion>
+	<mirthVersion>3.5.2</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin allows a directory to be used as a source for libraries to include in channels.</description>
 	<serverClasses>

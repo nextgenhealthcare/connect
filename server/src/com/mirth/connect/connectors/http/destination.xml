@@ -2,7 +2,7 @@
 	<name>HTTP Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.5.1</mirthVersion>
+	<mirthVersion>3.5.2</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send messages to an HTTP server. Custom header properties can be specified.</description>
 	<clientClassName>com.mirth.connect.connectors.http.HttpSender</clientClassName>
