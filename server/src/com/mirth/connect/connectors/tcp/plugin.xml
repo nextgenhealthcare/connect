@@ -2,7 +2,7 @@
 	<name>TCP Connector Service Plugin</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.5.1</mirthVersion>
+	<mirthVersion>3.5.2</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin is required for correct use of the TCP connectors.</description>
 	<serverClasses>
