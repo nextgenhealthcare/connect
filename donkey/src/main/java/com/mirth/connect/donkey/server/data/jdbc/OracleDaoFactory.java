@@ -9,12 +9,16 @@
 
 package com.mirth.connect.donkey.server.data.jdbc;
 
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
+import com.mirth.connect.donkey.server.data.StatisticsUpdater;
 import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class OracleDaoFactory extends JdbcDaoFactory {
@@ -30,6 +34,14 @@ public class OracleDaoFactory extends JdbcDaoFactory {
         JdbcDao dao = super.getDao(serializerProvider);
         dao.setAsyncCommitCommand(getAsyncCommitCommand(dao));
         return dao;
+    }
+
+    @Override
+    protected JdbcDao getDao(Donkey donkey, Connection connection, QuerySource querySource,
+    		PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptData,
+    		boolean decryptData, StatisticsUpdater statisticsUpdater, Statistics currentStats, Statistics totalStats,
+    		String statsServerId) {
+    	return new OracleJdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, statisticsUpdater, currentStats, totalStats, statsServerId);
     }
 
     private String getAsyncCommitCommand(JdbcDao dao) {
