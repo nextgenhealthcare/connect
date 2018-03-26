@@ -59,72 +59,75 @@ import com.mirth.connect.donkey.util.MapUtil;
 import com.mirth.connect.donkey.util.SerializerProvider;
 
 public class JdbcDao implements DonkeyDao {
-    private Donkey donkey;
-    private Connection connection;
-    private QuerySource querySource;
-    private PreparedStatementSource statementSource;
-    private SerializerProvider serializerProvider;
-    private boolean encryptData;
-    private boolean decryptData;
-    private StatisticsUpdater statisticsUpdater;
-    private Set<ContentType> alwaysDecrypt = new HashSet<ContentType>();
-    private Encryptor encryptor;
-    private Statistics currentStats;
-    private Statistics totalStats;
-    private Statistics transactionStats = new Statistics(false, true);
-    private Map<String, Map<Integer, Set<Status>>> resetCurrentStats = new HashMap<String, Map<Integer, Set<Status>>>();
-    private Map<String, Map<Integer, Set<Status>>> resetTotalStats = new HashMap<String, Map<Integer, Set<Status>>>();
-    private List<String> removedChannelIds = new ArrayList<String>();
-    private String asyncCommitCommand;
-    private Map<String, Long> localChannelIds;
-    private String statsServerId;
-    private boolean transactionAlteredChannels = false;
-    private char quoteChar = '"';
-    private Logger logger = Logger.getLogger(this.getClass());
+	private Donkey donkey;
+	private Connection connection;
+	private QuerySource querySource;
+	private PreparedStatementSource statementSource;
+	private SerializerProvider serializerProvider;
+	private boolean encryptData;
+	private boolean decryptData;
+	private StatisticsUpdater statisticsUpdater;
+	private Set<ContentType> alwaysDecrypt = new HashSet<ContentType>();
+	private Encryptor encryptor;
+	private Statistics currentStats;
+	private Statistics totalStats;
+	private Statistics transactionStats = new Statistics(false, true);
+	private Map<String, Map<Integer, Set<Status>>> resetCurrentStats = new HashMap<String, Map<Integer, Set<Status>>>();
+	private Map<String, Map<Integer, Set<Status>>> resetTotalStats = new HashMap<String, Map<Integer, Set<Status>>>();
+	private List<String> removedChannelIds = new ArrayList<String>();
+	private String asyncCommitCommand;
+	private Map<String, Long> localChannelIds;
+	private String statsServerId;
+	private boolean transactionAlteredChannels = false;
+	private char quoteChar = '"';
+	private Logger logger = Logger.getLogger(this.getClass());
 
-    protected JdbcDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, StatisticsUpdater statisticsUpdater, Statistics currentStats, Statistics totalStats, String statsServerId) {
-        this.donkey = donkey;
-        this.connection = connection;
-        this.querySource = querySource;
-        this.statementSource = statementSource;
-        this.serializerProvider = serializerProvider;
-        this.encryptData = encryptData;
-        this.decryptData = decryptData;
-        this.statisticsUpdater = statisticsUpdater;
-        this.currentStats = currentStats;
-        this.totalStats = totalStats;
-        this.statsServerId = statsServerId;
-        encryptor = donkey.getEncryptor();
-        alwaysDecrypt.addAll(Arrays.asList(ContentType.getMapTypes()));
-        alwaysDecrypt.addAll(Arrays.asList(ContentType.getErrorTypes()));
+	protected JdbcDao(Donkey donkey, Connection connection, QuerySource querySource,
+			PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptData,
+			boolean decryptData, StatisticsUpdater statisticsUpdater, Statistics currentStats, Statistics totalStats,
+			String statsServerId) {
+		this.donkey = donkey;
+		this.connection = connection;
+		this.querySource = querySource;
+		this.statementSource = statementSource;
+		this.serializerProvider = serializerProvider;
+		this.encryptData = encryptData;
+		this.decryptData = decryptData;
+		this.statisticsUpdater = statisticsUpdater;
+		this.currentStats = currentStats;
+		this.totalStats = totalStats;
+		this.statsServerId = statsServerId;
+		encryptor = donkey.getEncryptor();
+		alwaysDecrypt.addAll(Arrays.asList(ContentType.getMapTypes()));
+		alwaysDecrypt.addAll(Arrays.asList(ContentType.getErrorTypes()));
 
-        logger.debug("Opened connection");
-    }
-    
-    @Override
-    public void setEncryptData(boolean encryptData) {
-        this.encryptData = encryptData;
-    }
+		logger.debug("Opened connection");
+	}
 
-    @Override
-    public void setDecryptData(boolean decryptData) {
-        this.decryptData = decryptData;
-    }
-    
-    @Override
-    public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
-        this.statisticsUpdater = statisticsUpdater;
-    }
+	@Override
+	public void setEncryptData(boolean encryptData) {
+		this.encryptData = encryptData;
+	}
 
-    public char getQuoteChar() {
-        return quoteChar;
-    }
+	@Override
+	public void setDecryptData(boolean decryptData) {
+		this.decryptData = decryptData;
+	}
 
-    public void setQuoteChar(char quoteChar) {
-        this.quoteChar = quoteChar;
-    }
+	@Override
+	public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
+		this.statisticsUpdater = statisticsUpdater;
+	}
 
-    @Override
+	public char getQuoteChar() {
+		return quoteChar;
+	}
+
+	public void setQuoteChar(char quoteChar) {
+		this.quoteChar = quoteChar;
+	}
+
+	@Override
 	public void insertMessage(Message message) {
 		logger.debug(message.getChannelId() + "/" + message.getMessageId() + ": inserting message");
 
@@ -168,7 +171,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public void updateSendAttempts(ConnectorMessage connectorMessage) {
 		logger.debug(
 				connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + ": updating send attempts");
@@ -193,14 +196,18 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public void insertMessageContent(MessageContent messageContent) {
-        logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/" + messageContent.getMetaDataId() + ": inserting message content (" + messageContent.getContentType().toString() + ")");
+	@Override
+	public void insertMessageContent(MessageContent messageContent) {
+		logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/"
+				+ messageContent.getMetaDataId() + ": inserting message content ("
+				+ messageContent.getContentType().toString() + ")");
 
-        insertContent(messageContent.getChannelId(), messageContent.getMessageId(), messageContent.getMetaDataId(), messageContent.getContentType(), messageContent.getContent(), messageContent.getDataType(), messageContent.isEncrypted());
-    }
+		insertContent(messageContent.getChannelId(), messageContent.getMessageId(), messageContent.getMetaDataId(),
+				messageContent.getContentType(), messageContent.getContent(), messageContent.getDataType(),
+				messageContent.isEncrypted());
+	}
 
-    @Override
+	@Override
 	public void batchInsertMessageContent(MessageContent messageContent) {
 		logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/"
 				+ messageContent.getMetaDataId() + ": batch inserting message content ("
@@ -237,7 +244,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public void executeBatchInsertMessageContent(String channelId) {
 		logger.debug(channelId + ": executing batch message content insert");
 
@@ -253,12 +260,16 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public void storeMessageContent(MessageContent messageContent) {
-        logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/" + messageContent.getMetaDataId() + ": updating message content (" + messageContent.getContentType().toString() + ")");
+	@Override
+	public void storeMessageContent(MessageContent messageContent) {
+		logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/"
+				+ messageContent.getMetaDataId() + ": updating message content ("
+				+ messageContent.getContentType().toString() + ")");
 
-        storeContent(messageContent.getChannelId(), messageContent.getMessageId(), messageContent.getMetaDataId(), messageContent.getContentType(), messageContent.getContent(), messageContent.getDataType(), messageContent.isEncrypted());
-    }
+		storeContent(messageContent.getChannelId(), messageContent.getMessageId(), messageContent.getMetaDataId(),
+				messageContent.getContentType(), messageContent.getContent(), messageContent.getDataType(),
+				messageContent.isEncrypted());
+	}
 
 	private void insertContent(String channelId, long messageId, int metaDataId, ContentType contentType,
 			String content, String dataType, boolean encrypted) {
@@ -339,63 +350,68 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public void addChannelStatistics(Statistics statistics) {
-        Set<String> failedChannelIds = null;
+	@Override
+	public void addChannelStatistics(Statistics statistics) {
+		Set<String> failedChannelIds = null;
 
-        for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : statistics.getStats().entrySet()) {
-            try {
-                String channelId = channelEntry.getKey();
-                Map<Integer, Map<Status, Long>> channelAndConnectorStats = channelEntry.getValue();
-                Map<Integer, Map<Status, Long>> connectorStatsToUpdate = new HashMap<Integer, Map<Status, Long>>();
-                Map<Status, Long> channelStats = channelAndConnectorStats.get(null);
+		for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : statistics.getStats().entrySet()) {
+			try {
+				String channelId = channelEntry.getKey();
+				Map<Integer, Map<Status, Long>> channelAndConnectorStats = channelEntry.getValue();
+				Map<Integer, Map<Status, Long>> connectorStatsToUpdate = new HashMap<Integer, Map<Status, Long>>();
+				Map<Status, Long> channelStats = channelAndConnectorStats.get(null);
 
-                for (Entry<Integer, Map<Status, Long>> entry : channelAndConnectorStats.entrySet()) {
-                    Integer metaDataId = entry.getKey();
+				for (Entry<Integer, Map<Status, Long>> entry : channelAndConnectorStats.entrySet()) {
+					Integer metaDataId = entry.getKey();
 
-                    // only add connector stats to the statsToUpdate list, not the channel stats
-                    if (metaDataId != null) {
-                        Map<Status, Long> connectorStats = entry.getValue();
+					// only add connector stats to the statsToUpdate list, not
+					// the channel stats
+					if (metaDataId != null) {
+						Map<Status, Long> connectorStats = entry.getValue();
 
-                        if (hasUpdatableStatistics(connectorStats)) {
-                            connectorStatsToUpdate.put(metaDataId, connectorStats);
-                        }
-                    }
-                }
+						if (hasUpdatableStatistics(connectorStats)) {
+							connectorStatsToUpdate.put(metaDataId, connectorStats);
+						}
+					}
+				}
 
-                /*
-                 * MIRTH-3042: With certain channel configurations, SQL Server will encounter a
-                 * deadlock scenario unless we always update the channel stats row and update it
-                 * before the connector stats. We determined that this is because SQL Server creates
-                 * a page lock when the statistics update statement references the existing row
-                 * values in order to increment them (RECEIVED = RECEIVED + ?). Other databases such
-                 * as Postgres use only row locks in this situation so they were not deadlocking.
-                 * The deadlock scenario was only confirmed to happen with a channel with multiple
-                 * asynchronous destinations and destination queues enabled.
-                 */
-                if (!connectorStatsToUpdate.isEmpty() || hasUpdatableStatistics(channelStats)) {
-                    updateStatistics(channelId, null, channelStats);
+				/*
+				 * MIRTH-3042: With certain channel configurations, SQL Server
+				 * will encounter a deadlock scenario unless we always update
+				 * the channel stats row and update it before the connector
+				 * stats. We determined that this is because SQL Server creates
+				 * a page lock when the statistics update statement references
+				 * the existing row values in order to increment them (RECEIVED
+				 * = RECEIVED + ?). Other databases such as Postgres use only
+				 * row locks in this situation so they were not deadlocking. The
+				 * deadlock scenario was only confirmed to happen with a channel
+				 * with multiple asynchronous destinations and destination
+				 * queues enabled.
+				 */
+				if (!connectorStatsToUpdate.isEmpty() || hasUpdatableStatistics(channelStats)) {
+					updateStatistics(channelId, null, channelStats);
 
-                    for (Entry<Integer, Map<Status, Long>> entry : connectorStatsToUpdate.entrySet()) {
-                        updateStatistics(channelId, entry.getKey(), entry.getValue());
-                    }
-                }
-            } catch (ChannelDoesNotExistException e) {
-                if (failedChannelIds == null) {
-                    failedChannelIds = new HashSet<String>();
-                }
-                failedChannelIds.addAll(e.getChannelIds());
-            }
-        }
+					for (Entry<Integer, Map<Status, Long>> entry : connectorStatsToUpdate.entrySet()) {
+						updateStatistics(channelId, entry.getKey(), entry.getValue());
+					}
+				}
+			} catch (ChannelDoesNotExistException e) {
+				if (failedChannelIds == null) {
+					failedChannelIds = new HashSet<String>();
+				}
+				failedChannelIds.addAll(e.getChannelIds());
+			}
+		}
 
-        if (failedChannelIds != null) {
-            throw new ChannelDoesNotExistException(failedChannelIds);
-        }
-    }
+		if (failedChannelIds != null) {
+			throw new ChannelDoesNotExistException(failedChannelIds);
+		}
+	}
 
-    private boolean hasUpdatableStatistics(Map<Status, Long> stats) {
-        return (stats.get(Status.RECEIVED) != 0 || stats.get(Status.FILTERED) != 0 || stats.get(Status.SENT) != 0 || stats.get(Status.ERROR) != 0);
-    }
+	private boolean hasUpdatableStatistics(Map<Status, Long> stats) {
+		return (stats.get(Status.RECEIVED) != 0 || stats.get(Status.FILTERED) != 0 || stats.get(Status.SENT) != 0
+				|| stats.get(Status.ERROR) != 0);
+	}
 
 	private void updateStatistics(String channelId, Integer metaDataId, Map<Status, Long> stats) {
 		long received = stats.get(Status.RECEIVED);
@@ -677,117 +693,138 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
-        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": inserting custom meta data");
-        PreparedStatement statement = null;
+	@Override
+	public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
+		logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/"
+				+ connectorMessage.getMetaDataId() + ": inserting custom meta data");
+		PreparedStatement statement = null;
 
-        try {
-            List<String> metaDataColumnNames = new ArrayList<String>();
-            Map<String, Object> metaDataMap = connectorMessage.getMetaDataMap();
+		try {
+			List<String> metaDataColumnNames = new ArrayList<String>();
+			Map<String, Object> metaDataMap = connectorMessage.getMetaDataMap();
 
-            for (MetaDataColumn metaDataColumn : metaDataColumns) {
-                Object value = metaDataMap.get(metaDataColumn.getName());
+			for (MetaDataColumn metaDataColumn : metaDataColumns) {
+				Object value = metaDataMap.get(metaDataColumn.getName());
 
-                if (value != null) {
-                    metaDataColumnNames.add(metaDataColumn.getName());
-                }
-            }
+				if (value != null) {
+					metaDataColumnNames.add(metaDataColumn.getName());
+				}
+			}
 
-            // Don't do anything if all values were null
-            if (!metaDataColumnNames.isEmpty()) {
-                Map<String, Object> values = new HashMap<String, Object>();
-                values.put("localChannelId", getLocalChannelId(connectorMessage.getChannelId()));
-                values.put("metaDataColumnNames", quoteChar + StringUtils.join(metaDataColumnNames, quoteChar + "," + quoteChar) + quoteChar);
-                values.put("metaDataColumnPlaceholders", "?" + StringUtils.repeat(", ?", metaDataColumnNames.size() - 1));
+			// Don't do anything if all values were null
+			if (!metaDataColumnNames.isEmpty()) {
+				Map<String, Object> values = new HashMap<String, Object>();
+				values.put("localChannelId", getLocalChannelId(connectorMessage.getChannelId()));
+				values.put("metaDataColumnNames",
+						quoteChar + StringUtils.join(metaDataColumnNames, quoteChar + "," + quoteChar) + quoteChar);
+				values.put("metaDataColumnPlaceholders",
+						"?" + StringUtils.repeat(", ?", metaDataColumnNames.size() - 1));
 
-                statement = connection.prepareStatement(querySource.getQuery("insertMetaData", values));
-                statement.setInt(1, connectorMessage.getMetaDataId());
-                statement.setLong(2, connectorMessage.getMessageId());
-                int n = 3;
+				statement = connection.prepareStatement(querySource.getQuery("insertMetaData", values));
+				statement.setInt(1, connectorMessage.getMetaDataId());
+				statement.setLong(2, connectorMessage.getMessageId());
+				int n = 3;
 
-                for (MetaDataColumn metaDataColumn : metaDataColumns) {
-                    Object value = metaDataMap.get(metaDataColumn.getName());
+				for (MetaDataColumn metaDataColumn : metaDataColumns) {
+					Object value = metaDataMap.get(metaDataColumn.getName());
 
-                    if (value != null) {
-                        // @formatter:off
-                        switch (metaDataColumn.getType()) {
-                            case STRING: statement.setString(n, (String) value); break;
-                            case NUMBER: statement.setBigDecimal(n, (BigDecimal) value); break;
-                            case BOOLEAN: statement.setBoolean(n, (Boolean) value); break;
-                            case TIMESTAMP: statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis())); break;
-                        }
-                        // @formatter:on
+					if (value != null) {
+						// @formatter:off
+						switch (metaDataColumn.getType()) {
+						case STRING:
+							statement.setString(n, (String) value);
+							break;
+						case NUMBER:
+							statement.setBigDecimal(n, (BigDecimal) value);
+							break;
+						case BOOLEAN:
+							statement.setBoolean(n, (Boolean) value);
+							break;
+						case TIMESTAMP:
+							statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis()));
+							break;
+						}
+						// @formatter:on
 
-                        n++;
-                    }
-                }
+						n++;
+					}
+				}
 
-                statement.executeUpdate();
-            }
-        } catch (Exception e) {
-            throw new DonkeyDaoException("Failed to insert connector message meta data", e);
-        } finally {
-            close(statement);
-        }
-    }
+				statement.executeUpdate();
+			}
+		} catch (Exception e) {
+			throw new DonkeyDaoException("Failed to insert connector message meta data", e);
+		} finally {
+			close(statement);
+		}
+	}
 
-    @Override
-    public void storeMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
-        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating custom meta data");
-        PreparedStatement statement = null;
+	@Override
+	public void storeMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
+		logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/"
+				+ connectorMessage.getMetaDataId() + ": updating custom meta data");
+		PreparedStatement statement = null;
 
-        try {
-            List<String> metaDataColumnNames = new ArrayList<String>();
-            Map<String, Object> metaDataMap = connectorMessage.getMetaDataMap();
+		try {
+			List<String> metaDataColumnNames = new ArrayList<String>();
+			Map<String, Object> metaDataMap = connectorMessage.getMetaDataMap();
 
-            for (MetaDataColumn metaDataColumn : metaDataColumns) {
-                Object value = metaDataMap.get(metaDataColumn.getName());
+			for (MetaDataColumn metaDataColumn : metaDataColumns) {
+				Object value = metaDataMap.get(metaDataColumn.getName());
 
-                if (value != null) {
-                    metaDataColumnNames.add(metaDataColumn.getName());
-                }
-            }
+				if (value != null) {
+					metaDataColumnNames.add(metaDataColumn.getName());
+				}
+			}
 
-            // Don't do anything if all values were null
-            if (!metaDataColumnNames.isEmpty()) {
-                Map<String, Object> values = new HashMap<String, Object>();
-                values.put("localChannelId", getLocalChannelId(connectorMessage.getChannelId()));
-                values.put("metaDataColumnPlaceholders", quoteChar + StringUtils.join(metaDataColumnNames, quoteChar + " = ?, " + quoteChar) + quoteChar + " = ?");
+			// Don't do anything if all values were null
+			if (!metaDataColumnNames.isEmpty()) {
+				Map<String, Object> values = new HashMap<String, Object>();
+				values.put("localChannelId", getLocalChannelId(connectorMessage.getChannelId()));
+				values.put("metaDataColumnPlaceholders", quoteChar
+						+ StringUtils.join(metaDataColumnNames, quoteChar + " = ?, " + quoteChar) + quoteChar + " = ?");
 
-                statement = connection.prepareStatement(querySource.getQuery("storeMetaData", values));
-                int n = 1;
+				statement = connection.prepareStatement(querySource.getQuery("storeMetaData", values));
+				int n = 1;
 
-                for (MetaDataColumn metaDataColumn : metaDataColumns) {
-                    Object value = metaDataMap.get(metaDataColumn.getName());
+				for (MetaDataColumn metaDataColumn : metaDataColumns) {
+					Object value = metaDataMap.get(metaDataColumn.getName());
 
-                    if (value != null) {
-                        // @formatter:off
-                        switch (metaDataColumn.getType()) {
-                            case STRING: statement.setString(n, (String) value); break;
-                            case NUMBER: statement.setBigDecimal(n, (BigDecimal) value); break;
-                            case BOOLEAN: statement.setBoolean(n, (Boolean) value); break;
-                            case TIMESTAMP: statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis())); break;
-                        }
-                        // @formatter:on
+					if (value != null) {
+						// @formatter:off
+						switch (metaDataColumn.getType()) {
+						case STRING:
+							statement.setString(n, (String) value);
+							break;
+						case NUMBER:
+							statement.setBigDecimal(n, (BigDecimal) value);
+							break;
+						case BOOLEAN:
+							statement.setBoolean(n, (Boolean) value);
+							break;
+						case TIMESTAMP:
+							statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis()));
+							break;
+						}
+						// @formatter:on
 
-                        n++;
-                    }
-                }
+						n++;
+					}
+				}
 
-                statement.setLong(n++, connectorMessage.getMessageId());
-                statement.setInt(n, connectorMessage.getMetaDataId());
+				statement.setLong(n++, connectorMessage.getMessageId());
+				statement.setInt(n, connectorMessage.getMetaDataId());
 
-                statement.executeUpdate();
-            }
-        } catch (Exception e) {
-            throw new DonkeyDaoException("Failed to update connector message meta data", e);
-        } finally {
-            close(statement);
-        }
-    }
+				statement.executeUpdate();
+			}
+		} catch (Exception e) {
+			throw new DonkeyDaoException("Failed to update connector message meta data", e);
+		} finally {
+			close(statement);
+		}
+	}
 
-    @Override
+	@Override
 	public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps, boolean updateStats) {
 		logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/"
 				+ connectorMessage.getMetaDataId() + ": inserting connector message with" + (storeMaps ? "" : "out")
@@ -845,7 +882,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public void deleteMessage(String channelId, long messageId) {
 		logger.debug(channelId + "/" + messageId + ": deleting message");
 
@@ -866,7 +903,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public void deleteConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds) {
 		logger.debug(channelId + "/" + messageId + ": deleting connector messages");
 		long localChannelId = getLocalChannelId(channelId);
@@ -891,8 +928,8 @@ public class JdbcDao implements DonkeyDao {
 				statement = null;
 
 				try {
-					statement = getConnection().prepareStatement(
-							querySource.getQuery("deleteConnectorMessagesByMetaDataIds", values));
+					statement = getConnection()
+							.prepareStatement(querySource.getQuery("deleteConnectorMessagesByMetaDataIds", values));
 					statement.setLong(1, messageId);
 					statement.executeUpdate();
 				} finally {
@@ -906,39 +943,42 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public void deleteMessageStatistics(String channelId, long messageId, Set<Integer> metaDataIds) {
-        Map<Integer, ConnectorMessage> connectorMessages = getConnectorMessages(channelId, messageId, new ArrayList<Integer>(metaDataIds));
-        ConnectorMessage sourceMessage = connectorMessages.get(0);
+	@Override
+	public void deleteMessageStatistics(String channelId, long messageId, Set<Integer> metaDataIds) {
+		Map<Integer, ConnectorMessage> connectorMessages = getConnectorMessages(channelId, messageId,
+				new ArrayList<Integer>(metaDataIds));
+		ConnectorMessage sourceMessage = connectorMessages.get(0);
 
-        /*
-         * The server id on the source message indicates which server last processed/reprocessed the
-         * message. We only want to delete the statistics if the current stats server
-         * (statsServerId) is the server that last processed or reprocessed the message.
-         */
-        if (sourceMessage != null && sourceMessage.getServerId().equals(statsServerId)) {
-            for (Entry<Integer, ConnectorMessage> entry : connectorMessages.entrySet()) {
-                Integer metaDataId = entry.getKey();
-                ConnectorMessage connectorMessage = entry.getValue();
+		/*
+		 * The server id on the source message indicates which server last
+		 * processed/reprocessed the message. We only want to delete the
+		 * statistics if the current stats server (statsServerId) is the server
+		 * that last processed or reprocessed the message.
+		 */
+		if (sourceMessage != null && sourceMessage.getServerId().equals(statsServerId)) {
+			for (Entry<Integer, ConnectorMessage> entry : connectorMessages.entrySet()) {
+				Integer metaDataId = entry.getKey();
+				ConnectorMessage connectorMessage = entry.getValue();
 
-                /*
-                 * We also test if each connector message belongs to the statsServerId before
-                 * deleting.
-                 */
-                if (connectorMessage.getServerId().equals(statsServerId) && (metaDataIds == null || metaDataIds.contains(metaDataId))) {
-                    Status status = connectorMessage.getStatus();
+				/*
+				 * We also test if each connector message belongs to the
+				 * statsServerId before deleting.
+				 */
+				if (connectorMessage.getServerId().equals(statsServerId)
+						&& (metaDataIds == null || metaDataIds.contains(metaDataId))) {
+					Status status = connectorMessage.getStatus();
 
-                    Map<Status, Long> statsDiff = new HashMap<Status, Long>();
-                    statsDiff.put(Status.RECEIVED, -1L);
-                    statsDiff.put(status, -1L);
+					Map<Status, Long> statsDiff = new HashMap<Status, Long>();
+					statsDiff.put(Status.RECEIVED, -1L);
+					statsDiff.put(status, -1L);
 
-                    transactionStats.update(channelId, metaDataId, statsDiff);
-                }
-            }
-        }
-    }
+					transactionStats.update(channelId, metaDataId, statsDiff);
+				}
+			}
+		}
+	}
 
-    @Override
+	@Override
 	public void updateStatus(ConnectorMessage connectorMessage, Status previousStatus) {
 		logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/"
 				+ connectorMessage.getMetaDataId() + ": updating status from " + previousStatus.getStatusCode() + " to "
@@ -971,49 +1011,54 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public void updateErrors(ConnectorMessage connectorMessage) {
-        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating errors");
+	@Override
+	public void updateErrors(ConnectorMessage connectorMessage) {
+		logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/"
+				+ connectorMessage.getMetaDataId() + ": updating errors");
 
-        boolean errorsUpdated = false;
+		boolean errorsUpdated = false;
 
-        if (updateError(connectorMessage.getProcessingErrorContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSING_ERROR)) {
-            errorsUpdated = true;
-        }
+		if (updateError(connectorMessage.getProcessingErrorContent(), connectorMessage.getChannelId(),
+				connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSING_ERROR)) {
+			errorsUpdated = true;
+		}
 
-        if (updateError(connectorMessage.getPostProcessorErrorContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.POSTPROCESSOR_ERROR)) {
-            errorsUpdated = true;
-        }
+		if (updateError(connectorMessage.getPostProcessorErrorContent(), connectorMessage.getChannelId(),
+				connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.POSTPROCESSOR_ERROR)) {
+			errorsUpdated = true;
+		}
 
-        if (updateError(connectorMessage.getResponseErrorContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_ERROR)) {
-            errorsUpdated = true;
-        }
+		if (updateError(connectorMessage.getResponseErrorContent(), connectorMessage.getChannelId(),
+				connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_ERROR)) {
+			errorsUpdated = true;
+		}
 
-        if (errorsUpdated) {
-            updateErrorCode(connectorMessage);
-        }
-    }
+		if (errorsUpdated) {
+			updateErrorCode(connectorMessage);
+		}
+	}
 
-    private boolean updateError(ErrorContent errorContent, String channelId, long messageId, int metaDataId, ContentType contentType) {
-        String error = errorContent.getContent();
-        boolean encrypted = errorContent.isEncrypted();
-        boolean persisted = errorContent.isPersisted();
+	private boolean updateError(ErrorContent errorContent, String channelId, long messageId, int metaDataId,
+			ContentType contentType) {
+		String error = errorContent.getContent();
+		boolean encrypted = errorContent.isEncrypted();
+		boolean persisted = errorContent.isPersisted();
 
-        if (StringUtils.isNotEmpty(error)) {
-            if (persisted) {
-                storeContent(channelId, messageId, metaDataId, contentType, error, null, encrypted);
-            } else {
-                insertContent(channelId, messageId, metaDataId, contentType, error, null, encrypted);
-                errorContent.setPersisted(true);
-            }
-        } else if (persisted) {
-            deleteMessageContentByMetaDataIdAndContentType(channelId, messageId, metaDataId, contentType);
-        } else {
-            return false;
-        }
+		if (StringUtils.isNotEmpty(error)) {
+			if (persisted) {
+				storeContent(channelId, messageId, metaDataId, contentType, error, null, encrypted);
+			} else {
+				insertContent(channelId, messageId, metaDataId, contentType, error, null, encrypted);
+				errorContent.setPersisted(true);
+			}
+		} else if (persisted) {
+			deleteMessageContentByMetaDataIdAndContentType(channelId, messageId, metaDataId, contentType);
+		} else {
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
 	private void updateErrorCode(ConnectorMessage connectorMessage) {
 		PreparedStatement statement = null;
@@ -1032,62 +1077,72 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public void updateMaps(ConnectorMessage connectorMessage) {
-        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating maps");
+	@Override
+	public void updateMaps(ConnectorMessage connectorMessage) {
+		logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/"
+				+ connectorMessage.getMetaDataId() + ": updating maps");
 
-        // We do not include the source map here because that should only be inserted once with the raw content, and after that it's read-only
-        updateMap(connectorMessage.getConnectorMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CONNECTOR_MAP);
-        updateMap(connectorMessage.getChannelMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CHANNEL_MAP);
-        updateMap(connectorMessage.getResponseMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_MAP);
-    }
+		// We do not include the source map here because that should only be
+		// inserted once with the raw content, and after that it's read-only
+		updateMap(connectorMessage.getConnectorMapContent(), connectorMessage.getChannelId(),
+				connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CONNECTOR_MAP);
+		updateMap(connectorMessage.getChannelMapContent(), connectorMessage.getChannelId(),
+				connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CHANNEL_MAP);
+		updateMap(connectorMessage.getResponseMapContent(), connectorMessage.getChannelId(),
+				connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_MAP);
+	}
 
-    private void updateMap(MapContent mapContent, String channelId, long messageId, int metaDataId, ContentType contentType) {
-        if (mapContent != null) {
-            boolean encrypted = mapContent.isEncrypted();
-            boolean persisted = mapContent.isPersisted();
+	private void updateMap(MapContent mapContent, String channelId, long messageId, int metaDataId,
+			ContentType contentType) {
+		if (mapContent != null) {
+			boolean encrypted = mapContent.isEncrypted();
+			boolean persisted = mapContent.isPersisted();
 
-            String content = null;
-            if (encrypted) {
-                content = (String) mapContent.getContent();
-            } else {
-                Map<String, Object> map = mapContent.getMap();
-                if (MapUtils.isNotEmpty(map)) {
-                    content = MapUtil.serializeMap(serializerProvider.getSerializer(metaDataId), map);
-                }
-            }
+			String content = null;
+			if (encrypted) {
+				content = (String) mapContent.getContent();
+			} else {
+				Map<String, Object> map = mapContent.getMap();
+				if (MapUtils.isNotEmpty(map)) {
+					content = MapUtil.serializeMap(serializerProvider.getSerializer(metaDataId), map);
+				}
+			}
 
-            if (content != null) {
-                if (persisted) {
-                    storeContent(channelId, messageId, metaDataId, contentType, content, null, encrypted);
-                } else {
-                    insertContent(channelId, messageId, metaDataId, contentType, content, null, encrypted);
-                    mapContent.setPersisted(true);
-                }
-            } else if (persisted) {
-                deleteMessageContentByMetaDataIdAndContentType(channelId, messageId, metaDataId, contentType);
-            }
-        }
-    }
+			if (content != null) {
+				if (persisted) {
+					storeContent(channelId, messageId, metaDataId, contentType, content, null, encrypted);
+				} else {
+					insertContent(channelId, messageId, metaDataId, contentType, content, null, encrypted);
+					mapContent.setPersisted(true);
+				}
+			} else if (persisted) {
+				deleteMessageContentByMetaDataIdAndContentType(channelId, messageId, metaDataId, contentType);
+			}
+		}
+	}
 
-    @Override
-    public void updateSourceMap(ConnectorMessage connectorMessage) {
-        // Only insert the source map content for the source connector message
-        if (connectorMessage.getMetaDataId() == 0) {
-            logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating source map");
+	@Override
+	public void updateSourceMap(ConnectorMessage connectorMessage) {
+		// Only insert the source map content for the source connector message
+		if (connectorMessage.getMetaDataId() == 0) {
+			logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/"
+					+ connectorMessage.getMetaDataId() + ": updating source map");
 
-            updateMap(connectorMessage.getSourceMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.SOURCE_MAP);
-        }
-    }
+			updateMap(connectorMessage.getSourceMapContent(), connectorMessage.getChannelId(),
+					connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.SOURCE_MAP);
+		}
+	}
 
-    @Override
-    public void updateResponseMap(ConnectorMessage connectorMessage) {
-        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating response map");
+	@Override
+	public void updateResponseMap(ConnectorMessage connectorMessage) {
+		logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/"
+				+ connectorMessage.getMetaDataId() + ": updating response map");
 
-        updateMap(connectorMessage.getResponseMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_MAP);
-    }
+		updateMap(connectorMessage.getResponseMapContent(), connectorMessage.getChannelId(),
+				connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_MAP);
+	}
 
-    @Override
+	@Override
 	public void markAsProcessed(String channelId, long messageId) {
 		logger.debug(channelId + "/" + messageId + ": marking as processed");
 
@@ -1103,7 +1158,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public void resetMessage(String channelId, long messageId) {
 		logger.debug(channelId + "/" + messageId + ": resetting message");
 
@@ -1119,29 +1174,29 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public Map<String, Long> getLocalChannelIds() {
-        if (localChannelIds == null) {
-            ResultSet resultSet = null;
+	@Override
+	public Map<String, Long> getLocalChannelIds() {
+		if (localChannelIds == null) {
+			ResultSet resultSet = null;
 
-            try {
-                localChannelIds = new HashMap<String, Long>();
-                resultSet = prepareStatement("getLocalChannelIds", null).executeQuery();
+			try {
+				localChannelIds = new HashMap<String, Long>();
+				resultSet = prepareStatement("getLocalChannelIds", null).executeQuery();
 
-                while (resultSet.next()) {
-                    localChannelIds.put(resultSet.getString(1), resultSet.getLong(2));
-                }
-            } catch (SQLException e) {
-                throw new DonkeyDaoException(e);
-            } finally {
-                close(resultSet);
-            }
-        }
+				while (resultSet.next()) {
+					localChannelIds.put(resultSet.getString(1), resultSet.getLong(2));
+				}
+			} catch (SQLException e) {
+				throw new DonkeyDaoException(e);
+			} finally {
+				close(resultSet);
+			}
+		}
 
-        return localChannelIds;
-    }
+		return localChannelIds;
+	}
 
-    @Override
+	@Override
 	public void removeChannel(String channelId) {
 		if (!getLocalChannelIds().containsKey(channelId)) {
 			return;
@@ -1174,28 +1229,28 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public Long selectMaxLocalChannelId() {
-        ResultSet resultSet = null;
+	@Override
+	public Long selectMaxLocalChannelId() {
+		ResultSet resultSet = null;
 
-        try {
-            Long maxLocalChannelId = 0L;
-            resultSet = prepareStatement("selectMaxLocalChannelId", null).executeQuery();
+		try {
+			Long maxLocalChannelId = 0L;
+			resultSet = prepareStatement("selectMaxLocalChannelId", null).executeQuery();
 
-            if (resultSet.next()) {
-                maxLocalChannelId = resultSet.getLong(1);
-            }
+			if (resultSet.next()) {
+				maxLocalChannelId = resultSet.getLong(1);
+			}
 
-            resultSet.close();
-            return maxLocalChannelId;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-        }
-    }
+			resultSet.close();
+			return maxLocalChannelId;
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+		}
+	}
 
-    @Override
+	@Override
 	public void deleteAllMessages(String channelId) {
 		logger.debug(channelId + ": deleting all messages");
 
@@ -1270,7 +1325,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public void deleteMessageContent(String channelId, long messageId) {
 		logger.debug(channelId + "/" + messageId + ": deleting content");
 
@@ -1286,7 +1341,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public void deleteMessageContentByMetaDataIds(String channelId, long messageId, Set<Integer> metaDataIds) {
 		logger.debug(
 				channelId + "/" + messageId + ": deleting content by metadata IDs: " + String.valueOf(metaDataIds));
@@ -1342,133 +1397,136 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public List<MetaDataColumn> getMetaDataColumns(String channelId) {
-        ResultSet columns = null;
+	@Override
+	public List<MetaDataColumn> getMetaDataColumns(String channelId) {
+		ResultSet columns = null;
 
-        try {
-            List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
-            long localChannelId = getLocalChannelId(channelId);
+		try {
+			List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
+			long localChannelId = getLocalChannelId(channelId);
 
-            columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "d_mcm" + localChannelId, null);
+			columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "d_mcm" + localChannelId,
+					null);
 
-            if (!columns.next()) {
-                columns.close();
-                columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "D_MCM" + localChannelId, null);
+			if (!columns.next()) {
+				columns.close();
+				columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "D_MCM" + localChannelId,
+						null);
 
-                if (!columns.next()) {
-                    return metaDataColumns;
-                }
-            }
+				if (!columns.next()) {
+					return metaDataColumns;
+				}
+			}
 
-            do {
-                String name = columns.getString("COLUMN_NAME").toUpperCase();
+			do {
+				String name = columns.getString("COLUMN_NAME").toUpperCase();
 
-                if (!name.equals("METADATA_ID") && !name.equals("MESSAGE_ID")) {
-                    MetaDataColumnType columnType = MetaDataColumnType.fromSqlType(columns.getInt("DATA_TYPE"));
+				if (!name.equals("METADATA_ID") && !name.equals("MESSAGE_ID")) {
+					MetaDataColumnType columnType = MetaDataColumnType.fromSqlType(columns.getInt("DATA_TYPE"));
 
-                    if (columnType == null) {
-                        logger.error("Invalid custom metadata column: " + name + " (type: " + sqlTypeToString(columns.getInt("DATA_TYPE")) + ").");
-                    } else {
-                        metaDataColumns.add(new MetaDataColumn(name, columnType, null));
-                    }
-                }
-            } while (columns.next());
+					if (columnType == null) {
+						logger.error("Invalid custom metadata column: " + name + " (type: "
+								+ sqlTypeToString(columns.getInt("DATA_TYPE")) + ").");
+					} else {
+						metaDataColumns.add(new MetaDataColumn(name, columnType, null));
+					}
+				}
+			} while (columns.next());
 
-            return metaDataColumns;
-        } catch (Exception e) {
-            throw new DonkeyDaoException("Failed to retrieve meta data columns", e);
-        } finally {
-            close(columns);
-        }
-    }
+			return metaDataColumns;
+		} catch (Exception e) {
+			throw new DonkeyDaoException("Failed to retrieve meta data columns", e);
+		} finally {
+			close(columns);
+		}
+	}
 
-    @Override
-    public void removeMetaDataColumn(String channelId, String columnName) {
-        logger.debug(channelId + "/" + ": removing custom meta data column (" + columnName + ")");
-        Statement statement = null;
+	@Override
+	public void removeMetaDataColumn(String channelId, String columnName) {
+		logger.debug(channelId + "/" + ": removing custom meta data column (" + columnName + ")");
+		Statement statement = null;
 
-        try {
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", getLocalChannelId(channelId));
-            values.put("columnName", columnName);
+		try {
+			Map<String, Object> values = new HashMap<String, Object>();
+			values.put("localChannelId", getLocalChannelId(channelId));
+			values.put("columnName", columnName);
 
-            statement = connection.createStatement();
+			statement = connection.createStatement();
 
-            if (querySource.queryExists("removeMetaDataColumnIndex")) {
-                statement.executeUpdate(querySource.getQuery("removeMetaDataColumnIndex", values));
-            }
+			if (querySource.queryExists("removeMetaDataColumnIndex")) {
+				statement.executeUpdate(querySource.getQuery("removeMetaDataColumnIndex", values));
+			}
 
-            statement.executeUpdate(querySource.getQuery("removeMetaDataColumn", values));
-        } catch (SQLException e) {
-            throw new DonkeyDaoException("Failed to remove meta-data column", e);
-        } finally {
-            close(statement);
-        }
-    }
+			statement.executeUpdate(querySource.getQuery("removeMetaDataColumn", values));
+		} catch (SQLException e) {
+			throw new DonkeyDaoException("Failed to remove meta-data column", e);
+		} finally {
+			close(statement);
+		}
+	}
 
-    @Override
-    public long getMaxMessageId(String channelId) {
-        ResultSet resultSet = null;
+	@Override
+	public long getMaxMessageId(String channelId) {
+		ResultSet resultSet = null;
 
-        try {
-            resultSet = prepareStatement("getMaxMessageId", channelId).executeQuery();
-            return (resultSet.next()) ? resultSet.getLong(1) : null;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-        }
-    }
+		try {
+			resultSet = prepareStatement("getMaxMessageId", channelId).executeQuery();
+			return (resultSet.next()) ? resultSet.getLong(1) : null;
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+		}
+	}
 
-    @Override
-    public long getMinMessageId(String channelId) {
-        ResultSet resultSet = null;
+	@Override
+	public long getMinMessageId(String channelId) {
+		ResultSet resultSet = null;
 
-        try {
-            resultSet = prepareStatement("getMinMessageId", channelId).executeQuery();
-            return (resultSet.next()) ? resultSet.getLong(1) : null;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-        }
-    }
+		try {
+			resultSet = prepareStatement("getMinMessageId", channelId).executeQuery();
+			return (resultSet.next()) ? resultSet.getLong(1) : null;
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+		}
+	}
 
-    @Override
-    public long getNextMessageId(String channelId) {
-        Statement statement = null;
-        ResultSet resultSet = null;
+	@Override
+	public long getNextMessageId(String channelId) {
+		Statement statement = null;
+		ResultSet resultSet = null;
 
-        try {
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", getLocalChannelId(channelId));
+		try {
+			Map<String, Object> values = new HashMap<String, Object>();
+			values.put("localChannelId", getLocalChannelId(channelId));
 
-            statement = connection.createStatement();
+			statement = connection.createStatement();
 
-            if (querySource.queryExists("lockMessageSequenceTable")) {
-                statement.executeUpdate(querySource.getQuery("lockMessageSequenceTable", values));
-            }
+			if (querySource.queryExists("lockMessageSequenceTable")) {
+				statement.executeUpdate(querySource.getQuery("lockMessageSequenceTable", values));
+			}
 
-            resultSet = statement.executeQuery(querySource.getQuery("getNextMessageId", values));
-            resultSet.next();
-            long id = resultSet.getLong(1);
-            close(resultSet);
+			resultSet = statement.executeQuery(querySource.getQuery("getNextMessageId", values));
+			resultSet.next();
+			long id = resultSet.getLong(1);
+			close(resultSet);
 
-            if (querySource.queryExists("incrementMessageIdSequence")) {
-                statement.executeUpdate(querySource.getQuery("incrementMessageIdSequence", values));
-            }
+			if (querySource.queryExists("incrementMessageIdSequence")) {
+				statement.executeUpdate(querySource.getQuery("incrementMessageIdSequence", values));
+			}
 
-            return id;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-            close(statement);
-        }
-    }
+			return id;
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+			close(statement);
+		}
+	}
 
-    @Override
+	@Override
 	public List<Attachment> getMessageAttachment(String channelId, long messageId) {
 		ResultSet resultSet = null;
 		PreparedStatement statement = null;
@@ -1563,7 +1621,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId) {
 		ResultSet resultSet = null;
 		Attachment attachment = new Attachment();
@@ -1637,288 +1695,317 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public List<Message> getUnfinishedMessages(String channelId, String serverId, int limit, Long minMessageId) {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+	@Override
+	public List<Message> getUnfinishedMessages(String channelId, String serverId, int limit, Long minMessageId) {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
 
-        try {
-            Map<Long, Message> messageMap = new HashMap<Long, Message>();
-            List<Message> messageList = new ArrayList<Message>();
-            List<Long> messageIds = new ArrayList<Long>();
+		try {
+			Map<Long, Message> messageMap = new HashMap<Long, Message>();
+			List<Message> messageList = new ArrayList<Message>();
+			List<Long> messageIds = new ArrayList<Long>();
 
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("localChannelId", getLocalChannelId(channelId));
-            params.put("limit", limit);
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("localChannelId", getLocalChannelId(channelId));
+			params.put("limit", limit);
 
-            statement = connection.prepareStatement(querySource.getQuery("getUnfinishedMessages", params));
-            statement.setLong(1, minMessageId);
-            statement.setString(2, serverId);
-            resultSet = statement.executeQuery();
+			statement = connection.prepareStatement(querySource.getQuery("getUnfinishedMessages", params));
+			statement.setLong(1, minMessageId);
+			statement.setString(2, serverId);
+			resultSet = statement.executeQuery();
 
-            while (resultSet.next()) {
-                Message message = getMessageFromResultSet(channelId, resultSet);
-                messageMap.put(message.getMessageId(), message);
-                messageList.add(message);
-                messageIds.add(message.getMessageId());
-            }
+			while (resultSet.next()) {
+				Message message = getMessageFromResultSet(channelId, resultSet);
+				messageMap.put(message.getMessageId(), message);
+				messageList.add(message);
+				messageIds.add(message.getMessageId());
+			}
 
-            close(resultSet);
-            close(statement);
+			close(resultSet);
+			close(statement);
 
-            if (!messageIds.isEmpty()) {
-                params = new HashMap<String, Object>();
-                params.put("localChannelId", getLocalChannelId(channelId));
-                params.put("messageIds", StringUtils.join(messageIds, ","));
+			if (!messageIds.isEmpty()) {
+				params = new HashMap<String, Object>();
+				params.put("localChannelId", getLocalChannelId(channelId));
+				params.put("messageIds", StringUtils.join(messageIds, ","));
 
-                statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIds", params));
-                resultSet = statement.executeQuery();
+				statement = connection
+						.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIds", params));
+				resultSet = statement.executeQuery();
 
-                while (resultSet.next()) {
-                    ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true, true);
-                    messageMap.get(connectorMessage.getMessageId()).getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
-                }
-            }
+				while (resultSet.next()) {
+					ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true,
+							true);
+					messageMap.get(connectorMessage.getMessageId()).getConnectorMessages()
+							.put(connectorMessage.getMetaDataId(), connectorMessage);
+				}
+			}
 
-            return messageList;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-            close(statement);
-        }
-    }
+			return messageList;
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+			close(statement);
+		}
+	}
 
-    @Override
-    public List<Message> getPendingConnectorMessages(String channelId, String serverId, int limit, Long minMessageId) {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+	@Override
+	public List<Message> getPendingConnectorMessages(String channelId, String serverId, int limit, Long minMessageId) {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
 
-        try {
-            Map<Long, Message> messageMap = new HashMap<Long, Message>();
-            List<Message> messageList = new ArrayList<Message>();
-            List<Long> messageIds = new ArrayList<Long>();
+		try {
+			Map<Long, Message> messageMap = new HashMap<Long, Message>();
+			List<Message> messageList = new ArrayList<Message>();
+			List<Long> messageIds = new ArrayList<Long>();
 
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("localChannelId", getLocalChannelId(channelId));
-            params.put("limit", limit);
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("localChannelId", getLocalChannelId(channelId));
+			params.put("limit", limit);
 
-            statement = connection.prepareStatement(querySource.getQuery("getPendingMessageIds", params));
-            statement.setLong(1, minMessageId);
-            statement.setString(2, serverId);
+			statement = connection.prepareStatement(querySource.getQuery("getPendingMessageIds", params));
+			statement.setLong(1, minMessageId);
+			statement.setString(2, serverId);
 
-            resultSet = statement.executeQuery();
+			resultSet = statement.executeQuery();
 
-            while (resultSet.next()) {
-                Message message = new Message();
-                message.setMessageId(resultSet.getLong(1));
-                messageMap.put(message.getMessageId(), message);
-                messageList.add(message);
-                messageIds.add(message.getMessageId());
-            }
+			while (resultSet.next()) {
+				Message message = new Message();
+				message.setMessageId(resultSet.getLong(1));
+				messageMap.put(message.getMessageId(), message);
+				messageList.add(message);
+				messageIds.add(message.getMessageId());
+			}
 
-            close(resultSet);
-            close(statement);
+			close(resultSet);
+			close(statement);
 
-            if (!messageIds.isEmpty()) {
-                params = new HashMap<String, Object>();
-                params.put("localChannelId", getLocalChannelId(channelId));
-                params.put("messageIds", StringUtils.join(messageIds, ","));
+			if (!messageIds.isEmpty()) {
+				params = new HashMap<String, Object>();
+				params.put("localChannelId", getLocalChannelId(channelId));
+				params.put("messageIds", StringUtils.join(messageIds, ","));
 
-                statement = connection.prepareStatement(querySource.getQuery("getPendingConnectorMessages", params));
-                statement.setString(1, serverId);
+				statement = connection.prepareStatement(querySource.getQuery("getPendingConnectorMessages", params));
+				statement.setString(1, serverId);
 
-                resultSet = statement.executeQuery();
+				resultSet = statement.executeQuery();
 
-                while (resultSet.next()) {
-                    ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true, true);
-                    messageMap.get(connectorMessage.getMessageId()).getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
-                }
-            }
+				while (resultSet.next()) {
+					ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true,
+							true);
+					messageMap.get(connectorMessage.getMessageId()).getConnectorMessages()
+							.put(connectorMessage.getMetaDataId(), connectorMessage);
+				}
+			}
 
-            return messageList;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-            close(statement);
-        }
-    }
+			return messageList;
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+			close(statement);
+		}
+	}
 
-    @Override
-    public List<Message> getMessages(String channelId, List<Long> messageIds) {
-        if (messageIds.size() > 1000) {
-            throw new DonkeyDaoException("Only up to 1000 message Ids at a time are supported.");
-        }
+	@Override
+	public List<Message> getMessages(String channelId, List<Long> messageIds) {
+		if (messageIds.size() > 1000) {
+			throw new DonkeyDaoException("Only up to 1000 message Ids at a time are supported.");
+		}
 
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        Map<Long, Message> messageMap = new LinkedHashMap<Long, Message>();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		Map<Long, Message> messageMap = new LinkedHashMap<Long, Message>();
 
-        try {
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("localChannelId", getLocalChannelId(channelId));
-            params.put("messageIds", StringUtils.join(messageIds, ","));
+		try {
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("localChannelId", getLocalChannelId(channelId));
+			params.put("messageIds", StringUtils.join(messageIds, ","));
 
-            statement = connection.prepareStatement(querySource.getQuery("getMessagesByMessageIds", params));
-            resultSet = statement.executeQuery();
+			statement = connection.prepareStatement(querySource.getQuery("getMessagesByMessageIds", params));
+			resultSet = statement.executeQuery();
 
-            // Get all message objects in the list and store them so they are accessible by message Id
-            while (resultSet.next()) {
-                Message message = getMessageFromResultSet(channelId, resultSet);
-                messageMap.put(message.getMessageId(), message);
-            }
+			// Get all message objects in the list and store them so they are
+			// accessible by message Id
+			while (resultSet.next()) {
+				Message message = getMessageFromResultSet(channelId, resultSet);
+				messageMap.put(message.getMessageId(), message);
+			}
 
-            if (!messageIds.isEmpty()) {
-                close(resultSet);
-                close(statement);
+			if (!messageIds.isEmpty()) {
+				close(resultSet);
+				close(statement);
 
-                // Cache all message content for  all messages in the list
-                Map<Long, Map<Integer, List<MessageContent>>> messageContentMap = getMessageContent(channelId, messageIds);
-                // Cache all metadata maps for all messages in the list
-                Map<Long, Map<Integer, Map<String, Object>>> metaDataMaps = getMetaDataMaps(channelId, messageIds);
+				// Cache all message content for all messages in the list
+				Map<Long, Map<Integer, List<MessageContent>>> messageContentMap = getMessageContent(channelId,
+						messageIds);
+				// Cache all metadata maps for all messages in the list
+				Map<Long, Map<Integer, Map<String, Object>>> metaDataMaps = getMetaDataMaps(channelId, messageIds);
 
-                params = new HashMap<String, Object>();
-                params.put("localChannelId", getLocalChannelId(channelId));
-                params.put("messageIds", StringUtils.join(messageIds, ","));
+				params = new HashMap<String, Object>();
+				params.put("localChannelId", getLocalChannelId(channelId));
+				params.put("messageIds", StringUtils.join(messageIds, ","));
 
-                // Perform a single query to retrieve all connector messages in the list at once
-                statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIds", params));
-                resultSet = statement.executeQuery();
+				// Perform a single query to retrieve all connector messages in
+				// the list at once
+				statement = connection
+						.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIds", params));
+				resultSet = statement.executeQuery();
 
-                ConnectorMessage sourceConnectorMessage = null;
-                long currentMessageId = 0;
-                while (resultSet.next()) {
-                    // Create the connector from the result set without content or metadata map
-                    ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, false, false);
-                    // Store the reference to the connector in the message
-                    messageMap.get(connectorMessage.getMessageId()).getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
+				ConnectorMessage sourceConnectorMessage = null;
+				long currentMessageId = 0;
+				while (resultSet.next()) {
+					// Create the connector from the result set without content
+					// or metadata map
+					ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, false,
+							false);
+					// Store the reference to the connector in the message
+					messageMap.get(connectorMessage.getMessageId()).getConnectorMessages()
+							.put(connectorMessage.getMetaDataId(), connectorMessage);
 
-                    // Whenever we start a new message, null the sourceConnectorMessage. This is in case the message has no source connector so we don't use the previous message's source
-                    if (currentMessageId != connectorMessage.getMessageId()) {
-                        currentMessageId = connectorMessage.getMessageId();
-                        sourceConnectorMessage = null;
-                    }
+					// Whenever we start a new message, null the
+					// sourceConnectorMessage. This is in case the message has
+					// no source connector so we don't use the previous
+					// message's source
+					if (currentMessageId != connectorMessage.getMessageId()) {
+						currentMessageId = connectorMessage.getMessageId();
+						sourceConnectorMessage = null;
+					}
 
-                    if (connectorMessage.getMetaDataId() == 0) {
-                        // Store a reference to a message's source connector
-                        sourceConnectorMessage = connectorMessage;
-                    } else if (sourceConnectorMessage != null) {
-                        // Load the destination's raw content and source map from the source
-                        connectorMessage.setSourceMap(sourceConnectorMessage.getSourceMap());
-                        MessageContent sourceEncoded = sourceConnectorMessage.getEncoded();
-                        if (sourceEncoded != null) {
-                            // If the source encoded exists, set it as the destination raw
-                            MessageContent destinationRaw = new MessageContent(channelId, sourceEncoded.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RAW, sourceEncoded.getContent(), sourceEncoded.getDataType(), sourceEncoded.isEncrypted());
-                            connectorMessage.setRaw(destinationRaw);
-                        }
-                    }
+					if (connectorMessage.getMetaDataId() == 0) {
+						// Store a reference to a message's source connector
+						sourceConnectorMessage = connectorMessage;
+					} else if (sourceConnectorMessage != null) {
+						// Load the destination's raw content and source map
+						// from the source
+						connectorMessage.setSourceMap(sourceConnectorMessage.getSourceMap());
+						MessageContent sourceEncoded = sourceConnectorMessage.getEncoded();
+						if (sourceEncoded != null) {
+							// If the source encoded exists, set it as the
+							// destination raw
+							MessageContent destinationRaw = new MessageContent(channelId, sourceEncoded.getMessageId(),
+									connectorMessage.getMetaDataId(), ContentType.RAW, sourceEncoded.getContent(),
+									sourceEncoded.getDataType(), sourceEncoded.isEncrypted());
+							connectorMessage.setRaw(destinationRaw);
+						}
+					}
 
-                    // Get this connector's message content from the cache and store it in the connector
-                    Map<Integer, List<MessageContent>> connectorMessageContentMap = messageContentMap.get(connectorMessage.getMessageId());
-                    if (connectorMessageContentMap != null) {
-                        List<MessageContent> messageContents = connectorMessageContentMap.get(connectorMessage.getMetaDataId());
-                        if (messageContents != null) {
-                            loadMessageContent(connectorMessage, messageContents);
-                        }
-                    }
+					// Get this connector's message content from the cache and
+					// store it in the connector
+					Map<Integer, List<MessageContent>> connectorMessageContentMap = messageContentMap
+							.get(connectorMessage.getMessageId());
+					if (connectorMessageContentMap != null) {
+						List<MessageContent> messageContents = connectorMessageContentMap
+								.get(connectorMessage.getMetaDataId());
+						if (messageContents != null) {
+							loadMessageContent(connectorMessage, messageContents);
+						}
+					}
 
-                    // Get this connector's metadata map from the cache and store it in the connector
-                    Map<Integer, Map<String, Object>> connectorMetaDataMap = metaDataMaps.get(connectorMessage.getMessageId());
-                    if (connectorMetaDataMap != null) {
-                        Map<String, Object> metaDataMap = connectorMetaDataMap.get(connectorMessage.getMetaDataId());
-                        if (metaDataMap != null) {
-                            connectorMessage.setMetaDataMap(metaDataMap);
-                        }
-                    }
-                }
-            }
+					// Get this connector's metadata map from the cache and
+					// store it in the connector
+					Map<Integer, Map<String, Object>> connectorMetaDataMap = metaDataMaps
+							.get(connectorMessage.getMessageId());
+					if (connectorMetaDataMap != null) {
+						Map<String, Object> metaDataMap = connectorMetaDataMap.get(connectorMessage.getMetaDataId());
+						if (metaDataMap != null) {
+							connectorMessage.setMetaDataMap(metaDataMap);
+						}
+					}
+				}
+			}
 
-            return new ArrayList<Message>(messageMap.values());
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-            close(statement);
-        }
-    }
+			return new ArrayList<Message>(messageMap.values());
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+			close(statement);
+		}
+	}
 
-    @Override
-    public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId) {
-        List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
+	@Override
+	public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status,
+			int offset, int limit, Long minMessageId, Long maxMessageId) {
+		List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
 
-        if (limit == 0) {
-            return connectorMessages;
-        }
+		if (limit == 0) {
+			return connectorMessages;
+		}
 
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
 
-        try {
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("localChannelId", getLocalChannelId(channelId));
-            params.put("offset", offset);
-            params.put("limit", limit);
+		try {
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("localChannelId", getLocalChannelId(channelId));
+			params.put("offset", offset);
+			params.put("limit", limit);
 
-            if (minMessageId == null || maxMessageId == null) {
-                statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMetaDataIdAndStatusWithLimit", params));
-                statement.setInt(1, metaDataId);
-                statement.setString(2, Character.toString(status.getStatusCode()));
-                statement.setString(3, serverId);
-            } else {
-                statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange", params));
-                statement.setInt(1, metaDataId);
-                statement.setString(2, Character.toString(status.getStatusCode()));
-                statement.setString(3, serverId);
-                statement.setLong(4, minMessageId);
-                statement.setLong(5, maxMessageId);
-            }
+			if (minMessageId == null || maxMessageId == null) {
+				statement = connection.prepareStatement(
+						querySource.getQuery("getConnectorMessagesByMetaDataIdAndStatusWithLimit", params));
+				statement.setInt(1, metaDataId);
+				statement.setString(2, Character.toString(status.getStatusCode()));
+				statement.setString(3, serverId);
+			} else {
+				statement = connection.prepareStatement(
+						querySource.getQuery("getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange", params));
+				statement.setInt(1, metaDataId);
+				statement.setString(2, Character.toString(status.getStatusCode()));
+				statement.setString(3, serverId);
+				statement.setLong(4, minMessageId);
+				statement.setLong(5, maxMessageId);
+			}
 
-            resultSet = statement.executeQuery();
+			resultSet = statement.executeQuery();
 
-            while (resultSet.next()) {
-                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true, true));
-            }
+			while (resultSet.next()) {
+				connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true, true));
+			}
 
-            return connectorMessages;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-            close(statement);
-        }
-    }
+			return connectorMessages;
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+			close(statement);
+		}
+	}
 
-    @Override
-    public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent) {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+	@Override
+	public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds,
+			boolean includeContent) {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
 
-        try {
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", getLocalChannelId(channelId));
-            values.put("metaDataIds", StringUtils.join(metaDataIds, ','));
+		try {
+			Map<String, Object> values = new HashMap<String, Object>();
+			values.put("localChannelId", getLocalChannelId(channelId));
+			values.put("metaDataIds", StringUtils.join(metaDataIds, ','));
 
-            statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIdAndMetaDataIds", values));
-            statement.setLong(1, messageId);
-            resultSet = statement.executeQuery();
+			statement = connection
+					.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIdAndMetaDataIds", values));
+			statement.setLong(1, messageId);
+			resultSet = statement.executeQuery();
 
-            List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
+			List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
 
-            while (resultSet.next()) {
-                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, includeContent, true));
-            }
+			while (resultSet.next()) {
+				connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, includeContent, true));
+			}
 
-            return connectorMessages;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-            close(statement);
-        }
-    }
+			return connectorMessages;
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+			close(statement);
+		}
+	}
 
-    @Override
+	@Override
 	public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId,
 			List<Integer> metaDataIds) {
 		ResultSet resultSet = null;
@@ -1956,7 +2043,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public Map<Integer, Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed) {
 		ResultSet resultSet = null;
 		PreparedStatement statement = null;
@@ -1985,7 +2072,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public int getConnectorMessageCount(String channelId, String serverId, int metaDataId, Status status) {
 		if (donkey.getDeployedChannels().get(channelId) != null || getLocalChannelIds().get(channelId) != null) {
 			ResultSet resultSet = null;
@@ -2014,7 +2101,7 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
+	@Override
 	public long getConnectorMessageMaxMessageId(String channelId, String serverId, int metaDataId, Status status) {
 		ResultSet resultSet = null;
 		PreparedStatement statement = null;
@@ -2037,32 +2124,33 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
-    @Override
-    public void addMetaDataColumn(String channelId, MetaDataColumn metaDataColumn) {
-        logger.debug(channelId + ": adding custom meta data column (" + metaDataColumn.getName() + ")");
-        Statement statement = null;
+	@Override
+	public void addMetaDataColumn(String channelId, MetaDataColumn metaDataColumn) {
+		logger.debug(channelId + ": adding custom meta data column (" + metaDataColumn.getName() + ")");
+		Statement statement = null;
 
-        try {
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", getLocalChannelId(channelId));
-            values.put("columnName", metaDataColumn.getName());
+		try {
+			Map<String, Object> values = new HashMap<String, Object>();
+			values.put("localChannelId", getLocalChannelId(channelId));
+			values.put("columnName", metaDataColumn.getName());
 
-            String queryName = "addMetaDataColumn" + StringUtils.capitalize(StringUtils.lowerCase(metaDataColumn.getType().toString()));
+			String queryName = "addMetaDataColumn"
+					+ StringUtils.capitalize(StringUtils.lowerCase(metaDataColumn.getType().toString()));
 
-            statement = connection.createStatement();
-            statement.executeUpdate(querySource.getQuery(queryName, values));
+			statement = connection.createStatement();
+			statement.executeUpdate(querySource.getQuery(queryName, values));
 
-            if (querySource.queryExists(queryName + "Index")) {
-                statement.executeUpdate(querySource.getQuery(queryName + "Index", values));
-            }
-        } catch (SQLException e) {
-            throw new DonkeyDaoException("Failed to add meta-data column", e);
-        } finally {
-            close(statement);
-        }
-    }
+			if (querySource.queryExists(queryName + "Index")) {
+				statement.executeUpdate(querySource.getQuery(queryName + "Index", values));
+			}
+		} catch (SQLException e) {
+			throw new DonkeyDaoException("Failed to add meta-data column", e);
+		} finally {
+			close(statement);
+		}
+	}
 
-    @Override
+	@Override
 	public void createChannel(String channelId, long localChannelId) {
 		logger.debug(channelId + ": creating channel");
 		Statement initSequenceStatement = null;
@@ -2100,212 +2188,213 @@ public class JdbcDao implements DonkeyDao {
 		}
 	}
 
+	private void createTable(String query, Map<String, Object> values) {
+		if (querySource.queryExists(query)) {
+			Statement statement = null;
+			int n = 1;
 
-    private void createTable(String query, Map<String, Object> values) {
-        if (querySource.queryExists(query)) {
-            Statement statement = null;
-            int n = 1;
+			try {
+				statement = connection.createStatement();
+				statement.executeUpdate(querySource.getQuery(query, values));
 
-            try {
-                statement = connection.createStatement();
-                statement.executeUpdate(querySource.getQuery(query, values));
+				String sequenceQuery = querySource.getQuery(query + "Sequence", values);
 
-                String sequenceQuery = querySource.getQuery(query + "Sequence", values);
+				if (sequenceQuery != null) {
+					statement.executeUpdate(sequenceQuery);
+				}
 
-                if (sequenceQuery != null) {
-                    statement.executeUpdate(sequenceQuery);
-                }
+				String indexQuery = querySource.getQuery(query + "Index" + n, values);
 
-                String indexQuery = querySource.getQuery(query + "Index" + n, values);
+				while (indexQuery != null) {
+					statement.executeUpdate(indexQuery);
+					indexQuery = querySource.getQuery(query + "Index" + (++n), values);
+				}
+			} catch (SQLException e) {
+				throw new DonkeyDaoException(e);
+			} finally {
+				close(statement);
+			}
+		}
+	}
 
-                while (indexQuery != null) {
-                    statement.executeUpdate(indexQuery);
-                    indexQuery = querySource.getQuery(query + "Index" + (++n), values);
-                }
-            } catch (SQLException e) {
-                throw new DonkeyDaoException(e);
-            } finally {
-                close(statement);
-            }
-        }
-    }
+	@Override
+	public void checkAndCreateChannelTables() {
+		Map<String, Long> channelIds = getLocalChannelIds();
+		Map<String, String> channelTablesMap = new LinkedHashMap<String, String>();
+		for (Long localChannelId : channelIds.values()) {
+			channelTablesMap.put("d_m" + localChannelId, "createMessageTable");
+			channelTablesMap.put("d_mm" + localChannelId, "createConnectorMessageTable");
+			channelTablesMap.put("d_mc" + localChannelId, "createMessageContentTable");
+			channelTablesMap.put("d_mcm" + localChannelId, "createMessageCustomMetaDataTable");
+			channelTablesMap.put("d_ma" + localChannelId, "createMessageAttachmentTable");
+			channelTablesMap.put("d_ms" + localChannelId, "createMessageStatisticsTable");
+			channelTablesMap.put("d_msq" + localChannelId, "createMessageSequence");
+		}
 
-    @Override
-    public void checkAndCreateChannelTables() {
-        Map<String, Long> channelIds = getLocalChannelIds();
-        Map<String, String> channelTablesMap = new LinkedHashMap<String, String>();
-        for (Long localChannelId : channelIds.values()) {
-            channelTablesMap.put("d_m" + localChannelId, "createMessageTable");
-            channelTablesMap.put("d_mm" + localChannelId, "createConnectorMessageTable");
-            channelTablesMap.put("d_mc" + localChannelId, "createMessageContentTable");
-            channelTablesMap.put("d_mcm" + localChannelId, "createMessageCustomMetaDataTable");
-            channelTablesMap.put("d_ma" + localChannelId, "createMessageAttachmentTable");
-            channelTablesMap.put("d_ms" + localChannelId, "createMessageStatisticsTable");
-            channelTablesMap.put("d_msq" + localChannelId, "createMessageSequence");
-        }
+		ResultSet rs = null;
+		Statement statement = null;
+		try {
+			DatabaseMetaData dbMetaData = connection.getMetaData();
+			rs = dbMetaData.getTables(null, null, "%", null);
 
-        ResultSet rs = null;
-        Statement statement = null;
-        try {
-            DatabaseMetaData dbMetaData = connection.getMetaData();
-            rs = dbMetaData.getTables(null, null, "%", null);
+			while (rs.next()) {
+				String tableName = rs.getString("TABLE_NAME").toLowerCase();
+				channelTablesMap.remove(tableName);
+			}
+			close(rs);
 
-            while (rs.next()) {
-                String tableName = rs.getString("TABLE_NAME").toLowerCase();
-                channelTablesMap.remove(tableName);
-            }
-            close(rs);
+			/*
+			 * MIRTH-2851 - Oracle does not return sequences in the
+			 * DatabaseMetaData.getTables method. If we dont remove the d_msq
+			 * sequence from oracle then it will try to recreate it which will
+			 * throw an exception. If any database needs an additional query for
+			 * sequences then it could just be added for that database.
+			 */
 
-            /*
-             * MIRTH-2851 - Oracle does not return sequences in the DatabaseMetaData.getTables
-             * method. If we dont remove the d_msq sequence from oracle then it will try to recreate
-             * it which will throw an exception. If any database needs an additional query for
-             * sequences then it could just be added for that database.
-             */
+			if (querySource.queryExists("getSequenceMetadata")) {
+				statement = connection.createStatement();
+				rs = statement.executeQuery(querySource.getQuery("getSequenceMetadata"));
+				while (rs.next()) {
+					String sequenceName = rs.getString("SEQUENCE_NAME").toLowerCase();
+					channelTablesMap.remove(sequenceName);
+				}
+			}
+		} catch (Exception e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(rs);
+			close(statement);
+		}
 
-            if (querySource.queryExists("getSequenceMetadata")) {
-                statement = connection.createStatement();
-                rs = statement.executeQuery(querySource.getQuery("getSequenceMetadata"));
-                while (rs.next()) {
-                    String sequenceName = rs.getString("SEQUENCE_NAME").toLowerCase();
-                    channelTablesMap.remove(sequenceName);
-                }
-            }
-        } catch (Exception e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(rs);
-            close(statement);
-        }
+		for (Entry<String, String> entry : channelTablesMap.entrySet()) {
+			Statement initSequenceStatement = null;
+			try {
+				Long localChannelId = Long.parseLong(entry.getKey().replaceAll("[^0-9]", ""));
+				Map<String, Object> values = new HashMap<String, Object>();
+				values.put("localChannelId", localChannelId);
+				createTable(entry.getValue(), values);
 
-        for (Entry<String, String> entry : channelTablesMap.entrySet()) {
-            Statement initSequenceStatement = null;
-            try {
-                Long localChannelId = Long.parseLong(entry.getKey().replaceAll("[^0-9]", ""));
-                Map<String, Object> values = new HashMap<String, Object>();
-                values.put("localChannelId", localChannelId);
-                createTable(entry.getValue(), values);
+				if (entry.getKey().toLowerCase().contains("d_msq") && querySource.queryExists("initMessageSequence")) {
+					initSequenceStatement = connection.createStatement();
+					initSequenceStatement.executeUpdate(querySource.getQuery("initMessageSequence", values));
+				}
+			} catch (Exception e) {
+				throw new DonkeyDaoException(e);
+			} finally {
+				close(initSequenceStatement);
+			}
+		}
+	}
 
-                if (entry.getKey().toLowerCase().contains("d_msq") && querySource.queryExists("initMessageSequence")) {
-                    initSequenceStatement = connection.createStatement();
-                    initSequenceStatement.executeUpdate(querySource.getQuery("initMessageSequence", values));
-                }
-            } catch (Exception e) {
-                throw new DonkeyDaoException(e);
-            } finally {
-                close(initSequenceStatement);
-            }
-        }
-    }
+	@Override
+	public void resetStatistics(String channelId, Integer metaDataId, Set<Status> statuses) {
+		logger.debug(
+				channelId + ": resetting statistics" + (metaDataId == null ? "" : (" for metadata id " + metaDataId)));
+		PreparedStatement statement = null;
 
-    @Override
-    public void resetStatistics(String channelId, Integer metaDataId, Set<Status> statuses) {
-        logger.debug(channelId + ": resetting statistics" + (metaDataId == null ? "" : (" for metadata id " + metaDataId)));
-        PreparedStatement statement = null;
+		try {
+			if (statuses == null || statuses.size() == 0) {
+				return;
+			}
 
-        try {
-            if (statuses == null || statuses.size() == 0) {
-                return;
-            }
+			Map<String, Object> values = new HashMap<String, Object>();
+			values.put("localChannelId", getLocalChannelId(channelId));
 
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", getLocalChannelId(channelId));
+			int count = 0;
+			StringBuilder builder = new StringBuilder();
+			for (Status status : statuses) {
+				count++;
 
-            int count = 0;
-            StringBuilder builder = new StringBuilder();
-            for (Status status : statuses) {
-                count++;
+				if (count > 1) {
+					builder.append(",");
+				}
+				builder.append(status.toString() + " = 0");
+			}
+			values.put("statuses", builder.toString());
 
-                if (count > 1) {
-                    builder.append(",");
-                }
-                builder.append(status.toString() + " = 0");
-            }
-            values.put("statuses", builder.toString());
+			String queryName = (metaDataId == null) ? "resetChannelStatistics" : "resetConnectorStatistics";
+			statement = connection.prepareStatement(querySource.getQuery(queryName, values));
+			statement.setString(1, statsServerId);
 
-            String queryName = (metaDataId == null) ? "resetChannelStatistics" : "resetConnectorStatistics";
-            statement = connection.prepareStatement(querySource.getQuery(queryName, values));
-            statement.setString(1, statsServerId);
+			if (metaDataId != null) {
+				statement.setInt(2, metaDataId);
+			}
 
-            if (metaDataId != null) {
-                statement.setInt(2, metaDataId);
-            }
+			statement.executeUpdate();
 
-            statement.executeUpdate();
+			if (!resetCurrentStats.containsKey(channelId)) {
+				resetCurrentStats.put(channelId, new HashMap<Integer, Set<Status>>());
+			}
 
-            if (!resetCurrentStats.containsKey(channelId)) {
-                resetCurrentStats.put(channelId, new HashMap<Integer, Set<Status>>());
-            }
+			Map<Integer, Set<Status>> metaDataIds = resetCurrentStats.get(channelId);
 
-            Map<Integer, Set<Status>> metaDataIds = resetCurrentStats.get(channelId);
+			if (!metaDataIds.containsKey(metaDataId)) {
+				metaDataIds.put(metaDataId, statuses);
+			}
 
-            if (!metaDataIds.containsKey(metaDataId)) {
-                metaDataIds.put(metaDataId, statuses);
-            }
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(statement);
+		}
+	}
 
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(statement);
-        }
-    }
+	@Override
+	public void resetAllStatistics(String channelId) {
+		logger.debug(channelId + ": resetting all statistics (including lifetime)");
+		PreparedStatement statement = null;
 
-    @Override
-    public void resetAllStatistics(String channelId) {
-        logger.debug(channelId + ": resetting all statistics (including lifetime)");
-        PreparedStatement statement = null;
+		try {
+			Map<String, Object> values = new HashMap<String, Object>();
+			values.put("localChannelId", getLocalChannelId(channelId));
 
-        try {
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", getLocalChannelId(channelId));
+			statement = connection.prepareStatement(querySource.getQuery("resetAllStatistics", values));
+			statement.setString(1, statsServerId);
+			statement.executeUpdate();
 
-            statement = connection.prepareStatement(querySource.getQuery("resetAllStatistics", values));
-            statement.setString(1, statsServerId);
-            statement.executeUpdate();
+			Set<Status> statuses = Statistics.getTrackedStatuses();
 
-            Set<Status> statuses = Statistics.getTrackedStatuses();
+			Map<Integer, Set<Status>> metaDataIdsCurrent = resetCurrentStats.get(channelId);
+			if (metaDataIdsCurrent == null) {
+				metaDataIdsCurrent = new HashMap<Integer, Set<Status>>();
+				resetCurrentStats.put(channelId, metaDataIdsCurrent);
+			}
 
-            Map<Integer, Set<Status>> metaDataIdsCurrent = resetCurrentStats.get(channelId);
-            if (metaDataIdsCurrent == null) {
-                metaDataIdsCurrent = new HashMap<Integer, Set<Status>>();
-                resetCurrentStats.put(channelId, metaDataIdsCurrent);
-            }
+			Map<Integer, Map<Status, Long>> channelCurrentStats = currentStats.getChannelStats(channelId);
+			if (channelCurrentStats != null) {
+				for (Entry<Integer, Map<Status, Long>> channelEntry : channelCurrentStats.entrySet()) {
+					metaDataIdsCurrent.put(channelEntry.getKey(), statuses);
+				}
+			}
 
-            Map<Integer, Map<Status, Long>> channelCurrentStats = currentStats.getChannelStats(channelId);
-            if (channelCurrentStats != null) {
-                for (Entry<Integer, Map<Status, Long>> channelEntry : channelCurrentStats.entrySet()) {
-                    metaDataIdsCurrent.put(channelEntry.getKey(), statuses);
-                }
-            }
+			Map<Integer, Set<Status>> metaDataIdsTotal = resetTotalStats.get(channelId);
+			if (metaDataIdsTotal == null) {
+				metaDataIdsTotal = new HashMap<Integer, Set<Status>>();
+				resetTotalStats.put(channelId, metaDataIdsTotal);
+			}
 
-            Map<Integer, Set<Status>> metaDataIdsTotal = resetTotalStats.get(channelId);
-            if (metaDataIdsTotal == null) {
-                metaDataIdsTotal = new HashMap<Integer, Set<Status>>();
-                resetTotalStats.put(channelId, metaDataIdsTotal);
-            }
+			Map<Integer, Map<Status, Long>> channelTotalStats = totalStats.getChannelStats(channelId);
+			if (channelTotalStats != null) {
+				for (Entry<Integer, Map<Status, Long>> channelEntry : channelTotalStats.entrySet()) {
+					metaDataIdsTotal.put(channelEntry.getKey(), statuses);
+				}
+			}
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(statement);
+		}
+	}
 
-            Map<Integer, Map<Status, Long>> channelTotalStats = totalStats.getChannelStats(channelId);
-            if (channelTotalStats != null) {
-                for (Entry<Integer, Map<Status, Long>> channelEntry : channelTotalStats.entrySet()) {
-                    metaDataIdsTotal.put(channelEntry.getKey(), statuses);
-                }
-            }
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(statement);
-        }
-    }
+	@Override
+	public Statistics getChannelStatistics(String serverId) {
+		return getChannelStatistics(serverId, false);
+	}
 
-    @Override
-    public Statistics getChannelStatistics(String serverId) {
-        return getChannelStatistics(serverId, false);
-    }
-
-    @Override
-    public Statistics getChannelTotalStatistics(String serverId) {
-        return getChannelStatistics(serverId, true);
-    }
+	@Override
+	public Statistics getChannelTotalStatistics(String serverId) {
+		return getChannelStatistics(serverId, true);
+	}
 
 	private Statistics getChannelStatistics(String serverId, boolean total) {
 		Map<String, Long> channelIds = getLocalChannelIds();
@@ -2348,281 +2437,288 @@ public class JdbcDao implements DonkeyDao {
 		return statistics;
 	}
 
-    @Override
-    public void commit() {
-        commit(true);
-    }
+	@Override
+	public void commit() {
+		commit(true);
+	}
 
-    @Override
-    public void commit(boolean durable) {
-        logger.debug("Committing transaction" + (durable ? "" : " asynchronously"));
+	@Override
+	public void commit(boolean durable) {
+		logger.debug("Committing transaction" + (durable ? "" : " asynchronously"));
 
-        try {
-            if (!durable && asyncCommitCommand != null) {
-                Statement statement = null;
+		try {
+			if (!durable && asyncCommitCommand != null) {
+				Statement statement = null;
 
-                try {
-                    statement = connection.createStatement();
-                    statement.execute(asyncCommitCommand);
-                } finally {
-                    close(statement);
-                }
-            } else {
-                connection.commit();
-            }
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        }
+				try {
+					statement = connection.createStatement();
+					statement.execute(asyncCommitCommand);
+				} finally {
+					close(statement);
+				}
+			} else {
+				connection.commit();
+			}
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		}
 
-        if (statisticsUpdater != null) {
-            statisticsUpdater.update(transactionStats);
-        }
+		if (statisticsUpdater != null) {
+			statisticsUpdater.update(transactionStats);
+		}
 
-        if (transactionAlteredChannels) {
-            localChannelIds = null;
-            transactionAlteredChannels = false;
-        }
+		if (transactionAlteredChannels) {
+			localChannelIds = null;
+			transactionAlteredChannels = false;
+		}
 
-        if (currentStats != null) {
-            // reset stats for any connectors that need to be reset
-            for (Entry<String, Map<Integer, Set<Status>>> entry : resetCurrentStats.entrySet()) {
-                String channelId = entry.getKey();
-                Map<Integer, Set<Status>> metaDataIds = entry.getValue();
+		if (currentStats != null) {
+			// reset stats for any connectors that need to be reset
+			for (Entry<String, Map<Integer, Set<Status>>> entry : resetCurrentStats.entrySet()) {
+				String channelId = entry.getKey();
+				Map<Integer, Set<Status>> metaDataIds = entry.getValue();
 
-                for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
-                    Integer metaDataId = metaDataEntry.getKey();
-                    Set<Status> statuses = metaDataEntry.getValue();
+				for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
+					Integer metaDataId = metaDataEntry.getKey();
+					Set<Status> statuses = metaDataEntry.getValue();
 
-                    currentStats.resetStats(channelId, metaDataId, statuses);
-                }
-            }
+					currentStats.resetStats(channelId, metaDataId, statuses);
+				}
+			}
 
-            // Clear the reset stats map because we've just reset the stats
-            resetCurrentStats.clear();
+			// Clear the reset stats map because we've just reset the stats
+			resetCurrentStats.clear();
 
-            // update the in-memory stats with the stats we just saved in storage
-            currentStats.update(transactionStats);
+			// update the in-memory stats with the stats we just saved in
+			// storage
+			currentStats.update(transactionStats);
 
-            // remove the in-memory stats for any channels that were removed
-            for (String channelId : removedChannelIds) {
-                currentStats.remove(channelId);
-            }
-        }
+			// remove the in-memory stats for any channels that were removed
+			for (String channelId : removedChannelIds) {
+				currentStats.remove(channelId);
+			}
+		}
 
-        if (totalStats != null) {
-            // reset stats for any connectors that need to be reset
-            for (Entry<String, Map<Integer, Set<Status>>> entry : resetTotalStats.entrySet()) {
-                String channelId = entry.getKey();
-                Map<Integer, Set<Status>> metaDataIds = entry.getValue();
+		if (totalStats != null) {
+			// reset stats for any connectors that need to be reset
+			for (Entry<String, Map<Integer, Set<Status>>> entry : resetTotalStats.entrySet()) {
+				String channelId = entry.getKey();
+				Map<Integer, Set<Status>> metaDataIds = entry.getValue();
 
-                for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
-                    Integer metaDataId = metaDataEntry.getKey();
-                    Set<Status> statuses = metaDataEntry.getValue();
+				for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
+					Integer metaDataId = metaDataEntry.getKey();
+					Set<Status> statuses = metaDataEntry.getValue();
 
-                    totalStats.resetStats(channelId, metaDataId, statuses);
-                }
-            }
+					totalStats.resetStats(channelId, metaDataId, statuses);
+				}
+			}
 
-            // Clear the reset stats map because we've just reset the stats
-            resetTotalStats.clear();
+			// Clear the reset stats map because we've just reset the stats
+			resetTotalStats.clear();
 
-            // update the in-memory total stats with the stats we just saved in storage
-            totalStats.update(transactionStats);
+			// update the in-memory total stats with the stats we just saved in
+			// storage
+			totalStats.update(transactionStats);
 
-            // remove the in-memory total stats for any channels that were removed
-            for (String channelId : removedChannelIds) {
-                totalStats.remove(channelId);
-            }
-        }
+			// remove the in-memory total stats for any channels that were
+			// removed
+			for (String channelId : removedChannelIds) {
+				totalStats.remove(channelId);
+			}
+		}
 
-        transactionStats.clear();
-    }
+		transactionStats.clear();
+	}
 
-    @Override
-    public void rollback() {
-        logger.debug("Rolling back transaction");
+	@Override
+	public void rollback() {
+		logger.debug("Rolling back transaction");
 
-        try {
-            connection.rollback();
-            transactionStats.clear();
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        }
-    }
+		try {
+			connection.rollback();
+			transactionStats.clear();
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		}
+	}
 
-    @Override
-    public void close() {
-        logger.debug("Closing connection");
+	@Override
+	public void close() {
+		logger.debug("Closing connection");
 
-        try {
-            if (!connection.isClosed()) {
-                try {
-                    connection.rollback();
-                } catch (SQLException e) {
-                    logger.warn("Failed to rollback transaction", e);
-                }
-                connection.close();
-            }
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        }
-    }
+		try {
+			if (!connection.isClosed()) {
+				try {
+					connection.rollback();
+				} catch (SQLException e) {
+					logger.warn("Failed to rollback transaction", e);
+				}
+				connection.close();
+			}
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		}
+	}
 
-    @Override
-    public boolean isClosed() {
-        try {
-            return connection.isClosed();
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        }
-    }
-    
-    /*
-     * Closes Statement or ResultSet, if needed
-     */
-    protected void closeDatabaseObjectIfNeeded(AutoCloseable dbObject) {
-    	// no op
-    }
-    
-    /*
-     * Closes any Statements or ResultSets, if needed
-     */
-    protected void closeDatabaseObjectsIfNeeded(List<AutoCloseable> dbObjects) {
-    	// no op
-    }
+	@Override
+	public boolean isClosed() {
+		try {
+			return connection.isClosed();
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		}
+	}
 
-    public boolean initTableStructure() {
-        if (!tableExists("d_channels")) {
-            logger.debug("Creating channels table");
-            createTable("createChannelsTable", null);
-            return true;
-        } else {
-            return false;
-        }
-    }
+	/*
+	 * Closes Statement or ResultSet, if needed
+	 */
+	protected void closeDatabaseObjectIfNeeded(AutoCloseable dbObject) {
+		// no op
+	}
 
-    private boolean tableExists(String tableName) {
-        ResultSet resultSet = null;
+	/*
+	 * Closes any Statements or ResultSets, if needed
+	 */
+	protected void closeDatabaseObjectsIfNeeded(List<AutoCloseable> dbObjects) {
+		// no op
+	}
 
-        try {
-            DatabaseMetaData metaData = connection.getMetaData();
-            resultSet = metaData.getTables(null, null, tableName, null);
+	public boolean initTableStructure() {
+		if (!tableExists("d_channels")) {
+			logger.debug("Creating channels table");
+			createTable("createChannelsTable", null);
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-            if (resultSet.next()) {
-                return true;
-            }
+	private boolean tableExists(String tableName) {
+		ResultSet resultSet = null;
 
-            resultSet = metaData.getTables(null, null, tableName.toUpperCase(), null);
-            return resultSet.next();
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-        }
-    }
+		try {
+			DatabaseMetaData metaData = connection.getMetaData();
+			resultSet = metaData.getTables(null, null, tableName, null);
 
-    public Connection getConnection() {
-        return connection;
-    }
+			if (resultSet.next()) {
+				return true;
+			}
 
-    public String getAsyncCommitCommand() {
-        return asyncCommitCommand;
-    }
+			resultSet = metaData.getTables(null, null, tableName.toUpperCase(), null);
+			return resultSet.next();
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+		}
+	}
 
-    public void setAsyncCommitCommand(String asyncCommitCommand) {
-        this.asyncCommitCommand = asyncCommitCommand;
-    }
+	public Connection getConnection() {
+		return connection;
+	}
 
-    private Message getMessageFromResultSet(String channelId, ResultSet resultSet) {
-        try {
-            Message message = new Message();
-            long messageId = resultSet.getLong("id");
-            Calendar receivedDate = Calendar.getInstance();
-            receivedDate.setTimeInMillis(resultSet.getTimestamp("received_date").getTime());
+	public String getAsyncCommitCommand() {
+		return asyncCommitCommand;
+	}
 
-            message.setMessageId(messageId);
-            message.setChannelId(channelId);
-            message.setReceivedDate(receivedDate);
-            message.setProcessed(resultSet.getBoolean("processed"));
-            message.setServerId(resultSet.getString("server_id"));
-            message.setImportChannelId(resultSet.getString("import_channel_id"));
+	public void setAsyncCommitCommand(String asyncCommitCommand) {
+		this.asyncCommitCommand = asyncCommitCommand;
+	}
 
-            long importId = resultSet.getLong("import_id");
-            if (!resultSet.wasNull()) {
-                message.setImportId(importId);
-            }
+	private Message getMessageFromResultSet(String channelId, ResultSet resultSet) {
+		try {
+			Message message = new Message();
+			long messageId = resultSet.getLong("id");
+			Calendar receivedDate = Calendar.getInstance();
+			receivedDate.setTimeInMillis(resultSet.getTimestamp("received_date").getTime());
 
-            long originalId = resultSet.getLong("original_id");
-            if (!resultSet.wasNull()) {
-                message.setOriginalId(originalId);
-            }
+			message.setMessageId(messageId);
+			message.setChannelId(channelId);
+			message.setReceivedDate(receivedDate);
+			message.setProcessed(resultSet.getBoolean("processed"));
+			message.setServerId(resultSet.getString("server_id"));
+			message.setImportChannelId(resultSet.getString("import_channel_id"));
 
-            return message;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        }
-    }
+			long importId = resultSet.getLong("import_id");
+			if (!resultSet.wasNull()) {
+				message.setImportId(importId);
+			}
 
-    private ConnectorMessage getConnectorMessageFromResultSet(String channelId, ResultSet resultSet, boolean includeContent, boolean includeMetaDataMap) {
-        try {
-            ConnectorMessage connectorMessage = new ConnectorMessage();
-            long messageId = resultSet.getLong("message_id");
-            int metaDataId = resultSet.getInt("id");
-            Calendar receivedDate = Calendar.getInstance();
-            receivedDate.setTimeInMillis(resultSet.getTimestamp("received_date").getTime());
+			long originalId = resultSet.getLong("original_id");
+			if (!resultSet.wasNull()) {
+				message.setOriginalId(originalId);
+			}
 
-            Calendar sendDate = null;
-            Timestamp sendDateTimestamp = resultSet.getTimestamp("send_date");
-            if (sendDateTimestamp != null) {
-                sendDate = Calendar.getInstance();
-                sendDate.setTimeInMillis(sendDateTimestamp.getTime());
-            }
+			return message;
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		}
+	}
 
-            Calendar responseDate = null;
-            Timestamp responseDateTimestamp = resultSet.getTimestamp("response_date");
-            if (responseDateTimestamp != null) {
-                responseDate = Calendar.getInstance();
-                responseDate.setTimeInMillis(responseDateTimestamp.getTime());
-            }
+	private ConnectorMessage getConnectorMessageFromResultSet(String channelId, ResultSet resultSet,
+			boolean includeContent, boolean includeMetaDataMap) {
+		try {
+			ConnectorMessage connectorMessage = new ConnectorMessage();
+			long messageId = resultSet.getLong("message_id");
+			int metaDataId = resultSet.getInt("id");
+			Calendar receivedDate = Calendar.getInstance();
+			receivedDate.setTimeInMillis(resultSet.getTimestamp("received_date").getTime());
 
-            connectorMessage.setChannelName(getDeployedChannelName(channelId));
-            connectorMessage.setMessageId(messageId);
-            connectorMessage.setMetaDataId(metaDataId);
-            connectorMessage.setChannelId(channelId);
-            connectorMessage.setServerId(resultSet.getString("server_id"));
-            connectorMessage.setConnectorName(resultSet.getString("connector_name"));
-            connectorMessage.setReceivedDate(receivedDate);
-            connectorMessage.setStatus(Status.fromChar(resultSet.getString("status").charAt(0)));
-            connectorMessage.setSendAttempts(resultSet.getInt("send_attempts"));
-            connectorMessage.setSendDate(sendDate);
-            connectorMessage.setResponseDate(responseDate);
-            connectorMessage.setErrorCode(resultSet.getInt("error_code"));
-            connectorMessage.setChainId(resultSet.getInt("chain_id"));
-            connectorMessage.setOrderId(resultSet.getInt("order_id"));
+			Calendar sendDate = null;
+			Timestamp sendDateTimestamp = resultSet.getTimestamp("send_date");
+			if (sendDateTimestamp != null) {
+				sendDate = Calendar.getInstance();
+				sendDate.setTimeInMillis(sendDateTimestamp.getTime());
+			}
 
-            if (includeContent) {
-                if (metaDataId > 0) {
-                    // For destination connectors, retrieve and load any content that is stored on the source connector
-                    loadMessageContent(connectorMessage, getDestinationMessageContentFromSource(channelId, messageId, metaDataId));
-                }
+			Calendar responseDate = null;
+			Timestamp responseDateTimestamp = resultSet.getTimestamp("response_date");
+			if (responseDateTimestamp != null) {
+				responseDate = Calendar.getInstance();
+				responseDate.setTimeInMillis(responseDateTimestamp.getTime());
+			}
 
-                // Retrive all content for the connector and load it into the connector message
-                loadMessageContent(connectorMessage, getMessageContent(channelId, messageId, metaDataId));
-            }
+			connectorMessage.setChannelName(getDeployedChannelName(channelId));
+			connectorMessage.setMessageId(messageId);
+			connectorMessage.setMetaDataId(metaDataId);
+			connectorMessage.setChannelId(channelId);
+			connectorMessage.setServerId(resultSet.getString("server_id"));
+			connectorMessage.setConnectorName(resultSet.getString("connector_name"));
+			connectorMessage.setReceivedDate(receivedDate);
+			connectorMessage.setStatus(Status.fromChar(resultSet.getString("status").charAt(0)));
+			connectorMessage.setSendAttempts(resultSet.getInt("send_attempts"));
+			connectorMessage.setSendDate(sendDate);
+			connectorMessage.setResponseDate(responseDate);
+			connectorMessage.setErrorCode(resultSet.getInt("error_code"));
+			connectorMessage.setChainId(resultSet.getInt("chain_id"));
+			connectorMessage.setOrderId(resultSet.getInt("order_id"));
 
-            if (includeMetaDataMap) {
-                connectorMessage.setMetaDataMap(getMetaDataMap(channelId, messageId, metaDataId));
-            }
-            return connectorMessage;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        }
-    }
+			if (includeContent) {
+				if (metaDataId > 0) {
+					// For destination connectors, retrieve and load any content
+					// that is stored on the source connector
+					loadMessageContent(connectorMessage,
+							getDestinationMessageContentFromSource(channelId, messageId, metaDataId));
+				}
 
-    /**
-     * Get all message content for a messageId and metaDataId
-     */
-    private List<MessageContent> getMessageContent(String channelId, long messageId, int metaDataId) {
+				// Retrive all content for the connector and load it into the
+				// connector message
+				loadMessageContent(connectorMessage, getMessageContent(channelId, messageId, metaDataId));
+			}
+
+			if (includeMetaDataMap) {
+				connectorMessage.setMetaDataMap(getMetaDataMap(channelId, messageId, metaDataId));
+			}
+			return connectorMessage;
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		}
+	}
+
+	/**
+	 * Get all message content for a messageId and metaDataId
+	 */
+	private List<MessageContent> getMessageContent(String channelId, long messageId, int metaDataId) {
 		List<MessageContent> messageContents = new ArrayList<MessageContent>();
 		ResultSet resultSet = null;
 
@@ -2640,8 +2736,7 @@ public class JdbcDao implements DonkeyDao {
 				String dataType = resultSet.getString("data_type");
 				boolean encrypted = resultSet.getBoolean("is_encrypted");
 
-				if ((decryptData || alwaysDecrypt.contains(contentType)) && encrypted
-						&& encryptor != null) {
+				if ((decryptData || alwaysDecrypt.contains(contentType)) && encrypted && encryptor != null) {
 					content = encryptor.decrypt(content);
 					encrypted = false;
 				}
@@ -2661,64 +2756,66 @@ public class JdbcDao implements DonkeyDao {
 		return messageContents;
 	}
 
-    private Map<Long, Map<Integer, List<MessageContent>>> getMessageContent(String channelId, List<Long> messageIds) {
-        if (messageIds.size() > 1000) {
-            throw new DonkeyDaoException("Only up to 1000 message Ids at a time are supported.");
-        }
+	private Map<Long, Map<Integer, List<MessageContent>>> getMessageContent(String channelId, List<Long> messageIds) {
+		if (messageIds.size() > 1000) {
+			throw new DonkeyDaoException("Only up to 1000 message Ids at a time are supported.");
+		}
 
-        Map<Long, Map<Integer, List<MessageContent>>> messageContentMap = new LinkedHashMap<Long, Map<Integer, List<MessageContent>>>();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+		Map<Long, Map<Integer, List<MessageContent>>> messageContentMap = new LinkedHashMap<Long, Map<Integer, List<MessageContent>>>();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
 
-        try {
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("localChannelId", getLocalChannelId(channelId));
-            params.put("messageIds", StringUtils.join(messageIds, ","));
+		try {
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("localChannelId", getLocalChannelId(channelId));
+			params.put("messageIds", StringUtils.join(messageIds, ","));
 
-            statement = connection.prepareStatement(querySource.getQuery("getMessageContentByMessageIds", params));
+			statement = connection.prepareStatement(querySource.getQuery("getMessageContentByMessageIds", params));
 
-            resultSet = statement.executeQuery();
+			resultSet = statement.executeQuery();
 
-            while (resultSet.next()) {
-                Long messageId = resultSet.getLong("message_id");
-                Integer metaDataId = resultSet.getInt("metadata_id");
-                String content = resultSet.getString("content");
-                ContentType contentType = ContentType.fromCode(resultSet.getInt("content_type"));
-                String dataType = resultSet.getString("data_type");
-                boolean encrypted = resultSet.getBoolean("is_encrypted");
+			while (resultSet.next()) {
+				Long messageId = resultSet.getLong("message_id");
+				Integer metaDataId = resultSet.getInt("metadata_id");
+				String content = resultSet.getString("content");
+				ContentType contentType = ContentType.fromCode(resultSet.getInt("content_type"));
+				String dataType = resultSet.getString("data_type");
+				boolean encrypted = resultSet.getBoolean("is_encrypted");
 
-                if ((decryptData || alwaysDecrypt.contains(contentType)) && encrypted && encryptor != null) {
-                    content = encryptor.decrypt(content);
-                    encrypted = false;
-                }
+				if ((decryptData || alwaysDecrypt.contains(contentType)) && encrypted && encryptor != null) {
+					content = encryptor.decrypt(content);
+					encrypted = false;
+				}
 
-                Map<Integer, List<MessageContent>> connectorMessageContentMap = messageContentMap.get(messageId);
-                if (connectorMessageContentMap == null) {
-                    connectorMessageContentMap = new HashMap<Integer, List<MessageContent>>();
-                    messageContentMap.put(messageId, connectorMessageContentMap);
-                }
+				Map<Integer, List<MessageContent>> connectorMessageContentMap = messageContentMap.get(messageId);
+				if (connectorMessageContentMap == null) {
+					connectorMessageContentMap = new HashMap<Integer, List<MessageContent>>();
+					messageContentMap.put(messageId, connectorMessageContentMap);
+				}
 
-                List<MessageContent> messageContents = connectorMessageContentMap.get(metaDataId);
-                if (messageContents == null) {
-                    messageContents = new ArrayList<MessageContent>();
-                    connectorMessageContentMap.put(metaDataId, messageContents);
-                }
+				List<MessageContent> messageContents = connectorMessageContentMap.get(metaDataId);
+				if (messageContents == null) {
+					messageContents = new ArrayList<MessageContent>();
+					connectorMessageContentMap.put(metaDataId, messageContents);
+				}
 
-                messageContents.add(new MessageContent(channelId, messageId, metaDataId, contentType, content, dataType, encrypted));
-            }
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-            close(statement);
-        }
+				messageContents.add(new MessageContent(channelId, messageId, metaDataId, contentType, content, dataType,
+						encrypted));
+			}
+		} catch (SQLException e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+			close(statement);
+		}
 
-        return messageContentMap;
-    }
+		return messageContentMap;
+	}
 
-    /**
-     * Get all content for a destination connector that is stored with the source connector
-     */
+	/**
+	 * Get all content for a destination connector that is stored with the
+	 * source connector
+	 */
 	private List<MessageContent> getDestinationMessageContentFromSource(String channelId, long messageId,
 			int metaDataId) {
 		List<MessageContent> messageContents = new ArrayList<MessageContent>();
@@ -2737,8 +2834,7 @@ public class JdbcDao implements DonkeyDao {
 				String dataType = resultSet.getString("data_type");
 				boolean encrypted = resultSet.getBoolean("is_encrypted");
 
-				if ((decryptData || alwaysDecrypt.contains(contentType)) && encrypted
-						&& encryptor != null) {
+				if ((decryptData || alwaysDecrypt.contains(contentType)) && encrypted && encryptor != null) {
 					content = encryptor.decrypt(content);
 					encrypted = false;
 				}
@@ -2762,376 +2858,400 @@ public class JdbcDao implements DonkeyDao {
 		return messageContents;
 	}
 
-    /**
-     * Load message content into the connector message based on the content type
-     */
-    private void loadMessageContent(ConnectorMessage connectorMessage, List<MessageContent> messageContents) {
-        for (MessageContent messageContent : messageContents) {
-            switch (messageContent.getContentType()) {
-                case RAW:
-                    connectorMessage.setRaw(messageContent);
-                    break;
-                case PROCESSED_RAW:
-                    connectorMessage.setProcessedRaw(messageContent);
-                    break;
-                case TRANSFORMED:
-                    connectorMessage.setTransformed(messageContent);
-                    break;
-                case ENCODED:
-                    connectorMessage.setEncoded(messageContent);
-                    break;
-                case SENT:
-                    connectorMessage.setSent(messageContent);
-                    break;
-                case RESPONSE:
-                    connectorMessage.setResponse(messageContent);
-                    break;
-                case RESPONSE_TRANSFORMED:
-                    connectorMessage.setResponseTransformed(messageContent);
-                    break;
-                case PROCESSED_RESPONSE:
-                    connectorMessage.setProcessedResponse(messageContent);
-                    break;
-                case CONNECTOR_MAP:
-                    connectorMessage.setConnectorMapContent(getMapContentFromMessageContent(messageContent));
-                    break;
-                case CHANNEL_MAP:
-                    connectorMessage.setChannelMapContent(getMapContentFromMessageContent(messageContent));
-                    break;
-                case RESPONSE_MAP:
-                    connectorMessage.setResponseMapContent(getMapContentFromMessageContent(messageContent));
-                    break;
-                case PROCESSING_ERROR:
-                    connectorMessage.setProcessingErrorContent(getErrorContentFromMessageContent(messageContent));
-                    break;
-                case POSTPROCESSOR_ERROR:
-                    connectorMessage.setPostProcessorErrorContent(getErrorContentFromMessageContent(messageContent));
-                    break;
-                case RESPONSE_ERROR:
-                    connectorMessage.setResponseErrorContent(getErrorContentFromMessageContent(messageContent));
-                    break;
-                case SOURCE_MAP:
-                    connectorMessage.setSourceMapContent(getMapContentFromMessageContent(messageContent));
-                    break;
-            }
-        }
-    }
+	/**
+	 * Load message content into the connector message based on the content type
+	 */
+	private void loadMessageContent(ConnectorMessage connectorMessage, List<MessageContent> messageContents) {
+		for (MessageContent messageContent : messageContents) {
+			switch (messageContent.getContentType()) {
+			case RAW:
+				connectorMessage.setRaw(messageContent);
+				break;
+			case PROCESSED_RAW:
+				connectorMessage.setProcessedRaw(messageContent);
+				break;
+			case TRANSFORMED:
+				connectorMessage.setTransformed(messageContent);
+				break;
+			case ENCODED:
+				connectorMessage.setEncoded(messageContent);
+				break;
+			case SENT:
+				connectorMessage.setSent(messageContent);
+				break;
+			case RESPONSE:
+				connectorMessage.setResponse(messageContent);
+				break;
+			case RESPONSE_TRANSFORMED:
+				connectorMessage.setResponseTransformed(messageContent);
+				break;
+			case PROCESSED_RESPONSE:
+				connectorMessage.setProcessedResponse(messageContent);
+				break;
+			case CONNECTOR_MAP:
+				connectorMessage.setConnectorMapContent(getMapContentFromMessageContent(messageContent));
+				break;
+			case CHANNEL_MAP:
+				connectorMessage.setChannelMapContent(getMapContentFromMessageContent(messageContent));
+				break;
+			case RESPONSE_MAP:
+				connectorMessage.setResponseMapContent(getMapContentFromMessageContent(messageContent));
+				break;
+			case PROCESSING_ERROR:
+				connectorMessage.setProcessingErrorContent(getErrorContentFromMessageContent(messageContent));
+				break;
+			case POSTPROCESSOR_ERROR:
+				connectorMessage.setPostProcessorErrorContent(getErrorContentFromMessageContent(messageContent));
+				break;
+			case RESPONSE_ERROR:
+				connectorMessage.setResponseErrorContent(getErrorContentFromMessageContent(messageContent));
+				break;
+			case SOURCE_MAP:
+				connectorMessage.setSourceMapContent(getMapContentFromMessageContent(messageContent));
+				break;
+			}
+		}
+	}
 
-    private MapContent getMapContentFromMessageContent(MessageContent content) {
-        if (content == null) {
-            return new MapContent(new HashMap<String, Object>(), false);
-        } else if (StringUtils.isBlank(content.getContent())) {
-            return new MapContent(new HashMap<String, Object>(), true);
-        }
+	private MapContent getMapContentFromMessageContent(MessageContent content) {
+		if (content == null) {
+			return new MapContent(new HashMap<String, Object>(), false);
+		} else if (StringUtils.isBlank(content.getContent())) {
+			return new MapContent(new HashMap<String, Object>(), true);
+		}
 
-        return new MapContent(MapUtil.deserializeMap(serializerProvider.getSerializer(content.getMetaDataId()), content.getContent()), true);
-    }
+		return new MapContent(
+				MapUtil.deserializeMap(serializerProvider.getSerializer(content.getMetaDataId()), content.getContent()),
+				true);
+	}
 
-    private ErrorContent getErrorContentFromMessageContent(MessageContent content) {
-        if (content == null) {
-            return new ErrorContent(null, false);
-        }
+	private ErrorContent getErrorContentFromMessageContent(MessageContent content) {
+		if (content == null) {
+			return new ErrorContent(null, false);
+		}
 
-        return new ErrorContent(content.getContent(), true);
-    }
+		return new ErrorContent(content.getContent(), true);
+	}
 
-    private Map<String, Object> getMetaDataMap(String channelId, long messageId, int metaDataId) {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+	private Map<String, Object> getMetaDataMap(String channelId, long messageId, int metaDataId) {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
 
-        try {
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", getLocalChannelId(channelId));
+		try {
+			Map<String, Object> values = new HashMap<String, Object>();
+			values.put("localChannelId", getLocalChannelId(channelId));
 
-            // do not cache this statement since metadata columns may be added/removed
-            statement = connection.prepareStatement(querySource.getQuery("getMetaDataMap", values));
-            statement.setLong(1, messageId);
-            statement.setInt(2, metaDataId);
+			// do not cache this statement since metadata columns may be
+			// added/removed
+			statement = connection.prepareStatement(querySource.getQuery("getMetaDataMap", values));
+			statement.setLong(1, messageId);
+			statement.setInt(2, metaDataId);
 
-            Map<String, Object> metaDataMap = new HashMap<String, Object>();
-            resultSet = statement.executeQuery();
+			Map<String, Object> metaDataMap = new HashMap<String, Object>();
+			resultSet = statement.executeQuery();
 
-            if (resultSet.next()) {
-                ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-                int columnCount = resultSetMetaData.getColumnCount();
+			if (resultSet.next()) {
+				ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+				int columnCount = resultSetMetaData.getColumnCount();
 
-                for (int i = 1; i <= columnCount; i++) {
-                    MetaDataColumnType metaDataColumnType = MetaDataColumnType.fromSqlType(resultSetMetaData.getColumnType(i));
-                    Object value = null;
+				for (int i = 1; i <= columnCount; i++) {
+					MetaDataColumnType metaDataColumnType = MetaDataColumnType
+							.fromSqlType(resultSetMetaData.getColumnType(i));
+					Object value = null;
 
-                    switch (metaDataColumnType) {//@formatter:off
-                        case STRING: value = resultSet.getString(i); break;
-                        case NUMBER: value = resultSet.getBigDecimal(i); break;
-                        case BOOLEAN: value = resultSet.getBoolean(i); break;
-                        case TIMESTAMP:
-                            
-                            Timestamp timestamp = resultSet.getTimestamp(i);
-                            if (timestamp != null) {
-                                value = Calendar.getInstance();
-                                ((Calendar) value).setTimeInMillis(timestamp.getTime());
-                            }
-                            break;
+					switch (metaDataColumnType) {// @formatter:off
+					case STRING:
+						value = resultSet.getString(i);
+						break;
+					case NUMBER:
+						value = resultSet.getBigDecimal(i);
+						break;
+					case BOOLEAN:
+						value = resultSet.getBoolean(i);
+						break;
+					case TIMESTAMP:
 
-                        default: throw new Exception("Unrecognized MetaDataColumnType");
-                    } //@formatter:on
+						Timestamp timestamp = resultSet.getTimestamp(i);
+						if (timestamp != null) {
+							value = Calendar.getInstance();
+							((Calendar) value).setTimeInMillis(timestamp.getTime());
+						}
+						break;
 
-                    metaDataMap.put(resultSetMetaData.getColumnName(i).toUpperCase(), value);
-                }
-            }
+					default:
+						throw new Exception("Unrecognized MetaDataColumnType");
+					} // @formatter:on
 
-            return metaDataMap;
-        } catch (Exception e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-            close(statement);
-        }
-    }
+					metaDataMap.put(resultSetMetaData.getColumnName(i).toUpperCase(), value);
+				}
+			}
 
-    private Map<Long, Map<Integer, Map<String, Object>>> getMetaDataMaps(String channelId, List<Long> messageIds) {
-        if (messageIds.size() > 1000) {
-            throw new DonkeyDaoException("Only up to 1000 message Ids at a time are supported.");
-        }
+			return metaDataMap;
+		} catch (Exception e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+			close(statement);
+		}
+	}
 
-        Map<Long, Map<Integer, Map<String, Object>>> metaDataMaps = new HashMap<Long, Map<Integer, Map<String, Object>>>();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+	private Map<Long, Map<Integer, Map<String, Object>>> getMetaDataMaps(String channelId, List<Long> messageIds) {
+		if (messageIds.size() > 1000) {
+			throw new DonkeyDaoException("Only up to 1000 message Ids at a time are supported.");
+		}
 
-        try {
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", getLocalChannelId(channelId));
-            values.put("messageIds", StringUtils.join(messageIds, ","));
+		Map<Long, Map<Integer, Map<String, Object>>> metaDataMaps = new HashMap<Long, Map<Integer, Map<String, Object>>>();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
 
-            // do not cache this statement since metadata columns may be added/removed
-            statement = connection.prepareStatement(querySource.getQuery("getMetaDataMapByMessageId", values));
-            resultSet = statement.executeQuery();
+		try {
+			Map<String, Object> values = new HashMap<String, Object>();
+			values.put("localChannelId", getLocalChannelId(channelId));
+			values.put("messageIds", StringUtils.join(messageIds, ","));
 
-            while (resultSet.next()) {
-                Long messageId = resultSet.getLong("message_id");
-                Integer metaDataId = resultSet.getInt("metadata_id");
+			// do not cache this statement since metadata columns may be
+			// added/removed
+			statement = connection.prepareStatement(querySource.getQuery("getMetaDataMapByMessageId", values));
+			resultSet = statement.executeQuery();
 
-                Map<Integer, Map<String, Object>> connectorMetaDataMap = metaDataMaps.get(messageId);
-                if (connectorMetaDataMap == null) {
-                    connectorMetaDataMap = new HashMap<Integer, Map<String, Object>>();
-                    metaDataMaps.put(messageId, connectorMetaDataMap);
-                }
+			while (resultSet.next()) {
+				Long messageId = resultSet.getLong("message_id");
+				Integer metaDataId = resultSet.getInt("metadata_id");
 
-                Map<String, Object> metaDataMap = connectorMetaDataMap.get(metaDataId);
-                if (metaDataMap == null) {
-                    metaDataMap = new HashMap<String, Object>();
-                    connectorMetaDataMap.put(metaDataId, metaDataMap);
-                }
+				Map<Integer, Map<String, Object>> connectorMetaDataMap = metaDataMaps.get(messageId);
+				if (connectorMetaDataMap == null) {
+					connectorMetaDataMap = new HashMap<Integer, Map<String, Object>>();
+					metaDataMaps.put(messageId, connectorMetaDataMap);
+				}
 
-                ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-                int columnCount = resultSetMetaData.getColumnCount();
+				Map<String, Object> metaDataMap = connectorMetaDataMap.get(metaDataId);
+				if (metaDataMap == null) {
+					metaDataMap = new HashMap<String, Object>();
+					connectorMetaDataMap.put(metaDataId, metaDataMap);
+				}
 
-                for (int i = 1; i <= columnCount; i++) {
-                    MetaDataColumnType metaDataColumnType = MetaDataColumnType.fromSqlType(resultSetMetaData.getColumnType(i));
-                    Object value = null;
+				ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+				int columnCount = resultSetMetaData.getColumnCount();
 
-                    switch (metaDataColumnType) {//@formatter:off
-                        case STRING: value = resultSet.getString(i); break;
-                        case NUMBER: value = resultSet.getBigDecimal(i); break;
-                        case BOOLEAN: value = resultSet.getBoolean(i); break;
-                        case TIMESTAMP:
-                            
-                            Timestamp timestamp = resultSet.getTimestamp(i);
-                            if (timestamp != null) {
-                                value = Calendar.getInstance();
-                                ((Calendar) value).setTimeInMillis(timestamp.getTime());
-                            }
-                            break;
+				for (int i = 1; i <= columnCount; i++) {
+					MetaDataColumnType metaDataColumnType = MetaDataColumnType
+							.fromSqlType(resultSetMetaData.getColumnType(i));
+					Object value = null;
 
-                        default: throw new Exception("Unrecognized MetaDataColumnType");
-                    } //@formatter:on
+					switch (metaDataColumnType) {// @formatter:off
+					case STRING:
+						value = resultSet.getString(i);
+						break;
+					case NUMBER:
+						value = resultSet.getBigDecimal(i);
+						break;
+					case BOOLEAN:
+						value = resultSet.getBoolean(i);
+						break;
+					case TIMESTAMP:
 
-                    metaDataMap.put(resultSetMetaData.getColumnName(i).toUpperCase(), value);
-                }
-            }
+						Timestamp timestamp = resultSet.getTimestamp(i);
+						if (timestamp != null) {
+							value = Calendar.getInstance();
+							((Calendar) value).setTimeInMillis(timestamp.getTime());
+						}
+						break;
 
-            return metaDataMaps;
-        } catch (Exception e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-            close(statement);
-        }
-    }
+					default:
+						throw new Exception("Unrecognized MetaDataColumnType");
+					} // @formatter:on
 
-    /**
-     * When using Derby, we manually cascade the deletion of records from dependent tables rather
-     * than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when cascading
-     * deletes, which hinders concurrency and can increase the risk of deadlocks.
-     */
-    private void cascadeMessageDelete(String queryId, String channelId) throws SQLException {
-        PreparedStatement statement = prepareStatement(queryId, channelId);
+					metaDataMap.put(resultSetMetaData.getColumnName(i).toUpperCase(), value);
+				}
+			}
 
-        if (statement != null) {
-            statement.executeUpdate();
-        }
-    }
+			return metaDataMaps;
+		} catch (Exception e) {
+			throw new DonkeyDaoException(e);
+		} finally {
+			close(resultSet);
+			close(statement);
+		}
+	}
 
-    /**
-     * When using Derby, we manually cascade the deletion of records from dependent tables rather
-     * than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when cascading
-     * deletes, which hinders concurrency and can increase the risk of deadlocks.
-     */
-    private void cascadeMessageDelete(String queryId, long messageId, String channelId) throws SQLException {
-        PreparedStatement statement = prepareStatement(queryId, channelId);
+	/**
+	 * When using Derby, we manually cascade the deletion of records from
+	 * dependent tables rather than relying on ON DELETE CASCADE behavior. Derby
+	 * uses a table-level lock when cascading deletes, which hinders concurrency
+	 * and can increase the risk of deadlocks.
+	 */
+	private void cascadeMessageDelete(String queryId, String channelId) throws SQLException {
+		PreparedStatement statement = prepareStatement(queryId, channelId);
 
-        if (statement != null) {
-            statement.setLong(1, messageId);
-            statement.executeUpdate();
-        }
-    }
+		if (statement != null) {
+			statement.executeUpdate();
+		}
+	}
 
-    /**
-     * When using Derby, we manually cascade the deletion of records from dependent tables rather
-     * than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when cascading
-     * deletes, which hinders concurrency and can increase the risk of deadlocks.
-     */
-    private void cascadeMessageDelete(String queryId, long messageId, Map<String, Object> values) throws SQLException {
-        String query = querySource.getQuery(queryId, values);
+	/**
+	 * When using Derby, we manually cascade the deletion of records from
+	 * dependent tables rather than relying on ON DELETE CASCADE behavior. Derby
+	 * uses a table-level lock when cascading deletes, which hinders concurrency
+	 * and can increase the risk of deadlocks.
+	 */
+	private void cascadeMessageDelete(String queryId, long messageId, String channelId) throws SQLException {
+		PreparedStatement statement = prepareStatement(queryId, channelId);
 
-        if (query != null) {
-            PreparedStatement statement = null;
+		if (statement != null) {
+			statement.setLong(1, messageId);
+			statement.executeUpdate();
+		}
+	}
 
-            try {
-                statement = connection.prepareStatement(query);
-                statement.setLong(1, messageId);
-                statement.executeUpdate();
-            } finally {
-                close(statement);
-            }
-        }
-    }
+	/**
+	 * When using Derby, we manually cascade the deletion of records from
+	 * dependent tables rather than relying on ON DELETE CASCADE behavior. Derby
+	 * uses a table-level lock when cascading deletes, which hinders concurrency
+	 * and can increase the risk of deadlocks.
+	 */
+	private void cascadeMessageDelete(String queryId, long messageId, Map<String, Object> values) throws SQLException {
+		String query = querySource.getQuery(queryId, values);
 
-    /**
-     * Returns a prepared statement from the statementSource for the given channelId.
-     */
-    PreparedStatement prepareStatement(String queryId, String channelId) throws SQLException {
-        Long localChannelId = null;
+		if (query != null) {
+			PreparedStatement statement = null;
 
-        if (channelId != null) {
-            localChannelId = getLocalChannelId(channelId);
-        }
+			try {
+				statement = connection.prepareStatement(query);
+				statement.setLong(1, messageId);
+				statement.executeUpdate();
+			} finally {
+				close(statement);
+			}
+		}
+	}
 
-        return statementSource.getPreparedStatement(queryId, localChannelId);
-    }
+	/**
+	 * Returns a prepared statement from the statementSource for the given
+	 * channelId.
+	 */
+	PreparedStatement prepareStatement(String queryId, String channelId) throws SQLException {
+		Long localChannelId = null;
 
-    protected void close(Statement statement) {
-        try {
-            DbUtils.close(statement);
-        } catch (SQLException e) {
-            logger.error("Failed to close JDBC statement", e);
-        }
-    }
+		if (channelId != null) {
+			localChannelId = getLocalChannelId(channelId);
+		}
 
-    protected void close(ResultSet resultSet) {
-        try {
-            DbUtils.close(resultSet);
-        } catch (SQLException e) {
-            logger.error("Failed to close JDBC result set", e);
-        }
-    }
+		return statementSource.getPreparedStatement(queryId, localChannelId);
+	}
 
-    private static String sqlTypeToString(int sqlType) {
-        switch (sqlType) {
-            case Types.ARRAY:
-                return "ARRAY";
-            case Types.BIGINT:
-                return "BIGINT";
-            case Types.BINARY:
-                return "BINARY";
-            case Types.BIT:
-                return "BIT";
-            case Types.BLOB:
-                return "BLOB";
-            case Types.BOOLEAN:
-                return "BOOLEAN";
-            case Types.CHAR:
-                return "CHAR";
-            case Types.CLOB:
-                return "CLOB";
-            case Types.DATALINK:
-                return "DATALINK";
-            case Types.DATE:
-                return "DATE";
-            case Types.DECIMAL:
-                return "DECIMAL";
-            case Types.DISTINCT:
-                return "DISTINCT";
-            case Types.DOUBLE:
-                return "DOUBLE";
-            case Types.FLOAT:
-                return "FLOAT";
-            case Types.INTEGER:
-                return "INTEGER";
-            case Types.JAVA_OBJECT:
-                return "JAVA_OBJECT";
-            case Types.LONGNVARCHAR:
-                return "LONGNVARCHAR";
-            case Types.LONGVARBINARY:
-                return "LONGVARBINARY";
-            case Types.LONGVARCHAR:
-                return "LONGVARCHAR";
-            case Types.NCHAR:
-                return "NCHAR";
-            case Types.NCLOB:
-                return "NCLOB";
-            case Types.NULL:
-                return "NULL";
-            case Types.NUMERIC:
-                return "NUMERIC";
-            case Types.NVARCHAR:
-                return "NVARCHAR";
-            case Types.OTHER:
-                return "OTHER";
-            case Types.REAL:
-                return "REAL";
-            case Types.REF:
-                return "REF";
-            case Types.ROWID:
-                return "ROWID";
-            case Types.SMALLINT:
-                return "SMALLINT";
-            case Types.SQLXML:
-                return "SQLXML";
-            case Types.STRUCT:
-                return "STRUCT";
-            case Types.TIME:
-                return "TIME";
-            case Types.TIMESTAMP:
-                return "TIMESTAMP";
-            case Types.TINYINT:
-                return "TINYINT";
-            case Types.VARBINARY:
-                return "VARBINARY";
-            case Types.VARCHAR:
-                return "VARCHAR";
-            default:
-                return "UNKNOWN";
-        }
-    }
+	protected void close(Statement statement) {
+		try {
+			DbUtils.close(statement);
+		} catch (SQLException e) {
+			logger.error("Failed to close JDBC statement", e);
+		}
+	}
 
-    protected long getLocalChannelId(String channelId) {
-        Channel channel = donkey.getDeployedChannels().get(channelId);
+	protected void close(ResultSet resultSet) {
+		try {
+			DbUtils.close(resultSet);
+		} catch (SQLException e) {
+			logger.error("Failed to close JDBC result set", e);
+		}
+	}
 
-        if (channel == null) {
-            Long localChannelId = getLocalChannelIds().get(channelId);
+	private static String sqlTypeToString(int sqlType) {
+		switch (sqlType) {
+		case Types.ARRAY:
+			return "ARRAY";
+		case Types.BIGINT:
+			return "BIGINT";
+		case Types.BINARY:
+			return "BINARY";
+		case Types.BIT:
+			return "BIT";
+		case Types.BLOB:
+			return "BLOB";
+		case Types.BOOLEAN:
+			return "BOOLEAN";
+		case Types.CHAR:
+			return "CHAR";
+		case Types.CLOB:
+			return "CLOB";
+		case Types.DATALINK:
+			return "DATALINK";
+		case Types.DATE:
+			return "DATE";
+		case Types.DECIMAL:
+			return "DECIMAL";
+		case Types.DISTINCT:
+			return "DISTINCT";
+		case Types.DOUBLE:
+			return "DOUBLE";
+		case Types.FLOAT:
+			return "FLOAT";
+		case Types.INTEGER:
+			return "INTEGER";
+		case Types.JAVA_OBJECT:
+			return "JAVA_OBJECT";
+		case Types.LONGNVARCHAR:
+			return "LONGNVARCHAR";
+		case Types.LONGVARBINARY:
+			return "LONGVARBINARY";
+		case Types.LONGVARCHAR:
+			return "LONGVARCHAR";
+		case Types.NCHAR:
+			return "NCHAR";
+		case Types.NCLOB:
+			return "NCLOB";
+		case Types.NULL:
+			return "NULL";
+		case Types.NUMERIC:
+			return "NUMERIC";
+		case Types.NVARCHAR:
+			return "NVARCHAR";
+		case Types.OTHER:
+			return "OTHER";
+		case Types.REAL:
+			return "REAL";
+		case Types.REF:
+			return "REF";
+		case Types.ROWID:
+			return "ROWID";
+		case Types.SMALLINT:
+			return "SMALLINT";
+		case Types.SQLXML:
+			return "SQLXML";
+		case Types.STRUCT:
+			return "STRUCT";
+		case Types.TIME:
+			return "TIME";
+		case Types.TIMESTAMP:
+			return "TIMESTAMP";
+		case Types.TINYINT:
+			return "TINYINT";
+		case Types.VARBINARY:
+			return "VARBINARY";
+		case Types.VARCHAR:
+			return "VARCHAR";
+		default:
+			return "UNKNOWN";
+		}
+	}
 
-            if (localChannelId == null) {
-                throw new ChannelDoesNotExistException(channelId);
-            } else {
-                return localChannelId;
-            }
-        } else {
-            return channel.getLocalChannelId();
-        }
-    }
+	protected long getLocalChannelId(String channelId) {
+		Channel channel = donkey.getDeployedChannels().get(channelId);
 
-    protected String getDeployedChannelName(String channelId) {
-        Channel channel = donkey.getDeployedChannels().get(channelId);
-        return channel != null ? channel.getName() : "";
-    }
+		if (channel == null) {
+			Long localChannelId = getLocalChannelIds().get(channelId);
+
+			if (localChannelId == null) {
+				throw new ChannelDoesNotExistException(channelId);
+			} else {
+				return localChannelId;
+			}
+		} else {
+			return channel.getLocalChannelId();
+		}
+	}
+
+	protected String getDeployedChannelName(String channelId) {
+		Channel channel = donkey.getDeployedChannels().get(channelId);
+		return channel != null ? channel.getName() : "";
+	}
 }
