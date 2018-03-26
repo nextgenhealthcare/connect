@@ -709,21 +709,13 @@ public class JdbcDao implements DonkeyDao {
 
                     if (value != null) {
                         // @formatter:off
-						switch (metaDataColumn.getType()) {
-						case STRING:
-							statement.setString(n, (String) value);
-							break;
-						case NUMBER:
-							statement.setBigDecimal(n, (BigDecimal) value);
-							break;
-						case BOOLEAN:
-							statement.setBoolean(n, (Boolean) value);
-							break;
-						case TIMESTAMP:
-							statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis()));
-							break;
-						}
-						// @formatter:on
+                        switch (metaDataColumn.getType()) {
+                            case STRING: statement.setString(n, (String) value); break;
+                            case NUMBER: statement.setBigDecimal(n, (BigDecimal) value); break;
+                            case BOOLEAN: statement.setBoolean(n, (Boolean) value); break;
+                            case TIMESTAMP: statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis())); break;
+                        }
+                        // @formatter:on
 
                         n++;
                     }
@@ -769,21 +761,13 @@ public class JdbcDao implements DonkeyDao {
 
                     if (value != null) {
                         // @formatter:off
-						switch (metaDataColumn.getType()) {
-						case STRING:
-							statement.setString(n, (String) value);
-							break;
-						case NUMBER:
-							statement.setBigDecimal(n, (BigDecimal) value);
-							break;
-						case BOOLEAN:
-							statement.setBoolean(n, (Boolean) value);
-							break;
-						case TIMESTAMP:
-							statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis()));
-							break;
-						}
-						// @formatter:on
+                        switch (metaDataColumn.getType()) {
+                            case STRING: statement.setString(n, (String) value); break;
+                            case NUMBER: statement.setBigDecimal(n, (BigDecimal) value); break;
+                            case BOOLEAN: statement.setBoolean(n, (Boolean) value); break;
+                            case TIMESTAMP: statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis())); break;
+                        }
+                        // @formatter:on
 
                         n++;
                     }
@@ -2868,28 +2852,21 @@ public class JdbcDao implements DonkeyDao {
                     MetaDataColumnType metaDataColumnType = MetaDataColumnType.fromSqlType(resultSetMetaData.getColumnType(i));
                     Object value = null;
 
-                    switch (metaDataColumnType) {// @formatter:off
-					case STRING:
-						value = resultSet.getString(i);
-						break;
-					case NUMBER:
-						value = resultSet.getBigDecimal(i);
-						break;
-					case BOOLEAN:
-						value = resultSet.getBoolean(i);
-						break;
-					case TIMESTAMP:
+                    switch (metaDataColumnType) {//@formatter:off
+                        case STRING: value = resultSet.getString(i); break;
+                        case NUMBER: value = resultSet.getBigDecimal(i); break;
+                        case BOOLEAN: value = resultSet.getBoolean(i); break;
+                        case TIMESTAMP:
+                            
+                            Timestamp timestamp = resultSet.getTimestamp(i);
+                            if (timestamp != null) {
+                                value = Calendar.getInstance();
+                                ((Calendar) value).setTimeInMillis(timestamp.getTime());
+                            }
+                            break;
 
-						Timestamp timestamp = resultSet.getTimestamp(i);
-						if (timestamp != null) {
-							value = Calendar.getInstance();
-							((Calendar) value).setTimeInMillis(timestamp.getTime());
-						}
-						break;
-
-					default:
-						throw new Exception("Unrecognized MetaDataColumnType");
-					} // @formatter:on
+                        default: throw new Exception("Unrecognized MetaDataColumnType");
+                    } //@formatter:on
 
                     metaDataMap.put(resultSetMetaData.getColumnName(i).toUpperCase(), value);
                 }
@@ -2946,28 +2923,21 @@ public class JdbcDao implements DonkeyDao {
                     MetaDataColumnType metaDataColumnType = MetaDataColumnType.fromSqlType(resultSetMetaData.getColumnType(i));
                     Object value = null;
 
-                    switch (metaDataColumnType) {// @formatter:off
-					case STRING:
-						value = resultSet.getString(i);
-						break;
-					case NUMBER:
-						value = resultSet.getBigDecimal(i);
-						break;
-					case BOOLEAN:
-						value = resultSet.getBoolean(i);
-						break;
-					case TIMESTAMP:
+                    switch (metaDataColumnType) {//@formatter:off
+                        case STRING: value = resultSet.getString(i); break;
+                        case NUMBER: value = resultSet.getBigDecimal(i); break;
+                        case BOOLEAN: value = resultSet.getBoolean(i); break;
+                        case TIMESTAMP:
+                            
+                            Timestamp timestamp = resultSet.getTimestamp(i);
+                            if (timestamp != null) {
+                                value = Calendar.getInstance();
+                                ((Calendar) value).setTimeInMillis(timestamp.getTime());
+                            }
+                            break;
 
-						Timestamp timestamp = resultSet.getTimestamp(i);
-						if (timestamp != null) {
-							value = Calendar.getInstance();
-							((Calendar) value).setTimeInMillis(timestamp.getTime());
-						}
-						break;
-
-					default:
-						throw new Exception("Unrecognized MetaDataColumnType");
-					} // @formatter:on
+                        default: throw new Exception("Unrecognized MetaDataColumnType");
+                    } //@formatter:on
 
                     metaDataMap.put(resultSetMetaData.getColumnName(i).toUpperCase(), value);
                 }
