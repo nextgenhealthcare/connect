@@ -471,7 +471,6 @@ public class JdbcDao implements DonkeyDao {
             }
 
             if (statement.executeUpdate() == 0) {
-                close(statement);
                 statement = prepareStatement("insertChannelStatistics", channelId);
 
                 if (metaDataId == null) {
