@@ -251,7 +251,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     }
 
     private void setDocType(String dataType) {
-        TokenMarker tokenMarker = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataType)).getTokenMarker(getDataProperties());
+        TokenMarker tokenMarker = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataType)).getTokenMarker(getDataProperties(), inbound);
 
         if (tokenMarker != null) {
             hl7Document.setTokenMarker(tokenMarker);
