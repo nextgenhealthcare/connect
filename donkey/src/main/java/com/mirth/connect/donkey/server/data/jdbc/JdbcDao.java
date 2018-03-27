@@ -1544,10 +1544,8 @@ public class JdbcDao implements DonkeyDao {
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
-            List<AutoCloseable> dbObjects = new ArrayList<>();
-            dbObjects.add(resultSet);
-            dbObjects.add(statement);
-            closeDatabaseObjectsIfNeeded(dbObjects);
+            close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
         }
     }
 
@@ -1618,10 +1616,8 @@ public class JdbcDao implements DonkeyDao {
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
-            List<AutoCloseable> dbObjects = new ArrayList<>();
-            dbObjects.add(resultSet);
-            dbObjects.add(statement);
-            closeDatabaseObjectsIfNeeded(dbObjects);
+            close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
         }
     }
 
@@ -1945,10 +1941,8 @@ public class JdbcDao implements DonkeyDao {
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
-            List<AutoCloseable> dbObjects = new ArrayList<>();
-            dbObjects.add(resultSet);
-            dbObjects.add(statement);
-            closeDatabaseObjectsIfNeeded(dbObjects);
+            close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
         }
     }
 
@@ -1972,10 +1966,8 @@ public class JdbcDao implements DonkeyDao {
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
-            List<AutoCloseable> dbObjects = new ArrayList<>();
-            dbObjects.add(resultSet);
-            dbObjects.add(statement);
-            closeDatabaseObjectsIfNeeded(dbObjects);
+            close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
         }
     }
 
@@ -1996,10 +1988,8 @@ public class JdbcDao implements DonkeyDao {
             } catch (SQLException e) {
                 throw new DonkeyDaoException(e);
             } finally {
-                List<AutoCloseable> dbObjects = new ArrayList<>();
-                dbObjects.add(resultSet);
-                dbObjects.add(statement);
-                closeDatabaseObjectsIfNeeded(dbObjects);
+                close(resultSet);
+                closeDatabaseObjectIfNeeded(statement);
             }
         } else {
             // the channel has never been deployed
@@ -2023,10 +2013,8 @@ public class JdbcDao implements DonkeyDao {
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
-            List<AutoCloseable> dbObjects = new ArrayList<>();
-            dbObjects.add(resultSet);
-            dbObjects.add(statement);
-            closeDatabaseObjectsIfNeeded(dbObjects);
+            close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
         }
     }
 
@@ -2086,10 +2074,8 @@ public class JdbcDao implements DonkeyDao {
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
-            List<AutoCloseable> dbObjects = new ArrayList<>();
-            dbObjects.add(initSequenceStatement);
-            dbObjects.add(statement);
-            closeDatabaseObjectsIfNeeded(dbObjects);
+            close(initSequenceStatement);
+            closeDatabaseObjectIfNeeded(statement);
         }
     }
 
@@ -2330,10 +2316,8 @@ public class JdbcDao implements DonkeyDao {
             } catch (SQLException e) {
                 throw new DonkeyDaoException(e);
             } finally {
-                List<AutoCloseable> dbObjects = new ArrayList<>();
-                dbObjects.add(resultSet);
-                dbObjects.add(statement);
-                closeDatabaseObjectsIfNeeded(dbObjects);
+                close(resultSet);
+                closeDatabaseObjectIfNeeded(statement);
             }
         }
 
@@ -2647,10 +2631,8 @@ public class JdbcDao implements DonkeyDao {
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
-            List<AutoCloseable> dbObjects = new ArrayList<>();
-            dbObjects.add(resultSet);
-            dbObjects.add(statement);
-            closeDatabaseObjectsIfNeeded(dbObjects);
+            close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
         }
 
         return messageContents;
@@ -2745,10 +2727,8 @@ public class JdbcDao implements DonkeyDao {
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
-            List<AutoCloseable> dbObjects = new ArrayList<>();
-            dbObjects.add(resultSet);
-            dbObjects.add(statement);
-            closeDatabaseObjectsIfNeeded(dbObjects);
+            close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
         }
 
         return messageContents;
@@ -2958,10 +2938,17 @@ public class JdbcDao implements DonkeyDao {
      * deletes, which hinders concurrency and can increase the risk of deadlocks.
      */
     private void cascadeMessageDelete(String queryId, String channelId) throws SQLException {
-        PreparedStatement statement = prepareStatement(queryId, channelId);
+        PreparedStatement statement = null;
+        try {
+            statement = prepareStatement(queryId, channelId);
 
-        if (statement != null) {
-            statement.executeUpdate();
+            if (statement != null) {
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            closeDatabaseObjectIfNeeded(statement);
         }
     }
 
@@ -2971,11 +2958,18 @@ public class JdbcDao implements DonkeyDao {
      * deletes, which hinders concurrency and can increase the risk of deadlocks.
      */
     private void cascadeMessageDelete(String queryId, long messageId, String channelId) throws SQLException {
-        PreparedStatement statement = prepareStatement(queryId, channelId);
+        PreparedStatement statement = null;
+        try {
+            statement = prepareStatement(queryId, channelId);
 
-        if (statement != null) {
-            statement.setLong(1, messageId);
-            statement.executeUpdate();
+            if (statement != null) {
+                statement.setLong(1, messageId);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            closeDatabaseObjectIfNeeded(statement);
         }
     }
 
