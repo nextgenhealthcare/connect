@@ -251,7 +251,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     }
 
     private void setDocType(String dataType) {
-        TokenMarker tokenMarker = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataType)).getTokenMarker();
+        TokenMarker tokenMarker = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataType)).getTokenMarker(getDataProperties());
 
         if (tokenMarker != null) {
             hl7Document.setTokenMarker(tokenMarker);
@@ -420,6 +420,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             }
         }
 
+        setDocType(currentDataType);
         updateText();
     }//GEN-LAST:event_propertiesActionPerformed
 

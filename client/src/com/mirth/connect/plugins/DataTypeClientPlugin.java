@@ -75,6 +75,15 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
     public abstract TokenMarker getTokenMarker();
 
     /**
+     * Get the token marker used by the client UI based on the dataTypeProperties
+     * @param DataTypeProperties
+     * @return TokenMarker
+     */
+    public TokenMarker getTokenMarker(DataTypeProperties dataTypeProperties) {
+        return getTokenMarker();
+    }
+    
+    /**
      * Get the message vocabulary
      */
     public abstract Class<? extends MessageVocabulary> getVocabulary();
