@@ -321,6 +321,7 @@ public class JdbcDao implements DonkeyDao {
                 // the encryption process again
                 logger.debug(channelId + "/" + messageId + "/" + metaDataId + ": updating message content (" + contentType.toString() + ")");
 
+                closeDatabaseObjectIfNeeded(statement);
                 statement = prepareStatement("insertMessageContent", channelId);
                 statement.setInt(1, metaDataId);
                 statement.setLong(2, messageId);
@@ -471,6 +472,7 @@ public class JdbcDao implements DonkeyDao {
             }
 
             if (statement.executeUpdate() == 0) {
+                closeDatabaseObjectIfNeeded(statement);
                 statement = prepareStatement("insertChannelStatistics", channelId);
 
                 if (metaDataId == null) {
@@ -1564,8 +1566,7 @@ public class JdbcDao implements DonkeyDao {
 
             int size = 0;
             if (resultSet.next()) {
-                // Store the attachment size in a map with the attachment id as
-                // the key
+                // Store the attachment size in a map with the attachment id as the key
                 size = resultSet.getInt("attachment_size");
             }
 
@@ -1576,8 +1577,7 @@ public class JdbcDao implements DonkeyDao {
             statement = prepareStatement("selectMessageAttachment", channelId);
             statement.setString(1, attachmentId);
             statement.setLong(2, messageId);
-            // Set the number of rows to be fetched into memory at a time. This
-            // limits the amount of memory required for the query.
+            // Set the number of rows to be fetched into memory at a time. This limits the amount of memory required for the query.
             statement.setFetchSize(1);
             resultSet = statement.executeQuery();
 
@@ -2945,8 +2945,6 @@ public class JdbcDao implements DonkeyDao {
             if (statement != null) {
                 statement.executeUpdate();
             }
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
         } finally {
             closeDatabaseObjectIfNeeded(statement);
         }
@@ -2966,8 +2964,6 @@ public class JdbcDao implements DonkeyDao {
                 statement.setLong(1, messageId);
                 statement.executeUpdate();
             }
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
         } finally {
             closeDatabaseObjectIfNeeded(statement);
         }
