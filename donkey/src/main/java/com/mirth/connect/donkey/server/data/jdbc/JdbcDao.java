@@ -354,8 +354,7 @@ public class JdbcDao implements DonkeyDao {
                 for (Entry<Integer, Map<Status, Long>> entry : channelAndConnectorStats.entrySet()) {
                     Integer metaDataId = entry.getKey();
 
-                    // only add connector stats to the statsToUpdate list, not
-                    // the channel stats
+                    // only add connector stats to the statsToUpdate list, not the channel stats
                     if (metaDataId != null) {
                         Map<Status, Long> connectorStats = entry.getValue();
 
@@ -432,8 +431,7 @@ public class JdbcDao implements DonkeyDao {
                 }
             }
 
-            // Keep track of the index since it will change depending on whether
-            // case statements are used
+            // Keep track of the index since it will change depending on whether case statements are used
             int paramIndex = 1;
 
             if (usingCase) {
@@ -520,8 +518,7 @@ public class JdbcDao implements DonkeyDao {
                 statement.setBytes(6, attachment.getContent());
                 statement.executeUpdate();
             } else {
-                // Use an input stream on the attachment content to segment the
-                // data.
+                // Use an input stream on the attachment content to segment the data.
                 ByteArrayInputStream inputStream = new ByteArrayInputStream(attachment.getContent());
                 // The order of the segment
                 int segmentIndex = 1;
@@ -530,9 +527,7 @@ public class JdbcDao implements DonkeyDao {
                 while (inputStream.available() > 0) {
                     // Set the segment number
                     statement.setInt(4, segmentIndex++);
-                    // Determine the segment size. If there are more bytes left
-                    // than the chunk size, the size is the chunk size.
-                    // Otherwise it is the number of remaining bytes
+                    // Determine the segment size. If there are more bytes left than the chunk size, the size is the chunk size. Otherwise it is the number of remaining bytes
                     int segmentSize = Math.min(chunkSize, inputStream.available());
                     // Create a byte array to store the chunk
                     byte[] segment = new byte[segmentSize];
@@ -547,8 +542,7 @@ public class JdbcDao implements DonkeyDao {
                 }
             }
 
-            // Clear the parameters because the data held in memory could be
-            // quite large.
+            // Clear the parameters because the data held in memory could be quite large.
             statement.clearParameters();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -588,8 +582,7 @@ public class JdbcDao implements DonkeyDao {
             // The size of each segment of the attachment.
             int chunkSize = 10000000;
 
-            // Use an input stream on the attachment content to segment the
-            // data.
+            // Use an input stream on the attachment content to segment the data.
             ByteArrayInputStream inputStream = null;
 
             boolean done = false;
@@ -630,14 +623,11 @@ public class JdbcDao implements DonkeyDao {
 
                     // As long as there are bytes left
                     if (inputStream.available() > 0) {
-                        // Determine the segment size. If there are more bytes
-                        // left than the chunk size, the size is the chunk size.
-                        // Otherwise it is the number of remaining bytes
+                        // Determine the segment size. If there are more bytes left than the chunk size, the size is the chunk size. Otherwise it is the number of remaining bytes
                         int segmentSize = Math.min(chunkSize, inputStream.available());
                         // Create a byte array to store the chunk
                         byte[] segment = new byte[segmentSize];
-                        // Read the chunk from the input stream to the byte
-                        // array
+                        // Read the chunk from the input stream to the byte array
                         inputStream.read(segment, 0, segmentSize);
                         // Set the segment size
                         statement.setInt(attachmentSizeIndex, segmentSize);
@@ -652,8 +642,7 @@ public class JdbcDao implements DonkeyDao {
                 }
             }
 
-            // Clear the parameters because the data held in memory could be
-            // quite large.
+            // Clear the parameters because the data held in memory could be quite large.
             updateStatement.clearParameters();
             insertStatement.clearParameters();
 
@@ -1483,8 +1472,7 @@ public class JdbcDao implements DonkeyDao {
             close(statement);
             statement = prepareStatement("selectMessageAttachmentByMessageId", channelId);
             statement.setLong(1, messageId);
-            // Set the number of rows to be fetched into memory at a time. This
-            // limits the amount of memory required for the query.
+            // Set the number of rows to be fetched into memory at a time. This limits the amount of memory required for the query.
             statement.setFetchSize(1);
             resultSet = statement.executeQuery();
 
@@ -1502,27 +1490,20 @@ public class JdbcDao implements DonkeyDao {
                 // Get the attachment id of the current segment
                 String attachmentId = resultSet.getString("id");
 
-                // Ensure that the attachmentId is in the map we created
-                // earlier, otherwise don't return this attachment
+                // Ensure that the attachmentId is in the map we created earlier, otherwise don't return this attachment
                 if (attachmentSize.containsKey(attachmentId)) {
                     // If starting a new attachment
                     if (!attachmentId.equals(currentAttachmentId)) {
-                        // If there was a previous attachment, we need to finish
-                        // it.
+                        // If there was a previous attachment, we need to finish it.
                         if (content != null) {
-                            // Add the data in the output stream to the list of
-                            // attachments to return
+                            // Add the data in the output stream to the list of attachments to return
                             attachments.add(new Attachment(currentAttachmentId, content, type));
                         }
                         currentAttachmentId = attachmentId;
                         type = resultSet.getString("type");
 
-                        // Initialize the byte array size to the exact size of
-                        // the attachment. This should minimize the memory
-                        // requirements if the numbers are correct.
-                        // Use 0 as a backup in case the size is not in the map.
-                        // (If trying to return an attachment that no longer
-                        // exists)
+                        // Initialize the byte array size to the exact size of the attachment. This should minimize the memory requirements if the numbers are correct.
+                        // Use 0 as a backup in case the size is not in the map. (If trying to return an attachment that no longer exists)
                         content = new byte[attachmentSize.get(attachmentId)];
                         offset = 0;
                     }
@@ -1535,8 +1516,7 @@ public class JdbcDao implements DonkeyDao {
                 }
             }
 
-            // Finish the message if one exists by adding it to the list of
-            // attachments to return
+            // Finish the message if one exists by adding it to the list of attachments to return
             if (content != null) {
                 attachments.add(new Attachment(currentAttachmentId, content, type));
             }
@@ -1557,8 +1537,7 @@ public class JdbcDao implements DonkeyDao {
         Attachment attachment = new Attachment();
         PreparedStatement statement = null;
         try {
-            // Get the total size of each attachment by summing the sizes of its
-            // segments
+            // Get the total size of each attachment by summing the sizes of its segments
             statement = prepareStatement("selectMessageAttachmentSize", channelId);
             statement.setString(1, attachmentId);
             statement.setLong(2, messageId);
@@ -1584,9 +1563,7 @@ public class JdbcDao implements DonkeyDao {
             // The type of the current attachment
             String type = null;
 
-            // Initialize the output stream's buffer size to the exact size of
-            // the attachment. This should minimize the memory requirements if
-            // the numbers are correct.
+            // Initialize the output stream's buffer size to the exact size of the attachment. This should minimize the memory requirements if the numbers are correct.
             byte[] content = null;
             int offset = 0;
 
@@ -1603,8 +1580,7 @@ public class JdbcDao implements DonkeyDao {
                 offset += segment.length;
             }
 
-            // Finish the message if one exists by adding it to the list of
-            // attachments to return
+            // Finish the message if one exists by adding it to the list of attachments to return
             if (content != null) {
                 attachment.setId(attachmentId);
                 attachment.setContent(content);
@@ -1747,8 +1723,7 @@ public class JdbcDao implements DonkeyDao {
             statement = connection.prepareStatement(querySource.getQuery("getMessagesByMessageIds", params));
             resultSet = statement.executeQuery();
 
-            // Get all message objects in the list and store them so they are
-            // accessible by message Id
+            // Get all message objects in the list and store them so they are accessible by message Id
             while (resultSet.next()) {
                 Message message = getMessageFromResultSet(channelId, resultSet);
                 messageMap.put(message.getMessageId(), message);
@@ -1767,24 +1742,19 @@ public class JdbcDao implements DonkeyDao {
                 params.put("localChannelId", getLocalChannelId(channelId));
                 params.put("messageIds", StringUtils.join(messageIds, ","));
 
-                // Perform a single query to retrieve all connector messages in
-                // the list at once
+                // Perform a single query to retrieve all connector messages in the list at once
                 statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIds", params));
                 resultSet = statement.executeQuery();
 
                 ConnectorMessage sourceConnectorMessage = null;
                 long currentMessageId = 0;
                 while (resultSet.next()) {
-                    // Create the connector from the result set without content
-                    // or metadata map
+                    // Create the connector from the result set without content or metadata map
                     ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, false, false);
                     // Store the reference to the connector in the message
                     messageMap.get(connectorMessage.getMessageId()).getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
 
-                    // Whenever we start a new message, null the
-                    // sourceConnectorMessage. This is in case the message has
-                    // no source connector so we don't use the previous
-                    // message's source
+                    // Whenever we start a new message, null the sourceConnectorMessage. This is in case the message has no source connector so we don't use the previous message's source
                     if (currentMessageId != connectorMessage.getMessageId()) {
                         currentMessageId = connectorMessage.getMessageId();
                         sourceConnectorMessage = null;
@@ -1794,20 +1764,17 @@ public class JdbcDao implements DonkeyDao {
                         // Store a reference to a message's source connector
                         sourceConnectorMessage = connectorMessage;
                     } else if (sourceConnectorMessage != null) {
-                        // Load the destination's raw content and source map
-                        // from the source
+                        // Load the destination's raw content and source map from the source
                         connectorMessage.setSourceMap(sourceConnectorMessage.getSourceMap());
                         MessageContent sourceEncoded = sourceConnectorMessage.getEncoded();
                         if (sourceEncoded != null) {
-                            // If the source encoded exists, set it as the
-                            // destination raw
+                            // If the source encoded exists, set it as the destination raw
                             MessageContent destinationRaw = new MessageContent(channelId, sourceEncoded.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RAW, sourceEncoded.getContent(), sourceEncoded.getDataType(), sourceEncoded.isEncrypted());
                             connectorMessage.setRaw(destinationRaw);
                         }
                     }
 
-                    // Get this connector's message content from the cache and
-                    // store it in the connector
+                    // Get this connector's message content from the cache and store it in the connector
                     Map<Integer, List<MessageContent>> connectorMessageContentMap = messageContentMap.get(connectorMessage.getMessageId());
                     if (connectorMessageContentMap != null) {
                         List<MessageContent> messageContents = connectorMessageContentMap.get(connectorMessage.getMetaDataId());
@@ -1816,8 +1783,7 @@ public class JdbcDao implements DonkeyDao {
                         }
                     }
 
-                    // Get this connector's metadata map from the cache and
-                    // store it in the connector
+                    // Get this connector's metadata map from the cache and store it in the connector
                     Map<Integer, Map<String, Object>> connectorMetaDataMap = metaDataMaps.get(connectorMessage.getMessageId());
                     if (connectorMetaDataMap != null) {
                         Map<String, Object> metaDataMap = connectorMetaDataMap.get(connectorMessage.getMetaDataId());
@@ -2376,8 +2342,7 @@ public class JdbcDao implements DonkeyDao {
             // Clear the reset stats map because we've just reset the stats
             resetCurrentStats.clear();
 
-            // update the in-memory stats with the stats we just saved in
-            // storage
+            // update the in-memory stats with the stats we just saved in storage
             currentStats.update(transactionStats);
 
             // remove the in-memory stats for any channels that were removed
@@ -2403,12 +2368,10 @@ public class JdbcDao implements DonkeyDao {
             // Clear the reset stats map because we've just reset the stats
             resetTotalStats.clear();
 
-            // update the in-memory total stats with the stats we just saved in
-            // storage
+            // update the in-memory total stats with the stats we just saved in storage
             totalStats.update(transactionStats);
 
-            // remove the in-memory total stats for any channels that were
-            // removed
+            // remove the in-memory total stats for any channels that were removed
             for (String channelId : removedChannelIds) {
                 totalStats.remove(channelId);
             }
@@ -2581,13 +2544,11 @@ public class JdbcDao implements DonkeyDao {
 
             if (includeContent) {
                 if (metaDataId > 0) {
-                    // For destination connectors, retrieve and load any content
-                    // that is stored on the source connector
+                    // For destination connectors, retrieve and load any content that is stored on the source connector
                     loadMessageContent(connectorMessage, getDestinationMessageContentFromSource(channelId, messageId, metaDataId));
                 }
 
-                // Retrive all content for the connector and load it into the
-                // connector message
+                // Retrive all content for the connector and load it into the connector message
                 loadMessageContent(connectorMessage, getMessageContent(channelId, messageId, metaDataId));
             }
 
@@ -2815,8 +2776,7 @@ public class JdbcDao implements DonkeyDao {
             Map<String, Object> values = new HashMap<String, Object>();
             values.put("localChannelId", getLocalChannelId(channelId));
 
-            // do not cache this statement since metadata columns may be
-            // added/removed
+            // do not cache this statement since metadata columns may be added/removed
             statement = connection.prepareStatement(querySource.getQuery("getMetaDataMap", values));
             statement.setLong(1, messageId);
             statement.setInt(2, metaDataId);
@@ -2875,8 +2835,7 @@ public class JdbcDao implements DonkeyDao {
             values.put("localChannelId", getLocalChannelId(channelId));
             values.put("messageIds", StringUtils.join(messageIds, ","));
 
-            // do not cache this statement since metadata columns may be
-            // added/removed
+            // do not cache this statement since metadata columns may be added/removed
             statement = connection.prepareStatement(querySource.getQuery("getMetaDataMapByMessageId", values));
             resultSet = statement.executeQuery();
 
