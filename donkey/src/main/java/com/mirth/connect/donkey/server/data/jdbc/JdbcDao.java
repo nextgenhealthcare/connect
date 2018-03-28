@@ -1016,8 +1016,7 @@ public class JdbcDao implements DonkeyDao {
     public void updateMaps(ConnectorMessage connectorMessage) {
         logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating maps");
 
-        // We do not include the source map here because that should only be
-        // inserted once with the raw content, and after that it's read-only
+        // We do not include the source map here because that should only be inserted once with the raw content, and after that it's read-only
         updateMap(connectorMessage.getConnectorMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CONNECTOR_MAP);
         updateMap(connectorMessage.getChannelMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CHANNEL_MAP);
         updateMap(connectorMessage.getResponseMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_MAP);
@@ -1458,16 +1457,14 @@ public class JdbcDao implements DonkeyDao {
         PreparedStatement statement = null;
 
         try {
-            // Get the total size of each attachment by summing the sizes of its
-            // segments
+            // Get the total size of each attachment by summing the sizes of its segments
             statement = prepareStatement("selectMessageAttachmentSizeByMessageId", channelId);
             statement.setLong(1, messageId);
             resultSet = statement.executeQuery();
 
             Map<String, Integer> attachmentSize = new HashMap<String, Integer>();
             while (resultSet.next()) {
-                // Store the attachment size in a map with the attachment id as
-                // the key
+                // Store the attachment size in a map with the attachment id as the key
                 attachmentSize.put(resultSet.getString("id"), resultSet.getInt("attachment_size"));
             }
 
