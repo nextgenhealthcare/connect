@@ -317,8 +317,7 @@ public class JdbcDao implements DonkeyDao {
             statement.clearParameters();
 
             if (rowCount == 0) {
-                // This is the same code as insertContent, without going through
-                // the encryption process again
+                // This is the same code as insertContent, without going through the encryption process again
                 logger.debug(channelId + "/" + messageId + "/" + metaDataId + ": updating message content (" + contentType.toString() + ")");
 
                 closeDatabaseObjectIfNeeded(statement);
@@ -1389,28 +1388,34 @@ public class JdbcDao implements DonkeyDao {
     @Override
     public long getMaxMessageId(String channelId) {
         ResultSet resultSet = null;
+        PreparedStatement statement = null;
 
         try {
-            resultSet = prepareStatement("getMaxMessageId", channelId).executeQuery();
+            statement = prepareStatement("getMaxMessageId", channelId);
+            resultSet = statement.executeQuery();
             return (resultSet.next()) ? resultSet.getLong(1) : null;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
         }
     }
 
     @Override
     public long getMinMessageId(String channelId) {
         ResultSet resultSet = null;
+        PreparedStatement statement = null;
 
         try {
-            resultSet = prepareStatement("getMinMessageId", channelId).executeQuery();
+            statement = prepareStatement("getMinMessageId", channelId);
+            resultSet = statement.executeQuery();
             return (resultSet.next()) ? resultSet.getLong(1) : null;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
         }
     }
 
@@ -1467,9 +1472,9 @@ public class JdbcDao implements DonkeyDao {
             }
 
             close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
 
             // Get the attachment data
-            close(statement);
             statement = prepareStatement("selectMessageAttachmentByMessageId", channelId);
             statement.setLong(1, messageId);
             // Set the number of rows to be fetched into memory at a time. This limits the amount of memory required for the query.
@@ -1550,9 +1555,9 @@ public class JdbcDao implements DonkeyDao {
             }
 
             close(resultSet);
+            closeDatabaseObjectIfNeeded(statement);
 
             // Get the attachment data
-            close(statement);
             statement = prepareStatement("selectMessageAttachment", channelId);
             statement.setString(1, attachmentId);
             statement.setLong(2, messageId);
