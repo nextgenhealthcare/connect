@@ -99,10 +99,17 @@ public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements 
         comboBox.setSelectedItem(value);
         return comboBox;
     }
+    
+    public void setTooltips(String[] tooltips) {
+        DataTypeListCellRenderer renderer = (DataTypeListCellRenderer)comboBox.getRenderer();
+        renderer.setTooltips(tooltips);
+    }
 
     @SuppressWarnings("serial")
     private class DataTypeListCellRenderer extends DefaultListCellRenderer {
 
+        String[] tooltips;
+        
         public DataTypeListCellRenderer() {}
 
         @Override
@@ -113,9 +120,16 @@ public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements 
                 if (!isSelected) {
                     component.setBackground(UIConstants.BACKGROUND_COLOR);
                 }
+                if (value != null && tooltips != null && index < tooltips.length) {
+                    list.setToolTipText(tooltips[index]);
+                }
             }
 
             return component;
+        }
+        
+        public void setTooltips(String[] tooltips) {
+            this.tooltips = tooltips;
         }
     }
 
