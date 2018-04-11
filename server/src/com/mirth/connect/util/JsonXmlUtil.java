@@ -54,13 +54,12 @@ import de.odysseus.staxon.util.StreamWriterDelegate;
 import de.odysseus.staxon.xml.util.PrettyXMLStreamWriter;
 
 public class JsonXmlUtil {
-	
-	private static final String SEPARATOR = ":";
 
-	public static String xmlToJson(String xmlStr) throws IOException, XMLStreamException, FactoryConfigurationError,
-			TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-		return xmlToJson(xmlStr, true);
-	}
+    private static final String SEPARATOR = ":";
+
+    public static String xmlToJson(String xmlStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+        return xmlToJson(xmlStr, true);
+    }
 
     public static String xmlToJson(String xmlStr, boolean normalizeNamespaces) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         //convert xml to json
@@ -78,15 +77,15 @@ public class JsonXmlUtil {
             // create result (JSON)
             JsonStreamFactory streamFactory = new CorrectedJsonStreamFactory();
             XMLStreamWriter writer;
-            
+
             if (normalizeNamespaces) {
-            	JsonXMLOutputFactory outputFactory = new NormalizeJsonOutputFactory(config, streamFactory);
-            	writer = new NormalizeJsonStreamWriterDelegate(outputFactory.createXMLStreamWriter(outputStream));
+                JsonXMLOutputFactory outputFactory = new NormalizeJsonOutputFactory(config, streamFactory);
+                writer = new NormalizeJsonStreamWriterDelegate(outputFactory.createXMLStreamWriter(outputStream));
             } else {
-            	JsonXMLOutputFactory outputFactory = new JsonXMLOutputFactory(config, streamFactory);
-            	writer = outputFactory.createXMLStreamWriter(outputStream);
+                JsonXMLOutputFactory outputFactory = new JsonXMLOutputFactory(config, streamFactory);
+                writer = outputFactory.createXMLStreamWriter(outputStream);
             }
-            
+
             Result result = new StAXResult(writer);
 
             // copy source to result via "identity transform"
@@ -102,7 +101,7 @@ public class JsonXmlUtil {
 
     public static String jsonToXml(JsonXMLConfig config, String jsonStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         try (InputStream inputStream = IOUtils.toInputStream(jsonStr);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             XMLStreamReader reader = new NormalizeXMLInputFactory(config).createXMLStreamReader(inputStream);
             Map<String, Deque<String>> prefixByTag = ((NormalizeXMLStreamReader) reader).prefixByTag;
             Source source = new StAXSource(reader);
@@ -117,7 +116,7 @@ public class JsonXmlUtil {
             return outputStream.toString();
         }
     }
-	
+
     /*
      * The sole purpose of the CorrectedJsonStreamFactory class is to correct some weirdness in the
      * Staxon library where a default namespace ("@xmlns") would get turned into ("@xmlns:xmlns")
@@ -216,205 +215,197 @@ public class JsonXmlUtil {
             return new MyJsonStreamTarget(delegate.createJsonStreamTarget(writer, prettyPrint));
         }
     }
-    
+
     // XML -> JSON
     private static class NormalizeJsonOutputFactory extends JsonXMLOutputFactory {
 
-		public NormalizeJsonOutputFactory(JsonXMLConfig config, JsonStreamFactory streamFactory) {
-			super(config, streamFactory);
-		}
+        public NormalizeJsonOutputFactory(JsonXMLConfig config, JsonStreamFactory streamFactory) {
+            super(config, streamFactory);
+        }
 
-		@Override
-		public JsonXMLStreamWriter createXMLStreamWriter(OutputStream stream) throws XMLStreamException {
-			try {
-				return new NormalizeJsonStreamWriter(
-						decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(),
-						multiplePI, namespaceSeparator, namespaceDeclarations);
-			} catch (IOException e) {
-				throw new XMLStreamException(e);
-			}
-		}
+        @Override
+        public JsonXMLStreamWriter createXMLStreamWriter(OutputStream stream) throws XMLStreamException {
+            try {
+                return new NormalizeJsonStreamWriter(decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(), multiplePI, namespaceSeparator, namespaceDeclarations);
+            } catch (IOException e) {
+                throw new XMLStreamException(e);
+            }
+        }
 
-		@Override
-		public JsonXMLStreamWriter createXMLStreamWriter(Writer stream) throws XMLStreamException {
-			try {
-				return new NormalizeJsonStreamWriter(
-						decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(),
-						multiplePI, namespaceSeparator, namespaceDeclarations);
-			} catch (IOException e) {
-				throw new XMLStreamException(e);
-			}
-		}
-	}
+        @Override
+        public JsonXMLStreamWriter createXMLStreamWriter(Writer stream) throws XMLStreamException {
+            try {
+                return new NormalizeJsonStreamWriter(decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(), multiplePI, namespaceSeparator, namespaceDeclarations);
+            } catch (IOException e) {
+                throw new XMLStreamException(e);
+            }
+        }
+    }
 
     private static class NormalizeJsonStreamWriterDelegate extends StreamWriterDelegate {
 
         public NormalizeJsonStreamWriterDelegate(XMLStreamWriter parent) {
             super(parent);
         }
-        
+
         @Override
         public void writeStartElement(String localName) throws XMLStreamException {
-        	Pair<String, String> splitPair = splitPrefixAndLocalName(localName);
-        	String prefix = splitPair.getLeft();
-        	String local = splitPair.getRight();
-        	super.writeStartElement(local);
-            
+            Pair<String, String> splitPair = splitPrefixAndLocalName(localName);
+            String prefix = splitPair.getLeft();
+            String local = splitPair.getRight();
+            super.writeStartElement(local);
+
             if (!prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
-            	writeAttribute("xmlnsprefix", prefix);
+                writeAttribute("xmlnsprefix", prefix);
             }
         }
-        
+
         @Override
-        public void writeAttribute(String prefix, String namespaceURI, String localName, String value)
-        		throws XMLStreamException {
-        	
-        	// XML has special attributes that are prefixed with "xml". This causes problems
-        	// because the namespace for the prefix does not have to be declared, so we have to
-        	// handle that special case.
-        	if (prefix != null && "xml".equals(prefix)) {
-        		prefix = XMLConstants.DEFAULT_NS_PREFIX;
-        		namespaceURI = XMLConstants.NULL_NS_URI;
-        		localName = "xml" + SEPARATOR + localName;
-        	}
-        	
+        public void writeAttribute(String prefix, String namespaceURI, String localName, String value) throws XMLStreamException {
+
+            // XML has special attributes that are prefixed with "xml". This causes problems
+            // because the namespace for the prefix does not have to be declared, so we have to
+            // handle that special case.
+            if (prefix != null && "xml".equals(prefix)) {
+                prefix = XMLConstants.DEFAULT_NS_PREFIX;
+                namespaceURI = XMLConstants.NULL_NS_URI;
+                localName = "xml" + SEPARATOR + localName;
+            }
+
             if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
-            	super.writeAttribute(prefix, namespaceURI, localName, value);
+                super.writeAttribute(prefix, namespaceURI, localName, value);
             } else {
-            	super.writeStartElement("@" + localName);
-            	writeAttribute("xmlnsprefix", prefix);
-            	writeAttribute("$", value);
-            	super.writeEndElement();
+                super.writeStartElement("@" + localName);
+                writeAttribute("xmlnsprefix", prefix);
+                writeAttribute("$", value);
+                super.writeEndElement();
             }
         }
-        
+
         private static Pair<String, String> splitPrefixAndLocalName(String key) {
-    		int separatorLocation = key.indexOf(SEPARATOR);
+            int separatorLocation = key.indexOf(SEPARATOR);
 
-    		String prefix, localName;
-    		if (separatorLocation != -1) {
-    			prefix = key.substring(0, separatorLocation);
-    			localName = key.substring(separatorLocation + 1);
-    		} else {
-    			prefix = XMLConstants.DEFAULT_NS_PREFIX;
-    			localName = key;
-    		}
+            String prefix, localName;
+            if (separatorLocation != -1) {
+                prefix = key.substring(0, separatorLocation);
+                localName = key.substring(separatorLocation + 1);
+            } else {
+                prefix = XMLConstants.DEFAULT_NS_PREFIX;
+                localName = key;
+            }
 
-    		return Pair.of(prefix, localName);
-    	}
+            return Pair.of(prefix, localName);
+        }
     }
-    
+
     private static class NormalizeJsonStreamWriter extends JsonXMLStreamWriter {
 
-		public NormalizeJsonStreamWriter(JsonStreamTarget target, boolean repairNamespaces, boolean multiplePI,
-				char namespaceSeparator, boolean namespaceDeclarations) {
-			super(target, repairNamespaces, multiplePI, namespaceSeparator, namespaceDeclarations);
-		}
+        public NormalizeJsonStreamWriter(JsonStreamTarget target, boolean repairNamespaces, boolean multiplePI, char namespaceSeparator, boolean namespaceDeclarations) {
+            super(target, repairNamespaces, multiplePI, namespaceSeparator, namespaceDeclarations);
+        }
 
-		public NormalizeJsonStreamWriter(JsonStreamTarget target, Map<String, String> repairNamespaces,
-				boolean multiplePI, char namespaceSeparator, boolean namespaceDeclarations) {
-			super(target, repairNamespaces, multiplePI, namespaceSeparator, namespaceDeclarations);
-		}
+        public NormalizeJsonStreamWriter(JsonStreamTarget target, Map<String, String> repairNamespaces, boolean multiplePI, char namespaceSeparator, boolean namespaceDeclarations) {
+            super(target, repairNamespaces, multiplePI, namespaceSeparator, namespaceDeclarations);
+        }
 
-		@Override
-		protected void writeAttr(String prefix, String localName, String namespaceURI, String value) throws XMLStreamException {
-			String name = XMLConstants.DEFAULT_NS_PREFIX.equals(prefix) ? localName : prefix + namespaceSeparator + localName;
-			try {
-				if (!getScope().getInfo().startObjectWritten) {
-					target.startObject();
-					getScope().getInfo().startObjectWritten = true;
-				}
+        @Override
+        protected void writeAttr(String prefix, String localName, String namespaceURI, String value) throws XMLStreamException {
+            String name = XMLConstants.DEFAULT_NS_PREFIX.equals(prefix) ? localName : prefix + namespaceSeparator + localName;
+            try {
+                if (!getScope().getInfo().startObjectWritten) {
+                    target.startObject();
+                    getScope().getInfo().startObjectWritten = true;
+                }
 
-				// The only change from the super method implementation is that
-				// we don't put an "@" in front of any "$" attributes.
-				if (localName.equals("$")) {
-					target.name("$");
-				} else {
-					target.name('@' + name);
-				}
-				target.value(value);
-			} catch (IOException e) {
-				throw new XMLStreamException("Cannot write attribute: " + name, e);
-			}
-		}
-		
-		@Override
-		protected void writeData(Object data, int type) throws XMLStreamException {
-			switch(type) {
-			case XMLStreamConstants.CHARACTERS:
-			case XMLStreamConstants.CDATA:
-				if (getScope().isRoot() && !isStartDocumentWritten()) {
-					try {
-						target.value(data);
-					} catch (IOException e) {
-						throw new XMLStreamException("Cannot write data", e);
-					}
-				} else {
-					if (data == null) {
-						throw new XMLStreamException("Cannot write null data");
-					}
-					if (getScope().getLastChild() == null && getScope().getInfo().hasData()) {
-						if (data instanceof String) {
-							getScope().getInfo().addText(data.toString());
-						} else {
-							throw new XMLStreamException("Cannot append primitive data: " + data);
-						}
-					} else if (getScope().getLastChild() == null) {
-						getScope().getInfo().setData(data);
-					} else if (getScope().getLastChild().getLocalName().startsWith("@")) {
-						// Added this case to make sure we don't mistakenly think we're dealing
-						// with mixed content. In our XML to JSON conversion, attributes
-						// can be objects and can have attributes of their own, which the original
-						// implementation did not support.
-						if (data instanceof String) {
-							getScope().getInfo().addText(data.toString());
-						} else {
-							throw new XMLStreamException("Cannot append primitive data: " + data);
-						}
-					} else if (!skipSpace || !isWhitespace(data)) {
-						throw new XMLStreamException("Mixed content is not supported: '" + data + "'");
-					}
-				}
-				break;
-			case XMLStreamConstants.COMMENT: // ignore comments
-				break;
-			default:
-				throw new UnsupportedOperationException("Cannot write data of type " + type);
-			}
-		}
-	}
-    
+                // The only change from the super method implementation is that
+                // we don't put an "@" in front of any "$" attributes.
+                if (localName.equals("$")) {
+                    target.name("$");
+                } else {
+                    target.name('@' + name);
+                }
+                target.value(value);
+            } catch (IOException e) {
+                throw new XMLStreamException("Cannot write attribute: " + name, e);
+            }
+        }
+
+        @Override
+        protected void writeData(Object data, int type) throws XMLStreamException {
+            switch (type) {
+                case XMLStreamConstants.CHARACTERS:
+                case XMLStreamConstants.CDATA:
+                    if (getScope().isRoot() && !isStartDocumentWritten()) {
+                        try {
+                            target.value(data);
+                        } catch (IOException e) {
+                            throw new XMLStreamException("Cannot write data", e);
+                        }
+                    } else {
+                        if (data == null) {
+                            throw new XMLStreamException("Cannot write null data");
+                        }
+                        if (getScope().getLastChild() == null && getScope().getInfo().hasData()) {
+                            if (data instanceof String) {
+                                getScope().getInfo().addText(data.toString());
+                            } else {
+                                throw new XMLStreamException("Cannot append primitive data: " + data);
+                            }
+                        } else if (getScope().getLastChild() == null) {
+                            getScope().getInfo().setData(data);
+                        } else if (getScope().getLastChild().getLocalName().startsWith("@")) {
+                            // Added this case to make sure we don't mistakenly think we're dealing
+                            // with mixed content. In our XML to JSON conversion, attributes
+                            // can be objects and can have attributes of their own, which the original
+                            // implementation did not support.
+                            if (data instanceof String) {
+                                getScope().getInfo().addText(data.toString());
+                            } else {
+                                throw new XMLStreamException("Cannot append primitive data: " + data);
+                            }
+                        } else if (!skipSpace || !isWhitespace(data)) {
+                            throw new XMLStreamException("Mixed content is not supported: '" + data + "'");
+                        }
+                    }
+                    break;
+                case XMLStreamConstants.COMMENT: // ignore comments
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Cannot write data of type " + type);
+            }
+        }
+    }
+
     // JSON -> XML
     private static class NormalizeXMLInputFactory extends JsonXMLInputFactory {
 
-		public NormalizeXMLInputFactory(JsonXMLConfig config) throws FactoryConfigurationError {
-			super(config);
-		}
+        public NormalizeXMLInputFactory(JsonXMLConfig config) throws FactoryConfigurationError {
+            super(config);
+        }
 
-		@Override
-		public JsonXMLStreamReader createXMLStreamReader(InputStream stream) throws XMLStreamException {
-			try {
-				return new NormalizeXMLStreamReader(decorate(streamFactory.createJsonStreamSource(stream)), multiplePI, namespaceSeparator, namespaceMappings);
-			} catch (IOException e) {
-				throw new XMLStreamException(e);
-			}
-		}
-	}
-    
+        @Override
+        public JsonXMLStreamReader createXMLStreamReader(InputStream stream) throws XMLStreamException {
+            try {
+                return new NormalizeXMLStreamReader(decorate(streamFactory.createJsonStreamSource(stream)), multiplePI, namespaceSeparator, namespaceMappings);
+            } catch (IOException e) {
+                throw new XMLStreamException(e);
+            }
+        }
+    }
+
     private static class NormalizeXMLStreamReader extends JsonXMLStreamReader {
-    	public Map<String, Deque<String>> prefixByTag;
-    	private String currentTagName;
-    	
-		public NormalizeXMLStreamReader(JsonStreamSource decorate, boolean multiplePI, char namespaceSeparator,
-				Map<String, String> namespaceMappings) throws XMLStreamException {
-			super(decorate, multiplePI, namespaceSeparator, namespaceMappings);
-		}
-    	
-		protected void consumeName(ScopeInfo info) throws XMLStreamException, IOException {
-			String fieldName = source.name();
-			if (fieldName.startsWith("@")) {
-				fieldName = fieldName.substring(1);
-				if (source.peek() == JsonStreamToken.VALUE) {
+        public Map<String, Deque<String>> prefixByTag;
+        private String currentTagName;
+
+        public NormalizeXMLStreamReader(JsonStreamSource decorate, boolean multiplePI, char namespaceSeparator, Map<String, String> namespaceMappings) throws XMLStreamException {
+            super(decorate, multiplePI, namespaceSeparator, namespaceMappings);
+        }
+
+        protected void consumeName(ScopeInfo info) throws XMLStreamException, IOException {
+            String fieldName = source.name();
+            if (fieldName.startsWith("@")) {
+                fieldName = fieldName.substring(1);
+                if (source.peek() == JsonStreamToken.VALUE) {
                     handleValue(fieldName);
                 } else if (XMLConstants.XMLNS_ATTRIBUTE.equals(fieldName)) {
                     handleXmlns();
@@ -430,16 +421,16 @@ public class JsonXmlUtil {
                         }
                     }
                     source.endArray();
-				} else {
-					throw new IllegalStateException("Expected attribute value");
-				}				
-			} else if ("$".equals(fieldName)) {
-				readData(source.value(), XMLStreamConstants.CHARACTERS);
-			} else {
-				info.currentTagName = fieldName;
-			}
-		}
-		
+                } else {
+                    throw new IllegalStateException("Expected attribute value");
+                }
+            } else if ("$".equals(fieldName)) {
+                readData(source.value(), XMLStreamConstants.CHARACTERS);
+            } else {
+                info.currentTagName = fieldName;
+            }
+        }
+
         private void handleValue(String fieldName) throws XMLStreamException, IOException {
             String value = source.value().text;
 
@@ -492,29 +483,29 @@ public class JsonXmlUtil {
             source.endObject();
         }
 
-		protected void readStartElementTag(String name) throws XMLStreamException {
-			currentTagName = name;
-			super.readStartElementTag(name);
-		}
+        protected void readStartElementTag(String name) throws XMLStreamException {
+            currentTagName = name;
+            super.readStartElementTag(name);
+        }
     }
 
     private static class NormalizeXMLStreamWriterDelegate extends StreamWriterDelegate {
-    	private Map<String, Deque<String>> prefixByTag;
-    	
+        private Map<String, Deque<String>> prefixByTag;
+
         public NormalizeXMLStreamWriterDelegate(XMLStreamWriter parent, Map<String, Deque<String>> prefixByTag) {
             super(parent);
             this.prefixByTag = prefixByTag;
         }
-        
+
         @Override
         public void writeStartElement(String localName) throws XMLStreamException {
-        	if (prefixByTag != null && prefixByTag.containsKey(localName)) {
-        		Deque<String> prefixes = prefixByTag.get(localName);
-        		if (!prefixes.isEmpty()) {
-        			localName = prefixes.removeFirst() + SEPARATOR + localName;
-        		}
-        	}
-        	super.writeStartElement(localName);
+            if (prefixByTag != null && prefixByTag.containsKey(localName)) {
+                Deque<String> prefixes = prefixByTag.get(localName);
+                if (!prefixes.isEmpty()) {
+                    localName = prefixes.removeFirst() + SEPARATOR + localName;
+                }
+            }
+            super.writeStartElement(localName);
         }
 
         @Override
@@ -525,5 +516,5 @@ public class JsonXmlUtil {
             }
         }
     }
-    
+
 }
