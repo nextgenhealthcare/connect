@@ -415,51 +415,21 @@ public class JsonXmlUtil {
 			if (fieldName.startsWith("@")) {
 				fieldName = fieldName.substring(1);
 				if (source.peek() == JsonStreamToken.VALUE) {
-					String value = source.value().text;
-					
-					if (fieldName.equals("xmlnsprefix")) {
-						// Store the prefix to prepend to the tag name later
-						if (prefixByTag == null) {
-							prefixByTag = new HashMap<>();
-						}
-						
-						Deque<String> prefixes = prefixByTag.get(currentTagName);
-						if (prefixes == null) {
-							prefixes = new ArrayDeque<>();
-							prefixByTag.put(currentTagName, prefixes);
-						}
-						
-						prefixes.addLast(value);
-					} else {
-						readAttrNsDecl(fieldName, value);
-					}
-				} else if (XMLConstants.XMLNS_ATTRIBUTE.equals(fieldName)) {
-					source.startObject();
-					while (source.peek() == JsonStreamToken.NAME) {
-						String prefix = source.name();
-						if ("$".equals(prefix)) {
-							readNsDecl(XMLConstants.DEFAULT_NS_PREFIX, source.value().text);
-						} else {
-							readNsDecl(prefix, source.value().text);
-						}
-					}
-					source.endObject();
-				} else if (source.peek() == JsonStreamToken.START_OBJECT) {
-					// Handles attributes that are objects with attributes of their own
-					// and possibly with a bound prefix
-					source.startObject();
-					String prefix = XMLConstants.DEFAULT_NS_PREFIX;
-					while (source.peek() == JsonStreamToken.NAME) {
-						String name = source.name();
-						String text = source.value().text;
-						
-						if (name.equals("@xmlnsprefix")) {
-							prefix = text; 
-						} else if (name.equals("$")) {
-							readAttrNsDecl(prefix + SEPARATOR + fieldName, text);
-						}
-					}
-					source.endObject();
+                    handleValue(fieldName);
+                } else if (XMLConstants.XMLNS_ATTRIBUTE.equals(fieldName)) {
+                    handleXmlns();
+                } else if (source.peek() == JsonStreamToken.START_OBJECT) {
+                    handleObject(fieldName);
+                } else if (source.peek() == JsonStreamToken.START_ARRAY) {
+                    source.startArray();
+                    while (source.peek() != JsonStreamToken.END_ARRAY) {
+                        if (source.peek() == JsonStreamToken.VALUE) {
+                            handleValue(fieldName);
+                        } else if (source.peek() == JsonStreamToken.START_OBJECT) {
+                            handleObject(fieldName);
+                        }
+                    }
+                    source.endArray();
 				} else {
 					throw new IllegalStateException("Expected attribute value");
 				}				
@@ -470,6 +440,58 @@ public class JsonXmlUtil {
 			}
 		}
 		
+        private void handleValue(String fieldName) throws XMLStreamException, IOException {
+            String value = source.value().text;
+
+            if (fieldName.equals("xmlnsprefix")) {
+                // Store the prefix to prepend to the tag name later
+                if (prefixByTag == null) {
+                    prefixByTag = new HashMap<>();
+                }
+
+                Deque<String> prefixes = prefixByTag.get(currentTagName);
+                if (prefixes == null) {
+                    prefixes = new ArrayDeque<>();
+                    prefixByTag.put(currentTagName, prefixes);
+                }
+
+                prefixes.addLast(value);
+            } else {
+                readAttrNsDecl(fieldName, value);
+            }
+        }
+
+        private void handleXmlns() throws XMLStreamException, IOException {
+            source.startObject();
+            while (source.peek() == JsonStreamToken.NAME) {
+                String prefix = source.name();
+                if ("$".equals(prefix)) {
+                    readNsDecl(XMLConstants.DEFAULT_NS_PREFIX, source.value().text);
+                } else {
+                    readNsDecl(prefix, source.value().text);
+                }
+            }
+            source.endObject();
+        }
+
+        private void handleObject(String fieldName) throws XMLStreamException, IOException {
+            // Handles attributes that are objects with attributes of their own
+            // and possibly with a bound prefix
+            source.startObject();
+            String prefix = XMLConstants.DEFAULT_NS_PREFIX;
+            while (source.peek() == JsonStreamToken.NAME) {
+                String name = source.name();
+                String text = source.value().text;
+
+                if (name.equals("@xmlnsprefix")) {
+                    prefix = text;
+                } else if (name.equals("$")) {
+                    readAttrNsDecl(prefix + SEPARATOR + fieldName, text);
+                }
+            }
+            source.endObject();
+        }
+
 		protected void readStartElementTag(String name) throws XMLStreamException {
 			currentTagName = name;
 			super.readStartElementTag(name);
@@ -493,6 +515,14 @@ public class JsonXmlUtil {
         		}
         	}
         	super.writeStartElement(localName);
+        }
+
+        @Override
+        public void setPrefix(String prefix, String uri) throws XMLStreamException {
+            // Namespaces are mirrored as attributes for some handlers, so ignore xmlns and xml
+            if (!XMLConstants.XML_NS_PREFIX.equals(prefix) && !XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)) {
+                super.setPrefix(prefix, uri);
+            }
         }
     }
     
