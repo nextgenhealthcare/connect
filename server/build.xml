@@ -1176,6 +1176,12 @@
 			<classpath refid="testclasspath" />
 		</javac>
 		
+		<copy todir="${test_classes}">
+			<fileset dir="${test}">
+				<include name="**/*.xml" />
+			</fileset>
+		</copy>
+		
 		<jar destfile="${test.dist}/${tests.jar}" basedir="${test_classes}">
 			<include name="**/*" />
 		</jar>
