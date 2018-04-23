@@ -85,5 +85,6 @@
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-vfs2-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-9.4.6.v20170531.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
