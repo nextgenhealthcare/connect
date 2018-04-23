@@ -39,6 +39,7 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.InvalidChannel;
+import com.mirth.connect.model.InvalidThrowable;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginClass;
@@ -141,6 +142,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         getXStream().registerConverter(new MapContentConverter(getXStream().getMapper()));
         getXStream().registerConverter(new PluginMetaDataConverter(getXStream().getMapper()));
         getXStream().registerConverter(new JavaScriptObjectConverter(getXStream().getMapper()));
+        getXStream().registerConverter(new ThrowableConverter(getXStream().getMapper()));
     }
 
     public void processAnnotations(Class<?>[] classes) {
@@ -187,7 +189,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             } else {
                 element = new DonkeyElement(serializedObject);
 
-                if (expectedClass == Channel.class) {
+                if (expectedClass == Channel.class || expectedClass == Throwable.class) {
                     try {
                         preUnmarshalXml = element.toXml();
                     } catch (DonkeyElementException e) {
@@ -315,6 +317,8 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         if (expectedClass == Channel.class) {
             logger.error("Error deserializing channel.", e);
             return (T) new InvalidChannel(preUnmarshalXml, element, e, null);
+        } else if (expectedClass == Throwable.class) {
+            return (T) new InvalidThrowable(preUnmarshalXml, element, null);
         }
 
         throw new SerializerException(e);
