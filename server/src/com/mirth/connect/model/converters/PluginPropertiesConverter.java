@@ -66,9 +66,8 @@ public class PluginPropertiesConverter extends MigratableConverter {
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        if (reader instanceof DocumentReader) {
-            DocumentReader documentReader = (DocumentReader) reader;
-            DonkeyElement element = new DonkeyElement((Element) documentReader.getCurrent());
+        if (reader.underlyingReader() instanceof DocumentReader) {
+            DonkeyElement element = new DonkeyElement((Element) ((DocumentReader) reader.underlyingReader()).getCurrent());
             Set<ConnectorPluginProperties> propertiesSet = new HashSet<ConnectorPluginProperties>();
 
             for (DonkeyElement child : element.getChildElements()) {

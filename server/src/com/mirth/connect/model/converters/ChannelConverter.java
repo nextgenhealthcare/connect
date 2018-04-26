@@ -66,9 +66,8 @@ public class ChannelConverter extends MigratableConverter {
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        if (reader instanceof DocumentReader) {
-            DocumentReader documentReader = (DocumentReader) reader;
-            DonkeyElement channel = new DonkeyElement((Element) documentReader.getCurrent());
+        if (reader.underlyingReader() instanceof DocumentReader) {
+            DonkeyElement channel = new DonkeyElement((Element) ((DocumentReader) reader.underlyingReader()).getCurrent());
             String preUnmarshalXml = null;
 
             try {
@@ -77,11 +76,11 @@ public class ChannelConverter extends MigratableConverter {
                 } catch (DonkeyElementException e) {
                 }
 
-                return super.unmarshal(documentReader, context);
+                return super.unmarshal(reader, context);
             } catch (LinkageError e) {
-                return new InvalidChannel(preUnmarshalXml, channel, e, documentReader);
+                return new InvalidChannel(preUnmarshalXml, channel, e, reader);
             } catch (Exception e) {
-                return new InvalidChannel(preUnmarshalXml, channel, e, documentReader);
+                return new InvalidChannel(preUnmarshalXml, channel, e, reader);
             }
         } else {
             return super.unmarshal(reader, context);

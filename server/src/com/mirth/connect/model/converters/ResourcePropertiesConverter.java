@@ -66,9 +66,8 @@ public class ResourcePropertiesConverter extends MigratableConverter {
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        if (reader instanceof DocumentReader) {
-            DocumentReader documentReader = (DocumentReader) reader;
-            DonkeyElement element = new DonkeyElement((Element) documentReader.getCurrent());
+        if (reader.underlyingReader() instanceof DocumentReader) {
+            DonkeyElement element = new DonkeyElement((Element) ((DocumentReader) reader.underlyingReader()).getCurrent());
             List<ResourceProperties> propertiesList = new ArrayList<ResourceProperties>();
 
             for (DonkeyElement child : element.getChildElements()) {

@@ -31,7 +31,7 @@ import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 public class XStreamSerializer implements Serializer {
 
-    private static final Class<?>[] annotatedClasses = new Class<?>[] {// @formatter:off
+    private static final Class<?>[] annotatedClasses = new Class<?>[] { // @formatter:off
         Attachment.class,
         DeployedStateEventType.class,
         ConnectionStatusEventType.class,
@@ -44,12 +44,15 @@ public class XStreamSerializer implements Serializer {
     }; // @formatter:on
 
     private XStream xstream;
+    private ClassLoader classLoader;
 
     public XStreamSerializer() {
-        this(null, null);
+        this(XStream.NO_REFERENCES, null, null);
     }
 
-    public XStreamSerializer(final DonkeyMapperWrapper mapperWrapper, ClassLoader classLoader) {
+    public XStreamSerializer(int xstreamMode, final DonkeyMapperWrapper mapperWrapper, ClassLoader classLoader) {
+        this.classLoader = classLoader;
+
         if (mapperWrapper != null) {
             xstream = new XStream(new Xpp3Driver()) {
                 @Override
@@ -67,8 +70,12 @@ public class XStreamSerializer implements Serializer {
 
         xstream.registerConverter(new ConcurrentHashMapConverter(xstream.getMapper()));
         xstream.registerConverter(new PropertiesConverter());
-        xstream.setMode(XStream.NO_REFERENCES);
+        xstream.setMode(xstreamMode);
         xstream.processAnnotations(annotatedClasses);
+    }
+
+    protected ClassLoader getClassLoader() {
+        return classLoader;
     }
 
     @Override

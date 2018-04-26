@@ -13,6 +13,7 @@ import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.DocumentReader;
 
 public class InvalidChannel extends Channel {
@@ -20,9 +21,9 @@ public class InvalidChannel extends Channel {
     private Throwable cause;
     private String channelXml;
 
-    public InvalidChannel(String preUnmarshalXml, DonkeyElement channel, Throwable cause, DocumentReader reader) {
+    public InvalidChannel(String preUnmarshalXml, DonkeyElement channel, Throwable cause, HierarchicalStreamReader reader) {
         // Reset the stream reader to the channel element
-        while (reader != null && reader.getCurrent() instanceof Element && !reader.getCurrent().equals(channel.getElement())) {
+        while (reader != null && reader.underlyingReader() instanceof DocumentReader && ((DocumentReader) reader.underlyingReader()).getCurrent() instanceof Element && !((DocumentReader) reader.underlyingReader()).getCurrent().equals(channel.getElement())) {
             reader.moveUp();
         }
 

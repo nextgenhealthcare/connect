@@ -61,15 +61,26 @@ public class ThrowableConverter extends ReflectionConverter {
                 throw new SerializerException(e);
             }
         } else {
+            Throwable t = (Throwable) value;
+
+            // For better serialization, initialize the cause and stacktrace
+            if (t.getCause() == null) {
+                try {
+                    t.initCause(null);
+                } catch (IllegalStateException e) {
+                    // Ignore
+                }
+            }
+            t.getStackTrace();
+
             super.marshal(value, writer, context);
         }
     }
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        if (reader instanceof DocumentReader) {
-            DocumentReader documentReader = (DocumentReader) reader;
-            DonkeyElement element = new DonkeyElement((Element) documentReader.getCurrent());
+        if (reader.underlyingReader() instanceof DocumentReader) {
+            DonkeyElement element = new DonkeyElement((Element) ((DocumentReader) reader.underlyingReader()).getCurrent());
             String preUnmarshalXml = null;
 
             try {
@@ -78,9 +89,9 @@ public class ThrowableConverter extends ReflectionConverter {
                 } catch (DonkeyElementException e) {
                 }
 
-                return super.unmarshal(documentReader, context);
+                return super.unmarshal(reader, context);
             } catch (Throwable t) {
-                return new InvalidThrowable(preUnmarshalXml, element, documentReader);
+                return new InvalidThrowable(preUnmarshalXml, element, reader);
             }
         } else {
             return super.unmarshal(reader, context);

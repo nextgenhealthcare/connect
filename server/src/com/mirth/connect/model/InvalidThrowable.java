@@ -20,6 +20,7 @@ import org.w3c.dom.Element;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.DocumentReader;
 
 public class InvalidThrowable extends Throwable {
@@ -30,11 +31,11 @@ public class InvalidThrowable extends Throwable {
     private String className;
     private String detailMessage;
 
-    public InvalidThrowable(String preUnmarshalXml, DonkeyElement element, DocumentReader reader) {
+    public InvalidThrowable(String preUnmarshalXml, DonkeyElement element, HierarchicalStreamReader reader) {
         this.throwableXml = preUnmarshalXml;
 
         // Reset the stream reader to the correct element
-        while (reader != null && reader.getCurrent() instanceof Element && !reader.getCurrent().equals(element.getElement())) {
+        while (reader != null && reader.underlyingReader() instanceof DocumentReader && ((DocumentReader) reader.underlyingReader()).getCurrent() instanceof Element && !((DocumentReader) reader.underlyingReader()).getCurrent().equals(element.getElement())) {
             reader.moveUp();
         }
 
