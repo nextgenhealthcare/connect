@@ -39,23 +39,26 @@ public class RefreshTableModel extends DefaultTableModel {
         super(columnNames, numRows);
     }
 
-    public RefreshTableModel(Vector<Object> data, Vector<?> columnNames) {
+    @SuppressWarnings("rawtypes")
+    public RefreshTableModel(Vector<Vector> data, Vector<?> columnNames) {
         super(data, columnNames);
     }
 
-    public void refreshDataVector(Vector<Object> data) {
+    @SuppressWarnings("rawtypes")
+    public void refreshDataVector(Vector<Vector> data) {
         dataVector = data;
         fireTableDataChanged();
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void refreshDataVector(Object[][] data) {
-        refreshDataVector(convertToVector(data));
+        refreshDataVector((Vector) convertToVector(data));
     }
 
     // Unit test
     public static void main(String[] args) {
-        Object[][] data = {{"four", "A"}, {"three", "B"}, {"two", "C"}, {"one", "D"}};
-        String[] columnNames = {"Number", "Letter"};
+        Object[][] data = { { "four", "A" }, { "three", "B" }, { "two", "C" }, { "one", "D" } };
+        String[] columnNames = { "Number", "Letter" };
         RefreshTableModel model = new RefreshTableModel(data, columnNames);
         JXTable table = new JXTable(model);
         table.setSortable(true);
@@ -74,7 +77,7 @@ public class RefreshTableModel extends DefaultTableModel {
         } catch (InterruptedException e) {
         }
 
-        Object[][] refresh = {{"five", "E"}, {"six", "F"}};
+        Object[][] refresh = { { "five", "E" }, { "six", "F" } };
         model.refreshDataVector(refresh);
     }
 }
