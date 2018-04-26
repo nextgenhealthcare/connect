@@ -64,8 +64,8 @@
 	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar"/>
 	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="testlib/mockito-core-2.7.9.jar"/>
-	<classpathentry kind="lib" path="testlib/byte-buddy-1.6.10.jar"/>
-	<classpathentry kind="lib" path="testlib/byte-buddy-agent-1.6.10.jar"/>
+	<classpathentry kind="lib" path="testlib/byte-buddy-1.8.8.jar"/>
+	<classpathentry kind="lib" path="testlib/byte-buddy-agent-1.8.8.jar"/>
 	<classpathentry kind="lib" path="testlib/objenesis-2.5.1.jar"/>
 	<classpathentry kind="lib" path="testlib/javax.inject-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="testlib/aopalliance-repackaged-2.4.0-b31.jar"/>

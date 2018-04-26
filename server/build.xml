@@ -81,6 +81,12 @@
 
 		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
+			<!-- Uncomment the following and add additional dashes in front of the arguments to allow Java 9+
+				<compilerarg value="-add-modules" />
+				<compilerarg value="java.sql.rowset,java.xml.ws" />
+				<compilerarg value="-add-exports" />
+				<compilerarg value="java.sql.rowset/com.sun.rowset=ALL-UNNAMED" />
+			-->
 		</javac>
 
 		<!-- create version.properties file -->
@@ -1174,6 +1180,12 @@
 		
 		<javac srcdir="${test}" destdir="${test_classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="testclasspath" />
+			<!-- Uncomment the following and add additional dashes in front of the arguments to allow Java 9+
+				<compilerarg value="-add-modules" />
+				<compilerarg value="java.sql.rowset,java.xml.ws" />
+				<compilerarg value="-add-exports" />
+				<compilerarg value="java.sql.rowset/com.sun.rowset=ALL-UNNAMED" />
+			-->
 		</javac>
 		
 		<copy todir="${test_classes}">
@@ -1194,6 +1206,15 @@
 		<junit haltonfailure="false" fork="true" forkmode="once">
 			<jvmarg value="-Xms128m" />
 			<jvmarg value="-Xmx1024m" />
+			<!-- Uncomment the following and add additional dashes in front of the arguments to allow Java 9+
+				<jvmarg value="-add-opens=java.base/java.util=ALL-UNNAMED" />
+				<jvmarg value="-add-opens=java.base/java.lang=ALL-UNNAMED" />
+				<jvmarg value="-add-opens=java.base/java.lang.reflect=ALL-UNNAMED" />
+				<jvmarg value="-add-opens=java.base/java.text=ALL-UNNAMED" />
+				<jvmarg value="-add-opens=java.desktop/java.awt=ALL-UNNAMED" />
+				<jvmarg value="-add-opens=java.desktop/java.awt.font=ALL-UNNAMED" />
+				<jvmarg value="-add-opens=java.xml/com.sun.org.apache.xalan.internal.xsltc.trax=ALL-UNNAMED" />
+			-->
 			<classpath>
 				<path refid="testclasspath" />
 				<dirset dir="${test_classes}"/>
