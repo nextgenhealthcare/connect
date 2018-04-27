@@ -85,7 +85,9 @@ public class MigratableConverter extends ReflectionConverter {
          * always be a DocumentReader at this point.
          */
         if (MigrationUtil.compareVersions(version, currentVersion) < 0 && context.getRequiredType() != null) {
-            migrateElement(new DonkeyElement((Element) ((DocumentReader) reader).getCurrent()), version, context.getRequiredType());
+            if (reader.underlyingReader() instanceof DocumentReader) {
+                migrateElement(new DonkeyElement((Element) ((DocumentReader) reader.underlyingReader()).getCurrent()), version, context.getRequiredType());
+            }
 
             /*
              * MIRTH-3446: If any migration was performed, we need to tell the DomReader to reload

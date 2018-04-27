@@ -52,6 +52,7 @@ public class MirthContextFactory extends ContextFactory {
             serializer.init(ControllerFactory.getFactory().createConfigurationController().getServerVersion());
         } catch (Exception e) {
         }
+        serializer.processAnnotations(ObjectXMLSerializer.getExtraAnnotatedClasses());
     }
 
     public String getId() {

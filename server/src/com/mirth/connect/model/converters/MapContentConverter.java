@@ -69,20 +69,24 @@ public class MapContentConverter extends ReflectionConverter {
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        DonkeyElement mapContentElement = new DonkeyElement((Element) ((DocumentReader) reader).getCurrent());
+        if (reader.underlyingReader() instanceof DocumentReader) {
+            DonkeyElement mapContentElement = new DonkeyElement((Element) ((DocumentReader) reader.underlyingReader()).getCurrent());
 
-        try {
-            return super.unmarshal(reader, context);
-        } catch (Exception e) {
-            // Reset the stream reader to the map content element
-            while (((DocumentReader) reader).getCurrent() instanceof Element && !((DocumentReader) reader).getCurrent().equals(mapContentElement.getElement())) {
-                reader.moveUp();
+            try {
+                return super.unmarshal(reader, context);
+            } catch (Exception e) {
+                // Reset the stream reader to the map content element
+                while (((DocumentReader) reader.underlyingReader()).getCurrent() instanceof Element && !((DocumentReader) reader.underlyingReader()).getCurrent().equals(mapContentElement.getElement())) {
+                    reader.moveUp();
+                }
+
+                MapContent mapContent = new MapContent();
+                mapContent.setContent(MapUtil.deserializeMapWithInvalidValues(ObjectXMLSerializer.getInstance(), mapContentElement.getChildElement("content")));
+                mapContent.setEncrypted(Boolean.parseBoolean(mapContentElement.getChildElement("encrypted").getTextContent()));
+                return mapContent;
             }
-
-            MapContent mapContent = new MapContent();
-            mapContent.setContent(MapUtil.deserializeMapWithInvalidValues(ObjectXMLSerializer.getInstance(), mapContentElement.getChildElement("content")));
-            mapContent.setEncrypted(Boolean.parseBoolean(mapContentElement.getChildElement("encrypted").getTextContent()));
-            return mapContent;
+        } else {
+            return super.unmarshal(reader, context);
         }
     }
 }

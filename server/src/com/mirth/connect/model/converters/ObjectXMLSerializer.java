@@ -11,8 +11,12 @@ package com.mirth.connect.model.converters;
 
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -68,8 +72,12 @@ import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter3_0_0;
 import com.mirth.connect.util.MigrationUtil;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.core.TreeMarshaller.CircularReferenceException;
 
 public class ObjectXMLSerializer extends XStreamSerializer {
+
+    public final static String INVALID_MARKER = "|__>==INVALID==<__|";
     public final static String VERSION_ATTRIBUTE_NAME = "version";
 
     private static final Class<?>[] annotatedClasses = new Class<?>[] { //@formatter:off
@@ -120,7 +128,12 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     }; // @formatter:on
 
     private static final ObjectXMLSerializer instance = new ObjectXMLSerializer();
+
+    private static Set<Class<?>> extraAnnotatedClasses;
+
+    private Logger logger = Logger.getLogger(getClass());
     private String normalizedVersion;
+    private ObjectXMLSerializer instanceWithReferences;
 
     public static ObjectXMLSerializer getInstance() {
         return instance;
@@ -130,23 +143,48 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         return annotatedClasses;
     }
 
-    private Logger logger = Logger.getLogger(getClass());
+    public static Class<?>[] getExtraAnnotatedClasses() {
+        // Lazy load because this could be called before static initialization
+        if (extraAnnotatedClasses == null) {
+            extraAnnotatedClasses = new LinkedHashSet<Class<?>>();
+        }
+        return extraAnnotatedClasses.toArray(new Class<?>[extraAnnotatedClasses.size()]);
+    }
 
     private ObjectXMLSerializer() {
-        this(null);
+        this(XStream.NO_REFERENCES, null);
     }
 
     public ObjectXMLSerializer(ClassLoader classLoader) {
-        super(new MirthMapperWrapper(), classLoader);
+        this(XStream.NO_REFERENCES, classLoader);
+    }
+
+    public ObjectXMLSerializer(int xstreamMode, ClassLoader classLoader) {
+        super(xstreamMode, new MirthMapperWrapper(), classLoader);
         processAnnotations(annotatedClasses);
         getXStream().registerConverter(new MapContentConverter(getXStream().getMapper()));
         getXStream().registerConverter(new PluginMetaDataConverter(getXStream().getMapper()));
         getXStream().registerConverter(new JavaScriptObjectConverter(getXStream().getMapper()));
         getXStream().registerConverter(new ThrowableConverter(getXStream().getMapper()));
+
+        // Create a separate instance of XStream specifically for handling references
+        if (xstreamMode == XStream.NO_REFERENCES) {
+            instanceWithReferences = new ObjectXMLSerializer(XStream.XPATH_RELATIVE_REFERENCES, classLoader);
+        }
     }
 
     public void processAnnotations(Class<?>[] classes) {
+        // Lazy load because this could be called before static initialization
+        if (extraAnnotatedClasses == null) {
+            extraAnnotatedClasses = new LinkedHashSet<Class<?>>();
+        }
+        extraAnnotatedClasses.addAll(Arrays.asList(classes));
+
         getXStream().processAnnotations(classes);
+
+        if (instanceWithReferences != null) {
+            instanceWithReferences.processAnnotations(classes);
+        }
     }
 
     public void init(String currentVersion) throws Exception {
@@ -156,6 +194,10 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             getXStream().registerConverter(new ChannelConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerLocalConverter(ConnectorProperties.class, "pluginProperties", new PluginPropertiesConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerLocalConverter(ResourcePropertiesList.class, "list", new ResourcePropertiesConverter(normalizedVersion, getXStream().getMapper()));
+
+            if (instanceWithReferences != null) {
+                instanceWithReferences.init(currentVersion);
+            }
         } else {
             throw new Exception("Serializer has already been initialized.");
         }
@@ -165,6 +207,23 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         return normalizedVersion;
     }
 
+    @Override
+    public String serialize(Object object) {
+        try {
+            return super.serialize(object);
+        } catch (Exception e) {
+            if (isCircularReferenceException(e) && instanceWithReferences != null) {
+                try {
+                    return instanceWithReferences.serialize(object);
+                } catch (Exception e2) {
+                    throw createSerializerException(e2);
+                }
+            } else {
+                throw createSerializerException(e);
+            }
+        }
+    }
+
     /**
      * Serializes an object.
      */
@@ -172,8 +231,20 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         try {
             getXStream().toXML(object, writer);
         } catch (Exception e) {
-            logger.error(e);
-            throw new SerializerException(e);
+            if (isCircularReferenceException(e) && instanceWithReferences != null) {
+                try {
+                    // Since part of the XML was probably already written, need to add an invalid marker
+                    writer.write(INVALID_MARKER);
+
+                    instanceWithReferences.serialize(object, writer);
+                } catch (Exception e2) {
+                    logger.error(e2);
+                    throw createSerializerException(e2);
+                }
+            } else {
+                logger.error(e);
+                throw createSerializerException(e);
+            }
         }
     }
 
@@ -187,7 +258,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             if (skipMigration(expectedClass)) {
                 return (T) getXStream().fromXML(serializedObject);
             } else {
-                element = new DonkeyElement(serializedObject);
+                element = getDonkeyElement(serializedObject);
 
                 if (expectedClass == Channel.class || expectedClass == Throwable.class) {
                     try {
@@ -207,7 +278,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
                     }
                 }
 
-                return (T) getXStream().unmarshal(new MirthDomReader(element.getElement()));
+                return (T) getXStreamWithReferences().unmarshal(new MirthDomReader(element.getElement()));
             }
         } catch (LinkageError e) {
             return handleDeserializationException(preUnmarshalXml, element, e, expectedClass);
@@ -229,13 +300,16 @@ public class ObjectXMLSerializer extends XStreamSerializer {
              * ImportConverter3_0_0.migrate() on each item in the list.
              */
             if (ImportConverter3_0_0.isMigratable(expectedListItemClass)) {
-                DonkeyElement listElement = new DonkeyElement(serializedObject);
+                DonkeyElement listElement = getDonkeyElement(serializedObject);
 
                 if (listElement.getNodeName().equalsIgnoreCase("null")) {
                     return null;
                 } else {
                     // If the element is not a list, then re-create the element as a list with one item
                     if (!listElement.getNodeName().equals("list")) {
+                        // Convert back to XML first since it may have changed
+                        serializedObject = listElement.toXml();
+
                         listElement = new DonkeyElement("<list/>");
                         listElement.addChildElementFromXml(serializedObject);
                     }
@@ -261,7 +335,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
                                 }
                             }
 
-                            list.add((T) getXStream().unmarshal(new MirthDomReader(child.getElement())));
+                            list.add((T) getXStreamWithReferences().unmarshal(new MirthDomReader(child.getElement())));
                         } catch (LinkageError e) {
                             list.add(handleDeserializationException(preUnmarshalXml, child, e, expectedListItemClass));
                         } catch (Exception e) {
@@ -277,7 +351,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
                 if (skipMigration(expectedListItemClass)) {
                     object = (T) getXStream().fromXML(serializedObject);
                 } else {
-                    object = getXStream().unmarshal(new MirthDomReader(new DonkeyElement(serializedObject).getElement()));
+                    object = getXStreamWithReferences().unmarshal(new MirthDomReader(getDonkeyElement(serializedObject).getElement()));
                 }
 
                 if (object == null) {
@@ -295,11 +369,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             throw new SerializerException(e);
         } catch (Exception e) {
             logger.error(e);
-            if (e instanceof SerializerException) {
-                throw (SerializerException) e;
-            } else {
-                throw new SerializerException(e);
-            }
+            throw createSerializerException(e);
         }
     }
 
@@ -313,6 +383,18 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         return (expectedClass.equals(String.class) || expectedClass.equals(Integer.class) || expectedClass.equals(Long.class) || expectedClass.equals(Float.class) || expectedClass.equals(Double.class));
     }
 
+    /**
+     * For deserialization we usually want the XStream instance with references mode turned on,
+     * unless we're only deserializing known primitive autoboxed classes. That way we can handle
+     * payloads with and without references.
+     */
+    private XStream getXStreamWithReferences() {
+        if (instanceWithReferences != null) {
+            return instanceWithReferences.getXStream();
+        }
+        return getXStream();
+    }
+
     private <T> T handleDeserializationException(String preUnmarshalXml, DonkeyElement element, Throwable e, Class<T> expectedClass) {
         if (expectedClass == Channel.class) {
             logger.error("Error deserializing channel.", e);
@@ -322,5 +404,37 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         }
 
         throw new SerializerException(e);
+    }
+
+    private boolean isCircularReferenceException(Exception e) {
+        return e instanceof CircularReferenceException || e.getCause() instanceof CircularReferenceException;
+    }
+
+    private SerializerException createSerializerException(Exception e) {
+        if (e instanceof SerializerException) {
+            return (SerializerException) e;
+        } else {
+            return new SerializerException(e);
+        }
+    }
+
+    /**
+     * Takes the serialized XML and attempts to create a DonkeyElement from it. If conversion fails,
+     * the invalid marker is looked for and any invalid data is chopped off. Then conversion is
+     * attempted one more time.
+     */
+    private DonkeyElement getDonkeyElement(String serializedObject) throws DonkeyElementException {
+        try {
+            return new DonkeyElement(serializedObject);
+        } catch (DonkeyElementException e) {
+            // Check if the invalid marker is used, and try again if needed
+            int index = StringUtils.indexOf(serializedObject, INVALID_MARKER);
+            if (index >= 0) {
+                serializedObject = StringUtils.substring(serializedObject, index + INVALID_MARKER.length());
+                return new DonkeyElement(serializedObject);
+            } else {
+                throw e;
+            }
+        }
     }
 }
