@@ -18,6 +18,8 @@ public class UUIDGenerator {
     /**
      * Returns a type 4 (pseudo randomly generated) UUID. The UUID is generated using a
      * cryptographically strong pseudo random number generator.
+     * 
+     * @return The UUID string.
      */
     public static String getUUID() {
         return com.mirth.connect.server.util.ServerUUIDGenerator.getUUID();

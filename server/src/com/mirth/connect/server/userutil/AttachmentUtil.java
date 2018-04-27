@@ -121,6 +121,7 @@ public class AttachmentUtil {
      *            channel/message ID.
      * @return A List of attachment IDs associated with the current channel / message.
      * @throws MessageSerializerException
+     *             If the attachment IDs could be retrieved.
      */
     public static List<String> getMessageAttachmentIds(ImmutableConnectorMessage connectorMessage) throws MessageSerializerException {
         return getAttachmentHandlerProvider(connectorMessage.getChannelId()).getMessageAttachmentIds(connectorMessage);
@@ -135,6 +136,7 @@ public class AttachmentUtil {
      *            The ID of the message the attachments are associated with.
      * @return A List of attachment IDs associated with the current channel / message.
      * @throws MessageSerializerException
+     *             If the attachment IDs could be retrieved.
      */
     public static List<String> getMessageAttachmentIds(String channelId, Long messageId) throws MessageSerializerException {
         return getAttachmentHandlerProvider(channelId).getMessageAttachmentIds(channelId, messageId);
@@ -147,6 +149,8 @@ public class AttachmentUtil {
      *            The ConnectorMessage associated with this message, used to identify the
      *            channel/message ID.
      * @return A list of attachments associated with the connector message.
+     * @throws MessageSerializerException
+     *             If the attachments could not be retrieved.
      */
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws MessageSerializerException {
         return convertFromDonkeyAttachmentList(getAttachmentHandlerProvider(connectorMessage.getChannelId()).getMessageAttachments(connectorMessage));
@@ -162,6 +166,8 @@ public class AttachmentUtil {
      *            If true, the content of each attachment will first be Base64 decoded for
      *            convenient use.
      * @return A list of attachments associated with the connector message.
+     * @throws MessageSerializerException
+     *             If the attachments could not be retrieved.
      */
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage, boolean base64Decode) throws MessageSerializerException {
         return convertFromDonkeyAttachmentList(getAttachmentHandlerProvider(connectorMessage.getChannelId()).getMessageAttachments(connectorMessage, base64Decode));
@@ -176,6 +182,8 @@ public class AttachmentUtil {
      *            The ID of the message to retrieve the attachments from.
      * 
      * @return A list of attachments associated with the channel/message ID.
+     * @throws MessageSerializerException
+     *             If the attachments could not be retrieved.
      */
     public static List<Attachment> getMessageAttachments(String channelId, Long messageId) throws MessageSerializerException {
         return convertFromDonkeyAttachmentList(getAttachmentHandlerProvider(channelId).getMessageAttachments(channelId, messageId));
@@ -193,6 +201,8 @@ public class AttachmentUtil {
      *            convenient use.
      * 
      * @return A list of attachments associated with the channel/message ID.
+     * @throws MessageSerializerException
+     *             If the attachments could not be retrieved.
      */
     public static List<Attachment> getMessageAttachments(String channelId, Long messageId, boolean base64Decode) throws MessageSerializerException {
         return convertFromDonkeyAttachmentList(getAttachmentHandlerProvider(channelId).getMessageAttachments(channelId, messageId, base64Decode));
@@ -208,6 +218,8 @@ public class AttachmentUtil {
      *            The ID of the attachment to retrieve.
      * 
      * @return The attachment associated with the given IDs, or null if none was found.
+     * @throws MessageSerializerException
+     *             If the attachment could not be retrieved.
      */
     public static Attachment getMessageAttachment(ImmutableConnectorMessage connectorMessage, String attachmentId) throws MessageSerializerException {
         return getMessageAttachment(connectorMessage, attachmentId, false);
@@ -226,6 +238,8 @@ public class AttachmentUtil {
      *            convenient use.
      * 
      * @return The attachment associated with the given IDs, or null if none was found.
+     * @throws MessageSerializerException
+     *             If the attachment could not be retrieved.
      */
     public static Attachment getMessageAttachment(ImmutableConnectorMessage connectorMessage, String attachmentId, boolean base64Decode) throws MessageSerializerException {
         return getMessageAttachment(connectorMessage.getChannelId(), connectorMessage.getMessageId(), attachmentId, base64Decode);
@@ -242,6 +256,8 @@ public class AttachmentUtil {
      *            The ID of the attachment to retrieve.
      * 
      * @return The attachment associated with the given IDs, or null if none was found.
+     * @throws MessageSerializerException
+     *             If the attachment could not be retrieved.
      */
     public static Attachment getMessageAttachment(String channelId, Long messageId, String attachmentId) throws MessageSerializerException {
         Attachment attachment = convertFromDonkeyAttachment(getAttachmentHandlerProvider(channelId).getMessageAttachment(channelId, messageId, attachmentId));
@@ -262,6 +278,8 @@ public class AttachmentUtil {
      *            convenient use.
      * 
      * @return The attachment associated with the given IDs, or null if none was found.
+     * @throws MessageSerializerException
+     *             If the attachment could not be retrieved.
      */
     public static Attachment getMessageAttachment(String channelId, Long messageId, String attachmentId, boolean base64Decode) throws MessageSerializerException {
         Attachment attachment = convertFromDonkeyAttachment(getAttachmentHandlerProvider(channelId).getMessageAttachment(channelId, messageId, attachmentId, base64Decode));
@@ -276,6 +294,8 @@ public class AttachmentUtil {
      *            will be retrieved from the source map.
      * 
      * @return A list of attachments associated with the source channel/message IDs.
+     * @throws MessageSerializerException
+     *             If the attachments could not be retrieved.
      */
     public static List<Attachment> getMessageAttachmentsFromSourceChannel(ImmutableConnectorMessage connectorMessage) throws MessageSerializerException {
         return getMessageAttachmentsFromSourceChannel(connectorMessage, false);
@@ -292,6 +312,8 @@ public class AttachmentUtil {
      *            convenient use.
      * 
      * @return A list of attachments associated with the source channel/message IDs.
+     * @throws MessageSerializerException
+     *             If the attachments could not be retrieved.
      */
     @SuppressWarnings("unchecked")
     public static List<Attachment> getMessageAttachmentsFromSourceChannel(ImmutableConnectorMessage connectorMessage, boolean base64Decode) throws MessageSerializerException {
@@ -328,6 +350,7 @@ public class AttachmentUtil {
      *            The MIME type of the attachment.
      * @return The attachment added to the list.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment addAttachment(List<Attachment> attachments, Object content, String type) throws UnsupportedDataTypeException {
         return addAttachment(attachments, content, type, false);
@@ -348,6 +371,7 @@ public class AttachmentUtil {
      * 
      * @return The attachment added to the list.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment addAttachment(List<Attachment> attachments, Object content, String type, boolean base64Encode) throws UnsupportedDataTypeException {
         Attachment userAttachment = convertFromDonkeyAttachment(MessageController.getInstance().createAttachment(content, type, base64Encode));
@@ -367,6 +391,7 @@ public class AttachmentUtil {
      *            The MIME type of the attachment.
      * @return The attachment that was created and inserted.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment createAttachment(ImmutableConnectorMessage connectorMessage, Object content, String type) throws UnsupportedDataTypeException {
         return createAttachment(connectorMessage, content, type, false);
@@ -388,6 +413,7 @@ public class AttachmentUtil {
      * 
      * @return The attachment that was created and inserted.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment createAttachment(ImmutableConnectorMessage connectorMessage, Object content, String type, boolean base64Encode) throws UnsupportedDataTypeException {
         com.mirth.connect.donkey.model.message.attachment.Attachment attachment = MessageController.getInstance().createAttachment(content, type, base64Encode);
@@ -409,6 +435,7 @@ public class AttachmentUtil {
      * 
      * @return The attachment that was updated.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment updateAttachment(ImmutableConnectorMessage connectorMessage, String attachmentId, Object content, String type) throws UnsupportedDataTypeException {
         return updateAttachment(connectorMessage, attachmentId, content, type, false);
@@ -431,6 +458,7 @@ public class AttachmentUtil {
      * 
      * @return The attachment that was updated.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment updateAttachment(ImmutableConnectorMessage connectorMessage, String attachmentId, Object content, String type, boolean base64Encode) throws UnsupportedDataTypeException {
         return updateAttachment(connectorMessage.getChannelId(), connectorMessage.getMessageId(), attachmentId, content, type, base64Encode);
@@ -446,6 +474,7 @@ public class AttachmentUtil {
      * 
      * @return The attachment that was updated.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment updateAttachment(ImmutableConnectorMessage connectorMessage, Attachment attachment) throws UnsupportedDataTypeException {
         return updateAttachment(connectorMessage, attachment, false);
@@ -464,6 +493,7 @@ public class AttachmentUtil {
      * 
      * @return The attachment that was updated.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment updateAttachment(ImmutableConnectorMessage connectorMessage, Attachment attachment, boolean base64Encode) throws UnsupportedDataTypeException {
         return updateAttachment(connectorMessage.getChannelId(), connectorMessage.getMessageId(), attachment.getId(), attachment.getContent(), attachment.getType(), base64Encode);
@@ -481,6 +511,7 @@ public class AttachmentUtil {
      * 
      * @return The attachment that was updated.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment updateAttachment(String channelId, Long messageId, Attachment attachment) throws UnsupportedDataTypeException {
         return updateAttachment(channelId, messageId, attachment, false);
@@ -501,6 +532,7 @@ public class AttachmentUtil {
      * 
      * @return The attachment that was updated.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment updateAttachment(String channelId, Long messageId, Attachment attachment, boolean base64Encode) throws UnsupportedDataTypeException {
         return updateAttachment(channelId, messageId, attachment.getId(), attachment.getContent(), attachment.getType(), base64Encode);
@@ -522,6 +554,7 @@ public class AttachmentUtil {
      * 
      * @return The attachment that was updated.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment updateAttachment(String channelId, Long messageId, String attachmentId, Object content, String type) throws UnsupportedDataTypeException {
         return updateAttachment(channelId, messageId, attachmentId, content, type, false);
@@ -546,6 +579,7 @@ public class AttachmentUtil {
      * 
      * @return The attachment that was updated.
      * @throws UnsupportedDataTypeException
+     *             If the attachment content is not a String or byte array.
      */
     public static Attachment updateAttachment(String channelId, Long messageId, String attachmentId, Object content, String type, boolean base64Encode) throws UnsupportedDataTypeException {
         com.mirth.connect.donkey.model.message.attachment.Attachment attachment = MessageController.getInstance().createAttachment(content, type, base64Encode);

@@ -42,6 +42,9 @@ public class Maps {
     /**
      * Instantiates a new {@link MapBuilder} using the given map.
      * 
+     * @param map
+     *            The delegate map to use.
+     * 
      * @return The new {@link MapBuilder} instance.
      */
     public static MapBuilder map(Map map) {

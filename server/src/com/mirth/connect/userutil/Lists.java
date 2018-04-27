@@ -38,7 +38,10 @@ public class Lists {
     }
 
     /**
-     * Instantiates a new {@link ListBuilder} using the given map.
+     * Instantiates a new {@link ListBuilder} using the given list.
+     * 
+     * @param list
+     *            The delegate List to use.
      * 
      * @return The new {@link ListBuilder} instance.
      */

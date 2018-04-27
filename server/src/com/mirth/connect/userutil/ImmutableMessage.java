@@ -44,6 +44,8 @@ public class ImmutableMessage {
 
     /**
      * Returns the sequential ID of this message, as a Long.
+     * 
+     * @return The sequential ID of this message, as a Long.
      */
     public Long getMessageId() {
         return message.getMessageId();
@@ -51,6 +53,8 @@ public class ImmutableMessage {
 
     /**
      * Returns the ID of the server associated with this message.
+     * 
+     * @return The ID of the server associated with this message.
      */
     public String getServerId() {
         return message.getServerId();
@@ -58,6 +62,8 @@ public class ImmutableMessage {
 
     /**
      * Returns the ID of the channel associated with this message.
+     * 
+     * @return The ID of the channel associated with this message.
      */
     public String getChannelId() {
         return message.getChannelId();
@@ -69,9 +75,12 @@ public class ImmutableMessage {
      * is reprocessed at a later point, this date will remain the same and instead the connector
      * message received dates will be updated.
      * 
+     * @return The original date/time that this message was created by the channel.
+     * 
      * @deprecated This method is deprecated and will soon be removed. This method currently returns
      *             the received date of the source connector message.
      */
+    @Deprecated
     public Calendar getReceivedDate() {
         logger.error("This method is deprecated and will soon be removed. This method currently returns the received date of the source connector message.");
         return (Calendar) message.getReceivedDate().clone();
@@ -83,6 +92,8 @@ public class ImmutableMessage {
      * postprocessor script finishes. Even if a non-fatal error occurs on a particular connector
      * message and the status ends up as ERROR, or if a message is queued by a destination and has
      * not yet been sent to the outbound system, it can still be considered processed.
+     * 
+     * @return A boolean indicating whether this message has finished processing through a channel.
      */
     public boolean isProcessed() {
         return message.isProcessed();
@@ -90,6 +101,8 @@ public class ImmutableMessage {
 
     /**
      * Returns the ID of the original message this one was reprocessed from.
+     * 
+     * @return The ID of the original message this one was reprocessed from.
      */
     public Long getOriginalId() {
         return message.getOriginalId();
@@ -97,6 +110,8 @@ public class ImmutableMessage {
 
     /**
      * Returns the ID of the original message this one was imported from.
+     * 
+     * @return The ID of the original message this one was imported from.
      */
     public Long getImportId() {
         return message.getImportId();
@@ -104,6 +119,8 @@ public class ImmutableMessage {
 
     /**
      * Returns the ID of the original channel this message was reprocessed from.
+     * 
+     * @return The ID of the original channel this message was reprocessed from.
      */
     public String getImportChannelId() {
         return message.getImportChannelId();
@@ -112,6 +129,8 @@ public class ImmutableMessage {
     /**
      * Returns a list of attachments associated with this message. This will only be populated in
      * certain cases, such as when a message is being exported or archived.
+     * 
+     * @return A list of attachments associated with this message.
      */
     public List<ImmutableAttachment> getAttachments() {
         List<ImmutableAttachment> attachments = new ArrayList<ImmutableAttachment>();
@@ -126,6 +145,8 @@ public class ImmutableMessage {
     /**
      * Returns a map of connector messages associated with this message. The keys are the metadata
      * IDs (as Integer objects), and the values are the connector messages themselves.
+     * 
+     * @return A map of connector messages associated with this message.
      */
     public Map<Integer, ImmutableConnectorMessage> getConnectorMessages() {
         // MIRTH-2523: Overriding the get method to allow doubles to be passed in
@@ -149,6 +170,8 @@ public class ImmutableMessage {
      * Returns a "merged" connector message containing data from all connector messages combined.
      * The raw and processed raw content is copied from the source connector, while values in the
      * channel and response maps are copied from all connectors.
+     * 
+     * @return A "merged" connector message containing data from all connector messages combined.
      */
     public ImmutableConnectorMessage getMergedConnectorMessage() {
         return new ImmutableConnectorMessage(message.getMergedConnectorMessage(), false, getDestinationIdMap());
@@ -158,9 +181,13 @@ public class ImmutableMessage {
      * Returns a Map of destination connector names linked to their corresponding "d#" response map
      * keys (where "#" is the destination connector metadata ID).
      * 
+     * @return A Map of destination connector names linked to their corresponding "d#" response map
+     *         keys.
+     * 
      * @deprecated This method is deprecated and will soon be removed. Please use
      *             {@link #getDestinationIdMap() getDestinationIdMap()} instead.
      */
+    @Deprecated
     public Map<String, String> getDestinationNameMap() {
         logger.error("This method is deprecated and will soon be removed. Please use getDestinationIdMap() instead.");
         Map<String, String> destinationNameMap = new HashMap<String, String>();
@@ -175,6 +202,9 @@ public class ImmutableMessage {
     /**
      * Returns a Map of destination connector names linked to their corresponding connector metadata
      * ID.
+     * 
+     * @return A Map of destination connector names linked to their corresponding connector metadata
+     *         ID.
      */
     public Map<String, Integer> getDestinationIdMap() {
         Map<String, Integer> destinationIdMap = new LinkedHashMap<String, Integer>();
@@ -186,6 +216,9 @@ public class ImmutableMessage {
         return Collections.unmodifiableMap(destinationIdMap);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return message.toString();

@@ -22,6 +22,9 @@ public class ContextFactory {
 
     /**
      * Instantiates a new ContextFactory object.
+     * 
+     * @param delegate
+     *            The underlying ContextFactory this class will delegate to.
      */
     public ContextFactory(MirthContextFactory delegate) {
         this.delegate = delegate;
@@ -31,6 +34,8 @@ public class ContextFactory {
      * Returns the set of custom resource IDs that the current JavaScript context is using. If no
      * custom libraries are being used in the current JavaScript context, this will return an empty
      * set.
+     * 
+     * @return The set of custom resource IDs that the current JavaScript context is using.
      */
     public Set<String> getResourceIds() {
         return delegate.getResourceIds();
@@ -38,6 +43,8 @@ public class ContextFactory {
 
     /**
      * Returns the application classloader that the current JavaScript context is using.
+     * 
+     * @return The application classloader that the current JavaScript context is using.
      */
     public ClassLoader getClassLoader() {
         return delegate.getApplicationClassLoader();
@@ -47,6 +54,9 @@ public class ContextFactory {
      * Returns a classloader containing only the libraries contained in the custom resources, with
      * no parent classloader. If no custom libraries are being used in the current JavaScript
      * context, this will return null.
+     * 
+     * @return A classloader containing only the libraries contained in the custom resources, with
+     *         no parent classloader.
      */
     public ClassLoader getIsolatedClassLoader() {
         return delegate.getIsolatedClassLoader();

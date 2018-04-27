@@ -89,6 +89,8 @@ public class Response {
 
     /**
      * Returns the actual response data, as a string.
+     * 
+     * @return The actual response data, as a string.
      */
     public String getMessage() {
         return response.getMessage();
@@ -106,6 +108,8 @@ public class Response {
 
     /**
      * Returns the Status (e.g. SENT, QUEUED) of this response.
+     * 
+     * @return The Status (e.g. SENT, QUEUED) of this response.
      */
     public Status getStatus() {
         return Status.fromDonkeyStatus(response.getStatus());
@@ -123,6 +127,8 @@ public class Response {
 
     /**
      * Returns the error string associated with this response, if it exists.
+     * 
+     * @return The error string associated with this response, if it exists.
      */
     public String getError() {
         return response.getError();
@@ -140,6 +146,8 @@ public class Response {
 
     /**
      * Returns a brief message explaining the reason for the current status.
+     * 
+     * @return A brief message explaining the reason for the current status.
      */
     public String getStatusMessage() {
         return response.getStatusMessage();
@@ -160,7 +168,7 @@ public class Response {
     }
 
     /**
-     * Indicates that the underlying Donkey Response objects are "equal".
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object other) {
@@ -171,6 +179,9 @@ public class Response {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return response.toString();

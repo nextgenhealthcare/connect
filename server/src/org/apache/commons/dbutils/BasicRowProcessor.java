@@ -53,6 +53,7 @@ public class BasicRowProcessor implements RowProcessor {
 	 * @deprecated Create instances with the constructors instead. This will be
 	 *             removed after DbUtils 1.1.
 	 */
+    @Deprecated
 	public static BasicRowProcessor instance() {
 		return instance;
 	}

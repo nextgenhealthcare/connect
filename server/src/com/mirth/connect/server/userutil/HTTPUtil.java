@@ -42,6 +42,7 @@ public class HTTPUtil {
      *            The block of HTTP header fields to convert.
      * @return The converted Map containing header key-value pairs.
      * @throws Exception
+     *             If the header string could not be parsed.
      */
     public static Map<String, String> parseHeaders(String str) throws Exception {
         Map<String, String> headersMap = new HashMap<String, String>();
@@ -64,9 +65,13 @@ public class HTTPUtil {
      *            The MIME content type of the request.
      * @return The serialized XML string.
      * @throws MessagingException
+     *             If the body could not be converted into a multipart object.
      * @throws IOException
+     *             If the body could not be read into a string.
      * @throws DonkeyElementException
+     *             If an XML parsing error occurs.
      * @throws ParserConfigurationException
+     *             If an XML or multipart parsing error occurs.
      */
     public static String httpBodyToXml(InputStream httpBody, String contentType) throws MessagingException, IOException, DonkeyElementException, ParserConfigurationException {
         ContentType type = getContentType(contentType);
@@ -91,9 +96,13 @@ public class HTTPUtil {
      *            The MIME content type of the request.
      * @return The serialized XML string.
      * @throws MessagingException
+     *             If the body could not be converted into a multipart object.
      * @throws IOException
+     *             If the body could not be read into a string.
      * @throws DonkeyElementException
+     *             If an XML parsing error occurs.
      * @throws ParserConfigurationException
+     *             If an XML or multipart parsing error occurs.
      */
     public static String httpBodyToXml(String httpBody, String contentType) throws MessagingException, IOException, DonkeyElementException, ParserConfigurationException {
         ContentType type = getContentType(contentType);

@@ -39,6 +39,8 @@ public class AuthenticationResult {
 
     /**
      * Returns the accept/reject status of the authentication attempt.
+     * 
+     * @return The accept/reject status of the authentication attempt.
      */
     public AuthStatus getStatus() {
         return status;
@@ -59,6 +61,8 @@ public class AuthenticationResult {
 
     /**
      * Returns the username that the request has been authenticated with.
+     * 
+     * @return The username that the request has been authenticated with.
      */
     public String getUsername() {
         return username;
@@ -76,6 +80,8 @@ public class AuthenticationResult {
 
     /**
      * Returns the realm that the request has been authenticated with.
+     * 
+     * @return The realm that the request has been authenticated with.
      */
     public String getRealm() {
         return realm;
@@ -93,6 +99,8 @@ public class AuthenticationResult {
 
     /**
      * Returns the map of HTTP headers to be sent along with the authentication response.
+     * 
+     * @return The map of HTTP headers to be sent along with the authentication response.
      */
     public Map<String, List<String>> getResponseHeaders() {
         return responseHeaders;
@@ -133,6 +141,7 @@ public class AuthenticationResult {
      * 
      * @param authenticateHeader
      *            The value to include in the WWW-Authenticate response header.
+     * @return The created AuthenticationResult object.
      */
     public static AuthenticationResult Challenged(String authenticateHeader) {
         AuthenticationResult result = new AuthenticationResult(AuthStatus.CHALLENGED);
@@ -142,6 +151,8 @@ public class AuthenticationResult {
 
     /**
      * Convenience method to create a new AuthenticationResult with the SUCCESS status.
+     * 
+     * @return The created AuthenticationResult object.
      */
     public static AuthenticationResult Success() {
         return new AuthenticationResult(AuthStatus.SUCCESS);
@@ -154,6 +165,7 @@ public class AuthenticationResult {
      *            The username that the request has been authenticated with.
      * @param realm
      *            The realm that the request has been authenticated with.
+     * @return The created AuthenticationResult object.
      */
     public static AuthenticationResult Success(String username, String realm) {
         AuthenticationResult result = new AuthenticationResult(AuthStatus.SUCCESS);
@@ -164,6 +176,8 @@ public class AuthenticationResult {
 
     /**
      * Convenience method to create a new AuthenticationResult with the FAILURE status.
+     * 
+     * @return The created AuthenticationResult object.
      */
     public static AuthenticationResult Failure() {
         return new AuthenticationResult(AuthStatus.FAILURE);

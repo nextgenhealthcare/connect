@@ -22,6 +22,7 @@ public class SMTPConnectionFactory {
      * 
      * @return The instantiated SMTPConnection object.
      * @throws ControllerException
+     *             If the SMTP connection could not be created.
      */
     public static SMTPConnection createSMTPConnection() throws ControllerException {
         return new SMTPConnection(com.mirth.connect.server.util.ServerSMTPConnectionFactory.createSMTPConnection());

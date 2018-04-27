@@ -31,6 +31,8 @@ public class ImmutableResponse {
 
     /**
      * Returns the actual response data, as a string.
+     * 
+     * @return The actual response data, as a string.
      */
     public String getMessage() {
         return response.getMessage();
@@ -39,6 +41,7 @@ public class ImmutableResponse {
     /**
      * Returns the Status (e.g. SENT, QUEUED) of this response, which will be used to set the status
      * of the corresponding connector message.
+     * @return The Status (e.g. SENT, QUEUED) of this response.
      */
     public Status getNewMessageStatus() {
         return response.getStatus();
@@ -46,6 +49,7 @@ public class ImmutableResponse {
 
     /**
      * Returns the error string associated with this response, if it exists.
+     * @return The error string associated with this response, if it exists.
      */
     public String getError() {
         return response.getError();
@@ -53,6 +57,7 @@ public class ImmutableResponse {
 
     /**
      * Returns a brief message explaining the reason for the current status.
+     * @return A brief message explaining the reason for the current status.
      */
     public String getStatusMessage() {
         return response.getStatusMessage();

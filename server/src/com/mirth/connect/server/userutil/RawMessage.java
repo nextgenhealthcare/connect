@@ -104,6 +104,8 @@ public class RawMessage {
 
     /**
      * Returns the textual data to be dispatched to a channel.
+     * 
+     * @return The textual data to be dispatched to a channel.
      */
     public String getRawData() {
         return rawMessage.getRawData();
@@ -111,6 +113,8 @@ public class RawMessage {
 
     /**
      * Returns the binary data (byte array) to be dispatched to a channel.
+     * 
+     * @return The binary data (byte array) to be dispatched to a channel.
      */
     public byte[] getRawBytes() {
         return rawMessage.getRawBytes();
@@ -119,6 +123,9 @@ public class RawMessage {
     /**
      * Returns the collection of integers (metadata IDs) representing which destinations to dispatch
      * the message to.
+     * 
+     * @return The collection of integers (metadata IDs) representing which destinations to dispatch
+     *         the message to.
      */
     public Collection<Integer> getDestinationMetaDataIds() {
         return rawMessage.getDestinationMetaDataIds();
@@ -139,9 +146,12 @@ public class RawMessage {
     /**
      * Returns the channel map to be used at the beginning of the channel dispatch.
      * 
+     * @return The channel map to be used at the beginning of the channel dispatch.
+     * 
      * @deprecated This method is deprecated and will soon be removed. Please use
      *             {@link #getSourceMap()} instead.
      */
+    @Deprecated
     public Map<String, Object> getChannelMap() {
         logger.error("This method is deprecated and will soon be removed. Please use getSourceMap() instead.");
         return getSourceMap();
@@ -158,6 +168,7 @@ public class RawMessage {
      * @deprecated This method is deprecated and will soon be removed. Please use
      *             {@link #setSourceMap(java.util.Map) setSourceMap(sourceMap)} instead.
      */
+    @Deprecated
     public void setChannelMap(Map<String, Object> channelMap) {
         logger.error("This method is deprecated and will soon be removed. Please use setSourceMap(sourceMap) instead.");
         setSourceMap(channelMap);
@@ -165,6 +176,8 @@ public class RawMessage {
 
     /**
      * Returns the source map to be used at the beginning of the channel dispatch.
+     * 
+     * @return The source map to be used at the beginning of the channel dispatch.
      */
     public Map<String, Object> getSourceMap() {
         return rawMessage.getSourceMap();
@@ -183,6 +196,8 @@ public class RawMessage {
 
     /**
      * Returns a Boolean representing whether this object contains textual or binary data.
+     * 
+     * @return A Boolean representing whether this object contains textual or binary data.
      */
     public Boolean isBinary() {
         return rawMessage.isBinary();

@@ -47,6 +47,7 @@ public class ACKGenerator {
      *            The MSA.3 text message to use.
      * @return The generated HL7 v2.x acknowledgment.
      * @throws Exception
+     *             If the acknowledgement could not be generated.
      */
     public static String generateAckResponse(String message, String acknowledgementCode, String textMessage) throws Exception {
         return generateAckResponse(message, false, acknowledgementCode, textMessage, DEFAULTDATEFORMAT, "");
@@ -73,11 +74,13 @@ public class ACKGenerator {
      *            generated.
      * @return The generated HL7 v2.x acknowledgment.
      * @throws Exception
+     *             If the acknowledgement could not be generated.
      * 
      * @deprecated This method is deprecated and will soon be removed. Please use
      *             generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat,
      *             errorMessage) instead.
      */
+    @Deprecated
     public static String generateAckResponse(String message, String dataType, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
         logger.error("This generateAckResponse(message, dataType, acknowledgementCode, textMessage, dateFormat, errorMessage) method is deprecated and will soon be removed. Please use generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat, errorMessage) instead.");
         return generateAckResponse(message, dataType.equals("XML"), acknowledgementCode, textMessage, dateFormat, errorMessage);
@@ -103,6 +106,7 @@ public class ACKGenerator {
      *            generated.
      * @return The generated HL7 v2.x acknowledgment.
      * @throws Exception
+     *             If the acknowledgement could not be generated.
      */
     public static String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
         DataTypeServerPlugin plugin = ControllerFactory.getFactory().createExtensionController().getDataTypePlugins().get("HL7V2");

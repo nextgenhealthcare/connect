@@ -27,6 +27,7 @@ public class DateUtil {
      *            The date string to parse.
      * @return A java.util.Date object representing the parsed date.
      * @throws Exception
+     *             If the pattern could not be parsed.
      */
     public static Date getDate(String pattern, String date) throws Exception {
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
@@ -72,6 +73,7 @@ public class DateUtil {
      *            The date string to convert.
      * @return The converted date string.
      * @throws Exception
+     *             If the pattern could not be parsed.
      */
     public static String convertDate(String inPattern, String outPattern, String date) throws Exception {
         Date newDate = getDate(inPattern, date);

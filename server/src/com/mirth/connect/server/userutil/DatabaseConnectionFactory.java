@@ -48,6 +48,7 @@ public class DatabaseConnectionFactory {
      *            The password to connect with.
      * @return The created DatabaseConnection object.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public DatabaseConnection createDatabaseConnection(String driver, String address, String username, String password) throws SQLException {
         CustomDriverInfo customDriverInfo = getCustomDriverInfo(driver);
@@ -72,6 +73,7 @@ public class DatabaseConnectionFactory {
      *            The server address to connect to.
      * @return The created DatabaseConnection object.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public DatabaseConnection createDatabaseConnection(String driver, String address) throws SQLException {
         CustomDriverInfo customDriverInfo = getCustomDriverInfo(driver);
@@ -97,6 +99,7 @@ public class DatabaseConnectionFactory {
      *            The password to connect with.
      * @return The created DatabaseConnection object.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public Connection createConnection(String driver, String address, String username, String password) throws SQLException {
         CustomDriverInfo customDriverInfo = getCustomDriverInfo(driver);
@@ -119,6 +122,7 @@ public class DatabaseConnectionFactory {
      * @param driver
      *            The JDBC driver class (as a string) to initialize.
      * @throws Exception
+     *             If the driver could not be initialized.
      */
     public void initializeDriver(String driver) throws Exception {
         initializeDriverAndGetInfo(driver);

@@ -42,6 +42,7 @@ public class FileUtil {
      * @param data
      *            The content to write to the file.
      * @throws IOException
+     *             If an I/O error occurred.
      */
     public static void write(String fileName, boolean append, String data) throws IOException {
         FileUtils.writeStringToFile(new File(fileName), data, append);
@@ -81,6 +82,7 @@ public class FileUtil {
      * @param bytes
      *            The binary content to write to the file.
      * @throws IOException
+     *             If an I/O error occurred.
      */
     public static void write(String fileName, boolean append, byte[] bytes) throws IOException {
         FileUtils.writeByteArrayToFile(new File(fileName), bytes, append);
@@ -94,6 +96,7 @@ public class FileUtil {
      *            The pathname string of the file to read from.
      * @return The byte array representation of the file.
      * @throws IOException
+     *             If an I/O error occurred.
      */
     public static byte[] readBytes(String fileName) throws IOException {
         return FileUtils.readFileToByteArray(new File(fileName));
@@ -107,6 +110,7 @@ public class FileUtil {
      *            The pathname string of the file to read from.
      * @return The string representation of the file.
      * @throws IOException
+     *             If an I/O error occurred.
      */
     public static String read(String fileName) throws IOException {
         return FileUtils.readFileToString(new File(fileName));
@@ -120,6 +124,7 @@ public class FileUtil {
      *            The File to delete.
      * @return true if and only if the file or directory is successfully deleted; false otherwise
      * @throws SecurityException
+     *             If the security manager denies access to delete the file.
      */
     public static boolean deleteFile(File file) throws SecurityException {
         return file.delete();
@@ -135,7 +140,9 @@ public class FileUtil {
      *            string.
      * @return The converted plain text message.
      * @throws IOException
+     *             If an I/O error occurred.
      * @throws BadLocationException
+     *             If an invalid location within the document is used.
      */
     public static String rtfToPlainText(String message, String replaceLinebreaksWith) throws IOException, BadLocationException {
 

@@ -29,6 +29,8 @@ public class ImmutableMessageContent {
 
     /**
      * Returns the ContentType of this message content (e.g. RAW, ENCODED).
+     * 
+     * @return The ContentType of this message content (e.g. RAW, ENCODED).
      */
     public ContentType getContentType() {
         return ContentType.fromDonkeyContentType(messageContent.getContentType());
@@ -36,6 +38,8 @@ public class ImmutableMessageContent {
 
     /**
      * Returns the actual content, as a string.
+     * 
+     * @return The actual content, as a string.
      */
     public String getContent() {
         return messageContent.getContent();
@@ -43,6 +47,8 @@ public class ImmutableMessageContent {
 
     /**
      * Returns the sequential ID of the overall Message associated with this message content.
+     * 
+     * @return The sequential ID of the overall Message associated with this message content.
      */
     public long getMessageId() {
         return messageContent.getMessageId();
@@ -51,6 +57,8 @@ public class ImmutableMessageContent {
     /**
      * Returns the metadata ID of the connector associated with this message content. Note that the
      * source connector has a metadata ID of 0.
+     * 
+     * @return The metadata ID of the connector associated with this message content.
      */
     public int getMetaDataId() {
         return messageContent.getMetaDataId();
@@ -58,6 +66,8 @@ public class ImmutableMessageContent {
 
     /**
      * Returns the data type (e.g. "HL7V2") of this message content.
+     * 
+     * @return The data type (e.g. "HL7V2") of this message content.
      */
     public String getDataType() {
         return messageContent.getDataType();
