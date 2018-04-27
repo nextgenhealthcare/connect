@@ -1120,6 +1120,11 @@
 		
 		<javadoc sourcepath="${src}:${jdk_src_path}" destdir="${docs.javadocs.userapi}" packagenames="com.mirth.connect.server.userutil,com.mirth.connect.userutil,com.mirth.connect.plugins.httpauth.userutil" link="https://docs.oracle.com/javase/8/docs/api/">
 			<classpath refid="classpath" />
+			<!-- Uncomment the following and add additional dashes in front of the arguments to allow Java 9+
+				<arg line="-html5"/>
+				<arg line="-add-modules java.sql.rowset"/>
+				<arg line="-add-exports java.sql.rowset/com.sun.rowset=ALL-UNNAMED"/>
+			-->
 		</javadoc>
 	</target>
 
