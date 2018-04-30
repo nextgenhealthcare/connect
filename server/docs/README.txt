@@ -39,6 +39,10 @@ After the installation, the Mirth Connect directory layout will look as follows:
 /server-lib: Mirth Connect server libraries
 /webapps: Directory exposed by the embedded web server to host webapps
 
+Note for running Mirth Connect in Java 9 or greater:
+
+You will need to copy the options from mcservice-java9+.vmoptions and append them to either mcserver.vmoptions or mcservice.vmoptions, depending on your deployment, and then restart Mirth Connect.
+
 
 3. Starting Mirth Connect
 ==================================================
