@@ -40,6 +40,7 @@ public class DatabaseConnection {
      * @param address
      *            The server address to connect to.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public DatabaseConnection(String address) throws SQLException {
         logger.debug("creating new database connection: address=" + address);
@@ -56,6 +57,7 @@ public class DatabaseConnection {
      * @param info
      *            A Properties object containing all applicable connection arguments.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public DatabaseConnection(String address, Properties info) throws SQLException {
         logger.debug("creating new database connection: address=" + address + ", " + info);
@@ -66,9 +68,12 @@ public class DatabaseConnection {
     /**
      * Instantiates a new database connection with the given driver instance and server address.
      * 
+     * @param driver
+     *            The explicit driver instance to connect with.
      * @param address
      *            The server address to connect to.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public DatabaseConnection(Driver driver, String address) throws SQLException {
         logger.debug("creating new database connection: address=" + address);
@@ -87,6 +92,7 @@ public class DatabaseConnection {
      * @param info
      *            A Properties object containing all applicable connection arguments.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public DatabaseConnection(Driver driver, String address, Properties info) throws SQLException {
         logger.debug("creating new database connection: address=" + address + ", " + info);
@@ -96,6 +102,8 @@ public class DatabaseConnection {
 
     /**
      * Returns the server address.
+     * 
+     * @return The server address.
      */
     public String getAddress() {
         return address;
@@ -108,6 +116,7 @@ public class DatabaseConnection {
      *            The query expression to be executed.
      * @return The result of the query, as a CachedRowSet.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public CachedRowSet executeCachedQuery(String expression) throws SQLException {
         Statement statement = null;
@@ -134,6 +143,7 @@ public class DatabaseConnection {
      *            The statement to be executed.
      * @return A count of the number of updated rows.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public int executeUpdate(String expression) throws SQLException {
         Statement statement = null;
@@ -163,6 +173,7 @@ public class DatabaseConnection {
      *            The parameters for the prepared statement.
      * @return A count of the number of updated rows.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public int executeUpdate(String expression, List<Object> parameters) throws SQLException {
         PreparedStatement statement = null;
@@ -201,6 +212,7 @@ public class DatabaseConnection {
      *            The parameters for the prepared statement.
      * @return The result of the query, as a CachedRowSet.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public CachedRowSet executeCachedQuery(String expression, List<Object> parameters) throws SQLException {
         PreparedStatement statement = null;
@@ -247,6 +259,7 @@ public class DatabaseConnection {
      * @param autoCommit
      *            The value (true or false) to set the connection's auto-commit mode to.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         connection.setAutoCommit(autoCommit);
@@ -257,6 +270,7 @@ public class DatabaseConnection {
      * held by this Connection object.
      * 
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public void rollback() throws SQLException {
         connection.rollback();
@@ -267,6 +281,7 @@ public class DatabaseConnection {
      * locks currently held by this DatabaseConnection object.
      * 
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public void commit() throws SQLException {
         connection.commit();
@@ -280,6 +295,7 @@ public class DatabaseConnection {
      *            The statement to be executed.
      * @return A CachedRowSet containing any generated keys.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public CachedRowSet executeUpdateAndGetGeneratedKeys(String expression) throws SQLException {
         Statement statement = null;
@@ -308,6 +324,7 @@ public class DatabaseConnection {
      *            The parameters for the prepared statement.
      * @return A CachedRowSet containing any generated keys.
      * @throws SQLException
+     *             If a database access error occurs.
      */
     public CachedRowSet executeUpdateAndGetGeneratedKeys(String expression, List<Object> parameters) throws SQLException {
         PreparedStatement statement = null;
@@ -338,6 +355,8 @@ public class DatabaseConnection {
 
     /**
      * Returns the database connection (java.sql.Connection) this class is using.
+     * 
+     * @return The underlying java.sql.Connection object.
      */
     public Connection getConnection() {
         return this.connection;

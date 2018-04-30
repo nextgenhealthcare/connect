@@ -61,6 +61,7 @@ public class TestChannel extends Channel {
      * 
      * @deprecated
      */
+    @Deprecated
     public List<Message> getUnfinishedMessages() {
         return unfinishedMessages;
     }

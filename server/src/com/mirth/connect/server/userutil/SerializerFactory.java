@@ -157,6 +157,7 @@ public class SerializerFactory {
      *             instead. The new method will now strip namespaces by default unless the
      *             'stripNamespaces' property is set to false.
      */
+    @Deprecated
     public static IMessageSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents);
@@ -183,6 +184,7 @@ public class SerializerFactory {
      *             instead. The new method will now strip namespaces by default unless the
      *             'stripNamespaces' property is set to false.
      */
+    @Deprecated
     public static IMessageSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, false);
@@ -206,6 +208,7 @@ public class SerializerFactory {
      *             instead. The new method will now strip namespaces by default unless the
      *             'stripNamespaces' property is set to false.
      */
+    @Deprecated
     public static IMessageSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, true, false);
@@ -227,6 +230,7 @@ public class SerializerFactory {
      *             instead. The new method will now strip namespaces by default unless the
      *             'stripNamespaces' property is set to false.
      */
+    @Deprecated
     public static IMessageSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, false, true, false);
@@ -243,6 +247,7 @@ public class SerializerFactory {
      *             instead. The new method will now strip namespaces by default unless the
      *             'stripNamespaces' property is set to false.
      */
+    @Deprecated
     public static IMessageSerializer getHL7Serializer() {
         logger.error("The getHL7Serializer() method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(false, false, false, true, false);
@@ -261,6 +266,7 @@ public class SerializerFactory {
      *             getSerializer(dataType, serializationPropertiesMap, deserializationPropertiesMap)
      *             instead.
      */
+    @Deprecated
     public static IMessageSerializer getX12Serializer(boolean inferDelimiters) {
         logger.error("The getX12Serializer(inferDelimiters) method is deprecated and will soon be removed. Please use the \"Convert EDI / X12\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
 
@@ -287,6 +293,7 @@ public class SerializerFactory {
      *             getSerializer(dataType, serializationPropertiesMap, deserializationPropertiesMap)
      *             instead.
      */
+    @Deprecated
     public static IMessageSerializer getEDISerializer(String segmentDelim, String elementDelim, String subelementDelim) {
         logger.error("The getEDISerializer(segmentDelim, elementDelim, subelementDelim) method is deprecated and will soon be removed. Please use the \"Convert EDI / X12\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
 
@@ -336,6 +343,7 @@ public class SerializerFactory {
      *             getSerializer(dataType, serializationPropertiesMap, deserializationPropertiesMap)
      *             instead.
      */
+    @Deprecated
     public static IMessageSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
         logger.error("The getNCPDPSerializer(segmentDelim, groupDelim, fieldDelim, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert NCPDP\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
         return getNCPDPSerializerQuietly(segmentDelim, groupDelim, fieldDelim, useStrictValidation);
@@ -357,6 +365,7 @@ public class SerializerFactory {
      *             getSerializer(dataType, serializationPropertiesMap, deserializationPropertiesMap)
      *             instead.
      */
+    @Deprecated
     public static IMessageSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim) {
         logger.error("The getNCPDPSerializer(segmentDelim, groupDelim, fieldDelim) method is deprecated and will soon be removed. Please use the \"Convert NCPDP\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
         return getNCPDPSerializerQuietly(segmentDelim, groupDelim, fieldDelim, false);

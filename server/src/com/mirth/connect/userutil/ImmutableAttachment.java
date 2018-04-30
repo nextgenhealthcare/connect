@@ -33,6 +33,8 @@ public class ImmutableAttachment {
      * Returns the unique replacement token for the attachment. This token should replace the
      * attachment content in the message string, and will be used to re-attach the attachment
      * content in the outbound message before it is sent to a downstream system.
+     * 
+     * @return The unique replacement token for the attachment.
      */
     public String getAttachmentId() {
         return attachment.getAttachmentId();
@@ -40,6 +42,8 @@ public class ImmutableAttachment {
 
     /**
      * Returns the unique ID for the attachment.
+     * 
+     * @return The unique ID for the attachment.
      */
     public String getId() {
         return attachment.getId();
@@ -47,6 +51,8 @@ public class ImmutableAttachment {
 
     /**
      * Returns the content of the attachment as a byte array.
+     * 
+     * @return The content of the attachment as a byte array.
      */
     public byte[] getContent() {
         return attachment.getContent();
@@ -54,6 +60,8 @@ public class ImmutableAttachment {
 
     /**
      * Returns the MIME type of the attachment.
+     * 
+     * @return The MIME type of the attachment.
      */
     public String getType() {
         return attachment.getType();
@@ -61,6 +69,8 @@ public class ImmutableAttachment {
 
     /**
      * Returns a boolean indicating whether the attachment content is encrypted.
+     * 
+     * @return A boolean indicating whether the attachment content is encrypted.
      */
     public boolean isEncrypted() {
         return attachment.isEncrypted();

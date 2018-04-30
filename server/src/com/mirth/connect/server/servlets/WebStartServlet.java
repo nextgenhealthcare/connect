@@ -32,6 +32,7 @@ import org.bouncycastle.util.Arrays;
 import org.eclipse.jetty.io.RuntimeIOException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.MetaData;
@@ -146,8 +147,12 @@ public class WebStartServlet extends HttpServlet {
             maxHeapSize = mirthProperties.getString("administrator.maxheapsize");
         }
         if (StringUtils.isNotBlank(maxHeapSize)) {
-            Element j2se = (Element) resourcesElement.getElementsByTagName("j2se").item(0);
-            j2se.setAttribute("max-heap-size", maxHeapSize);
+            NodeList j2seList = resourcesElement.getElementsByTagName("j2se");
+
+            for (int i = 0; i < j2seList.getLength(); i++) {
+                Element j2se = (Element) j2seList.item(i);
+                j2se.setAttribute("max-heap-size", maxHeapSize);
+            }
         }
 
         List<String> defaultClientLibs = new ArrayList<String>();

@@ -73,7 +73,9 @@ public class DICOMUtil {
      *            The DICOM attachments to merge with the header data.
      * @return The merged DICOM data as a Base-64 encoded String.
      * @throws MessageSerializerException
+     *             If a database access error occurs, or the DICOM data could not be parsed.
      * @throws IOException
+     *             If Base64 encoding failed.
      */
     public static String mergeHeaderAttachments(ImmutableConnectorMessage connectorMessage, List<Attachment> attachments) throws MessageSerializerException, IOException {
         return new String(Base64Util.encodeBase64(com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderAttachments(connectorMessage, AttachmentUtil.convertToDonkeyAttachmentList(attachments))));
@@ -89,6 +91,7 @@ public class DICOMUtil {
      *            The DICOM attachments as byte arrays to merge with the header data.
      * @return The merged DICOM data as a Base-64 encoded String.
      * @throws IOException
+     *             If Base64 encoding failed.
      */
     public static String mergeHeaderPixelData(byte[] header, List<byte[]> images) throws IOException {
         List<Attachment> attachments = new ArrayList<Attachment>();
@@ -231,6 +234,7 @@ public class DICOMUtil {
      *            If true, the data is assumed to be Base64-encoded.
      * @return The converted DicomObject.
      * @throws IOException
+     *             If Base64 encoding failed.
      */
     public static DicomObject byteArrayToDicomObject(byte[] bytes, boolean decodeBase64) throws IOException {
         return DICOMConverter.byteArrayToDicomObject(bytes, decodeBase64);
@@ -243,6 +247,7 @@ public class DICOMUtil {
      *            The DicomObject to convert.
      * @return The converted byte array.
      * @throws IOException
+     *             If Base64 encoding failed.
      */
     public static byte[] dicomObjectToByteArray(DicomObject dicomObject) throws IOException {
         return DICOMConverter.dicomObjectToByteArray(dicomObject);

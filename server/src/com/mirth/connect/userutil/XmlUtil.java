@@ -86,11 +86,13 @@ public class XmlUtil {
      * @param xmlString
      *            The XML string to convert.
      * @return The converted JSON string.
+     * @throws Exception
+     *             If conversion failed.
      */
     public static String toJson(String xmlString) throws Exception {
         return JsonXmlUtil.xmlToJson(xmlString, true);
     }
-    
+
     /**
      * Converts an XML string to JSON.
      * 
@@ -99,6 +101,8 @@ public class XmlUtil {
      * @param normalizeNamespaces
      *            Whether or not to normalize namespaces by stripping prefixes.
      * @return The converted JSON string.
+     * @throws Exception
+     *             If conversion failed.
      */
     public static String toJson(String xmlString, boolean normalizeNamespaces) throws Exception {
         return JsonXmlUtil.xmlToJson(xmlString, normalizeNamespaces);
@@ -120,6 +124,8 @@ public class XmlUtil {
      * @param normalizeNamespaces
      *            Whether or not to normalize namespaces by stripping prefixes.
      * @return The converted JSON string.
+     * @throws Exception
+     *             If conversion failed.
      */
     public static String toJson(String xmlString, boolean autoArray, boolean autoPrimitive, boolean prettyPrint, boolean normalizeNamespaces) throws Exception {
         JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(autoArray).autoPrimitive(autoPrimitive).prettyPrint(prettyPrint).build();

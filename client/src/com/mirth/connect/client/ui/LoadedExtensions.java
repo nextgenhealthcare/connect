@@ -12,12 +12,15 @@ package com.mirth.connect.client.ui;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -52,6 +55,7 @@ public class LoadedExtensions {
 
     private Map<String, String> extensionVersions = new HashMap<String, String>();
     private List<ClientPlugin> clientPlugins = new ArrayList<ClientPlugin>();
+    private Set<String> userutilPackages = new HashSet<String>();
     private Map<String, SettingsPanelPlugin> settingsPanelPlugins = new LinkedHashMap<String, SettingsPanelPlugin>();
     private Map<String, ChannelPanelPlugin> channelPanelPlugins = new LinkedHashMap<String, ChannelPanelPlugin>();
     private Map<String, DashboardTabPlugin> dashboardTabPlugins = new LinkedHashMap<String, DashboardTabPlugin>();
@@ -132,6 +136,10 @@ public class LoadedExtensions {
                             }
                         }
                     }
+
+                    if (CollectionUtils.isNotEmpty(metaData.getUserutilPackages())) {
+                        userutilPackages.addAll(metaData.getUserutilPackages());
+                    }
                 }
             } catch (Exception e) {
                 PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e);
@@ -154,6 +162,10 @@ public class LoadedExtensions {
                                 break;
                             }
                         }
+                    }
+
+                    if (CollectionUtils.isNotEmpty(metaData.getUserutilPackages())) {
+                        userutilPackages.addAll(metaData.getUserutilPackages());
                     }
                 }
             } catch (Exception e) {
@@ -332,6 +344,7 @@ public class LoadedExtensions {
 
     private void clearExtensionMaps() {
         clientPlugins.clear();
+        userutilPackages.clear();
 
         settingsPanelPlugins.clear();
         dashboardTabPlugins.clear();
@@ -359,6 +372,10 @@ public class LoadedExtensions {
 
     public List<ClientPlugin> getClientPlugins() {
         return clientPlugins;
+    }
+
+    public Set<String> getUserutilPackages() {
+        return userutilPackages;
     }
 
     public Map<String, SettingsPanelPlugin> getSettingsPanelPlugins() {

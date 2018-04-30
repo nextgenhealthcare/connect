@@ -32,6 +32,9 @@ public class DestinationSet {
     /**
      * DestinationSet instances should NOT be constructed manually. The instance "destinationSet"
      * provided in the scope should be used.
+     * 
+     * @param connectorMessage
+     *            The delegate ImmutableConnectorMessage object.
      */
     public DestinationSet(ImmutableConnectorMessage connectorMessage) {
         try {

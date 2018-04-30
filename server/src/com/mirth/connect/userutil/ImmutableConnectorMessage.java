@@ -82,6 +82,8 @@ public class ImmutableConnectorMessage {
     /**
      * Returns the metadata ID of this connector message. Note that the source connector has a
      * metadata ID of 0.
+     * 
+     * @return The metadata ID of this connector message.
      */
     public int getMetaDataId() {
         return connectorMessage.getMetaDataId();
@@ -89,6 +91,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the ID of the channel associated with this connector message.
+     * 
+     * @return The ID of the channel associated with this connector message.
      */
     public String getChannelId() {
         return connectorMessage.getChannelId();
@@ -96,6 +100,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the Name of the channel associated with this connector message.
+     * 
+     * @return The Name of the channel associated with this connector message.
      */
     public String getChannelName() {
         return connectorMessage.getChannelName();
@@ -103,6 +109,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the name of the connector associated with this connector message.
+     * 
+     * @return The name of the connector associated with this connector message.
      */
     public String getConnectorName() {
         return connectorMessage.getConnectorName();
@@ -110,6 +118,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the ID of the server associated with this connector message.
+     * 
+     * @return The ID of the server associated with this connector message.
      */
     public String getServerId() {
         return connectorMessage.getServerId();
@@ -117,6 +127,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the date/time that this connector message was created by the channel.
+     * 
+     * @return The date/time that this connector message was created by the channel.
      */
     public Calendar getReceivedDate() {
         return (Calendar) connectorMessage.getReceivedDate().clone();
@@ -125,6 +137,9 @@ public class ImmutableConnectorMessage {
     /**
      * Returns the number of times this message has been attempted to be dispatched by the
      * connector.
+     * 
+     * @return The number of times this message has been attempted to be dispatched by the
+     *         connector.
      */
     public int getSendAttempts() {
         return connectorMessage.getSendAttempts();
@@ -134,6 +149,8 @@ public class ImmutableConnectorMessage {
      * Returns the date/time immediately before this connector message's most recent send attempt.
      * Only valid for destination connectors in the response transformer or postprocessor. Returns
      * null otherwise.
+     * 
+     * @return The date/time immediately before this connector message's most recent send attempt.
      */
     public Calendar getSendDate() {
         return connectorMessage.getSendDate() == null ? null : (Calendar) connectorMessage.getSendDate().clone();
@@ -143,6 +160,8 @@ public class ImmutableConnectorMessage {
      * Returns the date/time immediately after this connector message's response is received. Only
      * valid for destination connectors in the response transformer or postprocessor. Returns null
      * otherwise.
+     * 
+     * @return The date/time immediately after this connector message's response is received.
      */
     public Calendar getResponseDate() {
         return connectorMessage.getResponseDate() == null ? null : (Calendar) connectorMessage.getResponseDate().clone();
@@ -150,6 +169,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the status (e.g. SENT) of this connector message.
+     * 
+     * @return The status (e.g. SENT) of this connector message.
      */
     public Status getStatus() {
         return Status.fromDonkeyStatus(connectorMessage.getStatus());
@@ -376,6 +397,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the sequential ID of the overall Message associated with this connector message.
+     * 
+     * @return The sequential ID of the overall Message associated with this connector message.
      */
     public long getMessageId() {
         return connectorMessage.getMessageId();
@@ -383,6 +406,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the source map. This map is unmodifiable and only data retrieval will be allowed.
+     * 
+     * @return The source map.
      */
     public Map<String, Object> getSourceMap() {
         return connectorMessage.getSourceMap();
@@ -392,6 +417,8 @@ public class ImmutableConnectorMessage {
      * Returns the connector map. If this connector message was instantiated with a 'true' value for
      * modifiableMaps, then this map will allow both data retrieval and updates. Otherwise, the map
      * will be unmodifiable and only data retrieval will be allowed.
+     * 
+     * @return The connector map.
      */
     public Map<String, Object> getConnectorMap() {
         if (modifiableMaps) {
@@ -405,6 +432,8 @@ public class ImmutableConnectorMessage {
      * Returns the channel map. If this connector message was instantiated with a 'true' value for
      * modifiableMaps, then this map will allow both data retrieval and updates. Otherwise, the map
      * will be unmodifiable and only data retrieval will be allowed.
+     * 
+     * @return The channel map.
      */
     public Map<String, Object> getChannelMap() {
         if (modifiableMaps) {
@@ -420,6 +449,8 @@ public class ImmutableConnectorMessage {
      * will be unmodifiable and only data retrieval will be allowed. In addition, if this connector
      * message was instantiated with the destinationNameMap parameter, the map will check
      * destination names as well as the proper "d#" keys when retrieving data.
+     * 
+     * @return The response map.
      */
     public Map<String, Object> getResponseMap() {
         if (modifiableMaps) {
@@ -431,6 +462,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the postprocessing error string associated with this connector message, if it exists.
+     * 
+     * @return The postprocessing error string associated with this connector message, if it exists.
      */
     public String getPostProcessorError() {
         return connectorMessage.getPostProcessorError();
@@ -438,6 +471,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the processing error string associated with this connector message, if it exists.
+     * 
+     * @return The processing error string associated with this connector message, if it exists.
      */
     public String getProcessingError() {
         return connectorMessage.getProcessingError();
@@ -445,6 +480,8 @@ public class ImmutableConnectorMessage {
 
     /**
      * Returns the response error string associated with this connector message, if it exists.
+     * 
+     * @return The response error string associated with this connector message, if it exists.
      */
     public String getResponseError() {
         return connectorMessage.getResponseError();
@@ -454,9 +491,13 @@ public class ImmutableConnectorMessage {
      * Returns a Map of destination connector names linked to their corresponding "d#" response map
      * keys (where "#" is the destination connector metadata ID).
      * 
+     * @return A Map of destination connector names linked to their corresponding "d#" response map
+     *         keys.
+     * 
      * @deprecated This method is deprecated and will soon be removed. Please use
      *             {@link #getDestinationIdMap() getDestinationIdMap()} instead.
      */
+    @Deprecated
     public Map<String, String> getDestinationNameMap() {
         logger.error("This method is deprecated and will soon be removed. Please use getDestinationIdMap() instead.");
         Map<String, String> destinationNameMap = null;
@@ -477,11 +518,17 @@ public class ImmutableConnectorMessage {
     /**
      * Returns a Map of destination connector names linked to their corresponding connector metadata
      * ID.
+     * 
+     * @return A Map of destination connector names linked to their corresponding connector metadata
+     *         ID.
      */
     public Map<String, Integer> getDestinationIdMap() {
         return destinationIdMap != null ? Collections.unmodifiableMap(destinationIdMap) : null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return connectorMessage.toString();

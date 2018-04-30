@@ -44,12 +44,14 @@ public class JsonUtil {
     }
 
     /**
-     * Converts a JSON string to XML. This is the same as calling toXml(String jsonString, boolean multiplePI, boolean prettyPrint)
-     * with multiplePI = false and prettyPrint = false
+     * Converts a JSON string to XML. This is the same as calling toXml(String jsonString, boolean
+     * multiplePI, boolean prettyPrint) with multiplePI = false and prettyPrint = false
      * 
      * @param jsonString
      *            The JSON string to convert.
      * @return The converted XML string.
+     * @throws Exception
+     *             If the conversion failed.
      */
     public static String toXml(String jsonString) throws Exception {
         return toXml(jsonString, false, false);
@@ -66,6 +68,8 @@ public class JsonUtil {
      * @param prettyPrint
      *            Whether or not to fully indent the XML output.
      * @return The converted XML string.
+     * @throws Exception
+     *             If the conversion failed.
      */
     public static String toXml(String jsonString, boolean multiplePI, boolean prettyPrint) throws Exception {
         JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(multiplePI).prettyPrint(prettyPrint).build();

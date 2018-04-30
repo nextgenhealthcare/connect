@@ -71,6 +71,8 @@ public class SMTPConnection {
 
     /**
      * Returns the SMTP server address.
+     * 
+     * @return The SMTP server address.
      */
     public String getHost() {
         return smtpConnection.getHost();
@@ -88,6 +90,8 @@ public class SMTPConnection {
 
     /**
      * Returns the SMTP server port.
+     * 
+     * @return The SMTP server port.
      */
     public String getPort() {
         return smtpConnection.getPort();
@@ -105,6 +109,8 @@ public class SMTPConnection {
 
     /**
      * Returns true if authentication is needed for the SMTP server, otherwise returns false.
+     * 
+     * @return true if authentication is needed for the SMTP server, otherwise returns false.
      */
     public boolean isUseAuthentication() {
         return smtpConnection.isUseAuthentication();
@@ -123,6 +129,9 @@ public class SMTPConnection {
     /**
      * Returns the encryption security layer being used for the SMTP connection (e.g "TLS" or
      * "SSL").
+     * 
+     * @return The encryption security layer being used for the SMTP connection (e.g "TLS" or
+     *         "SSL").
      */
     public String getSecure() {
         return smtpConnection.getSecure();
@@ -141,6 +150,8 @@ public class SMTPConnection {
 
     /**
      * Returns the username being used to authenticate to the SMTP server.
+     * 
+     * @return The username being used to authenticate to the SMTP server.
      */
     public String getUsername() {
         return smtpConnection.getUsername();
@@ -158,6 +169,8 @@ public class SMTPConnection {
 
     /**
      * Returns the password being used to authenticate to the SMTP server.
+     * 
+     * @return The password being used to authenticate to the SMTP server.
      */
     public String getPassword() {
         return smtpConnection.getPassword();
@@ -175,6 +188,8 @@ public class SMTPConnection {
 
     /**
      * Returns the FROM field being used for dispatched e-mail messages.
+     * 
+     * @return The FROM field being used for dispatched e-mail messages.
      */
     public String getFrom() {
         return smtpConnection.getFrom();
@@ -192,6 +207,8 @@ public class SMTPConnection {
 
     /**
      * Returns the socket connection timeout value in milliseconds.
+     * 
+     * @return The socket connection timeout value in milliseconds.
      */
     public int getSocketTimeout() {
         return smtpConnection.getSocketTimeout();
@@ -224,7 +241,7 @@ public class SMTPConnection {
      *            The content of the e-mail message.
      * @param charset
      *            The charset encoding to use when sending the e-mail message.
-     * @throws EmailException
+     * @throws EmailException If an error occurred while sending the e-mail message.
      */
     public void send(String toList, String ccList, String from, String subject, String body, String charset) throws EmailException {
         smtpConnection.send(toList, ccList, from, subject, body, charset);
@@ -245,7 +262,7 @@ public class SMTPConnection {
      *            The subject of the e-mail message.
      * @param body
      *            The content of the e-mail message.
-     * @throws EmailException
+     * @throws EmailException If an error occurred while sending the e-mail message.
      */
     public void send(String toList, String ccList, String from, String subject, String body) throws EmailException {
         smtpConnection.send(toList, ccList, from, subject, body);
@@ -264,7 +281,7 @@ public class SMTPConnection {
      *            The subject of the e-mail message.
      * @param body
      *            The content of the e-mail message.
-     * @throws EmailException
+     * @throws EmailException If an error occurred while sending the e-mail message.
      */
     public void send(String toList, String ccList, String subject, String body) throws EmailException {
         smtpConnection.send(toList, ccList, subject, body);

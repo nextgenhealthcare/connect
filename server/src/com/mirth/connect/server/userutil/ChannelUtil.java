@@ -152,6 +152,7 @@ public class ChannelUtil {
      *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
      *         to wait for the operation to finish.
      * @throws Exception
+     *             If the task cannot be scheduled for execution.
      */
     public static Future<Void> startChannel(final String channelIdOrName) throws Exception {
         return new Future<Void>(executor.submit(new Callable<Void>() {
@@ -176,6 +177,7 @@ public class ChannelUtil {
      *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
      *         to wait for the operation to finish.
      * @throws Exception
+     *             If the task cannot be scheduled for execution.
      */
     public static Future<Void> stopChannel(final String channelIdOrName) throws Exception {
         return new Future<Void>(executor.submit(new Callable<Void>() {
@@ -200,6 +202,7 @@ public class ChannelUtil {
      *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
      *         to wait for the operation to finish.
      * @throws Exception
+     *             If the task cannot be scheduled for execution.
      */
     public static Future<Void> pauseChannel(final String channelIdOrName) throws Exception {
         return new Future<Void>(executor.submit(new Callable<Void>() {
@@ -220,7 +223,11 @@ public class ChannelUtil {
      * 
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
      * @throws Exception
+     *             If the task cannot be scheduled for execution.
      */
     public static Future<Void> resumeChannel(final String channelIdOrName) throws Exception {
         return new Future<Void>(executor.submit(new Callable<Void>() {
@@ -245,6 +252,7 @@ public class ChannelUtil {
      *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
      *         to wait for the operation to finish.
      * @throws Exception
+     *             If the task cannot be scheduled for execution.
      */
     public static Future<Void> haltChannel(final String channelIdOrName) throws Exception {
         return new Future<Void>(executor.submit(new Callable<Void>() {
@@ -341,6 +349,7 @@ public class ChannelUtil {
      *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
      *         to wait for the operation to finish.
      * @throws Exception
+     *             If the task cannot be scheduled for execution.
      */
     public static Future<Void> startConnector(final String channelIdOrName, final Integer metaDataId) throws Exception {
         return new Future<Void>(executor.submit(new Callable<Void>() {
@@ -368,6 +377,7 @@ public class ChannelUtil {
      *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
      *         to wait for the operation to finish.
      * @throws Exception
+     *             If the task cannot be scheduled for execution.
      */
     public static Future<Void> stopConnector(final String channelIdOrName, final Integer metaDataId) throws Exception {
         return new Future<Void>(executor.submit(new Callable<Void>() {
@@ -603,6 +613,7 @@ public class ChannelUtil {
      *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
      *         to wait for the operation to finish.
      * @throws Exception
+     *             If the task cannot be scheduled for execution.
      */
     public static Future<Void> resetStatistics(final String channelIdOrName) throws Exception {
         return new Future<Void>(executor.submit(new Callable<Void>() {
@@ -626,6 +637,7 @@ public class ChannelUtil {
      *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
      *         to wait for the operation to finish.
      * @throws Exception
+     *             If the task cannot be scheduled for execution.
      */
     public static Future<Void> resetStatistics(final String channelIdOrName, final Integer metaDataId) throws Exception {
         return new Future<Void>(executor.submit(new Callable<Void>() {
@@ -651,6 +663,7 @@ public class ChannelUtil {
      *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
      *         to wait for the operation to finish.
      * @throws Exception
+     *             If the task cannot be scheduled for execution.
      */
     public static Future<Void> resetStatistics(final String channelIdOrName, final Integer metaDataId, final Collection<Status> statuses) throws Exception {
         return new Future<Void>(executor.submit(new Callable<Void>() {

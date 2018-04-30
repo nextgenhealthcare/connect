@@ -97,9 +97,10 @@ public class GlobalMapPanel extends JPanel {
         add(mapScrollPane, "grow");
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public synchronized void updateTable(Vector<Object> data, int selectedRow) {
         RefreshTableModel model = (RefreshTableModel) mapTable.getModel();
-        model.refreshDataVector(data);
+        model.refreshDataVector((Vector) data);
 
         //Re-select the row that was selected before the new vector was created
         if (selectedRow > 0 && selectedRow <= mapTable.getRowCount()) {

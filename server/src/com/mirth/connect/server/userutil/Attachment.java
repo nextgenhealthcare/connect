@@ -51,6 +51,7 @@ public class Attachment {
      * @param type
      *            The MIME type of the attachment.
      * @throws UnsupportedEncodingException
+     *             If the named charset is not supported.
      */
     public Attachment(String id, String content, String type) throws UnsupportedEncodingException {
         this.id = id;
@@ -70,6 +71,7 @@ public class Attachment {
      * @param type
      *            The MIME type of the attachment.
      * @throws UnsupportedEncodingException
+     *             If the named charset is not supported.
      */
     public Attachment(String id, String content, String charset, String type) throws UnsupportedEncodingException {
         this.id = id;
@@ -81,6 +83,8 @@ public class Attachment {
      * Returns the unique replacement token for the attachment. This token should replace the
      * attachment content in the message string, and will be used to re-attach the attachment
      * content in the outbound message before it is sent to a downstream system.
+     * 
+     * @return The unique replacement token for the attachment.
      */
     public String getAttachmentId() {
         return "${ATTACH:" + id + "}";
@@ -88,6 +92,8 @@ public class Attachment {
 
     /**
      * Returns the unique ID for the attachment.
+     * 
+     * @return The unique ID for the attachment.
      */
     public String getId() {
         return id;
@@ -105,6 +111,8 @@ public class Attachment {
 
     /**
      * Returns the content of the attachment as a byte array.
+     * 
+     * @return The content of the attachment as a byte array.
      */
     public byte[] getContent() {
         return content;
@@ -113,7 +121,9 @@ public class Attachment {
     /**
      * Returns the content of the attachment as a string, using UTF-8 encoding.
      * 
+     * @return The content of the attachment as a string, using UTF-8 encoding.
      * @throws UnsupportedEncodingException
+     *             If the named charset is not supported.
      */
     public String getContentString() throws UnsupportedEncodingException {
         return getContentString("UTF-8");
@@ -124,7 +134,9 @@ public class Attachment {
      * 
      * @param charset
      *            The charset encoding to convert the content bytes to a string with.
+     * @return The content of the attachment as a string, using the specified charset encoding.
      * @throws UnsupportedEncodingException
+     *             If the named charset is not supported.
      */
     public String getContentString(String charset) throws UnsupportedEncodingException {
         return new String(content, charset);
@@ -146,6 +158,7 @@ public class Attachment {
      * @param content
      *            The string representation of the attachment content.
      * @throws UnsupportedEncodingException
+     *             If the named charset is not supported.
      */
     public void setContentString(String content) throws UnsupportedEncodingException {
         setContentString(content, "UTF-8");
@@ -159,6 +172,7 @@ public class Attachment {
      * @param charset
      *            The charset encoding to convert the string to bytes with.
      * @throws UnsupportedEncodingException
+     *             If the named charset is not supported.
      */
     public void setContentString(String content, String charset) throws UnsupportedEncodingException {
         this.content = content.getBytes(charset);
@@ -166,6 +180,8 @@ public class Attachment {
 
     /**
      * Returns the MIME type of the attachment.
+     * 
+     * @return The MIME type of the attachment.
      */
     public String getType() {
         return type;
