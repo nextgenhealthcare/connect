@@ -12,10 +12,7 @@ package com.mirth.connect.client.ui.reference;
 import japa.parser.JavaParser;
 import japa.parser.ast.CompilationUnit;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,15 +23,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.fife.rsta.ac.LanguageSupportFactory;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.reflections.Reflections;
+import org.reflections.scanners.ResourcesScanner;
 
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -61,6 +57,8 @@ public class ReferenceListFactory {
     private static final CodeTemplateContextSet CONTEXT_BATCH = new CodeTemplateContextSet(ContextType.CHANNEL_BATCH);
     private static final CodeTemplateContextSet CONTEXT_POSTPROCESSOR = new CodeTemplateContextSet(ContextType.GLOBAL_POSTPROCESSOR, ContextType.CHANNEL_POSTPROCESSOR);
     private static final CodeTemplateContextSet CONTEXT_RESPONSE_MAP = new CodeTemplateContextSet(ContextType.GLOBAL_POSTPROCESSOR, ContextType.CHANNEL_POSTPROCESSOR, ContextType.DESTINATION_DISPATCHER, ContextType.DESTINATION_RESPONSE_TRANSFORMER);
+
+    private static final Pattern JAVA_FILE_PATTERN = Pattern.compile(".*\\.java");
 
     private static ReferenceListFactory instance = null;
 
@@ -531,49 +529,32 @@ public class ReferenceListFactory {
     private void addUserutilReferences() {
         populateAliases();
 
-        if (Thread.currentThread().getContextClassLoader() instanceof URLClassLoader) {
-            URLClassLoader classLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-            for (URL url : classLoader.getURLs()) {
-                String urlString = url.toString();
-                if (StringUtils.endsWithIgnoreCase(urlString, "userutil-sources.jar")) {
-                    addUserutilReferences(url);
-                }
-            }
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+        addUserutilReferences("com.mirth.connect.userutil", classLoader);
+        addUserutilReferences("com.mirth.connect.server.userutil", classLoader);
+
+        for (String packageName : LoadedExtensions.getInstance().getUserutilPackages()) {
+            addUserutilReferences(packageName, classLoader);
         }
     }
 
-    private void addUserutilReferences(URL url) {
-        InputStream inputStream = null;
+    private void addUserutilReferences(String packageName, ClassLoader classLoader) {
+        for (String file : new Reflections(packageName, new ResourcesScanner()).getResources(JAVA_FILE_PATTERN)) {
+            addUserutilReferences(file, classLoader.getResourceAsStream(file));
+        }
+    }
 
+    private void addUserutilReferences(String fileName, InputStream is) {
         try {
-            inputStream = url.openStream();
-            ZipInputStream zis = new ZipInputStream(inputStream);
-            ZipEntry zipEntry;
-            Map<String, InputStream> entryMap = new HashMap<String, InputStream>();
-
-            // Iterate through each entry in the JAR file
-            while ((zipEntry = zis.getNextEntry()) != null) {
-                if (!zipEntry.isDirectory() && StringUtils.endsWithIgnoreCase(zipEntry.getName(), ".java")) {
-                    entryMap.put(zipEntry.getName(), new ByteArrayInputStream(IOUtils.toByteArray(zis)));
-                }
-            }
-
-            for (Entry<String, InputStream> entry : entryMap.entrySet()) {
-                try {
-                    // Parse the source file
-                    CompilationUnit compilationUnit = JavaParser.parse(entry.getValue());
-                    // Determine any runtime aliases for the class
-                    List<String> inputTextList = aliasMap.get(entry.getKey().replaceAll("\\.java$", "").replace('/', '.'));
-                    // Create and add references for the parsed source file
-                    addReferences(ClassVisitor.getReferencesByCompilationUnit(compilationUnit, inputTextList));
-                } catch (Exception e) {
-                    logger.error("Unable to load references from userutil entry " + entry.getKey(), e);
-                }
-            }
+            // Parse the source file
+            CompilationUnit compilationUnit = JavaParser.parse(is);
+            // Determine any runtime aliases for the class
+            List<String> inputTextList = aliasMap.get(fileName.replaceAll("\\.java$", "").replace('/', '.'));
+            // Create and add references for the parsed source file
+            addReferences(ClassVisitor.getReferencesByCompilationUnit(compilationUnit, inputTextList));
         } catch (Exception e) {
-            logger.error("Error occurred while scanning for userutil references.", e);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
+            logger.error("Unable to load references from userutil entry " + fileName, e);
         }
     }
 
