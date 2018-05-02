@@ -8,6 +8,7 @@
 --add-opens=java.base/java.text=ALL-UNNAMED
 --add-opens=java.base/java.util=ALL-UNNAMED
 --add-opens=java.base/sun.security.pkcs=ALL-UNNAMED
+--add-opens=java.base/sun.security.provider=ALL-UNNAMED
 --add-opens=java.base/sun.security.rsa=ALL-UNNAMED
 --add-opens=java.base/sun.security.x509=ALL-UNNAMED
 --add-opens=java.desktop/java.awt=ALL-UNNAMED
