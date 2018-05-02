@@ -1,6 +1,7 @@
---add-modules=java.activation,java.sql.rowset
+--add-modules=java.activation,java.sql.rowset,java.xml.ws
 --add-opens=java.base/java.lang=ALL-UNNAMED
 --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+--add-opens=java.base/java.math=ALL-UNNAMED
 --add-opens=java.base/java.net=ALL-UNNAMED
 --add-opens=java.base/java.security=ALL-UNNAMED
 --add-opens=java.base/java.security.cert=ALL-UNNAMED
