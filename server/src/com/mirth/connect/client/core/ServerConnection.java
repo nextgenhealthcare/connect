@@ -12,6 +12,7 @@ package com.mirth.connect.client.core;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.ProcessingException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status;
@@ -60,6 +62,7 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
@@ -483,18 +486,44 @@ public class ServerConnection implements Connector {
         if (statusCode >= 400) {
             if (responseContext.hasEntity()) {
                 try {
-                    String entityString = IOUtils.toString(responseContext.getEntityStream(), "UTF-8");
-                    Throwable t;
+                    ContentType contentType = null;
+                    String contentTypeString = responseContext.getHeaderString("Content-Type");
+                    if (StringUtils.isNotBlank(contentTypeString)) {
+                        contentType = ContentType.parse(contentTypeString);
+                    }
 
-                    try {
-                        Object entity = ObjectXMLSerializer.getInstance().deserialize(entityString, Object.class);
-                        if (entity instanceof Throwable) {
-                            t = (Throwable) entity;
-                        } else {
-                            t = new EntityException(entity);
+                    String charset = null;
+                    if (contentType != null) {
+                        Charset charsetObj = contentType.getCharset();
+                        if (charsetObj != null) {
+                            charset = charsetObj.name();
                         }
-                    } catch (SerializerException e) {
-                        t = ObjectXMLSerializer.getInstance().deserialize(entityString, Throwable.class);
+                    }
+                    if (charset == null) {
+                        charset = "UTF-8";
+                    }
+
+                    Throwable t = null;
+                    String entityString = IOUtils.toString(responseContext.getEntityStream(), charset);
+
+                    if (contentType == null || StringUtils.equalsIgnoreCase(contentType.getMimeType(), MediaType.APPLICATION_XML)) {
+                        try {
+                            Object entity = ObjectXMLSerializer.getInstance().deserialize(entityString, Object.class);
+                            if (entity instanceof Throwable) {
+                                t = (Throwable) entity;
+                            } else {
+                                t = new EntityException(entity);
+                            }
+                        } catch (SerializerException e) {
+                            try {
+                                t = ObjectXMLSerializer.getInstance().deserialize(entityString, Throwable.class);
+                            } catch (SerializerException e2) {
+                            }
+                        }
+                    }
+
+                    if (t == null) {
+                        t = new EntityException(entityString);
                     }
 
                     throw new ClientException("Method failed: " + statusLine, t);
