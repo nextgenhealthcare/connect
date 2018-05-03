@@ -6,7 +6,8 @@ Contents
 1. General Information
 2. Installation and Upgrade
 3. Starting Mirth Connect
-4. More Information
+4. Running Mirth Connect in Java 9 or greater
+5. More Information
 
 1. General Information
 ==================================================
@@ -39,12 +40,6 @@ After the installation, the Mirth Connect directory layout will look as follows:
 /server-lib: Mirth Connect server libraries
 /webapps: Directory exposed by the embedded web server to host webapps
 
-Note for running Mirth Connect in Java 9 or greater:
-
-You will need to copy the options from mcservice-java9+.vmoptions and append them to either mcserver.vmoptions or mcservice.vmoptions, depending on your deployment, and then restart Mirth Connect.
-
-In order to use the Mirth Connect Command Line Interface, you will need to create a new file named mccommand.vmoptions in the Mirth Connect root directory. Copy all of the options from mcservice-java9+.vmoptions into mccommand.vmoptions and save before launching the Command Line Interface.
-
 
 3. Starting Mirth Connect
 ==================================================
@@ -58,7 +53,15 @@ If you are launching the administrator for the first time, you will notice that 
 You may also notice a security warning when starting the administrator (dialog box depends on browser being used). This is normal and you should click Run to continue launching the administrator.
 
 
-4. More Information
+4. Running Mirth Connect in Java 9 or greater
+==================================================
+
+In order to run Mirth Connect in Java 9 or greater, copy the options from mcservice-java9+.vmoptions and append them to either mcserver.vmoptions or mcservice.vmoptions, depending on your deployment. Then restart Mirth Connect.
+
+To run the Mirth Connect Command Line Interface, create a new file named mccommand.vmoptions in the Mirth Connect root directory. Copy all of the options from mcservice-java9+.vmoptions into mccommand.vmoptions and save before launching the Command Line Interface.
+
+
+5. More Information
 ==================================================
 
 You can find the latest Mirth Connect release information, documentation, and more at: http://www.mirthcorp.com
