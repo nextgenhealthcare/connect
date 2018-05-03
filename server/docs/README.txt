@@ -43,6 +43,8 @@ Note for running Mirth Connect in Java 9 or greater:
 
 You will need to copy the options from mcservice-java9+.vmoptions and append them to either mcserver.vmoptions or mcservice.vmoptions, depending on your deployment, and then restart Mirth Connect.
 
+In order to use the Mirth Connect Command Line Interface, you will need to create a new file named mccommand.vmoptions in the Mirth Connect root directory. Copy all of the options from mcservice-java9+.vmoptions into mccommand.vmoptions and save before launching the Command Line Interface.
+
 
 3. Starting Mirth Connect
 ==================================================
