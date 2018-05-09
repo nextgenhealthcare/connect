@@ -16,7 +16,7 @@ public class DefaultFileConfiguration implements FileConfiguration {
 
     @Override
     public void configureConnectorDeploy(Connector connector, ConnectorProperties connectorProperties) throws Exception {
-        FileConnector fileConnector = new FileConnector(connector.getChannelId(), connectorProperties);
+        FileConnector fileConnector = new FileConnector(connector.getChannelId(), connectorProperties, connector);
 
         if (connector instanceof FileReceiver) {
             ((FileReceiver) connector).setFileConnector(fileConnector);

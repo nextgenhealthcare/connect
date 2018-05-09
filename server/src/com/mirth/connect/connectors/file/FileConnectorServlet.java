@@ -64,7 +64,7 @@ public class FileConnectorServlet extends MirthServlet implements FileConnectorS
 
             int timeout = Integer.parseInt(timeoutString);
 
-            FileConnector fileConnector = new FileConnector(channelId, connectorProperties);
+            FileConnector fileConnector = new FileConnector(channelId, connectorProperties, null);
             URI address = fileConnector.getEndpointURI(host, scheme, schemeProperties, secure);
             String addressHost = address.getHost();
             int port = address.getPort();

@@ -30,6 +30,7 @@ import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
@@ -83,6 +84,34 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     public void setQueue(DestinationQueue queue) {
         this.queue = queue;
+    }
+
+    /**
+     * This is a helper method that returns the potential number of threads that could be
+     * simultaneously processing through the destination. If queuing is off, then only the channel
+     * Max Processing Threads matter. If queuing is set to Always, then only the queue threads
+     * matter. If queuing is set to On Failure, then both main processing threads and queue threads
+     * need to be taken into account.
+     */
+    public int getPotentialThreadCount() {
+        int maxProcessingThreads = ((SourceConnectorPropertiesInterface) getChannel().getSourceConnector().getConnectorProperties()).getSourceConnectorProperties().getProcessingThreads();
+        int potentialThreadCount;
+
+        if (destinationConnectorProperties.isQueueEnabled()) {
+            if (!destinationConnectorProperties.isSendFirst()) {
+                // If queue always, only consider the queue threads
+                potentialThreadCount = destinationConnectorProperties.getThreadCount();
+            } else {
+                // Otherwise, consider both the queue threads and the processing threads
+                potentialThreadCount = Math.max(destinationConnectorProperties.getThreadCount(), maxProcessingThreads);
+            }
+        } else {
+            // If queue is disabled, only consider the processing threads 
+            potentialThreadCount = maxProcessingThreads;
+        }
+
+        // Ensure it's at least 1
+        return Math.max(potentialThreadCount, 1);
     }
 
     /**
