@@ -194,17 +194,15 @@ public class FileConnector {
      * @throws Exception
      */
     protected void releaseConnection(FileSystemConnection connection, FileSystemConnectionOptions fileSystemOptions) throws Exception {
-//        if (isCreateDispatcherPerRequest()) {
-//            destroyConnection(uri, connection, message);
-//        } else {
         synchronized (connections) {
             connections.remove(connection);
         }
-        if (connection != null && connection.isConnected()) {
+
+        // MIRTH-4266: Return the connection to the pool even if it's not connected.
+        if (connection != null) {
             ObjectPool<FileSystemConnection> pool = getConnectionPool(fileSystemOptions);
             pool.returnObject(connection);
         }
-//        }
     }
 
     /**
