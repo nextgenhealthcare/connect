@@ -378,7 +378,7 @@ public class ManagerDialog extends JDialog {
         servicePanel.add(restartLabel, "wrap");
         servicePanel.add(stopButton, "w 80!, h 22!, split");
         servicePanel.add(stopLabel, "wrap");
-        servicePanel.add(refreshButton, "w 80!, h 22!, split");
+        servicePanel.add(refreshServiceButton, "w 80!, h 22!, split");
         servicePanel.add(refreshLabel, "wrap");
         servicePanel.add(startup, "span, push");
 
@@ -399,7 +399,7 @@ public class ManagerDialog extends JDialog {
 
         serverPanel.add(new JLabel("Log Files:"));
         serverPanel.add(serverLogsScrollPane, "w 205!, h 70!, span 2 2");
-        serverPanel.add(refreshServiceButton, "w 80!, h 22!, cell 3 3");
+        serverPanel.add(refreshButton, "w 80!, h 22!, cell 3 3");
         serverPanel.add(viewFileButton, "w 80!, h 22!, cell 3 4");
 
         databasePanel.add(databaseTypeLabel);
@@ -662,7 +662,7 @@ public class ManagerDialog extends JDialog {
     private JButton stopButton;
     private JLabel stopLabel;
     private JLabel refreshLabel;
-    private JButton refreshButton;
+    private JButton refreshServiceButton;
     private JCheckBox startup;
 
     // Server Panel, a lot of the labels can probably just be added to the layout...
@@ -681,7 +681,7 @@ public class ManagerDialog extends JDialog {
     private MirthComboBox databaseLogLevelCombobox;
     private JLabel channelLogLevelLabel;
     private MirthComboBox channelLogLevelCombobox;
-    private JButton refreshServiceButton;
+    private JButton refreshButton;
     private JButton viewFileButton;
 
     // Database Panel
