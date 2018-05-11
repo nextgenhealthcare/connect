@@ -29,6 +29,8 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.server.channel.Connector;
+import com.mirth.connect.donkey.server.channel.DestinationConnector;
 
 public class FileConnector {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -43,8 +45,9 @@ public class FileConnector {
     private boolean passive;
     private boolean secure;
     private boolean validateConnection;
+    private int maxTotalConnections = GenericObjectPoolConfig.DEFAULT_MAX_TOTAL;
 
-    public FileConnector(String channelId, ConnectorProperties connectorProperties) {
+    public FileConnector(String channelId, ConnectorProperties connectorProperties, Connector connector) {
         this.channelId = channelId;
 
         if (connectorProperties instanceof FileReceiverProperties) {
@@ -61,6 +64,11 @@ public class FileConnector {
             this.passive = fileDispatcherProperties.isPassive();
             this.secure = fileDispatcherProperties.isSecure();
             this.validateConnection = fileDispatcherProperties.isValidateConnection();
+        }
+
+        if (connector instanceof DestinationConnector) {
+            // Set the max total to at least the default value
+            maxTotalConnections = Math.max(GenericObjectPoolConfig.DEFAULT_MAX_TOTAL, ((DestinationConnector) connector).getPotentialThreadCount());
         }
     }
 
@@ -251,6 +259,7 @@ public class FileConnector {
 
         if (pool == null) {
             GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+            config.setMaxTotal(maxTotalConnections);
             if (isValidateConnection()) {
                 config.setTestOnBorrow(true);
                 config.setTestOnReturn(true);
