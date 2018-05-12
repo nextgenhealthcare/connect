@@ -9,8 +9,11 @@
 
 package com.mirth.connect.webadmin.action;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,6 +38,25 @@ public class SecureAccessActionBean extends BaseActionBean {
             // Ignore
         }
 
-        return new RedirectResolution("https://" + hostName + ":" + getContext().getHttpsPort() + request.getContextPath() + Constants.INDEX_PAGE, false);
+        String httpsPort = getContext().getHttpsPort();
+
+        // If there is no session yet, get port from the properties file
+        if (httpsPort == null || httpsPort.isEmpty()) {
+            httpsPort = "8443";
+
+            InputStream mirthPropertiesStream = getClass().getResourceAsStream("/mirth.properties");
+            if (mirthPropertiesStream != null) {
+                Properties mirthProps = new Properties();
+
+                try {
+                    mirthProps.load(mirthPropertiesStream);
+                    httpsPort = mirthProps.getProperty("https.port", httpsPort);
+                } catch (IOException e) {
+                    // Ignore
+                }
+            }
+        }
+
+        return new RedirectResolution("https://" + hostName + ":" + httpsPort + request.getContextPath() + Constants.INDEX_PAGE, false);
     }
 }

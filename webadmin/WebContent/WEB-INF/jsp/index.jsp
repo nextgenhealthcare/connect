@@ -92,7 +92,7 @@
 		                        </div>
 			                </div>
 		                    <div id="accessSecureSiteButton" style="text-align: center;">
-		                    	<a class="btn btn-md btn-themebutton" href="SecureAccess.action">Access Secure Site</a>
+		                    	<a class="btn btn-md btn-themebutton" href="javascript:accessSecureSite()">Access Secure Site</a>
 		                    </div> 
   						</c:otherwise>
                     </c:choose>
@@ -241,6 +241,10 @@
         <script type="text/javascript">
        		function launchAdministrator(){
        			window.location.href = '${actionBean.context.currentScheme}://' + window.location.hostname + ':${actionBean.context.currentPort}${actionBean.context.contextPath}/webstart.jnlp?time=' + new Date().getTime() + '&maxHeapSize=' + $('#maxHeapSizeSelect').val();
+       		}
+       		
+       		function accessSecureSite(){
+       			window.location.href = 'https://' + window.location.hostname + ':${actionBean.context.httpsPort}' + window.location.pathname;
        		}
         </script>
     </body>
