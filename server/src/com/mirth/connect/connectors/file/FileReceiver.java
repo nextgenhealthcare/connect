@@ -16,14 +16,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -209,18 +203,21 @@ public class FileReceiver extends PollConnector {
 
             fileSystemOptions = new FileSystemConnectionOptions(uri, connectorProperties.isAnonymous(), username, password, schemeProperties);
 
+            String pollId = "" + System.nanoTime();
+
             if (connectorProperties.isDirectoryRecursion()) {
                 Set<String> visitedDirectories = new HashSet<String>();
                 Stack<String> directoryStack = new Stack<String>();
                 directoryStack.push(readDir);
 
                 FileInfo[] files;
+                AtomicInteger pollSequenceId = new AtomicInteger(1);
 
                 while ((files = listFilesRecursively(visitedDirectories, directoryStack)) != null) {
-                    processFiles(files);
+                    processFiles(files, pollId, pollSequenceId);
                 }
             } else {
-                processFiles(listFiles(readDir));
+                processFiles(listFiles(readDir), pollId, new AtomicInteger(1));
             }
         } catch (Throwable t) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, t));
@@ -253,9 +250,17 @@ public class FileReceiver extends PollConnector {
         return null;
     }
 
-    private void processFiles(FileInfo[] files) {
+    private void processFiles(FileInfo[] files, String pollId, AtomicInteger pollSequenceId) {
         // sort files by specified attribute before processing
         sortFiles(files);
+
+        int lastReadableFileIndex = -1;
+        for (int i = files.length - 1; i >= 0; i--) {
+            if (!files[i].isDirectory() && files[i].isReadable() && files[i].isFile()) {
+                lastReadableFileIndex = i;
+                break;
+            }
+        }
 
         for (int i = 0; i < files.length; i++) {
             if (isTerminated()) {
@@ -264,7 +269,7 @@ public class FileReceiver extends PollConnector {
 
             if (!files[i].isDirectory()) {
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.READING));
-                processFile(files[i]);
+                processFile(files[i], pollId, pollSequenceId, i == lastReadableFileIndex);
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
             }
         }
@@ -294,7 +299,7 @@ public class FileReceiver extends PollConnector {
         }
     }
 
-    public synchronized void processFile(FileInfo file) {
+    public synchronized void processFile(FileInfo file, String pollId, AtomicInteger pollSequenceId, boolean pollComplete) {
         try {
             boolean checkFileAge = connectorProperties.isCheckFileAge();
             if (checkFileAge) {
@@ -321,6 +326,11 @@ public class FileReceiver extends PollConnector {
             sourceMap.put("fileDirectory", file.getParent());
             sourceMap.put("fileSize", file.getSize());
             sourceMap.put("fileLastModified", file.getLastModified());
+            sourceMap.put("pollId", pollId);
+            sourceMap.put("pollSequenceId", pollSequenceId.get());
+            if (pollComplete) {
+                sourceMap.put("pollComplete", true);
+            }
 
             // Set the default file action
             FileAction action = FileAction.NONE;
@@ -356,6 +366,7 @@ public class FileReceiver extends PollConnector {
                                 logger.warn("File " + originalFilename + " was successfully processed, but no messages were dispatched to the channel.");
                             }
                         } finally {
+                            pollSequenceId.incrementAndGet();
                             if (in != null) {
                                 in.close();
                             }
@@ -376,6 +387,7 @@ public class FileReceiver extends PollConnector {
                         try {
                             dispatchResult = dispatchRawMessage(rawMessage);
                         } finally {
+                            pollSequenceId.incrementAndGet();
                             finishDispatch(dispatchResult);
                         }
 
