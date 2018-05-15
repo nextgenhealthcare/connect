@@ -176,6 +176,8 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
         });
         cachedChannelTags = new LinkedHashSet<ChannelTag>(tagList);
 
+        ChannelTagLabelCache.getInstance().removeExpiredTags(cachedChannelTags);
+
         Object[][] data = new Object[tagList.size()][4];
         int i = 0;
         for (ChannelTag tag : tagList) {

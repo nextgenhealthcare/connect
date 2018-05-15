@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -115,5 +116,19 @@ public class ChannelTag implements Serializable, Purgable {
     @Override
     public String toString() {
         return new ReflectionToStringBuilder(this, CalendarToStringStyle.instance()).toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ChannelTag) {
+            ChannelTag tag = (ChannelTag) obj;
+            return Objects.equals(id, tag.getId()) && Objects.equals(name, tag.getName()) && Objects.equals(channelIds, tag.getChannelIds()) && Objects.equals(backgroundColor, tag.getBackgroundColor());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, channelIds, backgroundColor);
     }
 }

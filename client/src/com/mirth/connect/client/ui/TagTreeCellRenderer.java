@@ -14,7 +14,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -28,11 +27,10 @@ import javax.swing.tree.TreeCellRenderer;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import com.mirth.connect.client.ui.components.tag.TagLabel;
+import com.mirth.connect.client.ui.tag.ChannelTagLabelCache;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
-import com.mirth.connect.util.ColorUtil;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -40,6 +38,7 @@ public class TagTreeCellRenderer extends JPanel implements TreeCellRenderer {
     private static final int GAP = 4;
     private JLabel label;
     private JPanel tagPanel;
+    private Dimension screenSize;
 
     private boolean renderTags = false;
     private boolean tagTextMode = false;
@@ -61,7 +60,10 @@ public class TagTreeCellRenderer extends JPanel implements TreeCellRenderer {
     public Dimension getPreferredSize() {
         // Return more width than needed to allow tags to scroll off regardless of column width
         Dimension size = super.getPreferredSize();
-        return new Dimension(size.width + Toolkit.getDefaultToolkit().getScreenSize().width, size.height);
+        if (screenSize == null) {
+            screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        }
+        return new Dimension(size.width + screenSize.width, size.height);
     }
 
     @Override
@@ -139,26 +141,12 @@ public class TagTreeCellRenderer extends JPanel implements TreeCellRenderer {
                     }
                 });
 
-                BufferedImage tagImage = ColorUtil.toBufferedImage(UIConstants.ICON_TAG_GRAY.getImage());
+                String constraints = tagTextMode ? "h 16!, growx" : "";
                 for (ChannelTag tag : tags) {
-                    String constraints = "";
-                    TagLabel tagLabel = new TagLabel();
-                    tagLabel.setToolTipText(tag.getName());
-                    if (tagTextMode) {
-                        constraints = "h 16!, growx";
-                        tagLabel.decorate(true);
-                        tagLabel.setBackground(tag.getBackgroundColor());
-                        tagLabel.setForeground(ColorUtil.getForegroundColor(tag.getBackgroundColor()));
-                        tagLabel.setText(" " + tag.getName() + " ");
-                    } else {
-                        tagLabel.setIcon(new ImageIcon(ColorUtil.tint(tagImage, tag.getBackgroundColor(), ColorUtil.getForegroundColor(tag.getBackgroundColor()))));
-                    }
-
-                    tagPanel.add(tagLabel, constraints);
+                    tagPanel.add(ChannelTagLabelCache.getInstance().getLabel(tag, tagTextMode), constraints);
                 }
             }
         }
-        updateUI();
         return this;
     }
 }
