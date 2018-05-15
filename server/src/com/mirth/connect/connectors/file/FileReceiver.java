@@ -205,20 +205,21 @@ public class FileReceiver extends PollConnector {
 
             String pollId = "" + System.nanoTime();
 
+            List<FileInfo> files = new ArrayList<>();
+
             if (connectorProperties.isDirectoryRecursion()) {
                 Set<String> visitedDirectories = new HashSet<String>();
                 Stack<String> directoryStack = new Stack<String>();
                 directoryStack.push(readDir);
 
-                FileInfo[] files;
-                AtomicInteger pollSequenceId = new AtomicInteger(1);
-
-                while ((files = listFilesRecursively(visitedDirectories, directoryStack)) != null) {
-                    processFiles(files, pollId, pollSequenceId);
+                FileInfo[] temporaryArray;
+                while ((temporaryArray = listFilesRecursively(visitedDirectories, directoryStack)) != null) {
+                    files.addAll(Arrays.asList(temporaryArray));
                 }
             } else {
-                processFiles(listFiles(readDir), pollId, new AtomicInteger(1));
+                files = Arrays.asList(listFiles(readDir));
             }
+            processFiles(files, pollId, new AtomicInteger(1));
         } catch (Throwable t) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, t));
             logger.error("Error polling in channel: " + getChannelId(), t);
@@ -250,52 +251,42 @@ public class FileReceiver extends PollConnector {
         return null;
     }
 
-    private void processFiles(FileInfo[] files, String pollId, AtomicInteger pollSequenceId) {
+    private void processFiles(List<FileInfo> files, String pollId, AtomicInteger pollSequenceId) {
         // sort files by specified attribute before processing
         sortFiles(files);
 
         int lastReadableFileIndex = -1;
-        for (int i = files.length - 1; i >= 0; i--) {
-            if (!files[i].isDirectory() && files[i].isReadable() && files[i].isFile()) {
+        for (int i = files.size() - 1; i >= 0; i--) {
+            FileInfo file = files.get(i);
+            if (!file.isDirectory() && file.isReadable() && file.isFile()) {
                 lastReadableFileIndex = i;
                 break;
             }
         }
 
-        for (int i = 0; i < files.length; i++) {
+        for (int i = 0, size = files.size(); i < size; i++) {
             if (isTerminated()) {
                 return;
             }
+            FileInfo file = files.get(i);
 
-            if (!files[i].isDirectory()) {
+            if (!file.isDirectory()) {
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.READING));
-                processFile(files[i], pollId, pollSequenceId, i == lastReadableFileIndex);
+                processFile(file, pollId, pollSequenceId, i == lastReadableFileIndex);
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
             }
         }
     }
 
-    public void sortFiles(FileInfo[] files) {
+    public void sortFiles(List<FileInfo> files) {
         String sortAttribute = connectorProperties.getSortBy();
 
         if (sortAttribute.equals(FileReceiverProperties.SORT_BY_DATE)) {
-            Arrays.sort(files, new Comparator<FileInfo>() {
-                public int compare(FileInfo file1, FileInfo file2) {
-                    return Long.compare(file1.getLastModified(), file2.getLastModified());
-                }
-            });
+            files.sort(Comparator.comparingLong(FileInfo::getLastModified));
         } else if (sortAttribute.equals(FileReceiverProperties.SORT_BY_SIZE)) {
-            Arrays.sort(files, new Comparator<FileInfo>() {
-                public int compare(FileInfo file1, FileInfo file2) {
-                    return Long.compare(file1.getSize(), file2.getSize());
-                }
-            });
+            files.sort(Comparator.comparingLong(FileInfo::getSize));
         } else {
-            Arrays.sort(files, new Comparator<FileInfo>() {
-                public int compare(FileInfo file1, FileInfo file2) {
-                    return file1.getName().compareToIgnoreCase(file2.getName());
-                }
-            });
+            files.sort((file1, file2) -> file1.getName().compareToIgnoreCase(file2.getName()));
         }
     }
 
