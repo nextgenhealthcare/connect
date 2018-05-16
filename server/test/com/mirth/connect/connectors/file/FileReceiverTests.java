@@ -47,6 +47,7 @@ public class FileReceiverTests {
     private static final String POLL_ID = "pollId";
     private static final String POLL_SEQUENCE_ID = "pollSequenceId";
     private static final String POLL_COMPLETE = "pollComplete";
+    private static final String ORIGINAL_FILENAME = "originalFilename";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -78,13 +79,13 @@ public class FileReceiverTests {
      */
     @Test
     public void testPoll1() throws Exception {
-        final String fileDirectory = "tests/filereader";
-        final int messageCount = 5;
+        final String fileDirectory = "tests/filereader/nonbatch";
+        final int expectedMessageCount = 5;
 
-        TestFileReceiver receiver = createReceiver(fileDirectory, false, false);
+        TestFileReceiver receiver = createReceiver(fileDirectory, false, false, FileReceiverProperties.SORT_BY_NAME);
 
         receiver.poll();
-        assertTrue(receiver.rawMessages.size() == messageCount);
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount);
 
         String pollId1 = null;
         for (int i = 0; i < receiver.rawMessages.size(); i++) {
@@ -108,10 +109,10 @@ public class FileReceiverTests {
         }
 
         receiver.poll();
-        assertTrue(receiver.rawMessages.size() == messageCount * 2);
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount * 2);
 
         String pollId2 = null;
-        for (int i = messageCount; i < receiver.rawMessages.size(); i++) {
+        for (int i = expectedMessageCount; i < receiver.rawMessages.size(); i++) {
             RawMessage message = receiver.rawMessages.get(i);
             Map<String, Object> sourceMap = message.getSourceMap();
             if (pollId2 == null) {
@@ -121,7 +122,7 @@ public class FileReceiverTests {
             assertNotNull(sourceMap.get(POLL_ID));
             assertEquals(pollId2, sourceMap.get(POLL_ID));
             assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
-            assertEquals(i - messageCount + 1, sourceMap.get(POLL_SEQUENCE_ID));
+            assertEquals(i - expectedMessageCount + 1, sourceMap.get(POLL_SEQUENCE_ID));
 
             if (i == receiver.rawMessages.size() - 1) {
                 assertNotNull(sourceMap.get(POLL_COMPLETE));
@@ -139,19 +140,18 @@ public class FileReceiverTests {
      */
     @Test
     public void testPoll2() throws Exception {
-        final String fileDirectory = "tests/filereader";
-        final int messageCount = 8;
+        final String fileDirectory = "tests/filereader/nonbatch";
+        final int expectedMessageCount = 8;
 
-        TestFileReceiver receiver = createReceiver(fileDirectory, true, false);
+        TestFileReceiver receiver = createReceiver(fileDirectory, true, false, FileReceiverProperties.SORT_BY_NAME);
 
         receiver.poll();
-        assertTrue(receiver.rawMessages.size() == messageCount);
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount);
 
         String pollId1 = null;
         for (int i = 0; i < receiver.rawMessages.size(); i++) {
             RawMessage message = receiver.rawMessages.get(i);
             Map<String, Object> sourceMap = message.getSourceMap();
-            System.out.println(sourceMap);
             if (pollId1 == null) {
                 pollId1 = (String) sourceMap.get(POLL_ID);
             }
@@ -170,10 +170,10 @@ public class FileReceiverTests {
         }
 
         receiver.poll();
-        assertTrue(receiver.rawMessages.size() == messageCount * 2);
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount * 2);
 
         String pollId2 = null;
-        for (int i = messageCount; i < receiver.rawMessages.size(); i++) {
+        for (int i = expectedMessageCount; i < receiver.rawMessages.size(); i++) {
             RawMessage message = receiver.rawMessages.get(i);
             Map<String, Object> sourceMap = message.getSourceMap();
             if (pollId2 == null) {
@@ -183,7 +183,7 @@ public class FileReceiverTests {
             assertNotNull(sourceMap.get(POLL_ID));
             assertEquals(pollId2, sourceMap.get(POLL_ID));
             assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
-            assertEquals(i - messageCount + 1, sourceMap.get(POLL_SEQUENCE_ID));
+            assertEquals(i - expectedMessageCount + 1, sourceMap.get(POLL_SEQUENCE_ID));
 
             if (i == receiver.rawMessages.size() - 1) {
                 assertNotNull(sourceMap.get(POLL_COMPLETE));
@@ -202,18 +202,21 @@ public class FileReceiverTests {
     @Test
     public void testPoll3() throws Exception {
         final String fileDirectory = "tests/filereader/batch";
-        final int messageCount = 6;
+        
+        final int messagesFile1 = 3;
+        final int messagesFile2 = 1;
+        final int messagesFile3 = 2;
+        final int expectedMessageCount = messagesFile1 + messagesFile2 + messagesFile3;
 
-        TestFileReceiver receiver = createReceiver(fileDirectory, false, true);
+        TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME);
 
         receiver.poll();
-        assertTrue(receiver.rawMessages.size() == messageCount);
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount);
 
         String pollId1 = null;
         for (int i = 0; i < receiver.rawMessages.size(); i++) {
             RawMessage message = receiver.rawMessages.get(i);
             Map<String, Object> sourceMap = message.getSourceMap();
-            System.out.println(sourceMap);
             if (pollId1 == null) {
                 pollId1 = (String) sourceMap.get(POLL_ID);
             }
@@ -221,9 +224,19 @@ public class FileReceiverTests {
             assertNotNull(sourceMap.get(POLL_ID));
             assertEquals(pollId1, sourceMap.get(POLL_ID));
             assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
-            assertEquals(i + 1, sourceMap.get(POLL_SEQUENCE_ID));
+            
+            int expectedPollSequenceID = 0;
+            if (i < messagesFile1) {
+            	expectedPollSequenceID = 1;
+            } else if (i < messagesFile1 + messagesFile2) {
+            	expectedPollSequenceID = 2;
+            } else {
+            	expectedPollSequenceID = 3;
+            }
+            
+            assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
 
-            if (i == receiver.rawMessages.size() - 1) {
+            if (i >= messagesFile1 + messagesFile2) {
                 assertNotNull(sourceMap.get(POLL_COMPLETE));
                 assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
             } else {
@@ -232,10 +245,10 @@ public class FileReceiverTests {
         }
 
         receiver.poll();
-        assertTrue(receiver.rawMessages.size() == messageCount * 2);
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount * 2);
 
         String pollId2 = null;
-        for (int i = messageCount; i < receiver.rawMessages.size(); i++) {
+        for (int i = expectedMessageCount; i < receiver.rawMessages.size(); i++) {
             RawMessage message = receiver.rawMessages.get(i);
             Map<String, Object> sourceMap = message.getSourceMap();
             if (pollId2 == null) {
@@ -245,9 +258,108 @@ public class FileReceiverTests {
             assertNotNull(sourceMap.get(POLL_ID));
             assertEquals(pollId2, sourceMap.get(POLL_ID));
             assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
-            assertEquals(i - messageCount + 1, sourceMap.get(POLL_SEQUENCE_ID));
 
-            if (i == receiver.rawMessages.size() - 1) {
+            int expectedPollSequenceID = 0;
+            if (i < messagesFile1 + expectedMessageCount) {
+            	expectedPollSequenceID = 1;
+            } else if (i < messagesFile1 + messagesFile2 + expectedMessageCount) {
+            	expectedPollSequenceID = 2;
+            } else {
+            	expectedPollSequenceID = 3;
+            }
+                        
+            assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
+            
+            if (i >= messagesFile1 + messagesFile2 + expectedMessageCount) {
+                assertNotNull(sourceMap.get(POLL_COMPLETE));
+                assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
+            } else {
+                assertNull(sourceMap.get(POLL_COMPLETE));
+            }
+        }
+
+    }
+    
+    /*
+     * Batch messages, uses directory recursion
+     */
+    @Test
+    public void testPoll4() throws Exception {
+        final String fileDirectory = "tests/filereader/batch";
+        
+        final int messagesFile1 = 3;
+        final int messagesFile2 = 1;
+        final int messagesFile3 = 2;
+        final int messagesFile4 = 3;
+        final int expectedMessageCount = messagesFile1 + messagesFile2 + messagesFile3 + messagesFile4;
+
+        TestFileReceiver receiver = createReceiver(fileDirectory, true, true, FileReceiverProperties.SORT_BY_NAME);
+
+        receiver.poll();
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount);
+
+        String pollId1 = null;
+        for (int i = 0; i < receiver.rawMessages.size(); i++) {
+            RawMessage message = receiver.rawMessages.get(i);
+            Map<String, Object> sourceMap = message.getSourceMap();
+            if (pollId1 == null) {
+                pollId1 = (String) sourceMap.get(POLL_ID);
+            }
+
+            assertNotNull(sourceMap.get(POLL_ID));
+            assertEquals(pollId1, sourceMap.get(POLL_ID));
+            assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
+            
+            int expectedPollSequenceID = 0;
+            if (i < messagesFile1) {
+            	expectedPollSequenceID = 1;
+            } else if (i < messagesFile1 + messagesFile2) {
+            	expectedPollSequenceID = 2;
+            } else if (i < messagesFile1 + messagesFile2 + messagesFile3) {
+            	expectedPollSequenceID = 3;
+            } else {
+            	expectedPollSequenceID = 4;
+            }
+            
+            assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
+
+            if (i >= messagesFile1 + messagesFile2 + messagesFile3) {
+                assertNotNull(sourceMap.get(POLL_COMPLETE));
+                assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
+            } else {
+                assertNull(sourceMap.get(POLL_COMPLETE));
+            }
+        }
+
+        receiver.poll();
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount * 2);
+
+        String pollId2 = null;
+        for (int i = expectedMessageCount; i < receiver.rawMessages.size(); i++) {
+            RawMessage message = receiver.rawMessages.get(i);
+            Map<String, Object> sourceMap = message.getSourceMap();
+            if (pollId2 == null) {
+                pollId2 = (String) sourceMap.get(POLL_ID);
+            }
+
+            assertNotNull(sourceMap.get(POLL_ID));
+            assertEquals(pollId2, sourceMap.get(POLL_ID));
+            assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
+
+            int expectedPollSequenceID = 0;
+            if (i < messagesFile1 + expectedMessageCount) {
+            	expectedPollSequenceID = 1;
+            } else if (i < messagesFile1 + messagesFile2 + expectedMessageCount) {
+            	expectedPollSequenceID = 2;
+            } else if (i < messagesFile1 + messagesFile2 + messagesFile3 + expectedMessageCount) {
+            	expectedPollSequenceID = 3;
+            } else {
+            	expectedPollSequenceID = 4;
+            }
+                        
+            assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
+            
+            if (i >= messagesFile1 + messagesFile2 + messagesFile3 + expectedMessageCount) {
                 assertNotNull(sourceMap.get(POLL_COMPLETE));
                 assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
             } else {
@@ -257,7 +369,125 @@ public class FileReceiverTests {
 
     }
 
-    private TestFileReceiver createReceiver(String directory, boolean directoryRecursion, boolean batchProcess) throws Exception {
+    /*
+     * Empty directory
+     */
+    @Test
+    public void testPoll5() throws Exception {
+        final String fileDirectory = "tests/filereader/empty";
+
+        TestFileReceiver receiver = createReceiver(fileDirectory, true, true, FileReceiverProperties.SORT_BY_NAME);
+        receiver.poll();
+        assertTrue(receiver.rawMessages.size() == 0);
+        
+        receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME);
+        receiver.poll();
+        assertTrue(receiver.rawMessages.size() == 0);
+        
+        receiver = createReceiver(fileDirectory, true, false, FileReceiverProperties.SORT_BY_NAME);
+        receiver.poll();
+        assertTrue(receiver.rawMessages.size() == 0);
+        
+        receiver = createReceiver(fileDirectory, false, false, FileReceiverProperties.SORT_BY_NAME);
+        receiver.poll();
+        assertTrue(receiver.rawMessages.size() == 0);
+    }
+    
+    /*
+     * Tests batch processing while sorting files by size
+     */
+    @Test
+    public void testPoll6() throws Exception {
+        final String fileDirectory = "tests/filereader/batch";
+        
+        final int messagesFile1 = 1;
+        final int messagesFile2 = 2;
+        final int messagesFile3 = 3;
+        final int expectedMessageCount = messagesFile1 + messagesFile2 + messagesFile3;
+
+        TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_SIZE);
+
+        receiver.poll();
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount);
+
+        String pollId1 = null;
+        for (int i = 0; i < receiver.rawMessages.size(); i++) {
+            RawMessage message = receiver.rawMessages.get(i);
+            Map<String, Object> sourceMap = message.getSourceMap();
+            if (pollId1 == null) {
+                pollId1 = (String) sourceMap.get(POLL_ID);
+            }
+
+            assertNotNull(sourceMap.get(POLL_ID));
+            assertEquals(pollId1, sourceMap.get(POLL_ID));
+            assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
+            
+            int expectedPollSequenceID = 0;
+            String expectedFilename;
+            if (i < messagesFile1) {
+            	expectedPollSequenceID = 1;
+            	expectedFilename = "batch02.hl7";
+            } else if (i < messagesFile1 + messagesFile2) {
+            	expectedPollSequenceID = 2;
+            	expectedFilename = "batch03.hl7";
+            } else {
+            	expectedPollSequenceID = 3;
+            	expectedFilename = "batch01.hl7";
+            }
+            
+            assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
+            assertEquals(expectedFilename, sourceMap.get(ORIGINAL_FILENAME));
+
+            if (i >= messagesFile1 + messagesFile2) {
+                assertNotNull(sourceMap.get(POLL_COMPLETE));
+                assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
+            } else {
+                assertNull(sourceMap.get(POLL_COMPLETE));
+            }
+        }
+
+        receiver.poll();
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount * 2);
+
+        String pollId2 = null;
+        for (int i = expectedMessageCount; i < receiver.rawMessages.size(); i++) {
+            RawMessage message = receiver.rawMessages.get(i);
+            Map<String, Object> sourceMap = message.getSourceMap();
+            if (pollId2 == null) {
+                pollId2 = (String) sourceMap.get(POLL_ID);
+            }
+
+            assertNotNull(sourceMap.get(POLL_ID));
+            assertEquals(pollId2, sourceMap.get(POLL_ID));
+            assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
+
+            int expectedPollSequenceID = 0;
+            String expectedFilename;
+            if (i < messagesFile1 + expectedMessageCount) {
+            	expectedPollSequenceID = 1;
+            	expectedFilename = "batch02.hl7";
+            } else if (i < messagesFile1 + messagesFile2 + expectedMessageCount) {
+            	expectedPollSequenceID = 2;
+            	expectedFilename = "batch03.hl7";
+            } else {
+            	expectedPollSequenceID = 3;
+            	expectedFilename = "batch01.hl7";
+            }
+                        
+            assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
+            assertEquals(expectedFilename, sourceMap.get(ORIGINAL_FILENAME));
+            
+            if (i >= messagesFile1 + messagesFile2 + expectedMessageCount) {
+                assertNotNull(sourceMap.get(POLL_COMPLETE));
+                assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
+            } else {
+                assertNull(sourceMap.get(POLL_COMPLETE));
+            }
+        }
+
+    }
+    
+    private TestFileReceiver createReceiver(String directory, boolean directoryRecursion, boolean batchProcess, String sortBy) throws Exception {
         TestFileReceiver receiver = spy(new TestFileReceiver() {
             @Override
             protected String getConfigurationClass() {
@@ -266,19 +496,17 @@ public class FileReceiverTests {
         });
         String channelId = UUID.randomUUID().toString();
         String channelName = "File Receiver";
-        TestChannel channel = mock(TestChannel.class);
-        when(channel.getChannelId()).thenReturn(channelId);
-        when(channel.getName()).thenReturn(channelName);
-        when(channel.dispatchRawMessage(any(), anyBoolean())).thenReturn(new TestDispatchResult(0, null, new Response(), true, true));
+        TestChannel channel = new TestChannel();
+        channel.setChannelId(channelId);
+        channel.setName(channelName);
+        channel.setSourceConnector(receiver);
+        
         receiver.setChannel(channel);
         receiver.setChannelId(channelId);
 
-        EventDispatcher eventDispatcher = mock(EventDispatcher.class);
-        doNothing().when(eventDispatcher).dispatchEvent(any());
-        when(channel.getEventDispatcher()).thenReturn(eventDispatcher);
-
         FileReceiverProperties connectorProperties = new FileReceiverProperties();
         connectorProperties.setDirectoryRecursion(directoryRecursion);
+        connectorProperties.setSortBy(sortBy);
         receiver.setConnectorProperties(connectorProperties);
 
         FileConnector fileConnector = mock(FileConnector.class);
@@ -311,25 +539,29 @@ public class FileReceiverTests {
         @Override
         public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
             rawMessages.add(rawMessage);
-            return super.dispatchRawMessage(rawMessage);
+            return new TestDispatchResult(0, null, new Response(), true, true);
         }
+        
+        @Override
+        public void finishDispatch(DispatchResult dispatchResult) {}
     }
 
     /*
-     * Mock this class to access the protected methods of Channel
+     * Subclass to alter methods for testing purposes
      */
     class TestChannel extends Channel {
 
         @Override
         protected EventDispatcher getEventDispatcher() {
-            return super.getEventDispatcher();
+            EventDispatcher eventDispatcher = mock(EventDispatcher.class);
+            doNothing().when(eventDispatcher).dispatchEvent(any());
+            return eventDispatcher;
         }
         
         @Override
         protected DispatchResult dispatchRawMessage(RawMessage rawMessage, boolean batch) throws ChannelException {
             ((TestFileReceiver) getSourceConnector()).rawMessages.add(rawMessage);
-//            return new TestDispatchResult(0, null, new Response(), true, true);
-            return super.dispatchRawMessage(rawMessage, batch);
+            return new TestDispatchResult(0, null, new Response(), true, true);
         }
     }
 
