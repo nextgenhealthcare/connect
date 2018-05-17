@@ -46,7 +46,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
 
-public class FileReceiverTests {
+public class FileReceiverTest {
 
     private static final String POLL_ID = "pollId";
     private static final String POLL_SEQUENCE_ID = "pollSequenceId";
