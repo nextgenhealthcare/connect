@@ -16,15 +16,18 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -209,18 +212,31 @@ public class FileReceiver extends PollConnector {
 
             fileSystemOptions = new FileSystemConnectionOptions(uri, connectorProperties.isAnonymous(), username, password, schemeProperties);
 
+            String pollId = "" + System.nanoTime();
+            AtomicInteger pollSequenceId = new AtomicInteger(1);
+
             if (connectorProperties.isDirectoryRecursion()) {
                 Set<String> visitedDirectories = new HashSet<String>();
                 Stack<String> directoryStack = new Stack<String>();
                 directoryStack.push(readDir);
 
-                FileInfo[] files;
+                List<FileInfo> previousFiles = null;
+                List<FileInfo> files;
 
                 while ((files = listFilesRecursively(visitedDirectories, directoryStack)) != null) {
-                    processFiles(files);
+                    if (!files.isEmpty()) {
+                        if (previousFiles != null) {
+                            processFiles(previousFiles, pollId, pollSequenceId, false);
+                        }
+                        previousFiles = files;
+                    }
+                }
+
+                if (previousFiles != null) {
+                    processFiles(previousFiles, pollId, pollSequenceId, true);
                 }
             } else {
-                processFiles(listFiles(readDir));
+                processFiles(listFiles(readDir), pollId, pollSequenceId, true);
             }
         } catch (Throwable t) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, t));
@@ -230,7 +246,7 @@ public class FileReceiver extends PollConnector {
         }
     }
 
-    private FileInfo[] listFilesRecursively(Set<String> visitedDirectories, Stack<String> directoryStack) throws Exception {
+    private List<FileInfo> listFilesRecursively(Set<String> visitedDirectories, Stack<String> directoryStack) throws Exception {
         while (!directoryStack.isEmpty()) {
             // Get the current directory
             String fromDir = directoryStack.pop();
@@ -253,67 +269,86 @@ public class FileReceiver extends PollConnector {
         return null;
     }
 
-    private void processFiles(FileInfo[] files) {
+    private void processFiles(List<FileInfo> files, String pollId, AtomicInteger pollSequenceId, boolean recursionComplete) {
         // sort files by specified attribute before processing
         sortFiles(files);
 
-        for (int i = 0; i < files.length; i++) {
+        for (int i = 0, size = files.size(); i < size; i++) {
             if (isTerminated()) {
                 return;
             }
+            FileInfo file = files.get(i);
 
-            if (!files[i].isDirectory()) {
+            // We know that if recursion is not complete, there are more directories to go, so the poll is not complete.
+            boolean pollComplete = recursionComplete && i == size - 1;
+
+            boolean fileValid = isFileValid(file);
+
+            if (fileValid) {
+                /*
+                 * If recursion is incomplete, pollComplete will be false and we don't need to
+                 * update it.
+                 * 
+                 * If recursion is complete and the poll is complete, nothing more needs to be
+                 * checked.
+                 * 
+                 * If recursion is complete and the poll is not yet complete, we need to check to
+                 * see if there's another valid file in the list. The rest of the files may be
+                 * invalid, in which case pollComplete needs to be updated to true.
+                 */
+                if (recursionComplete && !pollComplete) {
+                    boolean nextValidFileFound = false;
+
+                    for (int j = i + 1; j < size; j++) {
+                        FileInfo nextFile = files.get(j);
+
+                        if (isFileValid(nextFile)) {
+                            nextValidFileFound = true;
+                            break;
+                        }
+                    }
+
+                    if (!nextValidFileFound) {
+                        // No other valid files left, so the poll is complete
+                        pollComplete = true;
+                    }
+                }
+            }
+
+            /*
+             * If the file is valid, process it. If the file is invalid, but the poll is complete,
+             * still process it, and log a warning.
+             */
+            if (fileValid || pollComplete) {
+                if (!fileValid) {
+                    logger.warn("The file " + file.getName() + " may have been modified since being listed by the File Reader. This message will still be processed by the channel, but the file age/size may not be correct with respect to the current File Reader settings.");
+                }
+
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.READING));
-                processFile(files[i]);
+                processFile(file, pollId, pollSequenceId, pollComplete);
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+
+                if (pollComplete) {
+                    break;
+                }
             }
         }
     }
 
-    public void sortFiles(FileInfo[] files) {
+    public void sortFiles(List<FileInfo> files) {
         String sortAttribute = connectorProperties.getSortBy();
 
         if (sortAttribute.equals(FileReceiverProperties.SORT_BY_DATE)) {
-            Arrays.sort(files, new Comparator<FileInfo>() {
-                public int compare(FileInfo file1, FileInfo file2) {
-                    return Long.compare(file1.getLastModified(), file2.getLastModified());
-                }
-            });
+            files.sort(Comparator.comparingLong(FileInfo::getLastModified));
         } else if (sortAttribute.equals(FileReceiverProperties.SORT_BY_SIZE)) {
-            Arrays.sort(files, new Comparator<FileInfo>() {
-                public int compare(FileInfo file1, FileInfo file2) {
-                    return Long.compare(file1.getSize(), file2.getSize());
-                }
-            });
+            files.sort(Comparator.comparingLong(FileInfo::getSize));
         } else {
-            Arrays.sort(files, new Comparator<FileInfo>() {
-                public int compare(FileInfo file1, FileInfo file2) {
-                    return file1.getName().compareToIgnoreCase(file2.getName());
-                }
-            });
+            files.sort((file1, file2) -> file1.getName().compareToIgnoreCase(file2.getName()));
         }
     }
 
-    public synchronized void processFile(FileInfo file) {
+    public synchronized void processFile(FileInfo file, String pollId, AtomicInteger pollSequenceId, boolean pollComplete) {
         try {
-            boolean checkFileAge = connectorProperties.isCheckFileAge();
-            if (checkFileAge) {
-                long fileAge = Long.valueOf(connectorProperties.getFileAge());
-                long lastMod = file.getLastModified();
-                long now = System.currentTimeMillis();
-                if ((now - lastMod) < fileAge)
-                    return;
-            }
-
-            long fileSize = file.getSize();
-
-            if (fileSize < fileSizeMinimum) {
-                return;
-            }
-            if (!connectorProperties.isIgnoreFileSizeMaximum() && fileSize > fileSizeMaximum) {
-                return;
-            }
-
             // Add the original filename to the channel map
             originalFilename = file.getName();
             Map<String, Object> sourceMap = new HashMap<String, Object>();
@@ -321,6 +356,11 @@ public class FileReceiver extends PollConnector {
             sourceMap.put("fileDirectory", file.getParent());
             sourceMap.put("fileSize", file.getSize());
             sourceMap.put("fileLastModified", file.getLastModified());
+            sourceMap.put("pollId", pollId);
+            sourceMap.put("pollSequenceId", pollSequenceId.get());
+            if (pollComplete) {
+                sourceMap.put("pollComplete", true);
+            }
 
             // Set the default file action
             FileAction action = FileAction.NONE;
@@ -356,6 +396,7 @@ public class FileReceiver extends PollConnector {
                                 logger.warn("File " + originalFilename + " was successfully processed, but no messages were dispatched to the channel.");
                             }
                         } finally {
+                            pollSequenceId.incrementAndGet();
                             if (in != null) {
                                 in.close();
                             }
@@ -376,6 +417,7 @@ public class FileReceiver extends PollConnector {
                         try {
                             dispatchResult = dispatchRawMessage(rawMessage);
                         } finally {
+                            pollSequenceId.incrementAndGet();
                             finishDispatch(dispatchResult);
                         }
 
@@ -565,18 +607,54 @@ public class FileReceiver extends PollConnector {
         }
     }
 
+    boolean isFileValid(FileInfo file) {
+        if (file.isDirectory() || !file.isReadable() || !file.isFile()) {
+            return false;
+        }
+
+        boolean checkFileAge = connectorProperties.isCheckFileAge();
+        if (checkFileAge) {
+            long fileAge = Long.valueOf(connectorProperties.getFileAge());
+            long lastMod = file.getLastModified();
+            long now = System.currentTimeMillis();
+            if ((now - lastMod) < fileAge) {
+                return false;
+            }
+        }
+
+        long fileSize = file.getSize();
+
+        if (fileSize < fileSizeMinimum) {
+            return false;
+        }
+        if (!connectorProperties.isIgnoreFileSizeMaximum() && fileSize > fileSizeMaximum) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Get a list of files to be processed.
      * 
      * @return a list of files to be processed.
      * @throws Exception
      */
-    FileInfo[] listFiles(String fromDir) throws Exception {
+    List<FileInfo> listFiles(String fromDir) throws Exception {
         FileSystemConnection con = fileConnector.getConnection(fileSystemOptions);
 
         try {
             List<FileInfo> files = con.listFiles(fromDir, filenamePattern, connectorProperties.isRegex(), connectorProperties.isIgnoreDot());
-            return files == null ? null : files.toArray(new FileInfo[files.size()]);
+
+            if (files != null) {
+                for (Iterator<FileInfo> it = files.iterator(); it.hasNext();) {
+                    if (!isFileValid(it.next())) {
+                        it.remove();
+                    }
+                }
+            }
+
+            return CollectionUtils.isNotEmpty(files) ? files : new ArrayList<FileInfo>();
         } finally {
             fileConnector.releaseConnection(con, fileSystemOptions);
         }
