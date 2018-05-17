@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.net.URI;
@@ -15,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.junit.BeforeClass;
@@ -27,6 +30,7 @@ import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
@@ -82,7 +86,7 @@ public class FileReceiverTests {
         final String fileDirectory = "tests/filereader/nonbatch";
         final int expectedMessageCount = 5;
 
-        TestFileReceiver receiver = createReceiver(fileDirectory, false, false, FileReceiverProperties.SORT_BY_NAME);
+        TestFileReceiver receiver = createReceiver(fileDirectory, false, false, FileReceiverProperties.SORT_BY_NAME, null);
 
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == expectedMessageCount);
@@ -143,7 +147,7 @@ public class FileReceiverTests {
         final String fileDirectory = "tests/filereader/nonbatch";
         final int expectedMessageCount = 8;
 
-        TestFileReceiver receiver = createReceiver(fileDirectory, true, false, FileReceiverProperties.SORT_BY_NAME);
+        TestFileReceiver receiver = createReceiver(fileDirectory, true, false, FileReceiverProperties.SORT_BY_NAME, null);
 
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == expectedMessageCount);
@@ -208,7 +212,7 @@ public class FileReceiverTests {
         final int messagesFile3 = 2;
         final int expectedMessageCount = messagesFile1 + messagesFile2 + messagesFile3;
 
-        TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME);
+        TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, null);
 
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == expectedMessageCount);
@@ -293,7 +297,7 @@ public class FileReceiverTests {
         final int messagesFile4 = 3;
         final int expectedMessageCount = messagesFile1 + messagesFile2 + messagesFile3 + messagesFile4;
 
-        TestFileReceiver receiver = createReceiver(fileDirectory, true, true, FileReceiverProperties.SORT_BY_NAME);
+        TestFileReceiver receiver = createReceiver(fileDirectory, true, true, FileReceiverProperties.SORT_BY_NAME, null);
 
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == expectedMessageCount);
@@ -374,21 +378,21 @@ public class FileReceiverTests {
      */
     @Test
     public void testPoll5() throws Exception {
-        final String fileDirectory = "tests/filereader/empty";
+        final String fileDirectory = "tests/filereader/containsempty/empty";
 
-        TestFileReceiver receiver = createReceiver(fileDirectory, true, true, FileReceiverProperties.SORT_BY_NAME);
+        TestFileReceiver receiver = createReceiver(fileDirectory, true, true, FileReceiverProperties.SORT_BY_NAME, null);
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == 0);
         
-        receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME);
+        receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, null);
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == 0);
         
-        receiver = createReceiver(fileDirectory, true, false, FileReceiverProperties.SORT_BY_NAME);
+        receiver = createReceiver(fileDirectory, true, false, FileReceiverProperties.SORT_BY_NAME, null);
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == 0);
         
-        receiver = createReceiver(fileDirectory, false, false, FileReceiverProperties.SORT_BY_NAME);
+        receiver = createReceiver(fileDirectory, false, false, FileReceiverProperties.SORT_BY_NAME, null);
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == 0);
     }
@@ -405,7 +409,7 @@ public class FileReceiverTests {
         final int messagesFile3 = 3;
         final int expectedMessageCount = messagesFile1 + messagesFile2 + messagesFile3;
 
-        TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_SIZE);
+        TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_SIZE, null);
 
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == expectedMessageCount);
@@ -487,7 +491,118 @@ public class FileReceiverTests {
 
     }
     
-    private TestFileReceiver createReceiver(String directory, boolean directoryRecursion, boolean batchProcess, String sortBy) throws Exception {
+    /*
+     * Tests where not all files will be processed due to size
+     */
+    @Test
+    public void testPoll7() throws Exception {
+        final String fileDirectory = "tests/filereader/batch";
+        final int messagesFile2 = 1;
+        final int expectedMessageCount = messagesFile2;
+
+        TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, "1000");
+        receiver.poll();
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount);
+
+        String pollId1 = null;
+        for (int i = 0; i < receiver.rawMessages.size(); i++) {
+            RawMessage message = receiver.rawMessages.get(i);
+            Map<String, Object> sourceMap = message.getSourceMap();
+            if (pollId1 == null) {
+                pollId1 = (String) sourceMap.get(POLL_ID);
+            }
+
+            assertNotNull(sourceMap.get(POLL_ID));
+            assertEquals(pollId1, sourceMap.get(POLL_ID));
+            assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
+            
+            int expectedPollSequenceID = 0;
+            String expectedFilename;
+            expectedPollSequenceID = 1;
+        	expectedFilename = "batch02.hl7";
+            
+            assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
+            assertEquals(expectedFilename, sourceMap.get(ORIGINAL_FILENAME));
+
+            assertNotNull(sourceMap.get(POLL_COMPLETE));
+            assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
+        }
+    }
+    
+    /*
+     * Test when connector is stopped/terminated before executing poll
+     */
+    @Test
+    public void testPoll8() throws Exception {
+        final String fileDirectory = "tests/filereader/batch";
+        final int expectedMessageCount = 0;
+
+        TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, null);
+        receiver.stop();
+        receiver.poll();
+        
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount);
+    }
+    
+    /*
+     * Test when connector polls a directory with an empty file
+     */
+    @Test
+    public void testPoll9() throws Exception {
+        final String fileDirectory = "tests/filereader/emptyfile";
+        final int expectedMessageCount = 0;
+
+        TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, null);
+        receiver.poll();
+        
+        verify(receiver.logger, times(1)).warn(any());
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount);
+    }
+    
+    /*
+     * Test when polling with directory recursion and the last directory is empty
+     */
+    @Test
+    public void testPoll10() throws Exception {
+        final String fileDirectory = "tests/filereader/containsempty";
+        final int expectedMessageCount = 1;
+
+        TestFileReceiver receiver = createReceiver(fileDirectory, true, false, FileReceiverProperties.SORT_BY_NAME, null);
+
+        receiver.poll();
+        assertTrue(receiver.rawMessages.size() == expectedMessageCount);
+
+        for (int i = 0; i < receiver.rawMessages.size(); i++) {
+        	RawMessage message = receiver.rawMessages.get(i);
+	        Map<String, Object> sourceMap = message.getSourceMap();
+	        assertNotNull(sourceMap.get(POLL_ID));
+	        assertEquals(i + 1, sourceMap.get(POLL_SEQUENCE_ID));
+	        assertNotNull(sourceMap.get(POLL_COMPLETE));
+	        assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
+        }
+    }
+    
+    /*
+     * Batch messages, no directory recursion, File Type Binary
+     */
+    @Test
+    public void testPoll11() throws Exception {
+        final String fileDirectory = "tests/filereader/batch";
+
+        boolean exceptionThrown = false;
+        try {
+        	createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, null, true);
+        } catch (ConnectorTaskException e) {
+        	exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+    }
+    
+    private TestFileReceiver createReceiver(String directory, boolean directoryRecursion, boolean batchProcess, String sortBy, String fileSizeMaximum) throws Exception {
+    	return createReceiver(directory, directoryRecursion, batchProcess, sortBy, fileSizeMaximum, false);
+    }
+    
+    private TestFileReceiver createReceiver(String directory, boolean directoryRecursion, boolean batchProcess, String sortBy, String fileSizeMaximum, boolean fileTypeBinary) throws Exception {
         TestFileReceiver receiver = spy(new TestFileReceiver() {
             @Override
             protected String getConfigurationClass() {
@@ -507,6 +622,12 @@ public class FileReceiverTests {
         FileReceiverProperties connectorProperties = new FileReceiverProperties();
         connectorProperties.setDirectoryRecursion(directoryRecursion);
         connectorProperties.setSortBy(sortBy);
+        if (fileSizeMaximum != null) {
+        	connectorProperties.setIgnoreFileSizeMaximum(false);
+            connectorProperties.setFileSizeMinimum("0");
+            connectorProperties.setFileSizeMaximum(fileSizeMaximum);
+        }
+        connectorProperties.setBinary(fileTypeBinary);
         receiver.setConnectorProperties(connectorProperties);
 
         FileConnector fileConnector = mock(FileConnector.class);
@@ -536,6 +657,10 @@ public class FileReceiverTests {
     class TestFileReceiver extends FileReceiver {
         List<RawMessage> rawMessages = new ArrayList<>();
 
+        public TestFileReceiver() {
+			logger = spy(LogFactory.getLog(getClass()));
+		}
+        
         @Override
         public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
             rawMessages.add(rawMessage);
