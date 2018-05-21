@@ -57,7 +57,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         this.responseHeaders = new LinkedHashMap<String, List<String>>();
         this.charset = "UTF-8";
         this.contextPath = "";
-        this.timeout = "0";
+        this.timeout = "30000";
         this.staticResources = new ArrayList<HttpStaticResource>();
     }
 
