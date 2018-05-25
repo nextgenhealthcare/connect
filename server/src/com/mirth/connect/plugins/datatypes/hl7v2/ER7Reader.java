@@ -152,8 +152,7 @@ public class ER7Reader extends SAXParser {
             boolean enteredHeader = false;
 
             /*
-             * Go through each element and add as new child under the segment
-             * element
+             * Go through each element and add as new child under the segment element
              */
             String field = fieldTokenizer.nextToken();
 
@@ -184,11 +183,15 @@ public class ER7Reader extends SAXParser {
 
                     char[] specialCharacters;
                     if (!subcomponentSeparator.isEmpty()) {
-                        specialCharacters = new char[] { componentSeparator.charAt(0), repetitionSeparator.charAt(0), escapeCharacter.charAt(0), subcomponentSeparator.charAt(0) };
+                        specialCharacters = new char[] { componentSeparator.charAt(0),
+                                repetitionSeparator.charAt(0), escapeCharacter.charAt(0),
+                                subcomponentSeparator.charAt(0) };
                     } else if (!escapeCharacter.isEmpty()) {
-                        specialCharacters = new char[] { componentSeparator.charAt(0), repetitionSeparator.charAt(0), escapeCharacter.charAt(0), };
+                        specialCharacters = new char[] { componentSeparator.charAt(0),
+                                repetitionSeparator.charAt(0), escapeCharacter.charAt(0), };
                     } else {
-                        specialCharacters = new char[] { componentSeparator.charAt(0), repetitionSeparator.charAt(0), };
+                        specialCharacters = new char[] { componentSeparator.charAt(0),
+                                repetitionSeparator.charAt(0), };
                     }
 
                     contentHandler.characters(specialCharacters, 0, specialCharacters.length);

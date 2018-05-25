@@ -202,7 +202,7 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
     public void removeChannels(Set<String> channelIds) {
         engineController.removeChannels(redactChannelIds(channelIds), context, null);
     }
-    
+
     @Override
     public void removeChannelsPost(Set<String> channelIds) {
         removeChannels(channelIds);

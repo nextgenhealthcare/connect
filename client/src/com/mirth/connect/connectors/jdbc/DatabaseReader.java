@@ -24,6 +24,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.mozilla.javascript.Context;
@@ -47,8 +49,6 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.util.JavaScriptSharedUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class DatabaseReader extends ConnectorSettingsPanel {
     private List<DriverInfo> drivers;

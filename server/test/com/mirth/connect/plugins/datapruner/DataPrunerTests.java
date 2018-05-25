@@ -97,7 +97,7 @@ public class DataPrunerTests {
 
     private void runPrunerTests(boolean messagesPrunable, boolean contentPrunable) throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
-        new DataPruner().pruneChannel(TEST_CHANNEL_ID,TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
+        new DataPruner().pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
 

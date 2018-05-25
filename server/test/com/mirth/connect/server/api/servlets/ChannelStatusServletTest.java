@@ -10,8 +10,6 @@
 package com.mirth.connect.server.api.servlets;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -29,12 +27,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.SecurityContext;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -53,8 +49,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.UserController;
 
-import net.bytebuddy.asm.Advice.This;
-
 public class ChannelStatusServletTest {
 
     static ControllerFactory controllerFactory;
@@ -62,7 +56,7 @@ public class ChannelStatusServletTest {
     static HttpSession session;
     static HttpServletRequest request;
     static SecurityContext sc;
-    
+
     @BeforeClass
     @SuppressWarnings("unchecked")
     public static void setup() throws Exception {
@@ -142,13 +136,14 @@ public class ChannelStatusServletTest {
         when(status.getState()).thenReturn(deployState);
         return status;
     }
-    
+
     private static ChannelTag createTag(String name, Set<String> channelIds) {
         ChannelTag tag = mock(ChannelTag.class);
         when(tag.getName()).thenReturn(name);
         when(tag.getChannelIds()).thenReturn(channelIds);
         return tag;
     }
+
     private static List<DashboardStatus> getStatusList() {
         List<DashboardStatus> list = new LinkedList<>();
         list.add(ChannelStatusServletTest.createStatus("1", "One", DeployedState.STARTED));
@@ -158,7 +153,7 @@ public class ChannelStatusServletTest {
         list.add(ChannelStatusServletTest.createStatus("5", "Five", DeployedState.UNDEPLOYED));
         return list;
     }
-    
+
     @Test
     public void testGetChannelStatusListFilterByName() throws Exception {
         HttpSession session = mock(HttpSession.class);
@@ -171,15 +166,15 @@ public class ChannelStatusServletTest {
         SecurityContext sc = mock(SecurityContext.class);
         ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc);
         // don't need to pass in list, engineController.getChannelStatusList() has been mocked to return a list of DashboardStatus, which we will filter on
-        List<DashboardStatus> statusList = servlet.getChannelStatusList(null, "Name:Three", true); 
+        List<DashboardStatus> statusList = servlet.getChannelStatusList(null, "Name:Three", true);
         assertEquals(1, statusList.size());
         assertEquals("3", statusList.get(0).getChannelId());
         assertEquals("Three", statusList.get(0).getName());
-        
-        statusList = servlet.getChannelStatusList(null, "Name:3", true); 
+
+        statusList = servlet.getChannelStatusList(null, "Name:3", true);
         assertEquals(0, statusList.size());
-        
-        statusList = servlet.getChannelStatusList(null, "Name:FAKE", true); 
+
+        statusList = servlet.getChannelStatusList(null, "Name:FAKE", true);
         assertEquals(0, statusList.size());
     }
 
@@ -195,7 +190,7 @@ public class ChannelStatusServletTest {
         SecurityContext sc = mock(SecurityContext.class);
         ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc);
         // don't need to pass in list, engineController.getChannelStatusList() has been mocked to return a list of DashboardStatus, which we will filter on
-        List<DashboardStatus> statusList = servlet.getChannelStatusList(null, null, true); 
+        List<DashboardStatus> statusList = servlet.getChannelStatusList(null, null, true);
 
         // statusList == [{Dashboard Status with ID = "1"}, {Dashboard Status with ID = "2"}, {Dashboard Status with ID = "3"},
         //              {Dashboard Status with ID = "4"}, {Dashboard Status with ID = "5"}]
@@ -211,21 +206,21 @@ public class ChannelStatusServletTest {
     public void testGetChannelStatusListFilterByTag() throws Exception {
         ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc);
         // don't need to pass in list, engineController.getChannelStatusList() has been mocked to return a list of DashboardStatus, which we will filter on
-        List<DashboardStatus> statusList = servlet.getChannelStatusList(null, "Tag:Tag3", true); 
+        List<DashboardStatus> statusList = servlet.getChannelStatusList(null, "Tag:Tag3", true);
         // statusList == [{Dashboard Status with ID = "3"}, {Dashboard Status with ID = "4"}]
         assertEquals(2, statusList.size());
         assertEquals("3", statusList.get(0).getChannelId());
         assertEquals("4", statusList.get(1).getChannelId());
 
         // statusList == []
-        statusList = servlet.getChannelStatusList(null, "Tag:Tag2", true); 
+        statusList = servlet.getChannelStatusList(null, "Tag:Tag2", true);
         assertEquals(0, statusList.size());
 
         // statusList == []
-        statusList = servlet.getChannelStatusList(null, "Tag:FAKE", true); 
+        statusList = servlet.getChannelStatusList(null, "Tag:FAKE", true);
         assertEquals(0, statusList.size());
     }
-    
+
     @Test
     public void testGetDashboardChannelInfo() throws Exception {
         ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc);
@@ -238,6 +233,6 @@ public class ChannelStatusServletTest {
         // dashboardChannelInfo.getRemainingChannelIds() == [{Dashboard Status with ID = "3"}, {Dashboard Status with ID = "4"}]
         assertEquals(2, dashboardChannelInfo.getDashboardStatuses().size());
         assertEquals("3", dashboardChannelInfo.getDashboardStatuses().get(0).getChannelId());
-        assertEquals("4", dashboardChannelInfo.getDashboardStatuses().get(1).getChannelId()); 
+        assertEquals("4", dashboardChannelInfo.getDashboardStatuses().get(1).getChannelId());
     }
 }

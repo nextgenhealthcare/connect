@@ -49,7 +49,7 @@ public class EDIXMLHandler extends DefaultHandler {
             segmentDelimiter = atts.getValue("segmentDelimiter");
             elementDelimiter = atts.getValue("elementDelimiter");
             subelementDelimiter = atts.getValue("subelementDelimiter");
-            
+
             if (segmentDelimiter == null) {
                 segmentDelimiter = "~";
             }
@@ -65,7 +65,7 @@ public class EDIXMLHandler extends DefaultHandler {
                 output.append(name);
                 currentLocation = Location.SEGMENT;
                 lastInSubelement = false;
-                
+
                 previousSegmentNameArray = null;
             } else if (currentLocation.equals(Location.SEGMENT)) {
                 String[] currentNameArray = StringUtils.split(name, ".");
@@ -73,11 +73,11 @@ public class EDIXMLHandler extends DefaultHandler {
 
                 if (currentDelimeterCount == 1) {
                     int previousId = 0;
-                    
+
                     if (previousSegmentNameArray != null) {
                         previousId = NumberUtils.toInt(previousSegmentNameArray[1]);
                     }
-                    
+
                     int currentId = NumberUtils.toInt(currentNameArray[1]);
 
                     for (int i = 1; i < (currentId - previousId); i++) {
@@ -86,11 +86,11 @@ public class EDIXMLHandler extends DefaultHandler {
 
                     previousSegmentNameArray = currentNameArray;
                 }
-                
+
                 output.append(elementDelimiter);
                 currentLocation = Location.ELEMENT;
                 lastInSubelement = false;
-                
+
                 previousElementNameArray = null;
             } else if (currentLocation.equals(Location.ELEMENT)) {
                 String[] currentNameArray = StringUtils.split(name, ".");
@@ -98,11 +98,11 @@ public class EDIXMLHandler extends DefaultHandler {
 
                 if (currentDelimeterCount == 2) {
                     int previousId = 0;
-                    
+
                     if (previousElementNameArray != null) {
                         previousId = NumberUtils.toInt(previousElementNameArray[2]);
                     }
-                    
+
                     int currentId = NumberUtils.toInt(currentNameArray[2]);
 
                     for (int i = 1; i < (currentId - previousId); i++) {
@@ -111,7 +111,7 @@ public class EDIXMLHandler extends DefaultHandler {
 
                     previousElementNameArray = currentNameArray;
                 }
-                
+
                 if (lastInSubelement) {
                     output.append(subelementDelimiter);
                 }

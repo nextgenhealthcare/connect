@@ -25,7 +25,7 @@ public class LoginStatus implements Serializable {
         this.status = status;
         this.message = message;
     }
-    
+
     public LoginStatus(Status status, String message, String updatedUsername) {
         this.status = status;
         this.message = message;

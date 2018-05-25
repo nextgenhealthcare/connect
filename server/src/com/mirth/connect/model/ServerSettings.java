@@ -69,7 +69,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     @Override
     public Properties getProperties() {
         Properties properties = new Properties();
-        
+
         if (getClearGlobalMap() != null) {
             properties.put(CLEAR_GLOBAL_MAP, BooleanUtils.toIntegerObject(getClearGlobalMap()).toString());
         }
@@ -121,15 +121,15 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setSmtpUsername(properties.getProperty(SMTP_USERNAME));
         setSmtpPassword(properties.getProperty(SMTP_PASSWORD));
     }
-    
+
     public String getServerName() {
         return serverName;
     }
-    
+
     public void setServerName(String serverName) {
         this.serverName = serverName;
     }
-    
+
     public Boolean getClearGlobalMap() {
         return clearGlobalMap;
     }

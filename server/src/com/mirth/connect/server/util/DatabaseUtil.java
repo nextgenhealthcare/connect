@@ -210,13 +210,15 @@ public class DatabaseUtil {
 
         try {
             DatabaseMetaData metaData = connection.getMetaData();
-            resultSet = metaData.getTables(null, null, tableName.toUpperCase(), new String[] { "TABLE" });
+            resultSet = metaData.getTables(null, null, tableName.toUpperCase(), new String[] {
+                    "TABLE" });
 
             if (resultSet.next()) {
                 return true;
             }
 
-            resultSet = metaData.getTables(null, null, tableName.toLowerCase(), new String[] { "TABLE" });
+            resultSet = metaData.getTables(null, null, tableName.toLowerCase(), new String[] {
+                    "TABLE" });
             return resultSet.next();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);

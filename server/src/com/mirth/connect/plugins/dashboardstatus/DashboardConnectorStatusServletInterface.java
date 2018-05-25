@@ -9,6 +9,10 @@
 
 package com.mirth.connect.plugins.dashboardstatus;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -25,10 +29,6 @@ import com.mirth.connect.client.core.Operation.ExecuteType;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @Path("/extensions/dashboardstatus")
 @Api("Extension Services")

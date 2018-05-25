@@ -222,7 +222,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         } finally {
             StatementLock.getInstance(VACUUM_LOCK_LIBRARY_STATEMENT_ID).writeUnlock();
         }
-        
+
         // Insert or update libraries
         StatementLock.getInstance(VACUUM_LOCK_LIBRARY_STATEMENT_ID).readLock();
         try {
@@ -260,7 +260,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
         return true;
     }
-    
+
     /**
      * When calling this method, a StatementLock writeLock should surround it
      */
@@ -281,7 +281,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             }
         }
     }
-    
+
     /**
      * When calling this method, a StatementLock writeLock should surround it
      */

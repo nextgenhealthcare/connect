@@ -47,8 +47,7 @@ public class ScriptRunner {
     }
 
     /**
-     * This will run the script using the database connector that has been
-     * defined
+     * This will run the script using the database connector that has been defined
      * 
      * @param scriptFile
      */

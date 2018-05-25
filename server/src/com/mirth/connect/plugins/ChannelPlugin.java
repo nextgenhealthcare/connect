@@ -25,7 +25,7 @@ public interface ChannelPlugin extends ServerPlugin {
      * @throws Exception
      */
     public void deploy(Channel channel, ServerEventContext context);
-    
+
     /**
      * This is invoked once per deploy.
      * 
@@ -33,8 +33,8 @@ public interface ChannelPlugin extends ServerPlugin {
      * @throws Exception
      */
     public void deploy(ServerEventContext context);
-    
+
     public void undeploy(String channelId, ServerEventContext context);
-    
+
     public void undeploy(ServerEventContext context);
 }

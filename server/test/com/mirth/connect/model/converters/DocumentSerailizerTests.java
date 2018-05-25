@@ -22,30 +22,30 @@ import org.w3c.dom.Element;
 
 public class DocumentSerailizerTests {
 
-	@Before
-	public void setUp() throws Exception {}
+    @Before
+    public void setUp() throws Exception {}
 
-	@After
-	public void tearDown() throws Exception {}
+    @After
+    public void tearDown() throws Exception {}
 
-	@Test
-	public void testToXML() throws Exception {
-		DocumentSerializer serializer = new DocumentSerializer();
+    @Test
+    public void testToXML() throws Exception {
+        DocumentSerializer serializer = new DocumentSerializer();
 
-		DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document document = parser.newDocument();
-		
-		Element element = document.createElement("root");
-		element.setTextContent("Hello\r\nworld!");
-		document.appendChild(element);
-		
-		String actual = serializer.toXML(document);
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>Hello&#xd;\nworld!</root>\n";
-		Assert.assertEquals(expected, actual);
-	}
-	
-	@Test
-	public void testPreserveSpace() throws Exception {
+        DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document document = parser.newDocument();
+
+        Element element = document.createElement("root");
+        element.setTextContent("Hello\r\nworld!");
+        document.appendChild(element);
+
+        String actual = serializer.toXML(document);
+        String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>Hello&#xd;\nworld!</root>\n";
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testPreserveSpace() throws Exception {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document document = builder.newDocument();
         Element root = document.createElement("root");
@@ -53,16 +53,16 @@ public class DocumentSerailizerTests {
         Element child = document.createElement("child");
         child.setTextContent("Hello\nworld!");
         root.appendChild(child);
-        
+
         DocumentSerializer serializer = new DocumentSerializer();
         String actual = serializer.toXML(document);
         String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<root>\n<child>Hello\nworld!</child>\n</root>\n";
         Assert.assertEquals(expected, actual);
-	}
+    }
 
-	@Test
-	public void testFromXML() {
-		
-	}
+    @Test
+    public void testFromXML() {
+
+    }
 
 }

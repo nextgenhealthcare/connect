@@ -20,7 +20,7 @@ public class Pre22PasswordCheckerTests {
         String salt = "Np+FZYzu4M0=";
         String hash = "NdgB6ojoGb/uFa5amMEyBNG16mE=";
         String migratedSaltHash = "SALT_" + salt + hash;
-        
+
         Assert.assertTrue(Pre22PasswordChecker.checkPassword("admin", migratedSaltHash));
         Assert.assertFalse(Pre22PasswordChecker.checkPassword("foo", migratedSaltHash));
         Assert.assertFalse(Pre22PasswordChecker.checkPassword("", migratedSaltHash));

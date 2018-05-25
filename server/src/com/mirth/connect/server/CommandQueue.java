@@ -13,61 +13,61 @@ import java.util.Iterator;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class CommandQueue {
-	private PriorityBlockingQueue<Command> commandQueue = new PriorityBlockingQueue<Command>();
+    private PriorityBlockingQueue<Command> commandQueue = new PriorityBlockingQueue<Command>();
 
-	// singleton pattern
-	private static CommandQueue instance = null;
+    // singleton pattern
+    private static CommandQueue instance = null;
 
-	private CommandQueue() {}
+    private CommandQueue() {}
 
-	public static CommandQueue getInstance() {
-		synchronized (CommandQueue.class) {
-			if (instance == null)
-				instance = new CommandQueue();
+    public static CommandQueue getInstance() {
+        synchronized (CommandQueue.class) {
+            if (instance == null)
+                instance = new CommandQueue();
 
-			return instance;
-		}
-	}
+            return instance;
+        }
+    }
 
-	/**
-	 * Adds a <code>MirthCommand</code> to the command queue.
-	 * 
-	 * @param command
-	 */
-	public void addCommand(Command command) {
-		commandQueue.put(command);
-	}
+    /**
+     * Adds a <code>MirthCommand</code> to the command queue.
+     * 
+     * @param command
+     */
+    public void addCommand(Command command) {
+        commandQueue.put(command);
+    }
 
-	/**
-	 * Returns the command with the highest priority from the queue.
-	 * 
-	 * @return the command with the highest priority from the queue.
-	 */
-	public Command getCommand() {
-		try {
-			return commandQueue.take();
-		} catch (Exception e) {
-			e.printStackTrace();
+    /**
+     * Returns the command with the highest priority from the queue.
+     * 
+     * @return the command with the highest priority from the queue.
+     */
+    public Command getCommand() {
+        try {
+            return commandQueue.take();
+        } catch (Exception e) {
+            e.printStackTrace();
 
-			return null;
-		}
-	}
+            return null;
+        }
+    }
 
-	/**
-	 * Prints the contents of the command queue.
-	 * 
-	 */
-	public void printQueue() {
-		for (Iterator<Command> iter = commandQueue.iterator(); iter.hasNext();) {
-			System.out.println(iter.next());
-		}
-	}
-	
-	/**
-	 * Clears the contents of the command queue.
-	 * 
-	 */
-	public void clear() {
-		commandQueue.clear();
-	}
+    /**
+     * Prints the contents of the command queue.
+     * 
+     */
+    public void printQueue() {
+        for (Iterator<Command> iter = commandQueue.iterator(); iter.hasNext();) {
+            System.out.println(iter.next());
+        }
+    }
+
+    /**
+     * Clears the contents of the command queue.
+     * 
+     */
+    public void clear() {
+        commandQueue.clear();
+    }
 }

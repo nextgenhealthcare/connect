@@ -52,8 +52,8 @@ public class HL7v2ACKGenerator {
         String version = ""; // MSH.12.1
 
         /*
-         * If XML is being sent over MLLP, use the HL7v2 XML Quick Parser to
-         * pull out the fields, otherwise use patterns to parse the ER7.
+         * If XML is being sent over MLLP, use the HL7v2 XML Quick Parser to pull out the fields,
+         * otherwise use patterns to parse the ER7.
          */
         if (isXML) {
             ackIsXML = true;

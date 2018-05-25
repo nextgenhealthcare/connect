@@ -417,10 +417,10 @@ public class HttpDispatcher extends DestinationConnector {
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
     }
-    
+
     @Override
     protected String getConfigurationClass() {
-    	return configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
+        return configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
     }
 
     public RegistryBuilder<ConnectionSocketFactory> getSocketFactoryRegistry() {
@@ -509,7 +509,7 @@ public class HttpDispatcher extends DestinationConnector {
             setQueryString(uriBuilder, queryParameters);
             httpMethod = new HttpDelete(uriBuilder.build());
         } else if ("PATCH".equalsIgnoreCase(method)) {
-        	if (StringUtils.startsWithIgnoreCase(contentType.getMimeType(), ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
+            if (StringUtils.startsWithIgnoreCase(contentType.getMimeType(), ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
                 httpMethod = new HttpPatch(uriBuilder.build());
                 httpEntity = new UrlEncodedFormEntity(queryParameters, contentType.getCharset());
             } else {

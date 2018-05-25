@@ -12,7 +12,7 @@ package com.mirth.connect.server.sqlmap.extensions;
 import com.mirth.connect.model.ServerEvent.Level;
 
 public class EventLevelTypeHandler extends EnumTypeHandler<Level> {
-	public EventLevelTypeHandler() {
-		super(Level.class);
-	}
+    public EventLevelTypeHandler() {
+        super(Level.class);
+    }
 }

@@ -11,7 +11,6 @@ package com.mirth.connect.server.migration;
 
 import com.mirth.connect.model.util.MigrationException;
 
-
 public class LegacyMigrator extends Migrator {
     private int schemaVersion;
 

@@ -109,15 +109,15 @@ public class MessageFilter implements Serializable {
     public void setTextSearch(String textSearch) {
         this.textSearch = textSearch;
     }
-    
-    public Boolean getTextSearchRegex(){
+
+    public Boolean getTextSearchRegex() {
         return this.textSearchRegex;
     }
 
-    public void setTextSearchRegex(Boolean textSearchRegex){
+    public void setTextSearchRegex(Boolean textSearchRegex) {
         this.textSearchRegex = textSearchRegex;
     }
-    
+
     public Set<Status> getStatuses() {
         return statuses;
     }

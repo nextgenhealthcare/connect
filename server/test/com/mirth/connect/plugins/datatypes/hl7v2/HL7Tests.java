@@ -23,125 +23,122 @@ import com.mirth.connect.model.converters.Stopwatch;
 
 public class HL7Tests {
 
-	public static void main(String[] args) {
-		      
-		String testMessage = "";
-		String testXML = null;
-		try {
-			testMessage = new String(getBytesFromFile(new File(args[0])));
-			if (args.length>1){
-				testXML =  new String(getBytesFromFile(new File(args[1])));
-			}
-			System.out.println(testMessage);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			
-			long totalExecutionTime = 0;
-			int iterations = 1;
-			for (int i = 0; i < iterations; i++) {
-				totalExecutionTime+=runTest(testMessage, testXML);
-			}
-			
-			System.out.println("Execution time average: " + totalExecutionTime/iterations + " ms");
-		}
-		// System.out.println(new X12Serializer().serialize("SEG*1*2**4*5"));
-		catch (SAXException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    public static void main(String[] args) {
 
-	}
+        String testMessage = "";
+        String testXML = null;
+        try {
+            testMessage = new String(getBytesFromFile(new File(args[0])));
+            if (args.length > 1) {
+                testXML = new String(getBytesFromFile(new File(args[1])));
+            }
+            System.out.println(testMessage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
 
-	private static long runTest(String testMessage, String xml) throws MessageSerializerException, SAXException, IOException {
-		Stopwatch stopwatch = new Stopwatch();
+            long totalExecutionTime = 0;
+            int iterations = 1;
+            for (int i = 0; i < iterations; i++) {
+                totalExecutionTime += runTest(testMessage, testXML);
+            }
+
+            System.out.println("Execution time average: " + totalExecutionTime / iterations + " ms");
+        }
+        // System.out.println(new X12Serializer().serialize("SEG*1*2**4*5"));
+        catch (SAXException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static long runTest(String testMessage, String xml) throws MessageSerializerException, SAXException, IOException {
+        Stopwatch stopwatch = new Stopwatch();
 //		Properties properties = new Properties();
 //		properties.put("useStrictParser", "false");
 //		properties.put("handleRepetitions", "true");
 //		properties.put("inputSegmentDelimiter", "\r\n|\r|\n");
 //		properties.put("outputSegmentDelimiter", "\r");
-		stopwatch.start();
-		ER7Serializer serializer = new ER7Serializer(null);
-		String xmloutput = xml;
-		String er7 = "";
-		if (xml == null){
-			xmloutput = serializer.toXML(testMessage);
-			er7 = serializer.fromXML(xmloutput);
-			stopwatch.stop();
-		}else{
-			
-			DocumentSerializer docser = new DocumentSerializer();
-			Document doc = docser.fromXML(xmloutput);
-			er7 = serializer.fromXML(docser.toXML(doc));
-			stopwatch.stop();
-		}
-		
-		
-		//System.out.println(xmloutput);
-		DocumentSerializer docser = new DocumentSerializer();
-		Document doc = docser.fromXML(xmloutput);
-		
-		
-		
-		System.out.println(docser.toXML(doc)); 
-		System.out.println(er7);
-		if (er7.trim().equals(testMessage.trim())) {
-			System.out.println("Test Successful!");
-		} else {
-			String original = testMessage.replaceAll("\\r\\n", "\r").trim();
-			String newm = er7.replace('\n', '\r').trim();
-			for (int i = 0; i < original.length(); i++){
-				if (original.charAt(i) == newm.charAt(i)){
-					System.out.print(newm.charAt(i));
-				}else{
-					System.out.println("");
-					System.out.print("Saw: ");
-					System.out.println(newm.charAt(i));
-				
-					System.out.print("Expected: ");
-					System.out.print(original.charAt(i));
-					break;
-				}
-			}
-			System.out.println("\nTest Failed!");
-		}
-		return stopwatch.toValue();
-	}
+        stopwatch.start();
+        ER7Serializer serializer = new ER7Serializer(null);
+        String xmloutput = xml;
+        String er7 = "";
+        if (xml == null) {
+            xmloutput = serializer.toXML(testMessage);
+            er7 = serializer.fromXML(xmloutput);
+            stopwatch.stop();
+        } else {
 
-	// Returns the contents of the file in a byte array.
-	private static byte[] getBytesFromFile(File file) throws IOException {
-		InputStream is = new FileInputStream(file);
+            DocumentSerializer docser = new DocumentSerializer();
+            Document doc = docser.fromXML(xmloutput);
+            er7 = serializer.fromXML(docser.toXML(doc));
+            stopwatch.stop();
+        }
 
-		// Get the size of the file
-		long length = file.length();
+        //System.out.println(xmloutput);
+        DocumentSerializer docser = new DocumentSerializer();
+        Document doc = docser.fromXML(xmloutput);
 
-		// You cannot create an array using a long type.
-		// It needs to be an int type.
-		// Before converting to an int type, check
-		// to ensure that file is not larger than Integer.MAX_VALUE.
-		if (length > Integer.MAX_VALUE) {
-			// File is too large
-		}
+        System.out.println(docser.toXML(doc));
+        System.out.println(er7);
+        if (er7.trim().equals(testMessage.trim())) {
+            System.out.println("Test Successful!");
+        } else {
+            String original = testMessage.replaceAll("\\r\\n", "\r").trim();
+            String newm = er7.replace('\n', '\r').trim();
+            for (int i = 0; i < original.length(); i++) {
+                if (original.charAt(i) == newm.charAt(i)) {
+                    System.out.print(newm.charAt(i));
+                } else {
+                    System.out.println("");
+                    System.out.print("Saw: ");
+                    System.out.println(newm.charAt(i));
 
-		// Create the byte array to hold the data
-		byte[] bytes = new byte[(int) length];
+                    System.out.print("Expected: ");
+                    System.out.print(original.charAt(i));
+                    break;
+                }
+            }
+            System.out.println("\nTest Failed!");
+        }
+        return stopwatch.toValue();
+    }
 
-		// Read in the bytes
-		int offset = 0;
-		int numRead = 0;
-		while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
-			offset += numRead;
-		}
+    // Returns the contents of the file in a byte array.
+    private static byte[] getBytesFromFile(File file) throws IOException {
+        InputStream is = new FileInputStream(file);
 
-		// Ensure all the bytes have been read in
-		if (offset < bytes.length) {
-			throw new IOException("Could not completely read file " + file.getName());
-		}
+        // Get the size of the file
+        long length = file.length();
 
-		// Close the input stream and return bytes
-		is.close();
-		return bytes;
-	}
+        // You cannot create an array using a long type.
+        // It needs to be an int type.
+        // Before converting to an int type, check
+        // to ensure that file is not larger than Integer.MAX_VALUE.
+        if (length > Integer.MAX_VALUE) {
+            // File is too large
+        }
+
+        // Create the byte array to hold the data
+        byte[] bytes = new byte[(int) length];
+
+        // Read in the bytes
+        int offset = 0;
+        int numRead = 0;
+        while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+            offset += numRead;
+        }
+
+        // Ensure all the bytes have been read in
+        if (offset < bytes.length) {
+            throw new IOException("Could not completely read file " + file.getName());
+        }
+
+        // Close the input stream and return bytes
+        is.close();
+        return bytes;
+    }
 }

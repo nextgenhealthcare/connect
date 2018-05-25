@@ -19,17 +19,17 @@ import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
 
 public class MirthMetaDataReplacer extends MetaDataReplacer {
-    
+
     @Override
     protected Object getMetaDataValue(ConnectorMessage connectorMessage, MetaDataColumn column) {
         Object value = super.getMetaDataValue(connectorMessage, column);
-        
+
         // Check the global channel and global maps if nothing was found in the connector or channel maps
         if (value == null) {
             Map<String, Object> globalChannelMap = GlobalChannelVariableStoreFactory.getInstance().get(connectorMessage.getChannelId()).getVariables();
             Map<String, Object> globalMap = GlobalVariableStore.getInstance().getVariables();
             Map<String, String> configurationMap = ConfigurationController.getInstance().getConfigurationMap();
-            
+
             if (globalChannelMap.containsKey(column.getMappingName())) {
                 value = globalChannelMap.get(column.getMappingName());
             } else if (globalMap.containsKey(column.getMappingName())) {
@@ -38,7 +38,7 @@ public class MirthMetaDataReplacer extends MetaDataReplacer {
                 value = configurationMap.get(column.getMappingName());
             }
         }
-        
+
         return value;
     }
 }

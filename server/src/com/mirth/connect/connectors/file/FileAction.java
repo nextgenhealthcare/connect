@@ -10,8 +10,7 @@
 package com.mirth.connect.connectors.file;
 
 public enum FileAction {
-    NONE("None"), MOVE("Move"), DELETE("Delete"), AFTER_PROCESSING(
-            "After Processing Action");
+    NONE("None"), MOVE("Move"), DELETE("Delete"), AFTER_PROCESSING("After Processing Action");
 
     private String value;
 

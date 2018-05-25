@@ -18,13 +18,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-
-import com.mirth.connect.connectors.file.FileConnectorException;
-import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
-import com.mirth.connect.connectors.file.filters.SmbFilenameWildcardFilter;
-
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
@@ -32,6 +25,13 @@ import jcifs.smb.SmbFileFilter;
 import jcifs.smb.SmbFileInputStream;
 import jcifs.smb.SmbFileOutputStream;
 import jcifs.smb.SmbFilenameFilter;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+
+import com.mirth.connect.connectors.file.FileConnectorException;
+import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
+import com.mirth.connect.connectors.file.filters.SmbFilenameWildcardFilter;
 
 /**
  * The SmbFileSystemConnection class for networked files

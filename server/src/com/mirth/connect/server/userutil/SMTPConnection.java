@@ -241,7 +241,8 @@ public class SMTPConnection {
      *            The content of the e-mail message.
      * @param charset
      *            The charset encoding to use when sending the e-mail message.
-     * @throws EmailException If an error occurred while sending the e-mail message.
+     * @throws EmailException
+     *             If an error occurred while sending the e-mail message.
      */
     public void send(String toList, String ccList, String from, String subject, String body, String charset) throws EmailException {
         smtpConnection.send(toList, ccList, from, subject, body, charset);
@@ -262,7 +263,8 @@ public class SMTPConnection {
      *            The subject of the e-mail message.
      * @param body
      *            The content of the e-mail message.
-     * @throws EmailException If an error occurred while sending the e-mail message.
+     * @throws EmailException
+     *             If an error occurred while sending the e-mail message.
      */
     public void send(String toList, String ccList, String from, String subject, String body) throws EmailException {
         smtpConnection.send(toList, ccList, from, subject, body);
@@ -281,7 +283,8 @@ public class SMTPConnection {
      *            The subject of the e-mail message.
      * @param body
      *            The content of the e-mail message.
-     * @throws EmailException If an error occurred while sending the e-mail message.
+     * @throws EmailException
+     *             If an error occurred while sending the e-mail message.
      */
     public void send(String toList, String ccList, String subject, String body) throws EmailException {
         smtpConnection.send(toList, ccList, subject, body);

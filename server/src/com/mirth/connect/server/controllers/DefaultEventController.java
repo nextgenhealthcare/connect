@@ -73,7 +73,7 @@ public class DefaultEventController extends EventController {
     public void addListener(EventListener listener) {
         Set<EventType> types = listener.getEventTypes();
         BlockingQueue<Event> queue = listener.getQueue();
-        
+
         if (types.contains(EventType.MESSAGE)) {
             messageEventQueues.put(listener, queue);
         }
@@ -89,11 +89,11 @@ public class DefaultEventController extends EventController {
         if (types.contains(EventType.CONNECTION_STATUS)) {
             connectionStatusEventQueues.put(listener, queue);
         }
-        
+
         if (types.contains(EventType.SERVER)) {
             serverEventQueues.put(listener, queue);
         }
-        
+
         if (types.contains(EventType.GENERIC)) {
             genericEventQueues.put(listener, queue);
         }
@@ -137,10 +137,10 @@ public class DefaultEventController extends EventController {
                 queue.put(event);
             }
         } catch (InterruptedException e) {
-        	Thread.currentThread().interrupt();
+            Thread.currentThread().interrupt();
         }
     }
-    
+
     @Override
     public void insertEvent(ServerEvent serverEvent) {
         logger.debug("adding event: " + serverEvent);
@@ -151,7 +151,7 @@ public class DefaultEventController extends EventController {
             logger.error("Error adding event.", e);
         }
     }
-    
+
     @Override
     public Integer getMaxEventId() throws ControllerException {
         try {
@@ -160,7 +160,7 @@ public class DefaultEventController extends EventController {
             throw new ControllerException(e);
         }
     }
-    
+
     @Override
     public List<ServerEvent> getEvents(EventFilter filter, Integer offset, Integer limit) throws ControllerException {
         try {
@@ -174,7 +174,7 @@ public class DefaultEventController extends EventController {
     public Long getEventCount(EventFilter filter) throws ControllerException {
         return SqlConfig.getSqlSessionManager().selectOne("Event.searchEventsCount", getParameters(filter, null, null));
     }
-    
+
     @Override
     public void removeAllEvents() throws ControllerException {
         logger.debug("removing all events");
@@ -189,7 +189,7 @@ public class DefaultEventController extends EventController {
             throw new ControllerException("Error removing all events.", e);
         }
     }
-    
+
     private Map<String, Object> getParameters(EventFilter filter, Integer offset, Integer limit) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("maxEventId", filter.getMaxEventId());
@@ -244,12 +244,12 @@ public class DefaultEventController extends EventController {
             while (!events.isEmpty()) {
                 for (ServerEvent event : events) {
                     writer.write(event.toExportString());
-                    
+
                     if (event.getId() <= maxEventId) {
                         maxEventId = event.getId() - 1;
                     }
                 }
-                
+
                 filter.setMaxEventId(maxEventId);
                 events = getEvents(filter, null, interval);
             }
@@ -266,7 +266,7 @@ public class DefaultEventController extends EventController {
 
         return exportFile.getAbsolutePath();
     }
-    
+
     public String exportAndRemoveAllEvents() throws ControllerException {
         try {
             String exportFilePath = exportAllEvents();

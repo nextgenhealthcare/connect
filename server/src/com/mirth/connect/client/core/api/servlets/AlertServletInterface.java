@@ -9,6 +9,10 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,10 +38,6 @@ import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.alert.AlertInfo;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @Path("/alerts")
 @Api("Alerts")

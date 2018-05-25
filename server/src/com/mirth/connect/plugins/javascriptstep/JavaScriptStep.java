@@ -58,7 +58,7 @@ public class JavaScriptStep extends Step {
     public Collection<String> getResponseVariables() {
         return JavaScriptSharedUtil.getResponseVariables(getScript(false));
     }
-    
+
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();

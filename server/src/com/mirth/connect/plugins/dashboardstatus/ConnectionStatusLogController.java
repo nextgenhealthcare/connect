@@ -14,8 +14,8 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.server.ExtensionLoader;
 
 public abstract class ConnectionStatusLogController {
-	
-	private static ConnectionStatusLogController instance = null;
+
+    private static ConnectionStatusLogController instance = null;
 
     public static ConnectionStatusLogController getInstance() {
         synchronized (DefaultConnectionLogController.class) {
@@ -30,12 +30,15 @@ public abstract class ConnectionStatusLogController {
             return instance;
         }
     }
-    
+
     public abstract void processEvent(Event event);
+
     public abstract LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId, int fetchSize, Long lastLogId);
+
     public abstract Map<String, Object[]> getConnectorStateMap(String serverId);
+
     public abstract Map<String, Map<String, List<ConnectionStateItem>>> getConnectionStatesForServer(String serverId);
-    
+
     public Set<EventType> getEventTypes() {
         Set<EventType> EventTypes = new HashSet<EventType>();
 
@@ -43,7 +46,7 @@ public abstract class ConnectionStatusLogController {
 
         return EventTypes;
     }
-    
+
     public Connector getConnectorFromMetaDataId(List<Connector> connectors, int metaDataId) {
         for (Connector connector : connectors) {
             if (connector.getMetaDataId() == metaDataId) {
@@ -53,7 +56,7 @@ public abstract class ConnectionStatusLogController {
 
         return null;
     }
-    
+
     public Color getColor(ConnectionStatusEventType type) {
         switch (type) {
             case IDLE:

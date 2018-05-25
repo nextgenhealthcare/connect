@@ -9,6 +9,10 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,10 +34,6 @@ import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.model.ChannelStatistics;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @Path("/channels")
 @Api("Channel Statistics")

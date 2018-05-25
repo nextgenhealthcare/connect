@@ -20,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.common.base.Strings;
 
 public class StringUtil {
-    
+
     private static final Pattern pattern = Pattern.compile("xmlns:?[^=]*=[\\\"\\\"][^\\\"\\\"]*[\\\"\\\"]");
 
     public static String convertLineBreaks(String text, String replacement) {
@@ -74,7 +74,7 @@ public class StringUtil {
     public static String stripNamespaces(String string) {
         return pattern.matcher(string).replaceAll("");
     }
-    
+
     // Four ways to specify character values and string values
     // 1. Literal
     // 2. Quoted literal (turns off escape processing except for standard escape sequences)
@@ -121,7 +121,7 @@ public class StringUtil {
 
         return s;
     }
-    
+
     /**
      * A glorified version of String.valueOf that calls Arrays.toString for arrays (and arrays
      * within maps).
@@ -157,9 +157,10 @@ public class StringUtil {
 
         return String.valueOf(object);
     }
-    
+
     /**
      * A version of equals that treats null and "" as the same value
+     * 
      * @param str1
      * @param str2
      * @return

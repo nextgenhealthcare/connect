@@ -17,10 +17,9 @@ public class CharsetUtils {
     public static final String DEFAULT_ENCODING = "DEFAULT_ENCODING";
 
     /**
-     * If the specified charset encoding equals DEFAULT_ENCODING or is
-     * NULL/empty, then the specified default encoding will be returned. If the
-     * specified default encoding is also NULL/empty then the default charset on
-     * the server is returned.
+     * If the specified charset encoding equals DEFAULT_ENCODING or is NULL/empty, then the
+     * specified default encoding will be returned. If the specified default encoding is also
+     * NULL/empty then the default charset on the server is returned.
      * 
      * @param charsetEncoding
      * @param defaultEncoding

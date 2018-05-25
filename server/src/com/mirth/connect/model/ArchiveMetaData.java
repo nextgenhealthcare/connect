@@ -17,42 +17,39 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("archiveMetaData")
 public class ArchiveMetaData implements Serializable {
-	public enum Type {
-		PLUGIN, CONNECTOR
-	};
+    public enum Type {
+        PLUGIN, CONNECTOR
+    };
 
+    private Type type;
 
-	private Type type;
-	
-	public Type getType() {
-		return this.type;
-	}
+    public Type getType() {
+        return this.type;
+    }
 
-	public void setType(Type type) {
-		this.type = type;
-	}
-	
+    public void setType(Type type) {
+        this.type = type;
+    }
 
-	public boolean equals(Object that) {
-		if (this == that) {
-			return true;
-		}
+    public boolean equals(Object that) {
+        if (this == that) {
+            return true;
+        }
 
-		if (!(that instanceof ArchiveMetaData)) {
-			return false;
-		}
+        if (!(that instanceof ArchiveMetaData)) {
+            return false;
+        }
 
-		ArchiveMetaData transport = (ArchiveMetaData) that;
+        ArchiveMetaData transport = (ArchiveMetaData) that;
 
-		return
-		    ObjectUtils.equals(this.getType(), transport.getType());
-	}
+        return ObjectUtils.equals(this.getType(), transport.getType());
+    }
 
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getName() + "[");
-		builder.append("type=" + getType().toString() + ", ");
-		builder.append("]");
-		return builder.toString();
-	}
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.getClass().getName() + "[");
+        builder.append("type=" + getType().toString() + ", ");
+        builder.append("]");
+        return builder.toString();
+    }
 }

@@ -10,6 +10,7 @@
 package com.mirth.connect.server.mbeans;
 
 public interface MirthServiceMBean {
-   public void start();
-   public void stop();
+    public void start();
+
+    public void stop();
 }

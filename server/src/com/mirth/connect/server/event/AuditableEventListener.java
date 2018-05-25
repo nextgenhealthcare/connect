@@ -46,7 +46,7 @@ public class AuditableEventListener extends EventListener {
             if (eventController == null) {
                 eventController = ControllerFactory.getFactory().createEventController();
             }
-            
+
             eventController.insertEvent(serverEvent);
         }
     }

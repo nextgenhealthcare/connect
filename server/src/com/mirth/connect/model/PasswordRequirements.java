@@ -113,7 +113,7 @@ public class PasswordRequirements implements Serializable {
     public void setLockoutPeriod(int lockoutPeriod) {
         this.lockoutPeriod = lockoutPeriod;
     }
-    
+
     public int getExpiration() {
         return expiration;
     }

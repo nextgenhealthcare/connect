@@ -45,6 +45,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -58,8 +60,6 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.InvalidResourceProperties;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.plugins.ResourceClientPlugin;
-
-import net.miginfocom.swing.MigLayout;
 
 public class SettingsPanelResources extends AbstractSettingsPanel implements ListSelectionListener {
 

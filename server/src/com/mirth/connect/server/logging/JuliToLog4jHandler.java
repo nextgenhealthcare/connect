@@ -54,7 +54,7 @@ public class JuliToLog4jHandler extends Handler {
         return message;
     }
 
-    private static org.apache.log4j.Level toLog4j(Level level) { 
+    private static org.apache.log4j.Level toLog4j(Level level) {
         if (Level.OFF == level) {
             return org.apache.log4j.Level.OFF;
         } else if (Level.SEVERE == level) {
@@ -74,10 +74,10 @@ public class JuliToLog4jHandler extends Handler {
         } else if (Level.ALL == level) {
             return org.apache.log4j.Level.ALL;
         }
-        
+
         return org.apache.log4j.Level.INFO;
     }
-    
+
     @Override
     public void flush() {
         // nothing to do

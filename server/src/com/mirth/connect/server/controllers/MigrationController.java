@@ -25,13 +25,14 @@ public abstract class MigrationController extends Controller {
     /**
      * Runs migration procedures when a version change is detected
      * 
-     * @throws MigrationException Thrown if an error occurred while attempting to migrate the database schema
+     * @throws MigrationException
+     *             Thrown if an error occurred while attempting to migrate the database schema
      */
     public abstract void migrate() throws MigrationException;
 
     public abstract void migrateSerializedData();
 
     public abstract void migrateExtensions();
-    
+
     public abstract void migrateConfiguration(PropertiesConfiguration configuration) throws MigrationException;
 }

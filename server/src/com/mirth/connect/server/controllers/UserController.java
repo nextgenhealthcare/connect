@@ -28,7 +28,7 @@ public abstract class UserController extends Controller {
      * 
      */
     public abstract void resetUserStatus();
-    
+
     /**
      * Returns a list of all users.
      * 
@@ -55,10 +55,10 @@ public abstract class UserController extends Controller {
      * @throws ControllerException
      */
     public abstract void updateUser(User user) throws ControllerException;
-    
+
     /**
-     * Checks the password against the configured password policies if a null
-     * user is passed in. If a user id is passed in their password is also updated.
+     * Checks the password against the configured password policies if a null user is passed in. If
+     * a user id is passed in their password is also updated.
      * 
      * @param userId
      * @param plainPassword
@@ -70,52 +70,67 @@ public abstract class UserController extends Controller {
     /**
      * Deletes the specified user.
      * 
-     * @param user the user to update
-     * @param currentUserId the ID of the user requesting this action
-     * @throws ControllerException if the specified user is <code>null</code> or is the current user
+     * @param user
+     *            the user to update
+     * @param currentUserId
+     *            the ID of the user requesting this action
+     * @throws ControllerException
+     *             if the specified user is <code>null</code> or is the current user
      */
     public abstract void removeUser(Integer userId, Integer currentUserId) throws ControllerException;
 
     /**
      * Authorizes the specified user.
      * 
-     * @param username the username to authorize
-     * @param plainPassword the user's password.
-     * @return <code>true</code> if the specified password matches the user's password, <code>false</code> otherwise
-     * @throws ControllerException if the user's password could not be retrieved or verified
+     * @param username
+     *            the username to authorize
+     * @param plainPassword
+     *            the user's password.
+     * @return <code>true</code> if the specified password matches the user's password,
+     *         <code>false</code> otherwise
+     * @throws ControllerException
+     *             if the user's password could not be retrieved or verified
      */
     public abstract LoginStatus authorizeUser(String username, String plainPassword) throws ControllerException;
-    
+
     /**
      * Checks a password against an encrypted password using the User encrypter.
+     * 
      * @param plainPassword
      * @param encryptedPassword
      * @return
      */
     public abstract boolean checkPassword(String plainPassword, String encryptedPassword);
-    
+
     /**
      * Sets the user's status to logged in.
      * 
-     * @param user the user to login
-     * @throws ControllerException if the user's status could not be updated
+     * @param user
+     *            the user to login
+     * @throws ControllerException
+     *             if the user's status could not be updated
      */
     public abstract void loginUser(User user) throws ControllerException;
 
     /**
      * Sets the user's status to logged out.
      * 
-     * @param user the user to logout
-     * @throws ControllerException if the user's status could not be updated
+     * @param user
+     *            the user to logout
+     * @throws ControllerException
+     *             if the user's status could not be updated
      */
     public abstract void logoutUser(User user) throws ControllerException;
 
     /**
      * Returns <code>true</code> if the user's status is set to logged in
      * 
-     * @param userId the user to check
-     * @return <code>true</code> if the user's status is set to logged in, <code>false</code> otherwise
-     * @throws ControllerException if the user's status could not be retrieved
+     * @param userId
+     *            the user to check
+     * @return <code>true</code> if the user's status is set to logged in, <code>false</code>
+     *         otherwise
+     * @throws ControllerException
+     *             if the user's status could not be retrieved
      */
     public abstract boolean isUserLoggedIn(Integer userId) throws ControllerException;
 
@@ -124,26 +139,32 @@ public abstract class UserController extends Controller {
     /**
      * Returns a user preference (name/value pair).
      * 
-     * @param user the user for whom to retrieve the preferences
+     * @param user
+     *            the user for whom to retrieve the preferences
      * @return a <code>Properties</code> that contains the name/value pairs of preferences
-     * @throws ControllerException if the preferences could not be retrieved
+     * @throws ControllerException
+     *             if the preferences could not be retrieved
      */
     public abstract String getUserPreference(Integer userId, String name) throws ControllerException;
-    
+
     public abstract Properties getUserPreferences(Integer userId, Set<String> names) throws ControllerException;
 
     /**
      * Sets a user preference. For example, the dashboard refresh interval.
      * 
-     * @param user the user for whom to set the preference
-     * @param name the name of the preference
-     * @param value the value of the preference
-     * @throws ControllerException if the preference could not be set
+     * @param user
+     *            the user for whom to set the preference
+     * @param name
+     *            the name of the preference
+     * @param value
+     *            the value of the preference
+     * @throws ControllerException
+     *             if the preference could not be set
      */
     public abstract void setUserPreference(Integer userId, String name, String value) throws ControllerException;
-    
+
     public abstract void setUserPreferences(Integer userId, Properties properties) throws ControllerException;
-    
+
     public abstract void removePreferencesForUser(int id);
 
     public abstract void removePreference(int id, String name);

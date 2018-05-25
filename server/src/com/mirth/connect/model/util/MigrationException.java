@@ -10,7 +10,8 @@
 package com.mirth.connect.model.util;
 
 /**
- * A schema migration exception occurs if the database schema could not be migrated to a newer version.
+ * A schema migration exception occurs if the database schema could not be migrated to a newer
+ * version.
  */
 public class MigrationException extends Exception {
     public MigrationException(String message) {

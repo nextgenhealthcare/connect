@@ -20,8 +20,7 @@ import com.mirth.connect.model.util.DefaultMetaData;
 
 public class JSONSerializer implements IMessageSerializer {
 
-    public JSONSerializer(SerializerProperties properties) {
-    }
+    public JSONSerializer(SerializerProperties properties) {}
 
     @Override
     public boolean isSerializationRequired(boolean toJson) {

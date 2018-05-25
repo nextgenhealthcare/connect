@@ -25,10 +25,8 @@ public abstract class AbstractSettings {
     public abstract void setProperties(Properties properties);
 
     /**
-     * Takes a String and returns a Boolean Object.
-     * "1" = true
-     * "0" = false
-     * null or not a number = null
+     * Takes a String and returns a Boolean Object. "1" = true "0" = false null or not a number =
+     * null
      * 
      * @param str
      * @return
@@ -38,10 +36,8 @@ public abstract class AbstractSettings {
     }
 
     /**
-     * Takes a String and returns a Boolean Object.
-     * "1" = true
-     * "0" = false
-     * null or not a number = defaultValue
+     * Takes a String and returns a Boolean Object. "1" = true "0" = false null or not a number =
+     * defaultValue
      * 
      * @param str
      * @param defaultValue
@@ -63,9 +59,7 @@ public abstract class AbstractSettings {
     }
 
     /**
-     * Takes a String and returns an Integer Object.
-     * "1" = 1
-     * null or not a number = null
+     * Takes a String and returns an Integer Object. "1" = 1 null or not a number = null
      * 
      * @param str
      * @return
@@ -75,9 +69,7 @@ public abstract class AbstractSettings {
     }
 
     /**
-     * Takes a String and returns an Integer Object.
-     * "1" = 1
-     * null or not a number = defaultValue
+     * Takes a String and returns an Integer Object. "1" = 1 null or not a number = defaultValue
      * 
      * @param str
      * @param defaultValue
@@ -99,9 +91,7 @@ public abstract class AbstractSettings {
     }
 
     /**
-     * Takes a String and returns a Long Object.
-     * "1" = 1
-     * null or not a number = null
+     * Takes a String and returns a Long Object. "1" = 1 null or not a number = null
      * 
      * @param str
      * @return
@@ -111,9 +101,7 @@ public abstract class AbstractSettings {
     }
 
     /**
-     * Takes a String and returns a Long Object.
-     * "1" = 1
-     * null or not a number = defaultValue
+     * Takes a String and returns a Long Object. "1" = 1 null or not a number = defaultValue
      * 
      * @param str
      * @param defaultValue

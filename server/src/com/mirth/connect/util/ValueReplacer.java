@@ -82,26 +82,26 @@ public class ValueReplacer {
 
         return localMap;
     }
-    
+
     /**
-     * Replaces all keys and values in a map. Uses the default context along with the connector message and
-     * all available variable maps. The original map is not modified.
+     * Replaces all keys and values in a map. Uses the default context along with the connector
+     * message and all available variable maps. The original map is not modified.
      * 
      * @return A cloned HashMap with all the replaced values.
      */
     public Map<String, List<String>> replaceKeysAndValuesInMap(Map<String, List<String>> map, ConnectorMessage connectorMessage) {
         Map<String, List<String>> localMap = new HashMap<String, List<String>>();
-        
+
         for (Entry<String, List<String>> entry : map.entrySet()) {
             String key = replaceValues(entry.getKey(), connectorMessage);
-            
+
             List<String> list = new ArrayList<>(entry.getValue());
-            
+
             replaceValuesInList(list, connectorMessage);
-            
+
             localMap.put(key, list);
         }
-        
+
         return localMap;
     }
 

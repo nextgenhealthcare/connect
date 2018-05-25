@@ -21,15 +21,12 @@ import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.model.converters.Stopwatch;
 
 /**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Aug 6, 2007
- * Time: 2:00:06 PM
- * To change this template use File | Settings | File Templates.
+ * Created by IntelliJ IDEA. User: dans Date: Aug 6, 2007 Time: 2:00:06 PM To change this template
+ * use File | Settings | File Templates.
  */
 public class DICOMTests {
-	public static void main(String[] args) {
-		String testMessage = "";
+    public static void main(String[] args) {
+        String testMessage = "";
         ArrayList<String> testFiles = new ArrayList<String>();
         testFiles.add("C:\\abdominal.dcm");
         //testFiles.add("C:\\abdominal.dcm");
@@ -39,7 +36,7 @@ public class DICOMTests {
 
         //ImageJ ij = new ImageJ(null,ImageJ.EMBEDDED);
         //ImageJ.main(a);
-        
+
 //        Client client = new Client("https://localhost:8443");
 //        Attachment a = new Attachment();
 //        a.setAttachmentId("TEST1");
@@ -66,9 +63,7 @@ public class DICOMTests {
 //        catch(Exception e) {
 //            e.printStackTrace();
 //        }
-        
-        
-        
+
 //       Iterator iterator = testFiles.iterator();
 //        while(iterator.hasNext()){
 //            String fileName = (String) iterator.next();
@@ -98,24 +93,23 @@ public class DICOMTests {
 //        }
     }
 
-	private static long runTest(String testMessage) throws MessageSerializerException, SAXException, IOException {
-		Stopwatch stopwatch = new Stopwatch();
+    private static long runTest(String testMessage) throws MessageSerializerException, SAXException, IOException {
+        Stopwatch stopwatch = new Stopwatch();
 //		Properties properties = new Properties();
 //        properties.put("includePixelData","no");
 //        properties.put("isEncoded","no");       
         stopwatch.start();
-		DICOMSerializer serializer = new DICOMSerializer(null);
+        DICOMSerializer serializer = new DICOMSerializer(null);
 //        String xmloutput = serializer.toXML(testMessage);
         //Dcm2Xml dcm2xml = new Dcm2Xml();
-        File xmlOut = File.createTempFile("test","xml");
+        File xmlOut = File.createTempFile("test", "xml");
         File dcmInput = new File("c:\\US-PAL-8-10x-echo.dcm");
         try {
-      //      dcm2xml.convert(dcmInput,xmlOut);
-        }
-        catch(Exception e){
+            //      dcm2xml.convert(dcmInput,xmlOut);
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        File dcmOutput = File.createTempFile("test","dcm");
+        File dcmOutput = File.createTempFile("test", "dcm");
         String[] args = new String[4];
         args[0] = "-x";
         args[1] = xmlOut.getAbsolutePath();
@@ -125,18 +119,17 @@ public class DICOMTests {
         // TO XML again
         File input2 = new File("c:\\dcmOutput.dcm");
         try {
-   ///         dcm2xml.convert(input2,xmlOut);
-        }
-        catch(Exception e){
+            ///         dcm2xml.convert(input2,xmlOut);
+        } catch (Exception e) {
             e.printStackTrace();
-        }        
-        dcmOutput = File.createTempFile("test","dcm");
+        }
+        dcmOutput = File.createTempFile("test", "dcm");
         args = new String[4];
         args[0] = "-x";
         args[1] = xmlOut.getAbsolutePath();
         args[2] = "-o";
         args[3] = "c:\\dcmOutput2.dcm";
-    //    Xml2Dcm.main(args);        
+        //    Xml2Dcm.main(args);        
         //System.out.println(xmloutput);
 //		DocumentSerializer docser = new DocumentSerializer();
 //		docser.setPreserveSpace(true);
@@ -148,58 +141,59 @@ public class DICOMTests {
 //        String results2 = serializer.fromXML(xmloutput2);
         System.out.println("testing...");
         if (results.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
-			System.out.println("Test Successful!");
-		} else {
-			String original = testMessage.replaceAll("\\r\\n", "\r").trim();
-			String newm = results.replace('\n', '\r').trim();
-			for (int i = 0; i < original.length(); i++){
-				if (original.charAt(i) == newm.charAt(i)){
-					System.out.print(newm.charAt(i));
-				}else{
-					System.out.println("");
-					System.out.print("Saw: ");
-					System.out.println(newm.charAt(i));
-					System.out.print("Expected: ");
-					System.out.print(original.charAt(i));
-					break;
-				}
-			}
-			System.out.println("Test Failed!");
-		}
-		return stopwatch.toValue();
-	}
-	// Returns the contents of the file in a byte array.
-	private static byte[] getBytesFromFile(File file) throws IOException {
-		InputStream is = new FileInputStream(file);
+            System.out.println("Test Successful!");
+        } else {
+            String original = testMessage.replaceAll("\\r\\n", "\r").trim();
+            String newm = results.replace('\n', '\r').trim();
+            for (int i = 0; i < original.length(); i++) {
+                if (original.charAt(i) == newm.charAt(i)) {
+                    System.out.print(newm.charAt(i));
+                } else {
+                    System.out.println("");
+                    System.out.print("Saw: ");
+                    System.out.println(newm.charAt(i));
+                    System.out.print("Expected: ");
+                    System.out.print(original.charAt(i));
+                    break;
+                }
+            }
+            System.out.println("Test Failed!");
+        }
+        return stopwatch.toValue();
+    }
 
-		// Get the size of the file
-		long length = file.length();
+    // Returns the contents of the file in a byte array.
+    private static byte[] getBytesFromFile(File file) throws IOException {
+        InputStream is = new FileInputStream(file);
 
-		// You cannot create an array using a long type.
-		// It needs to be an int type.
-		// Before converting to an int type, check
-		// to ensure that file is not larger than Integer.MAX_VALUE.
-		if (length > Integer.MAX_VALUE) {
-			// File is too large
-		}
+        // Get the size of the file
+        long length = file.length();
 
-		// Create the byte array to hold the data
-		byte[] bytes = new byte[(int) length];
+        // You cannot create an array using a long type.
+        // It needs to be an int type.
+        // Before converting to an int type, check
+        // to ensure that file is not larger than Integer.MAX_VALUE.
+        if (length > Integer.MAX_VALUE) {
+            // File is too large
+        }
 
-		// Read in the bytes
-		int offset = 0;
-		int numRead = 0;
-		while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
-			offset += numRead;
-		}
+        // Create the byte array to hold the data
+        byte[] bytes = new byte[(int) length];
 
-		// Ensure all the bytes have been read in
-		if (offset < bytes.length) {
-			throw new IOException("Could not completely read file " + file.getName());
-		}
+        // Read in the bytes
+        int offset = 0;
+        int numRead = 0;
+        while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+            offset += numRead;
+        }
 
-		// Close the input stream and return bytes
-		is.close();
-		return bytes;
-	}
+        // Ensure all the bytes have been read in
+        if (offset < bytes.length) {
+            throw new IOException("Could not completely read file " + file.getName());
+        }
+
+        // Close the input stream and return bytes
+        is.close();
+        return bytes;
+    }
 }

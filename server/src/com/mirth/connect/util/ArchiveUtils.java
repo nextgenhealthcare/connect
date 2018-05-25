@@ -189,7 +189,7 @@ public class ArchiveUtils {
             }
         }
     }
-    
+
     /**
      * Extracts folders/files from an archive into the destinationFolder. Supports reading any type
      * of archive file supported by Apache's commons-compress.

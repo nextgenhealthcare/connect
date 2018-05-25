@@ -502,10 +502,10 @@ public class TcpReceiver extends SourceConnector {
             finishDispatch(dispatchResult);
         }
     }
-    
+
     @Override
     protected String getConfigurationClass() {
-    	return configurationController.getProperty(connectorProperties.getProtocol(), "tcpConfigurationClass");
+        return configurationController.getProperty(connectorProperties.getProtocol(), "tcpConfigurationClass");
     }
 
     protected class TcpReader implements Callable<Throwable>, BatchMessageReceiver {

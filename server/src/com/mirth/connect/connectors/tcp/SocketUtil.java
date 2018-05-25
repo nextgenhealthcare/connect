@@ -58,7 +58,7 @@ public class SocketUtil {
 
         return socket;
     }
-    
+
     public static Socket createResponseSocket(TcpConfiguration configuration) throws UnknownHostException, IOException {
         return configuration.createResponseSocket();
     }

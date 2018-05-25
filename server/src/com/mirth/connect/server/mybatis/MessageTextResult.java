@@ -9,7 +9,6 @@
 
 package com.mirth.connect.server.mybatis;
 
-
 public class MessageTextResult {
     private Long messageId;
     private Integer metaDataId;

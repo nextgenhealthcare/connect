@@ -19,7 +19,7 @@ public class TestPreProcessor implements PreProcessor {
         if (message != null && message.getRaw() != null) {
             return message.getRaw().getContent();
         }
-        
+
         return null;
     }
 

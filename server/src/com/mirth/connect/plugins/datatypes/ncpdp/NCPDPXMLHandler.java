@@ -69,12 +69,12 @@ public class NCPDPXMLHandler extends DefaultHandler {
                     currentLocation = Location.GROUP;
                 } else {
                     currentLocation = Location.SEGMENT;
-                    
+
                     if (!inTransactionHeader) {
                         output.append(segmentDelimeter);
                         output.append(fieldDelimeter);
                         output.append(reference.getSegmentIdByName(name, version));
-                        
+
                         if (atts != null && atts.getLength() > 0) {
                             for (int i = 0; i < atts.getLength(); i++) {
                                 output.append(fieldDelimeter);
@@ -91,7 +91,7 @@ public class NCPDPXMLHandler extends DefaultHandler {
                 output.append(segmentDelimeter);
                 output.append(fieldDelimeter);
                 output.append(reference.getSegmentIdByName(name, version));
-                
+
                 if (atts != null && atts.getLength() > 0) {
                     for (int i = 0; i < atts.getLength(); i++) {
                         output.append(fieldDelimeter);
@@ -101,13 +101,13 @@ public class NCPDPXMLHandler extends DefaultHandler {
                         output.append(value);
                     }
                 }
-                
+
                 inGroup = true;
                 currentLocation = Location.SEGMENT;
             } else if (currentLocation.equals(Location.SEGMENT)) {
                 // dont output tag names or delimitors when in trans header
                 currentLocation = Location.FIELD;
-                
+
                 if (!inTransactionHeader) {
                     output.append(fieldDelimeter);
                     if (isCounterOrCountField(name)) {
@@ -116,7 +116,7 @@ public class NCPDPXMLHandler extends DefaultHandler {
                         currentLocation = Location.SEGMENT;
                     } else {
                         output.append(reference.getCodeByName(name, version));
-                        
+
                         if (atts != null && atts.getLength() > 0) {
                             for (int i = 0; i < atts.getLength(); i++) {
                                 output.append(fieldDelimeter);

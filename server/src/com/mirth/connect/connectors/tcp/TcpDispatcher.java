@@ -348,10 +348,10 @@ public class TcpDispatcher extends DestinationConnector {
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
     }
-    
+
     @Override
     protected String getConfigurationClass() {
-    	return configurationController.getProperty(connectorProperties.getProtocol(), "tcpConfigurationClass");
+        return configurationController.getProperty(connectorProperties.getProtocol(), "tcpConfigurationClass");
     }
 
     private void closeSocketQuietly(String socketKey) {

@@ -231,7 +231,7 @@ public class ListBuilder implements List {
     public List subList(int fromIndex, int toIndex) {
         return delegate.subList(fromIndex, toIndex);
     }
-    
+
     /**
      * {@inheritDoc}
      */

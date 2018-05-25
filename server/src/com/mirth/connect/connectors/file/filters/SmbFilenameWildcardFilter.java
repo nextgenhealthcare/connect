@@ -36,8 +36,8 @@ public class SmbFilenameWildcardFilter implements SmbFilenameFilter {
     /**
      * UMOFilter condition decider method.
      * <p/>
-     * Returns <code>boolean</code> <code>TRUE</code> if the file conforms to an
-     * acceptable pattern or <code>FALSE</code> otherwise.
+     * Returns <code>boolean</code> <code>TRUE</code> if the file conforms to an acceptable pattern
+     * or <code>FALSE</code> otherwise.
      * 
      * @param dir
      *            The directory to apply the filter to.

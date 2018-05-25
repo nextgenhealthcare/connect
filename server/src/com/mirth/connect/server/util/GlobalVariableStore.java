@@ -60,7 +60,7 @@ public class GlobalVariableStore {
     public synchronized void clear() {
         globalVariableMap.clear();
     }
-    
+
     @Override
     public String toString() {
         return globalVariableMap.toString();

@@ -92,8 +92,8 @@ public class MirthXmlUtil {
                 Writer writer = new StringWriter();
 
                 /*
-                 * Due to a problem with the indentation algorithm of Xalan, we
-                 * need to normalize the spaces first.
+                 * Due to a problem with the indentation algorithm of Xalan, we need to normalize
+                 * the spaces first.
                  */
 
                 // First, pre-process the xml to normalize the spaces

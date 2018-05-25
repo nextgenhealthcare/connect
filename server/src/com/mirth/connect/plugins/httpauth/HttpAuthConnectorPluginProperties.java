@@ -20,8 +20,8 @@ public abstract class HttpAuthConnectorPluginProperties extends ConnectorPluginP
 
     public enum AuthType {
         NONE("None"), BASIC("Basic Authentication"), DIGEST("Digest Authentication"), JAVASCRIPT(
-                "JavaScript"), CUSTOM("Custom Java Class"), OAUTH2_VERIFICATION(
-                "OAuth 2.0 Token Verification");
+                "JavaScript"), CUSTOM(
+                        "Custom Java Class"), OAUTH2_VERIFICATION("OAuth 2.0 Token Verification");
 
         private String value;
 

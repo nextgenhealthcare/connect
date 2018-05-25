@@ -30,7 +30,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class DefaultScriptController extends ScriptController {
     private static final String VACUUM_LOCK_SCRIPT_STATEMENT_ID = "Script.vacuumScriptTable";
-    
+
     private Logger logger = Logger.getLogger(this.getClass());
     private static ScriptController instance = null;
 
@@ -117,7 +117,7 @@ public class DefaultScriptController extends ScriptController {
         StatementLock.getInstance(VACUUM_LOCK_SCRIPT_STATEMENT_ID).writeLock();
         try {
             SqlConfig.getSqlSessionManager().delete("Script.deleteScript", parameterMap);
-            
+
             if (DatabaseUtil.statementExists("Script.vacuumScriptTable")) {
                 vacuumScriptTable();
             }
@@ -127,7 +127,7 @@ public class DefaultScriptController extends ScriptController {
             StatementLock.getInstance(VACUUM_LOCK_SCRIPT_STATEMENT_ID).writeUnlock();
         }
     }
-    
+
     /**
      * When calling this method, a StatementLock writeLock should surround it
      */
@@ -241,7 +241,7 @@ public class DefaultScriptController extends ScriptController {
             throw new ControllerException(e);
         }
     }
-    
+
     protected void putGlobalScriptsToDB(Map<String, String> scripts) throws ControllerException {
         for (Entry<String, String> entry : scripts.entrySet()) {
             putScript(GLOBAL_GROUP_ID, entry.getKey().toString(), scripts.get(entry.getKey()));

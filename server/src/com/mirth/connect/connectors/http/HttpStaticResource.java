@@ -49,7 +49,7 @@ public class HttpStaticResource implements Serializable {
     private String value;
     private String contentType;
     private Map<String, List<String>> queryParameters;
-    
+
     public HttpStaticResource(String contextPath, ResourceType resourceType, String value, String contentType) {
         this(contextPath, resourceType, value, contentType, null);
     }

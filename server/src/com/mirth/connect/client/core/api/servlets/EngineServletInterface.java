@@ -9,6 +9,10 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -25,10 +29,6 @@ import com.mirth.connect.client.core.Permissions;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @Path("/channels")
 @Api("Channel Deployment Operations")

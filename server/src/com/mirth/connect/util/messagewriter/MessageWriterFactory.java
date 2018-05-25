@@ -23,7 +23,7 @@ import com.mirth.connect.util.FilenameUtils;
 
 public class MessageWriterFactory {
     public final static String ARCHIVE_DATE_PATTERN = "yyyy-MM-dd-HH-mm-ss";
-    
+
     private static MessageWriterFactory instance;
 
     public static MessageWriterFactory getInstance() {
@@ -52,11 +52,11 @@ public class MessageWriterFactory {
         if (options.getArchiveFormat() == null) {
             return fileWriter;
         }
-        
+
         if (options.getArchiveFileName() == null) {
             options.setArchiveFileName(new SimpleDateFormat(ARCHIVE_DATE_PATTERN).format(Calendar.getInstance().getTime()));
         }
-        
+
         /*
          * If we are writing to an archive, make the vfsWriter write to a temporary folder that will
          * be removed once the archive file has been created

@@ -10,7 +10,7 @@
 package com.mirth.connect.client.core;
 
 public class VersionMismatchException extends ClientException {
-	public VersionMismatchException(String message) {
-		super(message);
-	}
+    public VersionMismatchException(String message) {
+        super(message);
+    }
 }

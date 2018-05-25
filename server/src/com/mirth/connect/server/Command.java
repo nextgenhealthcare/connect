@@ -10,8 +10,8 @@
 package com.mirth.connect.server;
 
 /**
- * A command for the Mirth service. Consists of a command, a parameter, and a
- * priority. Default priority of a command is normal.
+ * A command for the Mirth service. Consists of a command, a parameter, and a priority. Default
+ * priority of a command is normal.
  * 
  */
 public class Command implements Comparable<Command> {

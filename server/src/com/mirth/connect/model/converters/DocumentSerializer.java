@@ -32,15 +32,15 @@ public class DocumentSerializer {
     public DocumentSerializer() {
         this(null, false);
     }
-    
+
     public DocumentSerializer(boolean omitXmlDeclaration) {
         this(null, omitXmlDeclaration);
     }
-    
+
     public DocumentSerializer(String[] cDataElements) {
         this(cDataElements, false);
     }
-    
+
     public DocumentSerializer(String[] cDataElements, boolean omitXmlDeclaration) {
         this.cDataElements = cDataElements;
         this.omitXmlDeclaration = omitXmlDeclaration;
@@ -49,7 +49,7 @@ public class DocumentSerializer {
     public void toXML(Document source, Writer writer) {
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
-            
+
             // When Saxon-B is on the classpath setting this attribute throws an
             // IllegalArgumentException.
             try {
@@ -58,13 +58,13 @@ public class DocumentSerializer {
                 logger.warn("Could not set Document Serializer attribute: indent-number", ex);
             }
             Transformer transformer = factory.newTransformer();
-            
+
             if (omitXmlDeclaration) {
                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             } else {
                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
             }
-            
+
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 
@@ -96,7 +96,7 @@ public class DocumentSerializer {
             logger.error(e.getMessage());
         }
     }
-    
+
     public String toXML(Document source) {
         Writer writer = new StringWriter();
         toXML(source, writer);

@@ -15,8 +15,8 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 /*
- * The purpose of this class is to extract the data from an XML/HL7 message
- * without parsing the entire message
+ * The purpose of this class is to extract the data from an XML/HL7 message without parsing the
+ * entire message
  */
 
 public class HL7v2XMLQuickParser {
@@ -114,9 +114,9 @@ public class HL7v2XMLQuickParser {
     }
 
     /*
-     * This method gets the content of an XML element. For example, with MSH
-     * searches for <MSH>(...)</MSH>, first check for
-     * <[...:]MSH>(...)</[...:]MSH> Then for <[...:]MSH (...)>(...)</[...:]MSH>
+     * This method gets the content of an XML element. For example, with MSH searches for
+     * <MSH>(...)</MSH>, first check for <[...:]MSH>(...)</[...:]MSH> Then for <[...:]MSH
+     * (...)>(...)</[...:]MSH>
      */
     private String getElementContent(String xmlInput, String elementName, Pattern precompiledPattern) {
         String msgHeader = "";

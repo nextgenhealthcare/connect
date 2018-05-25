@@ -22,6 +22,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
@@ -39,8 +41,6 @@ import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
-
-import net.miginfocom.swing.MigLayout;
 
 public class FileWriter extends ConnectorSettingsPanel {
 

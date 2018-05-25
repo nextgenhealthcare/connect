@@ -26,7 +26,7 @@ public class DefaultAcceptMessage extends AcceptMessage {
         if (response != null) {
             return response;
         }
-        
+
         return null;
     }
 

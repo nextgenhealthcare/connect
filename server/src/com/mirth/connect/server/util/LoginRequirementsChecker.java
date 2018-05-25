@@ -35,7 +35,7 @@ public class LoginRequirementsChecker {
     }
 
     // --- Login Strikes --- //
-    
+
     public int getStrikeCount() {
         synchronized (userLoginStrikes) {
             return (userLoginStrikes.get(username) == null) ? 0 : userLoginStrikes.get(username).getLastStrikeCount();
@@ -108,38 +108,38 @@ public class LoginRequirementsChecker {
 
         return periodFormatter.print(period);
     }
-    
+
     public String getPrintableLockoutPeriod() {
         return PeriodFormat.getDefault().print(Period.hours(passwordRequirements.getLockoutPeriod()));
     }
-    
+
     // --- Login Expiration --- //
-    
+
     public boolean isPasswordExpired(long passwordTime, long currentTime) {
         return (getDurationRemainingFromDays(passwordTime, currentTime, passwordRequirements.getExpiration()).getMillis() < 0);
     }
-    
+
     public long getGraceTimeRemaining(long gracePeriodStartTime, long currentTime) {
         return getDurationRemainingFromDays(gracePeriodStartTime, currentTime, passwordRequirements.getGracePeriod()).getMillis();
     }
-    
+
     public String getPrintableGraceTimeRemaining(long graceTimeRemaining) {
         Period period = new Period(graceTimeRemaining);
-        
+
         PeriodFormatter periodFormatter;
         if (period.toStandardHours().getHours() > 0) {
             periodFormatter = new PeriodFormatterBuilder().printZeroRarelyFirst().appendDays().appendSuffix(" day", " days").appendSeparator(" and ").printZeroAlways().appendHours().appendSuffix(" hour", " hours").toFormatter();
         } else {
             periodFormatter = new PeriodFormatterBuilder().printZeroNever().appendMinutes().appendSuffix(" minute", " minutes").appendSeparator(" and ").printZeroAlways().appendSeconds().appendSuffix(" second", " seconds").toFormatter();
         }
-        
+
         return periodFormatter.print(period);
     }
-    
+
     private Duration getDurationRemainingFromDays(long passwordTime, long currentTime, int durationDays) {
         Duration expirationDuration = Duration.standardDays(durationDays);
         Duration passwordDuration = new Duration(passwordTime, currentTime);
-        
+
         return expirationDuration.minus(passwordDuration);
     }
 

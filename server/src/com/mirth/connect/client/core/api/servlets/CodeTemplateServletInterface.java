@@ -9,6 +9,10 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,10 +40,6 @@ import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
 import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @Path("/")
 @Api("Code Templates")

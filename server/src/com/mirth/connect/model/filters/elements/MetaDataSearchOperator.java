@@ -12,50 +12,46 @@ package com.mirth.connect.model.filters.elements;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 
 public enum MetaDataSearchOperator {
-    EQUAL("="),
-    NOT_EQUAL("!="),
-    LESS_THAN("<"),
-    LESS_THAN_OR_EQUAL("<="),
-    GREATER_THAN(">"),
-    GREATER_THAN_OR_EQUAL(">="),
-    CONTAINS("CONTAINS"),
-    DOES_NOT_CONTAIN("DOES NOT CONTAIN"),
-    STARTS_WITH("STARTS WITH"),
-    DOES_NOT_START_WITH("DOES NOT START WITH"),
-    ENDS_WITH("ENDS WITH"),
-    DOES_NOT_END_WITH("DOES NOT END WITH");
-    
+    EQUAL("="), NOT_EQUAL("!="), LESS_THAN("<"), LESS_THAN_OR_EQUAL("<="), GREATER_THAN(
+            ">"), GREATER_THAN_OR_EQUAL(">="), CONTAINS(
+                    "CONTAINS"), DOES_NOT_CONTAIN("DOES NOT CONTAIN"), STARTS_WITH(
+                            "STARTS WITH"), DOES_NOT_START_WITH("DOES NOT START WITH"), ENDS_WITH(
+                                    "ENDS WITH"), DOES_NOT_END_WITH("DOES NOT END WITH");
+
     private String operator;
 
     private MetaDataSearchOperator(String operator) {
         this.operator = operator;
     }
-    
+
     public String toString() {
         return operator;
     }
-    
+
     public String toFullString() {
         return super.toString();
     }
-    
+
     public static MetaDataSearchOperator[] valuesForColumnType(MetaDataColumnType type) {
         if (type == MetaDataColumnType.BOOLEAN) {
-            return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL};
+            return new MetaDataSearchOperator[] { EQUAL, NOT_EQUAL };
         }
         if (type == MetaDataColumnType.NUMBER) {
-            return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL};
+            return new MetaDataSearchOperator[] { EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL,
+                    GREATER_THAN, GREATER_THAN_OR_EQUAL };
         }
         if (type == MetaDataColumnType.STRING) {
-            return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, CONTAINS, DOES_NOT_CONTAIN, STARTS_WITH, DOES_NOT_START_WITH, ENDS_WITH, DOES_NOT_END_WITH};
+            return new MetaDataSearchOperator[] { EQUAL, NOT_EQUAL, CONTAINS, DOES_NOT_CONTAIN,
+                    STARTS_WITH, DOES_NOT_START_WITH, ENDS_WITH, DOES_NOT_END_WITH };
         }
         if (type == MetaDataColumnType.TIMESTAMP) {
-            return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL};
+            return new MetaDataSearchOperator[] { EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL,
+                    GREATER_THAN, GREATER_THAN_OR_EQUAL };
         }
 
         return null;
     }
-    
+
     public static MetaDataSearchOperator fromString(String type) {
         if (type.equals("EQUAL")) {
             return EQUAL;
@@ -71,7 +67,7 @@ public enum MetaDataSearchOperator {
             return GREATER_THAN_OR_EQUAL;
         } else if (type.equals("CONTAINS")) {
             return CONTAINS;
-        }else if (type.equals("DOES_NOT_CONTAIN")) {
+        } else if (type.equals("DOES_NOT_CONTAIN")) {
             return DOES_NOT_CONTAIN;
         } else if (type.equals("STARTS_WITH")) {
             return STARTS_WITH;
@@ -79,7 +75,7 @@ public enum MetaDataSearchOperator {
             return DOES_NOT_START_WITH;
         } else if (type.equals("ENDS_WITH")) {
             return ENDS_WITH;
-        }  else if (type.equals("DOES_NOT_END_WITH")) {
+        } else if (type.equals("DOES_NOT_END_WITH")) {
             return DOES_NOT_END_WITH;
         }
 

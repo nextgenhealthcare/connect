@@ -25,14 +25,14 @@ import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.mirth.connect.client.ui.tag.ChannelTagLabelCache;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
-
-import net.miginfocom.swing.MigLayout;
 
 public class TagTreeCellRenderer extends JPanel implements TreeCellRenderer {
     private static final int GAP = 4;

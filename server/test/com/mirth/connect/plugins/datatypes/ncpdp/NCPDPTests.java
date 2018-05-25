@@ -26,8 +26,8 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.Stopwatch;
 
 public class NCPDPTests {
-	public static void main(String[] args) throws Exception {
-		String testMessage = "";
+    public static void main(String[] args) throws Exception {
+        String testMessage = "";
         ArrayList<String> testFiles = new ArrayList<String>();
         testFiles.add("C:\\NCPDP_51_B1_Request.txt");
         testFiles.add("C:\\NCPDP_51_B1_Request_v2.txt");
@@ -86,15 +86,15 @@ public class NCPDPTests {
         testFiles.add("C:\\NCPDP_51_CALPOS_16.txt");
         testFiles.add("C:\\NCPDP_51_CALPOS_17.txt");
 
-        for (String testFile : testFiles){
+        for (String testFile : testFiles) {
             testMessage = new String(FileUtils.readFileToByteArray(new File(testFile)));
             System.out.println("Processing test file:" + testFile);
-            
+
             try {
                 long totalExecutionTime = 0;
                 int iterations = 1;
                 for (int i = 0; i < iterations; i++) {
-                    totalExecutionTime+=runTest(testMessage);
+                    totalExecutionTime += runTest(testMessage);
                 }
 
                 //System.out.println("Execution time average: " + totalExecutionTime/iterations + " ms");
@@ -108,55 +108,55 @@ public class NCPDPTests {
         }
     }
 
-	private static long runTest(String testMessage) throws MessageSerializerException, SAXException, IOException {
-		Stopwatch stopwatch = new Stopwatch();
+    private static long runTest(String testMessage) throws MessageSerializerException, SAXException, IOException {
+        Stopwatch stopwatch = new Stopwatch();
 //		Properties properties = new Properties();
         String SchemaUrl = "/ncpdp51.xsd";
 //        properties.put("useStrictParser", "true");
 //        properties.put("http://java.sun.com/xml/jaxp/properties/schemaSource",SchemaUrl);
         stopwatch.start();
-		NCPDPSerializer serializer = new NCPDPSerializer(null);
-		String xmloutput = serializer.toXML(testMessage);
-		//System.out.println(xmloutput);
-		DocumentSerializer docser = new DocumentSerializer();
-		Document doc = docser.fromXML(xmloutput);
-		XMLReader xr = XMLReaderFactory.createXMLReader();
+        NCPDPSerializer serializer = new NCPDPSerializer(null);
+        String xmloutput = serializer.toXML(testMessage);
+        //System.out.println(xmloutput);
+        DocumentSerializer docser = new DocumentSerializer();
+        Document doc = docser.fromXML(xmloutput);
+        XMLReader xr = XMLReaderFactory.createXMLReader();
 
-        NCPDPXMLHandler handler = new NCPDPXMLHandler("\u001E","\u001D","\u001C", "51");
+        NCPDPXMLHandler handler = new NCPDPXMLHandler("\u001E", "\u001D", "\u001C", "51");
 
         xr.setContentHandler(handler);
-		xr.setErrorHandler(handler);
+        xr.setErrorHandler(handler);
         xr.setFeature("http://xml.org/sax/features/validation", true);
         xr.setFeature("http://apache.org/xml/features/validation/schema", true);
-        xr.setFeature("http://apache.org/xml/features/validation/schema-full-checking",true);
-        xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage","http://www.w3.org/2001/XMLSchema");
-        xr.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation",SchemaUrl);
-        xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource","/ncpdp51.xsd");
+        xr.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
+        xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
+        xr.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", SchemaUrl);
+        xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "/ncpdp51.xsd");
         xr.parse(new InputSource(new StringReader(xmloutput)));
-		stopwatch.stop();
+        stopwatch.stop();
 
-		//System.out.println(docser.serialize(doc)); //handler.getOutput());
-		//System.out.println(handler.getOutput());
+        //System.out.println(docser.serialize(doc)); //handler.getOutput());
+        //System.out.println(handler.getOutput());
         //System.out.println(xmloutput);
         if (handler.getOutput().toString().replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
-			System.out.println("Test Successful!");
-		} else {
-			String original = testMessage.replaceAll("\\r\\n", "\r").trim();
-			String newm = handler.getOutput().toString().replace('\n', '\r').trim();
-			for (int i = 0; i < original.length(); i++){
-				if (original.charAt(i) == newm.charAt(i)){
-					System.out.print(newm.charAt(i));
-				}else{
-					System.out.println("");
-					System.out.print("Saw: ");
-					System.out.println(newm.charAt(i));
-					System.out.print("Expected: ");
-					System.out.print(original.charAt(i));
-					break;
-				}
-			}
-			System.out.println("Test Failed!");
-		}
-		return stopwatch.toValue();
-	}
+            System.out.println("Test Successful!");
+        } else {
+            String original = testMessage.replaceAll("\\r\\n", "\r").trim();
+            String newm = handler.getOutput().toString().replace('\n', '\r').trim();
+            for (int i = 0; i < original.length(); i++) {
+                if (original.charAt(i) == newm.charAt(i)) {
+                    System.out.print(newm.charAt(i));
+                } else {
+                    System.out.println("");
+                    System.out.print("Saw: ");
+                    System.out.println(newm.charAt(i));
+                    System.out.print("Expected: ");
+                    System.out.print(original.charAt(i));
+                    break;
+                }
+            }
+            System.out.println("Test Failed!");
+        }
+        return stopwatch.toValue();
+    }
 }

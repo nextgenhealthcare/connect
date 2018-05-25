@@ -25,7 +25,7 @@ import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class DefaultConnectionLogController extends ConnectionStatusLogController {
-	
+
     private Logger logger = Logger.getLogger(this.getClass());
 
     private static final int MAX_LOG_SIZE = 1000;
@@ -36,9 +36,8 @@ public class DefaultConnectionLogController extends ConnectionStatusLogControlle
     private Map<String, Integer> maxConnectionMap = new ConcurrentHashMap<String, Integer>();
     private Map<String, LinkedList<ConnectionLogItem>> connectorInfoLogs = new ConcurrentHashMap<>();
     private LinkedList<ConnectionLogItem> entireConnectorInfoLogs = new LinkedList<>();
-	
-	
-	@Override
+
+    @Override
     public void processEvent(Event event) {
 
         if (event instanceof ConnectionStatusEvent) {
@@ -84,9 +83,9 @@ public class DefaultConnectionLogController extends ConnectionStatusLogControlle
                 connectorCount = count.get();
 
                 if (connectorCount == 0) {
-                	eventType = ConnectionStatusEventType.IDLE;
+                    eventType = ConnectionStatusEventType.IDLE;
                 } else {
-                	eventType = ConnectionStatusEventType.CONNECTED;
+                    eventType = ConnectionStatusEventType.CONNECTED;
                 }
             }
 
@@ -136,9 +135,8 @@ public class DefaultConnectionLogController extends ConnectionStatusLogControlle
                     if (channelLog.size() == MAX_LOG_SIZE) {
                         channelLog.removeLast();
                     }
-                    
-                    ConnectionLogItem connectionLogItem = new ConnectionLogItem(logId, null, channelId, metaDataId.longValue(), dateFormat.format(timestamp), 
-                    		channelName, connectorType, ((ConnectionStatusEvent) event).getState().toString(), information);
+
+                    ConnectionLogItem connectionLogItem = new ConnectionLogItem(logId, null, channelId, metaDataId.longValue(), dateFormat.format(timestamp), channelName, connectorType, ((ConnectionStatusEvent) event).getState().toString(), information);
                     channelLog.addFirst(connectionLogItem);
 
                     if (entireConnectorInfoLogs.size() == MAX_LOG_SIZE) {
@@ -152,15 +150,15 @@ public class DefaultConnectionLogController extends ConnectionStatusLogControlle
                     connectorInfoLogs.put(channelId, channelLog);
                 }
             }
-            
+
             if (eventType.isState()) {
-            	connectorStateTypeMap.put(connectorId, eventType);
+                connectorStateTypeMap.put(connectorId, eventType);
             }
         }
     }
-	
-	@Override
-	public synchronized LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId, int fetchSize, Long lastLogId) {
+
+    @Override
+    public synchronized LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId, int fetchSize, Long lastLogId) {
         LinkedList<ConnectionLogItem> channelLog;
 
         if (channelId == null) {
@@ -168,7 +166,7 @@ public class DefaultConnectionLogController extends ConnectionStatusLogControlle
              * object is null - no channel is selected. return the latest entire log entries of all
              * channels combined. ONLY new entries.
              */
-        	channelId = "No Channel Selected";
+            channelId = "No Channel Selected";
             channelLog = entireConnectorInfoLogs;
         } else {
             // object is not null - a channel is selected. return the latest
@@ -183,73 +181,73 @@ public class DefaultConnectionLogController extends ConnectionStatusLogControlle
             }
         }
 
-		if (lastLogId != null) {
-			LinkedList<ConnectionLogItem> newChannelLogEntries = new LinkedList<>();
+        if (lastLogId != null) {
+            LinkedList<ConnectionLogItem> newChannelLogEntries = new LinkedList<>();
 
-			// FYI, channelLog.size() will never be larger than LOG_SIZE
-			// = 1000.
-			for (ConnectionLogItem aChannelLog : channelLog) {
-				if (lastLogId < aChannelLog.getLogId()) {
-					newChannelLogEntries.addLast(aChannelLog);
-				}
-			}
-			
-			try {
-				return SerializationUtils.clone(newChannelLogEntries);
-			} catch (SerializationException e) {
-				logger.error(e);
-			}
-		} else {
-			/*
-			 * new channel viewing on an already open client. -> all log entries
-			 * are new. display them all. put the lastDisplayedLogId into the
-			 * HashMap. index0 is the most recent entry, and index0 of that
-			 * entry object contains the logId.
-			 */
-			try {
-				return SerializationUtils.clone(channelLog);
-			} catch (SerializationException e) {
-				logger.error(e);
-			}
-		}
+            // FYI, channelLog.size() will never be larger than LOG_SIZE
+            // = 1000.
+            for (ConnectionLogItem aChannelLog : channelLog) {
+                if (lastLogId < aChannelLog.getLogId()) {
+                    newChannelLogEntries.addLast(aChannelLog);
+                }
+            }
+
+            try {
+                return SerializationUtils.clone(newChannelLogEntries);
+            } catch (SerializationException e) {
+                logger.error(e);
+            }
+        } else {
+            /*
+             * new channel viewing on an already open client. -> all log entries are new. display
+             * them all. put the lastDisplayedLogId into the HashMap. index0 is the most recent
+             * entry, and index0 of that entry object contains the logId.
+             */
+            try {
+                return SerializationUtils.clone(channelLog);
+            } catch (SerializationException e) {
+                logger.error(e);
+            }
+        }
 
         return null;
     }
-	
-	/**
-	 * Get connector states. Does not use serverId, but is provided for subclasses to use in Clustering.
-	 * 
-	 */
-	@Override
-	public Map<String, Object[]> getConnectorStateMap(String serverId) {
+
+    /**
+     * Get connector states. Does not use serverId, but is provided for subclasses to use in
+     * Clustering.
+     * 
+     */
+    @Override
+    public Map<String, Object[]> getConnectorStateMap(String serverId) {
         return new HashMap<String, Object[]>(connectorStateMap);
     }
 
-	@Override
-	public Map<String, Map<String, List<ConnectionStateItem>>> getConnectionStatesForServer(String serverId) {
-		// serverId is unused for default implementation, as it has no knowledge of clustering. It will use the server id for this server. The Clustering version of this interface will need serverId
-		String thisServerId = ConfigurationController.getInstance().getServerId();
-		Map<String, List<ConnectionStateItem>> buildMap = new HashMap<>();
-		// connectorId is ${channelId} + "_" + ${metadataId}
-		for(String connectorId : connectorStateMap.keySet()) {
-			String channelId = connectorId.substring(0, connectorId.lastIndexOf('_'));
-			String metadataId = connectorId.substring(connectorId.lastIndexOf('_')+1);
-			int connectorCount = connectorCountMap.get(connectorId).get();
-			ConnectionStateItem stateItem = new ConnectionStateItem(thisServerId, channelId, metadataId, connectorStateTypeMap.get(connectorId), connectorCount, maxConnectionMap.get(connectorId));
-			
-			if (buildMap.containsKey(channelId)) {
-				buildMap.get(channelId).add(stateItem);
-				
-			} else {
-				List<ConnectionStateItem> list = new ArrayList<ConnectionStateItem>();
-				list.add(stateItem);
-				buildMap.put(channelId, list);
-			}
-			
-		}
-		Map<String, Map<String, List<ConnectionStateItem>>> toReturn = new HashMap<>();
-		toReturn.put(thisServerId, buildMap);
-		return toReturn;
-	}
-	
+    @Override
+    public Map<String, Map<String, List<ConnectionStateItem>>> getConnectionStatesForServer(String serverId) {
+        // serverId is unused for default implementation, as it has no knowledge of clustering. It will use the server id for this server. The Clustering version of this interface will need serverId
+        String thisServerId = ConfigurationController.getInstance().getServerId();
+        Map<String, List<ConnectionStateItem>> buildMap = new HashMap<>();
+        // connectorId is ${channelId} + "_" + ${metadataId}
+        for (String connectorId : connectorStateMap.keySet()) {
+            String channelId = connectorId.substring(0, connectorId.lastIndexOf('_'));
+            String metadataId = connectorId.substring(connectorId.lastIndexOf('_') + 1);
+            int connectorCount = connectorCountMap.get(connectorId).get();
+            ConnectionStateItem stateItem = new ConnectionStateItem(thisServerId, channelId, metadataId, connectorStateTypeMap.get(connectorId), connectorCount, maxConnectionMap.get(connectorId));
+
+            if (buildMap.containsKey(channelId)) {
+                buildMap.get(channelId).add(stateItem);
+
+            } else {
+                List<ConnectionStateItem> list = new ArrayList<ConnectionStateItem>();
+                list.add(stateItem);
+                buildMap.put(channelId, list);
+            }
+
+        }
+        Map<String, Map<String, List<ConnectionStateItem>>> toReturn = new HashMap<>();
+        toReturn.put(thisServerId, buildMap);
+        return toReturn;
+    }
+
 }

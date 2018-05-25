@@ -21,20 +21,20 @@ public class Pre22PasswordChecker {
     private static final String SALT_PREFIX = "SALT_";
 
     /**
-     * The pre-2.2 password has been migrated to the following
-     * format:
+     * The pre-2.2 password has been migrated to the following format:
      * 
      * SALT_ + 8-bit salt + base64(sha(salt + password))
      * 
      * To compare:
      * 
-     * 1. Strip the known pre-2.2 prefix
-     * 2. Get the first 8-bits and Base64 decode it, this the salt
-     * 3. Get the remaining bits and Base64 decode it, this is the hash
-     * 4. Pass it into the pre-2.2 password checker algorithm
+     * 1. Strip the known pre-2.2 prefix 2. Get the first 8-bits and Base64 decode it, this the salt
+     * 3. Get the remaining bits and Base64 decode it, this is the hash 4. Pass it into the pre-2.2
+     * password checker algorithm
      * 
-     * @param plainPassword The plain text password to check against the hash
-     * @param encodedPassword The hashed password
+     * @param plainPassword
+     *            The plain text password to check against the hash
+     * @param encodedPassword
+     *            The hashed password
      * @return true if the password matches the hash using the pre-2.2 algorithm, false otherwise
      */
     public static boolean checkPassword(String plainPassword, String encodedPassword) throws Exception {
@@ -51,8 +51,7 @@ public class Pre22PasswordChecker {
     }
 
     /**
-     * Returns true if the provided hash was generated using the pre-2.2
-     * algorithm, false otherwise.
+     * Returns true if the provided hash was generated using the pre-2.2 algorithm, false otherwise.
      * 
      * @param hash
      * @return

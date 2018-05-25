@@ -92,7 +92,7 @@ public class CodeTemplateServlet extends MirthServlet implements CodeTemplateSer
             throw new MirthApiException(e);
         }
     }
-    
+
     @Override
     public List<CodeTemplate> getCodeTemplatesPost(Set<String> codeTemplateIds) {
         return getCodeTemplates(codeTemplateIds);

@@ -9,6 +9,10 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -45,10 +49,6 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @Path("/server")
 @Api("Server Configuration")

@@ -101,7 +101,7 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
         } catch (BatchMessageException e) {
             logger.error("Error processing batch message", e);
         }
-        
+
         containerRequestContext.setProperty(ResponseCodeFilter.RESPONSE_CODE_PROPERTY, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
         return null;

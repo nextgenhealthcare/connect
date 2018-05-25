@@ -24,7 +24,7 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
 
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private DashboardConnectorEventListener connectorListener;
-    
+
     @Override
     public String getPluginPointName() {
         return PLUGIN_POINT;
@@ -44,7 +44,7 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
     public void stop() {
         eventController.removeListener(connectorListener);
     }
-    
+
     public DashboardConnectorEventListener getConnectorListener() {
         return connectorListener;
     }

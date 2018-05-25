@@ -10,15 +10,15 @@
 package com.mirth.connect.server;
 
 public class MirthException extends Exception {
-	public MirthException(Throwable cause) {
-		super(cause);
-	}
+    public MirthException(Throwable cause) {
+        super(cause);
+    }
 
-	public MirthException(String message) {
-		super(message);
-	}
+    public MirthException(String message) {
+        super(message);
+    }
 
-	public MirthException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public MirthException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

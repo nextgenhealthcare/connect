@@ -74,19 +74,19 @@ public class MessageWriterArchive implements MessageWriter {
         if (messagesWritten) {
             try {
                 File tempFile = new File(archiveFile.getParent() + IOUtils.DIR_SEPARATOR + "." + archiveFile.getName());
-                
+
                 try {
                     FileUtils.forceDelete(tempFile);
                 } catch (FileNotFoundException e) {
                 }
-                
+
                 ArchiveUtils.createArchive(rootFolder, tempFile, archiver, compressor, password, encryptionType);
-                
+
                 try {
                     FileUtils.forceDelete(archiveFile);
                 } catch (FileNotFoundException e) {
                 }
-                
+
                 FileUtils.moveFile(tempFile, archiveFile);
             } catch (Exception e) {
                 throw new MessageWriterException(e);

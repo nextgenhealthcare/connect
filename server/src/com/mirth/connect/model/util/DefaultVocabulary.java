@@ -9,7 +9,6 @@
 
 package com.mirth.connect.model.util;
 
-
 public class DefaultVocabulary extends MessageVocabulary {
 
     public DefaultVocabulary(String version, String type) {

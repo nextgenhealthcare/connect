@@ -65,6 +65,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ComparatorUtils;
@@ -85,8 +87,6 @@ import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.util.ColorUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class SettingsPanelTags extends AbstractSettingsPanel {
 

@@ -14,13 +14,13 @@ public class ServerEventContext {
     private Integer userId;
 
     public ServerEventContext() {
-        
+
     }
-    
+
     public ServerEventContext(Integer userId) {
         this.userId = userId;
     }
-    
+
     public Integer getUserId() {
         return userId;
     }

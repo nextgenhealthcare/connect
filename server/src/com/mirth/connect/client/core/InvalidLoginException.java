@@ -10,7 +10,7 @@
 package com.mirth.connect.client.core;
 
 public class InvalidLoginException extends ClientException {
-	public InvalidLoginException(String message) {
-		super(message);
-	}
+    public InvalidLoginException(String message) {
+        super(message);
+    }
 }

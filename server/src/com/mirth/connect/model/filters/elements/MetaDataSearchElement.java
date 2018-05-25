@@ -20,8 +20,8 @@ public class MetaDataSearchElement implements Serializable {
     private String operator;
     private Object value;
     private Boolean ignoreCase;
-    
-    public MetaDataSearchElement (String columnName, String operator, Object value, Boolean ignoreCase) {
+
+    public MetaDataSearchElement(String columnName, String operator, Object value, Boolean ignoreCase) {
         this.setColumnName(columnName);
         this.setOperator(operator);
         this.setValue(value);

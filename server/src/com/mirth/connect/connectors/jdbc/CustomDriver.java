@@ -99,7 +99,8 @@ public class CustomDriver implements Driver {
                     ctShimClassDefinition.addMethod(getDriversMethod);
 
                     // Add a method to call DriverManager.deregisterDriver(driver)
-                    CtMethod deregisterDriverMethod = CtNewMethod.make(CtClass.voidType, "deregisterDriver", new CtClass[] { classPool.get(Driver.class.getName()) }, new CtClass[0], "java.sql.DriverManager.deregisterDriver($1);", ctShimClassDefinition);
+                    CtMethod deregisterDriverMethod = CtNewMethod.make(CtClass.voidType, "deregisterDriver", new CtClass[] {
+                            classPool.get(Driver.class.getName()) }, new CtClass[0], "java.sql.DriverManager.deregisterDriver($1);", ctShimClassDefinition);
                     ctShimClassDefinition.addMethod(deregisterDriverMethod);
 
                     ctClass = ctShimClassDefinition.toClass(classLoader, null);
@@ -181,7 +182,7 @@ public class CustomDriver implements Driver {
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return delegate.getParentLogger();
     }
-    
+
     @Override
     public String toString() {
         return delegate.toString();

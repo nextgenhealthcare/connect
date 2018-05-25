@@ -13,7 +13,7 @@ public class ChannelConfigurationException extends Exception {
     public ChannelConfigurationException(String message) {
         super(message);
     }
-    
+
     public ChannelConfigurationException(String message, Throwable cause) {
         super(message, cause);
     }

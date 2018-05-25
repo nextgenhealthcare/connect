@@ -127,9 +127,8 @@ public class NCPDPSerializer implements IMessageSerializer {
     @Override
     public String fromXML(String source) throws MessageSerializerException {
         /*
-         * Need to determine the version by looking at the raw message.
-         * The transaction header will contain the version ("51" for 5.1 and
-         * "D0" for D.0)
+         * Need to determine the version by looking at the raw message. The transaction header will
+         * contain the version ("51" for 5.1 and "D0" for D.0)
          */
         String version = "D0";
 
@@ -156,8 +155,8 @@ public class NCPDPSerializer implements IMessageSerializer {
             }
 
             /*
-             * Parse, but first replace all spaces between brackets. This fixes
-             * pretty-printed XML we might receive
+             * Parse, but first replace all spaces between brackets. This fixes pretty-printed XML
+             * we might receive
              */
             reader.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("><"))));
             return handler.getOutput().toString();

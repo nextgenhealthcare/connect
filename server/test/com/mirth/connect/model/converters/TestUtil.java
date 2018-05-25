@@ -44,7 +44,7 @@ public class TestUtil {
         transformer.transform(new DOMSource(element), new StreamResult(writer));
         return writer.toString();
     }
-    
+
     public static String convertCRToCRLF(String input) {
         return input.replaceAll("\r", "\r\n");
     }

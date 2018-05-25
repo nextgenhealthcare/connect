@@ -9,7 +9,6 @@
 
 package com.mirth.connect.model.notification;
 
-
 public class Notification {
     private Integer id;
     private String name;

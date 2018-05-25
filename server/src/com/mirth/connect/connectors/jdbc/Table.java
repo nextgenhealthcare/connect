@@ -14,78 +14,82 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Object to hold information about a database table.
- * Table objects will be sorted based on the table name.
+ * Object to hold information about a database table. Table objects will be sorted based on the
+ * table name.
  * 
  */
 public class Table implements Serializable, Comparable<Table> {
-	private String name;	// table name
-	private List<Column> columns;	//list of columns for this table
-	
-	public Table(String name, List<Column> columns) {
-		super();
-		this.name = name;
-		this.columns = columns;
-	}
+    private String name; // table name
+    private List<Column> columns; //list of columns for this table
 
-	public String getName() {
-		return name;
-	}
+    public Table(String name, List<Column> columns) {
+        super();
+        this.name = name;
+        this.columns = columns;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public List<Column> getColumns() {
-		return columns;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setColumns(List<Column> columns) {
-		this.columns = columns;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		
-		if (!(obj instanceof Table)) return false;
-				
-		Table table = (Table) obj;
-		if (name != null && !name.equals(table.getName())) return false;
-		if (columns != null && !columns.equals(table.getColumns())) return false;		
-		
-		return true;
-	}
+    public List<Column> getColumns() {
+        return columns;
+    }
 
-	@Override
-	public int hashCode() {
-		int hashCode = 1;
-		hashCode = 31*hashCode + (name == null ? 0 : name.hashCode());
-		hashCode = 31*hashCode + (columns == null ? 0 : columns.hashCode()); 
-		return hashCode;
-	}
+    public void setColumns(List<Column> columns) {
+        this.columns = columns;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getName() + "[");
-		builder.append("name=" + getName() + ", ");
-		
-		StringBuilder columnsList = new StringBuilder();
-		for (Iterator<Column> i = columns.iterator(); i.hasNext(); ) {
-			Column col = i.next();
-			columnsList.append(col.toString());
-			if (i.hasNext()) {
-				columnsList.append(", ");
-			}		
-		}
-		builder.append("columns=" + columnsList + ", ");
-		builder.append("]");
-		return builder.toString();
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
 
-	@Override
-	public int compareTo(Table table) {
-		return name.compareTo(table.getName());
-	}
+        if (!(obj instanceof Table))
+            return false;
+
+        Table table = (Table) obj;
+        if (name != null && !name.equals(table.getName()))
+            return false;
+        if (columns != null && !columns.equals(table.getColumns()))
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+        hashCode = 31 * hashCode + (name == null ? 0 : name.hashCode());
+        hashCode = 31 * hashCode + (columns == null ? 0 : columns.hashCode());
+        return hashCode;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.getClass().getName() + "[");
+        builder.append("name=" + getName() + ", ");
+
+        StringBuilder columnsList = new StringBuilder();
+        for (Iterator<Column> i = columns.iterator(); i.hasNext();) {
+            Column col = i.next();
+            columnsList.append(col.toString());
+            if (i.hasNext()) {
+                columnsList.append(", ");
+            }
+        }
+        builder.append("columns=" + columnsList + ", ");
+        builder.append("]");
+        return builder.toString();
+    }
+
+    @Override
+    public int compareTo(Table table) {
+        return name.compareTo(table.getName());
+    }
 }

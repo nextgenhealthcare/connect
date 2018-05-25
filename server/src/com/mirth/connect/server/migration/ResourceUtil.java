@@ -17,8 +17,7 @@ public class ResourceUtil {
     /**
      * Returns a resource as a stream by checking:
      * 
-     * 1. The classpath for a resource with the specified name
-     * 2. For a file with the specified path
+     * 1. The classpath for a resource with the specified name 2. For a file with the specified path
      * 
      * @param resourceName
      * @param path

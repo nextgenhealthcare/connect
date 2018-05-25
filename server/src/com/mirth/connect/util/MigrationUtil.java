@@ -31,10 +31,10 @@ public class MigrationUtil {
         if (version != null) {
             return version;
         }
-        
+
         /*
-         * Pre-3.0.0 objects might have a 'version' child node, check for it. The reason we
-         * don't create a DonkeyElement above is to avoid parsing the entire XML string.
+         * Pre-3.0.0 objects might have a 'version' child node, check for it. The reason we don't
+         * create a DonkeyElement above is to avoid parsing the entire XML string.
          */
         DonkeyElement element = new DonkeyElement(serializedObject);
 
@@ -46,41 +46,39 @@ public class MigrationUtil {
 
         return null;
     }
-    
+
     private static String getRootNodeAttribute(String serializedObject, String attributeName) throws Exception {
         XmlPullParser parser = new MXParser();
         parser.setInput(new StringReader(serializedObject));
-        
+
         while (parser.getEventType() != XmlPullParser.START_TAG) {
             parser.next();
         }
-        
+
         int attrCount = parser.getAttributeCount();
-        
+
         for (int i = 0; i < attrCount; i++) {
             if (parser.getAttributeName(i).equals(attributeName)) {
                 return parser.getAttributeValue(i);
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Compares two versions strings (ex. 1.6.1)
      * 
-     * @return -1 if version1 < version2, 1 if version1 > version2, 0 if
-     *         version1 = version2
+     * @return -1 if version1 < version2, 1 if version1 > version2, 0 if version1 = version2
      */
     public static int compareVersions(String version1, String version2) {
         return compareVersions(version1, version2, 3);
     }
-    
+
     /**
      * Compares two versions strings (ex. 1.6.1)
      * 
-     * @return -1 if version1 < version2, 1 if version1 > version2, 0 if
-     *         version1 = version2
+     * @return -1 if version1 < version2, 1 if version1 > version2, 0 if version1 = version2
      */
     public static int compareVersions(String version1, String version2, int length) {
         if ((version1 == null) && (version2 == null)) {
@@ -106,13 +104,14 @@ public class MigrationUtil {
     }
 
     /**
-     * Normalizes a version string so that it has 'length' number of version numbers separated by '.'
+     * Normalizes a version string so that it has 'length' number of version numbers separated by
+     * '.'
      */
     public static String normalizeVersion(String version, int length) {
         if (version == null) {
             return null;
         }
-        
+
         List<String> numbers = new ArrayList<String>(Arrays.asList(version.split("\\.")));
 
         while (numbers.size() < length) {

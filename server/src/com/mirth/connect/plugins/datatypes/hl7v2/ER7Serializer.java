@@ -137,12 +137,10 @@ public class ER7Serializer implements IMessageSerializer {
                     /*
                      * When convert line breaks is on and transform without serializing is called,
                      * ordinarily line breaks would be converted to the serialization delimiter,
-                     * then the
-                     * serialization delimiter would be converted to the deserialization delimiter.
-                     * In this
-                     * case, we can skip a step by simply converting line breaks to the
-                     * deserialization
-                     * delimiter if the serialization delimiter is also a line break.
+                     * then the serialization delimiter would be converted to the deserialization
+                     * delimiter. In this case, we can skip a step by simply converting line breaks
+                     * to the deserialization delimiter if the serialization delimiter is also a
+                     * line break.
                      */
                     return StringUtil.convertLineBreaks(message, outputSegmentDelimiter);
                 }
@@ -232,9 +230,8 @@ public class ER7Serializer implements IMessageSerializer {
                 return deserializationPipeParser.encode(deserializationXmlParser.parse(source));
             } else {
                 /*
-                 * The delimiters below need to come from the XML somehow. The
-                 * ER7 handler should take care of it TODO: Ensure you get these
-                 * elements from the XML
+                 * The delimiters below need to come from the XML somehow. The ER7 handler should
+                 * take care of it TODO: Ensure you get these elements from the XML
                  */
 
                 String fieldSeparator = getNodeValue(source, "<MSH.1>", "</MSH.1>");
@@ -249,8 +246,8 @@ public class ER7Serializer implements IMessageSerializer {
                 String escapeCharacter = "\\";
 
                 /*
-                 * Our delimiters usually look like this:
-                 * <MSH.2>^~\&amp;</MSH.2> We need to decode XML entities
+                 * Our delimiters usually look like this: <MSH.2>^~\&amp;</MSH.2> We need to decode
+                 * XML entities
                  */
                 String separators = ampersandPattern.matcher(getNodeValue(source, "<MSH.2>", "</MSH.2>")).replaceAll("&");
 
@@ -271,8 +268,8 @@ public class ER7Serializer implements IMessageSerializer {
                 reader.setErrorHandler(handler);
 
                 /*
-                 * Parse, but first replace all spaces between brackets. This
-                 * fixes pretty-printed XML we might receive.
+                 * Parse, but first replace all spaces between brackets. This fixes pretty-printed
+                 * XML we might receive.
                  */
                 reader.parse(new InputSource(new StringReader(prettyPattern2.matcher(prettyPattern1.matcher(source).replaceAll("<$1>")).replaceAll("<$1>"))));
                 return handler.getOutput().toString();

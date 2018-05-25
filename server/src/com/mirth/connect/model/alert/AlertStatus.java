@@ -13,7 +13,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertStatus")
 public class AlertStatus {
-    
+
     private String id;
     private String name;
     private boolean enabled;

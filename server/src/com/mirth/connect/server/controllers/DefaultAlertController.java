@@ -37,7 +37,7 @@ import com.mirth.connect.server.util.StatementLock;
 
 public class DefaultAlertController extends AlertController {
     private static final String VACUUM_LOCK_ALERT_STATEMENT_ID = "Alert.vacuumAlertTable";
-    
+
     private Logger logger = Logger.getLogger(this.getClass());
 
     private static AlertController instance = null;
@@ -200,7 +200,7 @@ public class DefaultAlertController extends AlertController {
                     throw new ControllerException("An alert with that name already exists.");
                 }
             }
-            
+
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
             boolean alertExists = CollectionUtils.isNotEmpty(SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", alert.getId()));
@@ -252,7 +252,7 @@ public class DefaultAlertController extends AlertController {
             StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).writeUnlock();
         }
     }
-    
+
     /**
      * When calling this method, a StatementLock writeLock should surround it
      */

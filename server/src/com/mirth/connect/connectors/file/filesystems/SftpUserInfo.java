@@ -12,34 +12,34 @@ package com.mirth.connect.connectors.file.filesystems;
 import com.jcraft.jsch.UserInfo;
 
 public class SftpUserInfo implements UserInfo {
-	private String password;
-	
-	public SftpUserInfo(String password) {
-		this.password = password;
-	}
-	
-	public String getPassphrase() {
-		return null;
-	}
+    private String password;
 
-	public String getPassword() {
-		return password;
-	}
+    public SftpUserInfo(String password) {
+        this.password = password;
+    }
 
-	public boolean promptPassword(String password) {
-		return true;
-	}
+    public String getPassphrase() {
+        return null;
+    }
 
-	public boolean promptPassphrase(String passphrase) {
-		return false;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public boolean promptYesNo(String str) {
-		return true;
-	}
+    public boolean promptPassword(String password) {
+        return true;
+    }
 
-	public void showMessage(String message) {
+    public boolean promptPassphrase(String passphrase) {
+        return false;
+    }
 
-	}
+    public boolean promptYesNo(String str) {
+        return true;
+    }
+
+    public void showMessage(String message) {
+
+    }
 
 }

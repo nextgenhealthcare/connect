@@ -76,5 +76,5 @@ public class DashboardConnectorStatusServlet extends MirthServlet implements Das
     public LinkedList<ConnectionLogItem> getChannelLog(String serverId, String channelId, int fetchSize, Long lastLogId) {
         return monitor.getConnectorListener().getChannelLog(serverId, channelId, fetchSize, lastLogId);
     }
-    
+
 }

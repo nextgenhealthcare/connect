@@ -36,17 +36,18 @@ public class MessageVocabularyFactory {
     public MessageVocabulary getVocabulary(String dataType, String version, String type) {
         Class<? extends MessageVocabulary> vocabulary = vocabs.get(dataType);
         MessageVocabulary vocab = null;
-        
+
         if (vocabulary != null) {
             try {
                 Constructor<?>[] constructors = vocabulary.getDeclaredConstructors();
-                
+
                 for (int i = 0; i < constructors.length; i++) {
                     Class<?> parameters[];
                     parameters = constructors[i].getParameterTypes();
                     // load plugin if the number of parameters is 2.
                     if (parameters.length == 2) {
-                        vocab = (MessageVocabulary) constructors[i].newInstance(new Object[] { version, type });
+                        vocab = (MessageVocabulary) constructors[i].newInstance(new Object[] {
+                                version, type });
                         i = constructors.length;
                     }
                 }

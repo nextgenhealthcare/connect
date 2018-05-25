@@ -94,11 +94,11 @@ public class User implements Serializable, Auditable {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-    
+
     public String getIndustry() {
         return this.industry;
     }
-    
+
     public void setIndustry(String industry) {
         this.industry = industry;
     }

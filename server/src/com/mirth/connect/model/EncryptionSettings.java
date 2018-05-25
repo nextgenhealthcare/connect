@@ -21,9 +21,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("encryptionSettings")
 public class EncryptionSettings extends AbstractSettings implements Serializable, Auditable {
     private static final long serialVersionUID = 1L;
-    
+
     public static final String ENCRYPTION_PREFIX = "{enc}";
-    
+
     public static final String DEFAULT_ENCRYPTION_ALGORITHM = "AES";
     public static final String DEFAULT_DIGEST_ALGORITHM = "SHA256";
     public static final String DEFAULT_SECURTITY_PROVIDER = BouncyCastleProvider.class.getName();

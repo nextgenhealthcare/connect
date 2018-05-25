@@ -170,8 +170,7 @@ public class ServerEvent extends Event {
         builder.append(ipAddress + ", ");
 
         /*
-         * Print out the attributes and Base64 encode them in case there are
-         * newlines.
+         * Print out the attributes and Base64 encode them in case there are newlines.
          */
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);

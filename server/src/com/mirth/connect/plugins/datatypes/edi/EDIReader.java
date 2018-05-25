@@ -76,7 +76,7 @@ public class EDIReader extends SAXParser {
                     } else {
                         documentHead = "EDIMessage";
                     }
-                    
+
                     AttributesImpl attributesImpl = new AttributesImpl();
                     attributesImpl.addAttribute("", "segmentDelimiter", "", "", segmentDelimiter);
                     attributesImpl.addAttribute("", "elementDelimiter", "", "", elementDelimiter);

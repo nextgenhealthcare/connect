@@ -47,5 +47,4 @@ public class SerializerProperties implements Serializable {
         this.batchProperties = batchProperties;
     }
 
-
 }

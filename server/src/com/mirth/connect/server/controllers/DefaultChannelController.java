@@ -57,7 +57,7 @@ import com.mirth.connect.server.util.StatementLock;
 public class DefaultChannelController extends ChannelController {
     private static final String VACUUM_LOCK_CHANNEL_STATEMENT_ID = "Channel.vacuumChannelTable";
     private static final String VACUUM_LOCK_CHANNEL_GROUP_STATEMENT_ID = "Channel.vacuumChannelGroupTable";
-    
+
     private Logger logger = Logger.getLogger(this.getClass());
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
@@ -598,7 +598,7 @@ public class DefaultChannelController extends ChannelController {
             }
         }
     }
-    
+
     /**
      * When calling this method, a StatementLock writeLock should surround it
      */
@@ -619,7 +619,7 @@ public class DefaultChannelController extends ChannelController {
             }
         }
     }
-    
+
     @Override
     public Map<String, Integer> getChannelRevisions() throws ControllerException {
         StatementLock.getInstance(VACUUM_LOCK_CHANNEL_STATEMENT_ID).readLock();
@@ -872,7 +872,7 @@ public class DefaultChannelController extends ChannelController {
         } finally {
             StatementLock.getInstance(VACUUM_LOCK_CHANNEL_GROUP_STATEMENT_ID).readUnlock();
         }
-        
+
         // Vacuum
         StatementLock.getInstance(VACUUM_LOCK_CHANNEL_GROUP_STATEMENT_ID).writeLock();
         try {

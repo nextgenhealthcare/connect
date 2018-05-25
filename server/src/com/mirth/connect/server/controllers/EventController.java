@@ -27,18 +27,18 @@ public abstract class EventController extends Controller {
     public abstract void removeListener(EventListener listener);
 
     public abstract void dispatchEvent(Event event);
-    
+
     public abstract void insertEvent(ServerEvent serverEvent);
-    
+
     public abstract Integer getMaxEventId() throws ControllerException;
-    
+
     public abstract List<ServerEvent> getEvents(EventFilter filter, Integer offset, Integer limit) throws ControllerException;
-    
+
     public abstract Long getEventCount(EventFilter filter) throws ControllerException;
-    
+
     public abstract void removeAllEvents() throws ControllerException;
-    
+
     public abstract String exportAllEvents() throws ControllerException;
-    
+
     public abstract String exportAndRemoveAllEvents() throws ControllerException;
 }

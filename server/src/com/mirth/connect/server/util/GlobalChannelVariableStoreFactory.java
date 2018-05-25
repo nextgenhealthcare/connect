@@ -13,28 +13,28 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GlobalChannelVariableStoreFactory {
-	public Map<String, GlobalChannelVariableStore> globalChannelVariableMap = new ConcurrentHashMap<String, GlobalChannelVariableStore>();
-	private static GlobalChannelVariableStoreFactory instance = null;
+    public Map<String, GlobalChannelVariableStore> globalChannelVariableMap = new ConcurrentHashMap<String, GlobalChannelVariableStore>();
+    private static GlobalChannelVariableStoreFactory instance = null;
 
-	private GlobalChannelVariableStoreFactory() {
+    private GlobalChannelVariableStoreFactory() {
 
-	}
+    }
 
-	public static GlobalChannelVariableStoreFactory getInstance() {
-		synchronized (GlobalChannelVariableStoreFactory.class) {
-			if (instance == null)
-				instance = new GlobalChannelVariableStoreFactory();
+    public static GlobalChannelVariableStoreFactory getInstance() {
+        synchronized (GlobalChannelVariableStoreFactory.class) {
+            if (instance == null)
+                instance = new GlobalChannelVariableStoreFactory();
 
-			return instance;
-		}
-	}
-	
-	public synchronized GlobalChannelVariableStore get(String channelId) {
-	    if (!globalChannelVariableMap.containsKey(channelId)) {
-	        globalChannelVariableMap.put(channelId, new GlobalChannelVariableStore());
-	        
-	    }
-	    return globalChannelVariableMap.get(channelId);
-	}
-	
+            return instance;
+        }
+    }
+
+    public synchronized GlobalChannelVariableStore get(String channelId) {
+        if (!globalChannelVariableMap.containsKey(channelId)) {
+            globalChannelVariableMap.put(channelId, new GlobalChannelVariableStore());
+
+        }
+        return globalChannelVariableMap.get(channelId);
+    }
+
 }

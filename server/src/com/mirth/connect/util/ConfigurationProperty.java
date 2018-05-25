@@ -15,7 +15,7 @@ public class ConfigurationProperty implements Serializable {
 
     private String value;
     private String comment;
-    
+
     public ConfigurationProperty(String value, String comment) {
         this.value = value;
         this.comment = comment;
@@ -36,10 +36,10 @@ public class ConfigurationProperty implements Serializable {
     public void setComment(String comment) {
         this.comment = comment;
     }
-    
+
     @Override
-    public String toString(){
-    	StringBuilder builder = new StringBuilder();
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
         builder.append(getClass().getName()).append('[');
         builder.append("value=").append(value).append(", ");
         builder.append("comment=").append(comment).append(']');

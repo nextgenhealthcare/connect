@@ -258,10 +258,10 @@ public class WebServiceReceiver extends SourceConnector {
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
         finishDispatch(dispatchResult);
     }
-    
+
     @Override
     protected String getConfigurationClass() {
-    	return configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
+        return configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
     }
 
     public String processData(String message) {

@@ -24,17 +24,16 @@ public class DonkeyEngineControllerTests {
     static public final void beforeClass() throws Exception {
 //        SqlConfig.getInstance().start();
     }
-    
+
     @Test
     public final void testStartEngine() throws Exception {
         ControllerFactory.getFactory().createEngineController().startEngine();
     }
-    
+
     @Test
     public final void testStopEngine() throws Exception {
         ControllerFactory.getFactory().createEngineController().stopEngine();
     }
-    
 
     @Test
     public final void testDeployChannels() throws Exception {
@@ -44,18 +43,18 @@ public class DonkeyEngineControllerTests {
         // Start Donkey
         EngineController donkeyEngineController = ControllerFactory.getFactory().createEngineController();
         donkeyEngineController.startEngine();
-        
+
         // Create Test Channel
 //        TestUtils.createChannel(TestUtils.CHANNEL_ID, TestUtils.SERVER_ID, false, 1, 1);
         channelIds.add(TestUtils.CHANNEL_ID);
-        
+
         // Deploy Channel
         donkeyEngineController.deployChannels(channelIds, context, null);
-        
+
         // Send message to channel and assert received
-        
+
     }
-    
+
 //    @Test
 //    public final void testImportChannel() throws Exception {
 //        List<String> channelIds = new ArrayList<String>();

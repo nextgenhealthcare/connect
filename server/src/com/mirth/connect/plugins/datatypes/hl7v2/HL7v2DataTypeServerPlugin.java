@@ -54,7 +54,7 @@ public class HL7v2DataTypeServerPlugin extends DataTypeServerPlugin {
     public BatchAdaptorFactory getBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties properties) {
         return new ER7BatchAdaptorFactory(sourceConnector, properties);
     }
-    
+
     @Override
     public BatchStreamReader getBatchStreamReader(InputStream inputStream, TransmissionModeProperties properties) {
         BatchStreamReader batchStreamReader = null;

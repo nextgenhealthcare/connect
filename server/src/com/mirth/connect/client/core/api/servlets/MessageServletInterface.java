@@ -9,6 +9,10 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
@@ -42,10 +46,6 @@ import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.messagewriter.EncryptionType;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @Path("/channels")
 @Api("Messages")

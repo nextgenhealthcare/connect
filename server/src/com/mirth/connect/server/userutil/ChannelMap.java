@@ -16,8 +16,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
- * A wrapper class for the channel map that checks against the source map in the
- * {@link #get(Object) get(key)} method for legacy support.
+ * A wrapper class for the channel map that checks against the source map in the {@link #get(Object)
+ * get(key)} method for legacy support.
  */
 public class ChannelMap implements Map<String, Object> {
 

@@ -169,16 +169,16 @@ public class ImportConverter {
     }
 
     /**
-     * Run string conversions based on the version number. These conversions can
-     * apply to anything that contains a version element.
+     * Run string conversions based on the version number. These conversions can apply to anything
+     * that contains a version element.
      * 
      * @param xmlData
      * @return updated xmlData
      */
     private static String runStringConversions(String xmlData) {
         /*
-         * Set the default version to 1.8.2 so that anything passed in without a
-         * version will run all conversions.
+         * Set the default version to 1.8.2 so that anything passed in without a version will run
+         * all conversions.
          */
         String versionData = getComponentVersion(xmlData, "1.8.2");
 
@@ -190,8 +190,8 @@ public class ImportConverter {
     }
 
     /**
-     * Gets the value of the first version node in the xml being passed in. If
-     * there isn't a version node, the defaultVersion passed in is returned.
+     * Gets the value of the first version node in the xml being passed in. If there isn't a version
+     * node, the defaultVersion passed in is returned.
      * 
      * @param xmlData
      * @param defaultVersion
@@ -411,8 +411,7 @@ public class ImportConverter {
     }
 
     /**
-     * Convert the source and destination connectors for the channel from
-     * pre-1.8 to 1.8
+     * Convert the source and destination connectors for the channel from pre-1.8 to 1.8
      */
     private static void convertChannelConnectorsFor1_8(Document document, Element channelRoot) throws Exception {
         Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
@@ -440,8 +439,7 @@ public class ImportConverter {
      * @param defaultProperties
      *            Properties to be added only if they are missing.
      * @param changeProperties
-     *            Properties to be added if missing, or changed if already
-     *            present.
+     *            Properties to be added if missing, or changed if already present.
      */
     private static void updateProperties(Document document, Element properties, Map<String, String> defaultProperties, Map<String, String> changeProperties) throws Exception {
         // Make a working copy of the properies so we can remove existing
@@ -1040,8 +1038,7 @@ public class ImportConverter {
     }
 
     /**
-     * Convert a connector. Added in 1.8 and shouldn't be called on pre-1.8
-     * connectors.
+     * Convert a connector. Added in 1.8 and shouldn't be called on pre-1.8 connectors.
      * 
      * @param connector
      * @return
@@ -1071,8 +1068,8 @@ public class ImportConverter {
         // Convert HTTP and HTTPS connectors
         if (transportNameText.equals("HTTP Sender") || transportNameText.equals("HTTP Listener") || transportNameText.equals("HTTPS Sender") || transportNameText.equals("HTTPS Listener")) {
             /*
-             * Set the default version to 1.8.2 so that anything passed in
-             * without a version will run all conversions.
+             * Set the default version to 1.8.2 so that anything passed in without a version will
+             * run all conversions.
              */
             String versionData = getComponentVersion(connectorXml, "1.8.2");
 
@@ -1142,7 +1139,8 @@ public class ImportConverter {
                 template = transformerTemplate.getTextContent();
         }
 
-        Element inboundTemplateElement = null, outboundTemplateElement = null, inboundProtocolElement = null, outboundProtocolElement = null;
+        Element inboundTemplateElement = null, outboundTemplateElement = null,
+                inboundProtocolElement = null, outboundProtocolElement = null;
         if (transformerRoot.getElementsByTagName("inboundTemplate").getLength() == 0)
             inboundTemplateElement = document.createElement("inboundTemplate");
         if (transformerRoot.getElementsByTagName("outboundTemplate").getLength() == 0)
@@ -1694,9 +1692,8 @@ public class ImportConverter {
     }
 
     /**
-     * Gets elements by the tag name passed in and returns the NodeList from
-     * the first tagName that returns results. If there are no results from
-     * any of the tagNames an empty list is returned.
+     * Gets elements by the tag name passed in and returns the NodeList from the first tagName that
+     * returns results. If there are no results from any of the tagNames an empty list is returned.
      * 
      * @param document
      * @param tagName
@@ -1715,9 +1712,8 @@ public class ImportConverter {
     }
 
     /**
-     * Gets elements by the tag name passed in and returns the NodeList from
-     * the first tagName that returns results. If there are no results from
-     * any of the tagNames an empty list is returned.
+     * Gets elements by the tag name passed in and returns the NodeList from the first tagName that
+     * returns results. If there are no results from any of the tagNames an empty list is returned.
      * 
      * @param element
      * @param tagName

@@ -17,206 +17,200 @@ import com.mirth.connect.util.StringUtil;
 
 public class DelimitedXMLHandler extends DefaultHandler {
 
-	private StringBuilder output = new StringBuilder();
-	
-	private DelimitedDeserializationProperties properties;
-	private boolean inRow;
-	private boolean inColumn;
-	private int columnIndex;
-	private String columnDelimiter = null;
-	private String recordDelimiter = null;
-	private String quoteToken = null;
-	private String quoteEscapeToken = null;
-	private String escapedQuote = null;
-	private String escapedQuoteEscape = null;
-	private StringBuilder columnValue = null;
+    private StringBuilder output = new StringBuilder();
 
-	public DelimitedXMLHandler(DelimitedDeserializationProperties properties) {
-		super();
-		this.properties = properties;
-		
-		updateColumnDelimiter();
+    private DelimitedDeserializationProperties properties;
+    private boolean inRow;
+    private boolean inColumn;
+    private int columnIndex;
+    private String columnDelimiter = null;
+    private String recordDelimiter = null;
+    private String quoteToken = null;
+    private String quoteEscapeToken = null;
+    private String escapedQuote = null;
+    private String escapedQuoteEscape = null;
+    private StringBuilder columnValue = null;
+
+    public DelimitedXMLHandler(DelimitedDeserializationProperties properties) {
+        super();
+        this.properties = properties;
+
+        updateColumnDelimiter();
         updateRecordDelimiter();
         updateQuoteToken();
         updateQuoteEscapeToken();
         updateEscapedQuote();
         updateEscapedQuoteEscape();
-	}
+    }
 
-	// //////////////////////////////////////////////////////////////////
-	// Event handlers.
-	// //////////////////////////////////////////////////////////////////
+    // //////////////////////////////////////////////////////////////////
+    // Event handlers.
+    // //////////////////////////////////////////////////////////////////
 
-	public void startDocument() {
-		inRow = false;
-		inColumn = false;
-	}
+    public void startDocument() {
+        inRow = false;
+        inColumn = false;
+    }
 
-	public void endDocument() {
-	}
+    public void endDocument() {}
 
-	public void startElement(String uri, String name, String qName, Attributes atts) {
-		
-		// If it's a row
-		if (!inRow && name.length() >= 3 && name.substring(0, 3).equalsIgnoreCase("row")) {
-			inRow = true;
-			inColumn = false;
-			columnIndex = 0;
-		}
-		else if (inRow && !inColumn) {
+    public void startElement(String uri, String name, String qName, Attributes atts) {
 
-			// It's a column
-			inColumn = true;
+        // If it's a row
+        if (!inRow && name.length() >= 3 && name.substring(0, 3).equalsIgnoreCase("row")) {
+            inRow = true;
+            inColumn = false;
+            columnIndex = 0;
+        } else if (inRow && !inColumn) {
 
-			// If not fixed width columns
-			if (properties.getColumnWidths() == null) {
+            // It's a column
+            inColumn = true;
 
-				// If this isn't the first column
-				if (columnIndex > 0) {
-					output.append(columnDelimiter);
-				}
-			}
-			
-			// Initialize the column value
-			columnValue = new StringBuilder();
-		}
-	}
+            // If not fixed width columns
+            if (properties.getColumnWidths() == null) {
 
-	public void endElement(String uri, String name, String qName) {
-		
-		// If in a column
-		if (inColumn) {
-			
-			// If fixed width columns
-			if (properties.getColumnWidths() != null) {
-			
-				if (columnIndex < properties.getColumnWidths().length) {
+                // If this isn't the first column
+                if (columnIndex > 0) {
+                    output.append(columnDelimiter);
+                }
+            }
 
-					output.append(columnValue);
-					
-					// Pad with trailing spaces to fixed column width
-					int len = properties.getColumnWidths()[columnIndex] - columnValue.length();
-					while (len > 0) {
-						output.append(' ');
-						len--;
-					}
-				}
-			}
-			else {
+            // Initialize the column value
+            columnValue = new StringBuilder();
+        }
+    }
 
-				// If the column value contains the column delimiter, or record delimiter
-				String temp = columnValue.toString();
-				if (temp.contains(columnDelimiter) || temp.contains(recordDelimiter)) {
-					
-					// Escape the escape characters and the quote characters
-					temp = temp.replace(quoteEscapeToken, escapedQuoteEscape);
-					temp = temp.replace(quoteToken, escapedQuote);
-	
-					output.append(quoteToken);
-					output.append(temp);
-					output.append(quoteToken);
-				}
-				else {
-					output.append(columnValue);
-				}
-			}
+    public void endElement(String uri, String name, String qName) {
 
-			inColumn = false;
-			columnIndex++;
-		} else if (inRow) {
-			inRow = false;
-			
-			// Append the record delimiter
-			output.append(recordDelimiter);
-		}
-	}
+        // If in a column
+        if (inColumn) {
 
-	public void characters(char ch[], int start, int length) {
+            // If fixed width columns
+            if (properties.getColumnWidths() != null) {
 
-		if (inColumn) {
-			
-			if (properties.getColumnWidths() != null) {
+                if (columnIndex < properties.getColumnWidths().length) {
 
-				if (columnIndex < properties.getColumnWidths().length) {
+                    output.append(columnValue);
 
-					// Get the fixed width of this column
-					int columnWidth = properties.getColumnWidths()[columnIndex];
-		
-					// Truncate if the size of the column value exceeds the fixed column width
-					if (columnValue.length() + length > columnWidth) {
-						length = columnWidth - columnValue.length();
-					}
-					
-					columnValue.append(ch, start, length);
-				}
-			}
-			else {
-				columnValue.append(ch, start, length);
-			}
-		}
-	}
+                    // Pad with trailing spaces to fixed column width
+                    int len = properties.getColumnWidths()[columnIndex] - columnValue.length();
+                    while (len > 0) {
+                        output.append(' ');
+                        len--;
+                    }
+                }
+            } else {
 
-	public StringBuilder getOutput() {
-		return output;
-	}
+                // If the column value contains the column delimiter, or record delimiter
+                String temp = columnValue.toString();
+                if (temp.contains(columnDelimiter) || temp.contains(recordDelimiter)) {
 
-	public void setOutput(StringBuilder output) {
-		this.output = output;
-	}
+                    // Escape the escape characters and the quote characters
+                    temp = temp.replace(quoteEscapeToken, escapedQuoteEscape);
+                    temp = temp.replace(quoteToken, escapedQuote);
 
-	private void updateColumnDelimiter() {
-		if (columnDelimiter == null) {
-			
-			if (StringUtils.isNotEmpty(properties.getColumnDelimiter())) {
-				columnDelimiter = StringUtil.unescape(properties.getColumnDelimiter());
-			}
-		}
-	}
+                    output.append(quoteToken);
+                    output.append(temp);
+                    output.append(quoteToken);
+                } else {
+                    output.append(columnValue);
+                }
+            }
 
-	private void updateRecordDelimiter() {
-		if (recordDelimiter == null) {
-			
-			if (StringUtils.isNotEmpty(properties.getRecordDelimiter())) {
-				recordDelimiter = StringUtil.unescape(properties.getRecordDelimiter());
-			}
-		}
-	}
+            inColumn = false;
+            columnIndex++;
+        } else if (inRow) {
+            inRow = false;
 
-	private void updateQuoteToken() {
-		if (quoteToken == null) {
-			
-			if (StringUtils.isNotEmpty(properties.getQuoteToken())) {
-				quoteToken = StringUtil.unescape(properties.getQuoteToken());
-			}
-		}
-	}
+            // Append the record delimiter
+            output.append(recordDelimiter);
+        }
+    }
 
-	private void updateQuoteEscapeToken() {
-		if (quoteEscapeToken == null) {
-			
-			if (StringUtils.isNotEmpty(properties.getQuoteEscapeToken())) {
-				quoteEscapeToken = StringUtil.unescape(properties.getQuoteEscapeToken());
-			}
-		}
-	}
+    public void characters(char ch[], int start, int length) {
 
-	private void updateEscapedQuote() {
-		
-		if (escapedQuote == null) {
-			
-			if (properties.isEscapeWithDoubleQuote()) {
-				escapedQuote = quoteToken + quoteToken;
-			}
-			else {
-				escapedQuote = quoteEscapeToken + quoteToken;
-			}
-		}
-	}
+        if (inColumn) {
 
-	private void updateEscapedQuoteEscape() {
-		
-		if (escapedQuoteEscape == null) {
-			escapedQuoteEscape = quoteEscapeToken + quoteEscapeToken;
-		}
-	}
+            if (properties.getColumnWidths() != null) {
+
+                if (columnIndex < properties.getColumnWidths().length) {
+
+                    // Get the fixed width of this column
+                    int columnWidth = properties.getColumnWidths()[columnIndex];
+
+                    // Truncate if the size of the column value exceeds the fixed column width
+                    if (columnValue.length() + length > columnWidth) {
+                        length = columnWidth - columnValue.length();
+                    }
+
+                    columnValue.append(ch, start, length);
+                }
+            } else {
+                columnValue.append(ch, start, length);
+            }
+        }
+    }
+
+    public StringBuilder getOutput() {
+        return output;
+    }
+
+    public void setOutput(StringBuilder output) {
+        this.output = output;
+    }
+
+    private void updateColumnDelimiter() {
+        if (columnDelimiter == null) {
+
+            if (StringUtils.isNotEmpty(properties.getColumnDelimiter())) {
+                columnDelimiter = StringUtil.unescape(properties.getColumnDelimiter());
+            }
+        }
+    }
+
+    private void updateRecordDelimiter() {
+        if (recordDelimiter == null) {
+
+            if (StringUtils.isNotEmpty(properties.getRecordDelimiter())) {
+                recordDelimiter = StringUtil.unescape(properties.getRecordDelimiter());
+            }
+        }
+    }
+
+    private void updateQuoteToken() {
+        if (quoteToken == null) {
+
+            if (StringUtils.isNotEmpty(properties.getQuoteToken())) {
+                quoteToken = StringUtil.unescape(properties.getQuoteToken());
+            }
+        }
+    }
+
+    private void updateQuoteEscapeToken() {
+        if (quoteEscapeToken == null) {
+
+            if (StringUtils.isNotEmpty(properties.getQuoteEscapeToken())) {
+                quoteEscapeToken = StringUtil.unescape(properties.getQuoteEscapeToken());
+            }
+        }
+    }
+
+    private void updateEscapedQuote() {
+
+        if (escapedQuote == null) {
+
+            if (properties.isEscapeWithDoubleQuote()) {
+                escapedQuote = quoteToken + quoteToken;
+            } else {
+                escapedQuote = quoteEscapeToken + quoteToken;
+            }
+        }
+    }
+
+    private void updateEscapedQuoteEscape() {
+
+        if (escapedQuoteEscape == null) {
+            escapedQuoteEscape = quoteEscapeToken + quoteEscapeToken;
+        }
+    }
 }

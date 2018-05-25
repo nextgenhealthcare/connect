@@ -13,14 +13,13 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 // TODO: Rewrite to support ConnectorProperties and new Channel properties
-public class PropertyVerifier
-{
+public class PropertyVerifier {
     /** A method to compare two properties file to check if they are the same. */
     public static boolean compareProps(ConnectorProperties p1, ConnectorProperties p2) {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         return serializer.serialize(p1).equals(serializer.serialize(p2));
     }
-    
+
 //    /** A method to compare two properties file to check if they are the same. */
 //    public static boolean compareProps(ConnectorProperties p1, ConnectorProperties p2)
 //    {
@@ -46,7 +45,7 @@ public class PropertyVerifier
 //    {
 //        fixMissingOrInvalidProperties(new ChannelProperties().getDefaults(), channel.getProperties());
 //    }
-    
+
 //    /** A method to add default connector properties to a channel. */
 //    public static void checkConnectorProperties(Channel channel, Map<String, ConnectorMetaData> connectorData)
 //    {
@@ -58,13 +57,13 @@ public class PropertyVerifier
 //            PropertyVerifier.checkPropertyValidity(destinations.get(i), connectorData);
 //        }
 //    }
-    
+
 //    /** A method to add default connector properties to a connector. */
 //    public static void checkConnectorProperties(Connector connector, Map<String, ConnectorMetaData> connectorData)
 //    {
 //        PropertyVerifier.checkPropertyValidity(connector, connectorData);
 //    }
-    
+
 //    /**
 //     * Gets the default properties for a connector, and fixes invalid/missing properties
 //     */
@@ -84,7 +83,7 @@ public class PropertyVerifier
 //            e.printStackTrace();
 //        }        
 //    }
-    
+
 //    /**
 //     * Checks for properties that are new or not used and adds or removes them from a Properties object.
 //     */    

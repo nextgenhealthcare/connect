@@ -45,8 +45,6 @@ public class EDISerializerTests {
         Assert.assertEquals(output, serializer.fromXML(input));
     }
 
-    
-    
     /*
      * Checks if serializer adds missing elements when going from XML to EDI/X12.
      */

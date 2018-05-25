@@ -12,8 +12,8 @@ package com.mirth.connect.connectors.file.filesystems;
 import java.io.File;
 
 /**
- * This allows creation of a FILE.ignore file in order to allow the system to
- * ignore files that we do not want
+ * This allows creation of a FILE.ignore file in order to allow the system to ignore files that we
+ * do not want
  * 
  */
 public interface FileIgnoring {

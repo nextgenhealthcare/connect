@@ -11,7 +11,6 @@ package com.mirth.connect.client.core;
 
 import org.apache.commons.lang3.ObjectUtils;
 
-
 public class IgnoredComponent {
     public final static String COMPONENT_NAME_VERSION_SEPARATOR = ":";
     private String name;

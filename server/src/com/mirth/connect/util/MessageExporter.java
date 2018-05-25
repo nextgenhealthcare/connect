@@ -27,7 +27,7 @@ public class MessageExporter {
     public int getNumExported() {
         return numExported;
     }
-    
+
     public int getNumProcessed() {
         return numProcessed;
     }

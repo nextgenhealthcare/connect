@@ -141,7 +141,7 @@ public class PurgedDocument {
     public void setServerSpecs(Map<String, Object> serverSpecs) {
         this.serverSpecs = serverSpecs;
     }
-    
+
     public Map<String, Object> getClientSpecs() {
         return clientSpecs;
     }

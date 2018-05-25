@@ -72,6 +72,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationException;
@@ -130,8 +132,6 @@ import com.mirth.connect.plugins.TaskPlugin;
 import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
 import com.mirth.connect.util.DirectedAcyclicGraphNode;
-
-import net.miginfocom.swing.MigLayout;
 
 public class ChannelPanel extends AbstractFramePanel {
 

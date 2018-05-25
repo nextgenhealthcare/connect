@@ -100,8 +100,10 @@ public class DataPrunerService implements ServicePlugin {
 
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
-        ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_VIEW, "Displays the Data Pruner settings.", OperationUtil.getOperationNamesForPermission(PERMISSION_VIEW, DataPrunerServletInterface.class, OPERATION_PLUGIN_PROPERTIES_GET), new String[] { TaskConstants.SETTINGS_REFRESH });
-        ExtensionPermission savePermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_SAVE, "Allows changing the Data Pruner settings.", OperationUtil.getOperationNamesForPermission(PERMISSION_SAVE, DataPrunerServletInterface.class, OPERATION_PLUGIN_PROPERTIES_SET), new String[] { TaskConstants.SETTINGS_SAVE });
+        ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_VIEW, "Displays the Data Pruner settings.", OperationUtil.getOperationNamesForPermission(PERMISSION_VIEW, DataPrunerServletInterface.class, OPERATION_PLUGIN_PROPERTIES_GET), new String[] {
+                TaskConstants.SETTINGS_REFRESH });
+        ExtensionPermission savePermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_SAVE, "Allows changing the Data Pruner settings.", OperationUtil.getOperationNamesForPermission(PERMISSION_SAVE, DataPrunerServletInterface.class, OPERATION_PLUGIN_PROPERTIES_SET), new String[] {
+                TaskConstants.SETTINGS_SAVE });
         ExtensionPermission startStopPermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_START_STOP, "Allows starting or stopping the Data Pruner on-demand.", OperationUtil.getOperationNamesForPermission(PERMISSION_START_STOP, DataPrunerServletInterface.class), new String[] {
                 TASK_START, TASK_STOP });
 

@@ -25,7 +25,7 @@ public class HL7SerializerTests {
     @Before
     public void setUp() throws Exception {
         defaultProperties = new HL7v2DataTypeProperties();
-        
+
 //        defaultProperties = new Properties();
 //        defaultProperties.put("useStrictParser", "false");
 //        defaultProperties.put("handleRepetitions", "false");
@@ -49,7 +49,7 @@ public class HL7SerializerTests {
         ER7Serializer serializer = new ER7Serializer(defaultProperties.getSerializerProperties());
         Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
     }
-    
+
     @Test
     public void testToXmlWhitepsace() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-hl7-whitespace-input.txt"));
@@ -65,20 +65,20 @@ public class HL7SerializerTests {
         ER7Serializer serializer = new ER7Serializer(defaultProperties.getSerializerProperties());
         Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
     }
-    
+
     @Test
     public void testFromXmlMissingFields() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-hl7-missing-fields-input.xml"));
         String output = FileUtils.readFileToString(new File("tests/test-hl7-missing-fields-output.txt"));
         ER7Serializer serializer = new ER7Serializer(defaultProperties.getSerializerProperties());
         Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
-        
+
         input = FileUtils.readFileToString(new File("tests/test-hl7-1636-input.xml"));
         output = FileUtils.readFileToString(new File("tests/test-hl7-1636-output.txt"));
         serializer = new ER7Serializer(defaultProperties.getSerializerProperties());
         Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
     }
-    
+
     @Test
     public void testFromXmlMissingComponents() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-hl7-missing-components-input.xml"));
@@ -86,7 +86,7 @@ public class HL7SerializerTests {
         ER7Serializer serializer = new ER7Serializer(defaultProperties.getSerializerProperties());
         Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
     }
-    
+
     @Test
     public void testFromXmlMissingSubcomponents() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-hl7-missing-subcomponents-input.xml"));
@@ -94,7 +94,7 @@ public class HL7SerializerTests {
         ER7Serializer serializer = new ER7Serializer(defaultProperties.getSerializerProperties());
         Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
     }
-    
+
     @Test
     public void testFromXmlSingleSegment() throws Exception {
         HL7v2DataTypeProperties properties = new HL7v2DataTypeProperties();
@@ -103,13 +103,13 @@ public class HL7SerializerTests {
 //        properties.put("handleSubcomponents", "true");
 //        properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
 //        properties.put("outputSegmentDelimiter", "\\r");
-        
+
         String input = FileUtils.readFileToString(new File("tests/test-hl7-single-segment-input.xml"));
         String output = FileUtils.readFileToString(new File("tests/test-hl7-single-segment-output.txt"));
         ER7Serializer serializer = new ER7Serializer(properties.getSerializerProperties());
         Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
     }
-    
+
     @Test
     public void testFromXmlSingleField() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-hl7-single-field-input.xml"));
@@ -165,7 +165,7 @@ public class HL7SerializerTests {
         ER7Serializer serializer = new ER7Serializer(properties.getSerializerProperties());
         Assert.assertEquals(output, TestUtil.prettyPrintXml(serializer.toXML(input)));
     }
-    
+
     @Test
     public void testFromXmlWithRepetitions() throws Exception {
         HL7v2DataTypeProperties properties = new HL7v2DataTypeProperties();
@@ -181,7 +181,7 @@ public class HL7SerializerTests {
         ER7Serializer serializer = new ER7Serializer(properties.getSerializerProperties());
         Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
     }
-    
+
     @Test
     public void testToXmlWithBatch() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-hl7-batch-input.txt"));
@@ -189,7 +189,7 @@ public class HL7SerializerTests {
         ER7Serializer serializer = new ER7Serializer(defaultProperties.getSerializerProperties());
         Assert.assertEquals(output, TestUtil.prettyPrintXml(serializer.toXML(input)));
     }
-    
+
     @Test
     public void testFromXmlWithBatch() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-hl7-batch-output.xml"));

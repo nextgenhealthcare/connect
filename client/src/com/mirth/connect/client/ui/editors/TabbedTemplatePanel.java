@@ -22,6 +22,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.FunctionList;
@@ -34,8 +36,6 @@ import com.mirth.connect.client.ui.panels.reference.VariableReferenceTable;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
-
-import net.miginfocom.swing.MigLayout;
 
 public class TabbedTemplatePanel extends JPanel {
 

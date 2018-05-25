@@ -32,7 +32,7 @@ public class TestSourceConnector extends SourceConnector {
 
     @Override
     public void onStop() throws ConnectorTaskException {}
-    
+
     @Override
     public void onHalt() throws ConnectorTaskException {}
 
@@ -44,13 +44,13 @@ public class TestSourceConnector extends SourceConnector {
     public DispatchResult readTestMessage(String raw) throws ChannelException {
         RawMessage rawMessage = new RawMessage(raw);
         DispatchResult dispatchResult = null;
-        
+
         try {
             dispatchResult = dispatchRawMessage(rawMessage);
         } finally {
             finishDispatch(dispatchResult);
         }
-        
+
         return dispatchResult;
     }
 

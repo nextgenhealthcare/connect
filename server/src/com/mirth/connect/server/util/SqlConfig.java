@@ -55,8 +55,8 @@ public class SqlConfig {
     }
 
     /**
-     * This method loads the MyBatis SQL config file for the database in use,
-     * then appends sqlMap entries from any installed plugins
+     * This method loads the MyBatis SQL config file for the database in use, then appends sqlMap
+     * entries from any installed plugins
      */
     public static void init() {
         try {
@@ -100,9 +100,8 @@ public class SqlConfig {
 
                         if (StringUtils.isBlank(pluginSqlMapName)) {
                             /*
-                             * if we couldn't find one for the current
-                             * database, check for one that works with
-                             * all databases
+                             * if we couldn't find one for the current database, check for one that
+                             * works with all databases
                              */
                             pluginSqlMapName = pmd.getSqlMapConfigs().get("all");
                         }

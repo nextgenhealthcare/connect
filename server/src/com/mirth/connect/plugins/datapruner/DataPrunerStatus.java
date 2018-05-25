@@ -26,7 +26,7 @@ public class DataPrunerStatus implements Serializable {
     private boolean isPruning;
     private boolean isPruningEvents;
     private boolean isArchiving;
-    
+
     public String getCurrentChannelId() {
         return currentChannelId;
     }

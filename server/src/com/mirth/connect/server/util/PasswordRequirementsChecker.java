@@ -93,9 +93,8 @@ public class PasswordRequirementsChecker implements Serializable {
     }
 
     /**
-     * Determines if password matches criteria. Returns a vector with a
-     * description of any conditions not met or null if the password meets all
-     * requirements.
+     * Determines if password matches criteria. Returns a vector with a description of any
+     * conditions not met or null if the password meets all requirements.
      * 
      * @param plainPassword
      * @param passwordRequirements
@@ -115,8 +114,8 @@ public class PasswordRequirementsChecker implements Serializable {
         }
 
         /*
-         * If no user/user id was passed in (new user), then don't do previous password
-         * checks. Continue without checking if the reuse policies are off.
+         * If no user/user id was passed in (new user), then don't do previous password checks.
+         * Continue without checking if the reuse policies are off.
          */
         if ((userId != null) && ((passwordRequirements.getReusePeriod() != 0) || (passwordRequirements.getReuseLimit() != 0))) {
             try {
@@ -283,19 +282,19 @@ public class PasswordRequirementsChecker implements Serializable {
 
         return null;
     }
-    
+
     public Calendar getLastExpirationDate(PasswordRequirements passwordRequirements) {
         DateTime dateTime = new DateTime();
-        
+
         // Must keep all passwords if reuse period is -1 (infinite) or reuse limit is set
         if ((passwordRequirements.getReusePeriod() == -1) || passwordRequirements.getReuseLimit() != 0) {
             return null;
         }
-        
+
         if (passwordRequirements.getReusePeriod() == 0) {
             return Calendar.getInstance();
         }
-        
+
         return dateTime.minus(Duration.standardDays(passwordRequirements.getReusePeriod())).toCalendar(Locale.getDefault());
     }
 

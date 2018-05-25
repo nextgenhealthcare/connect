@@ -40,7 +40,9 @@ public abstract class PaginatedList<T> extends ArrayList<T> {
 
     /**
      * Get the total number of pages available in the current list
-     * @return The total number of pages. Returns null if the total number of pages cannot be calculated.
+     * 
+     * @return The total number of pages. Returns null if the total number of pages cannot be
+     *         calculated.
      */
     public Integer getPageCount() {
         Long totalSize = getItemCount();
@@ -51,7 +53,7 @@ public abstract class PaginatedList<T> extends ArrayList<T> {
             return null;
         }
     }
-    
+
     /**
      * Get the item offset for the given page number
      */
@@ -61,22 +63,23 @@ public abstract class PaginatedList<T> extends ArrayList<T> {
 
     /**
      * Load items corresponding to the given page number into the list
+     * 
      * @param pageNumber
      * @return TRUE if the page was loaded successfully and contains items, FALSE otherwise
      */
     public boolean loadPageNumber(int pageNumber) throws Exception {
         clear();
         hasNextPage = false;
-        
+
         if (pageSize > 0) {
             // Retrieve one more item than pageSize so we know whether or not a next page exists
             List<T> items = getItems(getOffset(pageNumber), pageSize + 1);
-            
+
             if (items != null && !items.isEmpty()) {
                 if (items.size() > pageSize) {
                     hasNextPage = true;
                 }
-                
+
                 // Add only items retrieved up to the pageSize
                 for (int i = 0; i < Math.min(items.size(), pageSize); i++) {
                     add(items.get(i));
@@ -86,16 +89,17 @@ public abstract class PaginatedList<T> extends ArrayList<T> {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     public boolean hasNextPage() {
         return hasNextPage;
     }
-    
+
     /**
      * Get the total number of items in the list
+     * 
      * @return The total number of items in the list, or null if the total is unknown
      */
     public abstract Long getItemCount();

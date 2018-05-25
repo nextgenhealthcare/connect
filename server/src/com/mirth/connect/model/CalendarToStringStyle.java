@@ -19,7 +19,7 @@ public class CalendarToStringStyle extends ToStringStyle {
         this.setUseShortClassName(true);
         this.setUseIdentityHashCode(false);
     }
-    
+
     protected void appendDetail(StringBuffer buffer, String fieldName, Object value) {
         if (value instanceof Calendar) {
             value = String.format("%1$tY-%1$tm-%1$td", value);
@@ -27,7 +27,7 @@ public class CalendarToStringStyle extends ToStringStyle {
 
         buffer.append(value);
     }
-    
+
     public static CalendarToStringStyle instance() {
         return new CalendarToStringStyle();
     }

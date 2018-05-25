@@ -23,11 +23,10 @@ public abstract class PropertyLoader {
     private static final String SUFFIX = ".properties";
 
     /**
-     * Looks up a resource named 'name' in the classpath. The resource must map
-     * to a file with .properties extention. The name is assumed to be absolute
-     * and can use either "/" or "." for package segment separation with an
-     * optional leading "/" and optional ".properties" suffix. Thus, the
-     * following names refer to the same resource:
+     * Looks up a resource named 'name' in the classpath. The resource must map to a file with
+     * .properties extention. The name is assumed to be absolute and can use either "/" or "." for
+     * package segment separation with an optional leading "/" and optional ".properties" suffix.
+     * Thus, the following names refer to the same resource:
      * 
      * <pre>
      *  some.pkg.Resource
@@ -41,14 +40,13 @@ public abstract class PropertyLoader {
      * @param name
      *            classpath resource name [may not be null]
      * @param loader
-     *            classloader through which to load the resource [null is
-     *            equivalent to the application loader]
+     *            classloader through which to load the resource [null is equivalent to the
+     *            application loader]
      * 
-     * @return resource converted to java.util.Properties [may be null if the
-     *         resource was not found and THROW_ON_LOAD_FAILURE is false]
+     * @return resource converted to java.util.Properties [may be null if the resource was not found
+     *         and THROW_ON_LOAD_FAILURE is false]
      * @throws IllegalArgumentException
-     *             if the resource was not found and THROW_ON_LOAD_FAILURE is
-     *             true
+     *             if the resource was not found and THROW_ON_LOAD_FAILURE is true
      */
     public static Properties loadProperties(String name, ClassLoader loader) {
         if (name == null)
@@ -111,8 +109,8 @@ public abstract class PropertyLoader {
     }
 
     /**
-     * A convenience overload of {@link #loadProperties(String, ClassLoader)}
-     * that uses the current thread's context classloader.
+     * A convenience overload of {@link #loadProperties(String, ClassLoader)} that uses the current
+     * thread's context classloader.
      */
     public static Properties loadProperties(final String name) {
         return loadProperties(name, Thread.currentThread().getContextClassLoader());
@@ -120,14 +118,14 @@ public abstract class PropertyLoader {
 
     public static String getProperty(final Properties properties, final String propertyKey) {
         String property = properties.getProperty(propertyKey);
-        
+
         if (property == null) {
             Logger.getLogger(PropertyLoader.class).error("Property \"" + propertyKey + "\" was not found.");
         }
-        
+
         return property;
     }
-    
+
     public static String getProperty(final Properties properties, final String propertyKey, final String defaultValue) {
         return properties.getProperty(propertyKey, defaultValue);
     }

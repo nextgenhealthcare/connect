@@ -1,13 +1,18 @@
 package com.mirth.connect.connectors.file;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.net.URI;
@@ -16,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -206,7 +210,7 @@ public class FileReceiverTest {
     @Test
     public void testPoll3() throws Exception {
         final String fileDirectory = "tests/filereader/batch";
-        
+
         final int messagesFile1 = 3;
         final int messagesFile2 = 1;
         final int messagesFile3 = 2;
@@ -228,16 +232,16 @@ public class FileReceiverTest {
             assertNotNull(sourceMap.get(POLL_ID));
             assertEquals(pollId1, sourceMap.get(POLL_ID));
             assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
-            
+
             int expectedPollSequenceID = 0;
             if (i < messagesFile1) {
-            	expectedPollSequenceID = 1;
+                expectedPollSequenceID = 1;
             } else if (i < messagesFile1 + messagesFile2) {
-            	expectedPollSequenceID = 2;
+                expectedPollSequenceID = 2;
             } else {
-            	expectedPollSequenceID = 3;
+                expectedPollSequenceID = 3;
             }
-            
+
             assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
 
             if (i >= messagesFile1 + messagesFile2) {
@@ -265,15 +269,15 @@ public class FileReceiverTest {
 
             int expectedPollSequenceID = 0;
             if (i < messagesFile1 + expectedMessageCount) {
-            	expectedPollSequenceID = 1;
+                expectedPollSequenceID = 1;
             } else if (i < messagesFile1 + messagesFile2 + expectedMessageCount) {
-            	expectedPollSequenceID = 2;
+                expectedPollSequenceID = 2;
             } else {
-            	expectedPollSequenceID = 3;
+                expectedPollSequenceID = 3;
             }
-                        
+
             assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
-            
+
             if (i >= messagesFile1 + messagesFile2 + expectedMessageCount) {
                 assertNotNull(sourceMap.get(POLL_COMPLETE));
                 assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
@@ -283,14 +287,14 @@ public class FileReceiverTest {
         }
 
     }
-    
+
     /*
      * Batch messages, uses directory recursion
      */
     @Test
     public void testPoll4() throws Exception {
         final String fileDirectory = "tests/filereader/batch";
-        
+
         final int messagesFile1 = 3;
         final int messagesFile2 = 1;
         final int messagesFile3 = 2;
@@ -313,18 +317,18 @@ public class FileReceiverTest {
             assertNotNull(sourceMap.get(POLL_ID));
             assertEquals(pollId1, sourceMap.get(POLL_ID));
             assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
-            
+
             int expectedPollSequenceID = 0;
             if (i < messagesFile1) {
-            	expectedPollSequenceID = 1;
+                expectedPollSequenceID = 1;
             } else if (i < messagesFile1 + messagesFile2) {
-            	expectedPollSequenceID = 2;
+                expectedPollSequenceID = 2;
             } else if (i < messagesFile1 + messagesFile2 + messagesFile3) {
-            	expectedPollSequenceID = 3;
+                expectedPollSequenceID = 3;
             } else {
-            	expectedPollSequenceID = 4;
+                expectedPollSequenceID = 4;
             }
-            
+
             assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
 
             if (i >= messagesFile1 + messagesFile2 + messagesFile3) {
@@ -352,17 +356,17 @@ public class FileReceiverTest {
 
             int expectedPollSequenceID = 0;
             if (i < messagesFile1 + expectedMessageCount) {
-            	expectedPollSequenceID = 1;
+                expectedPollSequenceID = 1;
             } else if (i < messagesFile1 + messagesFile2 + expectedMessageCount) {
-            	expectedPollSequenceID = 2;
+                expectedPollSequenceID = 2;
             } else if (i < messagesFile1 + messagesFile2 + messagesFile3 + expectedMessageCount) {
-            	expectedPollSequenceID = 3;
+                expectedPollSequenceID = 3;
             } else {
-            	expectedPollSequenceID = 4;
+                expectedPollSequenceID = 4;
             }
-                        
+
             assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
-            
+
             if (i >= messagesFile1 + messagesFile2 + messagesFile3 + expectedMessageCount) {
                 assertNotNull(sourceMap.get(POLL_COMPLETE));
                 assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
@@ -383,27 +387,27 @@ public class FileReceiverTest {
         TestFileReceiver receiver = createReceiver(fileDirectory, true, true, FileReceiverProperties.SORT_BY_NAME, null);
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == 0);
-        
+
         receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, null);
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == 0);
-        
+
         receiver = createReceiver(fileDirectory, true, false, FileReceiverProperties.SORT_BY_NAME, null);
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == 0);
-        
+
         receiver = createReceiver(fileDirectory, false, false, FileReceiverProperties.SORT_BY_NAME, null);
         receiver.poll();
         assertTrue(receiver.rawMessages.size() == 0);
     }
-    
+
     /*
      * Tests batch processing while sorting files by size
      */
     @Test
     public void testPoll6() throws Exception {
         final String fileDirectory = "tests/filereader/batch";
-        
+
         final int messagesFile1 = 1;
         final int messagesFile2 = 2;
         final int messagesFile3 = 3;
@@ -425,20 +429,20 @@ public class FileReceiverTest {
             assertNotNull(sourceMap.get(POLL_ID));
             assertEquals(pollId1, sourceMap.get(POLL_ID));
             assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
-            
+
             int expectedPollSequenceID = 0;
             String expectedFilename;
             if (i < messagesFile1) {
-            	expectedPollSequenceID = 1;
-            	expectedFilename = "batch02.hl7";
+                expectedPollSequenceID = 1;
+                expectedFilename = "batch02.hl7";
             } else if (i < messagesFile1 + messagesFile2) {
-            	expectedPollSequenceID = 2;
-            	expectedFilename = "batch03.hl7";
+                expectedPollSequenceID = 2;
+                expectedFilename = "batch03.hl7";
             } else {
-            	expectedPollSequenceID = 3;
-            	expectedFilename = "batch01.hl7";
+                expectedPollSequenceID = 3;
+                expectedFilename = "batch01.hl7";
             }
-            
+
             assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
             assertEquals(expectedFilename, sourceMap.get(ORIGINAL_FILENAME));
 
@@ -468,19 +472,19 @@ public class FileReceiverTest {
             int expectedPollSequenceID = 0;
             String expectedFilename;
             if (i < messagesFile1 + expectedMessageCount) {
-            	expectedPollSequenceID = 1;
-            	expectedFilename = "batch02.hl7";
+                expectedPollSequenceID = 1;
+                expectedFilename = "batch02.hl7";
             } else if (i < messagesFile1 + messagesFile2 + expectedMessageCount) {
-            	expectedPollSequenceID = 2;
-            	expectedFilename = "batch03.hl7";
+                expectedPollSequenceID = 2;
+                expectedFilename = "batch03.hl7";
             } else {
-            	expectedPollSequenceID = 3;
-            	expectedFilename = "batch01.hl7";
+                expectedPollSequenceID = 3;
+                expectedFilename = "batch01.hl7";
             }
-                        
+
             assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
             assertEquals(expectedFilename, sourceMap.get(ORIGINAL_FILENAME));
-            
+
             if (i >= messagesFile1 + messagesFile2 + expectedMessageCount) {
                 assertNotNull(sourceMap.get(POLL_COMPLETE));
                 assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
@@ -490,7 +494,7 @@ public class FileReceiverTest {
         }
 
     }
-    
+
     /*
      * Tests where not all files will be processed due to size
      */
@@ -515,12 +519,12 @@ public class FileReceiverTest {
             assertNotNull(sourceMap.get(POLL_ID));
             assertEquals(pollId1, sourceMap.get(POLL_ID));
             assertNotNull(sourceMap.get(POLL_SEQUENCE_ID));
-            
+
             int expectedPollSequenceID = 0;
             String expectedFilename;
             expectedPollSequenceID = 1;
-        	expectedFilename = "batch02.hl7";
-            
+            expectedFilename = "batch02.hl7";
+
             assertEquals(expectedPollSequenceID, sourceMap.get(POLL_SEQUENCE_ID));
             assertEquals(expectedFilename, sourceMap.get(ORIGINAL_FILENAME));
 
@@ -528,7 +532,7 @@ public class FileReceiverTest {
             assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
         }
     }
-    
+
     /*
      * Test when connector is stopped/terminated before executing poll
      */
@@ -540,10 +544,10 @@ public class FileReceiverTest {
         TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, null);
         receiver.stop();
         receiver.poll();
-        
+
         assertTrue(receiver.rawMessages.size() == expectedMessageCount);
     }
-    
+
     /*
      * Test when connector polls a directory with an empty file
      */
@@ -554,11 +558,11 @@ public class FileReceiverTest {
 
         TestFileReceiver receiver = createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, null);
         receiver.poll();
-        
+
         verify(receiver.logger, times(1)).warn(any());
         assertTrue(receiver.rawMessages.size() == expectedMessageCount);
     }
-    
+
     /*
      * Test when polling with directory recursion and the last directory is empty
      */
@@ -573,15 +577,15 @@ public class FileReceiverTest {
         assertTrue(receiver.rawMessages.size() == expectedMessageCount);
 
         for (int i = 0; i < receiver.rawMessages.size(); i++) {
-        	RawMessage message = receiver.rawMessages.get(i);
-	        Map<String, Object> sourceMap = message.getSourceMap();
-	        assertNotNull(sourceMap.get(POLL_ID));
-	        assertEquals(i + 1, sourceMap.get(POLL_SEQUENCE_ID));
-	        assertNotNull(sourceMap.get(POLL_COMPLETE));
-	        assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
+            RawMessage message = receiver.rawMessages.get(i);
+            Map<String, Object> sourceMap = message.getSourceMap();
+            assertNotNull(sourceMap.get(POLL_ID));
+            assertEquals(i + 1, sourceMap.get(POLL_SEQUENCE_ID));
+            assertNotNull(sourceMap.get(POLL_COMPLETE));
+            assertTrue(((Boolean) sourceMap.get(POLL_COMPLETE)).booleanValue());
         }
     }
-    
+
     /*
      * Batch messages, no directory recursion, File Type Binary
      */
@@ -591,17 +595,17 @@ public class FileReceiverTest {
 
         boolean exceptionThrown = false;
         try {
-        	createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, null, true);
+            createReceiver(fileDirectory, false, true, FileReceiverProperties.SORT_BY_NAME, null, true);
         } catch (ConnectorTaskException e) {
-        	exceptionThrown = true;
+            exceptionThrown = true;
         }
         assertTrue(exceptionThrown);
     }
-    
+
     private TestFileReceiver createReceiver(String directory, boolean directoryRecursion, boolean batchProcess, String sortBy, String fileSizeMaximum) throws Exception {
-    	return createReceiver(directory, directoryRecursion, batchProcess, sortBy, fileSizeMaximum, false);
+        return createReceiver(directory, directoryRecursion, batchProcess, sortBy, fileSizeMaximum, false);
     }
-    
+
     private TestFileReceiver createReceiver(String directory, boolean directoryRecursion, boolean batchProcess, String sortBy, String fileSizeMaximum, boolean fileTypeBinary) throws Exception {
         TestFileReceiver receiver = spy(new TestFileReceiver() {
             @Override
@@ -615,7 +619,7 @@ public class FileReceiverTest {
         channel.setChannelId(channelId);
         channel.setName(channelName);
         channel.setSourceConnector(receiver);
-        
+
         receiver.setChannel(channel);
         receiver.setChannelId(channelId);
 
@@ -623,7 +627,7 @@ public class FileReceiverTest {
         connectorProperties.setDirectoryRecursion(directoryRecursion);
         connectorProperties.setSortBy(sortBy);
         if (fileSizeMaximum != null) {
-        	connectorProperties.setIgnoreFileSizeMaximum(false);
+            connectorProperties.setIgnoreFileSizeMaximum(false);
             connectorProperties.setFileSizeMinimum("0");
             connectorProperties.setFileSizeMaximum(fileSizeMaximum);
         }
@@ -658,15 +662,15 @@ public class FileReceiverTest {
         List<RawMessage> rawMessages = new ArrayList<>();
 
         public TestFileReceiver() {
-			logger = spy(LogFactory.getLog(getClass()));
-		}
-        
+            logger = spy(LogFactory.getLog(getClass()));
+        }
+
         @Override
         public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
             rawMessages.add(rawMessage);
             return new TestDispatchResult(0, null, new Response(), true, true);
         }
-        
+
         @Override
         public void finishDispatch(DispatchResult dispatchResult) {}
     }
@@ -682,7 +686,7 @@ public class FileReceiverTest {
             doNothing().when(eventDispatcher).dispatchEvent(any());
             return eventDispatcher;
         }
-        
+
         @Override
         protected DispatchResult dispatchRawMessage(RawMessage rawMessage, boolean batch) throws ChannelException {
             ((TestFileReceiver) getSourceConnector()).rawMessages.add(rawMessage);

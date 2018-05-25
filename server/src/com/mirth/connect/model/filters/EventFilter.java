@@ -25,9 +25,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("eventFilter")
 public class EventFilter {
     /*
-     * Note that any filter criteria that is an int must be represented using
-     * Integer otherwise it will default to 0 and not pass the isNotNull check
-     * in the SQL mapping.
+     * Note that any filter criteria that is an int must be represented using Integer otherwise it
+     * will default to 0 and not pass the isNotNull check in the SQL mapping.
      */
     private Integer maxEventId;
     private Integer minEventId;
@@ -48,7 +47,7 @@ public class EventFilter {
     public void setMaxEventId(Integer maxEventId) {
         this.maxEventId = maxEventId;
     }
-    
+
     public Integer getMinEventId() {
         return minEventId;
     }

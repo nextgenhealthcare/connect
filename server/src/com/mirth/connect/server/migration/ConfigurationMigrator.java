@@ -25,7 +25,7 @@ public interface ConfigurationMigrator {
      * nothing to remove.
      */
     public String[] getConfigurationPropertiesToRemove();
-    
+
     /**
      * Migrates existing configuration settings
      */
