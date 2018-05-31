@@ -400,6 +400,30 @@ public class JavaScriptBuilder {
         builder.append("    return 0;\n");
         builder.append("}\n");
 
+        // Helper function to create a new String but leave undefined/null values alone
+        builder.append("function newStringOrUndefined(value) {\n");
+        builder.append("    if ('undefined' !== typeof value && value != null) {\n");
+        builder.append("        value = new String(value);\n");
+        builder.append("    }\n");
+        builder.append("    return value;\n");
+        builder.append("}\n");
+
+        // Helper function to create a new Boolean but leave undefined/null values alone
+        builder.append("function newBooleanOrUndefined(value) {\n");
+        builder.append("    if ('undefined' !== typeof value && value != null) {\n");
+        builder.append("        value = new Boolean(value);\n");
+        builder.append("    }\n");
+        builder.append("    return value;\n");
+        builder.append("}\n");
+
+        // Helper function to create a new Number but leave undefined/null values alone
+        builder.append("function newNumberOrUndefined(value) {\n");
+        builder.append("    if ('undefined' !== typeof value && value != null) {\n");
+        builder.append("        value = new Number(value);\n");
+        builder.append("    }\n");
+        builder.append("    return value;\n");
+        builder.append("}\n");
+
         /*
          * Since we use a sealed shared scope everywhere, importClass won't be available. To allow
          * this to still work for migration, we override importClass to call importPackage instead.
