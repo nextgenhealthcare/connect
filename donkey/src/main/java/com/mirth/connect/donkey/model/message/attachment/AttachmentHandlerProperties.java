@@ -93,9 +93,6 @@ public class AttachmentHandlerProperties implements Serializable, Migratable, Pu
     public void migrate3_3_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_5_0(DonkeyElement element) {}
-
-    @Override
     public void migrate3_4_0(DonkeyElement element) {
         DonkeyElement classNameElement = element.getChildElement("className");
         if (classNameElement != null) {
@@ -112,4 +109,10 @@ public class AttachmentHandlerProperties implements Serializable, Migratable, Pu
             }
         }
     }
+    
+    @Override
+    public void migrate3_5_0(DonkeyElement element) {}
+    
+    @Override
+    public void migrate3_6_0(DonkeyElement element) {}
 }

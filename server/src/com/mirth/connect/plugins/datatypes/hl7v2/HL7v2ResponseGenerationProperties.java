@@ -200,6 +200,9 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
     public void migrate3_5_0(DonkeyElement element) {}
 
     @Override
+    public void migrate3_6_0(DonkeyElement element) {}
+    
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("successfulACKMessageChars", PurgeUtil.countChars(successfulACKMessage));
