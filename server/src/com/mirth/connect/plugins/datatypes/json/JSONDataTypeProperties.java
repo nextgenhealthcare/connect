@@ -43,6 +43,9 @@ public class JSONDataTypeProperties extends DataTypeProperties {
     public void migrate3_5_0(DonkeyElement element) {}
 
     @Override
+    public void migrate3_6_0(DonkeyElement element) {}
+    
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("batchProperties", batchProperties.getPurgedProperties());

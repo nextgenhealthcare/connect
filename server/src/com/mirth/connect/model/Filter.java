@@ -111,6 +111,9 @@ public class Filter extends FilterTransformer<Rule> {
             newRuleElement.addChildElement("name", nameElement != null ? nameElement.getTextContent() : "");
         }
     }
+    
+    @Override
+    public void migrate3_6_0(DonkeyElement element) {}
 
     @Override
     public Filter clone() {
