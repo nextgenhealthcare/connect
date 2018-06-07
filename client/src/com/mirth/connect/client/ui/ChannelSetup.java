@@ -1484,9 +1484,6 @@ public class ChannelSetup extends JPanel {
         }
 
         destinationConnectors.remove(destinationTable.getSelectedModelIndex());
-        if (lastModelIndex >= destinationConnectors.size()) {
-            lastModelIndex = destinationConnectors.size() - 1;
-        }
 
         makeDestinationTable(false);
         parent.setSaveEnabled(true);
@@ -3220,6 +3217,10 @@ public class ChannelSetup extends JPanel {
                 attachmentComboBox.setSelectedItem(newType);
             }
         }
+    }
+    
+    public int getSelectedDestinationIndex() {
+        return destinationTable.getSelectedModelIndex();
     }
 
     // Tab Container
