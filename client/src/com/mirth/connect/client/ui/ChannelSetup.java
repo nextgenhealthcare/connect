@@ -1484,6 +1484,9 @@ public class ChannelSetup extends JPanel {
         }
 
         destinationConnectors.remove(destinationTable.getSelectedModelIndex());
+        if (lastModelIndex >= destinationConnectors.size()) {
+            lastModelIndex = destinationConnectors.size() - 1;
+        }
 
         makeDestinationTable(false);
         parent.setSaveEnabled(true);
