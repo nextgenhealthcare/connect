@@ -93,8 +93,8 @@ public class MigratableConverter extends ReflectionConverter {
              * MIRTH-3446: If any migration was performed, we need to tell the DomReader to reload
              * its internal list of child elements (since children may have been added or removed).
              */
-            if (reader instanceof MirthDomReader) {
-                ((MirthDomReader) reader).reloadCurrentElement();
+            if (reader.underlyingReader() instanceof MirthDomReader) {
+                ((MirthDomReader) reader.underlyingReader()).reloadCurrentElement();
             }
         }
 

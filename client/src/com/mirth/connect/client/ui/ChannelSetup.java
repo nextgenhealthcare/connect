@@ -3218,6 +3218,10 @@ public class ChannelSetup extends JPanel {
             }
         }
     }
+    
+    public int getSelectedDestinationIndex() {
+        return destinationTable.getSelectedModelIndex();
+    }
 
     // Tab Container
     private JTabbedPane channelView;
