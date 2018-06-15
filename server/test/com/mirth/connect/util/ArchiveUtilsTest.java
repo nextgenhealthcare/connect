@@ -8,6 +8,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.URL;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -39,8 +41,8 @@ public class ArchiveUtilsTest {
         FileInputStream fis = new FileInputStream(file);
         BufferedInputStream bis = new BufferedInputStream(fis);
         ZipInputStream zis = new ZipInputStream(bis);
-        boolean extracted = ArchiveUtils.extractArchive(installTempDir, zis);
-        assertTrue(extracted);
+        List<URL> fileUrls = ArchiveUtils.extractArchive(installTempDir, zis);
+        assertFalse(fileUrls.isEmpty());
         File extractedFile = new File("tests/zipextraction", "ZipSlip.txt");
         assertTrue(extractedFile.exists());
     }
@@ -52,8 +54,8 @@ public class ArchiveUtilsTest {
         FileInputStream fis = new FileInputStream(file);
         BufferedInputStream bis = new BufferedInputStream(fis);
         ZipInputStream zis = new ZipInputStream(bis);
-        boolean extracted = ArchiveUtils.extractArchive(installTempDir, zis);
-        assertFalse(extracted);
+        List<URL> fileUrls = ArchiveUtils.extractArchive(installTempDir, zis);
+        assertTrue(fileUrls.isEmpty());
     }
 
     @Before

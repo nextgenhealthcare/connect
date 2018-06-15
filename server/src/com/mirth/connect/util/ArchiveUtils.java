@@ -16,13 +16,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
-
-import net.lingala.zip4j.io.ZipOutputStream;
-import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.util.Zip4jConstants;
 
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
@@ -32,6 +31,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.util.messagewriter.EncryptionType;
+
+import net.lingala.zip4j.io.ZipOutputStream;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.util.Zip4jConstants;
 
 public class ArchiveUtils {
     /**
@@ -193,15 +196,16 @@ public class ArchiveUtils {
      * @return true if source contains any entries (ie we are not extracting an empty zip)
      * @throws IOException
      */
-    public static boolean extractArchive(File targetDir, ZipInputStream source) throws IOException, ZipException {
+    public static List<URL> extractArchive(File targetDir, ZipInputStream source) throws IOException, ZipException {
         ZipEntry zipEntry;
-        boolean foundEntry = false;
+        List<URL> fileUrls = new ArrayList<>();
+        
         while ((zipEntry = source.getNextEntry()) != null) {
             File file = new File(targetDir, zipEntry.getName());
-            foundEntry = true;
             if (!file.getCanonicalPath().startsWith(targetDir.getCanonicalPath() + File.separator)) {
                 throw new ZipException("Zip file is attempting to traverse out of base directory");
             }
+            fileUrls.add(file.toURI().toURL());
             
             if (zipEntry.isDirectory()) {
                 if (!file.mkdir()) {
@@ -218,7 +222,7 @@ public class ArchiveUtils {
                 }
             }
         }
-        return foundEntry;
+        return fileUrls;
     }
     
     public static class CompressException extends Exception {
