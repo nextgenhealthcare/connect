@@ -32,6 +32,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -113,7 +114,7 @@ public class DefaultExtensionController extends ExtensionController {
         }
     }
 
-    private DefaultExtensionController() {
+    DefaultExtensionController() {
 
     }
 
@@ -492,23 +493,7 @@ public class DefaultExtensionController extends ExtensionController {
 
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
-
-                    if (entry.isDirectory()) {
-                        /*
-                         * assume directories are stored parents first then children.
-                         * 
-                         * TODO: this is not robust, just for demonstration purposes.
-                         */
-                        File directory = new File(installTempDir, entry.getName());
-                        directory.mkdir();
-                    } else {
-                        // otherwise, write the file out to the install temp dir
-                        InputStream zipInputStream = zipFile.getInputStream(entry);
-                        OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(installTempDir, entry.getName())));
-                        IOUtils.copy(zipInputStream, outputStream);
-                        IOUtils.closeQuietly(zipInputStream);
-                        IOUtils.closeQuietly(outputStream);
-                    }
+                    extractZipEntry(entry, installTempDir, zipFile);
                 }
             }
         } catch (Throwable t) {
@@ -744,5 +729,32 @@ public class DefaultExtensionController extends ExtensionController {
 
     public List<ServerPlugin> getServerPlugins() {
         return serverPlugins;
+    }
+    
+    void extractZipEntry(ZipEntry entry, File installTempDir, ZipFile zipFile) throws IOException {
+        String canonicalDestinationDirPath = installTempDir.getCanonicalPath();
+        File destinationfile = new File(installTempDir, entry.getName());
+        String canonicalDestinationFile = destinationfile.getCanonicalPath();
+        
+        if (!canonicalDestinationFile.startsWith(canonicalDestinationDirPath + File.separator)) {
+            throw new ZipException("Zip file is attempting to traverse out of base directory");
+        }
+        
+        if (entry.isDirectory()) {
+            /*
+            * assume directories are stored parents first then children.
+            * 
+            * TODO: this is not robust, just for demonstration purposes.
+            */
+            File directory = new File(installTempDir, entry.getName());
+            directory.mkdir();
+        } else {
+            // otherwise, write the file out to the install temp dir
+            InputStream zipInputStream = zipFile.getInputStream(entry);
+            OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(installTempDir, entry.getName())));
+            IOUtils.copy(zipInputStream, outputStream);
+            IOUtils.closeQuietly(zipInputStream);
+            IOUtils.closeQuietly(outputStream);
+        }
     }
 }
