@@ -9,28 +9,19 @@
 
 package com.mirth.connect.util;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
-
 import net.lingala.zip4j.io.ZipOutputStream;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -187,115 +178,6 @@ public class ArchiveUtils {
                     throw new CompressException(e);
                 }
             }
-        }
-    }
-
-    /**
-     * Extracts folders/files from an archive into the destinationFolder. Supports reading any type
-     * of archive file supported by Apache's commons-compress.
-     * 
-     * @param archiveFile
-     *            A compressed or uncompressed archive file
-     * @param destinationFolder
-     *            Destination folder, will be created if it doesn't exist.
-     * @throws CompressException
-     */
-    public static void extractArchive(File archiveFile, File destinationFolder) throws CompressException {
-        /**
-         * Since we don't know what type of archive file we've received, try treating it as a zip
-         * file first and extract using our zip-optimized extract method. If an exception occurs,
-         * fall back to the generic method.
-         */
-        try {
-            extractZipArchive(archiveFile, destinationFolder);
-        } catch (CompressException e) {
-            extractGenericArchive(archiveFile, destinationFolder);
-        }
-    }
-
-    /**
-     * Extracts an archive using generic stream factories provided by commons-compress.
-     */
-    private static void extractGenericArchive(File archiveFile, File destinationFolder) throws CompressException {
-        try {
-            InputStream inputStream = new BufferedInputStream(FileUtils.openInputStream(archiveFile));
-
-            try {
-                inputStream = new CompressorStreamFactory().createCompressorInputStream(inputStream);
-            } catch (CompressorException e) {
-                // a compressor was not recognized in the stream, in this case we leave the inputStream as-is
-            }
-
-            ArchiveInputStream archiveInputStream = new ArchiveStreamFactory().createArchiveInputStream(inputStream);
-            ArchiveEntry entry;
-            int inputOffset = 0;
-            byte[] buffer = new byte[BUFFER_SIZE];
-
-            try {
-                while (null != (entry = archiveInputStream.getNextEntry())) {
-                    File outputFile = new File(destinationFolder.getAbsolutePath() + IOUtils.DIR_SEPARATOR + entry.getName());
-
-                    if (entry.isDirectory()) {
-                        FileUtils.forceMkdir(outputFile);
-                    } else {
-                        FileOutputStream outputStream = null;
-
-                        try {
-                            outputStream = FileUtils.openOutputStream(outputFile);
-                            int bytesRead;
-                            int outputOffset = 0;
-
-                            while ((bytesRead = archiveInputStream.read(buffer, inputOffset, BUFFER_SIZE)) > 0) {
-                                outputStream.write(buffer, outputOffset, bytesRead);
-                                inputOffset += bytesRead;
-                                outputOffset += bytesRead;
-                            }
-                        } finally {
-                            IOUtils.closeQuietly(outputStream);
-                        }
-                    }
-                }
-            } finally {
-                IOUtils.closeQuietly(archiveInputStream);
-            }
-        } catch (Exception e) {
-            throw new CompressException(e);
-        }
-    }
-
-    /**
-     * Extracts folders/files from a zip archive using zip-optimized code from commons-compress.
-     */
-    private static void extractZipArchive(File archiveFile, File destinationFolder) throws CompressException {
-        ZipFile zipFile = null;
-
-        try {
-            zipFile = new ZipFile(archiveFile);
-            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
-            ZipArchiveEntry entry = null;
-            byte[] buffer = new byte[BUFFER_SIZE];
-
-            for (; entries.hasMoreElements(); entry = entries.nextElement()) {
-                File outputFile = new File(destinationFolder.getAbsolutePath() + IOUtils.DIR_SEPARATOR + entry.getName());
-
-                if (entry.isDirectory()) {
-                    FileUtils.forceMkdir(outputFile);
-                } else {
-                    InputStream inputStream = zipFile.getInputStream(entry);
-                    OutputStream outputStream = FileUtils.openOutputStream(outputFile);
-
-                    try {
-                        IOUtils.copyLarge(inputStream, outputStream, buffer);
-                    } finally {
-                        IOUtils.closeQuietly(inputStream);
-                        IOUtils.closeQuietly(outputStream);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new CompressException(e);
-        } finally {
-            ZipFile.closeQuietly(zipFile);
         }
     }
 
