@@ -13,8 +13,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipInputStream;
+
 import net.lingala.zip4j.io.ZipOutputStream;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
@@ -181,6 +186,41 @@ public class ArchiveUtils {
         }
     }
 
+    /**
+     * Extracts ZipInputStream to target directory.
+     * @param targetDir
+     * @param source
+     * @return true if source contains any entries (ie we are not extracting an empty zip)
+     * @throws IOException
+     */
+    public static boolean extractArchive(File targetDir, ZipInputStream source) throws IOException, ZipException {
+        ZipEntry zipEntry;
+        boolean foundEntry = false;
+        while ((zipEntry = source.getNextEntry()) != null) {
+            File file = new File(targetDir, zipEntry.getName());
+            foundEntry = true;
+            if (!file.getCanonicalPath().startsWith(targetDir.getCanonicalPath() + File.separator)) {
+                throw new ZipException("Zip file is attempting to traverse out of base directory");
+            }
+            
+            if (zipEntry.isDirectory()) {
+                if (!file.mkdir()) {
+                    throw new IOException("Unable to create directory: " + file.toString());
+                }
+                source.closeEntry();
+            } else {
+                OutputStream outputStream = new FileOutputStream(file);
+                try {
+                    IOUtils.copy(source, outputStream);
+                    source.closeEntry();
+                } finally {
+                    outputStream.close();
+                }
+            }
+        }
+        return foundEntry;
+    }
+    
     public static class CompressException extends Exception {
         public CompressException(String message) {
             super(message);
