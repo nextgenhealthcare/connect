@@ -1,0 +1,181 @@
+package net.lingala.zip4j.unzip;
+
+import static org.junit.Assert.assertTrue;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.common.base.Strings;
+
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.CentralDirectory;
+import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.UnzipParameters;
+import net.lingala.zip4j.model.ZipModel;
+import net.lingala.zip4j.progress.ProgressMonitor;
+
+public class UnzipTest {
+
+    @Before
+    public void createTestFolder() {
+        File installTempDir = new File("tests/zipextraction");
+        if (!installTempDir.exists()) {
+            installTempDir.mkdir();
+        } else {
+            cleanupTestFolder();
+        }
+    }
+    
+    @After
+    public void cleanupTestFolder() {
+        File tempDir = new File("tests/zipextraction"); 
+        if (tempDir.exists()) {
+            for (File file : tempDir.listFiles()) {
+                file.delete();
+            }
+        }
+    }
+
+    @Test(expected=ZipException.class)
+    public void testExtractMaliciousFile1() throws Exception {
+        String maliciousFileName = "../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt";
+        Pair<Unzip, FileHeader> pair = createUnzipPair(maliciousFileName);
+        Unzip unzip = pair.getLeft();
+        FileHeader fileHeader = pair.getRight();
+
+        UnzipParameters unzipParams = new UnzipParameters();
+        String outPath = "tests/zipextraction";
+        ProgressMonitor progressMonitor = new ProgressMonitor();
+        String newFileName = null;
+
+        unzip.extractFile(fileHeader, outPath, unzipParams, newFileName, progressMonitor, false);
+    }
+    
+    @Test(expected=ZipException.class)
+    public void testExtractMaliciousFile2() throws Exception {
+        String maliciousFileName = "../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt";
+        Pair<Unzip, FileHeader> pair = createUnzipPair(maliciousFileName);
+        Unzip unzip = pair.getLeft();
+        FileHeader fileHeader = pair.getRight();
+
+        UnzipParameters unzipParams = new UnzipParameters();
+        String outPath = "tests/zipextraction";
+        ProgressMonitor progressMonitor = new ProgressMonitor();
+        String newFileName = "evil.txt";
+
+        unzip.extractFile(fileHeader, outPath, unzipParams, newFileName, progressMonitor, false);
+    }
+    
+    @Test
+    public void testExtractNormalFile1() throws Exception {
+        String fileName = "good.txt";
+        Pair<Unzip, FileHeader> pair = createUnzipPair(fileName);
+        Unzip unzip = pair.getLeft();
+        FileHeader fileHeader = pair.getRight();
+
+        UnzipParameters unzipParams = new UnzipParameters();
+        String outPath = "tests/zipextraction";
+        ProgressMonitor progressMonitor = new ProgressMonitor();
+        String newFileName = null;
+
+        unzip.extractFile(fileHeader, outPath, unzipParams, newFileName, progressMonitor, false);
+        File outputFile = new File(outPath + File.separator + fileName);
+        assertTrue(outputFile.exists());
+    }
+    
+    @Test
+    public void testExtractNormalFile2() throws Exception {
+        String fileName = "good.txt";
+        Pair<Unzip, FileHeader> pair = createUnzipPair(fileName);
+        Unzip unzip = pair.getLeft();
+        FileHeader fileHeader = pair.getRight();
+
+        UnzipParameters unzipParams = new UnzipParameters();
+        String outPath = "tests/zipextraction";
+        ProgressMonitor progressMonitor = new ProgressMonitor();
+        String newFileName = "good2.txt";
+
+        unzip.extractFile(fileHeader, outPath, unzipParams, newFileName, progressMonitor, false);
+        File outputFile = new File(outPath + File.separator + newFileName);
+        assertTrue(outputFile.exists());
+    }
+    
+    @Test(expected=ZipException.class)
+    public void testExtractAllFromMaliciousFile() throws Exception {
+        String maliciousFileName = "../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt";
+        Pair<Unzip, FileHeader> pair = createUnzipPair(maliciousFileName);
+        Unzip unzip = pair.getLeft();
+
+        UnzipParameters unzipParams = new UnzipParameters();
+        String outPath = "tests/zipextraction";
+        ProgressMonitor progressMonitor = new ProgressMonitor();
+
+        unzip.extractAll(unzipParams, outPath, progressMonitor, false);
+    }
+    
+    @Test
+    public void testExtractAllFromNormalFile() throws Exception {
+        String fileName = "good.txt";
+        Pair<Unzip, FileHeader> pair = createUnzipPair(fileName);
+        Unzip unzip = pair.getLeft();
+
+        UnzipParameters unzipParams = new UnzipParameters();
+        String outPath = "tests/zipextraction";
+        ProgressMonitor progressMonitor = new ProgressMonitor();
+
+        unzip.extractAll(unzipParams, outPath, progressMonitor, false);
+        File outputFile = new File(outPath + File.separator + fileName);
+        assertTrue(outputFile.exists());
+    }
+    
+    // TODO Refactor this method into a util class
+    private File createTempZipFile(String fileName) throws Exception {
+        File tempFile = File.createTempFile("temp_zip", ".zip"); //write to system defined temp
+        FileOutputStream fos = new FileOutputStream(tempFile);
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
+        ZipOutputStream zos = new ZipOutputStream(bos);
+
+        if (!Strings.isNullOrEmpty(fileName)) {
+            try {
+                ZipEntry entry = new ZipEntry(fileName);
+                zos.putNextEntry(entry);
+                zos.write("file contents".getBytes());
+                zos.closeEntry();
+            }
+            finally {
+                zos.close();
+            }
+        }
+
+        return tempFile;
+    }
+    
+    private Pair<Unzip, FileHeader> createUnzipPair(String fileName) throws Exception {
+        File zipFile = createTempZipFile(fileName);
+        ZipModel zipModel = new ZipModel();
+        zipModel.setZipFile(zipFile.getAbsolutePath());
+        CentralDirectory centralDirectory = new CentralDirectory();
+        ArrayList<FileHeader> fileHeaders = new ArrayList<>();
+        FileHeader fileHeader = new FileHeader();
+        fileHeader.setFileName(fileName);
+        fileHeader.setCompressionMethod(8);
+        fileHeaders.add(fileHeader);
+        centralDirectory.setFileHeaders(fileHeaders);
+        zipModel.setCentralDirectory(centralDirectory);
+
+        Unzip unzip = new Unzip(zipModel);
+        
+        return Pair.of(unzip, fileHeader);
+    }
+
+}
