@@ -2,17 +2,13 @@ package net.lingala.zip4j.unzip;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Strings;
+import com.mirth.connect.util.ZipTestUtils;
 
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
@@ -45,7 +41,7 @@ public class UnzipEngineTest {
     @Test(expected=ZipException.class)
     public void testUnzipWithMaliciousFile1() throws Exception {
         String maliciousFileName = "../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt";
-        File maliciousZipFile = createTempZipFile(maliciousFileName);
+        File maliciousZipFile = ZipTestUtils.createTempZipFile(maliciousFileName);
         
         ZipModel zipModel = new ZipModel();
         zipModel.setZipFile(maliciousZipFile.getAbsolutePath());
@@ -68,7 +64,7 @@ public class UnzipEngineTest {
     @Test
     public void testUnzipWithMaliciousFileButValidNewFileName() throws Exception {
         String maliciousFileName = "../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt";
-        File maliciousZipFile = createTempZipFile(maliciousFileName);
+        File maliciousZipFile = ZipTestUtils.createTempZipFile(maliciousFileName);
         
         ZipModel zipModel = new ZipModel();
         zipModel.setZipFile(maliciousZipFile.getAbsolutePath());
@@ -91,7 +87,7 @@ public class UnzipEngineTest {
     @Test
     public void testUnzipWithNormalFile1() throws Exception {
         String fileName = "good.txt";
-        File zipFile = createTempZipFile(fileName);
+        File zipFile = ZipTestUtils.createTempZipFile(fileName);
         
         ZipModel zipModel = new ZipModel();
         zipModel.setZipFile(zipFile.getAbsolutePath());
@@ -113,7 +109,7 @@ public class UnzipEngineTest {
     @Test
     public void testUnzipWithNormalFile2() throws Exception {
         String fileName = "good.txt";
-        File zipFile = createTempZipFile(fileName);
+        File zipFile = ZipTestUtils.createTempZipFile(fileName);
         
         ZipModel zipModel = new ZipModel();
         zipModel.setZipFile(zipFile.getAbsolutePath());
@@ -132,27 +128,5 @@ public class UnzipEngineTest {
         engine.unzipFile(progressMonitor, outPath, newFileName, unzipParams);
         File outputFile = new File(outPath + File.separator + newFileName);
         assertTrue(outputFile.exists());
-    }
-
-    // TODO Refactor this method into a util class
-    private File createTempZipFile(String fileName) throws Exception {
-        File tempFile = File.createTempFile("temp_zip", ".zip"); //write to system defined temp
-        FileOutputStream fos = new FileOutputStream(tempFile);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        ZipOutputStream zos = new ZipOutputStream(bos);
-
-        if (!Strings.isNullOrEmpty(fileName)) {
-            try {
-                ZipEntry entry = new ZipEntry(fileName);
-                zos.putNextEntry(entry);
-                zos.write("file contents".getBytes());
-                zos.closeEntry();
-            }
-            finally {
-                zos.close();
-            }
-        }
-
-        return tempFile;
     }
 }

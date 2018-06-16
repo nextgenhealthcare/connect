@@ -14,6 +14,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.mirth.connect.util.ZipTestUtils;
+
 public class DefaultExtensionControllerTest {
 
     @Test(expected = ZipException.class)
@@ -62,21 +64,6 @@ public class DefaultExtensionControllerTest {
     }
     
     private ZipFile createTempZipFile(String fileName) throws Exception {
-        File tempFile = File.createTempFile("temp_zip", ".zip"); //write to system defined temp
-        FileOutputStream fos = new FileOutputStream(tempFile);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        ZipOutputStream zos = new ZipOutputStream(bos);
-
-        try {
-            ZipEntry entry = new ZipEntry(fileName);
-            zos.putNextEntry(entry);
-            zos.write("file contents".getBytes());
-            zos.closeEntry();
-        }
-        finally {
-            zos.close();
-        }
-
-        return new ZipFile(tempFile);
+        return new ZipFile(ZipTestUtils.createTempZipFile(fileName));
     }
 }

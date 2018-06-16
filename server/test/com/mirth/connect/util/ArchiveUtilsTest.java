@@ -27,7 +27,7 @@ public class ArchiveUtilsTest {
     @Test(expected = ZipException.class)
     public void testExtractZipEntryZipSlipWithRelativePath() throws Exception {
         File installTempDir = new File("tests/zipextraction");
-        File file = createTempZipFile("../ZipSlip.txt");
+        File file = ZipTestUtils.createTempZipFile("../ZipSlip.txt");
         FileInputStream fis = new FileInputStream(file);
         BufferedInputStream bis = new BufferedInputStream(fis);
         ZipInputStream zis = new ZipInputStream(bis);
@@ -37,7 +37,7 @@ public class ArchiveUtilsTest {
     @Test
     public void testExtractZipNoZipSlip() throws Exception {
         File installTempDir = new File("tests/zipextraction");
-        File file = createTempZipFile("ZipSlip.txt");
+        File file = ZipTestUtils.createTempZipFile("ZipSlip.txt");
         FileInputStream fis = new FileInputStream(file);
         BufferedInputStream bis = new BufferedInputStream(fis);
         ZipInputStream zis = new ZipInputStream(bis);
@@ -50,7 +50,7 @@ public class ArchiveUtilsTest {
     @Test
     public void testExtractEmptyZipFile() throws Exception {
         File installTempDir = new File("tests/zipextraction");
-        File file = createTempZipFile(null);
+        File file = ZipTestUtils.createTempZipFile(null);
         FileInputStream fis = new FileInputStream(file);
         BufferedInputStream bis = new BufferedInputStream(fis);
         ZipInputStream zis = new ZipInputStream(bis);
@@ -76,26 +76,5 @@ public class ArchiveUtilsTest {
                 file.delete();
             }
         }
-    }
-    
-    private File createTempZipFile(String fileName) throws Exception {
-        File tempFile = File.createTempFile("temp_zip", ".zip"); //write to system defined temp
-        FileOutputStream fos = new FileOutputStream(tempFile);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        ZipOutputStream zos = new ZipOutputStream(bos);
-
-        if (!Strings.isNullOrEmpty(fileName)) {
-            try {
-                ZipEntry entry = new ZipEntry(fileName);
-                zos.putNextEntry(entry);
-                zos.write("file contents".getBytes());
-                zos.closeEntry();
-            }
-            finally {
-                zos.close();
-            }
-        }
-
-        return tempFile;
     }
 }
