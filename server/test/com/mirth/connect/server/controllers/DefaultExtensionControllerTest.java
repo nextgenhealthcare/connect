@@ -2,14 +2,10 @@ package com.mirth.connect.server.controllers;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +27,7 @@ public class DefaultExtensionControllerTest {
     
     @Test
     public void testExtractZipEntryValidPath() throws Exception {
-        File installTempDir = new File("tests/zipextraction/extractionTemp");
+        File installTempDir = new File("tests/zipextraction/");
         
         DefaultExtensionController extensionController = new DefaultExtensionController();
         
@@ -39,13 +35,13 @@ public class DefaultExtensionControllerTest {
         ZipFile zipFile = createTempZipFile("good.txt");
         extensionController.extractZipEntry(entry, installTempDir, zipFile);
         
-        File extractedFile = new File("tests/zipextraction/extractionTemp", "good.txt");
+        File extractedFile = new File("tests/zipextraction/", "good.txt");
         assertTrue(extractedFile.exists());
     }
 
     @Before
     public void createTestFolder() {
-        File installTempDir = new File("tests/zipextraction/extractionTemp");
+        File installTempDir = new File("tests/zipextraction/");
         if (!installTempDir.exists()) {
             installTempDir.mkdir();
         } else {
@@ -55,7 +51,7 @@ public class DefaultExtensionControllerTest {
     
     @After
     public void cleanupTestFolder() {
-        File tempDir = new File("tests/zipextraction/extractionTemp"); 
+        File tempDir = new File("tests/zipextraction/"); 
         if (tempDir.exists()) {
             for (File file : tempDir.listFiles()) {
                 file.delete();
