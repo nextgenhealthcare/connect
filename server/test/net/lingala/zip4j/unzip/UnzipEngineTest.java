@@ -84,6 +84,29 @@ public class UnzipEngineTest {
         assertTrue(outputFile.exists());
     }
     
+    @Test(expected=ZipException.class)
+    public void testUnzipWithMaliciousFileAndMaliciousNewFileName() throws Exception {
+        String maliciousFileName = "../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt";
+        File maliciousZipFile = ZipTestUtils.createTempZipFile(maliciousFileName);
+        
+        ZipModel zipModel = new ZipModel();
+        zipModel.setZipFile(maliciousZipFile.getAbsolutePath());
+        FileHeader fileHeader = new FileHeader();
+        fileHeader.setFileName(maliciousFileName);
+        fileHeader.setCompressionMethod(8);
+        UnzipEngine engine = new UnzipEngine(zipModel, fileHeader);
+
+        ProgressMonitor progressMonitor = new ProgressMonitor();
+        String outPath = "tests/zipextraction";
+        String newFileName = maliciousFileName;
+        UnzipParameters unzipParams = new UnzipParameters();
+
+        engine.unzipFile(progressMonitor, outPath, newFileName, unzipParams);
+        
+        File outputFile = new File(outPath + File.separator + newFileName);
+        assertTrue(outputFile.exists());
+    }
+    
     @Test
     public void testUnzipWithNormalFile1() throws Exception {
         String fileName = "good.txt";
@@ -121,6 +144,30 @@ public class UnzipEngineTest {
         ProgressMonitor progressMonitor = new ProgressMonitor();
         String outPath = "tests/zipextraction";
         String newFileName = "good2.txt";
+        UnzipParameters unzipParams = new UnzipParameters();
+
+        engine.unzipFile(progressMonitor, outPath, newFileName, unzipParams);
+        
+        engine.unzipFile(progressMonitor, outPath, newFileName, unzipParams);
+        File outputFile = new File(outPath + File.separator + newFileName);
+        assertTrue(outputFile.exists());
+    }
+    
+    @Test(expected=ZipException.class)
+    public void testUnzipWithNormalFileButMaliciousNewFileName() throws Exception {
+        String fileName = "good.txt";
+        File zipFile = ZipTestUtils.createTempZipFile(fileName);
+        
+        ZipModel zipModel = new ZipModel();
+        zipModel.setZipFile(zipFile.getAbsolutePath());
+        FileHeader fileHeader = new FileHeader();
+        fileHeader.setFileName(fileName);
+        fileHeader.setCompressionMethod(8);
+        UnzipEngine engine = new UnzipEngine(zipModel, fileHeader);
+
+        ProgressMonitor progressMonitor = new ProgressMonitor();
+        String outPath = "tests/zipextraction";
+        String newFileName = "../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt";
         UnzipParameters unzipParams = new UnzipParameters();
 
         engine.unzipFile(progressMonitor, outPath, newFileName, unzipParams);

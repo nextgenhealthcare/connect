@@ -56,6 +56,9 @@ public class UnzipTest {
         unzip.extractFile(fileHeader, outPath, unzipParams, newFileName, progressMonitor, false);
     }
     
+    /*
+     * Unzip.initExtractFile tests the fileName from the fileHeader, regardless if you pass in a newFileName, so this should throw an exception.
+     */
     @Test(expected=ZipException.class)
     public void testExtractMaliciousFile2() throws Exception {
         String maliciousFileName = "../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt";
@@ -99,6 +102,23 @@ public class UnzipTest {
         String outPath = "tests/zipextraction";
         ProgressMonitor progressMonitor = new ProgressMonitor();
         String newFileName = "good2.txt";
+
+        unzip.extractFile(fileHeader, outPath, unzipParams, newFileName, progressMonitor, false);
+        File outputFile = new File(outPath + File.separator + newFileName);
+        assertTrue(outputFile.exists());
+    }
+    
+    @Test(expected=ZipException.class)
+    public void testExtractNormalFileWithMaliciousNewFileName() throws Exception {
+        String fileName = "good.txt";
+        Pair<Unzip, FileHeader> pair = createUnzipPair(fileName);
+        Unzip unzip = pair.getLeft();
+        FileHeader fileHeader = pair.getRight();
+
+        UnzipParameters unzipParams = new UnzipParameters();
+        String outPath = "tests/zipextraction";
+        ProgressMonitor progressMonitor = new ProgressMonitor();
+        String newFileName = "../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt";
 
         unzip.extractFile(fileHeader, outPath, unzipParams, newFileName, progressMonitor, false);
         File outputFile = new File(outPath + File.separator + newFileName);
