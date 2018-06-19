@@ -71,7 +71,6 @@
 	<classpathentry kind="lib" path="lib/database/derbytools-10.10.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/jms/geronimo-jms_1.1_spec-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jms/geronimo-j2ee-management_1.1_spec-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-compress-1.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://quartz-scheduler.org/api/2.1.7/"/>
@@ -175,7 +174,7 @@
 	<classpathentry kind="lib" path="lib/jackson-annotations-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/zip4j_1.3.2.jar"/>
+	<classpathentry kind="lib" path="lib/zip4j_1.3.3.jar"/>
 	<classpathentry kind="lib" path="/Donkey/lib/guava-18.0.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
@@ -187,4 +186,5 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="lib/commons/commons-compress-1.17.jar"/>
 </classpath>

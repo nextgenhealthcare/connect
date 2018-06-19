@@ -116,6 +116,7 @@
 			<include name="org/mozilla/**" />
 			<include name="org/glassfish/jersey/**" />
 			<include name="de/**" />
+			<include name="net/lingala/zip4j/unzip/**" />
 
 			<include name="version.properties" />
 		</jar>
