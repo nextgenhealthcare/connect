@@ -202,6 +202,13 @@ public class Unzip {
 		String compOutPath = outPath + fileName;
 		try {
 			File file = new File(compOutPath);
+			
+			// make sure no file is extracted outside of the target directory (a.k.a zip slip)
+            if (!file.getCanonicalPath().startsWith(new File(outPath).getCanonicalPath())) {
+                throw new ZipException(
+                        "illegal file name that breaks out of the target directory: " + fileHeader.getFileName());
+            }
+            
 			String parentDir = file.getParent();
 			File parentDirFile = new File(parentDir);
 			if (!parentDirFile.exists()) {

@@ -421,6 +421,12 @@ public class UnzipEngine {
 		try {
 			File file = new File(getOutputFileNameWithPath(outPath, newFileName));
 			
+			// make sure no file is extracted outside of the target directory (a.k.a zip slip)
+            if (!file.getCanonicalPath().startsWith(new File(outPath).getCanonicalPath())) {
+                throw new ZipException(
+                        "illegal file name that breaks out of the target directory: " + fileHeader.getFileName());
+            }
+			
 			if (!file.getParentFile().exists()) {
 				file.getParentFile().mkdirs();
 			}
@@ -433,7 +439,9 @@ public class UnzipEngine {
 			return fileOutputStream;
 		} catch (FileNotFoundException e) {
 			throw new ZipException(e);
-		}
+		} catch (IOException e) {
+            throw new ZipException(e);
+        }
 	}
 	
 	private String getOutputFileNameWithPath(String outPath, String newFileName) throws ZipException {
