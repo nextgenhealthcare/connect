@@ -9,10 +9,15 @@
 
 package com.mirth.connect.server.servlets;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +44,8 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
+import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.util.MirthSSLUtil;
 
@@ -94,6 +101,8 @@ public class WebStartServlet extends HttpServlet {
         versionProperties.setDelimiterParsingDisabled(true);
         versionProperties.load(ResourceUtil.getResourceStream(getClass(), "version.properties"));
         String version = versionProperties.getString("mirth.version");
+
+        jnlpElement.setAttribute("version", version);
 
         Element informationElement = (Element) jnlpElement.getElementsByTagName("information").item(0);
         Element title = (Element) informationElement.getElementsByTagName("title").item(0);
@@ -161,6 +170,8 @@ public class WebStartServlet extends HttpServlet {
         defaultClientLibs.add("mirth-crypto.jar");
         defaultClientLibs.add("mirth-vocab.jar");
 
+        File clientLibDirectory = new File(getClientLibPath());
+
         for (String defaultClientLib : defaultClientLibs) {
             Element jarElement = document.createElement("jar");
             jarElement.setAttribute("download", "eager");
@@ -169,6 +180,8 @@ public class WebStartServlet extends HttpServlet {
             if (defaultClientLib.equals("mirth-client.jar")) {
                 jarElement.setAttribute("main", "true");
             }
+
+            jarElement.setAttribute("sha256", getDigest(clientLibDirectory, defaultClientLib));
 
             resourcesElement.appendChild(jarElement);
         }
@@ -180,6 +193,7 @@ public class WebStartServlet extends HttpServlet {
                 Element jarElement = document.createElement("jar");
                 jarElement.setAttribute("download", "eager");
                 jarElement.setAttribute("href", "webstart/client-lib/" + clientLib);
+                jarElement.setAttribute("sha256", getDigest(clientLibDirectory, clientLib));
                 resourcesElement.appendChild(jarElement);
             }
         }
@@ -230,6 +244,14 @@ public class WebStartServlet extends HttpServlet {
         }
 
         return document;
+    }
+
+    public static String getClientLibPath() {
+        if (ClassPathResource.getResourceURI("client-lib") != null) {
+            return ClassPathResource.getResourceURI("client-lib").getPath() + File.separator;
+        } else {
+            return ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "client-lib" + File.separator;
+        }
     }
 
     private boolean doesExtensionHaveClientOrSharedLibraries(MetaData extension) {
@@ -286,11 +308,14 @@ public class WebStartServlet extends HttpServlet {
 
         Element resourcesElement = document.createElement("resources");
 
+        File extensionDirectory = new File(ExtensionController.getExtensionsPath() + extensionPath);
+
         for (String library : librariesToAddToJnlp) {
             Element jarElement = document.createElement("jar");
             jarElement.setAttribute("download", "eager");
             // this path is relative to the servlet path
             jarElement.setAttribute("href", "libs/" + extensionPath + "/" + library);
+            jarElement.setAttribute("sha256", getDigest(extensionDirectory, library));
             resourcesElement.appendChild(jarElement);
         }
 
@@ -298,5 +323,30 @@ public class WebStartServlet extends HttpServlet {
         jnlpElement.appendChild(document.createElement("component-desc"));
         document.appendChild(jnlpElement);
         return document;
+    }
+
+    private String getDigest(File directory, String filePath) throws Exception {
+        BufferedInputStream bis = null;
+        try {
+            String canonicalDirPath = directory.getCanonicalPath();
+            File file = new File(directory, filePath);
+            String canonicalFilePath = file.getCanonicalPath();
+            if (!StringUtils.startsWith(canonicalFilePath, canonicalDirPath + File.separator)) {
+                throw new Exception("File " + filePath + " does not reside within directory " + directory);
+            }
+
+            bis = new BufferedInputStream(new FileInputStream(file));
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            byte[] buffer = new byte[4096];
+            int c = 0;
+            while ((c = bis.read(buffer)) != -1) {
+                digest.update(buffer, 0, c);
+            }
+
+            return Base64.getEncoder().encodeToString(digest.digest());
+        } finally {
+            IOUtils.closeQuietly(bis);
+        }
     }
 }
