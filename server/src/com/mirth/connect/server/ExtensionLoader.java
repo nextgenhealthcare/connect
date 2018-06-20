@@ -10,12 +10,14 @@
 package com.mirth.connect.server;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -81,30 +83,32 @@ public final class ExtensionLoader {
         PluginClass highestPluginClassModel = null;
 
         for (PluginMetaData pluginMetaData : getPluginMetaData().values()) {
-            List<PluginClass> controllerClasses = pluginMetaData.getControllerClasses();
+            if (isExtensionEnabled(pluginMetaData.getName())) {
+                List<PluginClass> controllerClasses = pluginMetaData.getControllerClasses();
 
-            if (controllerClasses != null) {
-                for (PluginClass controllerClassModel : controllerClasses) {
-                    boolean accept = true;
-                    String conditionClass = controllerClassModel.getConditionClass();
-                    if (StringUtils.isNotBlank(conditionClass)) {
-                        try {
-                            accept = ((PluginClassCondition) Class.forName(conditionClass).newInstance()).accept(controllerClassModel);
-                        } catch (Exception e) {
-                            logger.warn("Error instantiating plugin condition class \"" + conditionClass + "\".");
-                        }
-                    }
-
-                    if (accept) {
-                        try {
-                            Class<?> pluginClass = Class.forName(controllerClassModel.getName());
-
-                            if (abstractClass.isAssignableFrom(pluginClass) && (highestPluginClassModel == null || highestPluginClassModel.getWeight() < controllerClassModel.getWeight())) {
-                                highestPluginClassModel = controllerClassModel;
-                                overrideClass = (Class<T>) pluginClass;
+                if (controllerClasses != null) {
+                    for (PluginClass controllerClassModel : controllerClasses) {
+                        boolean accept = true;
+                        String conditionClass = controllerClassModel.getConditionClass();
+                        if (StringUtils.isNotBlank(conditionClass)) {
+                            try {
+                                accept = ((PluginClassCondition) Class.forName(conditionClass).newInstance()).accept(controllerClassModel);
+                            } catch (Exception e) {
+                                logger.warn("Error instantiating plugin condition class \"" + conditionClass + "\".");
                             }
-                        } catch (Exception e) {
-                            logger.error("An error occurred while attempting to load \"" + controllerClassModel.getName() + "\" from plugin: " + pluginMetaData.getName(), e);
+                        }
+
+                        if (accept) {
+                            try {
+                                Class<?> pluginClass = Class.forName(controllerClassModel.getName());
+
+                                if (abstractClass.isAssignableFrom(pluginClass) && (highestPluginClassModel == null || highestPluginClassModel.getWeight() < controllerClassModel.getWeight())) {
+                                    highestPluginClassModel = controllerClassModel;
+                                    overrideClass = (Class<T>) pluginClass;
+                                }
+                            } catch (Exception e) {
+                                logger.error("An error occurred while attempting to load \"" + controllerClassModel.getName() + "\" from plugin: " + pluginMetaData.getName(), e);
+                            }
                         }
                     }
                 }
@@ -233,5 +237,44 @@ public final class ExtensionLoader {
         versionConfig.load(versionPropertiesStream);
         IOUtils.closeQuietly(versionPropertiesStream);
         return versionConfig.getString("mirth.version");
+    }
+
+    /**
+     * This method needs to read the extension properties directly rather than going to the
+     * extension controller, otherwise we'd be causing a stack overflow.
+     */
+    private boolean isExtensionEnabled(String name) {
+        try {
+            Properties mirthProperties = new Properties();
+            InputStream is = new FileInputStream(new File("./conf/mirth.properties"));
+            try {
+                mirthProperties.load(is);
+            } finally {
+                IOUtils.closeQuietly(is);
+            }
+
+            String appData = mirthProperties.getProperty("dir.appdata");
+            if (appData != null) {
+                File appDataDir = new File(appData);
+                if (appDataDir.exists()) {
+                    File extensionPropertiesFile = new File(appDataDir, "extension.properties");
+                    if (extensionPropertiesFile.exists()) {
+                        Properties extensionProperties = new Properties();
+                        InputStream eis = new FileInputStream(extensionPropertiesFile);
+                        try {
+                            extensionProperties.load(eis);
+                        } finally {
+                            IOUtils.closeQuietly(eis);
+                        }
+
+                        return Boolean.parseBoolean(extensionProperties.getProperty(name, "true"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Unable to read enabled status from extension.properties.", e);
+        }
+
+        return true;
     }
 }
