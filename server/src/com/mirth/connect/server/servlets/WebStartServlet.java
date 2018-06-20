@@ -52,6 +52,7 @@ import com.mirth.connect.util.MirthSSLUtil;
 public class WebStartServlet extends HttpServlet {
     private Logger logger = Logger.getLogger(this.getClass());
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
     /*
      * Override last modified time to always be modified so it updates changes to JNLP.
@@ -206,7 +207,7 @@ public class WebStartServlet extends HttpServlet {
         Set<String> extensionPathsToAddToJnlp = new HashSet<String>();
 
         for (MetaData extension : allExtensions) {
-            if (doesExtensionHaveClientOrSharedLibraries(extension)) {
+            if (extensionController.isExtensionEnabled(extension.getName()) && doesExtensionHaveClientOrSharedLibraries(extension)) {
                 extensionPathsToAddToJnlp.add(extension.getPath());
             }
         }

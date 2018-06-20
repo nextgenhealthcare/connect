@@ -497,30 +497,32 @@ public class MirthWebServer extends Server {
 
         // Add JAX-RS providers from extensions
         for (MetaData metaData : CollectionUtils.union(extensionController.getPluginMetaData().values(), extensionController.getConnectorMetaData().values())) {
-            for (ApiProvider apiProvider : metaData.getApiProviders(version)) {
-                try {
-                    switch (apiProvider.getType()) {
-                        case SERVLET_INTERFACE_PACKAGE:
-                            servletInterfacePackages.add(apiProvider.getName());
-                            break;
-                        case SERVLET_INTERFACE:
-                            servletInterfaces.add(Class.forName(apiProvider.getName()));
-                            break;
-                        case CORE_PACKAGE:
-                            coreProviderPackages.add(apiProvider.getName());
-                            break;
-                        case SERVER_PACKAGE:
-                            serverProviderPackages.add(apiProvider.getName());
-                            break;
-                        case CORE_CLASS:
-                            coreProviderClasses.add(Class.forName(apiProvider.getName()));
-                            break;
-                        case SERVER_CLASS:
-                            serverProviderClasses.add(Class.forName(apiProvider.getName()));
-                            break;
+            if (extensionController.isExtensionEnabled(metaData.getName())) {
+                for (ApiProvider apiProvider : metaData.getApiProviders(version)) {
+                    try {
+                        switch (apiProvider.getType()) {
+                            case SERVLET_INTERFACE_PACKAGE:
+                                servletInterfacePackages.add(apiProvider.getName());
+                                break;
+                            case SERVLET_INTERFACE:
+                                servletInterfaces.add(Class.forName(apiProvider.getName()));
+                                break;
+                            case CORE_PACKAGE:
+                                coreProviderPackages.add(apiProvider.getName());
+                                break;
+                            case SERVER_PACKAGE:
+                                serverProviderPackages.add(apiProvider.getName());
+                                break;
+                            case CORE_CLASS:
+                                coreProviderClasses.add(Class.forName(apiProvider.getName()));
+                                break;
+                            case SERVER_CLASS:
+                                serverProviderClasses.add(Class.forName(apiProvider.getName()));
+                                break;
+                        }
+                    } catch (Throwable t) {
+                        logger.error("Error adding API provider to web server: " + apiProvider);
                     }
-                } catch (Throwable t) {
-                    logger.error("Error adding API provider to web server: " + apiProvider);
                 }
             }
         }
