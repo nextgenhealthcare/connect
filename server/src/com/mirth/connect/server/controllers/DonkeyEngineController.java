@@ -108,6 +108,7 @@ import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.datatype.BatchProperties;
 import com.mirth.connect.model.datatype.DataTypeProperties;
@@ -805,6 +806,17 @@ public class DonkeyEngineController implements EngineController {
             logger.error("Error retrieving channel revisions", e);
         }
 
+        /*
+         * Select the code template libraries once beforehand so they can be used with multiple
+         * channels without having to re-select them every time
+         */
+        List<CodeTemplateLibrary> codeTemplateLibraries = null;
+        try {
+            codeTemplateLibraries = codeTemplateController.getLibraries(null, true);
+        } catch (ControllerException e) {
+            logger.error("Error retrieving code template libraries", e);
+        }
+
         for (Channel channel : channels) {
             String channelId = channel.getChannelId();
             com.mirth.connect.model.Channel channelModel = channelController.getDeployedChannelById(channelId);
@@ -834,7 +846,7 @@ public class DonkeyEngineController implements EngineController {
 
                     try {
                         DeployedChannelInfo deployedChannelInfo = channelController.getDeployedChannelInfoById(channelId);
-                        if (deployedChannelInfo != null && deployedChannelInfo.getCodeTemplateRevisions() != null && !deployedChannelInfo.getCodeTemplateRevisions().equals(codeTemplateController.getCodeTemplateRevisionsForChannel(channelId))) {
+                        if (deployedChannelInfo != null && deployedChannelInfo.getCodeTemplateRevisions() != null && !deployedChannelInfo.getCodeTemplateRevisions().equals(codeTemplateController.getCodeTemplateRevisionsForChannel(channelId, codeTemplateLibraries))) {
                             status.setCodeTemplatesChanged(true);
                         }
                     } catch (ControllerException e) {
