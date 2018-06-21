@@ -42,6 +42,8 @@ public abstract class CodeTemplateController extends Controller {
 
     public abstract Map<String, Integer> getCodeTemplateRevisionsForChannel(String channelId) throws ControllerException;
 
+    public abstract Map<String, Integer> getCodeTemplateRevisionsForChannel(String channelId, List<CodeTemplateLibrary> libraries) throws ControllerException;
+
     public abstract boolean updateCodeTemplate(CodeTemplate codeTemplate, ServerEventContext context, boolean override) throws ControllerException;
 
     public abstract void removeCodeTemplate(String codeTemplateId, ServerEventContext context) throws ControllerException;
