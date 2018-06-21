@@ -63,16 +63,20 @@ public class DefaultMigrationController extends MigrationController {
         if (pluginMigrators == null) {
             pluginMigrators = new ArrayList<Migrator>();
 
-            for (PluginMetaData pluginMetaData : ControllerFactory.getFactory().createExtensionController().getPluginMetaData().values()) {
-                String migratorClassName = pluginMetaData.getMigratorClass();
+            ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
-                if (migratorClassName != null) {
-                    try {
-                        Migrator migrator = (Migrator) Class.forName(migratorClassName).newInstance();
-                        migrator.setDefaultScriptPath("extensions/" + pluginMetaData.getPath());
-                        pluginMigrators.add(migrator);
-                    } catch (Exception e) {
-                        logger.error("Failed to run migration for plugin: " + pluginMetaData.getName());
+            for (PluginMetaData pluginMetaData : ControllerFactory.getFactory().createExtensionController().getPluginMetaData().values()) {
+                if (extensionController.isExtensionEnabled(pluginMetaData.getName())) {
+                    String migratorClassName = pluginMetaData.getMigratorClass();
+
+                    if (migratorClassName != null) {
+                        try {
+                            Migrator migrator = (Migrator) Class.forName(migratorClassName).newInstance();
+                            migrator.setDefaultScriptPath("extensions/" + pluginMetaData.getPath());
+                            pluginMigrators.add(migrator);
+                        } catch (Exception e) {
+                            logger.error("Failed to run migration for plugin: " + pluginMetaData.getName());
+                        }
                     }
                 }
             }
