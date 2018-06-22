@@ -27,6 +27,7 @@ import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -53,6 +54,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.components.KeyStrokeTextField;
 import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
@@ -92,6 +94,8 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         initComponents();
         initLayout();
+        
+        addTask(TaskConstants.SETTINGS_ADMIN_DEFAULTS, "Restore Defaults", "Restore all Administrator settings to defaults.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")));
     }
 
     public void doRefresh() {
@@ -190,7 +194,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         RSTAPreferences rstaPreferences = MirthRSyntaxTextArea.getRSTAPreferences();
         updateShortcutKeyTable(rstaPreferences);
-        updateRestoreDefaultsButton();
+        updateRestoreKeyDefaultsButton();
 
         AutoCompleteProperties autoCompleteProperties = rstaPreferences.getAutoCompleteProperties();
         autoCompleteIncludeLettersCheckBox.setSelected(autoCompleteProperties.isActivateAfterLetters());
@@ -287,8 +291,54 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         return true;
     }
+    
+    public void doSetAdminDefaults() {
+        if (!getFrame().alertOkCancel(this, "<html>Set Administrator Settings to defaults?<br/><br/>This will reset all of your local settings!</html>")) {
+            return;
+        }
+        
+        // remove all userPreferences
+        try {
+            String[] keys = userPreferences.keys();
+            for (String key : keys) {
+                userPreferences.remove(key);
+            }
+        } catch (Exception e) {
+        }
+        
+        RSTAPreferences newRstaPreferences = new RSTAPreferences();
+        MirthRSyntaxTextArea.getRSTAPreferences().setAutoCompleteProperties(newRstaPreferences.getAutoCompleteProperties());
+        MirthRSyntaxTextArea.getRSTAPreferences().setFindReplaceProperties(newRstaPreferences.getFindReplaceProperties());
+        MirthRSyntaxTextArea.getRSTAPreferences().setKeyStrokeMap(newRstaPreferences.getKeyStrokeMap());
+        MirthRSyntaxTextArea.getRSTAPreferences().setToggleOptions(newRstaPreferences.getToggleOptions());
+        MirthRSyntaxTextArea.updateAutoCompletePreferences(userPreferences);
+        MirthRSyntaxTextArea.updateFindReplacePreferences(userPreferences);
+        MirthRSyntaxTextArea.updateKeyStrokePreferences(userPreferences);
+        MirthRSyntaxTextArea.updateToggleOptionPreferences(userPreferences);
+        
+        final String workingId = getFrame().startWorking("Resetting " + getTabName() + " settings...");
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            public Void doInBackground() {
+                try {
+                    getFrame().mirthClient.setUserPreference(currentUser.getId(), "checkForNotifications", Boolean.toString(true));
+                } catch (ClientException e) {
+                    getFrame().alertThrowable(getFrame(), e);
+                }
 
-    private void updateRestoreDefaultsButton() {
+                return null;
+            }
+
+            @Override
+            public void done() {
+                getFrame().setSaveEnabled(false);
+                doRefresh();
+                getFrame().stopWorking(workingId);
+            }
+        };
+        worker.execute();
+    }
+
+    private void updateRestoreKeyDefaultsButton() {
         boolean isDefault = true;
         Map<String, KeyStroke> defaultKeyStrokeMap = new RSTAPreferences().getKeyStrokeMap();
 
@@ -305,7 +355,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         restoreDefaultsButton.setEnabled(!isDefault);
     }
 
-    private void restoreDefaults() {
+    private void restoreShortcutKeyDefaults() {
         if (PlatformUI.MIRTH_FRAME.alertOkCancel(PlatformUI.MIRTH_FRAME, "<html>This will reset all the code editor shortcut keys to their defaults.<br/>Are you sure you wish to continue?</html>")) {
             updateShortcutKeyTable(new RSTAPreferences());
             restoreDefaultsButton.setEnabled(false);
@@ -559,7 +609,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         shortcutKeyTable.getModel().addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent evt) {
-                updateRestoreDefaultsButton();
+                updateRestoreKeyDefaultsButton();
             }
         });
 
@@ -569,7 +619,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         restoreDefaultsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                restoreDefaults();
+                restoreShortcutKeyDefaults();
             }
         });
     }

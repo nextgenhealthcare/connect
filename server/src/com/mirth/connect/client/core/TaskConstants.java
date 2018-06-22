@@ -49,6 +49,9 @@ public class TaskConstants {
     public static final String SETTINGS_SERVER_BACKUP = "doBackup";
     public static final String SETTINGS_SERVER_RESTORE = "doRestore";
     public static final String SETTINGS_CLEAR_ALL_STATS = "doClearAllStats";
+    
+    // Administrator Settings Tasks
+    public static final String SETTINGS_ADMIN_DEFAULTS = "doSetAdminDefaults";
 
     // Configuration Map Settings Tasks
     public static final String SETTINGS_CONFIGURATION_MAP_IMPORT = "doImportMap";
