@@ -15,12 +15,15 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -28,9 +31,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
-
-import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.PropertiesConfigurationLayout;
@@ -41,12 +43,17 @@ import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.client.ui.components.MirthDialogTableCellEditor;
+import com.mirth.connect.client.ui.components.MirthPasswordTableCellRenderer;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.util.ConfigurationProperty;
+
+import net.miginfocom.swing.MigLayout;
 
 public class SettingsPanelMap extends AbstractSettingsPanel {
 
     public static final String TAB_NAME = "Configuration Map";
+    private static Preferences userPreferences = Preferences.userNodeForPackage(Mirth.class);
 
     public SettingsPanelMap(String tabName) {
         super(tabName);
@@ -68,6 +75,13 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     		this.configurationMapTable.getCellEditor().stopCellEditing();
     	}
     	
+    	boolean obfuscate = userPreferences.getBoolean("obfuscateConfigMap", true); 
+    	if (obfuscate) {
+    	    obfuscateYesButton.setSelected(true);
+    	} else {
+    	    obfuscateNoButton.setSelected(true);
+    	}
+    	
         final String workingId = getFrame().startWorking("Loading " + getTabName() + " settings...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -87,7 +101,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
             public void done() {
                 // null if it failed to get the map settings or if confirmLeave returned false
                 if (configurationMap != null) {
-                    updateConfigurationTable(configurationMap);
+                    updateConfigurationTable(configurationMap, obfuscate, true);
                 }
                 getFrame().stopWorking(workingId);
             }
@@ -102,22 +116,12 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     		this.configurationMapTable.getCellEditor().stopCellEditing();
     	}
     	
-        final Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
-        RefreshTableModel model = (RefreshTableModel) configurationMapTable.getModel();
-        for (int i = 0; i < model.getRowCount(); i++) {
-            String key = (String) model.getValueAt(i, 0);
-            String value = (String) model.getValueAt(i, 1);
-            String comment = (String) model.getValueAt(i, 2);
-
-            if (StringUtils.isNotBlank(key)) {
-                configurationMap.put(key, new ConfigurationProperty(value, comment));
-            } else {
-                if (StringUtils.isNotBlank(value) || StringUtils.isNotBlank(comment)) {
-                    getFrame().alertWarning(this, "Blank keys are not allowed.");
-                    return false;
-                }
-            }
+        final Map<String, ConfigurationProperty> configurationMap = getConfigurationMapFromTable();
+        if (configurationMap == null) {
+            return false;
         }
+        
+        userPreferences.putBoolean("obfuscateConfigMap", obfuscateYesButton.isSelected());
 
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " settings...");
 
@@ -143,6 +147,27 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         worker.execute();
 
         return true;
+    }
+    
+    private Map<String, ConfigurationProperty> getConfigurationMapFromTable() {
+        // Using a LinkedHashMap so that we can preserve row order when the user is toggling obfuscation on/off.
+        final Map<String, ConfigurationProperty> configurationMap = new LinkedHashMap<String, ConfigurationProperty>();
+        RefreshTableModel model = (RefreshTableModel) configurationMapTable.getModel();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            String key = (String) model.getValueAt(i, 0);
+            String value = (String) model.getValueAt(i, 1);
+            String comment = (String) model.getValueAt(i, 2);
+
+            if (StringUtils.isNotBlank(key)) {
+                configurationMap.put(key, new ConfigurationProperty(value, comment));
+            } else {
+                if (StringUtils.isNotBlank(value) || StringUtils.isNotBlank(comment)) {
+                    getFrame().alertWarning(this, "Blank keys are not allowed.");
+                    return null;
+                }
+            }
+        }
+        return configurationMap;
     }
 
     public void doImportMap() {
@@ -171,7 +196,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                     configurationMap.put(key, new ConfigurationProperty(value, comment));
                 }
 
-                updateConfigurationTable(configurationMap);
+                updateConfigurationTable(configurationMap, obfuscateYesButton.isSelected(), true);
                 setSaveEnabled(true);
             } catch (Exception e) {
                 getFrame().alertThrowable(getFrame(), e, "Error importing configuration map");
@@ -246,26 +271,78 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         worker.execute();
     }
 
-    private void updateConfigurationTable(Map<String, ConfigurationProperty> map) {
+    private void updateConfigurationTable(Map<String, ConfigurationProperty> map, boolean obfuscate, boolean sort) {
         RefreshTableModel model = (RefreshTableModel) configurationMapTable.getModel();
         String[][] data = new String[map.size()][3];
-        Map<String, ConfigurationProperty> sortedMap = new TreeMap<String, ConfigurationProperty>(String.CASE_INSENSITIVE_ORDER);
-        sortedMap.putAll(map);
+        Map<String, ConfigurationProperty> sortedMap = null;
+        if (sort) {
+            sortedMap = new TreeMap<String, ConfigurationProperty>(String.CASE_INSENSITIVE_ORDER);
+            sortedMap.putAll(map);
+        } else {
+            sortedMap = map;
+        }
 
         int index = 0;
         for (Entry<String, ConfigurationProperty> entry : sortedMap.entrySet()) {
             data[index][0] = entry.getKey();
-            data[index][1] = entry.getValue().getValue();
+            data[index][1] = entry.getValue().getValue();    
             data[index++][2] = entry.getValue().getComment();
         }
+        
 
+        if (obfuscate) { 
+            configurationMapTable.getColumnExt("Value").setCellRenderer(new MirthPasswordTableCellRenderer());
+        } else {
+            configurationMapTable.getColumnExt("Value").setCellRenderer(new DefaultTableCellRenderer());
+        }
+        
         model.refreshDataVector(data);
+    }
+    
+    private void obfuscateRadioActionPerformed(boolean obfuscate) {
+        Map<String, ConfigurationProperty> configMap = getConfigurationMapFromTable();
+        if (configMap == null) {
+            if (obfuscate) {
+                obfuscateNoButton.setSelected(true);
+            } else {
+                obfuscateYesButton.setSelected(true);
+            }
+        } else {
+            updateConfigurationTable(configMap, obfuscate, false);
+        }
     }
 
     private void initComponents() {
         setBackground(Color.WHITE);
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         setLayout(new MigLayout("insets 12, fill"));
+        
+        obfuscateLabel = new JLabel("Obfuscate values:");
+        obfuscateButtonGroup = new ButtonGroup();
+        String tooltip = "If enabled, all values in the configuration map table will be obfuscated.";
+        obfuscateYesButton = new MirthRadioButton();
+        obfuscateYesButton.setText("Yes");
+        obfuscateYesButton.setToolTipText(tooltip);
+        obfuscateYesButton.setBackground(Color.WHITE);
+        obfuscateButtonGroup.add(obfuscateYesButton);
+        obfuscateYesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                obfuscateRadioActionPerformed(true);
+            }
+        });
+        
+        obfuscateNoButton = new MirthRadioButton();
+        obfuscateNoButton.setText("No");
+        obfuscateNoButton.setToolTipText(tooltip);
+        obfuscateNoButton.setBackground(Color.WHITE);
+        obfuscateButtonGroup.add(obfuscateNoButton);
+        obfuscateNoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                obfuscateRadioActionPerformed(false);
+            }
+        });
 
         configurationMapTable = new MirthTable();
         configurationMapTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -352,15 +429,31 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
 
         configurationMapPanel = new JPanel();
         configurationMapPanel.setBackground(Color.WHITE);
-        configurationMapPanel.setLayout(new MigLayout("fill, flowy, insets 0", "[grow][]", "grow"));
+        configurationMapPanel.setLayout(new MigLayout("fill, insets 0", "[grow]", "[][grow]"));
         configurationMapPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Configuration Map", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-        configurationMapPanel.add(configurationMapScrollPane, "grow, wrap");
-        configurationMapPanel.add(addButton, "growx, aligny top, split");
-        configurationMapPanel.add(removeButton, "growx, aligny top");
+        
+        JPanel obfuscatePanel = new JPanel();
+        obfuscatePanel.setBackground(Color.WHITE);
+        obfuscatePanel.add(obfuscateLabel);
+        obfuscatePanel.add(obfuscateYesButton, "split 2");
+        obfuscatePanel.add(obfuscateNoButton);
+        configurationMapPanel.add(obfuscatePanel, "wrap");
+        
+        JPanel configurationMapSubPanel = new JPanel();
+        configurationMapSubPanel.setBackground(Color.WHITE);
+        configurationMapSubPanel.setLayout(new MigLayout("fill, flowy, insets 0", "[grow][]", "[grow]"));
+        configurationMapSubPanel.add(configurationMapScrollPane, "grow, wrap");
+        configurationMapSubPanel.add(addButton, "growx, aligny top, split");
+        configurationMapSubPanel.add(removeButton, "growx, aligny top");
+        configurationMapPanel.add(configurationMapSubPanel, "grow, aligny top");
 
         add(configurationMapPanel, "grow, height 100px:100%:100%, wrap");
     }
 
+    private JLabel obfuscateLabel;
+    private ButtonGroup obfuscateButtonGroup;
+    private MirthRadioButton obfuscateYesButton;
+    private MirthRadioButton obfuscateNoButton;
     private JPanel configurationMapPanel;
     private JScrollPane configurationMapScrollPane;
     private MirthTable configurationMapTable;
