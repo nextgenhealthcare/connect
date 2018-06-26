@@ -53,7 +53,7 @@ public class JavaScriptBuilder {
         script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
 
         for (MetaData metaData : extensionController.getConnectorMetaData().values()) {
-            if (CollectionUtils.isNotEmpty(metaData.getUserutilPackages())) {
+            if (extensionController.isExtensionEnabled(metaData.getName()) && CollectionUtils.isNotEmpty(metaData.getUserutilPackages())) {
                 for (String packageName : metaData.getUserutilPackages()) {
                     script.append("importPackage(").append(packageName).append(");\n");
                 }
@@ -61,7 +61,7 @@ public class JavaScriptBuilder {
         }
 
         for (MetaData metaData : extensionController.getPluginMetaData().values()) {
-            if (CollectionUtils.isNotEmpty(metaData.getUserutilPackages())) {
+            if (extensionController.isExtensionEnabled(metaData.getName()) && CollectionUtils.isNotEmpty(metaData.getUserutilPackages())) {
                 for (String packageName : metaData.getUserutilPackages()) {
                     script.append("importPackage(").append(packageName).append(");\n");
                 }

@@ -390,13 +390,20 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
     @Override
     public Map<String, Integer> getCodeTemplateRevisionsForChannel(String channelId) throws ControllerException {
+        return getCodeTemplateRevisionsForChannel(channelId, getLibraries(null, true));
+    }
+
+    @Override
+    public Map<String, Integer> getCodeTemplateRevisionsForChannel(String channelId, List<CodeTemplateLibrary> libraries) throws ControllerException {
         Map<String, Integer> revisions = new HashMap<String, Integer>();
 
-        for (CodeTemplateLibrary library : getLibraries(null, true)) {
-            if (library.getEnabledChannelIds().contains(channelId) || (library.isIncludeNewChannels() && !library.getDisabledChannelIds().contains(channelId))) {
-                for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
-                    if (codeTemplate.isAddToScripts()) {
-                        revisions.put(codeTemplate.getId(), codeTemplate.getRevision());
+        if (libraries != null) {
+            for (CodeTemplateLibrary library : libraries) {
+                if (library.getEnabledChannelIds().contains(channelId) || (library.isIncludeNewChannels() && !library.getDisabledChannelIds().contains(channelId))) {
+                    for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
+                        if (codeTemplate.isAddToScripts()) {
+                            revisions.put(codeTemplate.getId(), codeTemplate.getRevision());
+                        }
                     }
                 }
             }

@@ -48,6 +48,7 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.ServerEventContext;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.DatabaseUtil;
@@ -159,6 +160,12 @@ public class DefaultChannelController extends ChannelController {
             }
 
             /*
+             * Select the code template libraries once beforehand so they can be used with multiple
+             * channels without having to re-select them every time
+             */
+            List<CodeTemplateLibrary> codeTemplateLibraries = codeTemplateController.getLibraries(null, true);
+
+            /*
              * Iterate through the cached channel list and check if a channel with the id exists on
              * the server. If it does, and the revision numbers aren't equal, then add the channel
              * to the updated list. If the cached deployed date is outdated, also add the updated
@@ -201,7 +208,7 @@ public class DefaultChannelController extends ChannelController {
                             addSummary = true;
                         }
 
-                        summary.getChannelStatus().setCodeTemplatesChanged(!codeTemplateController.getCodeTemplateRevisionsForChannel(cachedChannelId).equals(deployedChannelInfo.getCodeTemplateRevisions()));
+                        summary.getChannelStatus().setCodeTemplatesChanged(!codeTemplateController.getCodeTemplateRevisionsForChannel(cachedChannelId, codeTemplateLibraries).equals(deployedChannelInfo.getCodeTemplateRevisions()));
                         if (summary.getChannelStatus().isCodeTemplatesChanged() != header.isCodeTemplatesChanged()) {
                             addSummary = true;
                         }
@@ -232,7 +239,7 @@ public class DefaultChannelController extends ChannelController {
                         summary.getChannelStatus().setDeployedRevisionDelta(serverChannels.get(serverChannelId).getRevision() - deployedChannelInfo.getDeployedRevision());
                         summary.getChannelStatus().setDeployedDate(deployedChannelInfo.getDeployedDate());
 
-                        if (!codeTemplateController.getCodeTemplateRevisionsForChannel(serverChannelId).equals(deployedChannelInfo.getCodeTemplateRevisions())) {
+                        if (!codeTemplateController.getCodeTemplateRevisionsForChannel(serverChannelId, codeTemplateLibraries).equals(deployedChannelInfo.getCodeTemplateRevisions())) {
                             summary.getChannelStatus().setCodeTemplatesChanged(true);
                         }
                     }
