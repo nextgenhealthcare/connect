@@ -43,7 +43,7 @@ public class HttpAuthConnectorPropertiesPlugin extends ConnectorPropertiesPlugin
 
     @Override
     public boolean isSupported(String transportName) {
-        return transportName.equals("HTTP Listener") || transportName.equals("Web Service Listener") || transportName.equals("FHIR Listener");
+        return transportName.equals("HTTP Listener") || transportName.equals("Web Service Listener") || transportName.equals("FHIR Listener") || transportName.equals("Health Data Hub Listener");
     }
 
     @Override
