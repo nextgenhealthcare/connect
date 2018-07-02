@@ -293,7 +293,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     }
     
     public void doSetAdminDefaults() {
-        if (!getFrame().alertOkCancel(this, "<html>Set Administrator Settings to defaults?<br/><br/>This will reset all of your local settings!</html>")) {
+        if (!getFrame().alertOkCancel(this, "<html>Set Administrator Settings to defaults?<br/><br/>This will reset all of your local settings!<br/><br/>It is suggested that you restart the Administrator<br/>since some settings may not take effect until<br/>the Administrator has been reloaded.</html>")) {
             return;
         }
         
