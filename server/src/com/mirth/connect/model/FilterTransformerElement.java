@@ -24,12 +24,16 @@ public abstract class FilterTransformerElement implements Serializable, Purgable
 
     private String name;
     private String sequenceNumber;
+    private boolean enabled;
 
-    public FilterTransformerElement() {}
+    public FilterTransformerElement() {
+        enabled = true;
+    }
 
     public FilterTransformerElement(FilterTransformerElement props) {
         name = props.getName();
         sequenceNumber = props.getSequenceNumber();
+        enabled = props.isEnabled();
     }
 
     public abstract String getScript(boolean loadFiles) throws ScriptBuilderException;
@@ -74,5 +78,13 @@ public abstract class FilterTransformerElement implements Serializable, Purgable
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("sequenceNumber", sequenceNumber);
         return purgedProperties;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

@@ -107,6 +107,7 @@ import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
@@ -142,7 +143,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     protected int numColumn;
     protected int nameColumn;
     protected int typeColumn;
-    protected int columnCount = 3;
+    protected int enabledColumn;
+    protected int columnCount = 4;
 
     private JXTaskPane viewTasks;
     private JXTaskPane editorTasks;
@@ -182,6 +184,12 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             return false;
         }
     }
+    
+    protected boolean allowEnableEdit(int rowIndex, int columnIndex) {
+        FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(rowIndex);
+        // TODO: only enable if its parents are all enabled
+        return node.getParent().isEditable(enabledColumn);
+    }
 
     protected boolean allowOperatorEdit(int rowIndex, int columnIndex) {
         return false;
@@ -190,6 +198,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private boolean allowCellEdit(int rowIndex, int columnIndex) {
         if (columnIndex == nameColumn) {
             return allowNameEdit(rowIndex, columnIndex) || allowOperatorEdit(rowIndex, columnIndex);
+        } else if (columnIndex == enabledColumn) {
+            return allowEnableEdit(rowIndex, columnIndex);
         }
         return columnIndex == typeColumn;
     }
@@ -959,15 +969,21 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         nameColumn = columnIndex++;
         columnNames.add("Type");
         typeColumn = columnIndex++;
+        columnNames.add("Enabled");
+        enabledColumn = columnIndex++;
 
         final TableCellRenderer numCellRenderer = new LeftCellRenderer();
         final TableCellEditor nameCellEditor = new NameEditor();
+        final TableCellRenderer checkboxCellRenderer = new CheckBoxRenderer();
+        final TableCellEditor checkboxCellEditor = new CheckBoxEditor();
 
         treeTable = new MirthTreeTable() {
             @Override
             public TableCellRenderer getCellRenderer(int row, int column) {
                 if (column == numColumn) {
                     return numCellRenderer;
+                } else if (column == enabledColumn) {
+                    return checkboxCellRenderer;
                 } else {
                     return super.getCellRenderer(row, column);
                 }
@@ -977,6 +993,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             public TableCellEditor getCellEditor(int row, int column) {
                 if (isHierarchical(column)) {
                     return nameCellEditor;
+                } else if (column == enabledColumn) {
+                    return checkboxCellEditor;
                 } else {
                     return super.getCellEditor(row, column);
                 }
@@ -1034,6 +1052,10 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         treeTable.getColumnExt(typeColumn).setMaxWidth(UIConstants.MAX_WIDTH);
         treeTable.getColumnExt(typeColumn).setMinWidth(155);
         treeTable.getColumnExt(typeColumn).setPreferredWidth(155);
+        
+        treeTable.getColumnExt(enabledColumn).setMaxWidth(UIConstants.MAX_WIDTH);
+        treeTable.getColumnExt(enabledColumn).setMinWidth(20);
+        treeTable.getColumnExt(enabledColumn).setPreferredWidth(65);
 
         treeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -1359,6 +1381,9 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
         treeTable.getColumnExt(typeColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(typeArray));
         treeTable.getColumnExt(typeColumn).setCellEditor(typeEditor);
+        
+        treeTable.getColumnExt(enabledColumn).setCellRenderer(new CheckBoxRenderer());
+        treeTable.getColumnExt(enabledColumn).setCellEditor(new CheckBoxEditor());
 
         for (FilterTransformerTypePlugin<T, C> plugin : getPlugins().values()) {
             plugin.getPanel().setNameActionListener(nameActionListener);
@@ -2043,6 +2068,70 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         }
     }
 
+
+    private class CheckBoxRenderer extends JPanel implements TableCellRenderer {
+        private MirthCheckBox checkBox;
+
+        public CheckBoxRenderer() {
+            super(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
+            checkBox = new MirthCheckBox();
+            add(checkBox, "center");
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+                setBackground(row % 2 == 0 ? UIConstants.HIGHLIGHTER_COLOR : UIConstants.BACKGROUND_COLOR);
+                checkBox.setBackground(getBackground());
+            }
+            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(row);
+            // TODO: only enable if its parents are all enabled
+            boolean parentEnabled = node.getParent().isEditable(enabledColumn);
+            checkBox.setEnabled(parentEnabled);
+            checkBox.setSelected(node.getElement().isEnabled());
+            return this;
+        }
+    }
+
+    private class CheckBoxEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
+        private JPanel panel;
+        private MirthCheckBox checkBox;
+
+        public CheckBoxEditor() {
+            panel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
+            checkBox = new MirthCheckBox();
+            checkBox.addActionListener(this);
+            panel.add(checkBox, "center");
+        }
+
+        @Override
+        public boolean isCellEditable(EventObject evt) {
+            // TODO: only enable if its parents are all enabled
+            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(treeTable.getSelectedRow());
+            return node.getParent().isEditable(enabledColumn);
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return checkBox.isSelected();
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+                panel.setBackground(row % 2 == 0 ? UIConstants.HIGHLIGHTER_COLOR : UIConstants.BACKGROUND_COLOR);
+                checkBox.setBackground(panel.getBackground());
+            }
+            return panel;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(treeTable.getSelectedRow());
+            node.getElement().setEnabled(checkBox.isSelected());
+        }
+    }
+    
     private JSplitPane horizontalSplitPane;
 
     private JSplitPane verticalSplitPane;
