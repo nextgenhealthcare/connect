@@ -543,17 +543,19 @@ public class Frame extends JXFrame {
 
         for (Object extensionMetaData : CollectionUtils.union(loadedPlugins.values(), loadedConnectors.values())) {
             MetaData metaData = (MetaData) extensionMetaData;
-            for (ApiProvider provider : metaData.getApiProviders(Version.getLatest())) {
-                switch (provider.getType()) {
-                    case SERVLET_INTERFACE_PACKAGE:
-                    case CORE_PACKAGE:
-                        apiProviderPackages.add(provider.getName());
-                        break;
-                    case SERVLET_INTERFACE:
-                    case CORE_CLASS:
-                        apiProviderClasses.add(provider.getName());
-                        break;
-                    default:
+            if (mirthClient.isExtensionEnabled(metaData.getName())) {
+                for (ApiProvider provider : metaData.getApiProviders(Version.getLatest())) {
+                    switch (provider.getType()) {
+                        case SERVLET_INTERFACE_PACKAGE:
+                        case CORE_PACKAGE:
+                            apiProviderPackages.add(provider.getName());
+                            break;
+                        case SERVLET_INTERFACE:
+                        case CORE_CLASS:
+                            apiProviderClasses.add(provider.getName());
+                            break;
+                        default:
+                    }
                 }
             }
         }
