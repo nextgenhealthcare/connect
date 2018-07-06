@@ -36,23 +36,21 @@
 	                    <div class="help-block">
 	                        Click the big green button below, and choose to open the file with the Administrator Launcher instead of using Java Web Start. If you don't have the Administrator Launcher installed, click the big blue button below.
 	                    </div>
-	                    <div style="text-align: center;">
-	                        <a class="btn btn-md btn-themebutton" href="javascript:launchAdministrator()">Launch Mirth Connect Administrator</a>
-	                        <div id="optionsDropdownContainer" class="dropdown" style="text-align: center;">
-	                        	<button id="optionsButton" class="btn btn-default btn-lg dropdown-toggle opt-button" data-toggle="dropdown" role="button">
-		                        	<span class="glyphicon glyphicon-cog"></span>
-	                        	</button>
-	                        	<ul id="optionsDropdownMenu" class="dropdown-menu" role="menu" aria-labelledby="optionsButton">
-	                        		<li role="presentation"><span class="text-center">Web Start Settings</span></li>
-	                        		<li class="divider"></li>
-	                        		<li role="presentation">
-	                        			<span id="maxHeapSizeLabel" class="dropdown-label pull-left">Max Heap Size:&nbsp;</span>
-	                        			<select id="maxHeapSizeSelect" class="dropdown-select"></select>
-	                        			<p id="maxHeapSizeWarning" class="dropdown-warning"><b>Note:</b> The Administrator may fail to start if the max heap size is set too high.</p>
-	                        		</li>
-	                        	</ul>
-	                        </div>
-	                    </div>
+                        <a class="btn btn-md btn-themebutton" href="javascript:launchAdministrator()">Launch Mirth Connect Administrator</a>
+                        <div id="optionsDropdownContainer" class="dropdown" style="text-align: center;">
+                        	<button id="optionsButton" class="btn btn-default btn-lg dropdown-toggle opt-button" data-toggle="dropdown" role="button">
+	                        	<span class="glyphicon glyphicon-cog"></span>
+                        	</button>
+                        	<ul id="optionsDropdownMenu" class="dropdown-menu" role="menu" aria-labelledby="optionsButton">
+                        		<li role="presentation"><span class="text-center">Web Start Settings</span></li>
+                        		<li class="divider"></li>
+                        		<li role="presentation">
+                        			<span id="maxHeapSizeLabel" class="dropdown-label pull-left">Max Heap Size:&nbsp;</span>
+                        			<select id="maxHeapSizeSelect" class="dropdown-select"></select>
+                        			<p id="maxHeapSizeWarning" class="dropdown-warning"><b>Note:</b> The Administrator may fail to start if the max heap size is set too high.</p>
+                        		</li>
+                        	</ul>
+                        </div>
 	                </div>
                     
                     <div>
@@ -64,7 +62,7 @@
                         	<button id="administratorLauncherOptionsButton" class="btn btn-default btn-lg dropdown-toggle opt-button" data-toggle="dropdown" role="button">
 	                        	<span class="glyphicon glyphicon-cog"></span>
                         	</button>
-                        	<ul id="administratorLauncherOptionsDropdownMenu" class="dropdown-menu" role="menu" aria-labelledby="administratorLauncherOptionsButton">
+                        	<ul id="administratorLauncherOptionsDropdownMenu" class="dropdown-menu" role="menu" aria-labelledby="administratorLauncherOptionsButton" style="text-align: center;">
                         		<li role="presentation"><span class="text-center">Operating System</span></li>
                         		<li class="divider"></li>
                         		<li role="presentation">
