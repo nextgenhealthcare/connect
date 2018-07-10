@@ -65,7 +65,8 @@ public class ChannelTests {
     @BeforeClass
     final public static void beforeClass() throws StartException {
         Donkey donkey = Donkey.getInstance();
-        donkey.startEngine(TestUtils.getDonkeyTestConfiguration());
+        donkey.initDaoFactory(TestUtils.getDonkeyTestConfiguration());
+        donkey.startEngine();
     }
 
     @AfterClass

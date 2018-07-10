@@ -70,6 +70,7 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
         statsServerId = serverId;
     }
 
+    @Override
     public ConnectionPool getConnectionPool() {
         return connectionPool;
     }

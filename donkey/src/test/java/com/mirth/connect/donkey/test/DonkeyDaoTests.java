@@ -75,7 +75,8 @@ public class DonkeyDaoTests {
     @BeforeClass
     final public static void beforeClass() throws StartException {
         Donkey donkey = Donkey.getInstance();
-        donkey.startEngine(TestUtils.getDonkeyTestConfiguration());
+        donkey.initDaoFactory(TestUtils.getDonkeyTestConfiguration());
+        donkey.startEngine();
 
         if (donkey.getDaoFactory() instanceof JdbcDaoFactory) {
             ((JdbcDaoFactory) donkey.getDaoFactory()).setStatsServerId(serverId);

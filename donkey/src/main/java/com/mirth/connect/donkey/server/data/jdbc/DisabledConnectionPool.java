@@ -13,6 +13,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 public class DisabledConnectionPool implements ConnectionPool {
     private String url;
     private String username;
@@ -33,6 +35,11 @@ public class DisabledConnectionPool implements ConnectionPool {
 
     @Override
     public Integer getMaxConnections() {
+        return null;
+    }
+
+    @Override
+    public DataSource getDataSource() {
         return null;
     }
 }

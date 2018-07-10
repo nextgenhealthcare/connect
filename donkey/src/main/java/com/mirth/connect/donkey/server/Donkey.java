@@ -68,40 +68,9 @@ public class Donkey {
     private Logger logger = Logger.getLogger(getClass());
     private boolean running = false;
 
-    public void startEngine(DonkeyConfiguration donkeyConfiguration) throws StartException {
+    public void initDaoFactory(DonkeyConfiguration donkeyConfiguration) throws StartException {
         this.donkeyConfiguration = donkeyConfiguration;
 
-        initDaoFactory();
-
-        DonkeyDao dao = null;
-        try {
-            dao = daoFactory.getDao();
-            dao.checkAndCreateChannelTables();
-
-            dao.commit();
-        } catch(Exception e){
-            logger.error("Count not check and create channel tables on startup", e);
-        }finally {
-            if (dao != null) {
-                dao.close();
-            }
-        }
-
-        // load channel statistics into memory
-        ChannelController.getInstance().loadStatistics(donkeyConfiguration.getServerId());
-
-        encryptor = donkeyConfiguration.getEncryptor();
-
-        eventDispatcher = donkeyConfiguration.getEventDispatcher();
-
-        int updateInterval = NumberUtils.toInt(donkeyConfiguration.getDonkeyProperties().getProperty("donkey.statsupdateinterval"), DonkeyStatisticsUpdater.DEFAULT_UPDATE_INTERVAL);
-        statisticsUpdater = new DonkeyStatisticsUpdater(daoFactory, updateInterval);
-        statisticsUpdater.start();
-
-        running = true;
-    }
-
-    private void initDaoFactory() throws StartException {
         Properties dbProperties = donkeyConfiguration.getDonkeyProperties();
         String database = dbProperties.getProperty("database");
         String driver = dbProperties.getProperty("database.driver");
@@ -169,6 +138,35 @@ public class Donkey {
         daoFactory = jdbcDaoFactory;
     }
 
+    public void startEngine() throws StartException {
+        DonkeyDao dao = null;
+        try {
+            dao = daoFactory.getDao();
+            dao.checkAndCreateChannelTables();
+
+            dao.commit();
+        } catch (Exception e) {
+            logger.error("Count not check and create channel tables on startup", e);
+        } finally {
+            if (dao != null) {
+                dao.close();
+            }
+        }
+
+        // load channel statistics into memory
+        ChannelController.getInstance().loadStatistics(donkeyConfiguration.getServerId());
+
+        encryptor = donkeyConfiguration.getEncryptor();
+
+        eventDispatcher = donkeyConfiguration.getEventDispatcher();
+
+        int updateInterval = NumberUtils.toInt(donkeyConfiguration.getDonkeyProperties().getProperty("donkey.statsupdateinterval"), DonkeyStatisticsUpdater.DEFAULT_UPDATE_INTERVAL);
+        statisticsUpdater = new DonkeyStatisticsUpdater(daoFactory, updateInterval);
+        statisticsUpdater.start();
+
+        running = true;
+    }
+
     public DonkeyDaoFactory getDaoFactory() {
         return daoFactory;
     }
@@ -185,7 +183,7 @@ public class Donkey {
         if (statisticsUpdater != null) {
             statisticsUpdater.shutdown();
         }
-        
+
         running = false;
     }
 

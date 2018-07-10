@@ -55,4 +55,9 @@ public class DBCPConnectionPool implements ConnectionPool {
     public Integer getMaxConnections() {
         return maxConnections;
     }
+
+    @Override
+    public DataSource getDataSource() {
+        return dataSource;
+    }
 }

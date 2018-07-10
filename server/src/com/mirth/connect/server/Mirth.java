@@ -208,6 +208,7 @@ public class Mirth extends Thread {
         configurationController.initializeDatabaseSettings();
 
         try {
+            engineController.initDaoFactory();
             SqlConfig.getSqlSessionManager().startManagedSession();
             SqlConfig.getSqlSessionManager().getConnection();
         } catch (Exception e) {

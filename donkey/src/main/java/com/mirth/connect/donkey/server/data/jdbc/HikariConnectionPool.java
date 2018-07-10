@@ -12,6 +12,8 @@ package com.mirth.connect.donkey.server.data.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import com.zaxxer.hikari.HikariDataSource;
 
 public class HikariConnectionPool implements ConnectionPool {
@@ -45,5 +47,10 @@ public class HikariConnectionPool implements ConnectionPool {
     @Override
     public Integer getMaxConnections() {
         return maxConnections;
+    }
+
+    @Override
+    public DataSource getDataSource() {
+        return dataSource;
     }
 }

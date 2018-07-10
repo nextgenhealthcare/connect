@@ -12,6 +12,7 @@ package com.mirth.connect.donkey.server.data.timed;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.StatisticsUpdater;
+import com.mirth.connect.donkey.server.data.jdbc.ConnectionPool;
 import com.mirth.connect.donkey.util.ActionTimer;
 import com.mirth.connect.donkey.util.SerializerProvider;
 
@@ -52,7 +53,7 @@ public class TimedDaoFactory implements DonkeyDaoFactory {
     public void setDecryptData(boolean decryptData) {
         this.decryptData = decryptData;
     }
-    
+
     @Override
     public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
         this.statisticsUpdater = statisticsUpdater;
@@ -74,5 +75,10 @@ public class TimedDaoFactory implements DonkeyDaoFactory {
         dao.setDecryptData(decryptData);
         dao.setStatisticsUpdater(statisticsUpdater);
         return dao;
+    }
+
+    @Override
+    public ConnectionPool getConnectionPool() {
+        return delegateFactory.getConnectionPool();
     }
 }
