@@ -52,6 +52,7 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractCellEditor;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -186,9 +187,15 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
     
     protected boolean allowEnableEdit(int rowIndex, int columnIndex) {
-        FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(rowIndex);
-        // TODO: only enable if its parents are all enabled
-        return node.getParent().isEditable(enabledColumn);
+        TreePath path = treeTable.getPathForRow(rowIndex);
+        FilterTransformerTreeTableNode traverseUp = path != null? (FilterTransformerTreeTableNode) path.getLastPathComponent() : null;
+        traverseUp = traverseUp != null && traverseUp.getParent() instanceof DefaultMutableTreeTableNode == false? (FilterTransformerTreeTableNode) traverseUp.getParent() : null;
+        boolean enabled = true;
+        while (traverseUp != null && enabled) {
+            enabled = traverseUp.getElement().isEnabled();
+            traverseUp = traverseUp.getParent() instanceof DefaultMutableTreeTableNode? null : (FilterTransformerTreeTableNode) traverseUp.getParent();
+        }
+        return enabled;
     }
 
     protected boolean allowOperatorEdit(int rowIndex, int columnIndex) {
@@ -468,6 +475,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
             C element = plugin.newObject(variable, mapping);
             element.setName(name);
+            element.setEnabled(true);
             FilterTransformerTreeTableNode<T, C> node = insertNode(parent, element);
             replaceIteratorVariables(node);
 
@@ -1012,6 +1020,21 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 int row = treeTable.getRowForPath(new TreePath(getPathToRoot((TreeTableNode) node)));
                 return allowCellEdit(row, column);
             }
+            
+            @Override
+            public Object getValueAt(Object node, int column) {
+                if (column == enabledColumn) {
+                    return ((FilterTransformerTreeTableNode<T, C>) node).getElement().isEnabled();
+                } 
+                return super.getValueAt(node, column);
+            }
+            @Override
+            public void setValueAt(Object value, Object node, int column) {
+                if (column == enabledColumn) {
+                    ((FilterTransformerTreeTableNode<T, C>) node).getElement().setEnabled((Boolean) value);
+                } 
+                super.setValueAt(value, node, column);
+            }
         };
         treeTableModel.setColumnIdentifiers(columnNames);
 
@@ -1377,9 +1400,32 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             public void actionPerformed(ActionEvent evt) {
                 typeComboBoxActionPerformed(evt);
             }
-        });
+            
+        }) {
 
-        treeTable.getColumnExt(typeColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(typeArray));
+            @Override
+            public boolean isCellEditable(EventObject evt) {
+
+                if (evt instanceof MouseEvent) {
+                    MouseEvent mouseEvt = (MouseEvent) evt;
+                    // Get the path to the node at the mouse event point
+                    if (!allowEnableEdit(treeTable.rowAtPoint(mouseEvt.getPoint()), treeTable.columnAtPoint(mouseEvt.getPoint()))) {  // if it's parent is disabled
+                        return false;
+                    }
+                }
+                return super.isCellEditable(evt);
+            }
+        };
+
+        treeTable.getColumnExt(typeColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(typeArray) {
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                component.setEnabled(allowEnableEdit(row, column));
+                return component;
+            }
+        });
         treeTable.getColumnExt(typeColumn).setCellEditor(typeEditor);
         
         treeTable.getColumnExt(enabledColumn).setCellRenderer(new CheckBoxRenderer());
@@ -1536,6 +1582,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     setOperator(element, getOperator(node.getElement()));
                 }
                 element.setName(node.getElement().getName());
+                element.setEnabled(node.getElement().isEnabled());
 
                 node.setElement(element);
                 treeTableModel.setValueAt(element.getSequenceNumber(), node, numColumn);
@@ -1544,6 +1591,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 } else {
                     treeTableModel.setValueAt(new OperatorNamePair(element.getName()), node, nameColumn);
                 }
+                treeTableModel.setValueAt(element.isEnabled(), node, enabledColumn);
             } catch (Exception e) {
                 PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
             }
@@ -1869,6 +1917,9 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     operatorButton.setIcon(operator != null ? operator == Operator.AND ? UIConstants.ICON_AND : UIConstants.ICON_OR : null);
                     operatorButton.setBackground(getBackground());
                 }
+
+                // TODO: grey it out
+                nameLabel.setEnabled(allowEnableEdit(row, 0));
             }
 
             return this;
@@ -1970,6 +2021,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                         if (point.x >= loc.x && point.x < loc.x + UIConstants.ICON_AND.getIconWidth() && point.y >= loc.y && point.y < loc.y + UIConstants.ICON_AND.getIconHeight()) {
                             return true;
                         }
+                    } else if (!allowEnableEdit(treeTable.rowAtPoint(point), treeTable.columnAtPoint(point))) {  // if it's parent is disabled
+                        return false;
                     }
 
                     if (mouseEvt.getClickCount() >= 2) {
@@ -1990,7 +2043,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
             return false;
         }
-
+        
         @Override
         @SuppressWarnings("unchecked")
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
@@ -2068,7 +2121,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         }
     }
 
-
     private class CheckBoxRenderer extends JPanel implements TableCellRenderer {
         private MirthCheckBox checkBox;
 
@@ -2080,55 +2132,53 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-                setBackground(row % 2 == 0 ? UIConstants.HIGHLIGHTER_COLOR : UIConstants.BACKGROUND_COLOR);
-                checkBox.setBackground(getBackground());
+            if (isSelected) {
+                setBackground(table.getSelectionBackground());
+            } else {
+                setBackground(Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true) && row % 2 == 0 ? UIConstants.HIGHLIGHTER_COLOR : UIConstants.BACKGROUND_COLOR);
             }
-            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(row);
-            // TODO: only enable if its parents are all enabled
-            boolean parentEnabled = node.getParent().isEditable(enabledColumn);
-            checkBox.setEnabled(parentEnabled);
-            checkBox.setSelected(node.getElement().isEnabled());
+            
+            checkBox.setBackground(getBackground());
+            if (value != null) {
+                checkBox.setSelected((Boolean) value);
+            }
+            checkBox.setEnabled(allowEnableEdit(row, column));
             return this;
         }
     }
 
-    private class CheckBoxEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
+    private class CheckBoxEditor extends DefaultCellEditor {
         private JPanel panel;
-        private MirthCheckBox checkBox;
+        private JCheckBox checkBox;
 
         public CheckBoxEditor() {
+            super(new MirthCheckBox());
             panel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
-            checkBox = new MirthCheckBox();
-            checkBox.addActionListener(this);
+            checkBox = (JCheckBox) editorComponent;
             panel.add(checkBox, "center");
         }
 
         @Override
-        public boolean isCellEditable(EventObject evt) {
-            // TODO: only enable if its parents are all enabled
-            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(treeTable.getSelectedRow());
-            return node.getParent().isEditable(enabledColumn);
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return checkBox.isSelected();
-        }
-
-        @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-                panel.setBackground(row % 2 == 0 ? UIConstants.HIGHLIGHTER_COLOR : UIConstants.BACKGROUND_COLOR);
-                checkBox.setBackground(panel.getBackground());
-            }
+            Component component = super.getTableCellEditorComponent(table, value, isSelected, row, column);
+            panel.setBackground(table.getSelectionBackground());
+            component.setBackground(panel.getBackground());
             return panel;
         }
 
         @Override
-        public void actionPerformed(ActionEvent evt) {
-            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(treeTable.getSelectedRow());
-            node.getElement().setEnabled(checkBox.isSelected());
+        public boolean isCellEditable(EventObject evt) {
+
+            if (evt instanceof MouseEvent) {
+                MouseEvent mouseEvt = (MouseEvent) evt;
+                // Get the path to the node at the mouse event point
+                TreePath path = treeTable.getPathForLocation(mouseEvt.getX(), mouseEvt.getY());
+                ;
+                if (!allowEnableEdit(treeTable.rowAtPoint(mouseEvt.getPoint()), treeTable.columnAtPoint(mouseEvt.getPoint()))) {  // if it's parent is disabled
+                    return false;
+                }
+            }
+            return true;
         }
     }
     
