@@ -78,8 +78,12 @@ public abstract class FilterTransformer<C extends FilterTransformerElement> impl
     @Override public void migrate3_6_0(DonkeyElement element) {} // @formatter:on
     
     @Override public void migrate3_7_0(DonkeyElement element) {
-        // add the enabled element to all FilterTransformerElements
-        
+        // add the enabled element to all elements with value true
+        DonkeyElement elementList = element.getChildElement("elements");
+
+        for (DonkeyElement filterTransformerElement : elementList.getChildElements()) {
+            filterTransformerElement.addChildElement("enabled", Boolean.toString(Boolean.TRUE));
+        }
     }
 
     @Override
