@@ -10,6 +10,7 @@
 package com.mirth.connect.server.builders;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
@@ -279,13 +280,14 @@ public class JavaScriptBuilder {
     }
 
     private static void appendFilterScript(StringBuilder builder, Filter filter) throws ScriptBuilderException {
-        logger.debug("building javascript filter: rule count=" + filter.getElements().size());
+        List<Rule> enabledElements = filter.getEnabledElements();
+        logger.debug("building javascript filter: enabled rule count=" + enabledElements.size());
 
-        if (filter.getElements().isEmpty()) {
+        if (enabledElements.isEmpty()) {
             logger.debug("filter is empty, setting to accept all messages");
             builder.append("function doFilter() { phase[0] = 'filter'; return true; }");
         } else {
-            for (ListIterator<Rule> iter = filter.getElements().listIterator(); iter.hasNext();) {
+            for (ListIterator<Rule> iter = enabledElements.listIterator(); iter.hasNext();) {
                 Rule rule = iter.next();
                 builder.append("function filterRule" + iter.nextIndex() + "() {\n" + rule.getScript(true) + "\n}");
             }
@@ -293,7 +295,7 @@ public class JavaScriptBuilder {
             builder.append("function doFilter() { phase[0] = 'filter'; return (");
 
             // call each of the above functions in a big boolean expression
-            for (ListIterator<Rule> iter = filter.getElements().listIterator(); iter.hasNext();) {
+            for (ListIterator<Rule> iter = enabledElements.listIterator(); iter.hasNext();) {
                 Rule rule = iter.next();
                 String operator = "";
 
@@ -311,7 +313,8 @@ public class JavaScriptBuilder {
     }
 
     private static void appendTransformerScript(StringBuilder builder, Transformer transformer, boolean response) throws ScriptBuilderException {
-        logger.debug("building javascript transformer: step count=" + transformer.getElements().size());
+        List<Step> enabledElements = transformer.getEnabledElements();
+        logger.debug("building javascript transformer: enabled step count=" + enabledElements.size());
 
         // Set the phase and also reset the logger to transformer (it was filter before)
         builder.append("function doTransform() {");
@@ -322,7 +325,7 @@ public class JavaScriptBuilder {
 
         builder.append("\n\n\n");
 
-        for (Step step : transformer.getElements()) {
+        for (Step step : enabledElements) {
             logger.debug("adding step: " + step.getName());
             builder.append(step.getScript(true) + "\n");
         }
