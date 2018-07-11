@@ -247,6 +247,9 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
     public void migrate3_6_0(DonkeyElement element) {}
 
     @Override
+    public void migrate3_7_0(DonkeyElement element) {}
+    
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("id", id);

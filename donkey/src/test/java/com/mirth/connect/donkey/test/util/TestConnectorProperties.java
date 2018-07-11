@@ -80,6 +80,9 @@ public class TestConnectorProperties extends ConnectorProperties implements Dest
 
     @Override
     public void migrate3_6_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_7_0(DonkeyElement element) {}
     
     @Override
     public Map<String, Object> getPurgedProperties() {
