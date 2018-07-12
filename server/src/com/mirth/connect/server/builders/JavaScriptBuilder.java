@@ -279,7 +279,7 @@ public class JavaScriptBuilder {
         }
     }
 
-    private static void appendFilterScript(StringBuilder builder, Filter filter) throws ScriptBuilderException {
+    protected static void appendFilterScript(StringBuilder builder, Filter filter) throws ScriptBuilderException {
         List<Rule> enabledElements = filter.getEnabledElements();
         logger.debug("building javascript filter: enabled rule count=" + enabledElements.size());
 
@@ -312,7 +312,7 @@ public class JavaScriptBuilder {
         }
     }
 
-    private static void appendTransformerScript(StringBuilder builder, Transformer transformer, boolean response) throws ScriptBuilderException {
+    protected static void appendTransformerScript(StringBuilder builder, Transformer transformer, boolean response) throws ScriptBuilderException {
         List<Step> enabledElements = transformer.getEnabledElements();
         logger.debug("building javascript transformer: enabled step count=" + enabledElements.size());
 

@@ -109,7 +109,7 @@ public abstract class IteratorProperties<C extends FilterTransformerElement> imp
         StringBuilder script = new StringBuilder();
         ancestors.push(this);
 
-        for (C child : children) {
+        for (C child : getEnabledElements()) {
             if (child instanceof FilterTransformerIterable) {
                 script.append(StringUtils.defaultString(((FilterTransformerIterable<C>) child).getPreScript(loadFiles, ancestors))).append('\n');
             }
@@ -127,10 +127,7 @@ public abstract class IteratorProperties<C extends FilterTransformerElement> imp
 
         script.append("for (var ").append(indexVariable).append(" = 0; ").append(indexVariable).append(" < getArrayOrXmlLength(").append(target).append("); ").append(indexVariable).append("++) {\n");
 
-        for (C child : children) {
-            if (!child.isEnabled()) {
-                continue;
-            }
+        for (C child : getEnabledElements()) {
             script.append('\n');
             if (child instanceof FilterTransformerIterable) {
                 script.append(StringUtils.defaultString(((FilterTransformerIterable<C>) child).getIterationScript(loadFiles, ancestors)));
@@ -152,7 +149,7 @@ public abstract class IteratorProperties<C extends FilterTransformerElement> imp
         StringBuilder script = new StringBuilder();
         ancestors.push(this);
 
-        for (C child : children) {
+        for (C child : getEnabledElements()) {
             if (child instanceof FilterTransformerIterable) {
                 script.append(StringUtils.defaultString(((FilterTransformerIterable<C>) child).getPostScript(loadFiles, ancestors))).append('\n');
             }
