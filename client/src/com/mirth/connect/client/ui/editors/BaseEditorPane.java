@@ -185,15 +185,15 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             return false;
         }
     }
-    
+
     protected boolean allowEnableEdit(int rowIndex, int columnIndex) {
         TreePath path = treeTable.getPathForRow(rowIndex);
-        FilterTransformerTreeTableNode traverseUp = path != null? (FilterTransformerTreeTableNode) path.getLastPathComponent() : null;
-        traverseUp = traverseUp != null && traverseUp.getParent() instanceof DefaultMutableTreeTableNode == false? (FilterTransformerTreeTableNode) traverseUp.getParent() : null;
+        FilterTransformerTreeTableNode traverseUp = path != null ? (FilterTransformerTreeTableNode) path.getLastPathComponent() : null;
+        traverseUp = traverseUp != null && traverseUp.getParent() instanceof DefaultMutableTreeTableNode == false ? (FilterTransformerTreeTableNode) traverseUp.getParent() : null;
         boolean enabled = true;
         while (traverseUp != null && enabled) {
             enabled = traverseUp.getElement().isEnabled();
-            traverseUp = traverseUp.getParent() instanceof DefaultMutableTreeTableNode? null : (FilterTransformerTreeTableNode) traverseUp.getParent();
+            traverseUp = traverseUp.getParent() instanceof DefaultMutableTreeTableNode ? null : (FilterTransformerTreeTableNode) traverseUp.getParent();
         }
         return enabled;
     }
@@ -971,14 +971,14 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
         int columnIndex = 0;
         List<String> columnNames = new ArrayList<String>();
+        columnNames.add("Enabled");
+        enabledColumn = columnIndex++;
         columnNames.add("#");
         numColumn = columnIndex++;
         columnNames.add("Name");
         nameColumn = columnIndex++;
         columnNames.add("Type");
         typeColumn = columnIndex++;
-        columnNames.add("Enabled");
-        enabledColumn = columnIndex++;
 
         final TableCellRenderer numCellRenderer = new LeftCellRenderer();
         final TableCellEditor nameCellEditor = new NameEditor();
@@ -1020,21 +1020,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 int row = treeTable.getRowForPath(new TreePath(getPathToRoot((TreeTableNode) node)));
                 return allowCellEdit(row, column);
             }
-            
-            @Override
-            public Object getValueAt(Object node, int column) {
-                if (column == enabledColumn) {
-                    return ((FilterTransformerTreeTableNode<T, C>) node).getElement().isEnabled();
-                } 
-                return super.getValueAt(node, column);
-            }
-            @Override
-            public void setValueAt(Object value, Object node, int column) {
-                if (column == enabledColumn) {
-                    ((FilterTransformerTreeTableNode<T, C>) node).getElement().setEnabled((Boolean) value);
-                } 
-                super.setValueAt(value, node, column);
-            }
         };
         treeTableModel.setColumnIdentifiers(columnNames);
 
@@ -1075,7 +1060,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         treeTable.getColumnExt(typeColumn).setMaxWidth(UIConstants.MAX_WIDTH);
         treeTable.getColumnExt(typeColumn).setMinWidth(155);
         treeTable.getColumnExt(typeColumn).setPreferredWidth(155);
-        
+
         treeTable.getColumnExt(enabledColumn).setMaxWidth(UIConstants.MAX_WIDTH);
         treeTable.getColumnExt(enabledColumn).setMinWidth(20);
         treeTable.getColumnExt(enabledColumn).setPreferredWidth(65);
@@ -1400,34 +1385,12 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             public void actionPerformed(ActionEvent evt) {
                 typeComboBoxActionPerformed(evt);
             }
-            
-        }) {
 
-            @Override
-            public boolean isCellEditable(EventObject evt) {
-
-                if (evt instanceof MouseEvent) {
-                    MouseEvent mouseEvt = (MouseEvent) evt;
-                    // Get the path to the node at the mouse event point
-                    if (!allowEnableEdit(treeTable.rowAtPoint(mouseEvt.getPoint()), treeTable.columnAtPoint(mouseEvt.getPoint()))) {  // if it's parent is disabled
-                        return false;
-                    }
-                }
-                return super.isCellEditable(evt);
-            }
-        };
-
-        treeTable.getColumnExt(typeColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(typeArray) {
-
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                component.setEnabled(allowEnableEdit(row, column));
-                return component;
-            }
         });
+
+        treeTable.getColumnExt(typeColumn).setCellRenderer(new MirthComboBoxTableCellRenderer(typeArray));
         treeTable.getColumnExt(typeColumn).setCellEditor(typeEditor);
-        
+
         treeTable.getColumnExt(enabledColumn).setCellRenderer(new CheckBoxRenderer());
         treeTable.getColumnExt(enabledColumn).setCellEditor(new CheckBoxEditor());
 
@@ -1917,9 +1880,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                     operatorButton.setIcon(operator != null ? operator == Operator.AND ? UIConstants.ICON_AND : UIConstants.ICON_OR : null);
                     operatorButton.setBackground(getBackground());
                 }
-
-                // TODO: grey it out
-                nameLabel.setEnabled(allowEnableEdit(row, 0));
             }
 
             return this;
@@ -1940,7 +1900,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             panel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 0")) {
                 @Override
                 public void setBounds(int x, int y, int width, int height) {
-                    int newOffset = offset - getInsets().left + 1;
+                    int newOffset = offset - getInsets().left;
                     super.setBounds(x + newOffset, y, width - newOffset, height);
                 }
             };
@@ -2021,8 +1981,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                         if (point.x >= loc.x && point.x < loc.x + UIConstants.ICON_AND.getIconWidth() && point.y >= loc.y && point.y < loc.y + UIConstants.ICON_AND.getIconHeight()) {
                             return true;
                         }
-                    } else if (!allowEnableEdit(treeTable.rowAtPoint(point), treeTable.columnAtPoint(point))) {  // if it's parent is disabled
-                        return false;
                     }
 
                     if (mouseEvt.getClickCount() >= 2) {
@@ -2043,7 +2001,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
             return false;
         }
-        
+
         @Override
         @SuppressWarnings("unchecked")
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
@@ -2083,7 +2041,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 // Calculate the offset to use for resizing the editor once it gets made visible
                 Rectangle cellRect = treeTable.getCellRect(row, column, true);
                 Rectangle pathBounds = ((JTree) treeTable.getCellRenderer(0, treeTable.getHierarchicalColumn())).getPathBounds(path);
-                offset = cellRect.x + pathBounds.x - bulletLabel.getIcon().getIconWidth() - UIConstants.ICON_AND.getIconWidth();
+                offset = cellRect.x + pathBounds.x - treeTable.getColumn(enabledColumn).getWidth() - treeTable.getColumn(numColumn).getWidth();
             }
 
             return panel;
@@ -2137,7 +2095,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             } else {
                 setBackground(Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true) && row % 2 == 0 ? UIConstants.HIGHLIGHTER_COLOR : UIConstants.BACKGROUND_COLOR);
             }
-            
+
             checkBox.setBackground(getBackground());
             if (value != null) {
                 checkBox.setSelected((Boolean) value);
@@ -2171,17 +2129,14 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
             if (evt instanceof MouseEvent) {
                 MouseEvent mouseEvt = (MouseEvent) evt;
-                // Get the path to the node at the mouse event point
-                TreePath path = treeTable.getPathForLocation(mouseEvt.getX(), mouseEvt.getY());
-                ;
-                if (!allowEnableEdit(treeTable.rowAtPoint(mouseEvt.getPoint()), treeTable.columnAtPoint(mouseEvt.getPoint()))) {  // if it's parent is disabled
+                if (!allowEnableEdit(treeTable.rowAtPoint(mouseEvt.getPoint()), treeTable.columnAtPoint(mouseEvt.getPoint()))) { // if it's parent is disabled
                     return false;
                 }
             }
             return true;
         }
     }
-    
+
     private JSplitPane horizontalSplitPane;
 
     private JSplitPane verticalSplitPane;

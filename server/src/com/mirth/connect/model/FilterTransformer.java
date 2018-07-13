@@ -75,30 +75,8 @@ public abstract class FilterTransformer<C extends FilterTransformerElement> impl
     @Override public void migrate3_3_0(DonkeyElement element) {}
     @Override public void migrate3_4_0(DonkeyElement element) {}
     @Override public void migrate3_5_0(DonkeyElement element) {}
-    @Override public void migrate3_6_0(DonkeyElement element) {} // @formatter:on
-    
-    @Override public void migrate3_7_0(DonkeyElement element) {
-        // add the enabled element to all elements, set enabled = true
-        DonkeyElement elements = element.getChildElement("elements");
-        if (elements != null) {
-            migrateHelper3_7_0(elements);
-        }
-    }
-
-    public void migrateHelper3_7_0(DonkeyElement element) {
-        for (DonkeyElement filterTransformerElement : element.getChildElements()) {
-            filterTransformerElement.addChildElement("enabled", Boolean.toString(Boolean.TRUE));
-
-            if (filterTransformerElement.getTagName().equals(IteratorStep.class.getName())) {
-                // check if this element has children (aka iterators)
-                DonkeyElement properties = filterTransformerElement.getChildElement("properties");
-                DonkeyElement children = properties != null? properties.getChildElement("children") : null;
-                if (children != null) {
-                    migrateHelper3_7_0(children);
-                }
-            }
-        }
-    }
+    @Override public void migrate3_6_0(DonkeyElement element) {}    
+    @Override public void migrate3_7_0(DonkeyElement element) {} // @formatter:on
     
     @Override
     public boolean equals(Object obj) {
