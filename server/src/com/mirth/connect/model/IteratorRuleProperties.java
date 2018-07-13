@@ -10,6 +10,7 @@
 package com.mirth.connect.model;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -57,18 +58,18 @@ public class IteratorRuleProperties extends IteratorProperties<Rule> {
         StringBuilder script = new StringBuilder();
         int depth = ancestors.size();
         ancestors.push(this);
-
+        List<Rule> enabledChildren = getEnabledElements();
         script.append("var _iterator_flag_").append(depth).append(" = ").append(intersectIterations).append(";\n");
         script.append("for (var ").append(getIndexVariable()).append(" = 0; ").append(getIndexVariable()).append(" < getArrayOrXmlLength(").append(getTarget()).append("); ").append(getIndexVariable()).append("++) {\n");
 
-        if (CollectionUtils.isNotEmpty(getChildren())) {
+        if (CollectionUtils.isNotEmpty(enabledChildren)) {
             script.append("if (");
             if (intersectIterations) {
                 script.append("!(");
             }
 
             boolean first = true;
-            for (Rule child : getChildren()) {
+            for (Rule child : enabledChildren) {
                 if (first) {
                     first = false;
                 } else {

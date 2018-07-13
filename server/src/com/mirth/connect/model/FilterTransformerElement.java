@@ -17,19 +17,25 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.util.ScriptBuilderException;
 
-public abstract class FilterTransformerElement implements Serializable, Purgable {
+public abstract class FilterTransformerElement implements Serializable, Purgable, Migratable {
 
     private String name;
     private String sequenceNumber;
+    private boolean enabled;
 
-    public FilterTransformerElement() {}
+    public FilterTransformerElement() {
+        enabled = true;
+    }
 
     public FilterTransformerElement(FilterTransformerElement props) {
         name = props.getName();
         sequenceNumber = props.getSequenceNumber();
+        enabled = props.isEnabled();
     }
 
     public abstract String getScript(boolean loadFiles) throws ScriptBuilderException;
@@ -73,6 +79,30 @@ public abstract class FilterTransformerElement implements Serializable, Purgable
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("sequenceNumber", sequenceNumber);
+        purgedProperties.put("enabled", enabled);
         return purgedProperties;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+    
+
+    // @formatter:off
+    @Override public void migrate3_0_1(DonkeyElement element) {}
+    @Override public void migrate3_0_2(DonkeyElement element) {}
+    @Override public void migrate3_1_0(DonkeyElement element) {}
+    @Override public void migrate3_2_0(DonkeyElement element) {}
+    @Override public void migrate3_3_0(DonkeyElement element) {}
+    @Override public void migrate3_4_0(DonkeyElement element) {}
+    @Override public void migrate3_5_0(DonkeyElement element) {}
+    @Override public void migrate3_6_0(DonkeyElement element) {} // @formatter:on
+    
+    @Override public void migrate3_7_0(DonkeyElement element) {
+        element.addChildElement("enabled", Boolean.toString(Boolean.TRUE));
     }
 }

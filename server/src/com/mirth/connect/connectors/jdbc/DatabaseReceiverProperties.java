@@ -222,11 +222,9 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
         return EqualsBuilder.reflectionEquals(this, obj);
     }
 
-    @Override
-    public void migrate3_0_1(DonkeyElement element) {}
-
-    @Override
-    public void migrate3_0_2(DonkeyElement element) {}
+    // @formatter:off
+    @Override public void migrate3_0_1(DonkeyElement element) {}
+    @Override public void migrate3_0_2(DonkeyElement element) {} // @formatter:on
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
@@ -241,14 +239,11 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
         element.addChildElementIfNotExists("encoding", CharsetUtils.DEFAULT_ENCODING);
     }
 
-    @Override
-    public void migrate3_4_0(DonkeyElement element) {}
-
-    @Override
-    public void migrate3_5_0(DonkeyElement element) {}
-
-    @Override
-    public void migrate3_6_0(DonkeyElement element) {}
+    // @formatter:off
+    @Override public void migrate3_4_0(DonkeyElement element) {}
+    @Override public void migrate3_5_0(DonkeyElement element) {}
+    @Override public void migrate3_6_0(DonkeyElement element) {}
+    @Override public void migrate3_7_0(DonkeyElement element) {} // @formatter:on
     
     @Override
     public Map<String, Object> getPurgedProperties() {

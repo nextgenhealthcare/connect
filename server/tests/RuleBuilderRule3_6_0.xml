@@ -1,0 +1,7 @@
+<com.mirth.connect.plugins.rulebuilder.RuleBuilderRule>
+  <name>Accept message if &quot;a&quot; exists</name>
+  <sequenceNumber>0</sequenceNumber>
+  <field>a</field>
+  <condition>EXISTS</condition>
+  <values/>
+</com.mirth.connect.plugins.rulebuilder.RuleBuilderRule>
