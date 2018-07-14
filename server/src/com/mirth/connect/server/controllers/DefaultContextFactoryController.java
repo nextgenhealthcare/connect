@@ -41,7 +41,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
 
     private static ContextFactoryController instance = null;
 
-    protected DefaultContextFactoryController() {
+    public DefaultContextFactoryController() {
         extensionController = ControllerFactory.getFactory().createExtensionController();
     }
     
