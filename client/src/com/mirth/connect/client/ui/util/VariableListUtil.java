@@ -64,9 +64,14 @@ public class VariableListUtil {
             if (row > -1 && row <= currentRow) {
                 break;
             }
+            currentRow++;
+            Step step = stepIterator.next();
+            if (!step.isEnabled()) {
+                continue;
+            }
             Pattern pattern = Pattern.compile(varPattern);
             try {
-                String script = stepIterator.next().getScript(false);
+                String script = step.getScript(false);
                 if (StringUtils.isNotEmpty(script)) {
                     String scriptWithoutComments = getScriptWithoutComments(script);
 
@@ -78,7 +83,6 @@ public class VariableListUtil {
             } catch (ScriptBuilderException e) {
                 // Just move on to next step
             }
-            currentRow++;
         }
     }
 
@@ -103,9 +107,14 @@ public class VariableListUtil {
             if (row > -1 && row <= currentRow) {
                 break;
             }
+            currentRow++;
+            Rule rule = ruleIterator.next();
+            if (!rule.isEnabled()) {
+                continue;
+            }
             Pattern pattern = Pattern.compile(varPattern);
             try {
-                String script = ruleIterator.next().getScript(false);
+                String script = rule.getScript(false);
                 if (StringUtils.isNotEmpty(script)) {
                     String scriptWithoutComments = getScriptWithoutComments(script);
 
@@ -117,7 +126,6 @@ public class VariableListUtil {
             } catch (ScriptBuilderException e) {
                 // Just move on to next rule
             }
-            currentRow++;
         }
     }
 
