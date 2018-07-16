@@ -123,10 +123,10 @@ public class SourceSettingsPanel extends JPanel {
         variables.addAll(Arrays.asList(SourceConnectorProperties.QUEUE_OFF_RESPONSES));
 
         List<Rule> rulesToCheck = new ArrayList<Rule>();
-        rulesToCheck.addAll(channel.getSourceConnector().getFilter().getElements());
+        rulesToCheck.addAll(channel.getSourceConnector().getFilter().getEnabledElements());
 
         List<Step> stepsToCheck = new ArrayList<Step>();
-        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getElements());
+        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getEnabledElements());
 
         List<String> scripts = new ArrayList<String>();
 
