@@ -151,7 +151,7 @@ public class DefaultChannelController extends ChannelController {
                 donkey = Donkey.getInstance();
             }
 
-            DonkeyDao dao = donkey.getDaoFactory().getDao();
+            DonkeyDao dao = donkey.getReadOnlyDaoFactory().getDao();
 
             try {
                 localChannelIds = dao.getLocalChannelIds();
@@ -231,7 +231,7 @@ public class DefaultChannelController extends ChannelController {
                 if (!clientChannels.containsKey(serverChannelId)) {
                     ChannelSummary summary = new ChannelSummary(serverChannelId);
                     summary.getChannelStatus().setChannel(serverChannels.get(serverChannelId));
-                    summary.getChannelStatus().setLocalChannelId(com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getLocalChannelId(serverChannelId));
+                    summary.getChannelStatus().setLocalChannelId(com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getLocalChannelId(serverChannelId, true));
 
                     DeployedChannelInfo deployedChannelInfo = getDeployedChannelInfoById(serverChannelId);
                     boolean serverChannelDeployed = deployedChannelInfo != null;
@@ -631,7 +631,7 @@ public class DefaultChannelController extends ChannelController {
     public Map<String, Integer> getChannelRevisions() throws ControllerException {
         StatementLock.getInstance(VACUUM_LOCK_CHANNEL_STATEMENT_ID).readLock();
         try {
-            List<Map<String, Object>> results = SqlConfig.getSqlSessionManager().selectList("Channel.getChannelRevision");
+            List<Map<String, Object>> results = SqlConfig.getReadOnlySqlSessionManager().selectList("Channel.getChannelRevision");
 
             Map<String, Integer> channelRevisions = new HashMap<String, Integer>();
             for (Map<String, Object> result : results) {

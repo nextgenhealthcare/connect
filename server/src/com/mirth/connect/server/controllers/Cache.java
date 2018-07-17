@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
@@ -180,7 +181,7 @@ public class Cache<V extends Cacheable<V>> {
 
     private V getItem(String id) {
         try {
-            return SqlConfig.getSqlSessionManager().selectOne(selectQueryId, id);
+            return getSqlSessionManager().selectOne(selectQueryId, id);
         } catch (Exception e) {
             logger.error(cacheName + " cache: Failed to load item " + id + " from the database", e);
             return null;
@@ -189,7 +190,7 @@ public class Cache<V extends Cacheable<V>> {
 
     private Map<String, Integer> getRevisions() throws ControllerException {
         try {
-            List<Map<String, Object>> results = SqlConfig.getSqlSessionManager().selectList(selectRevisionsQueryId);
+            List<Map<String, Object>> results = getSqlSessionManager().selectList(selectRevisionsQueryId);
 
             Map<String, Integer> revisionMap = new HashMap<String, Integer>();
             for (Map<String, Object> result : results) {
@@ -199,6 +200,14 @@ public class Cache<V extends Cacheable<V>> {
             return revisionMap;
         } catch (Exception e) {
             throw new ControllerException(e);
+        }
+    }
+
+    private SqlSessionManager getSqlSessionManager() {
+        if (SqlConfig.isSplitReadWrite() && !SqlConfig.isWritePoolCache()) {
+            return SqlConfig.getReadOnlySqlSessionManager();
+        } else {
+            return SqlConfig.getSqlSessionManager();
         }
     }
 }

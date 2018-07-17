@@ -83,7 +83,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
     @Override
     public Map<String, DatabaseTask> getDatabaseTasks() throws Exception {
         Map<String, DatabaseTask> tasks = new HashMap<String, DatabaseTask>();
-        SqlSession session = SqlConfig.getSqlSessionManager().openSession();
+        SqlSession session = SqlConfig.getReadOnlySqlSessionManager().openSession();
 
         try {
             Connection connection = session.getConnection();
@@ -111,7 +111,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
                 tasks.put(task.getId(), task);
             }
 
-            DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+            DonkeyDao dao = Donkey.getInstance().getReadOnlyDaoFactory().getDao();
             try {
                 Map<String, Long> localChannelIdMap = dao.getLocalChannelIds();
                 Map<String, String> affectedChannels = new HashMap<String, String>();

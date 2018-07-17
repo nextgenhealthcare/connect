@@ -36,6 +36,12 @@
 			<transactionManager type="JDBC" />
 			<dataSource type="com.mirth.connect.server.mybatis.BridgeDataSourceFactory" />
 		</environment>
+		<environment id="readonly">
+			<transactionManager type="JDBC" />
+			<dataSource type="com.mirth.connect.server.mybatis.BridgeDataSourceFactory">
+				<property name="readonly" value="true" />
+			</dataSource>
+		</environment>
 	</environments>
 
 	<mappers>

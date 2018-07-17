@@ -55,10 +55,10 @@ public class MirthAttachmentHandlerProviderTest {
         attachment2 = new Attachment(UUID.randomUUID().toString(), "attachment1".getBytes(CHARSET), "text/plain");
 
         messageController = mock(MessageController.class);
-        when(messageController.getMessageAttachment(channelId1, messageId1)).thenReturn(Collections.singletonList(attachment1));
-        when(messageController.getMessageAttachment(channelId2, messageId2)).thenReturn(Collections.singletonList(attachment2));
-        when(messageController.getMessageAttachment(channelId1, attachment1.getId(), messageId1)).thenReturn(attachment1);
-        when(messageController.getMessageAttachment(channelId2, attachment2.getId(), messageId2)).thenReturn(attachment2);
+        when(messageController.getMessageAttachment(channelId1, messageId1, false)).thenReturn(Collections.singletonList(attachment1));
+        when(messageController.getMessageAttachment(channelId2, messageId2, false)).thenReturn(Collections.singletonList(attachment2));
+        when(messageController.getMessageAttachment(channelId1, attachment1.getId(), messageId1, false)).thenReturn(attachment1);
+        when(messageController.getMessageAttachment(channelId2, attachment2.getId(), messageId2, false)).thenReturn(attachment2);
 
         attachmentHandlerProvider = new PassthruAttachmentHandlerProvider(messageController);
     }
@@ -75,7 +75,7 @@ public class MirthAttachmentHandlerProviderTest {
 
         String result = new String(attachmentHandlerProvider.reAttachMessage(encoded, connectorMessage, CHARSET, false, true), CHARSET);
 
-        verify(messageController).getMessageAttachment(channelId1, messageId1);
+        verify(messageController).getMessageAttachment(channelId1, messageId1, false);
 
         String expected = new StringBuilder("test1").append(new String(attachment1.getContent(), CHARSET)).append("test2").toString();
 
@@ -113,7 +113,7 @@ public class MirthAttachmentHandlerProviderTest {
 
         String result = new String(attachmentHandlerProvider.reAttachMessage(encoded, connectorMessage, CHARSET, false, true), CHARSET);
 
-        verify(messageController).getMessageAttachment(channelId1, messageId1);
+        verify(messageController).getMessageAttachment(channelId1, messageId1, false);
 
         String expected = new StringBuilder("test1").append(new String(attachment1.getContent(), CHARSET)).append("test2").toString();
 
@@ -133,7 +133,7 @@ public class MirthAttachmentHandlerProviderTest {
 
         String result = new String(attachmentHandlerProvider.reAttachMessage(encoded, connectorMessage, CHARSET, false, true), CHARSET);
 
-        verify(messageController).getMessageAttachment(channelId1, attachment1.getId(), messageId1);
+        verify(messageController).getMessageAttachment(channelId1, attachment1.getId(), messageId1, false);
 
         String expected = new StringBuilder("test1").append(new String(attachment1.getContent(), CHARSET)).append("test2").toString();
 
@@ -171,8 +171,8 @@ public class MirthAttachmentHandlerProviderTest {
 
         String result = new String(attachmentHandlerProvider.reAttachMessage(encoded, connectorMessage, CHARSET, false, true), CHARSET);
 
-        verify(messageController).getMessageAttachment(channelId1, attachment1.getId(), messageId1);
-        verify(messageController).getMessageAttachment(channelId2, messageId2);
+        verify(messageController).getMessageAttachment(channelId1, attachment1.getId(), messageId1, false);
+        verify(messageController).getMessageAttachment(channelId2, messageId2, false);
 
         String expected = new StringBuilder("test1").append(new String(attachment1.getContent(), CHARSET)).append("test2").append(new String(attachment2.getContent(), CHARSET)).toString();
 
@@ -191,7 +191,7 @@ public class MirthAttachmentHandlerProviderTest {
 
         String result = new String(attachmentHandlerProvider.reAttachMessage(encoded, connectorMessage, CHARSET, false, true), CHARSET);
 
-        verify(messageController).getMessageAttachment(channelId1, messageId1);
+        verify(messageController).getMessageAttachment(channelId1, messageId1, false);
 
         String expected = new StringBuilder("test1").append(new String(attachment1.getContent(), CHARSET)).append("test2").toString();
 
@@ -248,7 +248,7 @@ public class MirthAttachmentHandlerProviderTest {
 
         String result = new String(attachmentHandlerProvider.reAttachMessage(encoded, connectorMessage, CHARSET, false, true, true), CHARSET);
 
-        verify(messageController).getMessageAttachment(channelId2, messageId2);
+        verify(messageController).getMessageAttachment(channelId2, messageId2, false);
         verifyNoMoreInteractions(messageController);
 
         String expected = new StringBuilder("test1${ATTACH:").append(channelId1).append(':').append(messageId1).append(':').append(attachment1.getId()).append("}test2").append(new String(attachment2.getContent(), CHARSET)).toString();

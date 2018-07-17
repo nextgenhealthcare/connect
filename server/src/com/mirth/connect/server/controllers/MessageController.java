@@ -28,9 +28,9 @@ public abstract class MessageController {
         return ControllerFactory.getFactory().createMessageController();
     }
 
-    public abstract long getMaxMessageId(String channelId);
+    public abstract long getMaxMessageId(String channelId, boolean readOnly);
 
-    public abstract long getMinMessageId(String channelId);
+    public abstract long getMinMessageId(String channelId, boolean readOnly);
 
     public abstract List<Message> getMessages(MessageFilter filter, String channelId, Boolean includeContent, Integer offset, Integer limit);
 
@@ -38,11 +38,11 @@ public abstract class MessageController {
 
     public abstract Message getMessageContent(String channelId, Long messageId, List<Integer> metaDataIds);
 
-    public abstract List<Attachment> getMessageAttachmentIds(String channelId, Long messageId);
+    public abstract List<Attachment> getMessageAttachmentIds(String channelId, Long messageId, boolean readOnly);
 
-    public abstract Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId);
+    public abstract Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId, boolean readOnly);
 
-    public abstract List<Attachment> getMessageAttachment(String channelId, Long messageId);
+    public abstract List<Attachment> getMessageAttachment(String channelId, Long messageId, boolean readOnly);
 
     public abstract void removeMessages(String channelId, MessageFilter filter);
 

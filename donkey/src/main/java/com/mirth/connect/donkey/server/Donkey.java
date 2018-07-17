@@ -24,6 +24,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
+import com.mirth.connect.donkey.model.DatabaseConstants;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
@@ -61,6 +62,7 @@ public class Donkey {
     private Map<String, Channel> deployedChannels = new ConcurrentHashMap<String, Channel>();
     private DonkeyConfiguration donkeyConfiguration;
     private DonkeyDaoFactory daoFactory;
+    private DonkeyDaoFactory readOnlyDaoFactory;
     private Serializer serializer = new XStreamSerializer();
     private Encryptor encryptor;
     private EventDispatcher eventDispatcher;
@@ -72,22 +74,78 @@ public class Donkey {
         this.donkeyConfiguration = donkeyConfiguration;
 
         Properties dbProperties = donkeyConfiguration.getDonkeyProperties();
-        String database = dbProperties.getProperty("database");
-        String driver = dbProperties.getProperty("database.driver");
-        String url = dbProperties.getProperty("database.url");
-        String username = dbProperties.getProperty("database.username");
-        String password = dbProperties.getProperty("database.password");
-        String pool = dbProperties.getProperty("database.pool");
-        boolean jdbc4 = Boolean.parseBoolean(dbProperties.getProperty("database.jdbc4"));
-        String testQuery = dbProperties.getProperty("database.test-query");
+        String database = dbProperties.getProperty(DatabaseConstants.DATABASE);
+        String driver = dbProperties.getProperty(DatabaseConstants.DATABASE_DRIVER);
+        String url = dbProperties.getProperty(DatabaseConstants.DATABASE_URL);
+        String username = dbProperties.getProperty(DatabaseConstants.DATABASE_USERNAME);
+        String password = dbProperties.getProperty(DatabaseConstants.DATABASE_PASSWORD);
+        String pool = dbProperties.getProperty(DatabaseConstants.DATABASE_POOL);
+        boolean jdbc4 = Boolean.parseBoolean(dbProperties.getProperty(DatabaseConstants.DATABASE_JDBC4));
+        String testQuery = dbProperties.getProperty(DatabaseConstants.DATABASE_TEST_QUERY);
         int maxConnections;
 
         try {
-            maxConnections = Integer.parseInt(dbProperties.getProperty("database.max-connections"));
+            maxConnections = Integer.parseInt(dbProperties.getProperty(DatabaseConstants.DATABASE_MAX_CONNECTIONS));
         } catch (NumberFormatException e) {
-            throw new StartException("Failed to read the database.max-connections configuration property");
+            throw new StartException("Failed to read the " + DatabaseConstants.DATABASE_MAX_CONNECTIONS + " configuration property");
         }
 
+        SerializerProvider serializerProvider = new SerializerProvider() {
+            @Override
+            public Serializer getSerializer(Integer metaDataId) {
+                return serializer;
+            }
+        };
+
+        XmlQuerySource xmlQuerySource = new XmlQuerySource();
+
+        try {
+            xmlQuerySource.load("default.xml");
+            xmlQuerySource.load(dbProperties.getProperty("database") + ".xml");
+        } catch (XmlQuerySourceException e) {
+            throw new StartException(e);
+        }
+
+        JdbcDaoFactory jdbcDaoFactory = createDaoFactory(database, driver, url, username, password, pool, jdbc4, testQuery, maxConnections, serializerProvider, xmlQuerySource);
+
+        JdbcDao dao = jdbcDaoFactory.getDao();
+
+        try {
+            if (dao.initTableStructure()) {
+                dao.commit();
+            }
+        } finally {
+            dao.close();
+        }
+
+        daoFactory = jdbcDaoFactory;
+
+        boolean splitReadWrite = Boolean.parseBoolean(dbProperties.getProperty(DatabaseConstants.DATABASE_ENABLE_READ_WRITE_SPLIT));
+
+        if (splitReadWrite) {
+            String readOnlyDatabase = dbProperties.getProperty(DatabaseConstants.DATABASE_READONLY, database);
+            String readOnlyDriver = dbProperties.getProperty(DatabaseConstants.DATABASE_READONLY_DRIVER, driver);
+            String readOnlyUrl = dbProperties.getProperty(DatabaseConstants.DATABASE_READONLY_URL, url);
+            String readOnlyUsername = dbProperties.getProperty(DatabaseConstants.DATABASE_READONLY_USERNAME, username);
+            String readOnlyPassword = dbProperties.getProperty(DatabaseConstants.DATABASE_READONLY_PASSWORD, password);
+            String readOnlyPool = dbProperties.getProperty(DatabaseConstants.DATABASE_READONLY_POOL, pool);
+            boolean readOnlyJdbc4 = Boolean.parseBoolean(dbProperties.getProperty(DatabaseConstants.DATABASE_READONLY_JDBC4, dbProperties.getProperty(DatabaseConstants.DATABASE_JDBC4)));
+            String readOnlyTestQuery = dbProperties.getProperty(DatabaseConstants.DATABASE_READONLY_TEST_QUERY, testQuery);
+            int readOnlyMaxConnections;
+
+            try {
+                readOnlyMaxConnections = Integer.parseInt(dbProperties.getProperty(DatabaseConstants.DATABASE_READONLY_MAX_CONNECTIONS, dbProperties.getProperty(DatabaseConstants.DATABASE_MAX_CONNECTIONS)));
+            } catch (NumberFormatException e) {
+                throw new StartException("Failed to read the " + DatabaseConstants.DATABASE_READONLY_MAX_CONNECTIONS + " configuration property");
+            }
+
+            readOnlyDaoFactory = createDaoFactory(readOnlyDatabase, readOnlyDriver, readOnlyUrl, readOnlyUsername, readOnlyPassword, readOnlyPool, readOnlyJdbc4, readOnlyTestQuery, readOnlyMaxConnections, serializerProvider, xmlQuerySource);
+        } else {
+            readOnlyDaoFactory = daoFactory;
+        }
+    }
+
+    private JdbcDaoFactory createDaoFactory(String database, String driver, String url, String username, String password, String pool, boolean jdbc4, String testQuery, int maxConnections, SerializerProvider serializerProvider, XmlQuerySource xmlQuerySource) throws StartException {
         if (driver != null) {
             try {
                 Class.forName(driver);
@@ -107,35 +165,10 @@ public class Donkey {
             jdbcDaoFactory.setConnectionPool(new HikariConnectionPool(driver, url, username, password, maxConnections, jdbc4, testQuery));
         }
 
-        jdbcDaoFactory.setSerializerProvider(new SerializerProvider() {
-            @Override
-            public Serializer getSerializer(Integer metaDataId) {
-                return serializer;
-            }
-        });
-
-        XmlQuerySource xmlQuerySource = new XmlQuerySource();
-
-        try {
-            xmlQuerySource.load("default.xml");
-            xmlQuerySource.load(dbProperties.getProperty("database") + ".xml");
-        } catch (XmlQuerySourceException e) {
-            throw new StartException(e);
-        }
-
+        jdbcDaoFactory.setSerializerProvider(serializerProvider);
         jdbcDaoFactory.setQuerySource(xmlQuerySource);
 
-        JdbcDao dao = jdbcDaoFactory.getDao();
-
-        try {
-            if (dao.initTableStructure()) {
-                dao.commit();
-            }
-        } finally {
-            dao.close();
-        }
-
-        daoFactory = jdbcDaoFactory;
+        return jdbcDaoFactory;
     }
 
     public void startEngine() throws StartException {
@@ -173,6 +206,14 @@ public class Donkey {
 
     public void setDaoFactory(DonkeyDaoFactory daoFactory) {
         this.daoFactory = daoFactory;
+    }
+
+    public DonkeyDaoFactory getReadOnlyDaoFactory() {
+        return readOnlyDaoFactory;
+    }
+
+    public void setReadOnlyDaoFactory(DonkeyDaoFactory readOnlyDaoFactory) {
+        this.readOnlyDaoFactory = readOnlyDaoFactory;
     }
 
     public DonkeyStatisticsUpdater getStatisticsUpdater() {

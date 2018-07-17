@@ -153,11 +153,8 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
 
         return getDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, statisticsUpdater, channelController.getStatistics(), channelController.getTotalStatistics(), statsServerId);
     }
-    
-	protected JdbcDao getDao(Donkey donkey, Connection connection, QuerySource querySource,
-			PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptData,
-			boolean decryptData, StatisticsUpdater statisticsUpdater, Statistics currentStats, Statistics totalStats,
-			String statsServerId) {
-		return new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, statisticsUpdater, currentStats, totalStats, statsServerId);
-	}
+
+    protected JdbcDao getDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, StatisticsUpdater statisticsUpdater, Statistics currentStats, Statistics totalStats, String statsServerId) {
+        return new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, statisticsUpdater, currentStats, totalStats, statsServerId);
+    }
 }

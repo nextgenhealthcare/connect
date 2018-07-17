@@ -138,7 +138,7 @@ public class DefaultAlertController extends AlertController {
         StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readLock();
         try {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-            List<Map<String, Object>> rows = SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", alertId);
+            List<Map<String, Object>> rows = SqlConfig.getReadOnlySqlSessionManager().selectList("Alert.getAlert", alertId);
 
             if (!rows.isEmpty()) {
                 try {
@@ -163,7 +163,7 @@ public class DefaultAlertController extends AlertController {
         StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readLock();
         try {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-            List<Map<String, Object>> rows = SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", null);
+            List<Map<String, Object>> rows = SqlConfig.getReadOnlySqlSessionManager().selectList("Alert.getAlert", null);
             List<AlertModel> alerts = new ArrayList<AlertModel>();
 
             for (Map<String, Object> row : rows) {

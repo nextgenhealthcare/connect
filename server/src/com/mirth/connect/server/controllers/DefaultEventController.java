@@ -155,7 +155,7 @@ public class DefaultEventController extends EventController {
     @Override
     public Integer getMaxEventId() throws ControllerException {
         try {
-            return SqlConfig.getSqlSessionManager().selectOne("Event.getMaxEventId");
+            return SqlConfig.getReadOnlySqlSessionManager().selectOne("Event.getMaxEventId");
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -164,7 +164,7 @@ public class DefaultEventController extends EventController {
     @Override
     public List<ServerEvent> getEvents(EventFilter filter, Integer offset, Integer limit) throws ControllerException {
         try {
-            return SqlConfig.getSqlSessionManager().selectList("Event.searchEvents", getParameters(filter, offset, limit));
+            return SqlConfig.getReadOnlySqlSessionManager().selectList("Event.searchEvents", getParameters(filter, offset, limit));
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -172,7 +172,7 @@ public class DefaultEventController extends EventController {
 
     @Override
     public Long getEventCount(EventFilter filter) throws ControllerException {
-        return SqlConfig.getSqlSessionManager().selectOne("Event.searchEventsCount", getParameters(filter, null, null));
+        return SqlConfig.getReadOnlySqlSessionManager().selectOne("Event.searchEventsCount", getParameters(filter, null, null));
     }
 
     @Override

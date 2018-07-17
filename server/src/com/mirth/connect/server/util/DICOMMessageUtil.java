@@ -50,7 +50,7 @@ public class DICOMMessageUtil {
     public static String getDICOMRawData(ImmutableConnectorMessage message) {
         String mergedMessage = null;
 
-        List<Attachment> attachments = MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());
+        List<Attachment> attachments = MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId(), false);
 
         if (attachments != null && attachments.size() > 0) {
             try {
@@ -82,7 +82,7 @@ public class DICOMMessageUtil {
     public static byte[] getDICOMRawBytes(ImmutableConnectorMessage message) {
         byte[] mergedMessage = null;
 
-        List<Attachment> attachments = MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());
+        List<Attachment> attachments = MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId(), false);
 
         if (attachments != null && attachments.size() > 0) {
             try {

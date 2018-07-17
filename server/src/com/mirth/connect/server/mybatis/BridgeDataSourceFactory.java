@@ -9,13 +9,24 @@
 
 package com.mirth.connect.server.mybatis;
 
+import java.util.Properties;
+
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
 public class BridgeDataSourceFactory extends UnpooledDataSourceFactory {
 
-    public BridgeDataSourceFactory() {
-        this.dataSource = Donkey.getInstance().getDaoFactory().getConnectionPool().getDataSource();
+    @Override
+    public void setProperties(Properties properties) {
+        DonkeyDaoFactory daoFactory;
+        if (Boolean.parseBoolean(properties.getProperty("readonly"))) {
+            daoFactory = Donkey.getInstance().getReadOnlyDaoFactory();
+        } else {
+            daoFactory = Donkey.getInstance().getDaoFactory();
+        }
+
+        this.dataSource = daoFactory.getConnectionPool().getDataSource();
     }
 }
