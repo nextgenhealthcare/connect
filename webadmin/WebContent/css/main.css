@@ -85,6 +85,7 @@ input, textarea, select, .uneditable-input {
 
 .help-block {
 	color: #999;
+	margin-bottom: 5px;
 }
 
 h1,h2,h3,h4,h5,h6 {
@@ -549,56 +550,56 @@ tr.notAccepted {
 	background-image: linear-gradient(to bottom, #fff, #fff)
 }
 
-#optionsDropdownContainer {
+.dropdown {
 	display: inline-block;
 }
 
-#optionsDropdownMenu {
+.dropdown-menu {
 	min-width: 210px;
 	border-radius: 5px 5px 5px 5px;
 	font-size: 10pt;
 }
 
-#optionsDropdownMenu li span.text-center {
+.dropdown-menu li span.text-center {
 	font-size: 11pt;
 }
 
-#optionsDropdownMenu li span.pull-left {
+.dropdown-menu li span.pull-left {
 	padding-left: 10px;
 	padding-top: 2px;
 }
 
-#optionsDropdownMenu select {
+.dropdown-menu select {
 	margin-bottom: 0;
 }
 
-#optionsButton {
+.opt-button {
 	height: 38px;
 	width: 38px;
 	padding: 3px 3px 2px 3px;
 	border: none;
 }
 
-#optionsButton:hover {
+.opt-button:hover {
 	border: 1px solid #CCC;
 }
 
-#optionsButton span {
+.opt-button span {
 	padding-top: 2px;
 	font-size: 24px;
 }
 
-#maxHeapSizeLabel {
+.dropdown-label {
 	height: 28px;
 	line-height: 28px;
 }
 
-#maxHeapSizeSelect {
+.dropdown-select {
 	height: 28px;
 	width: auto;
 }
 
-#maxHeapSizeWarning {
+.dropdown-warning {
 	margin: 5px 10px;
 	font-size: 13px;
 	color: #999;
@@ -606,8 +607,8 @@ tr.notAccepted {
 
 .subpage #webdashboardsignin {	
  	border-left: 1px solid #A5A5A5;
-	padding-left: 38px;
-	margin-left: 3%;
+	padding-left: 30px;
+	margin-left: 1%;
 }
 
 #webLoginSecurityReminder {
@@ -639,14 +640,22 @@ tr.notAccepted {
 	text-align: left;
 }
 
+#mcadministrator {
+	margin-left: 12px;
+}
+
 #mirthLogoWrapper{
 	padding: 10px; 
 	text-align: center;
 }
 
 #securesiteaccess{
-	height: 200px;
+	height: 233px;
 	width: 310px;
+}
+
+#httpsInfoParagraph {
+	height: 100px;
 }
 
 #webLoginWrapper{
@@ -656,6 +665,7 @@ tr.notAccepted {
 
 #webLoginForm{
 	margin-bottom: -9px;
+	height: 282px;
 }
 
 #loginErrorAlert{
@@ -674,9 +684,8 @@ tr.notAccepted {
 	text-align: center;
 }
 
-#overviewwebstart{
-	height: 200px;
-	width: 325px;
+#launchbuttoncontainer{
+	height: 150px;
 }
 
 #smallSubPage{
@@ -1059,6 +1068,33 @@ body .select2-container .select2-results li {
 	body {
 		background: 0
 	}
+}
+
+.btn-downloadbutton {
+    background-color: #1fd7ff;
+    background-image: -moz-linear-gradient(top, #22dbff, #1bd0e0);
+    background-image: -ms-linear-gradient(top, #22dbff, #1bd0e0);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#22dbff),
+        to(#1bd0e0) );
+    background-image: -webkit-linear-gradient(top, #22dbff, #1bd0e0);
+    background-image: -o-linear-gradient(top, #22dbff, #1bd0e0);
+    background-image: linear-gradient(top, #22dbff, #1bd0e0);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#22dbff',
+        endColorstr='#1bd0e0', GradientType=0 );
+    border-color: #1bd0e0 #1bd0e0 #13929e;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=  false );
+    color: #333
+}
+
+.btn-downloadbutton:hover,.btn-downloadbutton:active,.btn-downloadbutton.active,.btn-downloadbutton.disabled,.btn-downloadbutton[disabled]
+    {
+    background-color: #1bd0e0
+}
+
+.btn-downloadbutton:active,.btn-downloadbutton.active {
+    background-color: #16a6b2 9
 }
 
 .btn-themebutton {

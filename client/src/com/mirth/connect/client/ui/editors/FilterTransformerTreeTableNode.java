@@ -57,7 +57,7 @@ public abstract class FilterTransformerTreeTableNode<T extends FilterTransformer
 
     @Override
     public int getColumnCount() {
-        return 3;
+        return 4;
     }
 
     @Override
@@ -68,6 +68,8 @@ public abstract class FilterTransformerTreeTableNode<T extends FilterTransformer
             return new OperatorNamePair(element.getName());
         } else if (column == editorPane.typeColumn) {
             return element.getType();
+        } else if (column == editorPane.enabledColumn) {
+            return element.isEnabled();
         }
         return null;
     }
@@ -78,6 +80,8 @@ public abstract class FilterTransformerTreeTableNode<T extends FilterTransformer
             element.setSequenceNumber((String) value);
         } else if (column == editorPane.nameColumn) {
             element.setName(((OperatorNamePair) value).getName());
+        } else if (column == editorPane.enabledColumn) {
+            element.setEnabled((Boolean) value);
         }
     }
 
