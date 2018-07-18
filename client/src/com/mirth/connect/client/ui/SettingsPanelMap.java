@@ -21,8 +21,8 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -44,7 +44,6 @@ import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.client.ui.components.MirthDialogTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthPasswordTableCellRenderer;
-import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.util.ConfigurationProperty;
 
@@ -53,6 +52,7 @@ import net.miginfocom.swing.MigLayout;
 public class SettingsPanelMap extends AbstractSettingsPanel {
 
     public static final String TAB_NAME = "Configuration Map";
+    private static final String SHOW_VALUES_KEY = "showConfigMapValues";
     private static Preferences userPreferences = Preferences.userNodeForPackage(Mirth.class);
 
     public SettingsPanelMap(String tabName) {
@@ -75,12 +75,8 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     		this.configurationMapTable.getCellEditor().stopCellEditing();
     	}
     	
-    	boolean obfuscate = userPreferences.getBoolean("obfuscateConfigMap", true); 
-    	if (obfuscate) {
-    	    obfuscateYesButton.setSelected(true);
-    	} else {
-    	    obfuscateNoButton.setSelected(true);
-    	}
+    	boolean showConfigMapValues = userPreferences.getBoolean(SHOW_VALUES_KEY, false);
+    	showValuesCheckbox.setSelected(showConfigMapValues);
     	
         final String workingId = getFrame().startWorking("Loading " + getTabName() + " settings...");
 
@@ -101,7 +97,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
             public void done() {
                 // null if it failed to get the map settings or if confirmLeave returned false
                 if (configurationMap != null) {
-                    updateConfigurationTable(configurationMap, obfuscate, true);
+                    updateConfigurationTable(configurationMap, showConfigMapValues, true);
                 }
                 getFrame().stopWorking(workingId);
             }
@@ -120,8 +116,6 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         if (configurationMap == null) {
             return false;
         }
-        
-        userPreferences.putBoolean("obfuscateConfigMap", obfuscateYesButton.isSelected());
 
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " settings...");
 
@@ -196,7 +190,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                     configurationMap.put(key, new ConfigurationProperty(value, comment));
                 }
 
-                updateConfigurationTable(configurationMap, obfuscateYesButton.isSelected(), true);
+                updateConfigurationTable(configurationMap, showValuesCheckbox.isSelected(), true);
                 setSaveEnabled(true);
             } catch (Exception e) {
                 getFrame().alertThrowable(getFrame(), e, "Error importing configuration map");
@@ -271,7 +265,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         worker.execute();
     }
 
-    private void updateConfigurationTable(Map<String, ConfigurationProperty> map, boolean obfuscate, boolean sort) {
+    private void updateConfigurationTable(Map<String, ConfigurationProperty> map, boolean show, boolean sort) {
         RefreshTableModel model = (RefreshTableModel) configurationMapTable.getModel();
         String[][] data = new String[map.size()][3];
         Map<String, ConfigurationProperty> sortedMap = null;
@@ -290,25 +284,25 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         }
         
 
-        if (obfuscate) { 
-            configurationMapTable.getColumnExt("Value").setCellRenderer(new MirthPasswordTableCellRenderer());
-        } else {
+        if (show) { 
             configurationMapTable.getColumnExt("Value").setCellRenderer(new DefaultTableCellRenderer());
+        } else {
+            configurationMapTable.getColumnExt("Value").setCellRenderer(new MirthPasswordTableCellRenderer());
         }
         
         model.refreshDataVector(data);
     }
     
-    private void obfuscateRadioActionPerformed(boolean obfuscate) {
+    private void showValuesCheckboxActionPerformed(boolean show) {
         Map<String, ConfigurationProperty> configMap = getConfigurationMapFromTable();
         if (configMap == null) {
-            if (obfuscate) {
-                obfuscateNoButton.setSelected(true);
-            } else {
-                obfuscateYesButton.setSelected(true);
-            }
+            // There is at least one invalid value in the table, and an error popup was displayed in getConfigurationMapFromTable(),
+            // so reset "Show Values" back to the previous value.
+            showValuesCheckbox.setSelected(!show);
+            userPreferences.putBoolean(SHOW_VALUES_KEY, !show);
         } else {
-            updateConfigurationTable(configMap, obfuscate, false);
+            updateConfigurationTable(configMap, show, false);
+            userPreferences.putBoolean(SHOW_VALUES_KEY, show);
         }
     }
 
@@ -317,30 +311,15 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         setLayout(new MigLayout("insets 12, fill"));
         
-        obfuscateLabel = new JLabel("Obfuscate values:");
-        obfuscateButtonGroup = new ButtonGroup();
-        String tooltip = "If enabled, all values in the configuration map table will be obfuscated.";
-        obfuscateYesButton = new MirthRadioButton();
-        obfuscateYesButton.setText("Yes");
-        obfuscateYesButton.setToolTipText(tooltip);
-        obfuscateYesButton.setBackground(Color.WHITE);
-        obfuscateButtonGroup.add(obfuscateYesButton);
-        obfuscateYesButton.addActionListener(new ActionListener() {
+        showValuesLabel = new JLabel("Show values:");
+        showValuesCheckbox = new JCheckBox();
+        String tooltip = "If enabled, values in the table will be shown.";
+        showValuesCheckbox.setToolTipText(tooltip);
+        showValuesCheckbox.setBackground(Color.WHITE);
+        showValuesCheckbox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                obfuscateRadioActionPerformed(true);
-            }
-        });
-        
-        obfuscateNoButton = new MirthRadioButton();
-        obfuscateNoButton.setText("No");
-        obfuscateNoButton.setToolTipText(tooltip);
-        obfuscateNoButton.setBackground(Color.WHITE);
-        obfuscateButtonGroup.add(obfuscateNoButton);
-        obfuscateNoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                obfuscateRadioActionPerformed(false);
+                showValuesCheckboxActionPerformed(showValuesCheckbox.isSelected());
             }
         });
 
@@ -432,12 +411,11 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         configurationMapPanel.setLayout(new MigLayout("fill, insets 0", "[grow]", "[][grow]"));
         configurationMapPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Configuration Map", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
         
-        JPanel obfuscatePanel = new JPanel();
-        obfuscatePanel.setBackground(Color.WHITE);
-        obfuscatePanel.add(obfuscateLabel);
-        obfuscatePanel.add(obfuscateYesButton, "split 2");
-        obfuscatePanel.add(obfuscateNoButton);
-        configurationMapPanel.add(obfuscatePanel, "wrap");
+        JPanel showValuesPanel = new JPanel();
+        showValuesPanel.setBackground(Color.WHITE);
+        showValuesPanel.add(showValuesLabel);
+        showValuesPanel.add(showValuesCheckbox);
+        configurationMapPanel.add(showValuesPanel, "wrap");
         
         JPanel configurationMapSubPanel = new JPanel();
         configurationMapSubPanel.setBackground(Color.WHITE);
@@ -450,10 +428,8 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         add(configurationMapPanel, "grow, height 100px:100%:100%, wrap");
     }
 
-    private JLabel obfuscateLabel;
-    private ButtonGroup obfuscateButtonGroup;
-    private MirthRadioButton obfuscateYesButton;
-    private MirthRadioButton obfuscateNoButton;
+    private JLabel showValuesLabel;
+    private JCheckBox showValuesCheckbox;
     private JPanel configurationMapPanel;
     private JScrollPane configurationMapScrollPane;
     private MirthTable configurationMapTable;
