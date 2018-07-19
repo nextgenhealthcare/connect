@@ -283,14 +283,16 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
             data[index++][2] = entry.getValue().getComment();
         }
         
-
+        updateCellRenderer(show);
+        model.refreshDataVector(data);
+    }
+    
+    private void updateCellRenderer(boolean show) {
         if (show) { 
             configurationMapTable.getColumnExt("Value").setCellRenderer(new DefaultTableCellRenderer());
         } else {
             configurationMapTable.getColumnExt("Value").setCellRenderer(new MirthPasswordTableCellRenderer());
         }
-        
-        model.refreshDataVector(data);
     }
     
     private void showValuesCheckboxActionPerformed(boolean show) {
@@ -301,7 +303,8 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
             showValuesCheckbox.setSelected(!show);
             userPreferences.putBoolean(SHOW_VALUES_KEY, !show);
         } else {
-            updateConfigurationTable(configMap, show, false);
+            updateCellRenderer(show);
+            ((RefreshTableModel) configurationMapTable.getModel()).fireTableDataChanged();
             userPreferences.putBoolean(SHOW_VALUES_KEY, show);
         }
     }
