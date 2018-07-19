@@ -258,7 +258,7 @@ public class DonkeyMessageController extends MessageController {
     @Override
     public List<Attachment> getMessageAttachmentIds(String channelId, Long messageId, boolean readOnly) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId, true));
+        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId, readOnly));
         params.put("messageId", messageId);
 
         return getSqlSessionManager(readOnly).selectList("Message.selectMessageAttachmentIds", params);
