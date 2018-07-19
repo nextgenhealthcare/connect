@@ -20,7 +20,7 @@ public class HikariConnectionPool implements ConnectionPool {
     private HikariDataSource dataSource;
     private int maxConnections;
 
-    public HikariConnectionPool(String driver, String url, String username, String password, int maxConnections, boolean jdbc4, String testQuery) {
+    public HikariConnectionPool(String driver, String url, String username, String password, int maxConnections, boolean jdbc4, String testQuery, boolean readOnly) {
         this.maxConnections = maxConnections;
 
         dataSource = new HikariDataSource();
@@ -32,6 +32,7 @@ public class HikariConnectionPool implements ConnectionPool {
         dataSource.setAutoCommit(false);
         dataSource.setMaximumPoolSize(maxConnections);
         dataSource.setMinimumIdle(0);
+        dataSource.setReadOnly(readOnly);
 
         if (!jdbc4) {
             dataSource.setConnectionTestQuery(testQuery);

@@ -19,17 +19,22 @@ public class DisabledConnectionPool implements ConnectionPool {
     private String url;
     private String username;
     private String password;
+    private boolean readOnly;
 
-    public DisabledConnectionPool(String url, String username, String password) {
+    public DisabledConnectionPool(String url, String username, String password, boolean readOnly) {
         this.url = url;
         this.username = username;
         this.password = password;
+        this.readOnly = readOnly;
     }
 
     @Override
     public PooledConnection getConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(url, username, password);
         connection.setAutoCommit(false);
+        if (readOnly) {
+            connection.setReadOnly(true);
+        }
         return new PooledConnection(connection, connection);
     }
 

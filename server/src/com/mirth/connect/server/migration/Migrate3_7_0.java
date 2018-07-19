@@ -29,7 +29,7 @@ public class Migrate3_7_0 extends Migrator implements ConfigurationMigrator {
     public Map<String, Object> getConfigurationPropertiesToAdd() {
         Map<String, Object> propertiesToAdd = new LinkedHashMap<String, Object>();
 
-        propertiesToAdd.put("database.enable-read-write-split", new MutablePair<Object, String>(true, "If true, various read-only statements are separated into their own connection pool.\nBy default the read-only pool will use the same connection information as the master pool,\nbut you can change this the \"database-readonly\" options. For example, to set the max\nconnections for the read-only pool:\ndatabase-readonly.max-connections = 20"));
+        propertiesToAdd.put("database.enable-read-write-split", new MutablePair<Object, String>(true, "If true, various read-only statements are separated into their own connection pool.\nBy default the read-only pool will use the same connection information as the master pool,\nbut you can change this with the \"database-readonly\" options. For example, to set the max\nconnections for the read-only pool:\ndatabase-readonly.max-connections = 20"));
 
         return propertiesToAdd;
     }

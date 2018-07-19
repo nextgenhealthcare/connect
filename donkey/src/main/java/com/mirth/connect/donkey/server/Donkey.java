@@ -106,7 +106,7 @@ public class Donkey {
             throw new StartException(e);
         }
 
-        JdbcDaoFactory jdbcDaoFactory = createDaoFactory(database, driver, url, username, password, pool, jdbc4, testQuery, maxConnections, serializerProvider, xmlQuerySource);
+        JdbcDaoFactory jdbcDaoFactory = createDaoFactory(database, driver, url, username, password, pool, jdbc4, testQuery, maxConnections, serializerProvider, xmlQuerySource, false);
 
         JdbcDao dao = jdbcDaoFactory.getDao();
 
@@ -139,13 +139,13 @@ public class Donkey {
                 throw new StartException("Failed to read the " + DatabaseConstants.DATABASE_READONLY_MAX_CONNECTIONS + " configuration property");
             }
 
-            readOnlyDaoFactory = createDaoFactory(readOnlyDatabase, readOnlyDriver, readOnlyUrl, readOnlyUsername, readOnlyPassword, readOnlyPool, readOnlyJdbc4, readOnlyTestQuery, readOnlyMaxConnections, serializerProvider, xmlQuerySource);
+            readOnlyDaoFactory = createDaoFactory(readOnlyDatabase, readOnlyDriver, readOnlyUrl, readOnlyUsername, readOnlyPassword, readOnlyPool, readOnlyJdbc4, readOnlyTestQuery, readOnlyMaxConnections, serializerProvider, xmlQuerySource, true);
         } else {
             readOnlyDaoFactory = daoFactory;
         }
     }
 
-    private JdbcDaoFactory createDaoFactory(String database, String driver, String url, String username, String password, String pool, boolean jdbc4, String testQuery, int maxConnections, SerializerProvider serializerProvider, XmlQuerySource xmlQuerySource) throws StartException {
+    private JdbcDaoFactory createDaoFactory(String database, String driver, String url, String username, String password, String pool, boolean jdbc4, String testQuery, int maxConnections, SerializerProvider serializerProvider, XmlQuerySource xmlQuerySource, boolean readOnly) throws StartException {
         if (driver != null) {
             try {
                 Class.forName(driver);
@@ -159,10 +159,10 @@ public class Donkey {
 
         if (StringUtils.equalsIgnoreCase(pool, "DBCP")) {
             logger.debug("Initializing DBCP");
-            jdbcDaoFactory.setConnectionPool(new DBCPConnectionPool(url, username, password, maxConnections));
+            jdbcDaoFactory.setConnectionPool(new DBCPConnectionPool(url, username, password, maxConnections, readOnly));
         } else {
             logger.debug("Initializing HikariCP");
-            jdbcDaoFactory.setConnectionPool(new HikariConnectionPool(driver, url, username, password, maxConnections, jdbc4, testQuery));
+            jdbcDaoFactory.setConnectionPool(new HikariConnectionPool(driver, url, username, password, maxConnections, jdbc4, testQuery, readOnly));
         }
 
         jdbcDaoFactory.setSerializerProvider(serializerProvider);
