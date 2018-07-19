@@ -296,17 +296,9 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     }
     
     private void showValuesCheckboxActionPerformed(boolean show) {
-        Map<String, ConfigurationProperty> configMap = getConfigurationMapFromTable();
-        if (configMap == null) {
-            // There is at least one invalid value in the table, and an error popup was displayed in getConfigurationMapFromTable(),
-            // so reset "Show Values" back to the previous value.
-            showValuesCheckbox.setSelected(!show);
-            userPreferences.putBoolean(SHOW_VALUES_KEY, !show);
-        } else {
-            updateCellRenderer(show);
-            ((RefreshTableModel) configurationMapTable.getModel()).fireTableDataChanged();
-            userPreferences.putBoolean(SHOW_VALUES_KEY, show);
-        }
+        updateCellRenderer(show);
+        ((RefreshTableModel) configurationMapTable.getModel()).fireTableDataChanged();
+        userPreferences.putBoolean(SHOW_VALUES_KEY, show);
     }
 
     private void initComponents() {
