@@ -10,10 +10,12 @@
 package com.mirth.connect.server.api.servlets;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,9 +31,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.providers.MetaDataSearchParamConverterProvider.MetaDataSearch;
+import com.mirth.connect.client.core.api.servlets.ChannelServletInterface;
+import com.mirth.connect.client.core.api.servlets.ChannelStatisticsServletInterface;
 import com.mirth.connect.client.core.api.servlets.MessageServletInterface;
+import com.mirth.connect.client.core.api.util.OperationUtil;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -238,11 +244,55 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     @CheckAuthorizedChannelId
     public void removeAllMessages(String channelId, boolean restartRunningChannels, boolean clearStatistics) {
         engineController.removeAllMessages(Collections.singleton(channelId), restartRunningChannels, clearStatistics, null);
+        
+        if (clearStatistics) { 
+            Set<String> channelIds = new HashSet<>();
+            channelIds.add(channelId);
+            clearStatistics(channelIds);
+        }
+    }
+    
+    private void clearStatistics(Set<String> channelIds) {
+        try {
+            // Get the metadataIds for the channels' connectors
+            Map<String, List<Integer>> channelConnectorMap = new HashMap<>();
+            ChannelServlet channelServlet = new ChannelServlet(request, sc);
+            Method matchingMethod = (ChannelServlet.class).getMethod("getChannel", String.class);
+            Operation operation = OperationUtil.getOperation(ChannelServletInterface.class, matchingMethod);
+            channelServlet.setOperation(operation);
+            channelServlet.checkUserAuthorized();
+
+            for (String channelId : channelIds) {
+                com.mirth.connect.model.Channel channel = channelServlet.getChannel(channelId);
+
+                List<Integer> metadataIds = new ArrayList<>();
+                metadataIds.add(null);
+                metadataIds.add(channel.getSourceConnector().getMetaDataId());
+                for (com.mirth.connect.model.Connector connector : channel.getDestinationConnectors()) {
+                    metadataIds.add(connector.getMetaDataId());
+                }
+
+                channelConnectorMap.put(channelId, metadataIds);
+            }
+
+            ChannelStatisticsServlet channelStatsServlet = new ChannelStatisticsServlet(request, sc);
+            matchingMethod = (ChannelStatisticsServlet.class).getMethod("clearStatistics", Map.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE);
+            operation = OperationUtil.getOperation(ChannelStatisticsServletInterface.class, matchingMethod);
+            channelStatsServlet.setOperation(operation);
+            channelStatsServlet.checkUserAuthorized();
+            channelStatsServlet.clearStatistics(channelConnectorMap, true, true, true, true);
+        } catch (Exception e) {
+            throw new MirthApiException(e);
+        }
     }
 
     @Override
     public void removeAllMessages(Set<String> channelIds, boolean restartRunningChannels, boolean clearStatistics) {
         engineController.removeAllMessages(redactChannelIds(channelIds), restartRunningChannels, clearStatistics, null);
+
+        if (clearStatistics) {
+            clearStatistics(channelIds);
+        }
     }
 
     @Override
