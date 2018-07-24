@@ -897,7 +897,7 @@ public class Channel implements Runnable {
                 try {
                     logger.debug("Removing messages for channel " + name + " (" + channelId + ").");
                     dao.deleteAllMessages(channelId);
-                    
+
                     if (clearStatistics) {
                         logger.debug("Clearing statistics for channel " + name + " (" + channelId + ").");
 

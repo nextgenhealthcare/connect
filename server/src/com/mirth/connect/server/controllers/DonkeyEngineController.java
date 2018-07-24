@@ -2112,7 +2112,7 @@ public class DonkeyEngineController implements EngineController {
                     try {
                         dao = donkey.getDaoFactory().getDao();
                         dao.deleteAllMessages(channelId);
-                        
+
                         if (clearStatistics) {
                             Set<Status> statuses = Statistics.getTrackedStatuses();
                             dao.resetStatistics(channelId, null, statuses);
