@@ -2112,6 +2112,16 @@ public class DonkeyEngineController implements EngineController {
                     try {
                         dao = donkey.getDaoFactory().getDao();
                         dao.deleteAllMessages(channelId);
+                        
+                        if (clearStatistics) {
+                            Set<Status> statuses = Statistics.getTrackedStatuses();
+                            dao.resetStatistics(channelId, null, statuses);
+
+                            for (com.mirth.connect.model.Connector connector : channelModel.getDestinationConnectors()) {
+                                dao.resetStatistics(channelId, connector.getMetaDataId(), statuses);
+                            }
+                        }
+
                         dao.commit();
                     } finally {
                         if (dao != null) {

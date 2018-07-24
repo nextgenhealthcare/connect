@@ -897,6 +897,18 @@ public class Channel implements Runnable {
                 try {
                     logger.debug("Removing messages for channel " + name + " (" + channelId + ").");
                     dao.deleteAllMessages(channelId);
+                    
+                    if (clearStatistics) {
+                        logger.debug("Clearing statistics for channel " + name + " (" + channelId + ").");
+
+                        Set<Status> statuses = Statistics.getTrackedStatuses();
+                        dao.resetStatistics(channelId, null, statuses);
+
+                        for (Integer metaDataId : getMetaDataIds()) {
+                            dao.resetStatistics(channelId, metaDataId, statuses);
+                        }
+                    }
+
                     dao.commit();
                 } finally {
                     dao.close();
