@@ -115,6 +115,12 @@ public class WebStartServlet extends HttpServlet {
             titleText = serverName + " - " + titleText;
         }
 
+        // If an environment name is set, prepend the application title with it
+        String environmentName = configurationController.getServerSettings().getEnvironmentName();
+        if (StringUtils.isNotBlank(environmentName)) {
+            titleText = environmentName + " - " + titleText;
+        }
+
         title.setTextContent(titleText);
 
         String scheme = request.getScheme();

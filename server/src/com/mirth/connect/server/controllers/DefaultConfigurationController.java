@@ -426,9 +426,10 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public ServerSettings getServerSettings() throws ControllerException {
+        String environmentName = getProperty(PROPERTIES_CORE, "environment.name");
         serverName = getProperty(PROPERTIES_CORE + "." + serverId, "server.name");
         Properties serverSettings = getPropertiesForGroup(PROPERTIES_CORE);
-        return new ServerSettings(serverName, serverSettings);
+        return new ServerSettings(environmentName, serverName, serverSettings);
     }
 
     @Override
@@ -443,6 +444,11 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public void setServerSettings(ServerSettings settings) throws ControllerException {
+        String environmentName = settings.getEnvironmentName();
+        if (environmentName != null) {
+            saveProperty(PROPERTIES_CORE, "environment.name", environmentName);
+        }
+        
         String serverName = settings.getServerName();
         if (serverName != null) {
             saveProperty(PROPERTIES_CORE + "." + serverId, "server.name", serverName);
