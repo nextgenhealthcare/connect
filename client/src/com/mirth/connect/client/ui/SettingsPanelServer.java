@@ -133,15 +133,29 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 try {
                     getFrame().mirthClient.setServerSettings(serverSettings);
 
+                    String environmentName = environmentNameField.getText();
                     String serverName = serverNameField.getText();
                     StringBuilder titleText = new StringBuilder();
                     StringBuilder statusBarText = new StringBuilder();
                     statusBarText.append("Connected to: ");
+                    
+                    if (!StringUtils.isBlank(environmentName)) {
+                        titleText.append(environmentName + " - ");
+                        statusBarText.append(environmentName);
+                        
+                        if (!StringUtils.isBlank(serverName)) {
+                            statusBarText.append(" - ");
+                        } else {
+                            statusBarText.append(" | ");
+                        }
+                        
+                        PlatformUI.ENVIRONMENT_NAME = environmentName;
+                    }
 
-                    if (!StringUtils.isBlank(serverNameField.getText())) {
+                    if (!StringUtils.isBlank(serverName)) {
                         titleText.append(serverName);
                         statusBarText.append(serverName + " | ");
-                        PlatformUI.SERVER_NAME = serverNameField.getText();
+                        PlatformUI.SERVER_NAME = serverName;
                     } else {
                         titleText.append(PlatformUI.SERVER_URL);
                     }

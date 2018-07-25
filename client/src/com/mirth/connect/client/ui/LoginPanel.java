@@ -488,6 +488,11 @@ public class LoginPanel extends javax.swing.JFrame {
 
             private void handleSuccess(LoginStatus loginStatus) throws ClientException {
                 try {
+                    String environmentName = client.getServerSettings().getEnvironmentName();
+                    if (!StringUtils.isBlank(environmentName)) {
+                        PlatformUI.ENVIRONMENT_NAME = environmentName;
+                    }
+                    
                     String serverName = client.getServerSettings().getServerName();
                     if (!StringUtils.isBlank(serverName)) {
                         PlatformUI.SERVER_NAME = serverName;
