@@ -41,9 +41,9 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 
-public final class ExtensionLoader {
+public class ExtensionLoader {
     @Inject
-    private final static ExtensionLoader instance = new ExtensionLoader();
+    private static ExtensionLoader instance = new ExtensionLoader();
 
     public static ExtensionLoader getInstance() {
         return instance;

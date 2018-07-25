@@ -67,7 +67,7 @@ public class SqlConfig {
         return sqlConfig;
     }
 
-    private SqlConfig() {
+    public SqlConfig() {
         init();
     }
 
