@@ -10,6 +10,7 @@
 package com.mirth.connect.server.api.servlets;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -29,9 +30,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.providers.MetaDataSearchParamConverterProvider.MetaDataSearch;
+import com.mirth.connect.client.core.api.servlets.ChannelStatisticsServletInterface;
 import com.mirth.connect.client.core.api.servlets.MessageServletInterface;
+import com.mirth.connect.client.core.api.util.OperationUtil;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -237,11 +241,29 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     @Override
     @CheckAuthorizedChannelId
     public void removeAllMessages(String channelId, boolean restartRunningChannels, boolean clearStatistics) {
+        if (clearStatistics) {
+            checkClearStatisticsAuthorization();
+        }
         engineController.removeAllMessages(Collections.singleton(channelId), restartRunningChannels, clearStatistics, null);
+    }
+    
+    private void checkClearStatisticsAuthorization() {
+        try {
+            ChannelStatisticsServlet channelStatsServlet = new ChannelStatisticsServlet(request, sc);
+            Method matchingMethod = (ChannelStatisticsServlet.class).getMethod("clearStatistics", Map.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE);
+            Operation operation = OperationUtil.getOperation(ChannelStatisticsServletInterface.class, matchingMethod);
+            channelStatsServlet.setOperation(operation);
+            channelStatsServlet.checkUserAuthorized();
+        } catch (NoSuchMethodException e) {
+            throw new MirthApiException(e);
+        }
     }
 
     @Override
     public void removeAllMessages(Set<String> channelIds, boolean restartRunningChannels, boolean clearStatistics) {
+        if (clearStatistics) {
+            checkClearStatisticsAuthorization();
+        }
         engineController.removeAllMessages(redactChannelIds(channelIds), restartRunningChannels, clearStatistics, null);
     }
 

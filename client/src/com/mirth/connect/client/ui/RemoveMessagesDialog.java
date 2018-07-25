@@ -18,6 +18,7 @@ import javax.swing.SwingWorker;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.TaskConstants;
 
 public class RemoveMessagesDialog extends MirthDialog {
     private Frame parent;
@@ -31,7 +32,11 @@ public class RemoveMessagesDialog extends MirthDialog {
 
     public void init(Set<String> selectedChannelIds, boolean restartCheckboxEnabled) {
         yesButton.requestFocus();
-        clearStatsCheckBox.setSelected(true);
+        
+        boolean canClearStats = AuthorizationControllerFactory.getAuthorizationController().checkTask(TaskConstants.DASHBOARD_KEY, TaskConstants.DASHBOARD_CLEAR_STATS);
+        clearStatsCheckBox.setSelected(canClearStats);
+        clearStatsCheckBox.setEnabled(canClearStats);
+        
         includeRunningChannels.setSelected(false);
         channelIds = selectedChannelIds;
 
