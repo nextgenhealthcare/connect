@@ -185,7 +185,7 @@ public class DonkeyEngineController implements EngineController {
     protected DonkeyEngineController() {}
 
     @Override
-    public void initDaoFactory() throws StartException, ControllerException {
+    public void initEngine() throws StartException, ControllerException {
         logger.debug("initializing donkey dao factory");
 
         final Encryptor encryptor = configurationController.getEncryptor();
@@ -213,7 +213,7 @@ public class DonkeyEngineController implements EngineController {
         Properties donkeyProperties = configurationController.getDatabaseSettings().getProperties();
         donkeyProperties.setProperty("donkey.statsupdateinterval", String.valueOf(configurationController.getStatsUpdateInterval()));
 
-        donkey.initDaoFactory(new DonkeyConfiguration(configurationController.getApplicationDataDir(), donkeyProperties, donkeyEncryptor, eventDispatcher, configurationController.getServerId()));
+        donkey.initEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), donkeyProperties, donkeyEncryptor, eventDispatcher, configurationController.getServerId()));
     }
 
     @Override

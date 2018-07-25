@@ -57,7 +57,7 @@ public class StatisticsTests {
 
     @BeforeClass
     final public static void beforeClass() throws StartException {
-        Donkey.getInstance().initDaoFactory(TestUtils.getDonkeyTestConfiguration());
+        Donkey.getInstance().initEngine(TestUtils.getDonkeyTestConfiguration());
         Donkey.getInstance().startEngine();
         daoFactory = TestUtils.getDaoFactory();
     }

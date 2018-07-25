@@ -76,6 +76,11 @@ public interface DonkeyDao {
 
     public void createChannel(String channelId, long localChannelId);
 
+    /**
+     * Returns true if d_channels was created, otherwise false
+     */
+    public boolean initTableStructure();
+
     public void checkAndCreateChannelTables();
 
     public void removeChannel(String channelId);

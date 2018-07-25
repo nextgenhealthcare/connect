@@ -29,6 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
+import com.google.inject.Inject;
 import com.mirth.connect.donkey.model.DatabaseConstants;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.DatabaseSettings;
@@ -39,62 +40,58 @@ import com.mirth.connect.server.controllers.ExtensionController;
 
 public class SqlConfig {
 
-    private static boolean splitReadWrite = false;
-    private static boolean writePoolCache = false;
+    @Inject
+    private static volatile SqlConfig instance = null;
 
-    private static SqlSessionFactory sqlSessionfactory;
-    private static SqlSessionManager sqlSessionManager = null;
+    private boolean splitReadWrite = false;
+    private boolean writePoolCache = false;
 
-    private static SqlSessionFactory readOnlySqlSessionfactory;
-    private static SqlSessionManager readOnlySqlSessionManager = null;
+    private SqlSessionFactory sqlSessionfactory;
+    private SqlSessionManager sqlSessionManager = null;
 
-    private SqlConfig() {}
+    private SqlSessionFactory readOnlySqlSessionfactory;
+    private SqlSessionManager readOnlySqlSessionManager = null;
 
-    public static SqlSessionManager getSqlSessionManager() {
-        SqlSessionManager manager = sqlSessionManager;
+    public static SqlConfig getInstance() {
+        SqlConfig sqlConfig = instance;
 
-        if (manager == null) {
+        if (sqlConfig == null) {
             synchronized (SqlConfig.class) {
-                manager = sqlSessionManager;
-                if (manager == null) {
-                    init();
-                    manager = sqlSessionManager;
+                sqlConfig = instance;
+                if (sqlConfig == null) {
+                    instance = sqlConfig = new SqlConfig();
                 }
             }
         }
 
-        return manager;
+        return sqlConfig;
+    }
+
+    private SqlConfig() {
+        init();
+    }
+
+    public static SqlSessionManager getSqlSessionManager() {
+        return getInstance().sqlSessionManager;
     }
 
     public static SqlSessionManager getReadOnlySqlSessionManager() {
-        SqlSessionManager manager = readOnlySqlSessionManager;
-
-        if (manager == null) {
-            synchronized (SqlConfig.class) {
-                manager = readOnlySqlSessionManager;
-                if (manager == null) {
-                    init();
-                    manager = readOnlySqlSessionManager;
-                }
-            }
-        }
-
-        return manager;
+        return getInstance().readOnlySqlSessionManager;
     }
 
     public static boolean isSplitReadWrite() {
-        return splitReadWrite;
+        return getInstance().splitReadWrite;
     }
 
     public static boolean isWritePoolCache() {
-        return writePoolCache;
+        return getInstance().writePoolCache;
     }
 
     /**
      * This method loads the MyBatis SQL config file for the database in use, then appends sqlMap
      * entries from any installed plugins
      */
-    public static void init() {
+    private void init() {
         try {
             LogFactory.useLog4JLogging();
             System.setProperty("derby.stream.error.method", "com.mirth.connect.server.Mirth.getNullOutputStream");
@@ -121,7 +118,7 @@ public class SqlConfig {
         }
     }
 
-    private static SqlSessionFactory createFactory(String database, DatabaseSettings databaseSettings, String environment) throws Exception {
+    protected SqlSessionFactory createFactory(String database, DatabaseSettings databaseSettings, String environment) throws Exception {
         BufferedReader br = new BufferedReader(Resources.getResourceAsReader("SqlMapConfig.xml"));
 
         // parse the SqlMapConfig (ignoring the DTD)
@@ -145,7 +142,7 @@ public class SqlConfig {
         }
     }
 
-    private static void addPluginSqlMaps(String database, DonkeyElement sqlMapConfigElement) throws Exception {
+    protected void addPluginSqlMaps(String database, DonkeyElement sqlMapConfigElement) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         Map<String, PluginMetaData> plugins = extensionController.getPluginMetaData();
 

@@ -30,7 +30,7 @@ import com.mirth.connect.server.channel.ChannelTaskHandler;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
 
 public interface EngineController {
-    public void initDaoFactory() throws StartException, ControllerException;
+    public void initEngine() throws StartException, ControllerException;
 
     public void startEngine() throws StartException, StopException, ControllerException, InterruptedException;
 

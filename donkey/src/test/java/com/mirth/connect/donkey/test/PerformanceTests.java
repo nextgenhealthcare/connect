@@ -56,7 +56,7 @@ public class PerformanceTests {
         testMessage = FileUtils.readFileToString(new File(TEST_MESSAGE));
 
         Donkey donkey = Donkey.getInstance();
-        donkey.initDaoFactory(TestUtils.getDonkeyTestConfiguration());
+        donkey.initEngine(TestUtils.getDonkeyTestConfiguration());
         donkey.startEngine();
 
         if (daoTimer != null) {

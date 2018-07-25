@@ -31,6 +31,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.google.inject.Inject;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginClass;
@@ -41,6 +42,7 @@ import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 
 public final class ExtensionLoader {
+    @Inject
     private final static ExtensionLoader instance = new ExtensionLoader();
 
     public static ExtensionLoader getInstance() {

@@ -54,7 +54,7 @@ public class MessageControllerTests {
     @BeforeClass
     final public static void beforeClass() throws StartException {
         Donkey donkey = Donkey.getInstance();
-        donkey.initDaoFactory(TestUtils.getDonkeyTestConfiguration());
+        donkey.initEngine(TestUtils.getDonkeyTestConfiguration());
         donkey.startEngine();
         donkey.setDaoFactory(new TimedDaoFactory(donkey.getDaoFactory(), daoTimer));
     }

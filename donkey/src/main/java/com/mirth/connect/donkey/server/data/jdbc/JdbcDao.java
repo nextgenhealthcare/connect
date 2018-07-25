@@ -2435,6 +2435,7 @@ public class JdbcDao implements DonkeyDao {
         // no op
     }
 
+    @Override
     public boolean initTableStructure() {
         if (!tableExists("d_channels")) {
             logger.debug("Creating channels table");

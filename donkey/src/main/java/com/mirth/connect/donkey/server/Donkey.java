@@ -32,7 +32,6 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.DonkeyStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.jdbc.DBCPConnectionPool;
 import com.mirth.connect.donkey.server.data.jdbc.HikariConnectionPool;
-import com.mirth.connect.donkey.server.data.jdbc.JdbcDao;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource.XmlQuerySourceException;
@@ -70,7 +69,7 @@ public class Donkey {
     private Logger logger = Logger.getLogger(getClass());
     private boolean running = false;
 
-    public void initDaoFactory(DonkeyConfiguration donkeyConfiguration) throws StartException {
+    public void initEngine(DonkeyConfiguration donkeyConfiguration) throws StartException {
         this.donkeyConfiguration = donkeyConfiguration;
 
         Properties dbProperties = donkeyConfiguration.getDonkeyProperties();
@@ -106,19 +105,7 @@ public class Donkey {
             throw new StartException(e);
         }
 
-        JdbcDaoFactory jdbcDaoFactory = createDaoFactory(database, driver, url, username, password, pool, jdbc4, testQuery, maxConnections, serializerProvider, xmlQuerySource, false);
-
-        JdbcDao dao = jdbcDaoFactory.getDao();
-
-        try {
-            if (dao.initTableStructure()) {
-                dao.commit();
-            }
-        } finally {
-            dao.close();
-        }
-
-        daoFactory = jdbcDaoFactory;
+        daoFactory = createDaoFactory(database, driver, url, username, password, pool, jdbc4, testQuery, maxConnections, serializerProvider, xmlQuerySource, false);
 
         boolean splitReadWrite = Boolean.parseBoolean(dbProperties.getProperty(DatabaseConstants.DATABASE_ENABLE_READ_WRITE_SPLIT));
 
@@ -175,8 +162,12 @@ public class Donkey {
         DonkeyDao dao = null;
         try {
             dao = daoFactory.getDao();
-            dao.checkAndCreateChannelTables();
 
+            if (dao.initTableStructure()) {
+                dao.commit();
+            }
+
+            dao.checkAndCreateChannelTables();
             dao.commit();
         } catch (Exception e) {
             logger.error("Count not check and create channel tables on startup", e);

@@ -352,6 +352,17 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
+    public boolean initTableStructure() {
+        DonkeyDao dao = getDelegateDao();
+
+        try {
+            return dao.initTableStructure();
+        } finally {
+            dao.close();
+        }
+    }
+
+    @Override
     public Map<String, Long> getLocalChannelIds() {
         DonkeyDao dao = getDelegateDao();
 

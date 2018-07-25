@@ -69,7 +69,7 @@ public class DataPrunerTests {
         configurationController.initializeDatabaseSettings();
 
         Donkey donkey = Donkey.getInstance();
-        donkey.initDaoFactory(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), null, new EventDispatcher() {
+        donkey.initEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), null, new EventDispatcher() {
             @Override
             public void dispatchEvent(Event event) {}
         }, "testserverid"));
