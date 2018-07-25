@@ -56,8 +56,8 @@ import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.StatementLock;
 
 public class DefaultChannelController extends ChannelController {
-    private static final String VACUUM_LOCK_CHANNEL_STATEMENT_ID = "Channel.vacuumChannelTable";
-    private static final String VACUUM_LOCK_CHANNEL_GROUP_STATEMENT_ID = "Channel.vacuumChannelGroupTable";
+    public static final String VACUUM_LOCK_CHANNEL_STATEMENT_ID = "Channel.vacuumChannelTable";
+    public static final String VACUUM_LOCK_CHANNEL_GROUP_STATEMENT_ID = "Channel.vacuumChannelGroupTable";
 
     private Logger logger = Logger.getLogger(this.getClass());
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();

@@ -67,8 +67,7 @@ public class RecoveryTests {
     @BeforeClass
     final public static void beforeClass() throws StartException {
         Donkey donkey = Donkey.getInstance();
-        donkey.initEngine(TestUtils.getDonkeyTestConfiguration());
-        donkey.startEngine();
+        donkey.startEngine(TestUtils.getDonkeyTestConfiguration());
 
         daoFactory = new BufferedDaoFactory(new TimedDaoFactory(donkey.getDaoFactory(), daoTimer), new SerializerProvider() {
             @Override

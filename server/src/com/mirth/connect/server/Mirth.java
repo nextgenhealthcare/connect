@@ -38,6 +38,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.DonkeyConnectionPools;
 import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ResourcePropertiesList;
@@ -208,7 +209,7 @@ public class Mirth extends Thread {
         configurationController.initializeDatabaseSettings();
 
         try {
-            engineController.initEngine();
+            DonkeyConnectionPools.getInstance().init(configurationController.getDatabaseSettings().getProperties());
             SqlConfig.getSqlSessionManager().startManagedSession();
             SqlConfig.getSqlSessionManager().getConnection();
 
