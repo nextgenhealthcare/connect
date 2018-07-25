@@ -11,6 +11,7 @@ package com.mirth.connect.server.controllers;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -65,6 +66,7 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -85,6 +87,7 @@ import com.mirth.commons.encryption.Encryptor;
 import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.commons.encryption.Output;
 import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.donkey.model.DatabaseConstants;
 import com.mirth.connect.donkey.server.data.DonkeyStatisticsUpdater;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.Channel;
@@ -730,7 +733,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
         try {
-            List<KeyValuePair> result = SqlConfig.getSqlSessionManager().selectList("Configuration.selectPropertiesForCategory", category);
+            List<KeyValuePair> result = SqlConfig.getReadOnlySqlSessionManager().selectList("Configuration.selectPropertiesForCategory", category);
 
             for (KeyValuePair pair : result) {
                 properties.setProperty(pair.getKey(), StringUtils.defaultString(pair.getValue()));
@@ -768,7 +771,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
             parameterMap.put("name", name);
-            return (String) SqlConfig.getSqlSessionManager().selectOne("Configuration.selectProperty", parameterMap);
+            return (String) SqlConfig.getReadOnlySqlSessionManager().selectOne("Configuration.selectProperty", parameterMap);
         } catch (Exception e) {
             logger.error("Could not retrieve property: category=" + category + ", name=" + name, e);
         } finally {
@@ -1006,39 +1009,54 @@ public class DefaultConfigurationController extends ConfigurationController {
             databaseConfig.setDirBase(getBaseDir());
 
             String password = databaseConfig.getDatabasePassword();
+            String readOnlyPassword = databaseConfig.getDatabaseReadOnlyPassword();
 
-            if (StringUtils.isNotEmpty(password)) {
+            if (StringUtils.isNotEmpty(password) || StringUtils.isNotEmpty(readOnlyPassword)) {
                 ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
                 EncryptionSettings encryptionSettings = configurationController.getEncryptionSettings();
                 Encryptor encryptor = configurationController.getEncryptor();
 
                 if (encryptionSettings.getEncryptProperties()) {
-                    if (StringUtils.startsWith(password, EncryptionSettings.ENCRYPTION_PREFIX)) {
-                        String encryptedPassword = StringUtils.removeStart(password, EncryptionSettings.ENCRYPTION_PREFIX);
-                        String decryptedPassword = encryptor.decrypt(encryptedPassword);
-                        databaseConfig.setDatabasePassword(decryptedPassword);
-                    } else if (StringUtils.isNotBlank(password)) {
-                        // encrypt the password and write it back to the file
-                        String encryptedPassword = EncryptionSettings.ENCRYPTION_PREFIX + encryptor.encrypt(password);
-                        mirthConfig.setProperty("database.password", encryptedPassword);
-
-                        /*
-                         * Save using a FileOutputStream so that the file will be saved to the
-                         * proper location, even if running from the IDE.
-                         */
-                        File confDir = new File(ControllerFactory.getFactory().createConfigurationController().getConfigurationDir());
-                        OutputStream os = new FileOutputStream(new File(confDir, "mirth.properties"));
-
-                        try {
-                            mirthConfig.save(os);
-                        } finally {
-                            IOUtils.closeQuietly(os);
-                        }
+                    if (StringUtils.isNotEmpty(password)) {
+                        updateDatabasePassword(encryptor, password, false);
+                    }
+                    if (StringUtils.isNotEmpty(readOnlyPassword)) {
+                        updateDatabasePassword(encryptor, readOnlyPassword, true);
                     }
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void updateDatabasePassword(Encryptor encryptor, String password, boolean readOnly) throws FileNotFoundException, ConfigurationException {
+        if (StringUtils.startsWith(password, EncryptionSettings.ENCRYPTION_PREFIX)) {
+            String encryptedPassword = StringUtils.removeStart(password, EncryptionSettings.ENCRYPTION_PREFIX);
+            String decryptedPassword = encryptor.decrypt(encryptedPassword);
+
+            if (readOnly) {
+                databaseConfig.setDatabaseReadOnlyPassword(decryptedPassword);
+            } else {
+                databaseConfig.setDatabasePassword(decryptedPassword);
+            }
+        } else if (StringUtils.isNotBlank(password)) {
+            // encrypt the password and write it back to the file
+            String encryptedPassword = EncryptionSettings.ENCRYPTION_PREFIX + encryptor.encrypt(password);
+            mirthConfig.setProperty(readOnly ? DatabaseConstants.DATABASE_READONLY_PASSWORD : DatabaseConstants.DATABASE_PASSWORD, encryptedPassword);
+
+            /*
+             * Save using a FileOutputStream so that the file will be saved to the proper location,
+             * even if running from the IDE.
+             */
+            File confDir = new File(ControllerFactory.getFactory().createConfigurationController().getConfigurationDir());
+            OutputStream os = new FileOutputStream(new File(confDir, "mirth.properties"));
+
+            try {
+                mirthConfig.save(os);
+            } finally {
+                IOUtils.closeQuietly(os);
+            }
         }
     }
 
@@ -1217,12 +1235,25 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     private boolean isDatabaseRunning() {
+        if (!testDatabase(false)) {
+            return false;
+        }
+
+        if (SqlConfig.isSplitReadWrite()) {
+            return testDatabase(true);
+        }
+
+        return true;
+    }
+
+    private boolean testDatabase(boolean readOnly) {
         Statement statement = null;
         Connection connection = null;
-        SqlConfig.getSqlSessionManager().startManagedSession();
+        SqlSessionManager manager = (readOnly ? SqlConfig.getReadOnlySqlSessionManager() : SqlConfig.getSqlSessionManager());
+        manager.startManagedSession();
 
         try {
-            connection = SqlConfig.getSqlSessionManager().getConnection();
+            connection = manager.getConnection();
             statement = connection.createStatement();
             statement.execute("SELECT 1 FROM CHANNEL");
             return true;
@@ -1232,8 +1263,8 @@ public class DefaultConfigurationController extends ConfigurationController {
         } finally {
             DbUtils.closeQuietly(statement);
             DbUtils.closeQuietly(connection);
-            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
-                SqlConfig.getSqlSessionManager().close();
+            if (manager.isManagedSessionStarted()) {
+                manager.close();
             }
         }
     }

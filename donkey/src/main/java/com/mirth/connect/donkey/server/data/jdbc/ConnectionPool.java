@@ -11,8 +11,12 @@ package com.mirth.connect.donkey.server.data.jdbc;
 
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 public interface ConnectionPool {
     public PooledConnection getConnection() throws SQLException;
 
     public Integer getMaxConnections();
+
+    public DataSource getDataSource();
 }

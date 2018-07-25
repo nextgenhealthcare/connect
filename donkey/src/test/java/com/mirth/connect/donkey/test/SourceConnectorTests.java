@@ -39,7 +39,8 @@ public class SourceConnectorTests {
 
     @BeforeClass
     final public static void beforeClass() throws StartException {
-        Donkey.getInstance().startEngine(TestUtils.getDonkeyTestConfiguration());
+        Donkey.getInstance().initEngine(TestUtils.getDonkeyTestConfiguration());
+        Donkey.getInstance().startEngine();
     }
 
     @AfterClass

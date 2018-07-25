@@ -46,7 +46,8 @@ public class ChannelControllerTests {
     @BeforeClass
     final public static void beforeClass() throws StartException {
         Donkey donkey = Donkey.getInstance();
-        donkey.startEngine(TestUtils.getDonkeyTestConfiguration());
+        donkey.initEngine(TestUtils.getDonkeyTestConfiguration());
+        donkey.startEngine();
         donkey.setDaoFactory(new TimedDaoFactory(donkey.getDaoFactory(), daoTimer));
     }
 

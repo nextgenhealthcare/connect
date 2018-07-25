@@ -37,7 +37,8 @@ import com.mirth.connect.donkey.test.util.TestUtils;
 public class ConnectorTests {
     @BeforeClass
     final public static void beforeClass() throws StartException {
-        Donkey.getInstance().startEngine(TestUtils.getDonkeyTestConfiguration());
+        Donkey.getInstance().initEngine(TestUtils.getDonkeyTestConfiguration());
+        Donkey.getInstance().startEngine();
     }
 
     @AfterClass

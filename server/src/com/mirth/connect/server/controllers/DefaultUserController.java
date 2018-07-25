@@ -81,7 +81,7 @@ public class DefaultUserController extends UserController {
 
         StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
-            return SqlConfig.getSqlSessionManager().selectList("User.getUser");
+            return SqlConfig.getReadOnlySqlSessionManager().selectList("User.getUser");
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         } finally {
@@ -101,7 +101,7 @@ public class DefaultUserController extends UserController {
             User user = new User();
             user.setId(userId);
             user.setUsername(userName);
-            return SqlConfig.getSqlSessionManager().selectOne("User.getUser", user);
+            return SqlConfig.getReadOnlySqlSessionManager().selectOne("User.getUser", user);
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         } finally {
@@ -301,7 +301,7 @@ public class DefaultUserController extends UserController {
             Credentials credentials = null;
 
             if (validUser != null) {
-                credentials = (Credentials) SqlConfig.getSqlSessionManager().selectOne("User.getLatestUserCredentials", validUser.getId());
+                credentials = (Credentials) SqlConfig.getReadOnlySqlSessionManager().selectOne("User.getLatestUserCredentials", validUser.getId());
 
                 if (credentials != null) {
                     if (Pre22PasswordChecker.isPre22Hash(credentials.getPassword())) {
@@ -429,7 +429,7 @@ public class DefaultUserController extends UserController {
     public boolean isUserLoggedIn(Integer userId) throws ControllerException {
         StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
-            return (Boolean) SqlConfig.getSqlSessionManager().selectOne("User.isUserLoggedIn", userId);
+            return (Boolean) SqlConfig.getReadOnlySqlSessionManager().selectOne("User.isUserLoggedIn", userId);
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
@@ -458,7 +458,7 @@ public class DefaultUserController extends UserController {
     @Override
     public List<Credentials> getUserCredentials(Integer userId) throws ControllerException {
         try {
-            return SqlConfig.getSqlSessionManager().selectList("User.getUserCredentials", userId);
+            return SqlConfig.getReadOnlySqlSessionManager().selectList("User.getUserCredentials", userId);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -505,7 +505,7 @@ public class DefaultUserController extends UserController {
 
         StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readLock();
         try {
-            List<KeyValuePair> result = SqlConfig.getSqlSessionManager().selectList("User.selectPreferencesForUser", userId);
+            List<KeyValuePair> result = SqlConfig.getReadOnlySqlSessionManager().selectList("User.selectPreferencesForUser", userId);
 
             for (KeyValuePair pair : result) {
                 if (CollectionUtils.isEmpty(names) || names.contains(pair.getKey())) {
@@ -530,7 +530,7 @@ public class DefaultUserController extends UserController {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("person_id", userId);
             parameterMap.put("name", name);
-            return (String) SqlConfig.getSqlSessionManager().selectOne("User.selectPreference", parameterMap);
+            return (String) SqlConfig.getReadOnlySqlSessionManager().selectOne("User.selectPreference", parameterMap);
         } catch (Exception e) {
             logger.warn("Could not retrieve preference: user id=" + userId + ", name=" + name, e);
         } finally {

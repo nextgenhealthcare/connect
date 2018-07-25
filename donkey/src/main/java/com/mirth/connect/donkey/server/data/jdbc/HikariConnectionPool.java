@@ -12,13 +12,15 @@ package com.mirth.connect.donkey.server.data.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import com.zaxxer.hikari.HikariDataSource;
 
 public class HikariConnectionPool implements ConnectionPool {
     private HikariDataSource dataSource;
     private int maxConnections;
 
-    public HikariConnectionPool(String driver, String url, String username, String password, int maxConnections, boolean jdbc4, String testQuery) {
+    public HikariConnectionPool(String driver, String url, String username, String password, int maxConnections, boolean jdbc4, String testQuery, boolean readOnly) {
         this.maxConnections = maxConnections;
 
         dataSource = new HikariDataSource();
@@ -30,6 +32,7 @@ public class HikariConnectionPool implements ConnectionPool {
         dataSource.setAutoCommit(false);
         dataSource.setMaximumPoolSize(maxConnections);
         dataSource.setMinimumIdle(0);
+        dataSource.setReadOnly(readOnly);
 
         if (!jdbc4) {
             dataSource.setConnectionTestQuery(testQuery);
@@ -45,5 +48,10 @@ public class HikariConnectionPool implements ConnectionPool {
     @Override
     public Integer getMaxConnections() {
         return maxConnections;
+    }
+
+    @Override
+    public DataSource getDataSource() {
+        return dataSource;
     }
 }

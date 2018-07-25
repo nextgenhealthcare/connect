@@ -20,25 +20,18 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.math.NumberUtils;
 
+import com.mirth.connect.donkey.model.DatabaseConstants;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("databaseSettings")
 public class DatabaseSettings extends AbstractSettings implements Serializable, Auditable {
     private static final long serialVersionUID = 1L;
 
-    private static final String DATABASE = "database";
-    private static final String DATABASE_URL = "database.url";
-    private static final String DATABASE_DRIVER = "database.driver";
-    private static final String DATABASE_USERNAME = "database.username";
-    private static final String DATABASE_PASSWORD = "database.password";
-    private static final String DATABASE_MAX_CONNECTIONS = "database.max-connections";
-    private static final String DATABASE_POOL = "database.pool";
-    private static final String DATABASE_JDBC4 = "database.jdbc4";
-    private static final String DATABASE_TEST_QUERY = "database.test-query";
-    private static final String DATABASE_TEST_IDLE_TIME = "database.test-idle-time";
+    public static final String DIR_BASE = "dir.base";
 
-    private static final String DIR_BASE = "dir.base";
+    public static final int DEFAULT_MAX_CONNECTIONS = 20;
 
     private static Map<String, String> databaseDriverMap = null;
     private static Map<String, Boolean> databaseJdbc4Map = null;
@@ -68,6 +61,9 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         databaseTestQueryMap.put("sqlserver", "SELECT 1");
     }
 
+    private boolean splitReadWrite;
+    private boolean writePoolCache;
+
     private String database;
     private String databaseUrl;
     private String databaseDriver;
@@ -75,7 +71,15 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
     private String databasePassword;
     private Integer databaseMaxConnections;
     private String databasePool;
-    private Integer databaseTestIdleTime;
+
+    private String databaseReadOnly;
+    private String databaseReadOnlyUrl;
+    private String databaseReadOnlyDriver;
+    private String databaseReadOnlyUsername;
+    private String databaseReadOnlyPassword;
+    private Integer databaseReadOnlyMaxConnections;
+    private String databaseReadOnlyPool;
+
     private String dirBase;
 
     public DatabaseSettings() {
@@ -84,6 +88,22 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
 
     public DatabaseSettings(Properties properties) {
         setProperties(properties);
+    }
+
+    public boolean isSplitReadWrite() {
+        return splitReadWrite;
+    }
+
+    public void setSplitReadWrite(boolean splitReadWrite) {
+        this.splitReadWrite = splitReadWrite;
+    }
+
+    public boolean isWritePoolCache() {
+        return writePoolCache;
+    }
+
+    public void setWritePoolCache(boolean writePoolCache) {
+        this.writePoolCache = writePoolCache;
     }
 
     public String getDatabase() {
@@ -142,12 +162,60 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         this.databasePool = databasePool;
     }
 
-    public Integer getDatabaseTestIdleTime() {
-        return databaseTestIdleTime;
+    public String getDatabaseReadOnly() {
+        return databaseReadOnly;
     }
 
-    public void setDatabaseTestIdleTime(Integer databaseTestIdleTime) {
-        this.databaseTestIdleTime = databaseTestIdleTime;
+    public void setDatabaseReadOnly(String databaseReadOnly) {
+        this.databaseReadOnly = databaseReadOnly;
+    }
+
+    public String getDatabaseReadOnlyUrl() {
+        return databaseReadOnlyUrl;
+    }
+
+    public void setDatabaseReadOnlyUrl(String databaseReadOnlyUrl) {
+        this.databaseReadOnlyUrl = databaseReadOnlyUrl;
+    }
+
+    public String getDatabaseReadOnlyDriver() {
+        return databaseReadOnlyDriver;
+    }
+
+    public void setDatabaseReadOnlyDriver(String databaseReadOnlyDriver) {
+        this.databaseReadOnlyDriver = databaseReadOnlyDriver;
+    }
+
+    public String getDatabaseReadOnlyUsername() {
+        return databaseReadOnlyUsername;
+    }
+
+    public void setDatabaseReadOnlyUsername(String databaseReadOnlyUsername) {
+        this.databaseReadOnlyUsername = databaseReadOnlyUsername;
+    }
+
+    public String getDatabaseReadOnlyPassword() {
+        return databaseReadOnlyPassword;
+    }
+
+    public void setDatabaseReadOnlyPassword(String databaseReadOnlyPassword) {
+        this.databaseReadOnlyPassword = databaseReadOnlyPassword;
+    }
+
+    public Integer getDatabaseReadOnlyMaxConnections() {
+        return databaseReadOnlyMaxConnections;
+    }
+
+    public void setDatabaseReadOnlyMaxConnections(Integer databaseReadOnlyMaxConnections) {
+        this.databaseReadOnlyMaxConnections = databaseReadOnlyMaxConnections;
+    }
+
+    public String getDatabaseReadOnlyPool() {
+        return databaseReadOnlyPool;
+    }
+
+    public void setDatabaseReadOnlyPool(String databaseReadOnlyPool) {
+        this.databaseReadOnlyPool = databaseReadOnlyPool;
     }
 
     public String getDirBase() {
@@ -166,24 +234,54 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         }
     }
 
+    private String getMappedReadOnlyDatabaseDriver() {
+        if (StringUtils.isEmpty(databaseReadOnlyDriver)) {
+            return MapUtils.getString(databaseDriverMap, StringUtils.defaultIfBlank(getDatabaseReadOnly(), getDatabase()));
+        } else {
+            return databaseReadOnlyDriver;
+        }
+    }
+
     private Boolean getMappedJdbc4() {
         return MapUtils.getBoolean(databaseJdbc4Map, getDatabase());
+    }
+
+    private Boolean getMappedReadOnlyJdbc4() {
+        return MapUtils.getBoolean(databaseJdbc4Map, StringUtils.defaultIfBlank(getDatabaseReadOnly(), getDatabase()));
     }
 
     private String getMappedTestQuery() {
         return MapUtils.getString(databaseTestQueryMap, getDatabase());
     }
 
+    private String getMappedReadOnlyTestQuery() {
+        return MapUtils.getString(databaseTestQueryMap, StringUtils.defaultIfBlank(getDatabaseReadOnly(), getDatabase()));
+    }
+
     @Override
     public void setProperties(Properties properties) {
-        setDatabase(properties.getProperty(DATABASE));
-        setDatabaseUrl(properties.getProperty(DATABASE_URL));
-        setDatabaseDriver(properties.getProperty(DATABASE_DRIVER));
-        setDatabaseUsername(properties.getProperty(DATABASE_USERNAME));
-        setDatabasePassword(properties.getProperty(DATABASE_PASSWORD));
-        setDatabaseMaxConnections(Integer.parseInt(properties.getProperty(DATABASE_MAX_CONNECTIONS)));
-        setDatabasePool(properties.getProperty(DATABASE_POOL));
-        setDatabaseTestIdleTime(Integer.parseInt(properties.getProperty(DATABASE_TEST_IDLE_TIME, "10000")));
+        setSplitReadWrite(Boolean.parseBoolean(properties.getProperty(DatabaseConstants.DATABASE_ENABLE_READ_WRITE_SPLIT)));
+        setWritePoolCache(Boolean.parseBoolean(properties.getProperty(DatabaseConstants.DATABASE_WRITE_POOL_CACHE)));
+
+        setDatabase(properties.getProperty(DatabaseConstants.DATABASE));
+        setDatabaseUrl(properties.getProperty(DatabaseConstants.DATABASE_URL));
+        setDatabaseDriver(properties.getProperty(DatabaseConstants.DATABASE_DRIVER));
+        setDatabaseUsername(properties.getProperty(DatabaseConstants.DATABASE_USERNAME));
+        setDatabasePassword(properties.getProperty(DatabaseConstants.DATABASE_PASSWORD));
+        setDatabaseMaxConnections(NumberUtils.toInt(properties.getProperty(DatabaseConstants.DATABASE_MAX_CONNECTIONS), DEFAULT_MAX_CONNECTIONS));
+        setDatabasePool(properties.getProperty(DatabaseConstants.DATABASE_POOL));
+
+        setDatabaseReadOnly(properties.getProperty(DatabaseConstants.DATABASE_READONLY));
+        setDatabaseReadOnlyUrl(properties.getProperty(DatabaseConstants.DATABASE_READONLY_URL));
+        setDatabaseReadOnlyDriver(properties.getProperty(DatabaseConstants.DATABASE_READONLY_DRIVER));
+        setDatabaseReadOnlyUsername(properties.getProperty(DatabaseConstants.DATABASE_READONLY_USERNAME));
+        setDatabaseReadOnlyPassword(properties.getProperty(DatabaseConstants.DATABASE_READONLY_PASSWORD));
+        String readOnlyMaxConnectionsString = properties.getProperty(DatabaseConstants.DATABASE_READONLY_MAX_CONNECTIONS);
+        if (StringUtils.isNotBlank(readOnlyMaxConnectionsString)) {
+            setDatabaseReadOnlyMaxConnections(NumberUtils.toInt(readOnlyMaxConnectionsString, getDatabaseMaxConnections()));
+        }
+        setDatabaseReadOnlyPool(properties.getProperty(DatabaseConstants.DATABASE_READONLY_POOL));
+
         setDirBase(properties.getProperty(DIR_BASE));
     }
 
@@ -191,59 +289,95 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
     public Properties getProperties() {
         PropertiesConfiguration configuration = new PropertiesConfiguration();
 
+        configuration.setProperty(DatabaseConstants.DATABASE_ENABLE_READ_WRITE_SPLIT, Boolean.toString(splitReadWrite));
+
+        configuration.setProperty(DatabaseConstants.DATABASE_WRITE_POOL_CACHE, Boolean.toString(writePoolCache));
+
         if (getDirBase() != null) {
             configuration.setProperty(DIR_BASE, getDirBase());
         }
 
         if (getDatabase() != null) {
-            configuration.setProperty(DATABASE, getDatabase());
+            configuration.setProperty(DatabaseConstants.DATABASE, getDatabase());
         }
 
         if (getDatabaseUrl() != null) {
-            configuration.setProperty(DATABASE_URL, getDatabaseUrl());
+            configuration.setProperty(DatabaseConstants.DATABASE_URL, getDatabaseUrl());
         }
 
         if (getMappedDatabaseDriver() != null) {
-            configuration.setProperty(DATABASE_DRIVER, getMappedDatabaseDriver());
+            configuration.setProperty(DatabaseConstants.DATABASE_DRIVER, getMappedDatabaseDriver());
         }
 
         if (getDatabasePool() != null) {
-            configuration.setProperty(DATABASE_POOL, getDatabasePool());
+            configuration.setProperty(DatabaseConstants.DATABASE_POOL, getDatabasePool());
         }
 
         if (getMappedJdbc4() != null) {
-            configuration.setProperty(DATABASE_JDBC4, getMappedJdbc4());
+            configuration.setProperty(DatabaseConstants.DATABASE_JDBC4, getMappedJdbc4());
         }
 
         if (getMappedTestQuery() != null) {
-            configuration.setProperty(DATABASE_TEST_QUERY, getMappedTestQuery());
+            configuration.setProperty(DatabaseConstants.DATABASE_TEST_QUERY, getMappedTestQuery());
         }
 
         /*
          * MIRTH-1749: in case someone comments out the username and password properties
          */
         if (getDatabaseUsername() != null) {
-            configuration.setProperty(DATABASE_USERNAME, getDatabaseUsername());
+            configuration.setProperty(DatabaseConstants.DATABASE_USERNAME, getDatabaseUsername());
         } else {
-            configuration.setProperty(DATABASE_USERNAME, StringUtils.EMPTY);
+            configuration.setProperty(DatabaseConstants.DATABASE_USERNAME, StringUtils.EMPTY);
         }
 
         if (getDatabasePassword() != null) {
-            configuration.setProperty(DATABASE_PASSWORD, getDatabasePassword());
+            configuration.setProperty(DatabaseConstants.DATABASE_PASSWORD, getDatabasePassword());
         } else {
-            configuration.setProperty(DATABASE_PASSWORD, StringUtils.EMPTY);
+            configuration.setProperty(DatabaseConstants.DATABASE_PASSWORD, StringUtils.EMPTY);
         }
 
         if (getDatabaseMaxConnections() != null) {
-            configuration.setProperty(DATABASE_MAX_CONNECTIONS, getDatabaseMaxConnections().toString());
+            configuration.setProperty(DatabaseConstants.DATABASE_MAX_CONNECTIONS, getDatabaseMaxConnections().toString());
         } else {
-            configuration.setProperty(DATABASE_MAX_CONNECTIONS, StringUtils.EMPTY);
+            configuration.setProperty(DatabaseConstants.DATABASE_MAX_CONNECTIONS, StringUtils.EMPTY);
         }
 
-        if (getDatabaseTestIdleTime() != null) {
-            configuration.setProperty(DATABASE_TEST_IDLE_TIME, getDatabaseTestIdleTime().toString());
-        } else {
-            configuration.setProperty(DATABASE_TEST_IDLE_TIME, "10000");
+        /**** READ ONLY PROPERTIES ****/
+
+        if (getDatabaseReadOnly() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_READONLY, getDatabaseReadOnly());
+        }
+
+        if (getDatabaseReadOnlyUrl() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_READONLY_URL, getDatabaseReadOnlyUrl());
+        }
+
+        if (getMappedDatabaseDriver() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_READONLY_DRIVER, getMappedReadOnlyDatabaseDriver());
+        }
+
+        if (getDatabaseReadOnlyPool() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_READONLY_POOL, getDatabaseReadOnlyPool());
+        }
+
+        if (getMappedJdbc4() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_READONLY_JDBC4, getMappedReadOnlyJdbc4());
+        }
+
+        if (getMappedTestQuery() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_READONLY_TEST_QUERY, getMappedReadOnlyTestQuery());
+        }
+
+        if (getDatabaseReadOnlyUsername() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_READONLY_USERNAME, getDatabaseReadOnlyUsername());
+        }
+
+        if (getDatabaseReadOnlyPassword() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_READONLY_PASSWORD, getDatabaseReadOnlyPassword());
+        }
+
+        if (getDatabaseReadOnlyMaxConnections() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_READONLY_MAX_CONNECTIONS, getDatabaseReadOnlyMaxConnections().toString());
         }
 
         return ConfigurationConverter.getProperties(configuration);

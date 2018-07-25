@@ -387,7 +387,7 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
     public List<String> getMessageAttachmentIds(String channelId, Long messageId) throws MessageSerializerException {
         List<String> attachmentIds = new ArrayList<String>();
         try {
-            List<Attachment> attachments = messageController.getMessageAttachmentIds(channelId, messageId);
+            List<Attachment> attachments = messageController.getMessageAttachmentIds(channelId, messageId, false);
 
             for (Attachment attachment : attachments) {
                 attachmentIds.add(attachment.getId());
@@ -413,7 +413,7 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
     public List<Attachment> getMessageAttachments(String channelId, Long messageId, boolean base64Decode) throws MessageSerializerException {
         List<Attachment> attachments;
         try {
-            attachments = messageController.getMessageAttachment(channelId, messageId);
+            attachments = messageController.getMessageAttachment(channelId, messageId, false);
 
             if (base64Decode) {
                 AttachmentUtil.decodeBase64(attachments);
@@ -430,7 +430,7 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
 
     public Attachment getMessageAttachment(String channelId, Long messageId, String attachmentId, boolean base64Decode) throws MessageSerializerException {
         try {
-            Attachment attachment = messageController.getMessageAttachment(channelId, attachmentId, messageId);
+            Attachment attachment = messageController.getMessageAttachment(channelId, attachmentId, messageId, false);
 
             if (base64Decode) {
                 AttachmentUtil.decodeBase64(attachment);

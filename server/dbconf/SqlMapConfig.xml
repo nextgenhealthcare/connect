@@ -34,16 +34,12 @@
 	<environments default="all">
 		<environment id="all">
 			<transactionManager type="JDBC" />
-			<dataSource type="POOLED">
-				<property name="driver" value="${database.driver}" />
-				<property name="url" value="${database.url}" />
-				<property name="username" value="${database.username}" />
-				<property name="password" value="${database.password}" />
-				<property name="poolMaximumActiveConnections" value="20" />
-				<property name="poolMaximumIdleConnections" value="10" />
-				<property name="poolPingEnabled" value="true" />
-				<property name="poolPingQuery" value="${database.test-query}" />
-				<property name="poolPingConnectionsNotUsedFor" value="${database.test-idle-time}" />
+			<dataSource type="com.mirth.connect.server.mybatis.BridgeDataSourceFactory" />
+		</environment>
+		<environment id="readonly">
+			<transactionManager type="JDBC" />
+			<dataSource type="com.mirth.connect.server.mybatis.BridgeDataSourceFactory">
+				<property name="readonly" value="true" />
 			</dataSource>
 		</environment>
 	</environments>

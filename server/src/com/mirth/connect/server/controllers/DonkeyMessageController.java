@@ -27,6 +27,7 @@ import java.util.TreeSet;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
@@ -121,8 +122,8 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public long getMaxMessageId(String channelId) {
-        DonkeyDao dao = donkey.getDaoFactory().getDao();
+    public long getMaxMessageId(String channelId, boolean readOnly) {
+        DonkeyDao dao = getDao(readOnly);
 
         try {
             return dao.getMaxMessageId(channelId);
@@ -132,8 +133,8 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public long getMinMessageId(String channelId) {
-        DonkeyDao dao = donkey.getDaoFactory().getDao();
+    public long getMinMessageId(String channelId, boolean readOnly) {
+        DonkeyDao dao = getDao(readOnly);
 
         try {
             return dao.getMinMessageId(channelId);
@@ -150,15 +151,15 @@ public class DonkeyMessageController extends MessageController {
 
         long startTime = System.currentTimeMillis();
 
-        FilterOptions filterOptions = new FilterOptions(filter, channelId);
+        FilterOptions filterOptions = new FilterOptions(filter, channelId, true);
         long maxMessageId = filterOptions.getMaxMessageId();
         long minMessageId = filterOptions.getMinMessageId();
 
-        Long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+        Long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId, true);
         Map<String, Object> params = getBasicParameters(filter, localChannelId);
 
         try {
-            SqlSession session = SqlConfig.getSqlSessionManager();
+            SqlSession session = getSqlSessionManager(true);
 
             long count = 0;
             long batchSize = 50000;
@@ -195,7 +196,7 @@ public class DonkeyMessageController extends MessageController {
 
         List<MessageSearchResult> results = searchMessages(filter, channelId, offset, limit);
 
-        DonkeyDao dao = donkey.getDaoFactory().getDao();
+        DonkeyDao dao = getDao(true);
 
         /*
          * If the content is included, we don't want to decrypt because we may want to use the
@@ -226,14 +227,14 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public Message getMessageContent(String channelId, Long messageId, List<Integer> metaDataIds) {
-        DonkeyDao dao = donkey.getDaoFactory().getDao();
+        DonkeyDao dao = getDao(true);
 
         try {
             Map<String, Object> params = new HashMap<String, Object>();
-            params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
+            params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId, true));
             params.put("messageId", messageId);
 
-            Message message = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageById", params);
+            Message message = SqlConfig.getReadOnlySqlSessionManager().selectOne("Message.selectMessageById", params);
 
             if (message != null) {
                 message.setChannelId(channelId);
@@ -255,17 +256,17 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public List<Attachment> getMessageAttachmentIds(String channelId, Long messageId) {
+    public List<Attachment> getMessageAttachmentIds(String channelId, Long messageId, boolean readOnly) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
+        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId, readOnly));
         params.put("messageId", messageId);
 
-        return SqlConfig.getSqlSessionManager().selectList("Message.selectMessageAttachmentIds", params);
+        return getSqlSessionManager(readOnly).selectList("Message.selectMessageAttachmentIds", params);
     }
 
     @Override
-    public Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId) {
-        DonkeyDao dao = donkey.getDaoFactory().getDao();
+    public Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId, boolean readOnly) {
+        DonkeyDao dao = getDao(readOnly);
 
         try {
             return dao.getMessageAttachment(channelId, attachmentId, messageId);
@@ -275,8 +276,8 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public List<Attachment> getMessageAttachment(String channelId, Long messageId) {
-        DonkeyDao dao = donkey.getDaoFactory().getDao();
+    public List<Attachment> getMessageAttachment(String channelId, Long messageId, boolean readOnly) {
+        DonkeyDao dao = getDao(readOnly);
 
         try {
             return dao.getMessageAttachment(channelId, messageId);
@@ -289,7 +290,7 @@ public class DonkeyMessageController extends MessageController {
     public void removeMessages(String channelId, MessageFilter filter) {
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
 
-        FilterOptions filterOptions = new FilterOptions(filter, channelId);
+        FilterOptions filterOptions = new FilterOptions(filter, channelId, false);
         long maxMessageId = filterOptions.getMaxMessageId();
         long minMessageId = filterOptions.getMinMessageId();
 
@@ -301,7 +302,7 @@ public class DonkeyMessageController extends MessageController {
          */
         params.put("includeProcessed", true);
 
-        SqlSession session = SqlConfig.getSqlSessionManager();
+        SqlSession session = getSqlSessionManager(true);
 
         long batchSize = 50000;
 
@@ -344,7 +345,7 @@ public class DonkeyMessageController extends MessageController {
         boolean isBinary = ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary();
         Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
 
-        FilterOptions filterOptions = new FilterOptions(filter, channelId);
+        FilterOptions filterOptions = new FilterOptions(filter, channelId, false);
         long maxMessageId = filterOptions.getMaxMessageId();
         long minMessageId = filterOptions.getMinMessageId();
 
@@ -356,7 +357,7 @@ public class DonkeyMessageController extends MessageController {
          */
         params.put("includeImportId", true);
 
-        SqlSession session = SqlConfig.getSqlSessionManager();
+        SqlSession session = getSqlSessionManager(true);
 
         long batchSize = 50000;
 
@@ -377,7 +378,7 @@ public class DonkeyMessageController extends MessageController {
                 Long importId = entry.getValue().getImportId();
                 params.put("messageId", messageId);
 
-                List<MessageContent> contentList = SqlConfig.getSqlSessionManager().selectList("Message.selectMessageForReprocessing", params);
+                List<MessageContent> contentList = session.selectList("Message.selectMessageForReprocessing", params);
 
                 MessageContent rawContent = null;
                 MessageContent sourceMapContent = null;
@@ -484,7 +485,7 @@ public class DonkeyMessageController extends MessageController {
                 attachmentSource = new AttachmentSource() {
                     @Override
                     public List<Attachment> getMessageAttachments(Message message) {
-                        return MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());
+                        return MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId(), true);
                     }
                 };
             }
@@ -503,7 +504,7 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public void exportAttachment(String channelId, String attachmentId, Long messageId, String filePath, boolean binary) throws IOException {
-        AttachmentUtil.writeToFile(filePath, getMessageAttachment(channelId, attachmentId, messageId), binary);
+        AttachmentUtil.writeToFile(filePath, getMessageAttachment(channelId, attachmentId, messageId, true), binary);
     }
 
     @Override
@@ -537,16 +538,16 @@ public class DonkeyMessageController extends MessageController {
     private List<MessageSearchResult> searchMessages(MessageFilter filter, String channelId, int offset, int limit) {
         long startTime = System.currentTimeMillis();
 
-        FilterOptions filterOptions = new FilterOptions(filter, channelId);
+        FilterOptions filterOptions = new FilterOptions(filter, channelId, true);
         long maxMessageId = filterOptions.getMaxMessageId();
         long minMessageId = filterOptions.getMinMessageId();
 
-        Long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+        Long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId, true);
         Map<String, Object> params = getBasicParameters(filter, localChannelId);
 
         try {
             NavigableMap<Long, MessageSearchResult> messages = new TreeMap<Long, MessageSearchResult>();
-            SqlSession session = SqlConfig.getSqlSessionManager();
+            SqlSession session = getSqlSessionManager(true);
 
             int offsetRemaining = offset;
             /*
@@ -1132,7 +1133,7 @@ public class DonkeyMessageController extends MessageController {
         private boolean searchContent;
         private boolean searchText;
 
-        public FilterOptions(MessageFilter filter, String channelId) {
+        public FilterOptions(MessageFilter filter, String channelId, boolean readOnly) {
             if (filter.getMinMessageId() != null && filter.getMaxMessageId() != null && filter.getMinMessageId() > filter.getMaxMessageId()) {
                 /*
                  * If the min message id is greater than the max, use them directly so they fail at
@@ -1146,15 +1147,15 @@ public class DonkeyMessageController extends MessageController {
                  * If the min is less than the actual min, set the min message id to the actual min
                  * to prevent unnecessary searches
                  */
-                minMessageId = Math.max(filter.getMinMessageId() == null ? 1L : filter.getMinMessageId(), DonkeyMessageController.this.getMinMessageId(channelId));
+                minMessageId = Math.max(filter.getMinMessageId() == null ? 1L : filter.getMinMessageId(), DonkeyMessageController.this.getMinMessageId(channelId, readOnly));
                 /*
                  * If the max is greater than the actual max, set the max message id to the actual
                  * max to prevent unnecessary searches
                  */
                 if (filter.getMaxMessageId() != null) {
-                    maxMessageId = Math.min(filter.getMaxMessageId(), DonkeyMessageController.this.getMaxMessageId(channelId));
+                    maxMessageId = Math.min(filter.getMaxMessageId(), DonkeyMessageController.this.getMaxMessageId(channelId, readOnly));
                 } else {
-                    maxMessageId = DonkeyMessageController.this.getMaxMessageId(channelId);
+                    maxMessageId = DonkeyMessageController.this.getMaxMessageId(channelId, readOnly);
                 }
             }
 
@@ -1182,5 +1183,13 @@ public class DonkeyMessageController extends MessageController {
         public boolean isSearchText() {
             return searchText;
         }
+    }
+
+    private DonkeyDao getDao(boolean readOnly) {
+        return (readOnly ? donkey.getReadOnlyDaoFactory() : donkey.getDaoFactory()).getDao();
+    }
+
+    private SqlSessionManager getSqlSessionManager(boolean readOnly) {
+        return readOnly ? SqlConfig.getReadOnlySqlSessionManager() : SqlConfig.getSqlSessionManager();
     }
 }

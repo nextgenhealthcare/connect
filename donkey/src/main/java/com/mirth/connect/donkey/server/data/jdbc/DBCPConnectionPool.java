@@ -26,12 +26,13 @@ public class DBCPConnectionPool implements ConnectionPool {
     private DataSource dataSource;
     private int maxConnections;
 
-    public DBCPConnectionPool(String url, String username, String password, int maxConnections) {
+    public DBCPConnectionPool(String url, String username, String password, int maxConnections, boolean readOnly) {
         this.maxConnections = maxConnections;
 
         ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(url, username, password);
         PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(connectionFactory, null);
         poolableConnectionFactory.setDefaultAutoCommit(false);
+        poolableConnectionFactory.setDefaultReadOnly(readOnly);
 
         GenericObjectPool<PoolableConnection> connectionPool = new GenericObjectPool<PoolableConnection>(poolableConnectionFactory);
         connectionPool.setMaxTotal(maxConnections);
@@ -54,5 +55,10 @@ public class DBCPConnectionPool implements ConnectionPool {
     @Override
     public Integer getMaxConnections() {
         return maxConnections;
+    }
+
+    @Override
+    public DataSource getDataSource() {
+        return dataSource;
     }
 }

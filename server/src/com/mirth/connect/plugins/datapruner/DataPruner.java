@@ -79,7 +79,7 @@ public class DataPruner implements Runnable {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
-    private DonkeyDaoFactory daoFactory;
+    private DonkeyDaoFactory readOnlyDaoFactory;
     private AtomicBoolean running = new AtomicBoolean(false);
     private Thread pruneThread;
     private DataPrunerStatus status = new DataPrunerStatus();
@@ -225,16 +225,16 @@ public class DataPruner implements Runnable {
         }
     }
 
-    private DonkeyDaoFactory getDaoFactory() {
+    private DonkeyDaoFactory getReadOnlyDaoFactory() {
         /*
          * The DaoFactory can't be retrieved in the constructor because it will not have been
          * instantiated yet at that point.
          */
-        if (daoFactory == null) {
-            daoFactory = Donkey.getInstance().getDaoFactory();
+        if (readOnlyDaoFactory == null) {
+            readOnlyDaoFactory = Donkey.getInstance().getReadOnlyDaoFactory();
         }
 
-        return daoFactory;
+        return readOnlyDaoFactory;
     }
 
     private Queue<PrunerTask> buildTaskQueue() throws Exception {
@@ -439,7 +439,7 @@ public class DataPruner implements Runnable {
             try {
                 long maxMessageId;
 
-                DonkeyDao dao = getDaoFactory().getDao();
+                DonkeyDao dao = getReadOnlyDaoFactory().getDao();
                 try {
                     maxMessageId = dao.getMaxMessageId(channelId);
                 } finally {
@@ -545,7 +545,7 @@ public class DataPruner implements Runnable {
                 attachmentSource = new AttachmentSource() {
                     @Override
                     public List<Attachment> getMessageAttachments(Message message) throws ClientException {
-                        return MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());
+                        return MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId(), true);
                     }
                 };
             }
@@ -554,7 +554,7 @@ public class DataPruner implements Runnable {
                 List<Map<String, Object>> maps;
                 do {
                     ThreadUtils.checkInterruptedStatus();
-                    SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
+                    SqlSession session = SqlConfig.getReadOnlySqlSessionManager().openSession(true);
 
                     try {
                         params.put("minMessageId", minMessageId);
@@ -582,7 +582,7 @@ public class DataPruner implements Runnable {
 
                         if (archiveMessageIds.size() == archiverBlockSize || !iterator.hasNext()) {
                             ThreadUtils.checkInterruptedStatus();
-                            DonkeyDao dao = getDaoFactory().getDao();
+                            DonkeyDao dao = getReadOnlyDaoFactory().getDao();
                             try {
                                 List<Message> messages = dao.getMessages(channelId, archiveMessageIds);
 

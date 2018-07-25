@@ -121,16 +121,16 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     @CheckAuthorizedChannelId
     public List<Attachment> getAttachmentsByMessageId(String channelId, Long messageId, boolean includeContent) {
         if (includeContent) {
-            return messageController.getMessageAttachment(channelId, messageId);
+            return messageController.getMessageAttachment(channelId, messageId, true);
         } else {
-            return messageController.getMessageAttachmentIds(channelId, messageId);
+            return messageController.getMessageAttachmentIds(channelId, messageId, true);
         }
     }
 
     @Override
     @CheckAuthorizedChannelId
     public Attachment getAttachment(String channelId, Long messageId, String attachmentId) {
-        return messageController.getMessageAttachment(channelId, attachmentId, messageId);
+        return messageController.getMessageAttachment(channelId, attachmentId, messageId, true);
     }
 
     @Override
@@ -142,7 +142,7 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     @Override
     @CheckAuthorizedChannelId
     public Long getMaxMessageId(String channelId) {
-        return messageController.getMaxMessageId(channelId);
+        return messageController.getMaxMessageId(channelId, true);
     }
 
     @Override

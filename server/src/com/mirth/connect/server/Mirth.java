@@ -208,8 +208,14 @@ public class Mirth extends Thread {
         configurationController.initializeDatabaseSettings();
 
         try {
+            engineController.initEngine();
             SqlConfig.getSqlSessionManager().startManagedSession();
             SqlConfig.getSqlSessionManager().getConnection();
+
+            if (SqlConfig.isSplitReadWrite()) {
+                SqlConfig.getReadOnlySqlSessionManager().startManagedSession();
+                SqlConfig.getReadOnlySqlSessionManager().getConnection();
+            }
         } catch (Exception e) {
             // the getCause is needed since the wrapper exception is from the connection pool
             logger.error("Error establishing connection to database, aborting startup. " + e.getCause().getMessage());
@@ -217,6 +223,9 @@ public class Mirth extends Thread {
         } finally {
             if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
                 SqlConfig.getSqlSessionManager().close();
+            }
+            if (SqlConfig.isSplitReadWrite() && SqlConfig.getReadOnlySqlSessionManager().isManagedSessionStarted()) {
+                SqlConfig.getReadOnlySqlSessionManager().close();
             }
         }
 

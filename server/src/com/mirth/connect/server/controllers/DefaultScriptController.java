@@ -99,7 +99,7 @@ public class DefaultScriptController extends ScriptController {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("groupId", groupId);
             parameterMap.put("id", id);
-            return (String) SqlConfig.getSqlSessionManager().selectOne("Script.getScript", parameterMap);
+            return (String) SqlConfig.getReadOnlySqlSessionManager().selectOne("Script.getScript", parameterMap);
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         } finally {

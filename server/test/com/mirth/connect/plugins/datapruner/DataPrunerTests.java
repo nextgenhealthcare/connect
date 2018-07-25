@@ -69,10 +69,11 @@ public class DataPrunerTests {
         configurationController.initializeDatabaseSettings();
 
         Donkey donkey = Donkey.getInstance();
-        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), null, new EventDispatcher() {
+        donkey.initEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), null, new EventDispatcher() {
             @Override
             public void dispatchEvent(Event event) {}
         }, "testserverid"));
+        donkey.startEngine();
 
         ChannelController.getInstance().initChannelStorage(TEST_CHANNEL_ID);
 

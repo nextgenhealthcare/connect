@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.server.data;
 
+import com.mirth.connect.donkey.server.data.jdbc.ConnectionPool;
 import com.mirth.connect.donkey.util.SerializerProvider;
 
 public interface DonkeyDaoFactory {
@@ -24,4 +25,6 @@ public interface DonkeyDaoFactory {
     public void setDecryptData(boolean decryptData);
 
     public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater);
+
+    public ConnectionPool getConnectionPool();
 }
