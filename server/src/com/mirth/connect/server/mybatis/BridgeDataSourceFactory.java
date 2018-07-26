@@ -13,20 +13,20 @@ import java.util.Properties;
 
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 
-import com.mirth.connect.donkey.server.Donkey;
-import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.server.DonkeyConnectionPools;
+import com.mirth.connect.donkey.server.data.jdbc.ConnectionPool;
 
 public class BridgeDataSourceFactory extends UnpooledDataSourceFactory {
 
     @Override
     public void setProperties(Properties properties) {
-        DonkeyDaoFactory daoFactory;
+        ConnectionPool connectionPool;
         if (Boolean.parseBoolean(properties.getProperty("readonly"))) {
-            daoFactory = Donkey.getInstance().getReadOnlyDaoFactory();
+            connectionPool = DonkeyConnectionPools.getInstance().getReadOnlyConnectionPool();
         } else {
-            daoFactory = Donkey.getInstance().getDaoFactory();
+            connectionPool = DonkeyConnectionPools.getInstance().getConnectionPool();
         }
 
-        this.dataSource = daoFactory.getConnectionPool().getDataSource();
+        this.dataSource = connectionPool.getDataSource();
     }
 }

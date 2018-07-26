@@ -198,7 +198,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         StatementLock.getInstance(VACUUM_LOCK_LIBRARY_STATEMENT_ID).readLock();
         try {
             for (CodeTemplateLibrary library : librariesToRemove) {
-                SqlConfig.getSqlSessionManager().delete("CodeTemplate.deleteLibrary", library.getId());
+                SqlConfig.getInstance().getSqlSessionManager().delete("CodeTemplate.deleteLibrary", library.getId());
 
                 // Invoke the code template plugins
                 for (CodeTemplateServerPlugin codeTemplateServerPlugin : extensionController.getCodeTemplateServerPlugins().values()) {
@@ -240,10 +240,10 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
                     // Put the new library in the database
                     if (getLibraryById(library.getId()) == null) {
                         logger.debug("Inserting code template library");
-                        SqlConfig.getSqlSessionManager().insert("CodeTemplate.insertLibrary", params);
+                        SqlConfig.getInstance().getSqlSessionManager().insert("CodeTemplate.insertLibrary", params);
                     } else {
                         logger.debug("Updating code template library");
-                        SqlConfig.getSqlSessionManager().update("CodeTemplate.updateLibrary", params);
+                        SqlConfig.getInstance().getSqlSessionManager().update("CodeTemplate.updateLibrary", params);
                     }
 
                     // Invoke the code template plugins
@@ -267,7 +267,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
     public void vacuumLibraryTable() {
         SqlSession session = null;
         try {
-            session = SqlConfig.getSqlSessionManager().openSession(false);
+            session = SqlConfig.getInstance().getSqlSessionManager().openSession(false);
             if (DatabaseUtil.statementExists("CodeTemplate.lockLibraryTable")) {
                 session.update("CodeTemplate.lockLibraryTable");
             }
@@ -288,7 +288,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
     public void vacuumCodeTemplateTable() {
         SqlSession session = null;
         try {
-            session = SqlConfig.getSqlSessionManager().openSession(false);
+            session = SqlConfig.getInstance().getSqlSessionManager().openSession(false);
             if (DatabaseUtil.statementExists("CodeTemplate.lockCodeTemplateTable")) {
                 session.update("CodeTemplate.lockCodeTemplateTable");
             }
@@ -489,10 +489,10 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             // Put the new code template in the database
             if (getCodeTemplateById(codeTemplate.getId()) == null) {
                 logger.debug("Inserting code template");
-                SqlConfig.getSqlSessionManager().insert("CodeTemplate.insertCodeTemplate", params);
+                SqlConfig.getInstance().getSqlSessionManager().insert("CodeTemplate.insertCodeTemplate", params);
             } else {
                 logger.debug("Updating code template");
-                SqlConfig.getSqlSessionManager().update("CodeTemplate.updateCodeTemplate", params);
+                SqlConfig.getInstance().getSqlSessionManager().update("CodeTemplate.updateCodeTemplate", params);
             }
 
             // Invoke the code template plugins
@@ -524,7 +524,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
         StatementLock.getInstance(VACUUM_LOCK_CODE_TEMPLATE_STATEMENT_ID).writeLock();
         try {
-            SqlConfig.getSqlSessionManager().delete("CodeTemplate.deleteCodeTemplate", codeTemplate.getId());
+            SqlConfig.getInstance().getSqlSessionManager().delete("CodeTemplate.deleteCodeTemplate", codeTemplate.getId());
 
             if (DatabaseUtil.statementExists("CodeTemplate.vacuumCodeTemplateTable")) {
                 vacuumCodeTemplateTable();

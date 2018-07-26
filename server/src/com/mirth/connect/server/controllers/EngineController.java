@@ -30,8 +30,6 @@ import com.mirth.connect.server.channel.ChannelTaskHandler;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
 
 public interface EngineController {
-    public void initEngine() throws StartException, ControllerException;
-
     public void startEngine() throws StartException, StopException, ControllerException, InterruptedException;
 
     public void stopEngine() throws StopException, InterruptedException;

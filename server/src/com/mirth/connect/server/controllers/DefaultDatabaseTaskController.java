@@ -83,7 +83,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
     @Override
     public Map<String, DatabaseTask> getDatabaseTasks() throws Exception {
         Map<String, DatabaseTask> tasks = new HashMap<String, DatabaseTask>();
-        SqlSession session = SqlConfig.getReadOnlySqlSessionManager().openSession();
+        SqlSession session = SqlConfig.getInstance().getReadOnlySqlSessionManager().openSession();
 
         try {
             Connection connection = session.getConnection();
@@ -219,7 +219,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
                         Map<String, Long> channelsToIndex = new HashMap<String, Long>();
                         Map<String, String> affectedChannels = new HashMap<String, String>();
 
-                        SqlSession session = SqlConfig.getSqlSessionManager().openSession();
+                        SqlSession session = SqlConfig.getInstance().getSqlSessionManager().openSession();
 
                         try {
                             Connection connection = session.getConnection();
@@ -393,7 +393,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
     }
 
     private void executeUpdate(String sql) throws SQLException {
-        SqlSession session = SqlConfig.getSqlSessionManager().openSession();
+        SqlSession session = SqlConfig.getInstance().getSqlSessionManager().openSession();
         try {
             session.getConnection().createStatement().executeUpdate(sql);
         } finally {

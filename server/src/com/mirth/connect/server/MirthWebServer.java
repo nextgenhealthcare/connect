@@ -682,7 +682,7 @@ public class MirthWebServer extends Server {
             }
         };
 
-        SqlSessionManager sqlSessionManager = SqlConfig.getSqlSessionManager();
+        SqlSessionManager sqlSessionManager = SqlConfig.getInstance().getSqlSessionManager();
         sqlSessionManager.startManagedSession();
         Connection connection = sqlSessionManager.getConnection();
         try {

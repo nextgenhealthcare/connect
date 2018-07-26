@@ -234,7 +234,7 @@ public class DonkeyMessageController extends MessageController {
             params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId, true));
             params.put("messageId", messageId);
 
-            Message message = SqlConfig.getReadOnlySqlSessionManager().selectOne("Message.selectMessageById", params);
+            Message message = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("Message.selectMessageById", params);
 
             if (message != null) {
                 message.setChannelId(channelId);
@@ -1190,6 +1190,6 @@ public class DonkeyMessageController extends MessageController {
     }
 
     private SqlSessionManager getSqlSessionManager(boolean readOnly) {
-        return readOnly ? SqlConfig.getReadOnlySqlSessionManager() : SqlConfig.getSqlSessionManager();
+        return readOnly ? SqlConfig.getInstance().getReadOnlySqlSessionManager() : SqlConfig.getInstance().getSqlSessionManager();
     }
 }

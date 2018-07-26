@@ -38,6 +38,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.DonkeyConnectionPools;
 import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ResourcePropertiesList;
@@ -208,24 +209,24 @@ public class Mirth extends Thread {
         configurationController.initializeDatabaseSettings();
 
         try {
-            engineController.initEngine();
-            SqlConfig.getSqlSessionManager().startManagedSession();
-            SqlConfig.getSqlSessionManager().getConnection();
+            DonkeyConnectionPools.getInstance().init(configurationController.getDatabaseSettings().getProperties());
+            SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
+            SqlConfig.getInstance().getSqlSessionManager().getConnection();
 
-            if (SqlConfig.isSplitReadWrite()) {
-                SqlConfig.getReadOnlySqlSessionManager().startManagedSession();
-                SqlConfig.getReadOnlySqlSessionManager().getConnection();
+            if (SqlConfig.getInstance().isSplitReadWrite()) {
+                SqlConfig.getInstance().getReadOnlySqlSessionManager().startManagedSession();
+                SqlConfig.getInstance().getReadOnlySqlSessionManager().getConnection();
             }
         } catch (Exception e) {
             // the getCause is needed since the wrapper exception is from the connection pool
             logger.error("Error establishing connection to database, aborting startup. " + e.getCause().getMessage());
             System.exit(0);
         } finally {
-            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
-                SqlConfig.getSqlSessionManager().close();
+            if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
+                SqlConfig.getInstance().getSqlSessionManager().close();
             }
-            if (SqlConfig.isSplitReadWrite() && SqlConfig.getReadOnlySqlSessionManager().isManagedSessionStarted()) {
-                SqlConfig.getReadOnlySqlSessionManager().close();
+            if (SqlConfig.getInstance().isSplitReadWrite() && SqlConfig.getInstance().getReadOnlySqlSessionManager().isManagedSessionStarted()) {
+                SqlConfig.getInstance().getReadOnlySqlSessionManager().close();
             }
         }
 
@@ -324,15 +325,15 @@ public class Mirth extends Thread {
 
         try {
             // check for database connection before trying to log shutdown event
-            SqlConfig.getSqlSessionManager().startManagedSession();
-            SqlConfig.getSqlSessionManager().getConnection();
+            SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
+            SqlConfig.getInstance().getSqlSessionManager().getConnection();
             // add event after stopping the engine, but before stopping the plugins
             eventController.dispatchEvent(new ServerEvent(configurationController.getServerId(), "Server shutdown"));
         } catch (Exception e) {
             logger.debug("could not log shutdown even since database is unavailable", e);
         } finally {
-            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
-                SqlConfig.getSqlSessionManager().close();
+            if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
+                SqlConfig.getInstance().getSqlSessionManager().close();
             }
         }
 

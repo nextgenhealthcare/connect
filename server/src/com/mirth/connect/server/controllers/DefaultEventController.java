@@ -146,7 +146,7 @@ public class DefaultEventController extends EventController {
         logger.debug("adding event: " + serverEvent);
 
         try {
-            SqlConfig.getSqlSessionManager().insert("Event.insertEvent", serverEvent);
+            SqlConfig.getInstance().getSqlSessionManager().insert("Event.insertEvent", serverEvent);
         } catch (Exception e) {
             logger.error("Error adding event.", e);
         }
@@ -155,7 +155,7 @@ public class DefaultEventController extends EventController {
     @Override
     public Integer getMaxEventId() throws ControllerException {
         try {
-            return SqlConfig.getReadOnlySqlSessionManager().selectOne("Event.getMaxEventId");
+            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("Event.getMaxEventId");
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -164,7 +164,7 @@ public class DefaultEventController extends EventController {
     @Override
     public List<ServerEvent> getEvents(EventFilter filter, Integer offset, Integer limit) throws ControllerException {
         try {
-            return SqlConfig.getReadOnlySqlSessionManager().selectList("Event.searchEvents", getParameters(filter, offset, limit));
+            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Event.searchEvents", getParameters(filter, offset, limit));
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -172,7 +172,7 @@ public class DefaultEventController extends EventController {
 
     @Override
     public Long getEventCount(EventFilter filter) throws ControllerException {
-        return SqlConfig.getReadOnlySqlSessionManager().selectOne("Event.searchEventsCount", getParameters(filter, null, null));
+        return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("Event.searchEventsCount", getParameters(filter, null, null));
     }
 
     @Override
@@ -180,10 +180,10 @@ public class DefaultEventController extends EventController {
         logger.debug("removing all events");
 
         try {
-            SqlConfig.getSqlSessionManager().delete("Event.deleteAllEvents");
+            SqlConfig.getInstance().getSqlSessionManager().delete("Event.deleteAllEvents");
 
             if (DatabaseUtil.statementExists("Event.vacuumEventTable")) {
-                SqlConfig.getSqlSessionManager().update("Event.vacuumEventTable");
+                SqlConfig.getInstance().getSqlSessionManager().update("Event.vacuumEventTable");
             }
         } catch (PersistenceException e) {
             throw new ControllerException("Error removing all events.", e);

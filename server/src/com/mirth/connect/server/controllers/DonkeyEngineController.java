@@ -185,8 +185,13 @@ public class DonkeyEngineController implements EngineController {
     protected DonkeyEngineController() {}
 
     @Override
-    public void initEngine() throws StartException, ControllerException {
-        logger.debug("initializing donkey dao factory");
+    public void startEngine() throws StartException, StopException, ControllerException, InterruptedException {
+        logger.debug("starting donkey engine");
+
+        Integer queueBufferSize = configurationController.getServerSettings().getQueueBufferSize();
+        if (queueBufferSize != null && queueBufferSize > 0) {
+            this.queueBufferSize.set(queueBufferSize);
+        }
 
         final Encryptor encryptor = configurationController.getEncryptor();
 
@@ -213,19 +218,7 @@ public class DonkeyEngineController implements EngineController {
         Properties donkeyProperties = configurationController.getDatabaseSettings().getProperties();
         donkeyProperties.setProperty("donkey.statsupdateinterval", String.valueOf(configurationController.getStatsUpdateInterval()));
 
-        donkey.initEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), donkeyProperties, donkeyEncryptor, eventDispatcher, configurationController.getServerId()));
-    }
-
-    @Override
-    public void startEngine() throws StartException, StopException, ControllerException, InterruptedException {
-        logger.debug("starting donkey engine");
-
-        Integer queueBufferSize = configurationController.getServerSettings().getQueueBufferSize();
-        if (queueBufferSize != null && queueBufferSize > 0) {
-            this.queueBufferSize.set(queueBufferSize);
-        }
-
-        donkey.startEngine();
+        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), donkeyProperties, donkeyEncryptor, eventDispatcher, configurationController.getServerId()));
     }
 
     @Override

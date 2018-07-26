@@ -31,7 +31,7 @@ public class DatabaseUtil {
     private static Logger logger = Logger.getLogger(DatabaseUtil.class);
 
     public static void executeScript(String script, boolean ignoreErrors) throws Exception {
-        SqlSessionManager sqlSessionManger = SqlConfig.getSqlSessionManager();
+        SqlSessionManager sqlSessionManger = SqlConfig.getInstance().getSqlSessionManager();
 
         Connection conn = null;
         ResultSet resultSet = null;
@@ -93,7 +93,7 @@ public class DatabaseUtil {
     }
 
     public static void executeScript(List<String> script, boolean ignoreErrors) throws Exception {
-        SqlSessionManager sqlSessionManger = SqlConfig.getSqlSessionManager();
+        SqlSessionManager sqlSessionManger = SqlConfig.getInstance().getSqlSessionManager();
 
         Connection conn = null;
         ResultSet resultSet = null;
@@ -144,7 +144,7 @@ public class DatabaseUtil {
      */
     public static boolean statementExists(String statement) {
         try {
-            SqlConfig.getSqlSessionManager().getConfiguration().getMappedStatement(statement);
+            SqlConfig.getInstance().getSqlSessionManager().getConfiguration().getMappedStatement(statement);
         } catch (IllegalArgumentException e) {
             // The statement does not exist
             return false;

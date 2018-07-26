@@ -138,7 +138,7 @@ public class DefaultAlertController extends AlertController {
         StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readLock();
         try {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-            List<Map<String, Object>> rows = SqlConfig.getReadOnlySqlSessionManager().selectList("Alert.getAlert", alertId);
+            List<Map<String, Object>> rows = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Alert.getAlert", alertId);
 
             if (!rows.isEmpty()) {
                 try {
@@ -163,7 +163,7 @@ public class DefaultAlertController extends AlertController {
         StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readLock();
         try {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-            List<Map<String, Object>> rows = SqlConfig.getReadOnlySqlSessionManager().selectList("Alert.getAlert", null);
+            List<Map<String, Object>> rows = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Alert.getAlert", null);
             List<AlertModel> alerts = new ArrayList<AlertModel>();
 
             for (Map<String, Object> row : rows) {
@@ -196,14 +196,14 @@ public class DefaultAlertController extends AlertController {
                 params.put("id", alert.getId());
                 params.put("name", alert.getName());
 
-                if ((Boolean) SqlConfig.getSqlSessionManager().selectOne("Alert.getAlertNameExists", params)) {
+                if ((Boolean) SqlConfig.getInstance().getSqlSessionManager().selectOne("Alert.getAlertNameExists", params)) {
                     throw new ControllerException("An alert with that name already exists.");
                 }
             }
 
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
-            boolean alertExists = CollectionUtils.isNotEmpty(SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", alert.getId()));
+            boolean alertExists = CollectionUtils.isNotEmpty(SqlConfig.getInstance().getSqlSessionManager().selectList("Alert.getAlert", alert.getId()));
             Map<String, Object> params = new HashMap<String, Object>();
 
             params.put("id", alert.getId());
@@ -214,10 +214,10 @@ public class DefaultAlertController extends AlertController {
                 disableAlert(alert.getId());
 
                 logger.debug("updating alert");
-                SqlConfig.getSqlSessionManager().update("Alert.updateAlert", params);
+                SqlConfig.getInstance().getSqlSessionManager().update("Alert.updateAlert", params);
             } else {
                 logger.debug("adding alert");
-                SqlConfig.getSqlSessionManager().insert("Alert.insertAlert", params);
+                SqlConfig.getInstance().getSqlSessionManager().insert("Alert.insertAlert", params);
             }
 
             if (alert.isEnabled()) {
@@ -240,7 +240,7 @@ public class DefaultAlertController extends AlertController {
                 disableAlert(alertId);
 
                 // Delete the alert record from the "alert" table
-                SqlConfig.getSqlSessionManager().delete("Alert.deleteAlert", alertId);
+                SqlConfig.getInstance().getSqlSessionManager().delete("Alert.deleteAlert", alertId);
 
                 if (DatabaseUtil.statementExists("Alert.vacuumAlertTable")) {
                     vacuumAlertTable();
@@ -259,7 +259,7 @@ public class DefaultAlertController extends AlertController {
     public void vacuumAlertTable() {
         SqlSession session = null;
         try {
-            session = SqlConfig.getSqlSessionManager().openSession(false);
+            session = SqlConfig.getInstance().getSqlSessionManager().openSession(false);
             if (DatabaseUtil.statementExists("Alert.lockAlertTable")) {
                 session.update("Alert.lockAlertTable");
             }
