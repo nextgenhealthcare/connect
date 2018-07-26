@@ -29,7 +29,7 @@ import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class DefaultScriptController extends ScriptController {
-    private static final String VACUUM_LOCK_SCRIPT_STATEMENT_ID = "Script.vacuumScriptTable";
+    public static final String VACUUM_LOCK_SCRIPT_STATEMENT_ID = "Script.vacuumScriptTable";
 
     private Logger logger = Logger.getLogger(this.getClass());
     private static ScriptController instance = null;

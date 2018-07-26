@@ -36,7 +36,7 @@ import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.StatementLock;
 
 public class DefaultAlertController extends AlertController {
-    private static final String VACUUM_LOCK_ALERT_STATEMENT_ID = "Alert.vacuumAlertTable";
+    public static final String VACUUM_LOCK_ALERT_STATEMENT_ID = "Alert.vacuumAlertTable";
 
     private Logger logger = Logger.getLogger(this.getClass());
 
