@@ -68,7 +68,7 @@ public class DefaultUserController extends UserController {
     public void resetUserStatus() {
         StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
-            SqlConfig.getSqlSessionManager().update("User.resetUserStatus");
+            SqlConfig.getInstance().getSqlSessionManager().update("User.resetUserStatus");
         } catch (PersistenceException e) {
             logger.error("Could not reset user status.");
         } finally {
@@ -81,7 +81,7 @@ public class DefaultUserController extends UserController {
 
         StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
-            return SqlConfig.getReadOnlySqlSessionManager().selectList("User.getUser");
+            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("User.getUser");
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         } finally {
@@ -101,7 +101,7 @@ public class DefaultUserController extends UserController {
             User user = new User();
             user.setId(userId);
             user.setUsername(userName);
-            return SqlConfig.getReadOnlySqlSessionManager().selectOne("User.getUser", user);
+            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("User.getUser", user);
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         } finally {
@@ -120,7 +120,7 @@ public class DefaultUserController extends UserController {
                 }
 
                 logger.debug("adding user: " + user);
-                SqlConfig.getSqlSessionManager().insert("User.insertUser", getUserMap(user));
+                SqlConfig.getInstance().getSqlSessionManager().insert("User.insertUser", getUserMap(user));
             } else {
                 if (existingUserByName != null && !user.getId().equals(existingUserByName.getId())) {
                     throw new ControllerException("Error updating user: username must be unique");
@@ -133,7 +133,7 @@ public class DefaultUserController extends UserController {
                 String currentUsername = existingUserById.getUsername();
 
                 logger.debug("updating user: " + user);
-                SqlConfig.getSqlSessionManager().update("User.updateUser", getUserMap(user));
+                SqlConfig.getInstance().getSqlSessionManager().update("User.updateUser", getUserMap(user));
 
                 // Notify the authorization controller if the username changed
                 if (!StringUtils.equals(currentUsername, user.getUsername())) {
@@ -175,7 +175,7 @@ public class DefaultUserController extends UserController {
                 userDateMap.put("pruneDate", pruneDate);
 
                 try {
-                    SqlConfig.getSqlSessionManager().delete("User.prunePasswords", userDateMap);
+                    SqlConfig.getInstance().getSqlSessionManager().delete("User.prunePasswords", userDateMap);
                 } catch (Exception e) {
                     // Don't abort changing the password if pruning fails.
                     logger.error("There was an error pruning passwords for user id: " + userId, e);
@@ -186,8 +186,8 @@ public class DefaultUserController extends UserController {
             userPasswordMap.put("id", userId);
             userPasswordMap.put("password", digester.digest(plainPassword));
             userPasswordMap.put("passwordDate", Calendar.getInstance());
-            SqlConfig.getSqlSessionManager().insert("User.updateUserPassword", userPasswordMap);
-            SqlConfig.getSqlSessionManager().update("User.clearGracePeriod", userId);
+            SqlConfig.getInstance().getSqlSessionManager().insert("User.updateUserPassword", userPasswordMap);
+            SqlConfig.getInstance().getSqlSessionManager().update("User.clearGracePeriod", userId);
 
             return null;
         } catch (PersistenceException e) {
@@ -212,7 +212,7 @@ public class DefaultUserController extends UserController {
         try {
             User user = new User();
             user.setId(userId);
-            SqlConfig.getSqlSessionManager().delete("User.deleteUser", user);
+            SqlConfig.getInstance().getSqlSessionManager().delete("User.deleteUser", user);
 
             if (DatabaseUtil.statementExists("User.vacuumPersonTable")) {
                 vacuumPersonTable();
@@ -230,7 +230,7 @@ public class DefaultUserController extends UserController {
     public void vacuumPersonTable() {
         SqlSession session = null;
         try {
-            session = SqlConfig.getSqlSessionManager().openSession(false);
+            session = SqlConfig.getInstance().getSqlSessionManager().openSession(false);
             if (DatabaseUtil.statementExists("User.lockPersonTable")) {
                 session.update("User.lockPersonTable");
             }
@@ -251,7 +251,7 @@ public class DefaultUserController extends UserController {
     public void vacuumPersonPreferencesTable() {
         SqlSession session = null;
         try {
-            session = SqlConfig.getSqlSessionManager().openSession(false);
+            session = SqlConfig.getInstance().getSqlSessionManager().openSession(false);
             if (DatabaseUtil.statementExists("User.lockPersonPreferencesTable")) {
                 session.update("User.lockPersonPreferencesTable");
             }
@@ -301,7 +301,7 @@ public class DefaultUserController extends UserController {
             Credentials credentials = null;
 
             if (validUser != null) {
-                credentials = (Credentials) SqlConfig.getReadOnlySqlSessionManager().selectOne("User.getLatestUserCredentials", validUser.getId());
+                credentials = (Credentials) SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("User.getLatestUserCredentials", validUser.getId());
 
                 if (credentials != null) {
                     if (Pre22PasswordChecker.isPre22Hash(credentials.getPassword())) {
@@ -341,7 +341,7 @@ public class DefaultUserController extends UserController {
                                 gracePeriodMap.put("id", validUser.getId());
                                 gracePeriodMap.put("gracePeriodStart", Calendar.getInstance());
 
-                                SqlConfig.getSqlSessionManager().update("User.startGracePeriod", gracePeriodMap);
+                                SqlConfig.getInstance().getSqlSessionManager().update("User.startGracePeriod", gracePeriodMap);
                             } else {
                                 gracePeriodStartTime = validUser.getGracePeriodStart().getTimeInMillis();
                             }
@@ -363,7 +363,7 @@ public class DefaultUserController extends UserController {
                          * before grace periods are disabled.
                          */
                         if ((passwordRequirements.getGracePeriod() <= 0) && (validUser.getGracePeriodStart() != null)) {
-                            SqlConfig.getSqlSessionManager().update("User.clearGracePeriod", validUser.getId());
+                            SqlConfig.getInstance().getSqlSessionManager().update("User.clearGracePeriod", validUser.getId());
                         }
                     }
                 }
@@ -375,7 +375,7 @@ public class DefaultUserController extends UserController {
 
                     // Clear the user's grace period if one exists
                     if (validUser.getGracePeriodStart() != null) {
-                        SqlConfig.getSqlSessionManager().update("User.clearGracePeriod", validUser.getId());
+                        SqlConfig.getInstance().getSqlSessionManager().update("User.clearGracePeriod", validUser.getId());
                     }
                 }
             } else {
@@ -407,7 +407,7 @@ public class DefaultUserController extends UserController {
             params.put("id", user.getId());
             params.put("lastLogin", Calendar.getInstance());
 
-            SqlConfig.getSqlSessionManager().update("User.loginUser", params);
+            SqlConfig.getInstance().getSqlSessionManager().update("User.loginUser", params);
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
@@ -418,7 +418,7 @@ public class DefaultUserController extends UserController {
     public void logoutUser(User user) throws ControllerException {
         StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
-            SqlConfig.getSqlSessionManager().update("User.logoutUser", user.getId());
+            SqlConfig.getInstance().getSqlSessionManager().update("User.logoutUser", user.getId());
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
@@ -429,7 +429,7 @@ public class DefaultUserController extends UserController {
     public boolean isUserLoggedIn(Integer userId) throws ControllerException {
         StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
-            return (Boolean) SqlConfig.getReadOnlySqlSessionManager().selectOne("User.isUserLoggedIn", userId);
+            return (Boolean) SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("User.isUserLoggedIn", userId);
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
@@ -458,7 +458,7 @@ public class DefaultUserController extends UserController {
     @Override
     public List<Credentials> getUserCredentials(Integer userId) throws ControllerException {
         try {
-            return SqlConfig.getReadOnlySqlSessionManager().selectList("User.getUserCredentials", userId);
+            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("User.getUserCredentials", userId);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -483,9 +483,9 @@ public class DefaultUserController extends UserController {
             parameterMap.put("value", value);
 
             if (getUserPreference(userId, name) == null) {
-                SqlConfig.getSqlSessionManager().insert("User.insertPreference", parameterMap);
+                SqlConfig.getInstance().getSqlSessionManager().insert("User.insertPreference", parameterMap);
             } else {
-                SqlConfig.getSqlSessionManager().insert("User.updatePreference", parameterMap);
+                SqlConfig.getInstance().getSqlSessionManager().insert("User.updatePreference", parameterMap);
             }
 
             if (DatabaseUtil.statementExists("User.vacuumPersonPreferencesTable")) {
@@ -505,7 +505,7 @@ public class DefaultUserController extends UserController {
 
         StatementLock.getInstance(VACUUM_LOCK_PREFERENCES_STATEMENT_ID).readLock();
         try {
-            List<KeyValuePair> result = SqlConfig.getReadOnlySqlSessionManager().selectList("User.selectPreferencesForUser", userId);
+            List<KeyValuePair> result = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("User.selectPreferencesForUser", userId);
 
             for (KeyValuePair pair : result) {
                 if (CollectionUtils.isEmpty(names) || names.contains(pair.getKey())) {
@@ -530,7 +530,7 @@ public class DefaultUserController extends UserController {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("person_id", userId);
             parameterMap.put("name", name);
-            return (String) SqlConfig.getReadOnlySqlSessionManager().selectOne("User.selectPreference", parameterMap);
+            return (String) SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("User.selectPreference", parameterMap);
         } catch (Exception e) {
             logger.warn("Could not retrieve preference: user id=" + userId + ", name=" + name, e);
         } finally {
@@ -547,7 +547,7 @@ public class DefaultUserController extends UserController {
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("person_id", id);
-            SqlConfig.getSqlSessionManager().delete("User.deletePreference", parameterMap);
+            SqlConfig.getInstance().getSqlSessionManager().delete("User.deletePreference", parameterMap);
         } catch (Exception e) {
             logger.error("Could not delete preferences: user id=" + id);
         } finally {
@@ -564,7 +564,7 @@ public class DefaultUserController extends UserController {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", id);
             parameterMap.put("name", name);
-            SqlConfig.getSqlSessionManager().delete("User.deletePreference", parameterMap);
+            SqlConfig.getInstance().getSqlSessionManager().delete("User.deletePreference", parameterMap);
         } catch (Exception e) {
             logger.error("Could not delete preference: user id=" + id + ", name=" + name, e);
         } finally {

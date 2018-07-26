@@ -204,10 +204,10 @@ public class Cache<V extends Cacheable<V>> {
     }
 
     private SqlSessionManager getSqlSessionManager() {
-        if (SqlConfig.isSplitReadWrite() && !SqlConfig.isWritePoolCache()) {
-            return SqlConfig.getReadOnlySqlSessionManager();
+        if (SqlConfig.getInstance().isSplitReadWrite() && !SqlConfig.getInstance().isWritePoolCache()) {
+            return SqlConfig.getInstance().getReadOnlySqlSessionManager();
         } else {
-            return SqlConfig.getSqlSessionManager();
+            return SqlConfig.getInstance().getSqlSessionManager();
         }
     }
 }

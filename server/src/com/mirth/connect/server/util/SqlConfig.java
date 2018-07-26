@@ -71,35 +71,19 @@ public class SqlConfig {
         init();
     }
 
-    public static SqlSessionManager getSqlSessionManager() {
-        return getInstance().getInstanceSqlSessionManager();
-    }
-
-    public SqlSessionManager getInstanceSqlSessionManager() {
+    public SqlSessionManager getSqlSessionManager() {
         return sqlSessionManager;
     }
 
-    public static SqlSessionManager getReadOnlySqlSessionManager() {
-        return getInstance().getInstanceReadOnlySqlSessionManager();
-    }
-
-    public SqlSessionManager getInstanceReadOnlySqlSessionManager() {
+    public SqlSessionManager getReadOnlySqlSessionManager() {
         return readOnlySqlSessionManager;
     }
 
-    public static boolean isSplitReadWrite() {
-        return getInstance().isInstanceSplitReadWrite();
-    }
-
-    public boolean isInstanceSplitReadWrite() {
+    public boolean isSplitReadWrite() {
         return splitReadWrite;
     }
 
-    public static boolean isWritePoolCache() {
-        return getInstance().isInstanceWritePoolCache();
-    }
-
-    public boolean isInstanceWritePoolCache() {
+    public boolean isWritePoolCache() {
         return writePoolCache;
     }
 

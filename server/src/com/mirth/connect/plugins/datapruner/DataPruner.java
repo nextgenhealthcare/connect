@@ -397,7 +397,7 @@ public class DataPruner implements Runnable {
             Calendar dateThreshold = Calendar.getInstance();
             dateThreshold.set(Calendar.DAY_OF_MONTH, dateThreshold.get(Calendar.DAY_OF_MONTH) - maxEventAge);
 
-            SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
+            SqlSession session = SqlConfig.getInstance().getSqlSessionManager().openSession(true);
 
             try {
                 Map<String, Object> params = new HashMap<String, Object>();
@@ -497,7 +497,7 @@ public class DataPruner implements Runnable {
         do {
             ThreadUtils.checkInterruptedStatus();
 
-            SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
+            SqlSession session = SqlConfig.getInstance().getSqlSessionManager().openSession(true);
 
             try {
                 params.put("minMessageId", minMessageId);
@@ -554,7 +554,7 @@ public class DataPruner implements Runnable {
                 List<Map<String, Object>> maps;
                 do {
                     ThreadUtils.checkInterruptedStatus();
-                    SqlSession session = SqlConfig.getReadOnlySqlSessionManager().openSession(true);
+                    SqlSession session = SqlConfig.getInstance().getReadOnlySqlSessionManager().openSession(true);
 
                     try {
                         params.put("minMessageId", minMessageId);
@@ -692,7 +692,7 @@ public class DataPruner implements Runnable {
     }
 
     private int runDelete(String query, Map<String, Object> params) {
-        SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
+        SqlSession session = SqlConfig.getInstance().getSqlSessionManager().openSession(true);
 
         try {
             if (DatabaseUtil.statementExists("initDataPruner", session)) {

@@ -311,7 +311,7 @@ public class DefaultChannelController extends ChannelController {
 
                         // Update the new channel in the database
                         logger.debug("updating channel");
-                        SqlConfig.getSqlSessionManager().update("Channel.updateChannel", params);
+                        SqlConfig.getInstance().getSqlSessionManager().update("Channel.updateChannel", params);
 
                         // invoke the channel plugins
                         for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
@@ -421,10 +421,10 @@ public class DefaultChannelController extends ChannelController {
             // Put the new channel in the database
             if (getChannelById(channel.getId()) == null) {
                 logger.debug("adding channel");
-                SqlConfig.getSqlSessionManager().insert("Channel.insertChannel", params);
+                SqlConfig.getInstance().getSqlSessionManager().insert("Channel.insertChannel", params);
             } else {
                 logger.debug("updating channel");
-                SqlConfig.getSqlSessionManager().update("Channel.updateChannel", params);
+                SqlConfig.getInstance().getSqlSessionManager().update("Channel.updateChannel", params);
             }
 
             // invoke the channel plugins
@@ -518,7 +518,7 @@ public class DefaultChannelController extends ChannelController {
             // Delete the "d_" tables and the channel record from "d_channels"
             com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().removeChannel(channel.getId());
             // Delete the channel record from the "channel" table
-            SqlConfig.getSqlSessionManager().delete("Channel.deleteChannel", channel.getId());
+            SqlConfig.getInstance().getSqlSessionManager().delete("Channel.deleteChannel", channel.getId());
 
             if (DatabaseUtil.statementExists("Channel.vacuumChannelTable")) {
                 vacuumChannelTable();
@@ -591,7 +591,7 @@ public class DefaultChannelController extends ChannelController {
     public void vacuumChannelTable() {
         SqlSession session = null;
         try {
-            session = SqlConfig.getSqlSessionManager().openSession(false);
+            session = SqlConfig.getInstance().getSqlSessionManager().openSession(false);
             if (DatabaseUtil.statementExists("Channel.lockChannelTable")) {
                 session.update("Channel.lockChannelTable");
             }
@@ -612,7 +612,7 @@ public class DefaultChannelController extends ChannelController {
     public void vacuumChannelGroupTable() {
         SqlSession session = null;
         try {
-            session = SqlConfig.getSqlSessionManager().openSession(false);
+            session = SqlConfig.getInstance().getSqlSessionManager().openSession(false);
             if (DatabaseUtil.statementExists("Channel.lockChannelGroupTable")) {
                 session.update("Channel.lockChannelGroupTable");
             }
@@ -631,7 +631,7 @@ public class DefaultChannelController extends ChannelController {
     public Map<String, Integer> getChannelRevisions() throws ControllerException {
         StatementLock.getInstance(VACUUM_LOCK_CHANNEL_STATEMENT_ID).readLock();
         try {
-            List<Map<String, Object>> results = SqlConfig.getReadOnlySqlSessionManager().selectList("Channel.getChannelRevision");
+            List<Map<String, Object>> results = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Channel.getChannelRevision");
 
             Map<String, Integer> channelRevisions = new HashMap<String, Integer>();
             for (Map<String, Object> result : results) {
@@ -872,7 +872,7 @@ public class DefaultChannelController extends ChannelController {
         StatementLock.getInstance(VACUUM_LOCK_CHANNEL_GROUP_STATEMENT_ID).readLock();
         try {
             for (ChannelGroup group : groupsToRemove) {
-                SqlConfig.getSqlSessionManager().delete("Channel.deleteChannelGroup", group.getId());
+                SqlConfig.getInstance().getSqlSessionManager().delete("Channel.deleteChannelGroup", group.getId());
             }
         } catch (Exception e) {
             throw new ControllerException(e);
@@ -908,10 +908,10 @@ public class DefaultChannelController extends ChannelController {
                     // If its a new group, insert it, otherwise, update it
                     if (channelGroupCache.getCachedItemById(group.getId()) == null) {
                         logger.debug("Inserting channel group");
-                        SqlConfig.getSqlSessionManager().insert("Channel.insertChannelGroup", params);
+                        SqlConfig.getInstance().getSqlSessionManager().insert("Channel.insertChannelGroup", params);
                     } else {
                         logger.debug("Updating channel group");
-                        SqlConfig.getSqlSessionManager().update("Channel.updateChannelGroup", params);
+                        SqlConfig.getInstance().getSqlSessionManager().update("Channel.updateChannelGroup", params);
                     }
                 }
             }

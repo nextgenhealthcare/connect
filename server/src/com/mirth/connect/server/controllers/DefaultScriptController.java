@@ -72,9 +72,9 @@ public class DefaultScriptController extends ScriptController {
             parameterMap.put("script", script);
 
             if (getScript(groupId, id) == null) {
-                SqlConfig.getSqlSessionManager().insert("Script.insertScript", parameterMap);
+                SqlConfig.getInstance().getSqlSessionManager().insert("Script.insertScript", parameterMap);
             } else {
-                SqlConfig.getSqlSessionManager().update("Script.updateScript", parameterMap);
+                SqlConfig.getInstance().getSqlSessionManager().update("Script.updateScript", parameterMap);
             }
         } catch (PersistenceException e) {
             throw new ControllerException(e);
@@ -99,7 +99,7 @@ public class DefaultScriptController extends ScriptController {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("groupId", groupId);
             parameterMap.put("id", id);
-            return (String) SqlConfig.getReadOnlySqlSessionManager().selectOne("Script.getScript", parameterMap);
+            return (String) SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("Script.getScript", parameterMap);
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         } finally {
@@ -116,7 +116,7 @@ public class DefaultScriptController extends ScriptController {
 
         StatementLock.getInstance(VACUUM_LOCK_SCRIPT_STATEMENT_ID).writeLock();
         try {
-            SqlConfig.getSqlSessionManager().delete("Script.deleteScript", parameterMap);
+            SqlConfig.getInstance().getSqlSessionManager().delete("Script.deleteScript", parameterMap);
 
             if (DatabaseUtil.statementExists("Script.vacuumScriptTable")) {
                 vacuumScriptTable();
@@ -134,7 +134,7 @@ public class DefaultScriptController extends ScriptController {
     public void vacuumScriptTable() {
         SqlSession session = null;
         try {
-            session = SqlConfig.getSqlSessionManager().openSession(false);
+            session = SqlConfig.getInstance().getSqlSessionManager().openSession(false);
             if (DatabaseUtil.statementExists("Script.lockScriptTable")) {
                 session.update("Script.lockScriptTable");
             }

@@ -733,7 +733,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
         try {
-            List<KeyValuePair> result = SqlConfig.getReadOnlySqlSessionManager().selectList("Configuration.selectPropertiesForCategory", category);
+            List<KeyValuePair> result = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Configuration.selectPropertiesForCategory", category);
 
             for (KeyValuePair pair : result) {
                 properties.setProperty(pair.getKey(), StringUtils.defaultString(pair.getValue()));
@@ -754,7 +754,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
-            SqlConfig.getSqlSessionManager().delete("Configuration.deleteProperty", parameterMap);
+            SqlConfig.getInstance().getSqlSessionManager().delete("Configuration.deleteProperty", parameterMap);
         } catch (Exception e) {
             logger.error("Could not delete properties: category=" + category);
         } finally {
@@ -771,7 +771,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
             parameterMap.put("name", name);
-            return (String) SqlConfig.getReadOnlySqlSessionManager().selectOne("Configuration.selectProperty", parameterMap);
+            return (String) SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("Configuration.selectProperty", parameterMap);
         } catch (Exception e) {
             logger.error("Could not retrieve property: category=" + category + ", name=" + name, e);
         } finally {
@@ -793,9 +793,9 @@ public class DefaultConfigurationController extends ConfigurationController {
             parameterMap.put("value", value);
 
             if (getProperty(category, name) == null) {
-                SqlConfig.getSqlSessionManager().insert("Configuration.insertProperty", parameterMap);
+                SqlConfig.getInstance().getSqlSessionManager().insert("Configuration.insertProperty", parameterMap);
             } else {
-                SqlConfig.getSqlSessionManager().insert("Configuration.updateProperty", parameterMap);
+                SqlConfig.getInstance().getSqlSessionManager().insert("Configuration.updateProperty", parameterMap);
             }
 
             if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
@@ -814,7 +814,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public void vacuumConfigurationTable() {
         SqlSession session = null;
         try {
-            session = SqlConfig.getSqlSessionManager().openSession(false);
+            session = SqlConfig.getInstance().getSqlSessionManager().openSession(false);
             if (DatabaseUtil.statementExists("Configuration.lockConfigurationTable")) {
                 session.update("Configuration.lockConfigurationTable");
             }
@@ -838,7 +838,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
             parameterMap.put("name", name);
-            SqlConfig.getSqlSessionManager().delete("Configuration.deleteProperty", parameterMap);
+            SqlConfig.getInstance().getSqlSessionManager().delete("Configuration.deleteProperty", parameterMap);
         } catch (Exception e) {
             logger.error("Could not delete property: category=" + category + ", name=" + name, e);
         } finally {
@@ -1239,7 +1239,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             return false;
         }
 
-        if (SqlConfig.isSplitReadWrite()) {
+        if (SqlConfig.getInstance().isSplitReadWrite()) {
             return testDatabase(true);
         }
 
@@ -1249,7 +1249,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private boolean testDatabase(boolean readOnly) {
         Statement statement = null;
         Connection connection = null;
-        SqlSessionManager manager = (readOnly ? SqlConfig.getReadOnlySqlSessionManager() : SqlConfig.getSqlSessionManager());
+        SqlSessionManager manager = (readOnly ? SqlConfig.getInstance().getReadOnlySqlSessionManager() : SqlConfig.getInstance().getSqlSessionManager());
         manager.startManagedSession();
 
         try {
