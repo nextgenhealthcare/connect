@@ -100,7 +100,7 @@ public class DonkeyConnectionPools {
         }
     }
 
-    protected ConnectionPool createConnectionPool(String database, String driver, String url, String username, String password, String pool, boolean jdbc4, String testQuery, int maxConnections, boolean readOnly) throws Exception {
+    public ConnectionPool createConnectionPool(String database, String driver, String url, String username, String password, String pool, boolean jdbc4, String testQuery, int maxConnections, boolean readOnly) throws Exception {
         if (driver != null) {
             Class.forName(driver);
         }

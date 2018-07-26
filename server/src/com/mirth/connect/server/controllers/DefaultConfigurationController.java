@@ -133,7 +133,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public static final String PROPERTIES_CHANNEL_METADATA = "channelMetadata";
     public static final String PROPERTIES_CHANNEL_TAGS = "channelTags";
     public static final String SECRET_KEY_ALIAS = "encryption";
-    private static final String VACUUM_LOCK_STATEMENT_ID = "Configuration.vacuumConfigurationTable";
+    public static final String VACUUM_LOCK_STATEMENT_ID = "Configuration.vacuumConfigurationTable";
 
     private Logger logger = Logger.getLogger(this.getClass());
     private String appDataDir = null;
