@@ -241,6 +241,10 @@ public class Frame extends JXFrame {
         taskPaneContainer = new JXTaskPaneContainer();
 
         StringBuilder titleText = new StringBuilder();
+        
+        if (!StringUtils.isBlank(PlatformUI.ENVIRONMENT_NAME)) {
+            titleText.append(PlatformUI.ENVIRONMENT_NAME + " - ");
+        }
 
         if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
             titleText.append(PlatformUI.SERVER_NAME);

@@ -22,6 +22,7 @@ public class PlatformUI {
 
     public static Frame MIRTH_FRAME;
     public static ImageIcon BACKGROUND_IMAGE;
+    public static String ENVIRONMENT_NAME;
     public static String SERVER_NAME;
     public static String SERVER_URL;
     public static String SERVER_ID;

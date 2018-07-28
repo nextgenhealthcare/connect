@@ -174,6 +174,7 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
     public String toAuditString() {
         StringBuilder builder = new StringBuilder();
         builder.append(getClass().getName()).append('[');
+        builder.append("environmentName=").append(serverSettings.getEnvironmentName()).append(", ");
         builder.append("serverName=").append(serverSettings.getServerName()).append(", ");
         builder.append("date=").append(date).append(", ");
         builder.append("Number of channels=").append(CollectionUtils.size(channels)).append(", ");

@@ -36,7 +36,15 @@ public class StatusBar extends javax.swing.JPanel {
         workingText.setText("");
         StringBuilder statusBarText = new StringBuilder();
         statusBarText.append("Connected to: ");
-
+        
+        if (!StringUtils.isBlank(PlatformUI.ENVIRONMENT_NAME)) {
+            statusBarText.append(PlatformUI.ENVIRONMENT_NAME);
+            if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
+                statusBarText.append(" - ");
+            } else {
+                statusBarText.append(" | ");
+            }
+        }
         if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
             statusBarText.append(PlatformUI.SERVER_NAME + " | ");
         }

@@ -42,6 +42,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     private static final String SMTP_PASSWORD = "smtp.password";
 
     // General
+    private String environmentName;
     private String serverName;
     private Boolean clearGlobalMap;
     private Integer queueBufferSize;
@@ -61,7 +62,8 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     }
 
-    public ServerSettings(String serverName, Properties properties) {
+    public ServerSettings(String environmentName, String serverName, Properties properties) {
+        setEnvironmentName(environmentName);
         setServerName(serverName);
         setProperties(properties);
     }
@@ -120,6 +122,14 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setSmtpAuth(intToBooleanObject(properties.getProperty(SMTP_AUTH)));
         setSmtpUsername(properties.getProperty(SMTP_USERNAME));
         setSmtpPassword(properties.getProperty(SMTP_PASSWORD));
+    }
+    
+    public String getEnvironmentName() {
+        return environmentName;
+    }
+    
+    public void setEnvironmentName(String environmentName) {
+        this.environmentName = environmentName;
     }
 
     public String getServerName() {
