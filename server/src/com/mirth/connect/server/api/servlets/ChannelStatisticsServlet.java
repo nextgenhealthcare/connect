@@ -37,12 +37,24 @@ import com.mirth.connect.server.controllers.EngineController;
 
 public class ChannelStatisticsServlet extends MirthServlet implements ChannelStatisticsServletInterface {
 
-    private static final ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-    private static final EngineController engineController = ControllerFactory.getFactory().createEngineController();
-    private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private static ChannelController channelController;
+    private static EngineController engineController;
+    private static ConfigurationController configurationController;
 
     public ChannelStatisticsServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
+    }
+    
+    public ChannelStatisticsServlet(@Context HttpServletRequest request, @Context SecurityContext sc, ControllerFactory controllerFactory) {
+        super(request, sc, controllerFactory);
+    }
+    
+    @Override
+    protected void initializeControllers() {
+        super.initializeControllers();
+        channelController = controllerFactory.createChannelController();
+        engineController = controllerFactory.createEngineController();
+        configurationController = controllerFactory.createConfigurationController();
     }
 
     @Override

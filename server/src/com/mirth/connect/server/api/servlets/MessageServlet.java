@@ -63,11 +63,22 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 public class MessageServlet extends MirthServlet implements MessageServletInterface {
 
     private static final Logger logger = Logger.getLogger(MessageServlet.class);
-    private static final MessageController messageController = ControllerFactory.getFactory().createMessageController();
-    private static final EngineController engineController = ControllerFactory.getFactory().createEngineController();
+    private static MessageController messageController;
+    private static EngineController engineController;
 
     public MessageServlet(@Context HttpServletRequest request, @Context ContainerRequestContext containerRequestContext, @Context SecurityContext sc) {
         super(request, containerRequestContext, sc);
+    }
+    
+    public MessageServlet(@Context HttpServletRequest request, @Context ContainerRequestContext containerRequestContext, @Context SecurityContext sc, ControllerFactory controllerFactory) {
+        super(request, containerRequestContext, sc, controllerFactory);
+    }
+
+    @Override
+    protected void initializeControllers() {
+        super.initializeControllers();
+        messageController = controllerFactory.createMessageController();
+        engineController = controllerFactory.createEngineController();
     }
 
     @Override
@@ -249,7 +260,7 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     
     private void checkClearStatisticsAuthorization() {
         try {
-            ChannelStatisticsServlet channelStatsServlet = new ChannelStatisticsServlet(request, sc);
+            ChannelStatisticsServlet channelStatsServlet = new ChannelStatisticsServlet(request, sc, controllerFactory);
             Method matchingMethod = (ChannelStatisticsServlet.class).getMethod("clearStatistics", Map.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE);
             Operation operation = OperationUtil.getOperation(ChannelStatisticsServletInterface.class, matchingMethod);
             channelStatsServlet.setOperation(operation);

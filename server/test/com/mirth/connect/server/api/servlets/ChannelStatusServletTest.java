@@ -32,9 +32,6 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
 import com.google.common.collect.Sets;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.ChannelTag;
@@ -109,15 +106,6 @@ public class ChannelStatusServletTest {
         when(authorizationController.isUserAuthorized(anyInt(), any(Operation.class), any(Map.class), anyString(), anyBoolean())).thenReturn(true);
         when(controllerFactory.createAuthorizationController()).thenReturn(authorizationController);
 
-        Injector injector = Guice.createInjector(new AbstractModule() {
-            @Override
-            protected void configure() {
-                requestStaticInjection(ControllerFactory.class);
-                bind(ControllerFactory.class).toInstance(controllerFactory);
-            }
-        });
-        injector.getInstance(ControllerFactory.class);
-
         session = mock(HttpSession.class);
         when(session.getAttribute("user")).thenReturn("1");
         when(session.getAttribute("authorized")).thenReturn(Boolean.TRUE);
@@ -164,7 +152,7 @@ public class ChannelStatusServletTest {
         when(request.getSession()).thenReturn(session);
 
         SecurityContext sc = mock(SecurityContext.class);
-        ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc);
+        ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc, controllerFactory);
         // don't need to pass in list, engineController.getChannelStatusList() has been mocked to return a list of DashboardStatus, which we will filter on
         List<DashboardStatus> statusList = servlet.getChannelStatusList(null, "Name:Three", true);
         assertEquals(1, statusList.size());
@@ -188,7 +176,7 @@ public class ChannelStatusServletTest {
         when(request.getSession()).thenReturn(session);
 
         SecurityContext sc = mock(SecurityContext.class);
-        ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc);
+        ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc, controllerFactory);
         // don't need to pass in list, engineController.getChannelStatusList() has been mocked to return a list of DashboardStatus, which we will filter on
         List<DashboardStatus> statusList = servlet.getChannelStatusList(null, null, true);
 
@@ -204,7 +192,7 @@ public class ChannelStatusServletTest {
 
     @Test
     public void testGetChannelStatusListFilterByTag() throws Exception {
-        ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc);
+        ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc, controllerFactory);
         // don't need to pass in list, engineController.getChannelStatusList() has been mocked to return a list of DashboardStatus, which we will filter on
         List<DashboardStatus> statusList = servlet.getChannelStatusList(null, "Tag:Tag3", true);
         // statusList == [{Dashboard Status with ID = "3"}, {Dashboard Status with ID = "4"}]
@@ -223,7 +211,7 @@ public class ChannelStatusServletTest {
 
     @Test
     public void testGetDashboardChannelInfo() throws Exception {
-        ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc);
+        ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc, controllerFactory);
         DashboardChannelInfo dashboardChannelInfo = servlet.getDashboardChannelInfo(1, "Tag:Tag3");
         // dashboardChannelInfo.getDeployedChannelCount() == 3
         assertEquals(3, dashboardChannelInfo.getDeployedChannelCount());

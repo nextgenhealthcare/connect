@@ -59,9 +59,10 @@ public abstract class MirthServlet {
     protected Map<String, Object> parameterMap;
     protected boolean userHasChannelRestrictions;
 
-    private static final UserController userController = ControllerFactory.getFactory().createUserController();
-    private static final AuthorizationController authorizationController = ControllerFactory.getFactory().createAuthorizationController();
-    private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    protected ControllerFactory controllerFactory;
+    private static UserController userController;
+    private static AuthorizationController authorizationController;
+    private static ConfigurationController configurationController;
 
     private List<String> authorizedChannelIds;
     private String extensionName;
@@ -71,9 +72,17 @@ public abstract class MirthServlet {
     public MirthServlet(HttpServletRequest request, SecurityContext sc) {
         this(request, null, sc);
     }
+    
+    public MirthServlet(HttpServletRequest request, SecurityContext sc, ControllerFactory controllerFactory) {
+        this(request, null, sc, controllerFactory);
+    }
 
     public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc) {
         this(request, containerRequestContext, sc, true);
+    }
+    
+    public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, ControllerFactory controllerFactory) {
+        this(request, containerRequestContext, sc, true, controllerFactory);
     }
 
     public MirthServlet(HttpServletRequest request, SecurityContext sc, boolean initLogin) {
@@ -82,6 +91,10 @@ public abstract class MirthServlet {
 
     public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, boolean initLogin) {
         this(request, containerRequestContext, sc, null, initLogin);
+    }
+    
+    public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, boolean initLogin, ControllerFactory controllerFactory) {
+        this(request, containerRequestContext, sc, null, initLogin, controllerFactory);
     }
 
     public MirthServlet(HttpServletRequest request, SecurityContext sc, String extensionName) {
@@ -97,6 +110,12 @@ public abstract class MirthServlet {
     }
 
     public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, String extensionName, boolean initLogin) {
+        this(request, containerRequestContext, sc, extensionName, initLogin, ControllerFactory.getFactory());
+    }
+    
+    public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, String extensionName, boolean initLogin, ControllerFactory controllerFactory) {
+        this.controllerFactory = controllerFactory;
+        initializeControllers();
         this.request = request;
         this.containerRequestContext = containerRequestContext;
         this.sc = sc;
@@ -105,6 +124,12 @@ public abstract class MirthServlet {
         if (initLogin) {
             initLogin();
         }
+    }
+    
+    protected void initializeControllers() {
+        userController = controllerFactory.createUserController();
+        authorizationController = controllerFactory.createAuthorizationController();
+        configurationController = controllerFactory.createConfigurationController();
     }
 
     protected void initLogin() {

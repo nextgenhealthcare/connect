@@ -41,11 +41,22 @@ import com.mirth.connect.server.controllers.EngineController;
 
 public class ChannelStatusServlet extends MirthServlet implements ChannelStatusServletInterface {
 
-    private static final EngineController engineController = ControllerFactory.getFactory().createEngineController();
-    private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private static EngineController engineController;
+    private static ConfigurationController configurationController;
 
     public ChannelStatusServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
+    }
+    
+    public ChannelStatusServlet(@Context HttpServletRequest request, @Context SecurityContext sc, ControllerFactory controllerFactory) {
+        super(request, sc, controllerFactory);
+    }
+    
+    @Override
+    protected void initializeControllers() {
+        super.initializeControllers();
+        engineController = controllerFactory.createEngineController();
+        configurationController = controllerFactory.createConfigurationController();
     }
 
     @Override
