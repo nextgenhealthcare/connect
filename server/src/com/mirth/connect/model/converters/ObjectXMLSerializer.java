@@ -174,7 +174,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     }
 
     /**
-     * Warning: this menthod is not called by the CLI project, so any channels that contain extension models that use @XStreamAlias will fail to be deserialized by CLI.
+     * Warning: this method is not called by the CLI project, so any channels that contain extension models that use @XStreamAlias will fail to be deserialized by CLI.
      * Leave @XStreamAlias off and the object can be used by CLI.
      * @param classes
      */
