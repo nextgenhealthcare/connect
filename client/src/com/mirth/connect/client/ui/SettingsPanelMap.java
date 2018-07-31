@@ -306,7 +306,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         setLayout(new MigLayout("insets 12, fill"));
         
-        showValuesLabel = new JLabel("Show values:");
+        showValuesLabel = new JLabel("Show values");
         showValuesCheckbox = new JCheckBox();
         String tooltip = "If enabled, values in the table will be shown.";
         showValuesCheckbox.setToolTipText(tooltip);
@@ -408,8 +408,8 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         
         JPanel showValuesPanel = new JPanel();
         showValuesPanel.setBackground(Color.WHITE);
-        showValuesPanel.add(showValuesLabel);
         showValuesPanel.add(showValuesCheckbox);
+        showValuesPanel.add(showValuesLabel);
         configurationMapPanel.add(showValuesPanel, "wrap");
         
         JPanel configurationMapSubPanel = new JPanel();
