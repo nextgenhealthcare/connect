@@ -35,6 +35,7 @@ import com.mirth.connect.model.filter.SearchFilterParser;
 import com.mirth.connect.server.api.CheckAuthorizedChannelId;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.channel.ErrorTaskHandler;
+import com.mirth.connect.server.controllers.ChannelAuthorizer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
@@ -47,11 +48,11 @@ public class ChannelStatusServlet extends MirthServlet implements ChannelStatusS
     public ChannelStatusServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
     }
-    
+
     public ChannelStatusServlet(@Context HttpServletRequest request, @Context SecurityContext sc, ControllerFactory controllerFactory) {
         super(request, sc, controllerFactory);
     }
-    
+
     @Override
     protected void initializeControllers() {
         super.initializeControllers();
@@ -284,13 +285,13 @@ public class ChannelStatusServlet extends MirthServlet implements ChannelStatusS
         }
     }
 
-    private List<DashboardStatus> redactChannelStatuses(List<DashboardStatus> channelStatuses) {
-        if (userHasChannelRestrictions) {
-            List<String> authorizedChannelIds = getAuthorizedChannelIds();
+    List<DashboardStatus> redactChannelStatuses(List<DashboardStatus> channelStatuses) {
+        if (doesUserHaveChannelRestrictions()) {
+            ChannelAuthorizer channelAuthorizer = getChannelAuthorizer();
             List<DashboardStatus> authorizedStatuses = new ArrayList<DashboardStatus>();
 
             for (DashboardStatus status : channelStatuses) {
-                if (authorizedChannelIds.contains(status.getChannelId())) {
+                if (channelAuthorizer.isChannelAuthorized(status.getChannelId())) {
                     authorizedStatuses.add(status);
                 }
             }
@@ -301,13 +302,13 @@ public class ChannelStatusServlet extends MirthServlet implements ChannelStatusS
         }
     }
 
-    private Map<String, List<Integer>> redactConnectorInfo(Map<String, List<Integer>> connectorInfo) {
-        if (userHasChannelRestrictions) {
-            List<String> authorizedChannelIds = getAuthorizedChannelIds();
+    Map<String, List<Integer>> redactConnectorInfo(Map<String, List<Integer>> connectorInfo) {
+        if (doesUserHaveChannelRestrictions()) {
+            ChannelAuthorizer channelAuthorizer = getChannelAuthorizer();
             Map<String, List<Integer>> finishedConnectorInfo = new HashMap<String, List<Integer>>();
 
             for (String channelId : connectorInfo.keySet()) {
-                if (authorizedChannelIds.contains(channelId)) {
+                if (channelAuthorizer.isChannelAuthorized(channelId)) {
                     finishedConnectorInfo.put(channelId, connectorInfo.get(channelId));
                 }
             }

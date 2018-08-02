@@ -11,7 +11,6 @@ package com.mirth.connect.server.api.servlets;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,16 +33,28 @@ import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.server.alert.action.ChannelProtocol;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ChannelAuthorizer;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class AlertServlet extends MirthServlet implements AlertServletInterface {
 
-    private static final AlertController alertController = ControllerFactory.getFactory().createAlertController();
-    private static final ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+    private static AlertController alertController;
+    private static ChannelController channelController;
 
     public AlertServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
+    }
+
+    public AlertServlet(@Context HttpServletRequest request, @Context SecurityContext sc, ControllerFactory controllerFactory) {
+        super(request, sc, controllerFactory);
+    }
+
+    @Override
+    protected void initializeControllers() {
+        super.initializeControllers();
+        alertController = controllerFactory.createAlertController();
+        channelController = controllerFactory.createChannelController();
     }
 
     @Override
@@ -184,15 +195,15 @@ public class AlertServlet extends MirthServlet implements AlertServletInterface 
     }
 
     private Map<String, Map<String, String>> redactProtocolOptions(Map<String, Map<String, String>> protocolOptions) {
-        if (userHasChannelRestrictions) {
+        if (doesUserHaveChannelRestrictions()) {
             Map<String, String> channelOptions = protocolOptions.get(ChannelProtocol.NAME);
 
             if (channelOptions != null) {
-                Set<String> authorizedChannelIds = new HashSet<>(getAuthorizedChannelIds());
+                ChannelAuthorizer channelAuthorizer = getChannelAuthorizer();
                 Map<String, String> authorizedChannelOptions = new HashMap<>();
 
                 for (String channelId : channelOptions.keySet()) {
-                    if (authorizedChannelIds.contains(channelId)) {
+                    if (channelAuthorizer.isChannelAuthorized(channelId)) {
                         authorizedChannelOptions.put(channelId, channelOptions.get(channelId));
                     }
                 }
