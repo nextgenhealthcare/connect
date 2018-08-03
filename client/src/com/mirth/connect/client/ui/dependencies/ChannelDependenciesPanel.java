@@ -67,7 +67,6 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
-import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
 import com.mirth.connect.util.ChannelDependencyUtil;
@@ -86,13 +85,9 @@ public class ChannelDependenciesPanel extends JPanel {
         initComponents();
         initLayout();
 
-        Map<String, ChannelStatus> channelStatusMap = PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelStatuses();
         updateAddButton();
 
-        channelNameMap = new HashMap<String, String>();
-        for (ChannelStatus channelStatus : channelStatusMap.values()) {
-            channelNameMap.put(channelStatus.getChannel().getId(), channelStatus.getChannel().getName());
-        }
+        channelNameMap = new HashMap<String, String>(PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelIdsAndNames());
         channelNameMap.put(channel.getId(), channel.getName());
 
         PlatformUI.MIRTH_FRAME.channelPanel.retrieveDependencies();
@@ -189,11 +184,11 @@ public class ChannelDependenciesPanel extends JPanel {
             ChannelDependencyGraph dependencyGraph = ChannelDependencyUtil.getDependencyGraph(dependencies);
             DirectedAcyclicGraphNode<String> node = dependencyGraph.getNode(channel.getId());
 
-            Map<String, ChannelStatus> channelStatusMap = PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelStatuses();
+            Map<String, String> channelIdsAndNames = PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelIdsAndNames();
 
-            for (ChannelStatus channelStatus : channelStatusMap.values()) {
-                String channelId = channelStatus.getChannel().getId();
-                String channelName = channelStatus.getChannel().getName();
+            for (Entry<String, String> entry : channelIdsAndNames.entrySet()) {
+                String channelId = entry.getKey();
+                String channelName = entry.getValue();
 
                 if (!StringUtils.equals(channelId, channel.getId())) {
                     boolean allowed = false;

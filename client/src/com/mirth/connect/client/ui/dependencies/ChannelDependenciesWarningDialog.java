@@ -38,7 +38,6 @@ import com.mirth.connect.client.ui.Frame.ChannelTask;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.ChannelDependency;
-import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyUtil;
@@ -148,10 +147,7 @@ public class ChannelDependenciesWarningDialog extends MirthDialog {
                         channelName = dashboardStatus.getName();
                     }
                 } else {
-                    ChannelStatus channelStatus = PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelStatuses().get(channelId);
-                    if (channelStatus != null) {
-                        channelName = channelStatus.getChannel().getName();
-                    }
+                    channelName = PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelIdsAndNames().get(channelId);
                 }
 
                 if (channelName != null) {
@@ -189,10 +185,7 @@ public class ChannelDependenciesWarningDialog extends MirthDialog {
                         channelName = dashboardStatus.getName();
                     }
                 } else {
-                    ChannelStatus channelStatus = PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelStatuses().get(channelId);
-                    if (channelStatus != null) {
-                        channelName = channelStatus.getChannel().getName();
-                    }
+                    channelName = PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelIdsAndNames().get(channelId);
                 }
 
                 if (channelName != null) {

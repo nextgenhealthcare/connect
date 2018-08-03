@@ -73,7 +73,6 @@ import com.mirth.connect.client.ui.components.tag.TagFilterCompletion;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelGroup;
-import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
@@ -266,12 +265,7 @@ public class DashboardPanel extends JPanel {
 
         updateTagButtons(userPreferences.getBoolean("showTags", true), userPreferences.getBoolean("tagTextMode", false), false);
 
-        Map<String, String> channelNameMap = new HashMap<String, String>();
-        for (ChannelStatus status : parent.channelPanel.getCachedChannelStatuses().values()) {
-            channelNameMap.put(status.getChannel().getId(), status.getChannel().getName());
-        }
-
-        updateTags(new HashSet<String>(channelNameMap.values()), true);
+        updateTags(new HashSet<String>(parent.channelPanel.getCachedChannelIdsAndNames().values()), true);
         tagField.setUserPreferenceTags();
     }
 
@@ -1265,8 +1259,8 @@ public class DashboardPanel extends JPanel {
             @Override
             public void run() {
                 /*
-                 * When setting selection paths the ListSelectionListener will be invoked
-                 * multiple times for each row, so remove and re-add it afterwards.
+                 * When setting selection paths the ListSelectionListener will be invoked multiple
+                 * times for each row, so remove and re-add it afterwards.
                  */
                 dashboardTable.getSelectionModel().removeListSelectionListener(listSelectionListener);
 

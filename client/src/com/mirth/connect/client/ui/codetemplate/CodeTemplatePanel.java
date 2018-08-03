@@ -103,7 +103,6 @@ import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
 import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.client.ui.reference.ReferenceListFactory;
-import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties;
 import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.model.codetemplates.CodeTemplateContextSet;
@@ -235,14 +234,14 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
     @Override
     public void switchPanel() {
-        Object[][] data = new Object[parent.channelPanel.getCachedChannelStatuses().size() + 1][2];
+        Object[][] data = new Object[parent.channelPanel.getCachedChannelIdsAndNames().size() + 1][2];
         data[0][0] = new ChannelInfo(NEW_CHANNELS, false);
         data[0][1] = NEW_CHANNELS;
         int row = 1;
 
-        for (ChannelStatus channelStatus : parent.channelPanel.getCachedChannelStatuses().values()) {
-            data[row][0] = new ChannelInfo(channelStatus.getChannel().getName(), false);
-            data[row][1] = channelStatus.getChannel().getId();
+        for (Entry<String, String> entry : parent.channelPanel.getCachedChannelIdsAndNames().entrySet()) {
+            data[row][0] = new ChannelInfo(entry.getValue(), false);
+            data[row][1] = entry.getKey();
             row++;
         }
 

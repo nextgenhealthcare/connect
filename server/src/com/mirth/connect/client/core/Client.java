@@ -960,6 +960,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
+     * Returns a map of all channel IDs and names.
+     * 
+     * @see ChannelServletInterface#getChannelIdsAndNames
+     */
+    @Override
+    public Map<String, String> getChannelIdsAndNames() throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannelIdsAndNames();
+    }
+
+    /**
      * Returns a list of channel summaries, indicating to a client which channels have changed (been
      * updated, deleted, undeployed, etc.). If a channel was modified, the entire Channel object
      * will be returned.
