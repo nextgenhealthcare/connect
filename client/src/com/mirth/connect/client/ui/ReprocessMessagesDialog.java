@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.mirth.connect.client.ui.components.ItemSelectionTable;
 import com.mirth.connect.client.ui.components.ItemSelectionTableModel;
 import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.filters.MessageFilter;
 
 public class ReprocessMessagesDialog extends MirthDialog {
@@ -58,7 +59,7 @@ public class ReprocessMessagesDialog extends MirthDialog {
         this.messageId = messageId;
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
@@ -116,7 +117,7 @@ public class ReprocessMessagesDialog extends MirthDialog {
         okButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 if (showWarning && Preferences.userNodeForPackage(Mirth.class).getBoolean("showReprocessRemoveMessagesWarning", true)) {
-                    String result = JOptionPane.showInputDialog(ReprocessMessagesDialog.this, "<html>This will reprocess all messages that match the current search criteria.<br/>To see how many messages will be reprocessed, close this dialog and<br/>click the Count button in the upper-right.<br><font size='1'><br></font>Type REPROCESSALL and click the OK button to continue.</html>", "Reprocess Results", JOptionPane.WARNING_MESSAGE);
+                    String result = DisplayUtil.showInputDialog(ReprocessMessagesDialog.this, "<html>This will reprocess all messages that match the current search criteria.<br/>To see how many messages will be reprocessed, close this dialog and<br/>click the Count button in the upper-right.<br><font size='1'><br></font>Type REPROCESSALL and click the OK button to continue.</html>", "Reprocess Results", JOptionPane.WARNING_MESSAGE);
                     if (!StringUtils.equals(result, "REPROCESSALL")) {
                         parent.alertWarning(ReprocessMessagesDialog.this, "You must type REPROCESSALL to reprocess results.");
                         return;

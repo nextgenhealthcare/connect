@@ -29,6 +29,7 @@ import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public class JmsConnectorPanel extends ConnectorSettingsPanel {
@@ -651,7 +652,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         Object defaultValue = (templateList.getSelectedValue() == null || listModel.isPredefinedTemplate(templateList.getSelectedValue().toString())) ? "" : templateList.getSelectedValue();
 
         do {
-            Object response = JOptionPane.showInputDialog(parent, "Enter a name for the connection template:", "Save", JOptionPane.QUESTION_MESSAGE, null, null, defaultValue);
+            Object response = DisplayUtil.showInputDialog(parent, "Enter a name for the connection template:", "Save", JOptionPane.QUESTION_MESSAGE, null, null, defaultValue);
 
             if (response == null) {
                 return;

@@ -68,7 +68,6 @@ import java.util.List;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.glassfish.jersey.internal.util.ReflectionHelper;
 
-
 public class OSXAdapter implements InvocationHandler {
 
     protected Object targetObject;
@@ -297,15 +296,16 @@ public class OSXAdapter implements InvocationHandler {
     protected static boolean isJava9OrGreater() {
         String version = System.getProperty("java.version");
 
-        int index = version.indexOf('.');
-        if (index >= 0) {
-            index = version.indexOf('.', index + 1);
-            if (index >= 0) {
-                version = version.substring(0, index);
-                return NumberUtils.toDouble(version) > 1.8;
-            }
+        int index = version.indexOf('-');
+        if (index > 0) {
+            version = version.substring(0, index);
         }
 
-        return false;
+        index = version.indexOf('.');
+        if (index > 0) {
+            version = version.substring(0, index);
+        }
+
+        return NumberUtils.toDouble(version) >= 9;
     }
 }

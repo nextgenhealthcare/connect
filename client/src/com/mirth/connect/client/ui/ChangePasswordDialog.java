@@ -19,6 +19,7 @@ import javax.swing.JDialog;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.User;
 
 public class ChangePasswordDialog extends MirthDialog {
@@ -31,6 +32,7 @@ public class ChangePasswordDialog extends MirthDialog {
         this.currentUser = currentUser;
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        DisplayUtil.setResizable(this, false);
         
         mirthHeadingLabel.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
 
@@ -105,7 +107,6 @@ public class ChangePasswordDialog extends MirthDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Change Password");
-        setResizable(false);
 
         channelOverview.setBackground(new java.awt.Color(255, 255, 255));
         channelOverview.setName(""); // NOI18N

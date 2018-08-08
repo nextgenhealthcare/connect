@@ -13,6 +13,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Calendar;
 
+import com.mirth.connect.client.ui.util.DisplayUtil;
+
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class AboutMirth extends MirthDialog {
 
@@ -26,7 +28,7 @@ public class AboutMirth extends MirthDialog {
         loadContent();
         aboutContent.setCaretPosition(0);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        this.setResizable(false);
+        DisplayUtil.setResizable(this, false);
         setModal(true);
         pack();
         

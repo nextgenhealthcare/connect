@@ -1,4 +1,4 @@
---add-modules=java.activation,java.sql.rowset,java.xml.ws,java.xml.bind
+--add-modules=java.sql.rowset
 --add-exports=java.base/com.sun.crypto.provider=ALL-UNNAMED
 --add-exports=java.base/sun.security.provider=ALL-UNNAMED
 --add-opens=java.base/java.lang=ALL-UNNAMED

@@ -16,6 +16,7 @@ import java.awt.Point;
 import com.mirth.connect.client.ui.BareBonesBrowserLaunch;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 
 public class ExtensionInfoDialog extends MirthDialog {
 
@@ -29,6 +30,7 @@ public class ExtensionInfoDialog extends MirthDialog {
         super(PlatformUI.MIRTH_FRAME, true);
 
         initComponents();
+        DisplayUtil.setResizable(this, false);
         nameLabel.setText(name);
         typeLabel.setText(type);
         priorityLabel.setText(priority);
@@ -82,7 +84,6 @@ public class ExtensionInfoDialog extends MirthDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Extension Information");
-        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setFont(new java.awt.Font("Tahoma", 1, 11));

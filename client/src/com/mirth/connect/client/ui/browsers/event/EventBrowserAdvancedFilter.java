@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.ServerEvent.Outcome;
 
 public class EventBrowserAdvancedFilter extends MirthDialog {
@@ -45,7 +46,7 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
 
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
 
         cachedSettings = new HashMap<String, Object>();
 

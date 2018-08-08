@@ -46,6 +46,7 @@ import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 
 public class AdvancedSftpSettingsDialog extends AdvancedSettingsDialog {
     private final int NAME_COLUMN = 0;
@@ -58,7 +59,7 @@ public class AdvancedSftpSettingsDialog extends AdvancedSettingsDialog {
         setTitle("Method Settings");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setSize(new Dimension(600, 400));
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
         setLayout(new MigLayout("insets 8 8 0 8, novisualpadding, hidemode 3"));
         getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);
 

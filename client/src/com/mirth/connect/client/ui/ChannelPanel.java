@@ -106,6 +106,7 @@ import com.mirth.connect.client.ui.components.tag.SearchFilterListener;
 import com.mirth.connect.client.ui.components.tag.TagFilterCompletion;
 import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
 import com.mirth.connect.client.ui.tag.SettingsPanelTags;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.model.Channel;
@@ -1294,7 +1295,7 @@ public class ChannelPanel extends AbstractFramePanel {
                     importGroup.setRevision(0);
 
                     do {
-                        groupName = JOptionPane.showInputDialog(this, "Please enter a new name for the group.", groupName);
+                        groupName = DisplayUtil.showInputDialog(this, "Please enter a new name for the group.", groupName);
                         if (groupName == null) {
                             return;
                         }
@@ -1451,7 +1452,7 @@ public class ChannelPanel extends AbstractFramePanel {
                     importChannel.setRevision(0);
 
                     do {
-                        channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.", channelName);
+                        channelName = DisplayUtil.showInputDialog(this, "Please enter a new name for the channel.", channelName);
                         if (channelName == null) {
                             return null;
                         }
@@ -2270,7 +2271,7 @@ public class ChannelPanel extends AbstractFramePanel {
 
         String channelName = channel.getName();
         do {
-            channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.", channelName);
+            channelName = DisplayUtil.showInputDialog(this, "Please enter a new name for the channel.", channelName);
             if (channelName == null) {
                 return;
             }

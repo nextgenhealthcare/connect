@@ -12,6 +12,7 @@ package com.mirth.connect.client.ui;
 import java.awt.Dimension;
 import java.awt.Point;
 
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.User;
 
 /**
@@ -27,6 +28,7 @@ public class UserDialog extends MirthDialog implements UserDialogInterface {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        DisplayUtil.setResizable(this, false);
         finishButton.setEnabled(false);
 
         boolean passwordRequired = false;
@@ -86,7 +88,6 @@ public class UserDialog extends MirthDialog implements UserDialogInterface {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("User");
-        setResizable(false);
 
         channelOverview.setBackground(new java.awt.Color(255, 255, 255));
         channelOverview.setName(""); // NOI18N
