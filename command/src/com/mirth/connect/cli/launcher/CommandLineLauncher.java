@@ -10,19 +10,36 @@
 package com.mirth.connect.cli.launcher;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 
 public class CommandLineLauncher {
     private static Logger logger;
@@ -44,6 +61,7 @@ public class CommandLineLauncher {
             addSharedLibsToClasspath(classpathUrls);
             URLClassLoader classLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]));
             Class<?> cliClass = classLoader.loadClass("com.mirth.connect.cli.CommandLineInterface");
+            Class<?> test = classLoader.loadClass("com.mirth.connect.jsonbuilder.shared.models.ObjectModel");
             Constructor<?>[] constructors = cliClass.getDeclaredConstructors();
 
             for (int i = 0; i < constructors.length; i++) {
@@ -91,18 +109,74 @@ public class CommandLineLauncher {
     }
 
     private static void addSharedLibsToClasspath(List<URL> urls) throws Exception {
-        IOFileFilter sharedLibFileFilter = new WildcardFileFilter("*-shared.jar");
         File extensions = new File("./extensions");
+        List<String> extensionXml = new LinkedList<>();
+        extensionXml.add("source.xml");
+        extensionXml.add("destination.xml");
+        extensionXml.add("plugin.xml");
+        
+        if (extensions.exists() && extensions.isDirectory()) {            
 
-        if (extensions.exists() && extensions.isDirectory()) {
-            Collection<File> sharedLibs = FileUtils.listFiles(extensions, sharedLibFileFilter, FileFilterUtils.trueFileFilter());
+            IOFileFilter extensionXmlFileFilter = new NameFileFilter(extensionXml);
+            // for each folder: look for plugin.xml, source.xml, destination.xml
+            // find any library tags with attribute type="SHARED"
+            Collection<File> xmlFiles = FileUtils.listFiles(extensions, extensionXmlFileFilter, FileFilterUtils.trueFileFilter());
+            Map<String, Set<String>> pathToLibsMap = new HashMap<>();
+            for (File f : xmlFiles) {
 
-            for (File sharedLib : sharedLibs) {
-                logger.trace("adding library to classpath: " + sharedLib.getAbsolutePath());
-                urls.add(sharedLib.toURI().toURL());
+                Element root = parseXml(FileUtils.readFileToString(f)).getDocumentElement();
+                String path = root.getAttribute("path");
+                if (!pathToLibsMap.containsKey(path)) {
+                    pathToLibsMap.put(path, new HashSet<String>());
+                }
+                List<String> newLibs = getSharedLibs(root);
+                pathToLibsMap.get(path).addAll(newLibs);
             }
+            
+            for (Entry<String, Set<String>> entry : pathToLibsMap.entrySet()) {
+                Set<String> libs = entry.getValue();
+                File extensionFolder = new File (extensions, entry.getKey());
+                for (String libStr : libs) {
+                    File lib = new File(extensionFolder, libStr);
+                    urls.add(lib.toURI().toURL());
+                }
+            }            
+//            
+//            
+//            Collection<File> sharedLibs = FileUtils.listFiles(extensions, sharedLibFileFilter, FileFilterUtils.trueFileFilter());
+//
+//            for (File sharedLib : sharedLibs) {
+//                logger.trace("adding library to classpath: " + sharedLib.getAbsolutePath());
+//                urls.add(sharedLib.toURI().toURL());
+//            }
+            
         } else {
             logger.warn("no extensions found");
         }
+    }
+    
+    private static List<String> getSharedLibs(Element root) throws IOException, ParserConfigurationException, SAXException {
+        // Unfortunately, we can't use the ExtensionLibarary at this point since none of it has been loaded, so we'll have
+        // to get parse the xml manually
+        List<String> sharedLibs = new LinkedList<>();
+        // make sure plugin is correct version
+        NodeList libs = root.getElementsByTagName("library");
+        for (int i = 0; i < libs.getLength(); i++) {
+            Element libElement = (Element) libs.item(i);
+            String type = libElement.getAttribute("type");
+            // get libraries that are ExtensionLibrary.Type.SHARED
+            if ("SHARED".equalsIgnoreCase(type)) {
+                sharedLibs.add(libElement.getAttribute("path"));
+            }
+        }
+        
+        return sharedLibs;
+    }
+    
+    private static Document parseXml(String xml) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        InputSource is = new InputSource(new StringReader(xml));
+        return builder.parse(is);
     }
 }
