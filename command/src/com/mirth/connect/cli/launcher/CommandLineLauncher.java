@@ -123,12 +123,12 @@ public class CommandLineLauncher {
             Collection<File> xmlFiles = FileUtils.listFiles(extensions, extensionXmlFileFilter, FileFilterUtils.trueFileFilter());
             Map<String, Set<String>> pathToLibsMap = new HashMap<>();
             for (File f : xmlFiles) {
-
                 Element root = parseXml(FileUtils.readFileToString(f)).getDocumentElement();
                 String path = root.getAttribute("path");
                 if (!pathToLibsMap.containsKey(path)) {
                     pathToLibsMap.put(path, new HashSet<String>());
                 }
+                // TODO: make sure the mirthVersion is compatible with our current version of Mirth Server
                 List<String> newLibs = getSharedLibs(root);
                 pathToLibsMap.get(path).addAll(newLibs);
             }
@@ -150,7 +150,6 @@ public class CommandLineLauncher {
         // Unfortunately, we can't use the ExtensionLibarary at this point since none of it has been loaded, so we'll have
         // to get parse the xml manually
         List<String> sharedLibs = new LinkedList<>();
-        // TODO: make sure plugin is correct version
         NodeList libs = root.getElementsByTagName("library");
         for (int i = 0; i < libs.getLength(); i++) {
             Element libElement = (Element) libs.item(i);
