@@ -61,7 +61,7 @@ public class CommandLineLauncher {
             addSharedLibsToClasspath(classpathUrls);
             URLClassLoader classLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]));
             Class<?> cliClass = classLoader.loadClass("com.mirth.connect.cli.CommandLineInterface");
-            Class<?> test = classLoader.loadClass("com.mirth.connect.jsonbuilder.shared.models.ObjectModel");
+            Thread.currentThread().setContextClassLoader(classLoader);
             Constructor<?>[] constructors = cliClass.getDeclaredConstructors();
 
             for (int i = 0; i < constructors.length; i++) {
@@ -140,16 +140,7 @@ public class CommandLineLauncher {
                     File lib = new File(extensionFolder, libStr);
                     urls.add(lib.toURI().toURL());
                 }
-            }            
-//            
-//            
-//            Collection<File> sharedLibs = FileUtils.listFiles(extensions, sharedLibFileFilter, FileFilterUtils.trueFileFilter());
-//
-//            for (File sharedLib : sharedLibs) {
-//                logger.trace("adding library to classpath: " + sharedLib.getAbsolutePath());
-//                urls.add(sharedLib.toURI().toURL());
-//            }
-            
+            }                        
         } else {
             logger.warn("no extensions found");
         }
@@ -159,7 +150,7 @@ public class CommandLineLauncher {
         // Unfortunately, we can't use the ExtensionLibarary at this point since none of it has been loaded, so we'll have
         // to get parse the xml manually
         List<String> sharedLibs = new LinkedList<>();
-        // make sure plugin is correct version
+        // TODO: make sure plugin is correct version
         NodeList libs = root.getElementsByTagName("library");
         for (int i = 0; i < libs.getLength(); i++) {
             Element libElement = (Element) libs.item(i);
