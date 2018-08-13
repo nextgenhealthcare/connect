@@ -84,7 +84,6 @@
 	<classpathentry kind="lib" path="lib/jersey/jersey-server-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-media-jaxb-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-client-2.22.1.jar"/>
-	<classpathentry kind="lib" path="lib/jersey/ext/jaxb-api-2.2.7.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/aopalliance-repackaged-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/hk2-api-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/hk2-locator-2.4.0-b31.jar"/>
