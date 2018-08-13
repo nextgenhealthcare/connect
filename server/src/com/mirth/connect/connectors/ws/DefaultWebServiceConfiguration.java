@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.ws;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -51,6 +52,8 @@ public class DefaultWebServiceConfiguration implements WebServiceConfiguration {
 
     @Override
     public void configureDispatcher(WebServiceDispatcher connector, WebServiceDispatcherProperties connectorProperties, Map<String, Object> requestContext) throws Exception {
-        requestContext.put("com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory", new SSLSocketFactoryWrapper(sslContext.getSocketFactory(), enabledProtocols, enabledCipherSuites));
+        SSLSocketFactory socketFactory = new SSLSocketFactoryWrapper(sslContext.getSocketFactory(), enabledProtocols, enabledCipherSuites);
+        requestContext.put("com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory", socketFactory);
+        requestContext.put("com.sun.xml.ws.transport.https.client.SSLSocketFactory", socketFactory); // JAX-WS RI
     }
 }
