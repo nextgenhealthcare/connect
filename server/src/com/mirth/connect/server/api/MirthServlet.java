@@ -40,6 +40,7 @@ import com.mirth.connect.model.ServerEvent.Outcome;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.User;
 import com.mirth.connect.server.controllers.AuthorizationController;
+import com.mirth.connect.server.controllers.ChannelAuthorizer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.UserController;
@@ -57,14 +58,16 @@ public abstract class MirthServlet {
     protected ServerEventContext context;
     protected Operation operation;
     protected Map<String, Object> parameterMap;
-    protected boolean userHasChannelRestrictions;
+
+    private boolean channelRestrictionsInitialized;
+    private boolean userHasChannelRestrictions;
+    private ChannelAuthorizer channelAuthorizer;
 
     protected ControllerFactory controllerFactory;
     private static UserController userController;
     private static AuthorizationController authorizationController;
     private static ConfigurationController configurationController;
 
-    private List<String> authorizedChannelIds;
     private String extensionName;
     private boolean bypassUser;
     private int currentUserId;
@@ -72,7 +75,7 @@ public abstract class MirthServlet {
     public MirthServlet(HttpServletRequest request, SecurityContext sc) {
         this(request, null, sc);
     }
-    
+
     public MirthServlet(HttpServletRequest request, SecurityContext sc, ControllerFactory controllerFactory) {
         this(request, null, sc, controllerFactory);
     }
@@ -80,7 +83,7 @@ public abstract class MirthServlet {
     public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc) {
         this(request, containerRequestContext, sc, true);
     }
-    
+
     public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, ControllerFactory controllerFactory) {
         this(request, containerRequestContext, sc, true, controllerFactory);
     }
@@ -92,7 +95,7 @@ public abstract class MirthServlet {
     public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, boolean initLogin) {
         this(request, containerRequestContext, sc, null, initLogin);
     }
-    
+
     public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, boolean initLogin, ControllerFactory controllerFactory) {
         this(request, containerRequestContext, sc, null, initLogin, controllerFactory);
     }
@@ -112,7 +115,7 @@ public abstract class MirthServlet {
     public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, String extensionName, boolean initLogin) {
         this(request, containerRequestContext, sc, extensionName, initLogin, ControllerFactory.getFactory());
     }
-    
+
     public MirthServlet(HttpServletRequest request, ContainerRequestContext containerRequestContext, SecurityContext sc, String extensionName, boolean initLogin, ControllerFactory controllerFactory) {
         this.controllerFactory = controllerFactory;
         initializeControllers();
@@ -125,7 +128,7 @@ public abstract class MirthServlet {
             initLogin();
         }
     }
-    
+
     protected void initializeControllers() {
         userController = controllerFactory.createUserController();
         authorizationController = controllerFactory.createAuthorizationController();
@@ -204,16 +207,6 @@ public abstract class MirthServlet {
 
     private void setContext() {
         context = new ServerEventContext(currentUserId);
-
-        try {
-            userHasChannelRestrictions = authorizationController.doesUserHaveChannelRestrictions(currentUserId);
-
-            if (userHasChannelRestrictions) {
-                authorizedChannelIds = authorizationController.getAuthorizedChannelIds(currentUserId);
-            }
-        } catch (ControllerException e) {
-            throw new MirthApiException(e);
-        }
     }
 
     public void setOperation(Operation operation) {
@@ -345,12 +338,13 @@ public abstract class MirthServlet {
     }
 
     protected List<Channel> redactChannels(List<Channel> channels) {
+        initChannelRestrictions();
+
         if (userHasChannelRestrictions) {
-            List<String> authorizedChannelIds = getAuthorizedChannelIds();
             List<Channel> authorizedChannels = new ArrayList<Channel>();
 
             for (Channel channel : channels) {
-                if (authorizedChannelIds.contains(channel.getId())) {
+                if (channelAuthorizer.isChannelAuthorized(channel.getId())) {
                     authorizedChannels.add(channel);
                 }
             }
@@ -362,12 +356,13 @@ public abstract class MirthServlet {
     }
 
     protected Set<String> redactChannelIds(Set<String> channelIds) {
+        initChannelRestrictions();
+
         if (userHasChannelRestrictions) {
-            List<String> authorizedChannelIds = getAuthorizedChannelIds();
             Set<String> finishedChannelIds = new HashSet<String>();
 
             for (String channelId : channelIds) {
-                if (authorizedChannelIds.contains(channelId)) {
+                if (channelAuthorizer.isChannelAuthorized(channelId)) {
                     finishedChannelIds.add(channelId);
                 }
             }
@@ -379,11 +374,13 @@ public abstract class MirthServlet {
     }
 
     protected <T> Map<String, T> redactChannelIds(Map<String, T> map) {
+        initChannelRestrictions();
+
         if (userHasChannelRestrictions) {
             Map<String, T> authorizedMap = new HashMap<String, T>();
 
             for (Entry<String, T> entry : map.entrySet()) {
-                if (authorizedChannelIds.contains(entry.getKey())) {
+                if (channelAuthorizer.isChannelAuthorized(entry.getKey())) {
                     authorizedMap.put(entry.getKey(), entry.getValue());
                 }
             }
@@ -395,12 +392,13 @@ public abstract class MirthServlet {
     }
 
     protected List<ChannelSummary> redactChannelSummaries(List<ChannelSummary> channelSummaries) {
+        initChannelRestrictions();
+
         if (userHasChannelRestrictions) {
-            List<String> authorizedChannelIds = getAuthorizedChannelIds();
             List<ChannelSummary> authorizedChannelSummaries = new ArrayList<ChannelSummary>();
 
             for (ChannelSummary channelSummary : channelSummaries) {
-                if (authorizedChannelIds.contains(channelSummary.getChannelId())) {
+                if (channelAuthorizer.isChannelAuthorized(channelSummary.getChannelId())) {
                     authorizedChannelSummaries.add(channelSummary);
                 }
             }
@@ -411,16 +409,40 @@ public abstract class MirthServlet {
         }
     }
 
+    protected boolean doesUserHaveChannelRestrictions() {
+        initChannelRestrictions();
+
+        return userHasChannelRestrictions;
+    }
+
     protected boolean isChannelRedacted(String channelId) {
-        return userHasChannelRestrictions && !authorizedChannelIds.contains(channelId);
+        initChannelRestrictions();
+
+        return userHasChannelRestrictions && !channelAuthorizer.isChannelAuthorized(channelId);
+    }
+
+    protected ChannelAuthorizer getChannelAuthorizer() {
+        return channelAuthorizer;
+    }
+
+    private void initChannelRestrictions() {
+        if (!channelRestrictionsInitialized) {
+            try {
+                userHasChannelRestrictions = authorizationController.doesUserHaveChannelRestrictions(currentUserId, operation);
+
+                if (userHasChannelRestrictions) {
+                    channelAuthorizer = authorizationController.getChannelAuthorizer(currentUserId, operation);
+                }
+            } catch (ControllerException e) {
+                throw new MirthApiException(e);
+            }
+
+            channelRestrictionsInitialized = true;
+        }
     }
 
     protected boolean isCurrentUser(Integer userId) {
         return userId == getCurrentUserId();
-    }
-
-    protected List<String> getAuthorizedChannelIds() {
-        return authorizedChannelIds;
     }
 
     private boolean isRequestLocal() {

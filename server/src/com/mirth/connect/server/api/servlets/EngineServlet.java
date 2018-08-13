@@ -30,16 +30,27 @@ import com.mirth.connect.server.controllers.EngineController;
 
 public class EngineServlet extends MirthServlet implements EngineServletInterface {
 
-    private static final EngineController engineController = ControllerFactory.getFactory().createEngineController();
-    private static final ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+    private static EngineController engineController;
+    private static ChannelController channelController;
 
     public EngineServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
     }
 
+    public EngineServlet(@Context HttpServletRequest request, @Context SecurityContext sc, ControllerFactory controllerFactory) {
+        super(request, sc, controllerFactory);
+    }
+
+    @Override
+    protected void initializeControllers() {
+        super.initializeControllers();
+        engineController = controllerFactory.createEngineController();
+        channelController = controllerFactory.createChannelController();
+    }
+
     @Override
     public void redeployAllChannels(boolean returnErrors) {
-        if (userHasChannelRestrictions) {
+        if (doesUserHaveChannelRestrictions()) {
             throw new MirthApiException(Status.FORBIDDEN);
         }
         ErrorTaskHandler handler = new ErrorTaskHandler();

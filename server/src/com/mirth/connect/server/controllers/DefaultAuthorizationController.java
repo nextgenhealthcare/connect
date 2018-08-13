@@ -9,7 +9,6 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.util.List;
 import java.util.Map;
 
 import com.mirth.connect.client.core.ControllerException;
@@ -50,12 +49,12 @@ public class DefaultAuthorizationController extends AuthorizationController {
     public void addExtensionPermission(ExtensionPermission extensionPermission) {}
 
     @Override
-    public boolean doesUserHaveChannelRestrictions(Integer userId) throws ControllerException {
+    public boolean doesUserHaveChannelRestrictions(Integer userId, Operation operation) throws ControllerException {
         return false;
     }
 
     @Override
-    public List<String> getAuthorizedChannelIds(Integer userId) throws ControllerException {
+    public ChannelAuthorizer getChannelAuthorizer(Integer userId, Operation operation) throws ControllerException {
         return null;
     }
 

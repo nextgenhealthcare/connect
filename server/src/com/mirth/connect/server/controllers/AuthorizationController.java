@@ -11,7 +11,6 @@ package com.mirth.connect.server.controllers;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -27,17 +26,27 @@ import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 
 public abstract class AuthorizationController {
-    private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-    private String serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
+    private EventController eventController;
+    private ChannelController channelController;
+    private String serverId;
+
+    public AuthorizationController() {
+        this(ControllerFactory.getFactory());
+    }
+
+    public AuthorizationController(ControllerFactory controllerFactory) {
+        eventController = controllerFactory.createEventController();
+        channelController = controllerFactory.createChannelController();
+        serverId = controllerFactory.createConfigurationController().getServerId();
+    }
 
     public abstract boolean isUserAuthorized(Integer userId, Operation operation, Map<String, Object> parameterMap, String address, boolean audit) throws ControllerException;
 
     public abstract void addExtensionPermission(ExtensionPermission extensionPermission);
 
-    public abstract boolean doesUserHaveChannelRestrictions(Integer userId) throws ControllerException;
+    public abstract boolean doesUserHaveChannelRestrictions(Integer userId, Operation operation) throws ControllerException;
 
-    public abstract List<String> getAuthorizedChannelIds(Integer userId) throws ControllerException;
+    public abstract ChannelAuthorizer getChannelAuthorizer(Integer userId, Operation operation) throws ControllerException;
 
     public abstract void usernameChanged(String oldName, String newName) throws ControllerException;
 

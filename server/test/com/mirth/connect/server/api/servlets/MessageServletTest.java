@@ -57,7 +57,7 @@ import com.mirth.connect.server.controllers.UserController;
 public class MessageServletTest {
     private static int ADMIN_USER_ID = 1;
     private static int RESTRICTED_USER_ID = 2;
-    
+
     static ControllerFactory controllerFactory;
     static EngineController engineController;
     static HttpSession session;
@@ -90,7 +90,7 @@ public class MessageServletTest {
         when(controllerFactory.createUserController()).thenReturn(userController);
 
         AuthorizationController authorizationController = mock(AuthorizationController.class);
-        when(authorizationController.doesUserHaveChannelRestrictions(anyInt())).thenReturn(false);
+        when(authorizationController.doesUserHaveChannelRestrictions(anyInt(), any())).thenReturn(false);
         when(authorizationController.isUserAuthorized(anyInt(), any(Operation.class), any(Map.class), any(String.class), anyBoolean())).thenAnswer((InvocationOnMock invocation) -> {
             Object[] args = invocation.getArguments();
             // Do not authorize restricted user to clear statistics
@@ -140,38 +140,38 @@ public class MessageServletTest {
         assertNull(messageId);
         assertEquals(500, context.getProperty(ResponseCodeFilter.RESPONSE_CODE_PROPERTY));
     }
-    
+
     @Test
     public void testAdminUserCanRemoveMessagesAndClearStats() {
         MessageServlet servlet = new MessageServlet(request, context, sc, controllerFactory);
         servlet.removeAllMessages("channel1", true, true);
-        
+
         Set<String> channelIds = new HashSet<>();
         channelIds.add("channel1");
         servlet.removeAllMessages(channelIds, true, true);
-        
+
         verify(engineController, times(2)).removeAllMessages(any(), anyBoolean(), anyBoolean(), any());
     }
-    
+
     @Test
     public void testAdminUserCanRemoveMessagesWithoutClearingStats() {
         MessageServlet servlet = new MessageServlet(request, context, sc, controllerFactory);
         servlet.removeAllMessages("channel1", true, false);
-        
+
         Set<String> channelIds = new HashSet<>();
         channelIds.add("channel1");
         servlet.removeAllMessages(channelIds, true, false);
-        
+
         verify(engineController, times(2)).removeAllMessages(any(), anyBoolean(), anyBoolean(), any());
     }
-    
+
     @Test(expected = MirthApiException.class)
     public void testRestrictedUserCannotRemoveMessagesAndClearStats1() {
         setupSessionAndRequest(RESTRICTED_USER_ID);
         MessageServlet servlet = new MessageServlet(request, context, sc, controllerFactory);
         servlet.removeAllMessages("channel1", true, true);
     }
-    
+
     @Test(expected = MirthApiException.class)
     public void testRestrictedUserCannotRemoveMessagesAndClearStats2() {
         setupSessionAndRequest(RESTRICTED_USER_ID);
@@ -180,20 +180,20 @@ public class MessageServletTest {
         channelIds.add("channel1");
         servlet.removeAllMessages(channelIds, true, true);
     }
-    
+
     @Test
     public void testRestrictedUserCanRemoveMessagesWithoutClearingStats() {
         setupSessionAndRequest(RESTRICTED_USER_ID);
         MessageServlet servlet = new MessageServlet(request, context, sc, controllerFactory);
         servlet.removeAllMessages("channel1", true, false);
-        
+
         Set<String> channelIds = new HashSet<>();
         channelIds.add("channel1");
         servlet.removeAllMessages(channelIds, true, false);
-        
+
         verify(engineController, times(2)).removeAllMessages(any(), anyBoolean(), anyBoolean(), any());
     }
-    
+
     private static void setupSessionAndRequest(int userId) {
         session = mock(HttpSession.class);
         when(session.getAttribute("user")).thenReturn("" + userId);

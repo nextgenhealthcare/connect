@@ -12,11 +12,12 @@ package com.mirth.connect.server.api.servlets;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,32 +33,21 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
 import com.google.common.collect.Sets;
-import com.mirth.connect.client.core.Operation;
+import com.mirth.connect.client.core.api.servlets.ChannelStatusServletInterface;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
-import com.mirth.connect.model.LoginStatus;
-import com.mirth.connect.model.LoginStatus.Status;
-import com.mirth.connect.model.User;
-import com.mirth.connect.server.controllers.AuthorizationController;
-import com.mirth.connect.server.controllers.ConfigurationController;
-import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.api.ServletTestBase;
 import com.mirth.connect.server.controllers.EngineController;
-import com.mirth.connect.server.controllers.UserController;
 
-public class ChannelStatusServletTest {
+public class ChannelStatusServletTest extends ServletTestBase {
 
-    static ControllerFactory controllerFactory;
     static EngineController engineController;
-    static HttpSession session;
-    static HttpServletRequest request;
-    static SecurityContext sc;
 
     @BeforeClass
-    @SuppressWarnings("unchecked")
     public static void setup() throws Exception {
-        controllerFactory = mock(ControllerFactory.class);
+        ServletTestBase.setup();
 
         engineController = mock(EngineController.class);
         when(engineController.getChannelStatus(anyString())).thenAnswer((InvocationOnMock invocation) -> {
@@ -80,7 +70,6 @@ public class ChannelStatusServletTest {
         });
         when(controllerFactory.createEngineController()).thenReturn(engineController);
 
-        ConfigurationController configurationController = mock(ConfigurationController.class);
         when(configurationController.getChannelTags()).thenAnswer((InvocationOnMock invocation) -> {
             Set<ChannelTag> tags = new HashSet<>();
             tags.add(ChannelStatusServletTest.createTag("Tag1", Sets.newHashSet()));
@@ -89,32 +78,6 @@ public class ChannelStatusServletTest {
             tags.add(ChannelStatusServletTest.createTag("Tag4", Sets.newHashSet("4")));
             return tags;
         });
-        when(controllerFactory.createConfigurationController()).thenReturn(configurationController);
-
-        UserController userController = mock(UserController.class);
-        when(userController.authorizeUser(anyString(), anyString())).thenReturn(new LoginStatus(Status.SUCCESS, ""));
-        when(userController.getUser(anyInt(), anyString())).thenAnswer((InvocationOnMock invocation) -> {
-            User user = new User();
-            user.setId(1);
-            user.setUsername(invocation.getArgument(1));
-            return user;
-        });
-        when(controllerFactory.createUserController()).thenReturn(userController);
-
-        AuthorizationController authorizationController = mock(AuthorizationController.class);
-        when(authorizationController.doesUserHaveChannelRestrictions(anyInt())).thenReturn(false);
-        when(authorizationController.isUserAuthorized(anyInt(), any(Operation.class), any(Map.class), anyString(), anyBoolean())).thenReturn(true);
-        when(controllerFactory.createAuthorizationController()).thenReturn(authorizationController);
-
-        session = mock(HttpSession.class);
-        when(session.getAttribute("user")).thenReturn("1");
-        when(session.getAttribute("authorized")).thenReturn(Boolean.TRUE);
-
-        request = mock(HttpServletRequest.class);
-        when(request.getSession()).thenReturn(session);
-
-        sc = mock(SecurityContext.class);
-
     }
 
     private static DashboardStatus createStatus(String id, String name, DeployedState deployState) {
@@ -222,5 +185,53 @@ public class ChannelStatusServletTest {
         assertEquals(2, dashboardChannelInfo.getDashboardStatuses().size());
         assertEquals("3", dashboardChannelInfo.getDashboardStatuses().get(0).getChannelId());
         assertEquals("4", dashboardChannelInfo.getDashboardStatuses().get(1).getChannelId());
+    }
+
+    @Test
+    public void getChannelStatus() throws Throwable {
+        DashboardStatus status = (DashboardStatus) ih.invoke(new ChannelStatusServlet(request, sc, controllerFactory), ChannelStatusServlet.class.getMethod("getChannelStatus", String.class), new Object[] {
+                CHANNEL_ID1 });
+        assertEquals(CHANNEL_ID1, status.getChannelId());
+
+        assertForbiddenInvocation(new ChannelStatusServlet(request, sc, controllerFactory), ChannelStatusServletInterface.class.getMethod("getChannelStatus", String.class), new Object[] {
+                DISALLOWED_CHANNEL_ID });
+    }
+
+    @Test
+    public void redactChannelStatuses() throws Throwable {
+        ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc, controllerFactory);
+        servlet.setOperation(null);
+
+        List<DashboardStatus> statuses = new ArrayList<DashboardStatus>();
+        statuses.add(DASHBOARD_STATUS1);
+        statuses.add(DASHBOARD_STATUS2);
+        List<DashboardStatus> redactedStatuses = servlet.redactChannelStatuses(statuses);
+        assertEquals(statuses, redactedStatuses);
+
+        List<DashboardStatus> statuses2 = new ArrayList<DashboardStatus>();
+        statuses2.add(DASHBOARD_STATUS1);
+        statuses2.add(DASHBOARD_STATUS2);
+        statuses2.add(DISALLOWED_DASHBOARD_STATUS);
+        redactedStatuses = servlet.redactChannelStatuses(statuses2);
+        assertEquals(statuses, redactedStatuses);
+    }
+
+    @Test
+    public void redactConnectorInfo() throws Throwable {
+        ChannelStatusServlet servlet = new ChannelStatusServlet(request, sc, controllerFactory);
+        servlet.setOperation(null);
+
+        Map<String, List<Integer>> connectorInfo = new HashMap<String, List<Integer>>();
+        connectorInfo.put(CHANNEL_ID1, new ArrayList<Integer>());
+        connectorInfo.put(CHANNEL_ID2, new ArrayList<Integer>());
+        Map<String, List<Integer>> redactedConnectorInfo = servlet.redactConnectorInfo(connectorInfo);
+        assertEquals(connectorInfo, redactedConnectorInfo);
+
+        Map<String, List<Integer>> connectorInfo2 = new HashMap<String, List<Integer>>();
+        connectorInfo2.put(CHANNEL_ID1, new ArrayList<Integer>());
+        connectorInfo2.put(CHANNEL_ID2, new ArrayList<Integer>());
+        connectorInfo2.put(DISALLOWED_CHANNEL_ID, new ArrayList<Integer>());
+        redactedConnectorInfo = servlet.redactConnectorInfo(connectorInfo2);
+        assertEquals(connectorInfo, redactedConnectorInfo);
     }
 }

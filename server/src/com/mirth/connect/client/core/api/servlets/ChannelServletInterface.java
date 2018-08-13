@@ -83,6 +83,12 @@ public interface ChannelServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getMetaDataColumns", display = "Get metadata columns", permission = Permissions.CHANNELS_VIEW, auditable = false)
     public List<MetaDataColumn> getMetaDataColumns(@Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId) throws ClientException;
 
+    @GET
+    @Path("/idsAndNames")
+    @ApiOperation("Returns a map of all channel IDs and names.")
+    @MirthOperation(name = "getChannelIdsAndNames", display = "Get channel IDs and names", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    public Map<String, String> getChannelIdsAndNames() throws ClientException;
+
     @POST
     @Path("/_getSummary")
     @ApiOperation("Returns a list of channel summaries, indicating to a client which channels have changed (been updated, deleted, undeployed, etc.). If a channel was modified, the entire Channel object will be returned.")

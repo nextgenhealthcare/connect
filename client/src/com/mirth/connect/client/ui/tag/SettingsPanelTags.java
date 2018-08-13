@@ -28,6 +28,8 @@ import java.util.EventObject;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -84,7 +86,6 @@ import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
-import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.util.ColorUtil;
 
@@ -130,8 +131,8 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
 
             @Override
             public Set<ChannelTag> doInBackground() throws ClientException {
-                if (MapUtils.isEmpty(getFrame().channelPanel.getCachedChannelStatuses())) {
-                    getFrame().channelPanel.retrieveChannels(false);
+                if (MapUtils.isEmpty(getFrame().channelPanel.getCachedChannelIdsAndNames())) {
+                    getFrame().channelPanel.retrieveChannelIdsAndNames();
                 }
                 return getFrame().mirthClient.getChannelTags();
             }
@@ -191,15 +192,16 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
 
         channelsTableAdjusting.set(true);
         try {
-            List<ChannelStatus> channels = new ArrayList<ChannelStatus>(getFrame().channelPanel.getCachedChannelStatuses().values());
-            Object[][] channelData = new Object[channels.size()][3];
+            Map<String, String> channelIdsAndNames = getFrame().channelPanel.getCachedChannelIdsAndNames();
+            Object[][] channelData = new Object[channelIdsAndNames.size()][3];
             i = 0;
-            for (ChannelStatus channel : channels) {
+            for (Entry<String, String> entry : channelIdsAndNames.entrySet()) {
                 channelData[i][CHANNELS_SELECTED_COLUMN] = MirthTriStateCheckBox.UNCHECKED;
-                channelData[i][CHANNELS_NAME_COLUMN] = channel.getChannel().getName();
-                channelData[i][CHANNELS_ID_COLUMN] = channel.getChannel().getId();
+                channelData[i][CHANNELS_NAME_COLUMN] = entry.getValue();
+                channelData[i][CHANNELS_ID_COLUMN] = entry.getKey();
                 i++;
             }
+
             ((RefreshTableModel) channelsTable.getModel()).refreshDataVector(channelData);
         } finally {
             channelsTableAdjusting.set(false);

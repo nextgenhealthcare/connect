@@ -164,14 +164,16 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         String selectedChannelName = "None";
 
-        for (ChannelStatus channelStatus : parent.channelPanel.getCachedChannelStatuses().values()) {
-            Channel channel = channelStatus.getChannel();
-            if (props.getChannelId().equalsIgnoreCase(channel.getId())) {
-                selectedChannelName = channel.getName();
+        for (Entry<String, String> entry : parent.channelPanel.getCachedChannelIdsAndNames().entrySet()) {
+            String channnelId = entry.getKey();
+            String channelName = entry.getValue();
+
+            if (props.getChannelId().equalsIgnoreCase(channnelId)) {
+                selectedChannelName = channelName;
             }
 
-            channelList.put(channel.getName(), channel.getId());
-            channelNameArray.add(channel.getName());
+            channelList.put(channelName, channnelId);
+            channelNameArray.add(channelName);
         }
 
         // sort the channels in alpha-numeric order.
