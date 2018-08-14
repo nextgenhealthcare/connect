@@ -18,12 +18,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -43,10 +40,11 @@ import org.xml.sax.SAXException;
 
 
 public class CommandLineLauncher {
-    private static Logger logger = Logger.getLogger(CommandLineLauncher.class);
-
+    private static Logger logger;
+    
     public static void main(String[] args) {
         System.setProperty("log4j.configuration", "log4j-cli.properties");
+        logger = Logger.getLogger(CommandLineLauncher.class);
 
         try {
             ManifestFile mirthCliJar = new ManifestFile("cli-lib/mirth-cli.jar");
