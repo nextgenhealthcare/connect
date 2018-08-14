@@ -40,7 +40,7 @@ import org.xml.sax.SAXException;
 
 
 public class CommandLineLauncher {
-    private static Logger logger;
+    protected static Logger logger;
     
     public static void main(String[] args) {
         System.setProperty("log4j.configuration", "log4j-cli.properties");

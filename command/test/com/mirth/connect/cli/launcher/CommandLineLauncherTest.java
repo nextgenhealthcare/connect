@@ -3,11 +3,19 @@ package com.mirth.connect.cli.launcher;
 import java.io.File;
 import java.util.Set;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import org.apache.log4j.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class CommandLineLauncherTest {
+
+    @BeforeClass
+    public void setup() {
+        CommandLineLauncher.logger = Logger.getLogger(CommandLineLauncher.class);
+    }
 
     @Test
     public void testLoadEmptyExtensionFolder() throws Exception {
@@ -15,7 +23,7 @@ public class CommandLineLauncherTest {
         Set<String> libs = CommandLineLauncher.getSharedLibsForExtension(f);
         assertEquals(0, libs.size());
     }
-    
+
     @Test
     public void testLoadExtensionWithZeroSharedLibs() throws Exception {
         File f = new File("../command/tests/extensionsTest/extensionWithNoSharedLibs");
@@ -30,7 +38,7 @@ public class CommandLineLauncherTest {
         assertEquals(1, libs.size());
         assertTrue(libs.contains("libAtRoot.jar"));
     }
-    
+
     @Test
     public void testLoadExtensionWithLibsAtRootAndSubfolder() throws Exception {
         File f = new File("../command/tests/extensionsTest/extensionWithLibsAtRootAndSubfolder");
@@ -38,7 +46,7 @@ public class CommandLineLauncherTest {
         assertEquals(2, libs.size());
         assertTrue(libs.contains("rootLib.jar"));
         assertTrue(libs.contains("libs/subdirLib.jar"));
-        
+
     }
 
     @Test
@@ -49,7 +57,7 @@ public class CommandLineLauncherTest {
         assertTrue(libs.contains("libs/libFromSourceXml.jar"));
         assertTrue(libs.contains("libs/libFromDestinationXml.jar"));
         assertTrue(libs.contains("libs/libFromPluginXml.jar"));
-        
+
     }
 
     @Test
@@ -57,6 +65,6 @@ public class CommandLineLauncherTest {
         File f = new File("../command/tests/extensionsTest/extensionWithSameLibReferencedFromDifferentXml");
         Set<String> libs = CommandLineLauncher.getSharedLibsForExtension(f);
         assertEquals(1, libs.size());
-        assertTrue(libs.contains("libs/sameRef.jar"));    
+        assertTrue(libs.contains("libs/sameRef.jar"));
     }
 }
