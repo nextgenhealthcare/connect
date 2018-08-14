@@ -1,0 +1,23 @@
+<pluginMetaData path="extensionWithLibsAtRootAndSubfolder">
+	<name>TEST Plugin</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.7.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>Fake plugin.xml to test shared library loading</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.test.TestClassServer</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.test.TestClassClient</string>
+	</clientClasses>
+	<userutilPackages>
+		<string>com.mirth.connect.connectors.fhir.server.userutil</string>
+		<string>com.mirth.connect.connectors.fhir.shared.userutil</string>
+	</userutilPackages>
+	<!-- The server JAR must be listed first because it overrides HAPI classes -->
+	<library type="SERVER" path="test-server.jar" />
+	<library type="CLIENT" path="test-client.jar" />
+	<library type="SHARED" path="libs/subdirLib.jar" />
+	<library type="SHARED" path="rootLib.jar" />
+</pluginMetaData>
