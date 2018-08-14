@@ -10,6 +10,7 @@
 package com.mirth.connect.cli.launcher;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
@@ -42,11 +43,10 @@ import org.xml.sax.SAXException;
 
 
 public class CommandLineLauncher {
-    private static Logger logger;
+    private static Logger logger = Logger.getLogger(CommandLineLauncher.class);
 
     public static void main(String[] args) {
         System.setProperty("log4j.configuration", "log4j-cli.properties");
-        logger = Logger.getLogger(CommandLineLauncher.class);
 
         try {
             ManifestFile mirthCliJar = new ManifestFile("cli-lib/mirth-cli.jar");
@@ -58,7 +58,8 @@ public class CommandLineLauncher {
 
             List<URL> classpathUrls = new ArrayList<URL>();
             addManifestToClasspath(manifest, classpathUrls);
-            addSharedLibsToClasspath(classpathUrls);
+            File extensions = new File("./extensions");
+            addSharedLibsToClasspath(classpathUrls, extensions);
             URLClassLoader classLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]));
             Class<?> cliClass = classLoader.loadClass("com.mirth.connect.cli.CommandLineInterface");
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -108,45 +109,51 @@ public class CommandLineLauncher {
         }
     }
 
-    private static void addSharedLibsToClasspath(List<URL> urls) throws Exception {
-        File extensions = new File("./extensions");
+    private static void addSharedLibsToClasspath(List<URL> urls, File extensionsFolder) throws Exception {
+        
+        if (extensionsFolder.exists() && extensionsFolder.isDirectory()) {
+            File[] directoryFiles = extensionsFolder.listFiles((FileFilter) FileFilterUtils.directoryFileFilter());
+            for (File d : directoryFiles) {
+                if (d.isDirectory()) {
+                    Set<String> libsFound = getSharedLibsForExtension(d);
+                    for (String libStr : libsFound) {
+                        File lib = new File(d, libStr);
+                        urls.add(lib.toURI().toURL());
+                    }
+                }
+            }       
+        } else {
+            logger.warn("no extensions folder found");
+        }
+    }
+    
+    // visibility set to protected so we can unit test it
+    protected static Set<String> getSharedLibsForExtension(File extensionFolder) throws Exception {
         List<String> extensionXml = new LinkedList<>();
         extensionXml.add("source.xml");
         extensionXml.add("destination.xml");
         extensionXml.add("plugin.xml");
+        Set<String> libs = new HashSet<>();
         
-        if (extensions.exists() && extensions.isDirectory()) {            
+        if (extensionFolder.exists() && extensionFolder.isDirectory()) {            
 
             IOFileFilter extensionXmlFileFilter = new NameFileFilter(extensionXml);
-            // for each folder: look for plugin.xml, source.xml, destination.xml
+            // look for plugin.xml, source.xml, destination.xml
             // find any library tags with attribute type="SHARED"
-            Collection<File> xmlFiles = FileUtils.listFiles(extensions, extensionXmlFileFilter, FileFilterUtils.trueFileFilter());
-            Map<String, Set<String>> pathToLibsMap = new HashMap<>();
+            Collection<File> xmlFiles = FileUtils.listFiles(extensionFolder, extensionXmlFileFilter, FileFilterUtils.trueFileFilter());
             for (File f : xmlFiles) {
                 Element root = parseXml(FileUtils.readFileToString(f)).getDocumentElement();
-                String path = root.getAttribute("path");
-                if (!pathToLibsMap.containsKey(path)) {
-                    pathToLibsMap.put(path, new HashSet<String>());
-                }
                 // TODO: make sure the mirthVersion is compatible with our current version of Mirth Server
-                List<String> newLibs = getSharedLibs(root);
-                pathToLibsMap.get(path).addAll(newLibs);
-            }
-            
-            for (Entry<String, Set<String>> entry : pathToLibsMap.entrySet()) {
-                Set<String> libs = entry.getValue();
-                File extensionFolder = new File (extensions, entry.getKey());
-                for (String libStr : libs) {
-                    File lib = new File(extensionFolder, libStr);
-                    urls.add(lib.toURI().toURL());
-                }
-            }                        
+                List<String> newLibs = getSharedLibsFromXml(root);
+                libs.addAll(newLibs);
+            }              
         } else {
-            logger.warn("no extensions found");
+            logger.warn("no extension found");
         }
+        return libs;
     }
     
-    private static List<String> getSharedLibs(Element root) throws IOException, ParserConfigurationException, SAXException {
+    private static List<String> getSharedLibsFromXml(Element root) throws IOException, ParserConfigurationException, SAXException {
         // Unfortunately, we can't use the ExtensionLibarary at this point since none of it has been loaded, so we'll have
         // to get parse the xml manually
         List<String> sharedLibs = new LinkedList<>();
@@ -162,7 +169,6 @@ public class CommandLineLauncher {
         
         return sharedLibs;
     }
-    
     private static Document parseXml(String xml) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();

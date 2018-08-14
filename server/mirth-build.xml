@@ -183,6 +183,7 @@
 		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="test-run"/>
 		<ant antfile="${server}/build.xml" dir="${server}" target="test-run"/>
 		<ant antfile="${client}/ant-build.xml" dir="${client}" target="test-run"/>
+		<ant antfile="${cli}/build.xml" dir="${cli}" target="test-run"/>
 	</target>
 
 	<target name="remove-classes" depends="init">

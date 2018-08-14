@@ -1,0 +1,1 @@
+Intentionally empty folder to test CommandLineLauncher's loading of extensions. This file added so git can add the folders to the project
