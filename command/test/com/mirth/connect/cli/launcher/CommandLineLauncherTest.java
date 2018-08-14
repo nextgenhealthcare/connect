@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 public class CommandLineLauncherTest {
 
     @BeforeClass
-    public void setup() {
+    public static void setup() {
         CommandLineLauncher.logger = Logger.getLogger(CommandLineLauncher.class);
     }
 
