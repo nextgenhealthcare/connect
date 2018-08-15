@@ -167,7 +167,7 @@
 	<classpathentry kind="lib" path="lib/javassist-3.19.0-GA.jar"/>
 	<classpathentry kind="lib" path="lib/javax.inject-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-media-multipart-2.22.1.jar"/>
-	<classpathentry kind="lib" path="lib/mimepull-1.9.6.jar"/>
+	<classpathentry kind="lib" path="lib/mimepull-1.9.7.jar"/>
 	<classpathentry kind="lib" path="lib/zip4j_1.3.3.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-2.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>

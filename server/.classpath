@@ -109,7 +109,6 @@
 	<classpathentry kind="lib" path="lib/swagger/ext/reflections-0.9.10.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-guava-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.19.0-GA.jar"/>
-	<classpathentry kind="lib" path="lib/jersey/ext/mimepull-1.9.6.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.servlet-api-3.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-schemas-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.inject-2.4.0-b31.jar"/>
@@ -174,7 +173,7 @@
 	<classpathentry kind="lib" path="lib/javax/jaxws/ext/stax-ex-1.8.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/ext/stax2-api-3.1.4.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/ext/streambuffer-1.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/javax/jaxws/ext/woodstox-core-asl-4.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/woodstox-core-5.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/javax.xml.soap-api-1.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/jaxws-api-2.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/jaxws-rt-2.3.0.2.jar"/>
