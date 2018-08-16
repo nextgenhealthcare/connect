@@ -18,7 +18,7 @@ APACHE-LICENSE-2.0.txt):
 	Apache XMLBeans [Mirth Connect only]
 	AWS SDK for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java)
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
-	Fast Infoset Project 1.2.14 [Mirth Connect only] (https://github.com/javaee/metro-fi/tree/1.2.14)
+	Fast Infoset Project 1.2.13 [Mirth Connect only] (https://github.com/javaee/metro-fi/tree/fastinfoset-project-1.2.13)
 	Guava 18.0 (https://code.google.com/p/guava-libraries)
 	Guice 4.1 (https://github.com/google/guice)
 	HikariCP 2.3.2 [Mirth Connect only]
