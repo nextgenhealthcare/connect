@@ -162,7 +162,7 @@
 	<classpathentry kind="lib" path="lib/javax/jaxb/ext/txw2-2.4.0-b180725.0644.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxb/jaxb-api-2.4.0-b180725.0427.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxb/jaxb-runtime-2.4.0-b180725.0644.jar"/>
-	<classpathentry kind="lib" path="lib/javax/jaxws/ext/FastInfoset-1.2.14.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/FastInfoset-1.2.13.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/ext/gmbal-api-only-3.1.0.b001.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/ext/ha-api-3.1.9.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/ext/jsr181-api-1.0.jar"/>
