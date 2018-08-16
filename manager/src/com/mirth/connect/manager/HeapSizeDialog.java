@@ -48,7 +48,7 @@ public class HeapSizeDialog extends JDialog {
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
         setBackground(Color.white);
         setTitle("Web Start Settings");
         getContentPane().setBackground(Color.white);

@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import javax.swing.SwingWorker;
 
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.Channel;
 
 /**
@@ -67,7 +68,7 @@ public class ChannelWizard extends MirthDialog {
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
 
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
         setVisible(true);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }

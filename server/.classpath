@@ -84,7 +84,6 @@
 	<classpathentry kind="lib" path="lib/jersey/jersey-server-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-media-jaxb-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-client-2.22.1.jar"/>
-	<classpathentry kind="lib" path="lib/jersey/ext/jaxb-api-2.2.7.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/aopalliance-repackaged-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/hk2-api-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/hk2-locator-2.4.0-b31.jar"/>
@@ -110,10 +109,8 @@
 	<classpathentry kind="lib" path="lib/swagger/ext/reflections-0.9.10.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-guava-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.19.0-GA.jar"/>
-	<classpathentry kind="lib" path="lib/jersey/ext/mimepull-1.9.6.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.servlet-api-3.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-schemas-3.1.jar"/>
-	<classpathentry kind="lib" path="lib/javax/javax.annotation-api-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.inject-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.json-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.json-api-1.0.jar"/>
@@ -161,6 +158,28 @@
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/wsdl4j-1.6.2-fixed.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/xbean-fixed-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxb/ext/istack-commons-runtime-3.0.6.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxb/ext/txw2-2.4.0-b180725.0644.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxb/jaxb-api-2.4.0-b180725.0427.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxb/jaxb-runtime-2.4.0-b180725.0644.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/FastInfoset-1.2.14.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/gmbal-api-only-3.1.0.b001.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/ha-api-3.1.9.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/jsr181-api-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/management-api-3.2.1.b001.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/mimepull-1.9.7.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/policy-2.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/saaj-impl-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/stax-ex-1.8.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/stax2-api-3.1.4.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/streambuffer-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/ext/woodstox-core-5.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/javax.xml.soap-api-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/jaxws-api-2.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/jaxws-rt-2.3.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jaxws/jaxws-tools-2.3.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/javax/javax.activation-api-1.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax/javax.annotation-api-1.3.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
 		<accessrules>
 			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/server/**"/>

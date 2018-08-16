@@ -85,6 +85,7 @@ import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 
@@ -162,7 +163,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
         setPreferredSize(new Dimension(420, 420));
         pack();
         setLocationRelativeTo(owner);
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
         setVisible(true);
     }
 

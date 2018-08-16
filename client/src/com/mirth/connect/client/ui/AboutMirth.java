@@ -13,6 +13,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Calendar;
 
+import com.mirth.connect.client.ui.util.DisplayUtil;
+
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class AboutMirth extends MirthDialog {
 
@@ -26,7 +28,7 @@ public class AboutMirth extends MirthDialog {
         loadContent();
         aboutContent.setCaretPosition(0);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        this.setResizable(false);
+        DisplayUtil.setResizable(this, false);
         setModal(true);
         pack();
         
@@ -82,6 +84,7 @@ public class AboutMirth extends MirthDialog {
         content.append("This product includes software developed by the JDOM Project (http://www.jdom.org/).\n\n");
         content.append("This product includes software developed by xerial.org (Taro L. Saito) (https://bitbucket.org/xerial/sqlite-jdbc).\n\n");
         content.append("This product includes the SwingLabs SwingX library, copyright (c) 2005-2006 Sun Microsystems, Inc., licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
+        content.append("This product includes libraries from OpenJFX, which is licensed under the GNU General Public License version 2, with the Classpath Exception (http://openjdk.java.net/legal/gplv2+ce.html). The source code for OpenJFX is available at: http://jdk.java.net/openjfx/\n\n");
 
         aboutContent.setText(content.toString());
     }

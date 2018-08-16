@@ -71,7 +71,7 @@ public class ManagerDialog extends JDialog {
 
             getContentPane().setBackground(Color.WHITE);
             setTitle("Mirth Connect Server Manager");
-            setResizable(false);
+            DisplayUtil.setResizable(this, false);
 
             serviceController = ServiceControllerFactory.getServiceController();
             managerController = ManagerController.getInstance();

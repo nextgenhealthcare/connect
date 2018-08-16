@@ -18,6 +18,7 @@ APACHE-LICENSE-2.0.txt):
 	Apache XMLBeans [Mirth Connect only]
 	AWS SDK for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java)
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
+	Fast Infoset Project 1.2.14 [Mirth Connect only] (https://github.com/javaee/metro-fi/tree/1.2.14)
 	Guava 18.0 (https://code.google.com/p/guava-libraries)
 	Guice 4.1 (https://github.com/google/guice)
 	HikariCP 2.3.2 [Mirth Connect only]
@@ -33,6 +34,7 @@ APACHE-LICENSE-2.0.txt):
 	Swagger Core 1.5.4 (https://github.com/swagger-api/swagger-core)
 	Swagger UI 2.1.3 (http://swagger.io/swagger-ui/)
 	webdavclient4j 0.92 [Mirth Connect only] (http://sourceforge.net/projects/webdavclient4j/)
+	Woodstox 5.0.3 [Mirth Connect only] (https://github.com/FasterXML/woodstox)
 	Zip4j 1.3.3 (http://www.lingala.net/zip4j/)
 
 
@@ -88,24 +90,72 @@ the same license terms.
 Mirth Connect includes the following, which is distributed under the terms of
 the Common Development and Distribution License version 1.1 (see CDDL-1.1.txt):
 
+	Extended StAX API 1.8 (source code can be downloaded from:
+	https://github.com/javaee/metro-stax-ex/tree/1.8) 
+
+	GlassFish High Availability API 3.1.9 (source code can be downloaded from:
+	https://github.com/javaee/glassfish-ha-api/tree/3.1.9)
+	
+	GlassFish Management API 3.2.1.b001 (source code can be downloaded from:
+	https://github.com/javaee/gmbal-commons/tree/management-api-3.2.1-b001)
+
+	GlassFish MBean Annotation Library 3.1.0.b001 (source code can be downloaded
+	from: https://github.com/javaee/gmbal/tree/VERSION-3.1.0-b001)
+
 	HK2 2.4.0 (source code can be downloaded from:
 	https://hk2.java.net/2.4.0-b34/)
-
-	JavaMail API 1.5.0 (source code can be downloaded from:
-	http://search.maven.org/remotecontent?filepath=com/sun/mail/javax.mail/1.5.0
-	/javax.mail-1.5.0-sources.jar)
+	
+	IStack Commons Runtime 3.0.6 (source code can be downloaded from: 
+	https://github.com/javaee/jaxb-istack-commons)
+	
+	Java API for XML Web Services API 2.3.0 (source code can be downloaded from:
+	https://github.com/javaee/jax-ws-spec/tree/2.3.0/api)
+	
+	Java API for XML Web Services Runtime and Tools 2.3.0.2 (source code can be
+	downloaded from:
+	https://github.com/javaee/metro-jax-ws/tree/2.3.0.2/jaxws-ri)
 	
 	Java Persistence API 1.0 (source code can be downloaded from:
 	https://glassfish.java.net/downloads/persistence/JavaPersistence.html)
 	
+	Java XML Bind API 2.4.0-b180725.0427 (source code can be
+	downloaded from: https://github.com/javaee/jaxb-spec/tree
+	/2.4.0-b180725.0427/jaxb-api)
+	
+	Java XML Bind Runtime 2.4.0-b180725.0644 (source code can be
+	downloaded from: https://github.com/javaee/jaxb-v2/tree
+	/2.4.0-b180725.0644/jaxb-ri)
+	
+	JavaBeans Activation Framework API 1.2.0 (source code can be downloaded
+	from: https://github.com/javaee/activation/tree/JAF-1_2_0)
+	
+	JavaMail API 1.5.0 (source code can be downloaded from:
+	http://search.maven.org/remotecontent?filepath=com/sun/mail/javax.mail/1.5.0
+	/javax.mail-1.5.0-sources.jar)
+	
+	JAXB TXW Runtime 2.4.0-b180725.0427 (source code can be downloaded from:
+	https://github.com/javaee/jaxb-v2/tree/master/jaxb-ri/txw)
+	
 	Jersey RESTful Web Services framework 2.22.1 (source code can be downloaded
 	from: https://jersey.java.net/)
-
+	
 	JSON Processing API (source code can be downloaded from: 
 	https://jsonp.java.net/)
 	
-	Mimepull 1.9.6 (source code can be downloaded from:
+	Mimepull 1.9.7 (source code can be downloaded from:
 	https://mimepull.java.net/)
+	
+	SOAP with Attachment API for Java 1.4.0 (source code can be downloaded from:
+	https://github.com/javaee/javax.xml.soap/tree/1.4.0)
+	
+	SOAP with Attachment API for Java Impl 1.0 (source code can be downloaded
+	from: https://javaee.github.io/metro-saaj/)
+	
+	WS-Policy Implementation for Project Metro 2.7.2 (source code can be
+	downloaded from: https://github.com/javaee/metro-policy/tree/policy-2.7.2)
+	
+	XML Stream Buffer 1.5.4 (source code can be downloaded from:
+	https://github.com/javaee/metro-xmlstreambuffer/tree/streambuffer-1.5.4)
 
 
 --------------------------------------------------------------------------------
@@ -122,6 +172,12 @@ the Common Development and Distribution License version 1.0 (see CDDL-1.0.txt):
 
 	Swinglabs Wizard (source code can be downloaded from:
 	https://java.net/projects/wizard)
+	
+	Java Common Annotations API 1.3 (source code can be downloaded from: 
+	https://github.com/javaee/javax.annotation/tree/1.3)
+	
+	Web Services Metadata API / JSR-181 (source code can be downloaded from:
+	https://mvnrepository.com/artifact/javax.jws/jsr181-api/1.0-MR1)
 
 
 --------------------------------------------------------------------------------
@@ -1237,3 +1293,47 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
+
+
+The license below pertains to Stax2 API, which is included with Mirth Connect.
+
+=================== Beginning of License Information ===================
+
+Copyright (c) 2014, FasterXML, LLC
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, 
+this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+this list of conditions and the following disclaimer in the documentation and/or 
+other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=================== End of License Information ===================
+
+
+--------------------------------------------------------------------------------
+
+
+Mirth Connect includes unmodified libraries from OpenJFX, which is licensed 
+under the GNU General Public License version 2, with the Classpath Exception.
+A copy of this license is available in the file named GPLv2+CE.txt.
+
+The source code for OpenJFX is available at: http://jdk.java.net/openjfx/
+
+
+--------------------------------------------------------------------------------
+

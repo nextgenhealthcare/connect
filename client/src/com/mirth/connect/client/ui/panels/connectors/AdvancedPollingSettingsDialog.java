@@ -37,6 +37,7 @@ import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTimePicker;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesAdvanced;
 import com.mirth.connect.donkey.model.channel.PollingType;
 
@@ -54,7 +55,7 @@ public class AdvancedPollingSettingsDialog extends MirthDialog {
         this.channelContext = channelContext;
 
         setTitle("Settings");
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
         getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);
         setLayout(new MigLayout("novisualpadding, hidemode 3, insets 8"));
 

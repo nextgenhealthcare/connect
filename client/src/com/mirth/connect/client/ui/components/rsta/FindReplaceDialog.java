@@ -40,6 +40,7 @@ import org.fife.ui.rtextarea.SearchResult;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 
 public class FindReplaceDialog extends MirthDialog {
 
@@ -51,7 +52,7 @@ public class FindReplaceDialog extends MirthDialog {
         initComponents();
         initLayout();
         setProperties();
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
         pack();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(PlatformUI.MIRTH_FRAME);

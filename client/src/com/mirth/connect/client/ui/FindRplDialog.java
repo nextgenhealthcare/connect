@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 
 import org.syntax.jedit.JEditTextArea;
 
+import com.mirth.connect.client.ui.util.DisplayUtil;
+
 public class FindRplDialog extends MirthDialog {
 
     static MyOwnFocusTraversalPolicy tabPolicy;
@@ -41,6 +43,7 @@ public class FindRplDialog extends MirthDialog {
 
     private void initialize(JEditTextArea textarea) {
         initComponents();
+        DisplayUtil.setResizable(this, false);
         this.parent = PlatformUI.MIRTH_FRAME;
         search_text = textarea;
         Dimension dlgSize = getPreferredSize();
@@ -205,7 +208,6 @@ public class FindRplDialog extends MirthDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Find Replace");
-        setResizable(false);
 
         jLabel1.setText("Find text:");
 

@@ -110,6 +110,7 @@ import com.mirth.connect.client.ui.components.rsta.ac.js.MirthJavaScriptLanguage
 import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
 import com.mirth.connect.client.ui.tag.SettingsPanelTags;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
@@ -3463,7 +3464,7 @@ public class Frame extends JXFrame {
     public void doRemoveFilteredMessages() {
         if (alertOption(this, "<html><font color=\"red\"><b>Warning:</b></font> This will remove <b>all</b> results for the current search criteria,<br/>including those not listed on the current page. To see how many messages will<br/>be removed, close this dialog and click the Count button in the upper-right.<br/><font size='1'><br/></font><font color=\"red\"><b>Warning:</b></font> Removing a Source message will remove all of its destinations.<br/><font size='1'><br/></font>Are you sure you would like to remove all messages that match<br/>the current search criteria (including QUEUED) in this channel?<br/>Channel must be stopped for unfinished messages to be removed.</html>")) {
             if (userPreferences.getBoolean("showReprocessRemoveMessagesWarning", true)) {
-                String result = JOptionPane.showInputDialog(this, "<html>This will remove all messages that match the current search criteria.<br/>To see how many messages will be removed, close this dialog and<br/>click the Count button in the upper-right.<br><font size='1'><br></font>Type REMOVEALL and click the OK button to continue.</html>", "Remove Results", JOptionPane.WARNING_MESSAGE);
+                String result = DisplayUtil.showInputDialog(this, "<html>This will remove all messages that match the current search criteria.<br/>To see how many messages will be removed, close this dialog and<br/>click the Count button in the upper-right.<br><font size='1'><br></font>Type REMOVEALL and click the OK button to continue.</html>", "Remove Results", JOptionPane.WARNING_MESSAGE);
                 if (!StringUtils.equals(result, "REMOVEALL")) {
                     alertWarning(this, "You must type REMOVEALL to remove results.");
                     return;
@@ -4062,7 +4063,7 @@ public class Frame extends JXFrame {
                 if (!checkAlertName(alertName)) {
                     if (!alertOption(this, "Would you like to overwrite the existing alert?  Choose 'No' to create a new alert.")) {
                         do {
-                            alertName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.", alertName);
+                            alertName = DisplayUtil.showInputDialog(this, "Please enter a new name for the channel.", alertName);
                             if (alertName == null) {
                                 return;
                             }

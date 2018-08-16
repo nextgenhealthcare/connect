@@ -16,6 +16,14 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.junit.Test;
 
@@ -172,40 +180,40 @@ public class JsonXmlUtilTest {
     @Test
     public void testJsonToXml1() throws Exception {
         // No pretty printing
-        assertEquals(XML1, JsonUtil.toXml(JSON1));
-        assertEquals(XML1, JsonUtil.toXml(JSON1, false, false));
+        assertXmlEquals(XML1, JsonUtil.toXml(JSON1));
+        assertXmlEquals(XML1, JsonUtil.toXml(JSON1, false, false));
     }
 
     @Test
     public void testJsonToXml2() throws Exception {
         // Pretty printing
-        assertFalse(XML1.equals(JsonUtil.toXml(JSON1, false, true)));
-        assertEquals(XmlUtil.prettyPrint(XML1), XmlUtil.prettyPrint(JsonUtil.toXml(JSON1, false, true)));
+        assertXmlNotEquals(XML1, JsonUtil.toXml(JSON1, false, true));
+        assertXmlEquals(XmlUtil.prettyPrint(XML1), XmlUtil.prettyPrint(JsonUtil.toXml(JSON1, false, true)));
     }
 
     @Test
     public void testJsonToXml3() throws Exception {
         // Multiple PI
-        assertEquals(XML2, JsonUtil.toXml(JSON1, true, false));
+        assertXmlEquals(XML2, JsonUtil.toXml(JSON1, true, false));
     }
 
     @Test
     public void testJsonToXml4() throws Exception {
-        assertEquals(XML13, JsonUtil.toXml(JSON12, false, false));
+        assertXmlEquals(XML13, JsonUtil.toXml(JSON12, false, false));
     }
 
     @Test
     public void testXmlToJsonToXml1() throws Exception {
         String json = XmlUtil.toJson(XML3, true, true, false, true);
         assertEquals(JSON4, json);
-        assertEquals(XML10, JsonUtil.toXml(json, false, false));
+        assertXmlEquals(XML10, JsonUtil.toXml(json, false, false));
     }
 
     @Test
     public void testXmlToJsonToXml2() throws Exception {
         String json = XmlUtil.toJson(XML11, true, true, false, true);
         String xml = JsonUtil.toXml(json, false, false);
-        assertEquals(XML12, xml);
+        assertXmlEquals(XML12, xml);
     }
 
     @Test
@@ -213,7 +221,33 @@ public class JsonXmlUtilTest {
         String xml = readFile(XML_FILE_INPUT_1);
         String xmlToJson = XmlUtil.toJson(xml, true);
         String expectedXml = readFile(XML_FILE_OUTPUT_2);
-        assertEquals(expectedXml, JsonUtil.toXml(xmlToJson, false, false));
+        assertXmlEquals(expectedXml, JsonUtil.toXml(xmlToJson, false, false));
+    }
+
+    private void assertXmlEquals(String xml1, String xml2) throws Exception {
+        assertXmlCompare(xml1, xml2, true);
+    }
+
+    private void assertXmlNotEquals(String xml1, String xml2) throws Exception {
+        assertXmlCompare(xml1, xml2, false);
+    }
+
+    private void assertXmlCompare(String xml1, String xml2, boolean assertEquals) throws Exception {
+        xml1 = normalizeXml(xml1);
+        xml2 = normalizeXml(xml2);
+
+        if (assertEquals) {
+            assertEquals(xml1, xml2);
+        } else {
+            assertFalse(xml1.equals(xml2));
+        }
+    }
+
+    private String normalizeXml(String xml) throws Exception {
+        Source source = new StreamSource(new StringReader(xml));
+        Writer writer = new StringWriter();
+        TransformerFactory.newInstance().newTransformer().transform(source, new StreamResult(writer));
+        return writer.toString();
     }
 
     private static String readFile(String filename) throws FileNotFoundException, IOException {

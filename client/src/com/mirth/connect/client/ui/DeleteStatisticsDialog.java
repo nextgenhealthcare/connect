@@ -13,6 +13,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.List;
 
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.DashboardStatus;
 
 /** Creates the Delete Statistics dialog. */
@@ -28,7 +29,7 @@ public class DeleteStatisticsDialog extends MirthDialog {
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
         pack();
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();

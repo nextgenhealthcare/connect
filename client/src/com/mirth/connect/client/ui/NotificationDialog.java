@@ -55,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ConnectServiceUtil;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.notification.Notification;
 
@@ -74,7 +75,7 @@ public class NotificationDialog extends MirthDialog {
         super(PlatformUI.MIRTH_FRAME, true);
         parent = PlatformUI.MIRTH_FRAME;
 
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
         setTitle("Notifications");
         setPreferredSize(new Dimension(750, 625));
         getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);

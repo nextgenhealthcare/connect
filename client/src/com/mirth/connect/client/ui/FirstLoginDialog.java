@@ -17,6 +17,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JDialog;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.User;
 
 /**
@@ -31,6 +32,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        DisplayUtil.setResizable(this, false);
         finishButton.setEnabled(false);
 
         userEditPanel.setUser(this, currentUser);
@@ -90,7 +92,6 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Welcome to Mirth Connect");
-        setResizable(false);
 
         channelOverview.setBackground(new java.awt.Color(255, 255, 255));
         channelOverview.setName(""); // NOI18N

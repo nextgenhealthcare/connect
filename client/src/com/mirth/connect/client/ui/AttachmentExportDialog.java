@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.MirthButton;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.util.AttachmentUtil;
 
@@ -46,7 +47,7 @@ public class AttachmentExportDialog extends MirthDialog {
         setPreferredSize(new Dimension(500, 155));
         getContentPane().setBackground(Color.white);
         setLocationRelativeTo(null);
-        setResizable(false);
+        DisplayUtil.setResizable(this, false);
         setModal(true);
 
         initComponents();
