@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -309,6 +310,7 @@ public class ManagerController {
     }
 
     public void launchAdministrator(String maxHeapSize) {
+        boolean success = false;
         boolean usingHttp = isUsingHttp();
 
         String port = getServerProperties().getString(usingHttp ? ManagerConstants.SERVER_HTTP_PORT : ManagerConstants.SERVER_HTTPS_PORT);
@@ -317,13 +319,32 @@ public class ManagerController {
         try {
             maxHeapSize = StringUtils.isBlank(maxHeapSize) ? "512m" : maxHeapSize;
             String scheme = usingHttp ? "http" : "https";
-            String cmd = ManagerConstants.CMD_WEBSTART_PREFIX1 + scheme + ManagerConstants.CMD_WEBSTART_PREFIX2 + port + contextPath + ManagerConstants.CMD_WEBSTART_SUFFIX + "?maxHeapSize=" + maxHeapSize + "&time=" + new Date().getTime();
+            String url = scheme + ManagerConstants.CMD_WEBSTART_PREFIX2 + port + contextPath + ManagerConstants.CMD_WEBSTART_SUFFIX + "?maxHeapSize=" + maxHeapSize + "&time=" + new Date().getTime();
 
-            if (CmdUtil.execCmd(new String[] { cmd }, false) != 0) {
-                PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Administator could not be launched.");
+            // Try opening the URL with the default browser first
+            if (Desktop.isDesktopSupported()) {
+                try {
+                    Desktop.getDesktop().browse(new URI(url));
+                    success = true;
+                } catch (Exception e) {
+                    // Ignore
+                }
+            }
+
+            // If that failed, and we're not on JDK 11+, try with Java Web Start
+            if (!success && !DisplayUtil.isJDK11OrGreater()) {
+                String cmd = ManagerConstants.CMD_WEBSTART_PREFIX1 + url;
+
+                if (CmdUtil.execCmd(new String[] { cmd }, false) == 0) {
+                    success = true;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        if (!success) {
+            PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Administator could not be launched.");
         }
     }
 
