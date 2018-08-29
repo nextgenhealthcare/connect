@@ -122,7 +122,6 @@
 		</jar>
 
 		<copy file="${lib}/mirth-crypto.jar" todir="${setup.server.lib}" />
-		<copy file="${lib}/commons/not-yet-commons-ssl-0.3.11.jar" todir="${setup.server.lib}/commons" />
 	</target>
 
 	<target name="create-connectors" depends="create-client-core">
