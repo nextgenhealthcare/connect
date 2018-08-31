@@ -27,7 +27,7 @@ APACHE-LICENSE-2.0.txt):
 	Jetty 9.4.9 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
 	MyBatis 3.1.1 [Mirth Connect only]
-	Not-Yet-Commons-SSL 0.3.11
+	Not-Going-To-Be-Commons-SSL 0.3.18
 	Quartz Scheduler 2.1.7 [Mirth Connect only]
 	SQLite JDBC Driver 3.7.2 [Mirth Connect only] (https://bitbucket.org/xerial/sqlite-jdbc)
 	StAXON 1.3 [Mirth Connect only] (https://github.com/beckchr/staxon)
