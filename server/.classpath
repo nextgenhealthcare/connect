@@ -153,6 +153,9 @@
 	<classpathentry kind="lib" path="lib/jersey/ext/asm-tree-6.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/asm-util-6.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/asm-xml-6.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jna-4.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/jna-platform-4.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/oshi-core-3.8.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>

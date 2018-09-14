@@ -24,6 +24,7 @@ APACHE-LICENSE-2.0.txt):
 	HikariCP 2.3.2 [Mirth Connect only]
 	Jackson Project (https://github.com/FasterXML/jackson)
 	Jasypt 1.7.1 [Mirth Connect only]
+	Java Native Access (JNA) 4.5.2 [Mirth Connect only] (https://github.com/java-native-access/jna)
 	Jetty 9.4.9 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
 	MyBatis 3.1.1 [Mirth Connect only]
@@ -1333,6 +1334,16 @@ under the GNU General Public License version 2, with the Classpath Exception.
 A copy of this license is available in the file named GPLv2+CE.txt.
 
 The source code for OpenJFX is available at: http://jdk.java.net/openjfx/
+
+
+--------------------------------------------------------------------------------
+
+
+Mirth Connect includes the OSHI library, which is licensed under the Eclipse 
+Public License version 1.0. A copy of this license is available in the file
+named EPL-1.0.txt.
+
+The source code for OSHI is available at: https://github.com/oshi/oshi
 
 
 --------------------------------------------------------------------------------
