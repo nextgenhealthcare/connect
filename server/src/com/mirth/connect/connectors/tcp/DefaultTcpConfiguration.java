@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.mirth.connect.donkey.server.channel.Connector;
 
@@ -39,5 +41,10 @@ public class DefaultTcpConfiguration implements TcpConfiguration {
     @Override
     public Socket createResponseSocket() {
         return new StateAwareSocket();
+    }
+
+    @Override
+    public Map<String, Object> getSocketInformation(Socket socket) {
+        return new HashMap<String, Object>();
     }
 }
