@@ -74,13 +74,13 @@ public interface ChannelServletInterface extends BaseServletInterface {
     @GET
     @Path("/{channelId}/connectorNames")
     @ApiOperation("Returns all connector names for a channel.")
-    @MirthOperation(name = "getConnectorNames", display = "Get connector names", permission = Permissions.CHANNELS_VIEW, auditable = false)
+    @MirthOperation(name = "getConnectorNames", display = "Get connector names", permission = Permissions.MESSAGES_VIEW, auditable = false)
     public Map<Integer, String> getConnectorNames(@Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId) throws ClientException;
 
     @GET
     @Path("/{channelId}/metaDataColumns")
     @ApiOperation("Returns all metadata columns for a channel.")
-    @MirthOperation(name = "getMetaDataColumns", display = "Get metadata columns", permission = Permissions.CHANNELS_VIEW, auditable = false)
+    @MirthOperation(name = "getMetaDataColumns", display = "Get metadata columns", permission = Permissions.MESSAGES_VIEW, auditable = false)
     public List<MetaDataColumn> getMetaDataColumns(@Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @PathParam("channelId") String channelId) throws ClientException;
 
     @GET

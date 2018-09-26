@@ -45,13 +45,13 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @GET
     @Path("/{channelId}/status")
     @ApiOperation("Returns the dashboard status for a single channel ID.")
-    @MirthOperation(name = "getChannelStatus", display = "Get status for single channel", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    @MirthOperation(name = "getChannelStatus", display = "Get status for single channel", permission = Permissions.DASHBOARD_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public DashboardStatus getChannelStatus(@Param("channelId") @ApiParam("The channel ID to return a dashboard status for.") @PathParam("channelId") String channelId) throws ClientException;
 
     @GET
     @Path("/statuses")
     @ApiOperation("Returns all channel dashboard statuses, or multiple statuses by channel ID.")
-    @MirthOperation(name = "getChannelStatusList", display = "Get status list for specific channels", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    @MirthOperation(name = "getChannelStatusList", display = "Get status list for specific channels", permission = Permissions.DASHBOARD_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<DashboardStatus> getChannelStatusList(// @formatter:off
             @Param("channelIds") @ApiParam(value = "The channel IDs to return dashboard statuses for. If absent, all statuses will be returned.") @QueryParam("channelId") Set<String> channelIds,
             @Param("filter") @ApiParam(value = "The filter string to limit dashboard statuses with.") @QueryParam("filter") String filter,
@@ -61,7 +61,7 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @POST
     @Path("/statuses/_getChannelStatusList")
     @ApiOperation("Returns all channel dashboard statuses, or multiple statuses by channel ID. This is a POST request alternative to GET /statuses that may be used when there are too many channel IDs to include in the query parameters.")
-    @MirthOperation(name = "getChannelStatusList", display = "Get status list for specific channels", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    @MirthOperation(name = "getChannelStatusList", display = "Get status list for specific channels", permission = Permissions.DASHBOARD_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<DashboardStatus> getChannelStatusListPost(// @formatter:off
             @Param("channelIds") @ApiParam(value = "The channel IDs to return dashboard statuses for. If absent, all statuses will be returned.") Set<String> channelIds,
             @Param("filter") @ApiParam(value = "The filter string to limit dashboard statuses with.") @QueryParam("filter") String filter,
@@ -71,7 +71,7 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @GET
     @Path("/statuses/initial")
     @ApiOperation("Returns a DashboardChannelInfo object containing a partial channel status list and a set of remaining channel IDs.")
-    @MirthOperation(name = "getChannelStatusListInitial", display = "Get initial channel status list", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    @MirthOperation(name = "getChannelStatusListInitial", display = "Get initial channel status list", permission = Permissions.DASHBOARD_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public DashboardChannelInfo getDashboardChannelInfo(// @formatter:off
             @Param("fetchSize") @ApiParam(value = "Specifies the maximum number of statuses to return.", required = true, defaultValue = "100") @QueryParam("fetchSize") int fetchSize,
             @Param("filter") @ApiParam(value = "The filter string to limit dashboard statuses with.") @QueryParam("filter") String filter) throws ClientException;

@@ -3326,29 +3326,41 @@ public class Frame extends JXFrame {
             channelId = messageBrowser.getChannelId();
         }
 
-        /*
-         * If the user has not yet navigated to channels at this point, the cache (channelStatuses
-         * object) will return null, and the resulting block will pull down the channelStatus for
-         * the given id.
-         */
-        ChannelStatus channelStatus = channelPanel.getCachedChannelStatuses().get(channelId);
-        if (channelStatus == null) {
-            try {
-                Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
-                channelHeaders.put(channelId, new ChannelHeader(0, null, true));
-                channelPanel.updateChannelStatuses(mirthClient.getChannelSummary(channelHeaders, true));
-                channelStatus = channelPanel.getCachedChannelStatuses().get(channelId);
-            } catch (ClientException e) {
-                alertThrowable(PlatformUI.MIRTH_FRAME, e);
-            }
-        }
-
-        if (channelId == null || channelStatus == null) {
-            alertError(this, "Channel no longer exists!");
+        if (channelId == null) {
+            alertError(this, "Could not find channel ID!");
             return;
         }
 
-        editMessageDialog.setPropertiesAndShow("", channelStatus.getChannel().getSourceConnector().getTransformer().getInboundDataType(), channelStatus.getChannel().getId(), dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds, new HashMap<String, Object>());
+        String dataType = "RAW";
+
+        if (AuthorizationControllerFactory.getAuthorizationController().checkTask(TaskConstants.VIEW_KEY, TaskConstants.VIEW_CHANNEL)) {
+            /*
+             * If the user has not yet navigated to channels at this point, the cache
+             * (channelStatuses object) will return null, and the resulting block will pull down the
+             * channelStatus for the given id.
+             */
+            ChannelStatus channelStatus = channelPanel.getCachedChannelStatuses().get(channelId);
+
+            if (channelStatus == null) {
+                try {
+                    Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
+                    channelHeaders.put(channelId, new ChannelHeader(0, null, true));
+                    channelPanel.updateChannelStatuses(mirthClient.getChannelSummary(channelHeaders, true));
+                    channelStatus = channelPanel.getCachedChannelStatuses().get(channelId);
+                } catch (ClientException e) {
+                    alertThrowable(PlatformUI.MIRTH_FRAME, e);
+                }
+            }
+
+            if (channelStatus == null) {
+                alertError(this, "Channel no longer exists!");
+                return;
+            } else {
+                dataType = channelStatus.getChannel().getSourceConnector().getTransformer().getInboundDataType();
+            }
+        }
+
+        editMessageDialog.setPropertiesAndShow("", dataType, channelId, dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds, new HashMap<String, Object>());
     }
 
     public void doExportMessages() {

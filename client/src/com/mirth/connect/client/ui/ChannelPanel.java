@@ -91,6 +91,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.ForbiddenException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.Frame.ChannelTask;
 import com.mirth.connect.client.ui.Frame.ConflictOption;
@@ -196,6 +197,7 @@ public class ChannelPanel extends AbstractFramePanel {
     private Preferences userPreferences;
     private boolean tagTextModeSelected = false;
     private boolean tagIconModeSelected = false;
+    private boolean canViewChannelGroups = AuthorizationControllerFactory.getAuthorizationController().checkTask(TaskConstants.CHANNEL_GROUP_KEY, TaskConstants.CHANNEL_GROUP_EXPORT_GROUP);
 
     public ChannelPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -254,7 +256,7 @@ public class ChannelPanel extends AbstractFramePanel {
 
         ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
 
-        if (userPreferences.getBoolean("channelGroupViewEnabled", true)) {
+        if (canViewChannelGroups && userPreferences.getBoolean("channelGroupViewEnabled", true)) {
             tableModeGroupsButton.setSelected(true);
             tableModeGroupsButton.setContentFilled(true);
             tableModeChannelsButton.setContentFilled(false);
@@ -265,6 +267,10 @@ public class ChannelPanel extends AbstractFramePanel {
             tableModeGroupsButton.setContentFilled(false);
             model.setGroupModeEnabled(false);
         }
+        
+        if (!canViewChannelGroups) {
+            tableModeGroupsButton.setEnabled(false);
+        }
 
         updateTagButtons(userPreferences.getBoolean("showTags", true), userPreferences.getBoolean("tagTextMode", false), false);
 
@@ -274,7 +280,7 @@ public class ChannelPanel extends AbstractFramePanel {
 
     @Override
     public void switchPanel() {
-        boolean groupViewEnabled = userPreferences.getBoolean("channelGroupViewEnabled", true);
+        boolean groupViewEnabled = canViewChannelGroups && userPreferences.getBoolean("channelGroupViewEnabled", true);
         switchTableMode(groupViewEnabled, false);
 
         if (groupViewEnabled) {
@@ -572,9 +578,11 @@ public class ChannelPanel extends AbstractFramePanel {
         try {
             updateChannelGroups(parent.mirthClient.getAllChannelGroups());
         } catch (ClientException e) {
-            SwingUtilities.invokeLater(() -> {
-                parent.alertThrowable(parent, e, false);
-            });
+            if (!(e instanceof ForbiddenException)) {
+                SwingUtilities.invokeLater(() -> {
+                    parent.alertThrowable(parent, e, false);
+                });
+            }
         }
     }
 
@@ -596,7 +604,13 @@ public class ChannelPanel extends AbstractFramePanel {
         try {
             channelIdsAndNames = parent.mirthClient.getChannelIdsAndNames();
             updateChannelStatuses(parent.mirthClient.getChannelSummary(getChannelHeaders(), false));
-            updateChannelGroups(parent.mirthClient.getAllChannelGroups());
+
+            try {
+                updateChannelGroups(parent.mirthClient.getAllChannelGroups());
+            } catch (ForbiddenException e) {
+                // Ignore
+            }
+
             channelDependencies = parent.mirthClient.getChannelDependencies();
             updateChannelMetadata(parent.mirthClient.getChannelMetadata());
 
@@ -3460,6 +3474,10 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     private boolean switchTableMode(boolean groupModeEnabled, boolean promptSave) {
+        if (!canViewChannelGroups) {
+            groupModeEnabled = false;
+        }
+        
         ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
         if (model.isGroupModeEnabled() != groupModeEnabled) {
             if (promptSave && isSaveEnabled() && !promptSave(true)) {

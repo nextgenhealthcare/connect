@@ -43,13 +43,13 @@ public interface ChannelGroupServletInterface extends BaseServletInterface {
     @GET
     @Path("/")
     @ApiOperation("Retrieve a list of all channel groups, or multiple channel groups by ID.")
-    @MirthOperation(name = "getChannelGroups", display = "Get channel groups", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    @MirthOperation(name = "getChannelGroups", display = "Get channel groups", permission = Permissions.CHANNEL_GROUPS_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<ChannelGroup> getChannelGroups(@Param("channelGroupIds") @ApiParam(value = "The IDs of the channel groups to retrieve. If absent, all groups will be retrieved.") @QueryParam("channelGroupId") Set<String> channelGroupIds) throws ClientException;
 
     @POST
     @Path("/_getChannelGroups")
     @ApiOperation("Retrieve a list of all channel groups, or multiple channel groups by ID. This is a POST request alternative to GET /channelgroups that may be used when there are too many channel group IDs to include in the query parameters.")
-    @MirthOperation(name = "getChannelGroups", display = "Get channel groups", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    @MirthOperation(name = "getChannelGroups", display = "Get channel groups", permission = Permissions.CHANNEL_GROUPS_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<ChannelGroup> getChannelGroupsPost(@Param("channelGroupIds") @ApiParam(value = "The IDs of the channel groups to retrieve. If absent, all groups will be retrieved.") Set<String> channelGroupIds) throws ClientException;
 
     @POST
