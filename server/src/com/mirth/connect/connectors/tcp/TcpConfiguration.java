@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
 
 import com.mirth.connect.donkey.server.channel.Connector;
 
@@ -27,4 +28,6 @@ public interface TcpConfiguration {
     public Socket createSocket() throws IOException;
 
     public Socket createResponseSocket() throws IOException;
+
+    public Map<String, Object> getSocketInformation(Socket socket);
 }

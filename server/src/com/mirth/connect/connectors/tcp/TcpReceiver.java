@@ -562,6 +562,7 @@ public class TcpReceiver extends SourceConnector {
                             sourceMap.put("remoteAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
                             sourceMap.put("remotePort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
                         }
+                        sourceMap.putAll(configuration.getSocketInformation(socket));
 
                         OutputStream outputStream = null;
 
