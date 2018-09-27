@@ -172,7 +172,7 @@
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
-	<classpathentry kind="lib" path="lib/rhino-1.7.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/rhino-1.7.9.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/file/aws-java-sdk-core-1.11.194.jar"/>
 	<classpathentry kind="lib" path="lib/commons-vfs2-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/staxon-1.3.jar"/>

@@ -379,4 +379,19 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
         map.put(MirthSSLUtil.KEY_ENABLED_CIPHER_SUITES, MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()));
         return map;
     }
+
+    @Override
+    public int getRhinoLanguageVersion() {
+        int languageVersion = org.mozilla.javascript.Context.VERSION_DEFAULT;
+        Integer rhinoLanguageVersion = configurationController.getRhinoLanguageVersion();
+        if (rhinoLanguageVersion != null) {
+            try {
+                org.mozilla.javascript.Context.checkLanguageVersion(rhinoLanguageVersion);
+                languageVersion = rhinoLanguageVersion;
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+        return languageVersion;
+    }
 }

@@ -21,6 +21,7 @@ import org.mozilla.javascript.ScriptableObject;
 
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class MirthContextFactory extends ContextFactory {
@@ -31,6 +32,7 @@ public class MirthContextFactory extends ContextFactory {
     private ScriptableObject sealedSharedScope;
     private ObjectXMLSerializer serializer;
     private ClassLoader isolatedClassLoader;
+    private int languageVersion = Context.VERSION_DEFAULT;
 
     public MirthContextFactory(URL[] urls, Set<String> resourceIds) {
         this.id = UUID.randomUUID().toString();
@@ -46,10 +48,22 @@ public class MirthContextFactory extends ContextFactory {
 
         initApplicationClassLoader(classLoader);
 
+        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+
+        Integer rhinoLanguageVersion = configurationController.getRhinoLanguageVersion();
+        if (rhinoLanguageVersion != null) {
+            try {
+                Context.checkLanguageVersion(rhinoLanguageVersion);
+                languageVersion = rhinoLanguageVersion;
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+
         sealedSharedScope = JavaScriptScopeUtil.createSealedSharedScope(this);
         serializer = new ObjectXMLSerializer(classLoader);
         try {
-            serializer.init(ControllerFactory.getFactory().createConfigurationController().getServerVersion());
+            serializer.init(configurationController.getServerVersion());
         } catch (Exception e) {
         }
         serializer.processAnnotations(ObjectXMLSerializer.getExtraAnnotatedClasses());
@@ -84,6 +98,6 @@ public class MirthContextFactory extends ContextFactory {
 
     @Override
     protected Context makeContext() {
-        return new MirthContext(this);
+        return new MirthContext(this, languageVersion);
     }
 }

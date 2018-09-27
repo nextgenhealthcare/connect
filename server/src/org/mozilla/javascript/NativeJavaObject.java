@@ -364,9 +364,13 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
                 }
             }
             else if (to.isInterface()) {
-                if (fromObj instanceof NativeObject || fromObj instanceof NativeFunction) {
+
+                if (fromObj instanceof NativeFunction) {
                     // See comments in createInterfaceAdapter
                     return 1;
+                }
+                if (fromObj instanceof NativeObject) {
+                    return 2;
                 }
                 return 12;
             }
@@ -514,6 +518,14 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
                 return ScriptRuntime.toString(value);
             }
             else if (type == ScriptRuntime.ObjectClass) {
+                Context context = Context.getCurrentContext();
+                if(context.hasFeature(Context.FEATURE_INTEGER_WITHOUT_DECIMAL_PLACE)) {
+                    //to process numbers like 2.0 as 2 without decimal place
+                    long roundedValue = Math.round(toDouble(value));
+                    if(roundedValue == toDouble(value)) {
+                        return coerceToNumber(Long.TYPE, value);
+                    }
+                }
                 return coerceToNumber(Double.TYPE, value);
             }
             else if ((type.isPrimitive() && type != Boolean.TYPE) ||
@@ -805,8 +817,7 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
         else {
             Method meth;
             try {
-                meth = value.getClass().getMethod("doubleValue",
-                                                  (Class [])null);
+                meth = value.getClass().getMethod("doubleValue", (Class [])null);
             }
             catch (NoSuchMethodException e) {
                 meth = null;
@@ -816,8 +827,7 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
             }
             if (meth != null) {
                 try {
-                    return ((Number)meth.invoke(value,
-                                                (Object [])null)).doubleValue();
+                    return ((Number)meth.invoke(value, (Object [])null)).doubleValue();
                 }
                 catch (IllegalAccessException e) {
                     // XXX: ignore, or error message?

@@ -231,6 +231,8 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract int getStatsUpdateInterval();
 
+    public abstract Integer getRhinoLanguageVersion();
+
     /**
      * Returns the server configuration, which contains:
      * <ul>
