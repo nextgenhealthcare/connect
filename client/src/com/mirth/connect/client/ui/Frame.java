@@ -519,6 +519,8 @@ public class Frame extends JXFrame {
         // Refresh code templates after extensions have been loaded
         codeTemplatePanel.doRefreshCodeTemplates(false);
 
+        SwingUtilities.invokeLater(() -> LicenseClient.check(mirthClient));
+
         // DEBUGGING THE UIDefaults:
 
 //         UIDefaults uiDefaults = UIManager.getDefaults(); Enumeration enum1 =

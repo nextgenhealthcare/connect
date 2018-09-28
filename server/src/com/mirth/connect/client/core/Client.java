@@ -95,6 +95,7 @@ import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DatabaseTask;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
+import com.mirth.connect.model.LicenseInfo;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.MetaData;
@@ -701,6 +702,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     @Override
     public synchronized void setUpdateSettings(UpdateSettings settings) throws ClientException {
         getServlet(ConfigurationServletInterface.class).setUpdateSettings(settings);
+    }
+
+    /**
+     * Returns a LicenseInfo object with the expiration date and other information.
+     * 
+     * @see ConfigurationServletInterface#getLicenseInfo
+     */
+    @Override
+    public LicenseInfo getLicenseInfo() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getLicenseInfo();
     }
 
     /**
