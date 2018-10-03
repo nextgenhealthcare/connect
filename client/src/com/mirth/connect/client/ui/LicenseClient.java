@@ -14,22 +14,47 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.model.LicenseInfo;
 
 public class LicenseClient {
 
-    public static void check(Client client) {
+    private static Timer timer;
+
+    public static void start() {
+        stop();
+
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                check();
+            }
+        };
+
+        timer = new Timer(true);
+        timer.scheduleAtFixedRate(task, 0, 24L * 60L * 60L * 1000L);
+    }
+
+    public static void stop() {
+        if (timer != null) {
+            timer.cancel();
+        }
+    }
+
+    private static void check() {
         try {
-            LicenseInfo licenseInfo = client.getLicenseInfo();
+            LicenseInfo licenseInfo = PlatformUI.MIRTH_FRAME.mirthClient.getLicenseInfo();
 
             if (licenseInfo.getExpirationDate() != null && licenseInfo.getExpirationDate() > 0) {
-                ZonedDateTime now = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-                ZonedDateTime expiration = ZonedDateTime.ofInstant(Instant.ofEpochMilli(licenseInfo.getExpirationDate()), ZoneId.systemDefault());
+                final ZonedDateTime now = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+                final ZonedDateTime expiration = ZonedDateTime.ofInstant(Instant.ofEpochMilli(licenseInfo.getExpirationDate()), ZoneId.systemDefault());
 
                 Long warningPeriod = licenseInfo.getWarningPeriod();
                 if (warningPeriod == null) {
@@ -58,13 +83,15 @@ public class LicenseClient {
 
                     int days = (int) Math.ceil((double) Duration.between(now, endDate).getSeconds() / 60 / 60 / 24);
                     builder.append(days).append(" day").append(days == 1 ? "" : "s").append(".<br/>Please contact NextGen Sales to renew your license.</html>");
-                    String message = builder.toString();
+                    final String message = builder.toString();
 
-                    if (now.isAfter(expiration)) {
-                        PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, message);
-                    } else {
-                        PlatformUI.MIRTH_FRAME.alertWarning(PlatformUI.MIRTH_FRAME, message);
-                    }
+                    SwingUtilities.invokeLater(() -> {
+                        if (now.isAfter(expiration)) {
+                            PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, message);
+                        } else {
+                            PlatformUI.MIRTH_FRAME.alertWarning(PlatformUI.MIRTH_FRAME, message);
+                        }
+                    });
                 }
             }
         } catch (ClientException e) {

@@ -10,10 +10,8 @@
 package com.mirth.connect.server.api.servlets;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -26,7 +24,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
@@ -254,31 +251,7 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
 
     @Override
     public LicenseInfo getLicenseInfo() {
-        Long expirationDate = null;
-        String expirationDateStr = System.getProperty(LicenseInfo.EXPIRATION_DATE_KEY);
-        if (StringUtils.isNotBlank(expirationDateStr)) {
-            expirationDate = Long.parseLong(expirationDateStr);
-        }
-
-        Long warningPeriod = null;
-        String warningPeriodStr = System.getProperty(LicenseInfo.WARNING_PERIOD_KEY);
-        if (StringUtils.isNotBlank(warningPeriodStr)) {
-            warningPeriod = Long.parseLong(warningPeriodStr);
-        }
-
-        Long gracePeriod = null;
-        String gracePeriodStr = System.getProperty(LicenseInfo.GRACE_PERIOD_KEY);
-        if (StringUtils.isNotBlank(gracePeriodStr)) {
-            gracePeriod = Long.parseLong(gracePeriodStr);
-        }
-
-        Set<String> extensions = new HashSet<String>();
-        String extensionsStr = System.getProperty(LicenseInfo.EXTENSIONS_KEY);
-        if (StringUtils.isNotBlank(extensionsStr)) {
-            extensions.addAll(Arrays.asList(StringUtils.split(extensionsStr, ',')));
-        }
-
-        return new LicenseInfo(expirationDate, warningPeriod, gracePeriod, extensions);
+        return LicenseInfo.INSTANCE;
     }
 
     @Override

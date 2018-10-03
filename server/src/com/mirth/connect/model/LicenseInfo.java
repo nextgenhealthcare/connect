@@ -10,26 +10,19 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 public class LicenseInfo implements Serializable {
 
-    public static final String EXPIRATION_DATE_KEY = "NEXTGEN_CONNECT_LICENSE_EXPIRATION";
-    public static final String WARNING_PERIOD_KEY = "NEXTGEN_CONNECT_LICENSE_WARNING_PERIOD";
-    public static final String GRACE_PERIOD_KEY = "NEXTGEN_CONNECT_LICENSE_GRACE_PERIOD";
-    public static final String EXTENSIONS_KEY = "NEXTGEN_CONNECT_LICENSE_EXTENSIONS";
+    public static final LicenseInfo INSTANCE = new LicenseInfo();
 
     private Long expirationDate;
     private Long warningPeriod;
     private Long gracePeriod;
-    private Set<String> extensions;
+    private Set<String> extensions = new HashSet<String>();
 
-    public LicenseInfo(Long expirationDate, Long warningPeriod, Long gracePeriod, Set<String> extensions) {
-        this.expirationDate = expirationDate;
-        this.warningPeriod = warningPeriod;
-        this.gracePeriod = gracePeriod;
-        this.extensions = extensions;
-    }
+    public LicenseInfo() {}
 
     public Long getExpirationDate() {
         return expirationDate;
