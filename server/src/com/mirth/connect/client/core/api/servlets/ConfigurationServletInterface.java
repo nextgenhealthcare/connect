@@ -41,6 +41,7 @@ import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
+import com.mirth.connect.model.LicenseInfo;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ServerConfiguration;
@@ -170,6 +171,12 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @ApiOperation("Updates the update settings.")
     @MirthOperation(name = "setUpdateSettings", display = "Set update settings", auditable = false)
     public void setUpdateSettings(@Param("settings") @ApiParam(value = "The UpdateSettings object containing all of the settings to update.", required = true) UpdateSettings settings) throws ClientException;
+
+    @GET
+    @Path("/licenseInfo")
+    @ApiOperation("Returns a LicenseInfo object with the expiration date and other information.")
+    @MirthOperation(name = "getLicenseInfo", display = "Get license info", auditable = false)
+    public LicenseInfo getLicenseInfo() throws ClientException;
 
     @POST
     @Path("/_generateGUID")

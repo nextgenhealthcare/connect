@@ -39,6 +39,7 @@ import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LibraryProperties;
+import com.mirth.connect.model.LicenseInfo;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.ResourceProperties;
@@ -246,6 +247,11 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }
+    }
+
+    @Override
+    public LicenseInfo getLicenseInfo() {
+        return LicenseInfo.INSTANCE;
     }
 
     @Override

@@ -242,7 +242,7 @@ public class Frame extends JXFrame {
         taskPaneContainer = new JXTaskPaneContainer();
 
         StringBuilder titleText = new StringBuilder();
-        
+
         if (!StringUtils.isBlank(PlatformUI.ENVIRONMENT_NAME)) {
             titleText.append(PlatformUI.ENVIRONMENT_NAME + " - ");
         }
@@ -518,6 +518,8 @@ public class Frame extends JXFrame {
 
         // Refresh code templates after extensions have been loaded
         codeTemplatePanel.doRefreshCodeTemplates(false);
+
+        LicenseClient.start();
 
         // DEBUGGING THE UIDefaults:
 
@@ -2001,6 +2003,8 @@ public class Frame extends JXFrame {
         if (!confirmLeave()) {
             return false;
         }
+
+        LicenseClient.stop();
 
         // MIRTH-3074 Remove the keyEventDispatcher to prevent memory leak.
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keyEventDispatcher);
