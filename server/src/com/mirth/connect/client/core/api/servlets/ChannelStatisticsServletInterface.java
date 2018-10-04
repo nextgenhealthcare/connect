@@ -44,7 +44,7 @@ public interface ChannelStatisticsServletInterface extends BaseServletInterface 
     @GET
     @Path("/statistics")
     @ApiOperation("Returns the Statistics for all channels.")
-    @MirthOperation(name = "getAllStatistics", display = "Get all statistics", permission = Permissions.CHANNELS_VIEW, auditable = false)
+    @MirthOperation(name = "getAllStatistics", display = "Get all statistics", permission = Permissions.DASHBOARD_VIEW, auditable = false)
     public List<ChannelStatistics> getStatistics(//@formatter:off
             @Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") @QueryParam("channelId") Set<String> channelIds,
             @Param("includeUndeployed") @ApiParam(value = "If true, statistics for undeployed channels will also be included.") @QueryParam("includeUndeployed") boolean includeUndeployed,
@@ -57,7 +57,7 @@ public interface ChannelStatisticsServletInterface extends BaseServletInterface 
     @Path("/statistics/_getStatistics")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation("Returns the Statistics for all channels. This is a POST request alternative to GET /statistics that may be used when there are too many channel IDs to include in the query parameters.")
-    @MirthOperation(name = "getAllStatistics", display = "Get all statistics", permission = Permissions.CHANNELS_VIEW, auditable = false)
+    @MirthOperation(name = "getAllStatistics", display = "Get all statistics", permission = Permissions.DASHBOARD_VIEW, auditable = false)
     public List<ChannelStatistics> getStatisticsPost(//@formatter:off
             @Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") @FormDataParam("channelIds") Set<String> channelIds,
             @Param("includeUndeployed") @ApiParam(value = "If true, statistics for undeployed channels will also be included.") @FormDataParam("includeUndeployed") boolean includeUndeployed,
@@ -69,7 +69,7 @@ public interface ChannelStatisticsServletInterface extends BaseServletInterface 
     @GET
     @Path("/{channelId}/statistics")
     @ApiOperation("Returns the Statistics for the channel with the specified id.")
-    @MirthOperation(name = "getStatistics", display = "Get statistics", permission = Permissions.CHANNELS_VIEW, auditable = false)
+    @MirthOperation(name = "getStatistics", display = "Get statistics", permission = Permissions.DASHBOARD_VIEW, auditable = false)
     public ChannelStatistics getStatistics(@Param("channelId") @ApiParam(value = "The ID of the channel to retrieve statistics for.", required = true) @PathParam("channelId") String channelId) throws ClientException;
 
     @POST

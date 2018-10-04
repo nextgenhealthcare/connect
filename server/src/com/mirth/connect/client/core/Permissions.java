@@ -14,8 +14,12 @@ public class Permissions {
     public static final String ALERTS_VIEW = "viewAlerts";
     public static final String ALERTS_MANAGE = "manageAlerts";
 
+    // Dashboard
+    public static final String DASHBOARD_VIEW = "viewDashboard";
+
     // Channels
     public static final String CHANNELS_VIEW = "viewChannels";
+    public static final String CHANNEL_GROUPS_VIEW = "viewChannelGroups";
     public static final String CHANNELS_MANAGE = "manageChannels";
     public static final String CHANNELS_CLEAR_STATS = "clearStatistics";
     public static final String CHANNELS_START_STOP = "startStopChannels";
