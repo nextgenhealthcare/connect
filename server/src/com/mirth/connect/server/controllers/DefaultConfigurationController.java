@@ -119,6 +119,7 @@ import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
+import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.MigrationUtil;
 import com.mirth.connect.util.MirthSSLUtil;
 
@@ -157,6 +158,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static DatabaseSettings databaseConfig;
     private static String apiBypassword;
     private static int statsUpdateInterval;
+    private static Integer rhinoLanguageVersion;
     private volatile boolean configMapLoaded = false;
 
     private static KeyEncryptor encryptor = null;
@@ -174,6 +176,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String STARTUP_DEPLOY = "server.startupdeploy";
     private static final String API_BYPASSWORD = "server.api.bypassword";
     private static final String STATS_UPDATE_INTERVAL = "donkey.statsupdateinterval";
+    private static final String RHINO_LANGUAGE_VERSION = "rhino.languageversion";
 
     // singleton pattern
     private static ConfigurationController instance = null;
@@ -351,6 +354,12 @@ public class DefaultConfigurationController extends ConfigurationController {
 
                 setConfigurationProperties(configurationMap, false);
             }
+
+            String rhinoLanguageVersionStr = mirthConfig.getString(RHINO_LANGUAGE_VERSION);
+            if (StringUtils.isNotBlank(rhinoLanguageVersionStr)) {
+                rhinoLanguageVersion = NumberUtils.toInt(rhinoLanguageVersionStr);
+                JavaScriptSharedUtil.setRhinoLanguageVersion(rhinoLanguageVersion);
+            }
         } catch (Exception e) {
             logger.error("Failed to initialize configuration controller", e);
         }
@@ -451,7 +460,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         if (environmentName != null) {
             saveProperty(PROPERTIES_CORE, "environment.name", environmentName);
         }
-        
+
         String serverName = settings.getServerName();
         if (serverName != null) {
             saveProperty(PROPERTIES_CORE + "." + serverId, "server.name", serverName);
@@ -562,6 +571,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public int getStatsUpdateInterval() {
         return statsUpdateInterval;
+    }
+
+    @Override
+    public Integer getRhinoLanguageVersion() {
+        return rhinoLanguageVersion;
     }
 
     @Override

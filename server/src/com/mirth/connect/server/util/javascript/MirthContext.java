@@ -23,9 +23,14 @@ public class MirthContext extends Context {
     private ScriptableObject sealedSharedScope;
 
     public MirthContext(MirthContextFactory contextFactory) {
+        this(contextFactory, Context.VERSION_DEFAULT);
+    }
+
+    public MirthContext(MirthContextFactory contextFactory, int languageVersion) {
         super(contextFactory);
         setInstructionObserverThreshold(INSTRUCTION_THRESHOLD);
         sealedSharedScope = contextFactory.getSealedSharedScope();
+        setLanguageVersion(languageVersion);
     }
 
     public void setRunning(boolean running) {

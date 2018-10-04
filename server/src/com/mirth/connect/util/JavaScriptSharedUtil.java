@@ -53,7 +53,17 @@ public class JavaScriptSharedUtil {
     private final static int FULL_NAME_MATCHER_INDEX = 2;
     private final static int SHORT_NAME_MATCHER_INDEX = 5;
     private static volatile ScriptableObject cachedFormatterScope;
+    private static int rhinoLanguageVersion = Context.VERSION_DEFAULT;
     private static Logger logger = Logger.getLogger(JavaScriptSharedUtil.class);
+
+    public static void setRhinoLanguageVersion(int version) {
+        try {
+            Context.checkLanguageVersion(version);
+        } catch (Exception e) {
+            version = Context.VERSION_DEFAULT;
+        }
+        rhinoLanguageVersion = version;
+    }
 
     /*
      * Retrieves the Context for the current Thread. The context must be cleaned up with
@@ -62,6 +72,7 @@ public class JavaScriptSharedUtil {
     public static Context getGlobalContextForValidation() {
         Context context = Context.enter();
         context.setOptimizationLevel(-1);
+        context.setLanguageVersion(rhinoLanguageVersion);
         return context;
     }
 
@@ -136,7 +147,7 @@ public class JavaScriptSharedUtil {
         }
 
         if (scope != null) {
-            Context currentThreadContext = Context.enter();
+            Context currentThreadContext = getGlobalContextForValidation();
             try {
                 /*
                  * The beautify library wraps everything in a closure and adds the beautify function
@@ -178,7 +189,7 @@ public class JavaScriptSharedUtil {
     }
 
     private static ScriptableObject getFormatterScope() {
-        Context context = Context.enter();
+        Context context = getGlobalContextForValidation();
         try {
             String script = IOUtils.toString(JavaScriptSharedUtil.class.getResourceAsStream("beautify-1.6.8.js"));
             ScriptableObject scope = context.initStandardObjects();

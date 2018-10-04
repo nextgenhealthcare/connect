@@ -884,6 +884,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
         getServlet(ConfigurationServletInterface.class).setChannelTags(channelTags);
     }
 
+    /**
+     * Returns the language version that the Rhino engine should use.
+     * 
+     * @see ConfigurationServletInterface#getRhinoLanguageVersion
+     */
+    @Override
+    public int getRhinoLanguageVersion() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getRhinoLanguageVersion();
+    }
+
     /*******************
      * Channel Servlet *
      *******************/

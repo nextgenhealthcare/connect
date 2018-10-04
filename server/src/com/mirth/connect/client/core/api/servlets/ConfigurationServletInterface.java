@@ -280,4 +280,10 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @ApiOperation("Updates all channel tags.")
     @MirthOperation(name = "updateChannelTags", display = "Update channel tags", permission = Permissions.TAGS_MANAGE)
     public void setChannelTags(@Param("channelTags") @ApiParam(value = "The channel tags to set.", required = true) Set<ChannelTag> channelTags) throws ClientException;
+
+    @GET
+    @Path("/rhinoLanguageVersion")
+    @ApiOperation("Returns the language version that the Rhino engine should use.")
+    @MirthOperation(name = "getRhinoLanguageVersion", display = "Get rhino language version", type = ExecuteType.ASYNC, auditable = false)
+    public int getRhinoLanguageVersion() throws ClientException;
 }

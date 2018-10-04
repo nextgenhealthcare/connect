@@ -145,6 +145,7 @@ import com.mirth.connect.plugins.DataTypeClientPlugin;
 import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
 import com.mirth.connect.util.DirectedAcyclicGraphNode;
+import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.MigrationUtil;
 
 /**
@@ -483,6 +484,12 @@ public class Frame extends JXFrame {
             }
         } catch (ClientException e) {
             alertError(this, "Could not get server information.");
+        }
+
+        try {
+            JavaScriptSharedUtil.setRhinoLanguageVersion(mirthClient.getRhinoLanguageVersion());
+        } catch (ClientException e) {
+            alertError(this, "Could not get Rhino language version.");
         }
 
         // Display the server timezone information
