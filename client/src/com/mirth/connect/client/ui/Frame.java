@@ -4506,12 +4506,18 @@ public class Frame extends JXFrame {
         if (settingsPane == null) {
             settingsPane = new SettingsPane();
         }
+
+        List<ResourceProperties> resourceProperties = null;
+
         SettingsPanelResources resourcesPanel = (SettingsPanelResources) settingsPane.getSettingsPanel(SettingsPanelResources.TAB_NAME);
-        List<ResourceProperties> resourceProperties = resourcesPanel.getCachedResources();
-        if (resourceProperties == null) {
-            resourcesPanel.refresh();
+        if (resourcesPanel != null) {
             resourceProperties = resourcesPanel.getCachedResources();
+            if (resourceProperties == null) {
+                resourcesPanel.refresh();
+                resourceProperties = resourcesPanel.getCachedResources();
+            }
         }
+
         return resourceProperties;
     }
 
