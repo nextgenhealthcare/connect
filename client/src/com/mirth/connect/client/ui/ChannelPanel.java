@@ -578,6 +578,7 @@ public class ChannelPanel extends AbstractFramePanel {
         try {
             updateChannelGroups(parent.mirthClient.getAllChannelGroups());
         } catch (ClientException e) {
+            updateChannelGroups(null);
             if (!(e instanceof ForbiddenException)) {
                 SwingUtilities.invokeLater(() -> {
                     parent.alertThrowable(parent, e, false);
@@ -609,6 +610,7 @@ public class ChannelPanel extends AbstractFramePanel {
                 updateChannelGroups(parent.mirthClient.getAllChannelGroups());
             } catch (ForbiddenException e) {
                 // Ignore
+                updateChannelGroups(null);
             }
 
             channelDependencies = parent.mirthClient.getChannelDependencies();
@@ -2600,38 +2602,40 @@ public class ChannelPanel extends AbstractFramePanel {
     }
 
     private void updateChannelGroups(List<ChannelGroup> channelGroups) {
-        if (channelGroups != null) {
-            this.groupStatuses.clear();
+        if (channelGroups == null) {
+            channelGroups = new ArrayList<ChannelGroup>();
+        }
 
-            ChannelGroup defaultGroup = ChannelGroup.getDefaultGroup();
-            List<ChannelStatus> defaultGroupChannelStatuses = new ArrayList<ChannelStatus>();
-            ChannelGroupStatus defaultGroupStatus = new ChannelGroupStatus(defaultGroup, defaultGroupChannelStatuses);
-            this.groupStatuses.put(defaultGroup.getId(), defaultGroupStatus);
+        this.groupStatuses.clear();
 
-            Set<String> visitedChannelIds = new HashSet<String>();
-            Set<String> remainingChannelIds = new HashSet<String>(this.channelStatuses.keySet());
+        ChannelGroup defaultGroup = ChannelGroup.getDefaultGroup();
+        List<ChannelStatus> defaultGroupChannelStatuses = new ArrayList<ChannelStatus>();
+        ChannelGroupStatus defaultGroupStatus = new ChannelGroupStatus(defaultGroup, defaultGroupChannelStatuses);
+        this.groupStatuses.put(defaultGroup.getId(), defaultGroupStatus);
 
-            for (ChannelGroup group : channelGroups) {
-                List<ChannelStatus> channelStatuses = new ArrayList<ChannelStatus>();
+        Set<String> visitedChannelIds = new HashSet<String>();
+        Set<String> remainingChannelIds = new HashSet<String>(this.channelStatuses.keySet());
 
-                for (Channel channel : group.getChannels()) {
-                    if (!visitedChannelIds.contains(channel.getId())) {
-                        ChannelStatus channelStatus = this.channelStatuses.get(channel.getId());
-                        if (channelStatus != null) {
-                            channelStatuses.add(channelStatus);
-                        }
-                        visitedChannelIds.add(channel.getId());
-                        remainingChannelIds.remove(channel.getId());
+        for (ChannelGroup group : channelGroups) {
+            List<ChannelStatus> channelStatuses = new ArrayList<ChannelStatus>();
+
+            for (Channel channel : group.getChannels()) {
+                if (!visitedChannelIds.contains(channel.getId())) {
+                    ChannelStatus channelStatus = this.channelStatuses.get(channel.getId());
+                    if (channelStatus != null) {
+                        channelStatuses.add(channelStatus);
                     }
+                    visitedChannelIds.add(channel.getId());
+                    remainingChannelIds.remove(channel.getId());
                 }
-
-                this.groupStatuses.put(group.getId(), new ChannelGroupStatus(group, channelStatuses));
             }
 
-            for (String channelId : remainingChannelIds) {
-                defaultGroup.getChannels().add(new Channel(channelId));
-                defaultGroupChannelStatuses.add(this.channelStatuses.get(channelId));
-            }
+            this.groupStatuses.put(group.getId(), new ChannelGroupStatus(group, channelStatuses));
+        }
+
+        for (String channelId : remainingChannelIds) {
+            defaultGroup.getChannels().add(new Channel(channelId));
+            defaultGroupChannelStatuses.add(this.channelStatuses.get(channelId));
         }
     }
 
