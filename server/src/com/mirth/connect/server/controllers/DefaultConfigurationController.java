@@ -357,7 +357,45 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             String rhinoLanguageVersionStr = mirthConfig.getString(RHINO_LANGUAGE_VERSION);
             if (StringUtils.isNotBlank(rhinoLanguageVersionStr)) {
-                rhinoLanguageVersion = NumberUtils.toInt(rhinoLanguageVersionStr);
+                switch (rhinoLanguageVersionStr.toUpperCase()) {
+                    case "1.0":
+                        rhinoLanguageVersion = 100;
+                        break;
+                    case "1.1":
+                        rhinoLanguageVersion = 110;
+                        break;
+                    case "1.2":
+                        rhinoLanguageVersion = 120;
+                        break;
+                    case "1.3":
+                        rhinoLanguageVersion = 130;
+                        break;
+                    case "1.4":
+                        rhinoLanguageVersion = 140;
+                        break;
+                    case "1.5":
+                        rhinoLanguageVersion = 150;
+                        break;
+                    case "1.6":
+                        rhinoLanguageVersion = 160;
+                        break;
+                    case "1.7":
+                        rhinoLanguageVersion = 170;
+                        break;
+                    case "1.8":
+                        rhinoLanguageVersion = 180;
+                        break;
+                    case "ES6":
+                        rhinoLanguageVersion = 200;
+                        break;
+                    case "DEFAULT":
+                        rhinoLanguageVersion = 0;
+                        break;
+                    default:
+                        logger.error("Unknown Rhino version '" + rhinoLanguageVersionStr + "', setting to default");
+                        rhinoLanguageVersion = 0;
+                        break;
+                }
                 JavaScriptSharedUtil.setRhinoLanguageVersion(rhinoLanguageVersion);
             }
         } catch (Exception e) {
