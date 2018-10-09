@@ -60,6 +60,7 @@ public class JavaScriptSharedUtil {
         try {
             Context.checkLanguageVersion(version);
         } catch (Exception e) {
+            logger.error("Error setting Rhino version.", e);
             version = Context.VERSION_DEFAULT;
         }
         rhinoLanguageVersion = version;

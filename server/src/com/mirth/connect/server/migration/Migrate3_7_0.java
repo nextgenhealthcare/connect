@@ -40,7 +40,7 @@ public class Migrate3_7_0 extends Migrator implements ConfigurationMigrator {
 
         propertiesToAdd.put("database-readonly.max-connections", new MutablePair<Object, String>("20", "Maximum number of connections allowed for the read-only connection pool"));
 
-        propertiesToAdd.put("rhino.languageversion", new MutablePair<Object, String>("0", "The language version for the Rhino JavaScript engine."));
+        propertiesToAdd.put("rhino.languageversion", new MutablePair<Object, String>("default", "The language version for the Rhino JavaScript engine."));
 
         return propertiesToAdd;
     }
