@@ -15,4 +15,11 @@ public class ThreadUtils {
             throw new InterruptedException();
         }
     }
+
+    public static void checkInterruptedException(Throwable t) throws InterruptedException {
+        if (t instanceof InterruptedException) {
+            Thread.currentThread().interrupt();
+            throw (InterruptedException) t;
+        }
+    }
 }

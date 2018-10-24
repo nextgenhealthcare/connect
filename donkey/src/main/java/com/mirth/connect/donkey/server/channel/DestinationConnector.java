@@ -752,6 +752,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
                          * maps of checked in or deleted messages.
                          */
                         exceptionCaught = true;
+                    } catch (Throwable t) {
+                        // Send a different error message to the server log, but still invalidate the queue buffer
+                        logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + channel.getName() + " (" + channel.getChannelId() + ") on destination " + destinationName + ".", t);
+                        getChannel().getEventDispatcher().dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage != null ? connectorMessage.getMessageId() : null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), getConnectorProperties().getName(), t.getMessage(), t));
+                        exceptionCaught = true;
                     } finally {
                         if (dao != null) {
                             dao.close();
@@ -811,14 +816,16 @@ public abstract class DestinationConnector extends Connector implements Runnable
             } catch (InterruptedException e) {
                 // Stop this thread if it was halted
                 return;
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 // Always release the read lock if we obtained it
                 if (statusUpdateLock != null) {
                     statusUpdateLock.unlock();
                     statusUpdateLock = null;
                 }
 
-                logger.warn("Error in queue thread for channel " + channel.getName() + " (" + channel.getChannelId() + ") on destination " + destinationName + ".\n" + ExceptionUtils.getStackTrace(e));
+                logger.error("Error in queue thread for channel " + channel.getName() + " (" + channel.getChannelId() + ") on destination " + destinationName + ".\n" + ExceptionUtils.getStackTrace(t));
+                getChannel().getEventDispatcher().dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), getConnectorProperties().getName(), t.getMessage(), t));
+
                 try {
                     Thread.sleep(retryIntervalMillis);
 
