@@ -1823,9 +1823,12 @@ public class Channel implements Runnable {
                 try {
                     process(sourceMessage, true);
                     sourceQueue.finish(sourceMessage);
-                } catch (RuntimeException e) {
-                    logger.error("An error occurred in channel " + name + " (" + channelId + ") while processing message ID " + sourceMessage.getMessageId() + " from the source queue", e);
-                    eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, sourceMessage.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, sourceConnector.getSourceName(), null, e.getMessage(), e));
+                } catch (Throwable t) {
+                    // Just throw immediately if interrupted
+                    ThreadUtils.checkInterruptedException(t);
+
+                    logger.error("An error occurred in channel " + name + " (" + channelId + ") while processing message ID " + sourceMessage.getMessageId() + " from the source queue", t);
+                    eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, sourceMessage.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, sourceConnector.getSourceName(), null, t.getMessage(), t));
                     sourceQueue.finish(sourceMessage);
                     sourceQueue.invalidate(false, false);
                     Thread.sleep(Constants.SOURCE_QUEUE_ERROR_SLEEP_TIME);
@@ -1833,6 +1836,13 @@ public class Channel implements Runnable {
 
                 sourceMessage = sourceQueue.poll();
             }
+        } catch (Throwable t) {
+            // Just throw immediately if interrupted
+            ThreadUtils.checkInterruptedException(t);
+
+            logger.error("An error occurred in channel " + name + " (" + channelId + ") while polling from the source queue", t);
+            eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, null, ErrorEventType.SOURCE_CONNECTOR, sourceConnector.getSourceName(), null, t.getMessage(), t));
+            Thread.sleep(Constants.SOURCE_QUEUE_ERROR_SLEEP_TIME);
         } finally {
             if (sourceMessage != null) {
                 sourceQueue.finish(sourceMessage);
