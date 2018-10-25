@@ -34,8 +34,12 @@ import com.mirth.connect.server.userutil.DatabaseConnectionFactory;
 public class MapUtilTest {
 
     @BeforeClass
-    public static void setup() throws Exception {
-        ObjectXMLSerializer.getInstance().init(Version.getLatest().toString());
+    public static void setup() {
+        try {
+            ObjectXMLSerializer.getInstance().init(Version.getLatest().toString());
+        } catch (Exception e) {
+            // Ignore if it has already been initialized
+        }
     }
 
     @Test
