@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model.converters;
 
+import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -197,6 +198,14 @@ public class ObjectXMLSerializer extends XStreamSerializer {
 
             if (instanceWithReferences != null) {
                 instanceWithReferences.init(currentVersion);
+
+                /*
+                 * Include a custom reflection converter that rejects any object that isn't
+                 * Serializable. This should be higher priority than the default reflection
+                 * converter which is very low, but lower priority than all other converters.
+                 */
+                int priorityBetweenLowAndVeryLow = (int) Math.floor((XStream.PRIORITY_LOW + XStream.PRIORITY_VERY_LOW) / 2.0);
+                instanceWithReferences.getXStream().registerConverter(new SerializableReflectionConverter(instanceWithReferences.getXStream().getMapper()), priorityBetweenLowAndVeryLow);
             }
         } else {
             throw new Exception("Serializer has already been initialized.");
@@ -212,7 +221,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         try {
             return super.serialize(object);
         } catch (Exception e) {
-            if (isCircularReferenceException(e) && instanceWithReferences != null) {
+            if (object instanceof Serializable && isCircularReferenceException(e) && instanceWithReferences != null) {
                 try {
                     return instanceWithReferences.serialize(object);
                 } catch (Exception e2) {
@@ -231,7 +240,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         try {
             getXStream().toXML(object, writer);
         } catch (Exception e) {
-            if (isCircularReferenceException(e) && instanceWithReferences != null) {
+            if (object instanceof Serializable && isCircularReferenceException(e) && instanceWithReferences != null) {
                 try {
                     // Since part of the XML was probably already written, need to add an invalid marker
                     writer.write(INVALID_MARKER);
