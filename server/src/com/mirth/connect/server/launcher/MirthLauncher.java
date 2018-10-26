@@ -35,7 +35,7 @@ import org.w3c.dom.NodeList;
 
 public class MirthLauncher {
     private static final String EXTENSIONS_DIR = "./extensions";
-    private static final String SERVER_LAUNCHER_LIB_DIR = "server-launcher-lib";
+    private static final String SERVER_LAUNCHER_LIB_DIR = "./server-launcher-lib";
     private static final String MIRTH_PROPERTIES_FILE = "./conf/mirth.properties";
     private static final String EXTENSION_PROPERTIES = "extension.properties";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
@@ -47,9 +47,14 @@ public class MirthLauncher {
 
     public static void main(String[] args) {
         try {
-        	List<URL> classpathUrls = addServerLauncherLibJarsToClasspath();
-        	URLClassLoader mirthLauncherClassLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]), Thread.currentThread().getContextClassLoader());
-            Thread.currentThread().setContextClassLoader(mirthLauncherClassLoader);
+        	List<URL> classpathUrls = new ArrayList<>();
+        	try {
+	        	classpathUrls = addServerLauncherLibJarsToClasspath();
+	        	URLClassLoader mirthLauncherClassLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]), Thread.currentThread().getContextClassLoader());
+	            Thread.currentThread().setContextClassLoader(mirthLauncherClassLoader);
+        	} catch (Exception e) {
+        		e.printStackTrace();
+        	}
         	
         	logger = Logger.getLogger(MirthLauncher.class);
         	
