@@ -947,6 +947,7 @@
 		<mkdir dir="${setup.cli.lib}" />
 		<mkdir dir="${setup.logs}" />
 		<mkdir dir="${setup.docs}" />
+		<mkdir dir="${setup.server.launcher.lib}" />
 
 		<!-- copy lib -->
 		<copy todir="${setup.server.lib}">

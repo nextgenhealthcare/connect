@@ -27,6 +27,7 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -34,6 +35,7 @@ import org.w3c.dom.NodeList;
 
 public class MirthLauncher {
     private static final String EXTENSIONS_DIR = "./extensions";
+    private static final String SERVER_LAUNCHER_LIB_DIR = "server-launcher-lib";
     private static final String MIRTH_PROPERTIES_FILE = "./conf/mirth.properties";
     private static final String EXTENSION_PROPERTIES = "extension.properties";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
@@ -41,10 +43,16 @@ public class MirthLauncher {
 
     private static String appDataDir = null;
 
-    private static Logger logger = Logger.getLogger(MirthLauncher.class);
+    private static Logger logger;
 
     public static void main(String[] args) {
         try {
+        	List<URL> classpathUrls = addServerLauncherLibJarsToClasspath();
+        	URLClassLoader mirthLauncherClassLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]), Thread.currentThread().getContextClassLoader());
+            Thread.currentThread().setContextClassLoader(mirthLauncherClassLoader);
+        	
+        	logger = Logger.getLogger(MirthLauncher.class);
+        	
             try {
                 uninstallPendingExtensions();
                 installPendingExtensions();
@@ -85,8 +93,7 @@ public class MirthLauncher {
             Properties versionProperties = new Properties();
             versionProperties.load(mirthClientCoreJarFile.getInputStream(mirthClientCoreJarFile.getJarEntry("version.properties")));
             String currentVersion = versionProperties.getProperty("mirth.version");
-
-            List<URL> classpathUrls = new ArrayList<URL>();
+            
             addManifestToClasspath(manifest, classpathUrls);
             addExtensionsToClasspath(classpathUrls, currentVersion);
             URLClassLoader classLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]));
@@ -148,6 +155,26 @@ public class MirthLauncher {
 
             FileUtils.deleteDirectory(extensionsTempDir);
         }
+    }
+        
+    private static List<URL> addServerLauncherLibJarsToClasspath() {
+        File serverLauncherLibDir = new File(SERVER_LAUNCHER_LIB_DIR);
+        List<URL> classpathUrls = new ArrayList<>();
+        
+        if (serverLauncherLibDir.exists() && serverLauncherLibDir.isDirectory()) {
+        	FileFilter jarFileFilter = new WildcardFileFilter("*.jar");
+            File[] jarFiles = serverLauncherLibDir.listFiles(jarFileFilter);
+
+            for (File jarFile : jarFiles) {
+                try {
+                	URL jarFileURL = jarFile.toURI().toURL();
+                    classpathUrls.add(jarFileURL);
+                } catch (Exception e) {
+                	e.printStackTrace();
+                }
+            }
+        } 
+        return classpathUrls;
     }
 
     private static void addManifestToClasspath(ManifestEntry[] manifestEntries, List<URL> urls) throws Exception {
