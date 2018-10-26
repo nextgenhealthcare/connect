@@ -33,6 +33,8 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
     private String username;
     private String password;
     private String timeout;
+    private boolean keepConnectionOpen;
+    private String maxIdleTime;
     private boolean secure;
     private boolean passive;
     private boolean validateConnection;
@@ -54,6 +56,8 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
         username = "anonymous";
         password = "anonymous";
         timeout = "10000";
+        keepConnectionOpen = true;
+        maxIdleTime = "0";
         secure = true;
         passive = true;
         validateConnection = true;
@@ -82,6 +86,8 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
         username = props.getUsername();
         password = props.getPassword();
         timeout = props.getTimeout();
+        keepConnectionOpen = props.isKeepConnectionOpen();
+        maxIdleTime = props.getMaxIdleTime();
         secure = props.isSecure();
         passive = props.isPassive();
         validateConnection = props.isValidateConnection();
@@ -155,6 +161,22 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
 
     public void setTimeout(String timeout) {
         this.timeout = timeout;
+    }
+    
+    public boolean isKeepConnectionOpen() {
+        return keepConnectionOpen;
+    }
+    
+    public void setKeepConnectionOpen(boolean keepConnectionOpen) {
+        this.keepConnectionOpen = keepConnectionOpen;
+    }
+    
+    public String getMaxIdleTime() {
+        return maxIdleTime;
+    }
+    
+    public void setMaxIdleTime(String maxIdleTime) {
+        this.maxIdleTime = maxIdleTime;
     }
 
     public boolean isSecure() {
@@ -348,8 +370,12 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
     // @formatter:off
     @Override public void migrate3_4_0(DonkeyElement element) {}
     @Override public void migrate3_5_0(DonkeyElement element) {}
-    @Override public void migrate3_6_0(DonkeyElement element) {}
-    @Override public void migrate3_7_0(DonkeyElement element) {} // @formatter:on
+    @Override public void migrate3_6_0(DonkeyElement element) {} // @formatter:on
+    
+    @Override 
+    public void migrate3_7_0(DonkeyElement element) {
+        // TODO Implement this - Add keepConnectionOpen and maxIdleTime. Default them to true and 0.
+    } 
     
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -358,6 +384,8 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
         purgedProperties.put("scheme", scheme);
         purgedProperties.put("schemePurgedProperties", schemeProperties.getPurgedProperties());
         purgedProperties.put("timeout", PurgeUtil.getNumericValue(timeout));
+        purgedProperties.put("keepConnectionOpen", keepConnectionOpen);
+        purgedProperties.put("maxIdleTime", PurgeUtil.getNumericValue(maxIdleTime));
         purgedProperties.put("secure", secure);
         purgedProperties.put("passive", passive);
         purgedProperties.put("validateConnection", validateConnection);
