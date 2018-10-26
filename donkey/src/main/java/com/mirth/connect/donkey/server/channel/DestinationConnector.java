@@ -59,7 +59,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private final static String QUEUED_RESPONSE = "Message queued successfully";
 
     private Integer orderId;
-    private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
+    private Map<Long, DestinationQueueThread> queueThreads = new HashMap<Long, DestinationQueueThread>();
     private Deque<Long> processingThreadIdStack;
     private DestinationConnectorProperties destinationConnectorProperties;
     private DestinationQueue queue;
@@ -297,7 +297,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
             queue.invalidate(true, true);
 
             for (int i = 1; i <= destinationConnectorProperties.getThreadCount(); i++) {
-                Thread thread = new Thread(this);
+                DestinationQueueThread thread = new DestinationQueueThread(this);
                 thread.setName("Destination Queue Thread " + i + " on " + channel.getName() + " (" + getChannelId() + "), " + destinationName + " (" + getMetaDataId() + ")");
                 thread.start();
                 queueThreads.put(thread.getId(), thread);
@@ -310,6 +310,10 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
         if (MapUtils.isNotEmpty(queueThreads)) {
             try {
+                for (DestinationQueueThread thread : queueThreads.values()) {
+                    thread.interruptIfWaitingRetryInterval();
+                }
+
                 for (Thread thread : queueThreads.values()) {
                     thread.join();
                 }
@@ -595,6 +599,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         Serializer serializer = channel.getSerializer();
         ConnectorMessage connectorMessage = null;
         int retryIntervalMillis = destinationConnectorProperties.getRetryIntervalMillis();
+        AtomicBoolean waitingRetryInterval = ((DestinationQueueThread) Thread.currentThread()).getWaitingRetryInterval();
         Long lastMessageId = null;
         boolean canAcquire = true;
         Lock statusUpdateLock = null;
@@ -620,7 +625,15 @@ public abstract class DestinationConnector extends Connector implements Runnable
                          * to the oldest message, so wait the retry interval.
                          */
                         if (connectorMessage.isAttemptedFirst() || lastMessageId != null && (lastMessageId == connectorMessage.getMessageId() || (queue.isRotate() && lastMessageId > connectorMessage.getMessageId() && queue.hasBeenRotated()))) {
-                            Thread.sleep(retryIntervalMillis);
+                            try {
+                                waitingRetryInterval.set(true);
+                                Thread.sleep(retryIntervalMillis);
+                            } finally {
+                                synchronized (waitingRetryInterval) {
+                                    waitingRetryInterval.set(false);
+                                }
+                            }
+
                             connectorMessage.setAttemptedFirst(false);
                         }
 
@@ -752,6 +765,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
                          * maps of checked in or deleted messages.
                          */
                         exceptionCaught = true;
+                    } catch (InterruptedException e) {
+                        // Stop this thread if it was halted
+                        return;
                     } catch (Throwable t) {
                         // Send a different error message to the server log, but still invalidate the queue buffer
                         logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + channel.getName() + " (" + channel.getChannelId() + ") on destination " + destinationName + ".", t);
@@ -827,6 +843,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 getChannel().getEventDispatcher().dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), getConnectorProperties().getName(), t.getMessage(), t));
 
                 try {
+                    waitingRetryInterval.set(true);
                     Thread.sleep(retryIntervalMillis);
 
                     /*
@@ -837,6 +854,10 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 } catch (InterruptedException e1) {
                     // Stop this thread if it was halted
                     return;
+                } finally {
+                    synchronized (waitingRetryInterval) {
+                        waitingRetryInterval.set(false);
+                    }
                 }
             } finally {
                 // Always release the read lock if we obtained it
@@ -966,5 +987,26 @@ public abstract class DestinationConnector extends Connector implements Runnable
         connectorMessage.setStatus(response.getStatus());
         dao.updateStatus(connectorMessage, previousStatus);
         previousStatus = connectorMessage.getStatus();
+    }
+
+    public static class DestinationQueueThread extends Thread {
+
+        private AtomicBoolean waitingRetryInterval = new AtomicBoolean(false);
+
+        public DestinationQueueThread(Runnable runnable) {
+            super(runnable);
+        }
+
+        public AtomicBoolean getWaitingRetryInterval() {
+            return waitingRetryInterval;
+        }
+
+        public void interruptIfWaitingRetryInterval() {
+            synchronized (waitingRetryInterval) {
+                if (waitingRetryInterval.get()) {
+                    interrupt();
+                }
+            }
+        }
     }
 }
