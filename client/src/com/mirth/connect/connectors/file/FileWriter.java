@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
@@ -91,6 +92,9 @@ public class FileWriter extends ConnectorSettingsPanel {
         properties.setPassword(new String(passwordField.getPassword()));
 
         properties.setTimeout(timeoutField.getText());
+        
+        properties.setKeepConnectionOpen(keepConnectionOpenYesRadio.isSelected());
+        properties.setMaxIdleTime(maxIdleTimeField.getText());
 
         properties.setSecure(secureModeYesRadio.isSelected());
         properties.setPassive(passiveModeYesRadio.isSelected());
@@ -205,6 +209,18 @@ public class FileWriter extends ConnectorSettingsPanel {
         }
 
         timeoutField.setText(props.getTimeout());
+        
+        if (props.isKeepConnectionOpen()) {
+            keepConnectionOpenYesRadio.setSelected(true);
+            keepConnectionOpenNoRadio.setSelected(false);
+            keepConnectionOpenYesActionPerformed(null);
+        } else {
+            keepConnectionOpenYesRadio.setSelected(false);
+            keepConnectionOpenNoRadio.setSelected(true);
+            keepConnectionOpenNoActionPerformed(null);
+        }
+        
+        maxIdleTimeField.setText(props.getMaxIdleTime());
 
         if (props.isSecure()) {
             secureModeYesRadio.setSelected(true);
@@ -321,6 +337,12 @@ public class FileWriter extends ConnectorSettingsPanel {
                 }
             }
         }
+        if (props.isKeepConnectionOpen() && NumberUtils.toInt(props.getMaxIdleTime(), -1) < 0) {
+            valid = false;
+            if (highlight) {
+                maxIdleTimeField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
 
         FileScheme scheme = props.getScheme();
         if (scheme.equals(FileScheme.FTP) || scheme.equals(FileScheme.SFTP) || scheme.equals(FileScheme.SMB)) {
@@ -345,6 +367,7 @@ public class FileWriter extends ConnectorSettingsPanel {
         usernameField.setBackground(null);
         passwordField.setBackground(null);
         timeoutField.setBackground(null);
+        maxIdleTimeField.setBackground(null);
     }
 
     @Override
@@ -446,6 +469,40 @@ public class FileWriter extends ConnectorSettingsPanel {
         timeoutLabel = new JLabel();
         timeoutLabel.setText("Timeout (ms):");
         timeoutField = new MirthTextField();
+        
+        keepConnectionOpenLabel = new JLabel();
+        keepConnectionOpenLabel.setText("Keep Connection Open: ");
+        
+        keepConnectionOpenYesRadio = new MirthRadioButton();
+        keepConnectionOpenYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        keepConnectionOpenYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        keepConnectionOpenYesRadio.setSelected(true);
+        keepConnectionOpenYesRadio.setText("Yes");
+        keepConnectionOpenYesRadio.setMargin(new Insets(0, 0, 0, 0));
+        keepConnectionOpenYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                keepConnectionOpenYesActionPerformed(evt);
+            }
+        });
+        
+        keepConnectionOpenNoRadio = new MirthRadioButton();
+        keepConnectionOpenNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
+        keepConnectionOpenNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        keepConnectionOpenNoRadio.setText("No");
+        keepConnectionOpenNoRadio.setMargin(new Insets(0, 0, 0, 0));
+        keepConnectionOpenNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                keepConnectionOpenNoActionPerformed(evt);
+            }
+        });
+        
+        keepConnectionOpenButtonGroup = new ButtonGroup();
+        keepConnectionOpenButtonGroup.add(keepConnectionOpenYesRadio);
+        keepConnectionOpenButtonGroup.add(keepConnectionOpenNoRadio);
+        
+        maxIdleTimeLabel = new JLabel();
+        maxIdleTimeLabel.setText("Max Idle Time (ms): ");
+        maxIdleTimeField = new MirthTextField();
 
         secureModeLabel = new JLabel();
         secureModeLabel.setText("Secure Mode:");
@@ -632,8 +689,14 @@ public class FileWriter extends ConnectorSettingsPanel {
         usernameField.setToolTipText("The user name used to gain access to the server.");
         passwordField.setToolTipText("The password used to gain access to the server.");
         timeoutField.setToolTipText("The socket timeout (in ms) for connecting to the server.");
+        
+        String toolTipText = "Select yes to keep the connection to the file system open after writing to it.";
+        keepConnectionOpenYesRadio.setToolTipText(toolTipText);
+        keepConnectionOpenNoRadio.setToolTipText(toolTipText);
+        toolTipText = "<html>Sets the max idle timeout, in milliseconds, before closing a connection.<br>A timeout value of zero is interpreted as an infinite timeout.</html>";
+        maxIdleTimeField.setToolTipText(toolTipText);
 
-        String toolTipText = "<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>";
+        toolTipText = "<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>";
         secureModeYesRadio.setToolTipText(toolTipText);
         secureModeNoRadio.setToolTipText(toolTipText);
 
@@ -690,6 +753,13 @@ public class FileWriter extends ConnectorSettingsPanel {
 
         add(timeoutLabel);
         add(timeoutField, "w 75!, wrap");
+        
+        add(keepConnectionOpenLabel);
+        add(keepConnectionOpenYesRadio, "split 2");
+        add(keepConnectionOpenNoRadio, "wrap");
+        
+        add(maxIdleTimeLabel);
+        add(maxIdleTimeField, "w 75!, wrap");
 
         add(secureModeLabel);
         add(secureModeYesRadio, "split 2");
@@ -752,6 +822,14 @@ public class FileWriter extends ConnectorSettingsPanel {
             usernameField.setText("anonymous");
             passwordField.setText("anonymous");
         }
+    }
+    
+    private void keepConnectionOpenNoActionPerformed(ActionEvent evt) {
+        maxIdleTimeField.setEnabled(false);
+    }
+    
+    private void keepConnectionOpenYesActionPerformed(ActionEvent evt) {
+        maxIdleTimeField.setEnabled(true);
     }
 
     private void onSchemeChange(boolean enableHost, boolean anonymous, boolean allowAppend, FileScheme scheme) {
@@ -1018,6 +1096,7 @@ public class FileWriter extends ConnectorSettingsPanel {
     private ButtonGroup fileTypeButtonGroup;
     private ButtonGroup secureModeButtonGroup;
     private ButtonGroup tempFileButtonGroup;
+    private ButtonGroup keepConnectionOpenButtonGroup;
     private MirthComboBox charsetEncodingComboBox;
     private MirthTextField directoryField;
     private JLabel directoryLabel;
@@ -1053,6 +1132,11 @@ public class FileWriter extends ConnectorSettingsPanel {
     private JButton testConnectionButton;
     private MirthTextField timeoutField;
     private JLabel timeoutLabel;
+    private JLabel keepConnectionOpenLabel;
+    private MirthRadioButton keepConnectionOpenNoRadio;
+    private MirthRadioButton keepConnectionOpenYesRadio;
+    private JLabel maxIdleTimeLabel;
+    private MirthTextField maxIdleTimeField;
     private MirthTextField usernameField;
     private JLabel usernameLabel;
     private JLabel validateConnectionLabel;

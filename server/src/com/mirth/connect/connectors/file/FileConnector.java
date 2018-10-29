@@ -46,6 +46,8 @@ public class FileConnector {
     private boolean secure;
     private boolean validateConnection;
     private int maxTotalConnections = GenericObjectPoolConfig.DEFAULT_MAX_TOTAL;
+    private boolean keepConnectionOpen = false;
+    private String maxIdleTime;
 
     public FileConnector(String channelId, ConnectorProperties connectorProperties, Connector connector) {
         this.channelId = channelId;
@@ -64,6 +66,8 @@ public class FileConnector {
             this.passive = fileDispatcherProperties.isPassive();
             this.secure = fileDispatcherProperties.isSecure();
             this.validateConnection = fileDispatcherProperties.isValidateConnection();
+            this.keepConnectionOpen = fileDispatcherProperties.isKeepConnectionOpen();
+            this.maxIdleTime = fileDispatcherProperties.getMaxIdleTime();
         }
 
         if (connector instanceof DestinationConnector) {
@@ -260,6 +264,16 @@ public class FileConnector {
         if (pool == null) {
             GenericObjectPoolConfig config = new GenericObjectPoolConfig();
             config.setMaxTotal(maxTotalConnections);
+            config.setMinIdle(0);   // The makes the evictor thread run, if active, no matter how few objects are in the pool
+            config.setTimeBetweenEvictionRunsMillis(1000);  // How often the evictor thread checks for objects to evict
+            
+            if (keepConnectionOpen) {
+                config.setMinEvictableIdleTimeMillis(NumberUtils.toInt(maxIdleTime));
+            } else {
+                // Always evict objects on the next check by the evictor thread
+                config.setMinEvictableIdleTimeMillis(1);
+            }
+            
             if (isValidateConnection()) {
                 config.setTestOnBorrow(true);
                 config.setTestOnReturn(true);
