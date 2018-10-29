@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
@@ -336,20 +337,10 @@ public class FileWriter extends ConnectorSettingsPanel {
                 }
             }
         }
-        if (props.isKeepConnectionOpen()) {
-            boolean validMaxIdleTime = false;
-            
-            try {
-                validMaxIdleTime = Integer.parseInt(props.getMaxIdleTime()) >= 0;
-            } catch (NumberFormatException e) {
-                validMaxIdleTime = false;
-            }
-            
-            if (!validMaxIdleTime) {
-                valid = false;
-                if ( highlight) {
-                    maxIdleTimeField.setBackground(UIConstants.INVALID_COLOR);
-                }
+        if (props.isKeepConnectionOpen() && NumberUtils.toInt(props.getMaxIdleTime(), -1) < 0) {
+            valid = false;
+            if (highlight) {
+                maxIdleTimeField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 

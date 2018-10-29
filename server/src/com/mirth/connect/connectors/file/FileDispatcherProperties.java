@@ -374,7 +374,8 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
     
     @Override 
     public void migrate3_7_0(DonkeyElement element) {
-        // TODO Implement this - Add keepConnectionOpen and maxIdleTime. Default them to true and 0.
+        element.addChildElementIfNotExists("keepConnectionOpen", "true");
+        element.addChildElementIfNotExists("maxIdleTime", "0");
     } 
     
     @Override
