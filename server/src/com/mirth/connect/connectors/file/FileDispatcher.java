@@ -189,7 +189,12 @@ public class FileDispatcher extends DestinationConnector {
 
             if (fileSystemConnection != null) {
                 try {
-                    fileConnector.releaseConnection(fileSystemConnection, fileSystemOptions);
+                    if (!fileDispatcherProperties.isKeepConnectionOpen()) {
+                        fileConnector.destroyConnection(fileSystemConnection, fileSystemOptions);
+                    } else {
+                        fileConnector.releaseConnection(fileSystemConnection, fileSystemOptions);
+                    }
+                    
                 } catch (Exception e) {
                     // TODO: Ignore?
                 }

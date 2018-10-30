@@ -243,6 +243,10 @@ public class FileConnector {
         if (connection != null) {
             ObjectPool<FileSystemConnection> pool = getConnectionPool(fileSystemOptions);
             pool.invalidateObject(connection);
+            
+            synchronized (connections) {
+                connections.remove(connection);
+            }
         }
     }
 
@@ -268,7 +272,14 @@ public class FileConnector {
             config.setTimeBetweenEvictionRunsMillis(1000);  // How often the evictor thread checks for objects to evict
             
             if (keepConnectionOpen) {
-                config.setMinEvictableIdleTimeMillis(NumberUtils.toInt(maxIdleTime));
+                int connectionMaxIdleTime = NumberUtils.toInt(maxIdleTime);
+                
+                if (connectionMaxIdleTime == 0) {
+                    // Disable the eviction thread. https://commons.apache.org/proper/commons-pool/apidocs/org/apache/commons/pool2/impl/BaseGenericObjectPool.html#setTimeBetweenEvictionRunsMillis-long-
+                    config.setTimeBetweenEvictionRunsMillis(0);
+                } else {
+                    config.setMinEvictableIdleTimeMillis(connectionMaxIdleTime);
+                }
             } else {
                 // Always evict objects on the next check by the evictor thread
                 config.setMinEvictableIdleTimeMillis(1);
