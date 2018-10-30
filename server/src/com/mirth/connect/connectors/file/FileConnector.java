@@ -243,6 +243,10 @@ public class FileConnector {
         if (connection != null) {
             ObjectPool<FileSystemConnection> pool = getConnectionPool(fileSystemOptions);
             pool.invalidateObject(connection);
+            
+            synchronized (connections) {
+                connections.remove(connection);
+            }
         }
     }
 
