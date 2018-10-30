@@ -28,7 +28,6 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -40,23 +39,22 @@ public class MirthLauncher {
     private static final String EXTENSION_PROPERTIES = "extension.properties";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
     private static final String PROPERTY_INCLUDE_CUSTOM_LIB = "server.includecustomlib";
+    private static final String LOG4J_JAR_FILE = "./server-lib/log4j-1.2.16.jar";
 
     private static String appDataDir = null;
 
-    private static Logger logger;
-
+    private static LoggerWrapper logger;
+    
     public static void main(String[] args) {
         try {
         	List<URL> classpathUrls = new ArrayList<>();
-        	try {
-	        	classpathUrls = addServerLauncherLibJarsToClasspath();
-	        	URLClassLoader mirthLauncherClassLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]), Thread.currentThread().getContextClassLoader());
-	            Thread.currentThread().setContextClassLoader(mirthLauncherClassLoader);
-        	} catch (Exception e) {
-        		e.printStackTrace();
-        	}
+        	// Always add log4j
+        	classpathUrls.add(new File(LOG4J_JAR_FILE).toURI().toURL());
+        	classpathUrls.addAll(addServerLauncherLibJarsToClasspath());
+            URLClassLoader mirthLauncherClassLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]), Thread.currentThread().getContextClassLoader());
+            Thread.currentThread().setContextClassLoader(mirthLauncherClassLoader);
         	
-        	logger = Logger.getLogger(MirthLauncher.class);
+        	logger = new LoggerWrapper(mirthLauncherClassLoader.loadClass("org.apache.log4j.Logger").getMethod("getLogger", Class.class).invoke(null, MirthLauncher.class));
         	
             try {
                 uninstallPendingExtensions();
@@ -101,7 +99,7 @@ public class MirthLauncher {
             
             addManifestToClasspath(manifest, classpathUrls);
             addExtensionsToClasspath(classpathUrls, currentVersion);
-            URLClassLoader classLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]));
+            URLClassLoader classLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]), Thread.currentThread().getContextClassLoader());
             Class<?> mirthClass = classLoader.loadClass("com.mirth.connect.server.Mirth");
             Thread mirthThread = (Thread) mirthClass.newInstance();
             mirthThread.setContextClassLoader(classLoader);
@@ -312,5 +310,53 @@ public class MirthLauncher {
 
         appDataDir = appDataDirFile.getAbsolutePath();
         logger.debug("set app data dir: " + appDataDir);
+    }
+    
+    private static class LoggerWrapper {
+        private Object logger;
+        
+        public LoggerWrapper(Object logger) {
+            this.logger = logger;
+        }
+        
+        public void error(Object message) {
+            error(message, null);
+        }
+        
+        public void error(Object message, Throwable t) {
+            call("error", message, t);
+        }
+        
+        public void warn(Object message) {
+        	warn(message, null);
+        }
+        
+        public void warn(Object message, Throwable t) {
+            call("warn", message, t);
+        }
+        
+        public void debug(Object message) {
+        	debug(message, null);
+        }
+        
+        public void debug(Object message, Throwable t) {
+            call("debug", message, t);
+        }
+
+        public void trace(Object message) {
+        	trace(message, null);
+        };
+        
+        public void trace(Object message, Throwable t) {
+            call("trace", message, t);
+        }
+        
+        private void call(String methodName, Object message, Throwable t) {
+            try {
+                logger.getClass().getMethod(methodName, Object.class, Throwable.class).invoke(logger, message, t);
+            } catch (Throwable t2) {
+                t2.printStackTrace();
+            }
+        }
     }
 }
