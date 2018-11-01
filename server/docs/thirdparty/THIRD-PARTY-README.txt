@@ -59,7 +59,7 @@ Mirth Connect includes the following, which is distributed under the terms of
 the MPL version 1.1 (see MPL-1.1.txt). The source code is also available under
 the same license terms.
 
-	dcm4che 2.0.28 (source code can be downloaded at: http://www.dcm4che.org/)
+	dcm4che 2.0.29 (source code can be downloaded at: http://www.dcm4che.org/)
 	DcmRcv and DcmSnd were modified to allow overriding of the network
 	connections.
 
