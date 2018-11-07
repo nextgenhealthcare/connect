@@ -343,6 +343,8 @@ public class ServerMigrator extends Migrator {
                     }
                 } catch (Exception e) {
                     logger.error("Failed to migrate serialized data", e);
+                } finally {
+                    DbUtils.closeQuietly(updateStatement);
                 }
             }
         } catch (SQLException e) {
