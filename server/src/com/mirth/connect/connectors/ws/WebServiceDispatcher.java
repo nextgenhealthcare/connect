@@ -121,7 +121,6 @@ public class WebServiceDispatcher extends DestinationConnector {
     private RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistry;
     private ExecutorService executor;
     private Set<DispatchTask<SOAPMessage>> dispatchTasks;
-    private int timeout;
 
     /*
      * Dispatch object used for pooling the soap connection, and the current properties used to
@@ -154,8 +153,6 @@ public class WebServiceDispatcher extends DestinationConnector {
         } catch (Exception e) {
             throw new ConnectorTaskException(e);
         }
-
-        timeout = NumberUtils.toInt(connectorProperties.getSocketTimeout());
     }
 
     @Override
@@ -165,10 +162,8 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     @Override
     public void onStart() throws ConnectorTaskException {
-        if (timeout == 0) {
-            executor = Executors.newCachedThreadPool();
-            dispatchTasks = Collections.newSetFromMap(new ConcurrentHashMap<DispatchTask<SOAPMessage>, Boolean>());
-        }
+        executor = Executors.newCachedThreadPool();
+        dispatchTasks = Collections.newSetFromMap(new ConcurrentHashMap<DispatchTask<SOAPMessage>, Boolean>());
     }
 
     @Override
@@ -241,7 +236,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         return writer.toString();
     }
 
-    private void createDispatch(WebServiceDispatcherProperties webServiceDispatcherProperties, DispatchContainer dispatchContainer) throws Exception {
+    private void createDispatch(WebServiceDispatcherProperties webServiceDispatcherProperties, DispatchContainer dispatchContainer, int timeout) throws Exception {
         String wsdlUrl = webServiceDispatcherProperties.getWsdlUrl();
         String username = webServiceDispatcherProperties.getUsername();
         String password = webServiceDispatcherProperties.getPassword();
@@ -261,7 +256,7 @@ public class WebServiceDispatcher extends DestinationConnector {
             dispatchContainer.setCurrentServiceName(serviceName);
             dispatchContainer.setCurrentPortName(portName);
 
-            URL endpointUrl = getWsdlUrl(webServiceDispatcherProperties, dispatchContainer);
+            URL endpointUrl = getWsdlUrl(webServiceDispatcherProperties, dispatchContainer, timeout);
             QName serviceQName = QName.valueOf(serviceName);
             QName portQName = QName.valueOf(portName);
 
@@ -298,7 +293,7 @@ public class WebServiceDispatcher extends DestinationConnector {
      * @return
      * @throws Exception
      */
-    protected URL getWsdlUrl(WebServiceDispatcherProperties webServiceDispatcherProperties, DispatchContainer dispatchContainer) throws Exception {
+    protected URL getWsdlUrl(WebServiceDispatcherProperties webServiceDispatcherProperties, DispatchContainer dispatchContainer, int timeout) throws Exception {
         URI uri = new URI(dispatchContainer.getCurrentWsdlUrl());
 
         // If the URL points to file, just return it
@@ -408,6 +403,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         webServiceDispatcherProperties.setService(replacer.replaceValues(webServiceDispatcherProperties.getService(), connectorMessage));
         webServiceDispatcherProperties.setPort(replacer.replaceValues(webServiceDispatcherProperties.getPort(), connectorMessage));
         webServiceDispatcherProperties.setLocationURI(replacer.replaceValues(webServiceDispatcherProperties.getLocationURI(), connectorMessage));
+        webServiceDispatcherProperties.setSocketTimeout(replacer.replaceValues(webServiceDispatcherProperties.getSocketTimeout(), connectorMessage));
 
         webServiceDispatcherProperties.setSoapAction(replacer.replaceValues(webServiceDispatcherProperties.getSoapAction(), connectorMessage));
         webServiceDispatcherProperties.setEnvelope(replacer.replaceValues(webServiceDispatcherProperties.getEnvelope(), connectorMessage));
@@ -445,11 +441,13 @@ public class WebServiceDispatcher extends DestinationConnector {
                 dispatchContainers.put(dispatcherId, dispatchContainer);
             }
 
+            int timeout = NumberUtils.toInt(webServiceDispatcherProperties.getSocketTimeout(), 30000);
+
             /*
              * Initialize the dispatch object if it hasn't been initialized yet, or create a new one
              * if the connector properties have changed due to variables.
              */
-            createDispatch(webServiceDispatcherProperties, dispatchContainer);
+            createDispatch(webServiceDispatcherProperties, dispatchContainer, timeout);
 
             Dispatch<SOAPMessage> dispatch = dispatchContainer.getDispatch();
 
