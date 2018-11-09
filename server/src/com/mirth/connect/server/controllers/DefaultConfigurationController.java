@@ -709,11 +709,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 if (!Strings.isNullOrEmpty(configSerialized)) {
                     HashMap<String, ConfigurationProperty> configurationMap = (HashMap<String, ConfigurationProperty>) ObjectXMLSerializer.getInstance().deserialize(configSerialized, HashMap.class);
                     setConfigurationProperties(configurationMap, true);
-                } else {
-                    // make a new blank one and save it
-                    saveProperty(PROPERTIES_CORE, "configuration.properties", ObjectXMLSerializer.getInstance().serialize(new HashMap<String, ConfigurationProperty>()));
                 }
-
             }
         } catch (ControllerException e) {
             logger.error("Failed to load configuration map from database", e);
@@ -920,7 +916,6 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             list.getList().add(defaultResource);
             resources = ObjectXMLSerializer.getInstance().serialize(list);
-            saveProperty(PROPERTIES_CORE, PROPERTIES_RESOURCES, resources);
         }
 
         return resources;
@@ -940,7 +935,6 @@ public class DefaultConfigurationController extends ConfigurationController {
             dependencies = ObjectXMLSerializer.getInstance().deserialize(dependenciesXml, Set.class);
         } else {
             dependencies = new HashSet<ChannelDependency>();
-            setChannelDependencies(dependencies);
         }
 
         return dependencies;
@@ -967,7 +961,6 @@ public class DefaultConfigurationController extends ConfigurationController {
             channelTags = ObjectXMLSerializer.getInstance().deserialize(channelTagXML, Set.class);
         } else {
             channelTags = new HashSet<ChannelTag>();
-            setChannelTags(channelTags);
         }
 
         return channelTags;
@@ -1005,7 +998,6 @@ public class DefaultConfigurationController extends ConfigurationController {
             channelMetadata = ObjectXMLSerializer.getInstance().deserialize(channelMetadataXml, Map.class);
         } else {
             channelMetadata = new HashMap<String, ChannelMetadata>();
-            setChannelMetadata(channelMetadata);
         }
 
         return channelMetadata;
