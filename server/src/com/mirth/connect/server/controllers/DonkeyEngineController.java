@@ -1761,7 +1761,7 @@ public class DonkeyEngineController implements EngineController {
                 return;
             }
             ChannelMetadata metadata = configurationController.getChannelMetadata().get(channelModel.getId());
-            if (metadata == null || !metadata.isEnabled() || isDeployed(channelId)) {
+            if ((metadata != null && !metadata.isEnabled()) || isDeployed(channelId)) {
                 return;
             }
 

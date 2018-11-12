@@ -646,9 +646,10 @@ public class DefaultConfigurationController extends ConfigurationController {
         Map<String, ChannelMetadata> metadataMap = getChannelMetadata();
         for (Channel channel : serverConfiguration.getChannels()) {
             ChannelMetadata metadata = metadataMap.get(channel.getId());
-            if (metadata != null) {
-                channel.getExportData().setMetadata(metadata);
+            if (metadata == null) {
+                metadata = new ChannelMetadata();
             }
+            channel.getExportData().setMetadata(metadata);
         }
 
         serverConfiguration.setChannelTags(getChannelTags());
