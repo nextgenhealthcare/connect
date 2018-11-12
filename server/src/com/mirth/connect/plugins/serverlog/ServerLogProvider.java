@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.serverlog;
 import static com.mirth.connect.plugins.serverlog.ServerLogServletInterface.PERMISSION_VIEW;
 import static com.mirth.connect.plugins.serverlog.ServerLogServletInterface.PLUGIN_POINT;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -54,12 +55,18 @@ public class ServerLogProvider implements ServicePlugin {
     }
 
     public synchronized void newServerLogReceived(String level, Date date, String threadName, String category, String lineNumber, String message, String throwableInformation) {
-        logController.addLogItem(new ServerLogItem(serverId, logId, level, date, threadName, category, lineNumber, message, throwableInformation));
-        logId++;
+        if (logController != null) {
+            logController.addLogItem(new ServerLogItem(serverId, logId, level, date, threadName, category, lineNumber, message, throwableInformation));
+            logId++;
+        }
     }
 
     public List<ServerLogItem> getServerLogs(int fetchSize, Long lastLogId) {
-        return logController.getServerLogs(fetchSize, lastLogId);
+        if (logController != null) {
+            return logController.getServerLogs(fetchSize, lastLogId);
+        } else {
+            return new ArrayList<ServerLogItem>();
+        }
     }
 
     @Override
