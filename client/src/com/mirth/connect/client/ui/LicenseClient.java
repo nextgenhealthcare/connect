@@ -82,7 +82,7 @@ public class LicenseClient {
                     }
 
                     int days = (int) Math.ceil((double) Duration.between(now, endDate).getSeconds() / 60 / 60 / 24);
-                    builder.append(days).append(" day").append(days == 1 ? "" : "s").append(".<br/>Please contact NextGen Sales to renew your license.</html>");
+                    builder.append(days).append(" day").append(days == 1 ? "" : "s").append(".<br/>Please contact your account manager or<br/>connectsales@nextgen.com to renew your commercial license.</html>");
                     final String message = builder.toString();
 
                     SwingUtilities.invokeLater(() -> {
