@@ -9,11 +9,14 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +112,28 @@ public class ReprocessMessagesDialog extends MirthDialog {
 
         reprocessLabel = new JLabel("Reprocess through the following destinations:");
 
+        selectAllLabel = new JLabel("<html><u>Select All</u></html>");
+        selectAllLabel.setForeground(Color.BLUE);
+        selectAllLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void mouseReleased(MouseEvent evt) {
+                ((ItemSelectionTableModel<Integer, String>) includedDestinationsTable.getModel()).selectAllKeys();
+            }
+        });
+
+        selectSeparatorLabel = new JLabel("|");
+
+        deselectAllLabel = new JLabel("<html><u>Deselect All</u></html>");
+        deselectAllLabel.setForeground(Color.BLUE);
+        deselectAllLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void mouseReleased(MouseEvent evt) {
+                ((ItemSelectionTableModel<Integer, String>) includedDestinationsTable.getModel()).unselectAllKeys();
+            }
+        });
+
         includedDestinationsTable = new MirthTable();
         includedDestinationsPane = new JScrollPane(includedDestinationsTable);
 
@@ -154,9 +179,12 @@ public class ReprocessMessagesDialog extends MirthDialog {
             contentPane.add(warningPane, "growx, sx, wrap");
             contentPane.add(new JSeparator(), "growx, gapbottom 6, sx, wrap");
         }
-        contentPane.add(overwriteCheckBox, "wrap");
-        contentPane.add(reprocessLabel, "wrap");
-        contentPane.add(includedDestinationsPane, "growx, wrap, gapbottom 6");
+        contentPane.add(overwriteCheckBox, "wrap, sx");
+        contentPane.add(reprocessLabel, "left");
+        contentPane.add(selectAllLabel, "right, split 3");
+        contentPane.add(selectSeparatorLabel);
+        contentPane.add(deselectAllLabel, "wrap");
+        contentPane.add(includedDestinationsPane, "growx, wrap, gapbottom 6, sx");
         contentPane.add(new JSeparator(), "growx, gapbottom 6, span");
         contentPane.add(okButton, "alignx right, width 48, split, span");
         contentPane.add(cancelButton, "alignx right, width 48");
@@ -167,6 +195,9 @@ public class ReprocessMessagesDialog extends MirthDialog {
     private JEditorPane warningPane;
     private JCheckBox overwriteCheckBox;
     private JLabel reprocessLabel;
+    private JLabel selectAllLabel;
+    private JLabel selectSeparatorLabel;
+    private JLabel deselectAllLabel;
     private JScrollPane includedDestinationsPane;
     private MirthTable includedDestinationsTable;
     private JButton okButton;
