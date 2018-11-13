@@ -178,6 +178,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String STATS_UPDATE_INTERVAL = "donkey.statsupdateinterval";
     private static final String RHINO_LANGUAGE_VERSION = "rhino.languageversion";
 
+    private static final String DEFAULT_STOREPASS = "81uWxplDtB";
+
     // singleton pattern
     private static ConfigurationController instance = null;
 
@@ -1035,6 +1037,22 @@ public class DefaultConfigurationController extends ConfigurationController {
                 keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
                 logger.debug("found and loaded keystore: " + keyStoreFile.getAbsolutePath());
             } else {
+                /*
+                 * If a new keystore is being created, and the passwords are the defaults, then
+                 * create new passwords.
+                 */
+                if (Arrays.equals(keyStorePassword, DEFAULT_STOREPASS.toCharArray()) && Arrays.equals(keyPassword, DEFAULT_STOREPASS.toCharArray())) {
+                    String keyStorePasswordStr = generateNewPassword();
+                    mirthConfig.setProperty("keystore.storepass", keyStorePasswordStr);
+                    keyStorePassword = keyStorePasswordStr.toCharArray();
+
+                    String keyPasswordStr = generateNewPassword();
+                    mirthConfig.setProperty("keystore.keypass", keyPasswordStr);
+                    keyPassword = keyPasswordStr.toCharArray();
+
+                    saveMirthConfig();
+                }
+
                 keyStore.load(null, keyStorePassword);
                 logger.debug("keystore file not found, created new one");
             }
@@ -1042,13 +1060,26 @@ public class DefaultConfigurationController extends ConfigurationController {
             configureEncryption(provider, keyStore, keyPassword);
             generateDefaultCertificate(provider, keyStore, keyPassword);
 
-            // write the kesytore back to the file
+            // write the keystore back to the file
             FileOutputStream fos = new FileOutputStream(keyStoreFile);
             keyStore.store(fos, keyStorePassword);
             IOUtils.closeQuietly(fos);
         } catch (Exception e) {
             logger.error("Could not initialize security settings.", e);
         }
+    }
+
+    /**
+     * Creates a random 12-character alphanumeric password.
+     */
+    private String generateNewPassword() {
+        String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 1; i <= 12; i++) {
+            builder.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return builder.toString();
     }
 
     @Override
@@ -1096,18 +1127,22 @@ public class DefaultConfigurationController extends ConfigurationController {
             String encryptedPassword = EncryptionSettings.ENCRYPTION_PREFIX + encryptor.encrypt(password);
             mirthConfig.setProperty(readOnly ? DatabaseConstants.DATABASE_READONLY_PASSWORD : DatabaseConstants.DATABASE_PASSWORD, encryptedPassword);
 
-            /*
-             * Save using a FileOutputStream so that the file will be saved to the proper location,
-             * even if running from the IDE.
-             */
-            File confDir = new File(ControllerFactory.getFactory().createConfigurationController().getConfigurationDir());
-            OutputStream os = new FileOutputStream(new File(confDir, "mirth.properties"));
+            saveMirthConfig();
+        }
+    }
 
-            try {
-                mirthConfig.save(os);
-            } finally {
-                IOUtils.closeQuietly(os);
-            }
+    private void saveMirthConfig() throws FileNotFoundException, ConfigurationException {
+        /*
+         * Save using a FileOutputStream so that the file will be saved to the proper location, even
+         * if running from the IDE.
+         */
+        File confDir = new File(ControllerFactory.getFactory().createConfigurationController().getConfigurationDir());
+        OutputStream os = new FileOutputStream(new File(confDir, "mirth.properties"));
+
+        try {
+            mirthConfig.save(os);
+        } finally {
+            IOUtils.closeQuietly(os);
         }
     }
 
@@ -1190,6 +1225,11 @@ public class DefaultConfigurationController extends ConfigurationController {
         } catch (Exception e) {
             logger.error("Error migrating encryption key from database to keystore.", e);
         }
+    }
+
+    @Override
+    public void updatePropertiesConfiguration(PropertiesConfiguration config) {
+        config.copy(mirthConfig);
     }
 
     /**

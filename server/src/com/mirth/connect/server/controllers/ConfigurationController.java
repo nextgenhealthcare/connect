@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 import com.mirth.commons.encryption.Digester;
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.client.core.ControllerException;
@@ -70,6 +72,11 @@ public abstract class ConfigurationController extends Controller {
      * run once during the migration from pre-2.2 to 2.2.
      */
     public abstract void migrateKeystore();
+
+    /**
+     * Copies the current server configuration into the specified object.
+     */
+    public abstract void updatePropertiesConfiguration(PropertiesConfiguration config);
 
     /**
      * Returns the default encryptor.
