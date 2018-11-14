@@ -208,6 +208,9 @@ public class Mirth extends Thread {
         configurationController.initializeSecuritySettings();
         configurationController.initializeDatabaseSettings();
 
+        // Refresh the in-memory config in case the configuration controller changed it
+        configurationController.updatePropertiesConfiguration(mirthProperties);
+
         try {
             DonkeyConnectionPools.getInstance().init(configurationController.getDatabaseSettings().getProperties());
             SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
