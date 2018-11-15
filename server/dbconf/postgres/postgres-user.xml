@@ -10,6 +10,8 @@
       <result property='phoneNumber' column='PHONENUMBER'/>
       <result property='lastLogin' column='LAST_LOGIN'/>
       <result property='gracePeriodStart' column='GRACE_PERIOD_START'/>
+      <result property='strikeCount' column='STRIKE_COUNT'/>
+      <result property='lastStrikeTime' column='LAST_STRIKE_TIME'/>
       <result property='description' column='DESCRIPTION'/>
    </resultMap>
    <resultMap id='get-user-credentials' type='com.mirth.connect.model.Credentials'>
@@ -19,7 +21,7 @@
    <select id='getUser'
            parameterType='com.mirth.connect.model.User'
            resultMap='get-user-result'>
-		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, DESCRIPTION
+		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION
 		FROM PERSON
 		<where>
          <if test='id != null'>AND ID = #{id}</if>
@@ -84,6 +86,18 @@
    <update id='clearGracePeriod' parameterType='java.lang.Integer'>
 		UPDATE PERSON
 		SET GRACE_PERIOD_START = NULL
+		WHERE ID = #{value}
+	</update>
+	<update id='incrementStrikes' parameterType='java.lang.Integer'>
+		UPDATE PERSON
+		SET STRIKE_COUNT = COALESCE(STRIKE_COUNT, 0) + 1,
+		LAST_STRIKE_TIME = NOW()
+		WHERE ID = #{value}
+	</update>
+	<update id='resetStrikes' parameterType='java.lang.Integer'>
+		UPDATE PERSON
+		SET STRIKE_COUNT = 0,
+		LAST_STRIKE_TIME = NULL
 		WHERE ID = #{value}
 	</update>
    <!-- Login/Logout Procedures --><update id='loginUser' parameterType='java.util.Map'>

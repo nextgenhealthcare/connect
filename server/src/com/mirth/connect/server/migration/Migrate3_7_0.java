@@ -27,7 +27,9 @@ public class Migrate3_7_0 extends Migrator implements ConfigurationMigrator {
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
-    public void migrate() throws MigrationException {}
+    public void migrate() throws MigrationException {
+        executeScript(getDatabaseType() + "-3.6.1-3.7.0.sql");
+    }
 
     @Override
     public void migrateSerializedData() throws MigrationException {}
