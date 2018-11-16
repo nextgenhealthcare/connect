@@ -32,11 +32,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.mirth.connect.server.extprops.ExtensionStatuses;
+
 public class MirthLauncher {
     private static final String EXTENSIONS_DIR = "./extensions";
     private static final String SERVER_LAUNCHER_LIB_DIR = "./server-launcher-lib";
     private static final String MIRTH_PROPERTIES_FILE = "./conf/mirth.properties";
-    private static final String EXTENSION_PROPERTIES = "extension.properties";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
     private static final String PROPERTY_INCLUDE_CUSTOM_LIB = "server.includecustomlib";
     private static final String LOG4J_JAR_FILE = "./server-lib/log4j-1.2.16.jar";
@@ -217,16 +218,7 @@ public class MirthLauncher {
         FileFilter directoryFilter = FileFilterUtils.directoryFileFilter();
         File extensionPath = new File(EXTENSIONS_DIR);
 
-        Properties extensionProperties = new Properties();
-        File extensionPropertiesFile = new File(appDataDir, EXTENSION_PROPERTIES);
-
-        /*
-         * If the file does not exist yet, an empty Properties object will be used, returning the
-         * default of true for all extensions.
-         */
-        if (extensionPropertiesFile.exists()) {
-            extensionProperties.load(new FileInputStream(extensionPropertiesFile));
-        }
+        ExtensionStatuses extensionStatuses = ExtensionStatuses.getInstance();
 
         if (extensionPath.exists() && extensionPath.isDirectory()) {
             File[] directories = extensionPath.listFiles(directoryFilter);
@@ -239,7 +231,7 @@ public class MirthLauncher {
                         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(extensionFile);
                         Element rootElement = document.getDocumentElement();
 
-                        boolean enabled = extensionProperties.getProperty(rootElement.getElementsByTagName("name").item(0).getTextContent(), "true").equalsIgnoreCase("true");
+                        boolean enabled = extensionStatuses.isEnabled(rootElement.getElementsByTagName("name").item(0).getTextContent());
                         boolean compatible = isExtensionCompatible(rootElement.getElementsByTagName("mirthVersion").item(0).getTextContent(), currentVersion);
 
                         // Only add libraries from extensions that are not disabled and are compatible with the current version
