@@ -20,6 +20,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -53,6 +54,10 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
 
     @Override
     public boolean createChannel(Channel channel) {
+        if (isChannelRedacted(channel.getId())) {
+            throw new MirthApiException(Status.FORBIDDEN);
+        }
+
         try {
             return channelController.updateChannel(channel, context, false);
         } catch (ControllerException e) {
