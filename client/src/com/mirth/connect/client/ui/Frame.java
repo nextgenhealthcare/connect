@@ -144,6 +144,7 @@ import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
+import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.DirectedAcyclicGraphNode;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.MigrationUtil;
@@ -323,12 +324,16 @@ public class Frame extends JXFrame {
         }
     }
 
+    public void setupCharsetEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox) {
+        setupCharsetEncodingForConnector(charsetEncodingCombobox, false);
+    }
+
     /**
      * Creates all the items in the combo box for the connectors.
      * 
      * This method is called from each connector.
      */
-    public void setupCharsetEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox) {
+    public void setupCharsetEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox, boolean allowNone) {
         if (this.availableCharsetEncodings == null) {
             this.setCharsetEncodings();
         }
@@ -339,14 +344,23 @@ public class Frame extends JXFrame {
         charsetEncodingCombobox.removeAllItems();
         for (int i = 0; i < this.availableCharsetEncodings.size(); i++) {
             charsetEncodingCombobox.addItem(this.availableCharsetEncodings.get(i));
+
+            // Insert the NONE option after the default option
+            if (allowNone && i == 0) {
+                charsetEncodingCombobox.addItem(new CharsetEncodingInformation(CharsetUtils.NONE, "None"));
+            }
         }
+    }
+
+    public void setPreviousSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox, String selectedCharset) {
+        setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, selectedCharset, false);
     }
 
     /**
      * Sets the combobox for the string previously selected. If the server can't support the
      * encoding, the default one is selected. This method is called from each connector.
      */
-    public void setPreviousSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox, String selectedCharset) {
+    public void setPreviousSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox, String selectedCharset, boolean allowNone) {
         if (this.availableCharsetEncodings == null) {
             this.setCharsetEncodings();
         }
@@ -356,6 +370,8 @@ public class Frame extends JXFrame {
         }
         if ((selectedCharset == null) || (selectedCharset.equalsIgnoreCase(UIConstants.DEFAULT_ENCODING_OPTION))) {
             charsetEncodingCombobox.setSelectedIndex(0);
+        } else if (allowNone && selectedCharset.equalsIgnoreCase(CharsetUtils.NONE)) {
+            charsetEncodingCombobox.setSelectedIndex(1);
         } else if (this.charsetEncodings.contains(selectedCharset)) {
             int index = this.availableCharsetEncodings.indexOf(new CharsetEncodingInformation(selectedCharset, selectedCharset));
             if (index < 0) {

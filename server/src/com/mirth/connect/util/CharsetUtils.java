@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class CharsetUtils {
     public static final String DEFAULT_ENCODING = "DEFAULT_ENCODING";
+    public static final String NONE = "NONE";
 
     /**
      * If the specified charset encoding equals DEFAULT_ENCODING or is NULL/empty, then the

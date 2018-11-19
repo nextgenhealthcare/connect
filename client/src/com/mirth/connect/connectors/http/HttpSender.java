@@ -71,7 +71,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
 
-        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox, true);
 
         queryParametersPane.addMouseListener(new java.awt.event.MouseAdapter() {
 
@@ -286,7 +286,7 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         contentTextArea.setText(props.getContent());
 
-        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharset());
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharset(), true);
 
         checkContentEnabled();
     }

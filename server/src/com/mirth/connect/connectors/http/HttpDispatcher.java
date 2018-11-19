@@ -251,11 +251,19 @@ public class HttpDispatcher extends DestinationConnector {
 
             // Parse the content type field first, and then add the charset if needed
             ContentType contentType = ContentType.parse(httpDispatcherProperties.getContentType());
+
+            /*
+             * If a charset is set in the Content Type field, use that.
+             * 
+             * If the charset is NONE, keep it as null.
+             * 
+             * Otherwise, use the charset from the Character Encoding drop-down menu.
+             */
             Charset charset = null;
-            if (contentType.getCharset() == null) {
-                charset = Charset.forName(CharsetUtils.getEncoding(httpDispatcherProperties.getCharset()));
-            } else {
+            if (contentType.getCharset() != null) {
                 charset = contentType.getCharset();
+            } else if (!StringUtils.equalsIgnoreCase(httpDispatcherProperties.getCharset(), CharsetUtils.NONE)) {
+                charset = Charset.forName(CharsetUtils.getEncoding(httpDispatcherProperties.getCharset()));
             }
 
             if (httpDispatcherProperties.isMultipart()) {
@@ -440,7 +448,7 @@ public class HttpDispatcher extends DestinationConnector {
             content = getAttachmentHandlerProvider().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage, httpDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
 
             // If text mode is used and a specific charset isn't already defined, use the one from the connector properties
-            if (contentType.getCharset() == null) {
+            if (contentType.getCharset() == null && charset != null) {
                 contentType = HttpMessageConverter.setCharset(contentType, charset);
             }
         }
