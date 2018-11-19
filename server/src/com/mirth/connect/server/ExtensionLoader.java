@@ -10,14 +10,12 @@
 package com.mirth.connect.server;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -38,6 +36,7 @@ import com.mirth.connect.model.PluginClass;
 import com.mirth.connect.model.PluginClassCondition;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.extprops.ExtensionStatuses;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 
@@ -84,8 +83,10 @@ public class ExtensionLoader {
         Class<T> overrideClass = null;
         PluginClass highestPluginClassModel = null;
 
+        ExtensionStatuses extensionStatuses = ExtensionStatuses.getInstance();
+
         for (PluginMetaData pluginMetaData : getPluginMetaData().values()) {
-            if (isExtensionEnabled(pluginMetaData.getName())) {
+            if (extensionStatuses.isEnabled(pluginMetaData.getName())) {
                 List<PluginClass> controllerClasses = pluginMetaData.getControllerClasses();
 
                 if (controllerClasses != null) {
@@ -239,44 +240,5 @@ public class ExtensionLoader {
         versionConfig.load(versionPropertiesStream);
         IOUtils.closeQuietly(versionPropertiesStream);
         return versionConfig.getString("mirth.version");
-    }
-
-    /**
-     * This method needs to read the extension properties directly rather than going to the
-     * extension controller, otherwise we'd be causing a stack overflow.
-     */
-    private boolean isExtensionEnabled(String name) {
-        try {
-            Properties mirthProperties = new Properties();
-            InputStream is = new FileInputStream(new File("./conf/mirth.properties"));
-            try {
-                mirthProperties.load(is);
-            } finally {
-                IOUtils.closeQuietly(is);
-            }
-
-            String appData = mirthProperties.getProperty("dir.appdata");
-            if (appData != null) {
-                File appDataDir = new File(appData);
-                if (appDataDir.exists()) {
-                    File extensionPropertiesFile = new File(appDataDir, "extension.properties");
-                    if (extensionPropertiesFile.exists()) {
-                        Properties extensionProperties = new Properties();
-                        InputStream eis = new FileInputStream(extensionPropertiesFile);
-                        try {
-                            extensionProperties.load(eis);
-                        } finally {
-                            IOUtils.closeQuietly(eis);
-                        }
-
-                        return Boolean.parseBoolean(extensionProperties.getProperty(name, "true"));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Unable to read enabled status from extension.properties.", e);
-        }
-
-        return true;
     }
 }

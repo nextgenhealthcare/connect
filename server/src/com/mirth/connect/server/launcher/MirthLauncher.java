@@ -32,11 +32,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.mirth.connect.server.extprops.ExtensionStatuses;
+import com.mirth.connect.server.extprops.LoggerWrapper;
+
 public class MirthLauncher {
     private static final String EXTENSIONS_DIR = "./extensions";
     private static final String SERVER_LAUNCHER_LIB_DIR = "./server-launcher-lib";
     private static final String MIRTH_PROPERTIES_FILE = "./conf/mirth.properties";
-    private static final String EXTENSION_PROPERTIES = "extension.properties";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
     private static final String PROPERTY_INCLUDE_CUSTOM_LIB = "server.includecustomlib";
     private static final String LOG4J_JAR_FILE = "./server-lib/log4j-1.2.16.jar";
@@ -44,18 +46,18 @@ public class MirthLauncher {
     private static String appDataDir = null;
 
     private static LoggerWrapper logger;
-    
+
     public static void main(String[] args) {
         try {
-        	List<URL> classpathUrls = new ArrayList<>();
-        	// Always add log4j
-        	classpathUrls.add(new File(LOG4J_JAR_FILE).toURI().toURL());
-        	classpathUrls.addAll(addServerLauncherLibJarsToClasspath());
+            List<URL> classpathUrls = new ArrayList<>();
+            // Always add log4j
+            classpathUrls.add(new File(LOG4J_JAR_FILE).toURI().toURL());
+            classpathUrls.addAll(addServerLauncherLibJarsToClasspath());
             URLClassLoader mirthLauncherClassLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]), Thread.currentThread().getContextClassLoader());
             Thread.currentThread().setContextClassLoader(mirthLauncherClassLoader);
-        	
-        	logger = new LoggerWrapper(mirthLauncherClassLoader.loadClass("org.apache.log4j.Logger").getMethod("getLogger", Class.class).invoke(null, MirthLauncher.class));
-        	
+
+            logger = new LoggerWrapper(mirthLauncherClassLoader.loadClass("org.apache.log4j.Logger").getMethod("getLogger", Class.class).invoke(null, MirthLauncher.class));
+
             try {
                 uninstallPendingExtensions();
                 installPendingExtensions();
@@ -96,7 +98,7 @@ public class MirthLauncher {
             Properties versionProperties = new Properties();
             versionProperties.load(mirthClientCoreJarFile.getInputStream(mirthClientCoreJarFile.getJarEntry("version.properties")));
             String currentVersion = versionProperties.getProperty("mirth.version");
-            
+
             addManifestToClasspath(manifest, classpathUrls);
             addExtensionsToClasspath(classpathUrls, currentVersion);
             URLClassLoader classLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]), Thread.currentThread().getContextClassLoader());
@@ -159,24 +161,24 @@ public class MirthLauncher {
             FileUtils.deleteDirectory(extensionsTempDir);
         }
     }
-        
+
     private static List<URL> addServerLauncherLibJarsToClasspath() {
         File serverLauncherLibDir = new File(SERVER_LAUNCHER_LIB_DIR);
         List<URL> classpathUrls = new ArrayList<>();
-        
+
         if (serverLauncherLibDir.exists() && serverLauncherLibDir.isDirectory()) {
-        	FileFilter jarFileFilter = new WildcardFileFilter("*.jar");
+            FileFilter jarFileFilter = new WildcardFileFilter("*.jar");
             File[] jarFiles = serverLauncherLibDir.listFiles(jarFileFilter);
 
             for (File jarFile : jarFiles) {
                 try {
-                	URL jarFileURL = jarFile.toURI().toURL();
+                    URL jarFileURL = jarFile.toURI().toURL();
                     classpathUrls.add(jarFileURL);
                 } catch (Exception e) {
-                	e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
-        } 
+        }
         return classpathUrls;
     }
 
@@ -217,16 +219,7 @@ public class MirthLauncher {
         FileFilter directoryFilter = FileFilterUtils.directoryFileFilter();
         File extensionPath = new File(EXTENSIONS_DIR);
 
-        Properties extensionProperties = new Properties();
-        File extensionPropertiesFile = new File(appDataDir, EXTENSION_PROPERTIES);
-
-        /*
-         * If the file does not exist yet, an empty Properties object will be used, returning the
-         * default of true for all extensions.
-         */
-        if (extensionPropertiesFile.exists()) {
-            extensionProperties.load(new FileInputStream(extensionPropertiesFile));
-        }
+        ExtensionStatuses extensionStatuses = ExtensionStatuses.getInstance();
 
         if (extensionPath.exists() && extensionPath.isDirectory()) {
             File[] directories = extensionPath.listFiles(directoryFilter);
@@ -239,7 +232,7 @@ public class MirthLauncher {
                         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(extensionFile);
                         Element rootElement = document.getDocumentElement();
 
-                        boolean enabled = extensionProperties.getProperty(rootElement.getElementsByTagName("name").item(0).getTextContent(), "true").equalsIgnoreCase("true");
+                        boolean enabled = extensionStatuses.isEnabled(rootElement.getElementsByTagName("name").item(0).getTextContent());
                         boolean compatible = isExtensionCompatible(rootElement.getElementsByTagName("mirthVersion").item(0).getTextContent(), currentVersion);
 
                         // Only add libraries from extensions that are not disabled and are compatible with the current version
@@ -310,53 +303,5 @@ public class MirthLauncher {
 
         appDataDir = appDataDirFile.getAbsolutePath();
         logger.debug("set app data dir: " + appDataDir);
-    }
-    
-    private static class LoggerWrapper {
-        private Object logger;
-        
-        public LoggerWrapper(Object logger) {
-            this.logger = logger;
-        }
-        
-        public void error(Object message) {
-            error(message, null);
-        }
-        
-        public void error(Object message, Throwable t) {
-            call("error", message, t);
-        }
-        
-        public void warn(Object message) {
-        	warn(message, null);
-        }
-        
-        public void warn(Object message, Throwable t) {
-            call("warn", message, t);
-        }
-        
-        public void debug(Object message) {
-        	debug(message, null);
-        }
-        
-        public void debug(Object message, Throwable t) {
-            call("debug", message, t);
-        }
-
-        public void trace(Object message) {
-        	trace(message, null);
-        };
-        
-        public void trace(Object message, Throwable t) {
-            call("trace", message, t);
-        }
-        
-        private void call(String methodName, Object message, Throwable t) {
-            try {
-                logger.getClass().getMethod(methodName, Object.class, Throwable.class).invoke(logger, message, t);
-            } catch (Throwable t2) {
-                t2.printStackTrace();
-            }
-        }
     }
 }
