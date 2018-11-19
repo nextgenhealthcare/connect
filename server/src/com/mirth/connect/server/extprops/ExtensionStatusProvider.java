@@ -14,8 +14,15 @@ import java.util.Properties;
 public abstract class ExtensionStatusProvider implements ExtensionStatusInterface {
 
     protected Properties mirthProperties;
+    protected LoggerWrapper logger;
 
     public ExtensionStatusProvider(Properties mirthProperties) {
         this.mirthProperties = mirthProperties;
+
+        try {
+            logger = new LoggerWrapper(Thread.currentThread().getContextClassLoader().loadClass("org.apache.log4j.Logger").getMethod("getLogger", Class.class).invoke(null, ExtensionStatuses.class));
+        } catch (Throwable t) {
+            logger = new LoggerWrapper(null);
+        }
     }
 }

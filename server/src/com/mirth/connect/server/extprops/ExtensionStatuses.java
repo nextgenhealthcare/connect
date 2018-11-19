@@ -22,6 +22,7 @@ public class ExtensionStatuses implements ExtensionStatusInterface {
 
     private static ExtensionStatuses instance = null;
 
+    private LoggerWrapper logger;
     private Properties mirthProperties = new Properties();
     private ExtensionStatusProvider provider;
 
@@ -42,6 +43,12 @@ public class ExtensionStatuses implements ExtensionStatusInterface {
 
     private ExtensionStatuses() {
         try {
+            logger = new LoggerWrapper(Thread.currentThread().getContextClassLoader().loadClass("org.apache.log4j.Logger").getMethod("getLogger", Class.class).invoke(null, ExtensionStatuses.class));
+        } catch (Throwable t) {
+            logger = new LoggerWrapper(null);
+        }
+
+        try {
             InputStream is = new FileInputStream(new File("./conf/mirth.properties"));
             try {
                 mirthProperties.load(is);
@@ -49,8 +56,7 @@ public class ExtensionStatuses implements ExtensionStatusInterface {
                 IOUtils.closeQuietly(is);
             }
         } catch (Exception e) {
-            System.err.println("Unable to read mirth.properties.");
-            e.printStackTrace();
+            logger.error("Unable to read mirth.properties.", e);
         }
 
         String providerClass = mirthProperties.getProperty("extension.properties.provider");
@@ -60,8 +66,7 @@ public class ExtensionStatuses implements ExtensionStatusInterface {
                 Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(providerClass);
                 provider = (ExtensionStatusProvider) clazz.getConstructor(Properties.class).newInstance(mirthProperties);
             } catch (Throwable t) {
-                System.err.println("Unable to instantiate provider class: " + providerClass);
-                t.printStackTrace();
+                logger.error("Unable to instantiate provider class: " + providerClass, t);
             }
         }
 

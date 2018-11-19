@@ -42,13 +42,13 @@ public class ExtensionStatusFile extends ExtensionStatusProvider {
 
                 if (!extensionPropertiesFile.exists()) {
                     extensionPropertiesFile = null;
-                    System.err.println("Unable to create new extension.properties file.");
+                    logger.error("Unable to create new extension.properties file.");
                 }
             } else {
                 reload();
             }
         } else {
-            System.err.println("Unable to find appdata directory: " + appData);
+            logger.error("Unable to find appdata directory: " + appData);
         }
     }
 
@@ -63,7 +63,7 @@ public class ExtensionStatusFile extends ExtensionStatusProvider {
                 props.load(is);
                 extensionProperties = props;
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Error reading extension.properties file.", e);
             } finally {
                 IOUtils.closeQuietly(is);
             }
@@ -108,8 +108,7 @@ public class ExtensionStatusFile extends ExtensionStatusProvider {
                 os = new FileOutputStream(extensionPropertiesFile, false);
                 props.store(os, null);
             } catch (Exception e) {
-                System.err.println("Unable to save extension.properties file.");
-                e.printStackTrace();
+                logger.error("Unable to save extension.properties file.", e);
             } finally {
                 IOUtils.closeQuietly(os);
             }
