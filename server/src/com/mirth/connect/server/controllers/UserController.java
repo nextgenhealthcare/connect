@@ -16,6 +16,7 @@ import java.util.Set;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.LoginStatus;
+import com.mirth.connect.model.LoginStrike;
 import com.mirth.connect.model.User;
 
 public abstract class UserController extends Controller {
@@ -135,6 +136,10 @@ public abstract class UserController extends Controller {
     public abstract boolean isUserLoggedIn(Integer userId) throws ControllerException;
 
     public abstract List<Credentials> getUserCredentials(Integer userId) throws ControllerException;
+
+    public abstract LoginStrike incrementStrikes(Integer userId) throws ControllerException;
+
+    public abstract LoginStrike resetStrikes(Integer userId) throws ControllerException;
 
     /**
      * Returns a user preference (name/value pair).

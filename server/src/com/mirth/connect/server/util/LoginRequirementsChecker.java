@@ -9,56 +9,70 @@
 
 package com.mirth.connect.server.util;
 
-import java.util.Calendar;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import org.apache.log4j.Logger;
 import org.joda.time.Duration;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.LoginStrike;
 import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.User;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.UserController;
 
 public class LoginRequirementsChecker {
 
-    private String username;
-    private PasswordRequirements passwordRequirements;
-    private static Map<String, LoginStrike> userLoginStrikes = new ConcurrentHashMap<String, LoginStrike>();
+    private static Logger logger = Logger.getLogger(LoginRequirementsChecker.class);
 
-    public LoginRequirementsChecker(String username) {
-        this.username = username;
-        this.passwordRequirements = ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements();
+    private User user;
+    private PasswordRequirements passwordRequirements;
+    private UserController userController;
+
+    public LoginRequirementsChecker(User user) {
+        this(user, ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements(), ControllerFactory.getFactory().createUserController());
+    }
+
+    public LoginRequirementsChecker(User user, PasswordRequirements passwordRequirements, UserController userController) {
+        this.user = user;
+        this.passwordRequirements = passwordRequirements;
+        this.userController = userController;
     }
 
     // --- Login Strikes --- //
 
     public int getStrikeCount() {
-        synchronized (userLoginStrikes) {
-            return (userLoginStrikes.get(username) == null) ? 0 : userLoginStrikes.get(username).getLastStrikeCount();
-        }
+        return user.getStrikeCount() != null ? user.getStrikeCount() : 0;
     }
 
     public void incrementStrikes() {
-        synchronized (userLoginStrikes) {
-            userLoginStrikes.put(username, new LoginStrike((getStrikeCount() + 1), Calendar.getInstance()));
+        try {
+            updateStrikeInfo(userController.incrementStrikes(user.getId()));
+        } catch (ControllerException e) {
+            logger.error("Unable to increment login strikes for user: " + user.toAuditString(), e);
         }
     }
 
     public void resetStrikes() {
-        synchronized (userLoginStrikes) {
-            userLoginStrikes.remove(username);
+        try {
+            updateStrikeInfo(userController.resetStrikes(user.getId()));
+        } catch (ControllerException e) {
+            logger.error("Unable to increment login strikes for user: " + user.toAuditString(), e);
+        }
+    }
+
+    private void updateStrikeInfo(LoginStrike strikeInfo) {
+        if (strikeInfo != null) {
+            user.setStrikeCount(strikeInfo.getLastStrikeCount());
+            user.setLastStrikeTime(strikeInfo.getLastStrikeTime());
         }
     }
 
     public void resetExpiredStrikes() {
-        synchronized (userLoginStrikes) {
-            if ((getStrikeCount() > 0) && (getStrikeTimeRemaining() <= 0)) {
-                resetStrikes();
-            }
+        if ((getStrikeCount() > 0) && (getStrikeTimeRemaining() <= 0)) {
+            resetStrikes();
         }
     }
 
@@ -67,37 +81,29 @@ public class LoginRequirementsChecker {
             return false;
         }
 
-        synchronized (userLoginStrikes) {
-            return ((getStrikesRemaining() <= 0) && (getStrikeTimeRemaining() > 0));
-        }
+        return ((getAttemptsRemaining() <= 0) && (getStrikeTimeRemaining() > 0));
     }
 
     public boolean isLockoutEnabled() {
         return (passwordRequirements.getRetryLimit() > 0);
     }
 
-    public int getStrikesRemaining() {
+    public int getAttemptsRemaining() {
         int retryLimit = passwordRequirements.getRetryLimit();
 
-        synchronized (userLoginStrikes) {
-            return (retryLimit - getStrikeCount());
-        }
+        return (retryLimit + 1 - getStrikeCount());
     }
 
     public long getStrikeTimeRemaining() {
         Duration lockoutPeriod = Duration.standardHours(passwordRequirements.getLockoutPeriod());
 
-        synchronized (userLoginStrikes) {
-            Duration strikeDuration = new Duration(userLoginStrikes.get(username).getLastStrikeTime().getTimeInMillis(), System.currentTimeMillis());
-            return lockoutPeriod.minus(strikeDuration).getMillis();
-        }
+        long lastStrikeTime = user.getLastStrikeTime() != null ? user.getLastStrikeTime().getTimeInMillis() : 0;
+        Duration strikeDuration = new Duration(lastStrikeTime, System.currentTimeMillis());
+        return lockoutPeriod.minus(strikeDuration).getMillis();
     }
 
     public String getPrintableStrikeTimeRemaining() {
-        Period period;
-        synchronized (userLoginStrikes) {
-            period = new Period(getStrikeTimeRemaining());
-        }
+        Period period = new Period(getStrikeTimeRemaining());
 
         PeriodFormatter periodFormatter;
         if (period.toStandardMinutes().getMinutes() > 0) {

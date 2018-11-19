@@ -30,6 +30,8 @@ public class User implements Serializable, Auditable {
     private String industry;
     private Calendar lastLogin;
     private Calendar gracePeriodStart;
+    private Integer strikeCount;
+    private Calendar lastStrikeTime;
 
     public Integer getId() {
         return this.id;
@@ -117,6 +119,22 @@ public class User implements Serializable, Auditable {
 
     public void setGracePeriodStart(Calendar gracePeriodStart) {
         this.gracePeriodStart = gracePeriodStart;
+    }
+
+    public Integer getStrikeCount() {
+        return strikeCount;
+    }
+
+    public void setStrikeCount(Integer strikeCount) {
+        this.strikeCount = strikeCount;
+    }
+
+    public Calendar getLastStrikeTime() {
+        return lastStrikeTime;
+    }
+
+    public void setLastStrikeTime(Calendar lastStrikeTime) {
+        this.lastStrikeTime = lastStrikeTime;
     }
 
     public boolean equals(Object obj) {

@@ -27,6 +27,7 @@ import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.LoginStatus.Status;
+import com.mirth.connect.model.LoginStrike;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.User;
 import com.mirth.connect.server.ExtensionLoader;
@@ -283,24 +284,27 @@ public class DefaultUserController extends UserController {
                  * authentication.
                  */
                 if (loginStatus != null) {
-                    return handleSecondaryAuthentication(username, loginStatus);
+                    return handleSecondaryAuthentication(username, loginStatus, null);
                 }
             }
 
-            Digester digester = ControllerFactory.getFactory().createConfigurationController().getDigester();
-            LoginRequirementsChecker loginRequirementsChecker = new LoginRequirementsChecker(username);
-            if (loginRequirementsChecker.isUserLockedOut()) {
-                return new LoginStatus(LoginStatus.Status.FAIL_LOCKED_OUT, "User account \"" + username + "\" has been locked. You may attempt to login again in " + loginRequirementsChecker.getPrintableStrikeTimeRemaining() + ".");
-            }
-
-            loginRequirementsChecker.resetExpiredStrikes();
             boolean authorized = false;
-
-            // Validate the user
-            User validUser = getUser(null, username);
             Credentials credentials = null;
+            LoginRequirementsChecker loginRequirementsChecker = null;
+
+            // Retrieve the matching User
+            User validUser = getUser(null, username);
 
             if (validUser != null) {
+                Digester digester = ControllerFactory.getFactory().createConfigurationController().getDigester();
+                loginRequirementsChecker = new LoginRequirementsChecker(validUser);
+                if (loginRequirementsChecker.isUserLockedOut()) {
+                    return new LoginStatus(LoginStatus.Status.FAIL_LOCKED_OUT, "User account \"" + username + "\" has been locked. You may attempt to login again in " + loginRequirementsChecker.getPrintableStrikeTimeRemaining() + ".");
+                }
+
+                loginRequirementsChecker.resetExpiredStrikes();
+
+                // Validate the user credentials
                 credentials = (Credentials) SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("User.getLatestUserCredentials", validUser.getId());
 
                 if (credentials != null) {
@@ -319,8 +323,6 @@ public class DefaultUserController extends UserController {
             LoginStatus loginStatus = null;
 
             if (authorized) {
-                loginRequirementsChecker.resetStrikes();
-
                 // If password expiration is enabled, do checks now
                 if (passwordRequirements.getExpiration() > 0) {
                     long passwordTime = credentials.getPasswordDate().getTimeInMillis();
@@ -379,15 +381,26 @@ public class DefaultUserController extends UserController {
                     }
                 }
             } else {
-                loginRequirementsChecker.incrementStrikes();
+                LoginStatus.Status status = LoginStatus.Status.FAIL;
                 String failMessage = "Incorrect username or password.";
-                if (loginRequirementsChecker.isLockoutEnabled()) {
-                    failMessage += " " + loginRequirementsChecker.getStrikesRemaining() + " login attempt(s) remaining for \"" + username + "\" until the account is locked for " + loginRequirementsChecker.getPrintableLockoutPeriod() + ".";
+
+                if (loginRequirementsChecker != null) {
+                    loginRequirementsChecker.incrementStrikes();
+
+                    if (loginRequirementsChecker.isLockoutEnabled()) {
+                        if (loginRequirementsChecker.isUserLockedOut()) {
+                            status = LoginStatus.Status.FAIL_LOCKED_OUT;
+                            failMessage += " User account \"" + username + "\" has been locked. You may attempt to login again in " + loginRequirementsChecker.getPrintableStrikeTimeRemaining() + ".";
+                        } else {
+                            failMessage += " " + loginRequirementsChecker.getAttemptsRemaining() + " login attempt(s) remaining for \"" + username + "\" until the account is locked for " + loginRequirementsChecker.getPrintableLockoutPeriod() + ".";
+                        }
+                    }
                 }
-                loginStatus = new LoginStatus(LoginStatus.Status.FAIL, failMessage);
+
+                loginStatus = new LoginStatus(status, failMessage);
             }
 
-            return handleSecondaryAuthentication(username, loginStatus);
+            return handleSecondaryAuthentication(username, loginStatus, loginRequirementsChecker);
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
@@ -459,6 +472,36 @@ public class DefaultUserController extends UserController {
     public List<Credentials> getUserCredentials(Integer userId) throws ControllerException {
         try {
             return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("User.getUserCredentials", userId);
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    @Override
+    public LoginStrike incrementStrikes(Integer userId) throws ControllerException {
+        try {
+            SqlConfig.getInstance().getSqlSessionManager().update("User.incrementStrikes", userId);
+
+            User updatedUser = getUser(userId, null);
+            if (updatedUser != null) {
+                return new LoginStrike(updatedUser.getStrikeCount(), updatedUser.getLastStrikeTime());
+            }
+            return null;
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    @Override
+    public LoginStrike resetStrikes(Integer userId) throws ControllerException {
+        try {
+            SqlConfig.getInstance().getSqlSessionManager().update("User.resetStrikes", userId);
+
+            User updatedUser = getUser(userId, null);
+            if (updatedUser != null) {
+                return new LoginStrike(updatedUser.getStrikeCount(), updatedUser.getLastStrikeTime());
+            }
+            return null;
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -572,10 +615,26 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    private LoginStatus handleSecondaryAuthentication(String username, LoginStatus loginStatus) {
+    private LoginStatus handleSecondaryAuthentication(String username, LoginStatus loginStatus, LoginRequirementsChecker loginRequirementsChecker) {
         if (loginStatus != null && extensionController.getMultiFactorAuthenticationPlugin() != null && (loginStatus.getStatus() == Status.SUCCESS || loginStatus.getStatus() == Status.SUCCESS_GRACE_PERIOD)) {
             loginStatus = extensionController.getMultiFactorAuthenticationPlugin().authenticate(username, loginStatus);
         }
+
+        // Only reset strikes if the final status is successful 
+        if (loginStatus.getStatus() == Status.SUCCESS || loginStatus.getStatus() == Status.SUCCESS_GRACE_PERIOD) {
+            if (loginRequirementsChecker == null) {
+                try {
+                    loginRequirementsChecker = new LoginRequirementsChecker(getUser(null, username));
+                } catch (ControllerException e) {
+                    logger.warn("Unable to reset strikes for user \"" + username + "\": Could not find user.", e);
+                }
+            }
+
+            if (loginRequirementsChecker != null) {
+                loginRequirementsChecker.resetStrikes();
+            }
+        }
+
         return loginStatus;
     }
 }
