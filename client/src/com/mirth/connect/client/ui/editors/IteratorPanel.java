@@ -133,6 +133,13 @@ public abstract class IteratorPanel<C extends FilterTransformerElement> extends 
         nameActionListener = actionListener;
     }
 
+    @Override
+    public void stopEditing() {
+        if (prefixSubstitutionsTable.isEditing()) {
+            prefixSubstitutionsTable.getCellEditor(prefixSubstitutionsTable.getEditingRow(), prefixSubstitutionsTable.getEditingColumn()).stopCellEditing();
+        }
+    }
+
     protected void updateName() {
         updateName(targetField.getText());
     }
@@ -197,6 +204,7 @@ public abstract class IteratorPanel<C extends FilterTransformerElement> extends 
         prefixSubstitutionsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         prefixSubstitutionsTable.setRowSelectionAllowed(true);
         prefixSubstitutionsTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        prefixSubstitutionsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         prefixSubstitutionsTable.setDragEnabled(false);
         prefixSubstitutionsTable.setOpaque(true);
         prefixSubstitutionsTable.setSortable(false);

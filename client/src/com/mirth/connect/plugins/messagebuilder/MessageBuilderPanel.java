@@ -118,6 +118,13 @@ public class MessageBuilderPanel extends EditorPanel<Step> {
     @Override
     public void setNameActionListener(ActionListener actionListener) {}
 
+    @Override
+    public void stopEditing() {
+        if (regularExpressionsTable.isEditing()) {
+            regularExpressionsTable.getCellEditor(regularExpressionsTable.getEditingRow(), regularExpressionsTable.getEditingColumn()).stopCellEditing();
+        }
+    }
+
     private void setRegexProperties(List<Pair<String, String>> properties) {
         Object[][] tableData = new Object[properties.size()][2];
 
@@ -211,6 +218,7 @@ public class MessageBuilderPanel extends EditorPanel<Step> {
         regularExpressionsTable.setSelectionMode(0);
         regularExpressionsTable.setRowSelectionAllowed(true);
         regularExpressionsTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        regularExpressionsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         regularExpressionsTable.setDragEnabled(false);
         regularExpressionsTable.setOpaque(true);
         regularExpressionsTable.setSortable(false);

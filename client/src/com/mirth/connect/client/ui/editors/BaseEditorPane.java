@@ -1565,6 +1565,17 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         if (treeTable.isEditing()) {
             treeTable.getCellEditor(treeTable.getEditingRow(), treeTable.getEditingColumn()).stopCellEditing();
         }
+
+        int viewRow = treeTable.getSelectedRow();
+        if (isValidViewRow(viewRow)) {
+            FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(viewRow);
+            if (node != null) {
+                FilterTransformerTypePlugin<T, C> plugin = getPlugins().get(node.getElement().getType());
+                if (plugin != null) {
+                    plugin.getPanel().stopEditing();
+                }
+            }
+        }
     }
 
     private boolean isValidViewRow(int viewRow) {
