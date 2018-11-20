@@ -107,6 +107,7 @@ public class DestinationSetFilterPanel extends EditorPanel<Step> {
 
         fieldField.setText(props.getField());
         conditionRadioMap.get(props.getCondition()).setSelected(true);
+        conditionRadioActionPerformed(props.getCondition());
         setValues(props.getValues());
         properties.setName(updateName());
     }

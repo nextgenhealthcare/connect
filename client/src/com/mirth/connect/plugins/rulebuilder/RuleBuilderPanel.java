@@ -85,6 +85,7 @@ public class RuleBuilderPanel extends EditorPanel<Rule> {
 
         fieldField.setText(props.getField());
         conditionRadioMap.get(props.getCondition()).setSelected(true);
+        conditionRadioActionPerformed(props.getCondition());
         setValues(props.getValues());
         properties.setName(updateName());
     }
