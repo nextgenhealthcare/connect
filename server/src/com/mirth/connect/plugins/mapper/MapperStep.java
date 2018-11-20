@@ -65,7 +65,7 @@ public class MapperStep extends Step implements FilterTransformerIterable<Step> 
     public Collection<String> getResponseVariables() {
         Collection<String> varCollection = null;
         if (scope.equals(Scope.RESPONSE)) {
-            Collections.singletonList(variable);
+            varCollection = Collections.singletonList(variable);
         }
         return varCollection;
     }
