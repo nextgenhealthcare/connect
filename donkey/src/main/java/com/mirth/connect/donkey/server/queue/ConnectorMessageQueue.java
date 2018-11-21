@@ -99,7 +99,7 @@ public abstract class ConnectorMessageQueue {
     }
 
     public int size() {
-        if (size == null) {
+        if (size == null || (dataSource != null && dataSource.getServerId() == null)) {
             if (dataSource == null) {
                 return 0;
             }
@@ -154,7 +154,7 @@ public abstract class ConnectorMessageQueue {
     }
 
     public synchronized void fillBuffer() {
-        if (size == null) {
+        if (size == null || (size == 0 && dataSource != null && dataSource.getServerId() == null)) {
             updateSize();
         }
 

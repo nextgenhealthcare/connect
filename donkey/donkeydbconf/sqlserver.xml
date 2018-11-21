@@ -268,12 +268,33 @@
 		) AS A WHERE A.ROWNUM <![CDATA[ > ]]> ${offset} AND A.ROWNUM <![CDATA[ <= ]]> (${offset} + ${limit})
 	</query>
 	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAllServers">
+		SELECT A.* FROM (
+
+		SELECT *, ROW_NUMBER() OVER (ORDER BY MESSAGE_ID) AS ROWNUM
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ?
+
+		) AS A WHERE A.ROWNUM <![CDATA[ > ]]> ${offset} AND A.ROWNUM <![CDATA[ <= ]]> (${offset} + ${limit})
+	</query>
+	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
 		SELECT A.* FROM (
 	
 		SELECT *, ROW_NUMBER() OVER (ORDER BY MESSAGE_ID) AS ROWNUM
 		FROM D_MM${localChannelId}
 		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
+		AND MESSAGE_ID <![CDATA[ >= ]]> ? AND MESSAGE_ID <![CDATA[ <= ]]> ?
+		
+		) AS A WHERE A.ROWNUM <![CDATA[ > ]]> ${offset} AND A.ROWNUM <![CDATA[ <= ]]> (${offset} + ${limit})
+	</query>
+	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRangeAllServers">
+		SELECT A.* FROM (
+	
+		SELECT *, ROW_NUMBER() OVER (ORDER BY MESSAGE_ID) AS ROWNUM
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ?
 		AND MESSAGE_ID <![CDATA[ >= ]]> ? AND MESSAGE_ID <![CDATA[ <= ]]> ?
 		
 		) AS A WHERE A.ROWNUM <![CDATA[ > ]]> ${offset} AND A.ROWNUM <![CDATA[ <= ]]> (${offset} + ${limit})

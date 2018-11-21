@@ -40,7 +40,7 @@ public class SourceQueue extends ConnectorMessageQueue {
     }
 
     public synchronized ConnectorMessage poll() {
-        if (size == null) {
+        if (size == null || (size == 0 && dataSource != null && dataSource.getServerId() == null)) {
             updateSize();
         }
 

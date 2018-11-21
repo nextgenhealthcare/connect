@@ -60,6 +60,10 @@ public class ConnectorMessageQueueDataSource {
         this.channelId = channelId;
     }
 
+    public String getServerId() {
+        return serverId;
+    }
+
     public int getMetaDataId() {
         return metaDataId;
     }

@@ -162,10 +162,29 @@
 		FETCH FIRST ${limit} ROWS ONLY
 	</query>
 	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAllServers">
+		SELECT *
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ?
+		ORDER BY MESSAGE_ID
+		OFFSET ${offset} ROWS
+		FETCH FIRST ${limit} ROWS ONLY
+	</query>
+	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
 		SELECT *
 		FROM D_MM${localChannelId}
 		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
+		AND MESSAGE_ID <![CDATA[ >= ]]> ? AND MESSAGE_ID <![CDATA[ <= ]]> ?
+		ORDER BY MESSAGE_ID
+		OFFSET ${offset} ROWS
+		FETCH FIRST ${limit} ROWS ONLY
+	</query>
+	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRangeAllServers">
+		SELECT *
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ?
 		AND MESSAGE_ID <![CDATA[ >= ]]> ? AND MESSAGE_ID <![CDATA[ <= ]]> ?
 		ORDER BY MESSAGE_ID
 		OFFSET ${offset} ROWS

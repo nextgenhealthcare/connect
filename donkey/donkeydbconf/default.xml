@@ -324,10 +324,29 @@
 		OFFSET ${offset}
 	</query>
 	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAllServers">
+		SELECT *
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ?
+		ORDER BY MESSAGE_ID
+		LIMIT ${limit}
+		OFFSET ${offset}
+	</query>
+	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
 		SELECT *
 		FROM D_MM${localChannelId}
 		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
+		AND MESSAGE_ID <![CDATA[ >= ]]> ? AND MESSAGE_ID <![CDATA[ <= ]]> ?
+		ORDER BY MESSAGE_ID
+		LIMIT ${limit}
+		OFFSET ${offset}
+	</query>
+	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRangeAllServers">
+		SELECT *
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ?
 		AND MESSAGE_ID <![CDATA[ >= ]]> ? AND MESSAGE_ID <![CDATA[ <= ]]> ?
 		ORDER BY MESSAGE_ID
 		LIMIT ${limit}
@@ -355,10 +374,22 @@
 		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
 	</query>
 	
+	<query id="getConnectorMessageCountByMetaDataIdAndStatusAllServers">
+		SELECT COUNT(*)
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ?
+	</query>
+	
 	<query id="getConnectorMessageMaxMessageIdByMetaDataIdAndStatus">
 		SELECT COALESCE(MAX(MESSAGE_ID), 0)
 		FROM D_MM${localChannelId}
 		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
+	</query>
+	
+	<query id="getConnectorMessageMaxMessageIdByMetaDataIdAndStatusAllServers">
+		SELECT COALESCE(MAX(MESSAGE_ID), 0)
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ?
 	</query>
 	
 	
