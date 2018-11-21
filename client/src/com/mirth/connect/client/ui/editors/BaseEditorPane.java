@@ -158,6 +158,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     private DropTarget dropTarget;
     private Preferences userPreferences = Preferences.userNodeForPackage(Mirth.class);
     private ActionListener nameActionListener;
+    private int previouslySelectedIndex = -1;
 
     public BaseEditorPane() {
         initComponents();
@@ -1417,7 +1418,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         if (!evt.getValueIsAdjusting() && !updating.getAndSet(true)) {
             try {
                 int selectedRow = treeTable.getSelectedRow();
-                int previousRow = selectedRow == evt.getFirstIndex() ? evt.getLastIndex() : evt.getFirstIndex();
+                int previousRow = previouslySelectedIndex;
+                previouslySelectedIndex = selectedRow;
 
                 if (previousRow != selectedRow) {
                     saveData(previousRow);
@@ -1434,6 +1436,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
     private void loadData(int viewRow) {
         if (isValidViewRow(viewRow)) {
+            previouslySelectedIndex = viewRow;
             FilterTransformerTreeTableNode<T, C> node = getNodeAtRow(viewRow);
             C element = node.getElement();
             String type = element.getType();
@@ -1455,6 +1458,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
                 PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
             }
         } else {
+            previouslySelectedIndex = -1;
             propertiesScrollPane.setViewportView(null);
             propertiesContainer.removeAll();
         }
