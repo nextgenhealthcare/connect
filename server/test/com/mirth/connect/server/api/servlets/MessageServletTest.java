@@ -36,7 +36,7 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import org.junit.After;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
@@ -66,8 +66,8 @@ public class MessageServletTest {
     static SecurityContext sc;
 
     @SuppressWarnings("unchecked")
-    @BeforeClass
-    public static void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
         controllerFactory = mock(ControllerFactory.class);
 
         engineController = mock(EngineController.class);
