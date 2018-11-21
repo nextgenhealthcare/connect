@@ -9,6 +9,7 @@
 
 package com.mirth.connect.util;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,24 +42,40 @@ public class CodeTemplateUtil {
 
         if (StringUtils.isNotBlank(code)) {
             try {
-                FunctionVisitor visitor = new FunctionVisitor();
-                CompilerEnvirons env = new CompilerEnvirons();
-                env.setRecordingLocalJsDocComments(true);
-                env.setAllowSharpComments(true);
-                env.setRecordingComments(true);
+                try {
+                    // First try the function AST
+                    FunctionVisitor visitor = parseFunction(code);
+                    description = visitor.getDescription();
+                    functionDefinition = visitor.getFunctionDefinition();
+                } catch (Throwable t) {
+                    // If that didn't work, find the description comment and chop it off
+                    Matcher matcher = COMMENT_PATTERN.matcher(code);
+                    if (matcher.find()) {
+                        description = matcher.group().replaceAll("^\\s*/\\*+\\s*|\\s*\\*+/\\s*$|(\r\n|\r|\n)\\s*@[\\s\\S]*", "").trim();
+                        code = StringUtils.substring(code, matcher.end());
 
-                new Parser(env).parse(new StringReader(code), null, 1).visitAll(visitor);
-                description = visitor.getDescription();
-                functionDefinition = visitor.getFunctionDefinition();
-            } catch (Exception e) {
-                Matcher matcher = COMMENT_PATTERN.matcher(code);
-                if (matcher.find()) {
-                    description = matcher.group().replaceAll("^\\s*/\\*+\\s*|\\s*\\*+/\\s*$", "").trim();
+                        // Then parse into AST and get function definition
+                        FunctionVisitor visitor = parseFunction(code);
+                        functionDefinition = visitor.getFunctionDefinition();
+                    }
                 }
+            } catch (Throwable t) {
+                // Ignore
             }
         }
 
         return new CodeTemplateDocumentation(description, functionDefinition);
+    }
+
+    private static FunctionVisitor parseFunction(String code) throws IOException {
+        FunctionVisitor visitor = new FunctionVisitor();
+        CompilerEnvirons env = new CompilerEnvirons();
+        env.setRecordingLocalJsDocComments(true);
+        env.setAllowSharpComments(true);
+        env.setRecordingComments(true);
+
+        new Parser(env).parse(new StringReader(code), null, 1).visitAll(visitor);
+        return visitor;
     }
 
     public static String updateCode(String code) {
