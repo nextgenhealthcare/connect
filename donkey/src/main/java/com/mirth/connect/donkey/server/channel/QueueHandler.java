@@ -16,5 +16,11 @@ public interface QueueHandler {
 
     public boolean canStartSourceQueue();
 
-    public ConnectorMessageQueueDataSource createSourceQueueDataSource(Connector connector, DonkeyDaoFactory daoFactory);
+    public ConnectorMessageQueueDataSource createSourceQueueDataSource(SourceConnector connector, DonkeyDaoFactory daoFactory);
+
+    public boolean canStartDestinationQueue(DestinationConnector connector);
+
+    public boolean allowSendFirst(DestinationConnector connector);
+
+    public ConnectorMessageQueueDataSource createDestinationQueueDataSource(DestinationConnector connector, DonkeyDaoFactory daoFactory);
 }

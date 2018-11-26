@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.httpauth.javascript;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.plugins.httpauth.HttpAuthConnectorPluginProperties;
 
@@ -35,6 +36,11 @@ public class JavaScriptHttpAuthProperties extends HttpAuthConnectorPluginPropert
 
     public void setScript(String script) {
         this.script = script;
+    }
+
+    @Override
+    public ConnectorPluginProperties clone() {
+        return new JavaScriptHttpAuthProperties(this);
     }
 
     @Override

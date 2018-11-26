@@ -30,6 +30,9 @@ public abstract class ConnectorPluginProperties implements Serializable, Migrata
     @Override
     public abstract boolean equals(Object obj);
 
+    @Override
+    public abstract ConnectorPluginProperties clone();
+
     // @formatter:off
     @Override public void migrate3_0_1(DonkeyElement element) {}
     @Override public void migrate3_0_2(DonkeyElement element) {}

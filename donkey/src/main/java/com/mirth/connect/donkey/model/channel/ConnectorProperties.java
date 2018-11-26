@@ -26,7 +26,12 @@ public abstract class ConnectorProperties implements Serializable, Migratable, P
     public ConnectorProperties() {}
 
     public ConnectorProperties(ConnectorProperties props) {
-        pluginProperties = props.getPluginProperties();
+        if (props.getPluginProperties() != null) {
+            pluginProperties = new HashSet<ConnectorPluginProperties>();
+            for (ConnectorPluginProperties cpp : props.getPluginProperties()) {
+                pluginProperties.add(cpp.clone());
+            }
+        }
     }
 
     public Set<ConnectorPluginProperties> getPluginProperties() {

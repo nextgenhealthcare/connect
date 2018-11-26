@@ -32,6 +32,12 @@ public class InvalidConnectorPluginProperties extends ConnectorPluginProperties 
         this.name = properties.getNodeName();
     }
 
+    public InvalidConnectorPluginProperties(InvalidConnectorPluginProperties props) {
+        this.propertiesXml = props.getPropertiesXml();
+        this.cause = props.getCause();
+        this.name = props.getName();
+    }
+
     public String getPropertiesXml() {
         return propertiesXml;
     }
@@ -59,6 +65,11 @@ public class InvalidConnectorPluginProperties extends ConnectorPluginProperties 
             return propertiesXml.equals(((InvalidConnectorPluginProperties) obj).getPropertiesXml());
         }
         return false;
+    }
+
+    @Override
+    public InvalidConnectorPluginProperties clone() {
+        return new InvalidConnectorPluginProperties(this);
     }
 
     @Override

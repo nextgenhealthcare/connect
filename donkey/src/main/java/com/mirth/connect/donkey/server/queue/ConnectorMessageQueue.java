@@ -99,7 +99,7 @@ public abstract class ConnectorMessageQueue {
     }
 
     public int size() {
-        if (size == null || (dataSource != null && dataSource.getServerId() == null)) {
+        if (size == null) {
             if (dataSource == null) {
                 return 0;
             }
@@ -107,6 +107,14 @@ public abstract class ConnectorMessageQueue {
         }
 
         return size;
+    }
+
+    protected void incrementActualSize() {
+        size++;
+    }
+
+    protected void decrementActualSize() {
+        size--;
     }
 
     public synchronized void add(ConnectorMessage connectorMessage) {
@@ -118,7 +126,7 @@ public abstract class ConnectorMessageQueue {
              * database
              */
             if (size != null) {
-                size++;
+                incrementActualSize();
             }
 
             /*
@@ -147,14 +155,14 @@ public abstract class ConnectorMessageQueue {
                     reachedCapacity = true;
                 }
             }
-            size++;
+            incrementActualSize();
         }
 
         eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, MessageEventType.QUEUED, (long) size(), false));
     }
 
     public synchronized void fillBuffer() {
-        if (size == null || (size == 0 && dataSource != null && dataSource.getServerId() == null)) {
+        if (size == null) {
             updateSize();
         }
 

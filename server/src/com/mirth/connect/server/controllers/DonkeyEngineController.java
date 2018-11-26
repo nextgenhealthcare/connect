@@ -1121,7 +1121,7 @@ public class DonkeyEngineController implements EngineController {
         SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties();
         channel.getResponseSelector().setRespondFromName(sourceConnectorProperties.getResponseVariable());
 
-        SourceQueue sourceQueue = new SourceQueue();
+        SourceQueue sourceQueue = getSourceQueue(channelModel);
         if (sourceConnectorProperties.getQueueBufferSize() > 0) {
             sourceQueue.setBufferCapacity(sourceConnectorProperties.getQueueBufferSize());
         } else {
@@ -1161,11 +1161,15 @@ public class DonkeyEngineController implements EngineController {
                     connectorModel.setMetaDataId(metaDataId);
                 }
 
-                chain.addDestination(connectorModel.getMetaDataId(), createDestinationConnector(channel, connectorModel, storageSettings, destinationIdMap));
+                chain.addDestination(connectorModel.getMetaDataId(), createDestinationConnector(channel, channelModel, connectorModel, storageSettings, destinationIdMap));
             }
         }
 
         return channel;
+    }
+
+    protected SourceQueue getSourceQueue(com.mirth.connect.model.Channel channelModel) {
+        return new SourceQueue();
     }
 
     protected ChannelProcessLock getChannelProcessLock(com.mirth.connect.model.Channel channelModel) {
@@ -1465,7 +1469,7 @@ public class DonkeyEngineController implements EngineController {
         return chain;
     }
 
-    private DestinationConnector createDestinationConnector(Channel channel, com.mirth.connect.model.Connector connectorModel, StorageSettings storageSettings, Map<String, Integer> destinationIdMap) throws Exception {
+    private DestinationConnector createDestinationConnector(Channel channel, com.mirth.connect.model.Channel channelModel, com.mirth.connect.model.Connector connectorModel, StorageSettings storageSettings, Map<String, Integer> destinationIdMap) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         ConnectorProperties connectorProperties = connectorModel.getProperties();
         ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaData().get(connectorProperties.getName());
@@ -1495,7 +1499,7 @@ public class DonkeyEngineController implements EngineController {
         destinationConnector.setResponseValidator(responseValidator);
         destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(destinationConnector, connectorModel, destinationIdMap));
 
-        DestinationQueue queue = new DestinationQueue(destinationConnectorProperties.getThreadAssignmentVariable(), destinationConnectorProperties.getThreadCount(), destinationConnectorProperties.isRegenerateTemplate(), destinationConnector.getSerializer(), destinationConnector.getMessageMaps());
+        DestinationQueue queue = getDestinationQueue(channelModel, connectorModel, destinationConnector, destinationConnectorProperties);
         queue.setRotate(destinationConnector.isQueueRotate());
 
         if (destinationConnectorProperties.getQueueBufferSize() > 0) {
@@ -1507,6 +1511,10 @@ public class DonkeyEngineController implements EngineController {
         destinationConnector.setQueue(queue);
 
         return destinationConnector;
+    }
+
+    protected DestinationQueue getDestinationQueue(com.mirth.connect.model.Channel channelModel, com.mirth.connect.model.Connector connectorModel, DestinationConnector destinationConnector, DestinationConnectorProperties destinationConnectorProperties) {
+        return new DestinationQueue(destinationConnectorProperties.getThreadAssignmentVariable(), destinationConnectorProperties.getThreadCount(), destinationConnectorProperties.isRegenerateTemplate(), destinationConnector.getSerializer(), destinationConnector.getMessageMaps());
     }
 
     private void setCommonConnectorProperties(String channelId, Connector connector, com.mirth.connect.model.Connector connectorModel, Map<String, Integer> destinationIdMap) {

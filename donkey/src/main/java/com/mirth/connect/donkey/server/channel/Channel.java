@@ -514,7 +514,11 @@ public class Channel implements Runnable {
                     destinationConnector.setStorageSettings(storageSettings);
 
                     // set the queue data source
-                    destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), getServerId(), destinationConnector.getMetaDataId(), Status.QUEUED, destinationConnector.isQueueRotate(), daoFactory));
+                    if (queueHandler != null) {
+                        destinationConnector.getQueue().setDataSource(queueHandler.createDestinationQueueDataSource(destinationConnector, daoFactory));
+                    } else {
+                        destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), getServerId(), destinationConnector.getMetaDataId(), Status.QUEUED, destinationConnector.isQueueRotate(), daoFactory));
+                    }
 
                     // refresh the queue size from it's data source
                     destinationConnector.getQueue().updateSize();

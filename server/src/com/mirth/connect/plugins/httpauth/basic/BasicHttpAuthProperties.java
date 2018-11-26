@@ -49,6 +49,11 @@ public class BasicHttpAuthProperties extends HttpAuthConnectorPluginProperties {
     }
 
     @Override
+    public BasicHttpAuthProperties clone() {
+        return new BasicHttpAuthProperties(this);
+    }
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("authType", getAuthType());
