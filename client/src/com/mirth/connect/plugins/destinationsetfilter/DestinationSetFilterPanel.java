@@ -152,6 +152,16 @@ public class DestinationSetFilterPanel extends EditorPanel<Step> {
         nameActionListener = actionListener;
     }
 
+    @Override
+    public void stopEditing() {
+        if (destinationsTable.isEditing()) {
+            destinationsTable.getCellEditor(destinationsTable.getEditingRow(), destinationsTable.getEditingColumn()).stopCellEditing();
+        }
+        if (valuesTable.isEditing()) {
+            valuesTable.getCellEditor(valuesTable.getEditingRow(), valuesTable.getEditingColumn()).stopCellEditing();
+        }
+    }
+
     public void setValues(List<String> values) {
         Object[][] tableData = new Object[values.size()][1];
         for (int i = 0; i < values.size(); i++) {

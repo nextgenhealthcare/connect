@@ -115,6 +115,13 @@ public class RuleBuilderPanel extends EditorPanel<Rule> {
         nameActionListener = actionListener;
     }
 
+    @Override
+    public void stopEditing() {
+        if (valuesTable.isEditing()) {
+            valuesTable.getCellEditor(valuesTable.getEditingRow(), valuesTable.getEditingColumn()).stopCellEditing();
+        }
+    }
+
     public void setValues(List<String> values) {
         Object[][] tableData = new Object[values.size()][1];
         for (int i = 0; i < values.size(); i++) {
@@ -264,6 +271,7 @@ public class RuleBuilderPanel extends EditorPanel<Rule> {
         valuesTable.setSelectionMode(0);
         valuesTable.setRowSelectionAllowed(true);
         valuesTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        valuesTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         valuesTable.setDragEnabled(false);
         valuesTable.setOpaque(true);
         valuesTable.setSortable(false);
