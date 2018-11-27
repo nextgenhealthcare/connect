@@ -10,11 +10,16 @@
 package com.mirth.connect.client.ui.panels.connectors;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -35,18 +40,26 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.mirth.connect.client.ui.AbstractConnectorPropertiesPanel;
 import com.mirth.connect.client.ui.ChannelSetup;
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.model.InvalidConnectorPluginProperties;
 import com.mirth.connect.model.MessageStorageMode;
+import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
 
 public class DestinationSettingsPanel extends JPanel {
+
+    public static final String ADVANCED_QUEUE_PLUGIN_PROPERTIES = "destinationAdvancedQueuePluginProperties";
 
     private ChannelSetup channelSetup;
     private boolean regenerateTemplate;
@@ -57,6 +70,7 @@ public class DestinationSettingsPanel extends JPanel {
     private int threadCount;
     private String threadAssignmentVariable;
     private int queueBufferSize;
+    private Set<ConnectorPluginProperties> pluginProperties;
 
     public DestinationSettingsPanel() {
         initComponents();
@@ -111,6 +125,8 @@ public class DestinationSettingsPanel extends JPanel {
             reattachAttachmentsNoRadio.setSelected(true);
         }
 
+        pluginProperties = properties.getPluginProperties();
+
         updateAdvancedSettingsLabel();
     }
 
@@ -138,6 +154,7 @@ public class DestinationSettingsPanel extends JPanel {
         properties.setValidateResponse(validateResponseYesRadio.isSelected());
         properties.setQueueBufferSize(queueBufferSize);
         properties.setReattachAttachments(reattachAttachmentsYesRadio.isSelected());
+        properties.setPluginProperties(pluginProperties);
     }
 
     public boolean checkProperties(DestinationConnectorPropertiesInterface propertiesInterface, boolean highlight) {
@@ -370,6 +387,23 @@ public class DestinationSettingsPanel extends JPanel {
             queueBufferSizeLabel.setEnabled(queueEnabled);
             queueBufferSizeField.setEnabled(queueEnabled);
             queueBufferSizeField.setText(String.valueOf(queueBufferSize));
+
+            for (AbstractConnectorPropertiesPanel cppPanel : pluginPropertiesPanels.values()) {
+                cppPanel.setProperties(null, cppPanel.getDefaults(), Mode.DESTINATION, null);
+                cppPanel.setLayoutComponentsEnabled(queueEnabled);
+            }
+            if (pluginProperties != null) {
+                for (ConnectorPluginProperties cpp : pluginProperties) {
+                    if (!(cpp instanceof InvalidConnectorPluginProperties)) {
+                        AbstractConnectorPropertiesPanel cppPanel = pluginPropertiesPanels.get(cpp.getName());
+
+                        if (cppPanel != null) {
+                            cppPanel.setProperties(null, cpp, Mode.DESTINATION, null);
+                            cppPanel.setLayoutComponentsEnabled(queueEnabled);
+                        }
+                    }
+                }
+            }
         }
 
         private boolean saveProperties() {
@@ -412,6 +446,14 @@ public class DestinationSettingsPanel extends JPanel {
             threadCount = NumberUtils.toInt(queueThreadsField.getText(), 1);
             threadAssignmentVariable = threadAssignmentVariableField.getText();
             queueBufferSize = NumberUtils.toInt(queueBufferSizeField.getText());
+
+            pluginProperties = null;
+            if (!pluginPropertiesPanels.isEmpty()) {
+                pluginProperties = new HashSet<ConnectorPluginProperties>();
+                for (AbstractConnectorPropertiesPanel cppPanel : pluginPropertiesPanels.values()) {
+                    pluginProperties.add(cppPanel.getProperties());
+                }
+            }
 
             updateAdvancedSettingsLabel();
             PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
@@ -539,6 +581,15 @@ public class DestinationSettingsPanel extends JPanel {
             queueBufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
             queueBufferSizeField.setToolTipText("<html>The buffer size for the destination queue.<br/>Up to this many connector messages may<br/>be held in memory at once when queuing.</html>");
 
+            pluginPropertiesPanels = new LinkedHashMap<String, AbstractConnectorPropertiesPanel>();
+
+            for (ConnectorPropertiesPlugin plugin : LoadedExtensions.getInstance().getConnectorPropertiesPlugins().values()) {
+                if (plugin.isConnectorPropertiesPluginSupported(ADVANCED_QUEUE_PLUGIN_PROPERTIES)) {
+                    AbstractConnectorPropertiesPanel cppPanel = plugin.getConnectorPropertiesPanel();
+                    pluginPropertiesPanels.put(cppPanel.getDefaults().getName(), cppPanel);
+                }
+            }
+
             okButton = new JButton("OK");
             okButton.addActionListener(new ActionListener() {
                 @Override
@@ -581,6 +632,14 @@ public class DestinationSettingsPanel extends JPanel {
             containerPanel.add(threadAssignmentVariableField, "w 75!");
             containerPanel.add(queueBufferSizeLabel, "newline, right");
             containerPanel.add(queueBufferSizeField, "w 75!");
+
+            for (AbstractConnectorPropertiesPanel cppPanel : pluginPropertiesPanels.values()) {
+                for (Component[] row : cppPanel.getLayoutComponents()) {
+                    containerPanel.add(row[0], "newline, right");
+                    containerPanel.add(row[1], "growx");
+                }
+            }
+
             add(containerPanel, "grow, push");
 
             add(new JSeparator(), "newline, growx, sx");
@@ -632,6 +691,7 @@ public class DestinationSettingsPanel extends JPanel {
         private JTextField threadAssignmentVariableField;
         private JLabel queueBufferSizeLabel;
         private JTextField queueBufferSizeField;
+        private Map<String, AbstractConnectorPropertiesPanel> pluginPropertiesPanels;
         private JButton okButton;
         private JButton cancelButton;
     }

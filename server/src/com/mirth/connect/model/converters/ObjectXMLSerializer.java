@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
@@ -199,6 +200,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             getXStream().registerConverter(new MigratableConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerConverter(new ChannelConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerLocalConverter(ConnectorProperties.class, "pluginProperties", new PluginPropertiesConverter(normalizedVersion, getXStream().getMapper()));
+            getXStream().registerLocalConverter(DestinationConnectorProperties.class, "pluginProperties", new PluginPropertiesConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerLocalConverter(ResourcePropertiesList.class, "list", new ResourcePropertiesConverter(normalizedVersion, getXStream().getMapper()));
 
             if (instanceWithReferences != null) {
