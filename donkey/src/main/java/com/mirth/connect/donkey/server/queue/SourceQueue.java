@@ -68,7 +68,7 @@ public class SourceQueue extends ConnectorMessageQueue {
 
         // if an element was found, decrement the overall count
         if (connectorMessage != null) {
-            size--;
+            decrementActualSize();
             checkedOut.add(connectorMessage.getMessageId());
             eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, MessageEventType.QUEUED, (long) size(), true));
         }
@@ -95,7 +95,7 @@ public class SourceQueue extends ConnectorMessageQueue {
 
     public synchronized void decrementSize() {
         if (size != null) {
-            size--;
+            decrementActualSize();
         }
 
         eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, MessageEventType.QUEUED, (long) size(), true));

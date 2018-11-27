@@ -109,6 +109,14 @@ public abstract class ConnectorMessageQueue {
         return size;
     }
 
+    protected void incrementActualSize() {
+        size++;
+    }
+
+    protected void decrementActualSize() {
+        size--;
+    }
+
     public synchronized void add(ConnectorMessage connectorMessage) {
         if (invalidated) {
             /*
@@ -118,7 +126,7 @@ public abstract class ConnectorMessageQueue {
              * database
              */
             if (size != null) {
-                size++;
+                incrementActualSize();
             }
 
             /*
@@ -147,7 +155,7 @@ public abstract class ConnectorMessageQueue {
                     reachedCapacity = true;
                 }
             }
-            size++;
+            incrementActualSize();
         }
 
         eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, MessageEventType.QUEUED, (long) size(), false));

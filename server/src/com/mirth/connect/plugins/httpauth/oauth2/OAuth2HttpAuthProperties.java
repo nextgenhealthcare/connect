@@ -51,7 +51,13 @@ public class OAuth2HttpAuthProperties extends HttpAuthConnectorPluginProperties 
         tokenLocation = props.getTokenLocation();
         locationKey = props.getLocationKey();
         verificationURL = props.getVerificationURL();
-        connectorPluginProperties = props.getConnectorPluginProperties();
+
+        if (props.getConnectorPluginProperties() != null) {
+            connectorPluginProperties = new HashSet<ConnectorPluginProperties>();
+            for (ConnectorPluginProperties pluginProperties : props.getConnectorPluginProperties()) {
+                connectorPluginProperties.add(pluginProperties.clone());
+            }
+        }
     }
 
     public TokenLocation getTokenLocation() {
@@ -84,6 +90,11 @@ public class OAuth2HttpAuthProperties extends HttpAuthConnectorPluginProperties 
 
     public void setConnectorPluginProperties(Set<ConnectorPluginProperties> connectorPluginProperties) {
         this.connectorPluginProperties = connectorPluginProperties;
+    }
+
+    @Override
+    public OAuth2HttpAuthProperties clone() {
+        return new OAuth2HttpAuthProperties(this);
     }
 
     @Override

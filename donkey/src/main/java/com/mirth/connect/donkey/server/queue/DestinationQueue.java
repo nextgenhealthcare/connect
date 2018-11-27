@@ -218,7 +218,7 @@ public class DestinationQueue extends ConnectorMessageQueue {
                 Long messageId = connectorMessage.getMessageId();
 
                 if (finished) {
-                    size--;
+                    decrementActualSize();
 
                     if (buffer.containsKey(messageId)) {
                         buffer.remove(messageId);

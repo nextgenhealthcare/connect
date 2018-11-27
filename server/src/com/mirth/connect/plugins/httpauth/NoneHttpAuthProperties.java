@@ -12,10 +12,17 @@ package com.mirth.connect.plugins.httpauth;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
+
 public class NoneHttpAuthProperties extends HttpAuthConnectorPluginProperties {
 
     public NoneHttpAuthProperties() {
         super(AuthType.NONE);
+    }
+
+    @Override
+    public ConnectorPluginProperties clone() {
+        return new NoneHttpAuthProperties();
     }
 
     @Override

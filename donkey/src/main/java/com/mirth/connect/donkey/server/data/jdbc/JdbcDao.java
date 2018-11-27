@@ -1822,18 +1822,24 @@ public class JdbcDao implements DonkeyDao {
             params.put("offset", offset);
             params.put("limit", limit);
 
+            int index = 1;
+
             if (minMessageId == null || maxMessageId == null) {
-                statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMetaDataIdAndStatusWithLimit", params));
-                statement.setInt(1, metaDataId);
-                statement.setString(2, Character.toString(status.getStatusCode()));
-                statement.setString(3, serverId);
+                statement = connection.prepareStatement(querySource.getQuery(serverId != null ? "getConnectorMessagesByMetaDataIdAndStatusWithLimit" : "getConnectorMessagesByMetaDataIdAndStatusWithLimitAllServers", params));
+                statement.setInt(index++, metaDataId);
+                statement.setString(index++, Character.toString(status.getStatusCode()));
+                if (serverId != null) {
+                    statement.setString(index++, serverId);
+                }
             } else {
-                statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange", params));
-                statement.setInt(1, metaDataId);
-                statement.setString(2, Character.toString(status.getStatusCode()));
-                statement.setString(3, serverId);
-                statement.setLong(4, minMessageId);
-                statement.setLong(5, maxMessageId);
+                statement = connection.prepareStatement(querySource.getQuery(serverId != null ? "getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange" : "getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRangeAllServers", params));
+                statement.setInt(index++, metaDataId);
+                statement.setString(index++, Character.toString(status.getStatusCode()));
+                if (serverId != null) {
+                    statement.setString(index++, serverId);
+                }
+                statement.setLong(index++, minMessageId);
+                statement.setLong(index++, maxMessageId);
             }
 
             resultSet = statement.executeQuery();
@@ -1946,10 +1952,12 @@ public class JdbcDao implements DonkeyDao {
             PreparedStatement statement = null;
 
             try {
-                statement = statementSource.getPreparedStatement("getConnectorMessageCountByMetaDataIdAndStatus", getLocalChannelId(channelId));
+                statement = statementSource.getPreparedStatement(serverId != null ? "getConnectorMessageCountByMetaDataIdAndStatus" : "getConnectorMessageCountByMetaDataIdAndStatusAllServers", getLocalChannelId(channelId));
                 statement.setInt(1, metaDataId);
                 statement.setString(2, Character.toString(status.getStatusCode()));
-                statement.setString(3, serverId);
+                if (serverId != null) {
+                    statement.setString(3, serverId);
+                }
                 resultSet = statement.executeQuery();
                 resultSet.next();
                 return resultSet.getInt(1);
@@ -1971,10 +1979,12 @@ public class JdbcDao implements DonkeyDao {
         PreparedStatement statement = null;
 
         try {
-            statement = prepareStatement("getConnectorMessageMaxMessageIdByMetaDataIdAndStatus", channelId);
+            statement = prepareStatement(serverId != null ? "getConnectorMessageMaxMessageIdByMetaDataIdAndStatus" : "getConnectorMessageMaxMessageIdByMetaDataIdAndStatusAllServers", channelId);
             statement.setInt(1, metaDataId);
             statement.setString(2, Character.toString(status.getStatusCode()));
-            statement.setString(3, serverId);
+            if (serverId != null) {
+                statement.setString(3, serverId);
+            }
             resultSet = statement.executeQuery();
             resultSet.next();
             return resultSet.getLong(1);

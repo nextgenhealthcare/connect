@@ -63,6 +63,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private Deque<Long> processingThreadIdStack;
     private DestinationConnectorProperties destinationConnectorProperties;
     private DestinationQueue queue;
+    private int queueEmptySleepTime = Constants.DESTINATION_QUEUE_EMPTY_SLEEP_TIME;
     private String destinationName;
     private boolean enabled;
     private AtomicBoolean forceQueue = new AtomicBoolean(false);
@@ -84,6 +85,10 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     public void setQueue(DestinationQueue queue) {
         this.queue = queue;
+    }
+
+    public void setQueueEmptySleepTime(int queueEmptySleepTime) {
+        this.queueEmptySleepTime = queueEmptySleepTime;
     }
 
     /**
@@ -251,7 +256,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     public boolean willAttemptSend() {
-        return !isQueueEnabled() || (destinationConnectorProperties.isSendFirst() && queue.size() == 0 && !isForceQueue());
+        return !isQueueEnabled() || (destinationConnectorProperties.isSendFirst() && queue.size() == 0 && !isForceQueue() && (channel.getQueueHandler() == null || channel.getQueueHandler().allowSendFirst(this)));
     }
 
     public boolean includeFilterTransformerInQueue() {
@@ -292,7 +297,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     public void startQueue() {
-        if (isQueueEnabled()) {
+        if (isQueueEnabled() && (channel.getQueueHandler() == null || channel.getQueueHandler().canStartDestinationQueue(this))) {
             // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
             queue.invalidate(true, true);
 
@@ -305,9 +310,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
     }
 
-    public void stop() throws ConnectorTaskException, InterruptedException {
-        updateCurrentState(DeployedState.STOPPING);
-
+    public void stopQueue() throws InterruptedException {
         if (MapUtils.isNotEmpty(queueThreads)) {
             try {
                 for (DestinationQueueThread thread : queueThreads.values()) {
@@ -325,6 +328,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 queue.invalidate(false, true);
             }
         }
+    }
+
+    public void stop() throws ConnectorTaskException, InterruptedException {
+        updateCurrentState(DeployedState.STOPPING);
+
+        stopQueue();
 
         try {
             onStop();
@@ -827,7 +836,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                      * This is necessary because there is no blocking peek. If the queue is empty,
                      * wait some time to free up the cpu.
                      */
-                    Thread.sleep(Constants.DESTINATION_QUEUE_EMPTY_SLEEP_TIME);
+                    Thread.sleep(queueEmptySleepTime);
                 }
             } catch (InterruptedException e) {
                 // Stop this thread if it was halted

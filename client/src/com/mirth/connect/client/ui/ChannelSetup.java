@@ -3300,7 +3300,7 @@ public class ChannelSetup extends JPanel {
     private JPanel sourcePanel;
     private JLabel sourceConnectorTypeLabel;
     private MirthComboBox<String> sourceConnectorTypeComboBox;
-    private ConnectorPanel sourceConnectorPanel;
+    public ConnectorPanel sourceConnectorPanel;
     private JScrollPane sourceConnectorScrollPane;
 
     // Destinations

@@ -11,9 +11,11 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -35,6 +37,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
     private Map<String, String> resourceIds;
     private int queueBufferSize;
     private boolean reattachAttachments;
+    private Set<ConnectorPluginProperties> pluginProperties;
 
     public DestinationConnectorProperties() {
         this(false);
@@ -71,6 +74,13 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         resourceIds = new LinkedHashMap<String, String>(props.getResourceIds());
         queueBufferSize = props.getQueueBufferSize();
         reattachAttachments = props.isReattachAttachments();
+
+        if (props.getPluginProperties() != null) {
+            pluginProperties = new HashSet<ConnectorPluginProperties>();
+            for (ConnectorPluginProperties cpp : props.getPluginProperties()) {
+                pluginProperties.add(cpp.clone());
+            }
+        }
     }
 
     public boolean isQueueEnabled() {
@@ -177,6 +187,14 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         this.reattachAttachments = reattachAttachments;
     }
 
+    public Set<ConnectorPluginProperties> getPluginProperties() {
+        return pluginProperties;
+    }
+
+    public void setPluginProperties(Set<ConnectorPluginProperties> pluginProperties) {
+        this.pluginProperties = pluginProperties;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
@@ -229,10 +247,10 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
 
     @Override
     public void migrate3_6_0(DonkeyElement element) {}
-    
+
     @Override
     public void migrate3_7_0(DonkeyElement element) {}
-    
+
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
@@ -248,6 +266,15 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         purgedProperties.put("resourceIdsCount", resourceIds.size());
         purgedProperties.put("queueBufferSize", queueBufferSize);
         purgedProperties.put("reattachAttachments", reattachAttachments);
+
+        Set<Map<String, Object>> purgedPluginProperties = new HashSet<Map<String, Object>>();
+        if (pluginProperties != null) {
+            for (ConnectorPluginProperties cpp : pluginProperties) {
+                purgedPluginProperties.add(cpp.getPurgedProperties());
+            }
+        }
+        purgedProperties.put("pluginProperties", purgedPluginProperties);
+
         return purgedProperties;
     }
 }

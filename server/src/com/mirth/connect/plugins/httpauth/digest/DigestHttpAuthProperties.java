@@ -115,6 +115,11 @@ public class DigestHttpAuthProperties extends HttpAuthConnectorPluginProperties 
     }
 
     @Override
+    public DigestHttpAuthProperties clone() {
+        return new DigestHttpAuthProperties(this);
+    }
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("authType", getAuthType());
