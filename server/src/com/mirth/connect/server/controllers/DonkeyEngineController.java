@@ -865,7 +865,7 @@ public class DonkeyEngineController implements EngineController {
                 sourceStatus.setStatistics(stats.getConnectorStats(channelId, 0));
                 sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, 0));
                 sourceStatus.setQueueEnabled(!channel.getSourceConnector().isRespondAfterProcessing());
-                sourceStatus.setQueued(new Long(channel.getSourceQueue().size()));
+                sourceStatus.setQueued(getSourceQueueSize(channel));
 
                 status.setQueued(sourceStatus.getQueued());
 
@@ -885,7 +885,7 @@ public class DonkeyEngineController implements EngineController {
                         destinationStatus.setStatistics(stats.getConnectorStats(channelId, metaDataId));
                         destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, metaDataId));
                         destinationStatus.setQueueEnabled(connector.isQueueEnabled());
-                        destinationStatus.setQueued(new Long(connector.getQueue().size()));
+                        destinationStatus.setQueued(getDestinationQueueSize(connector));
 
                         status.setQueued(status.getQueued() + destinationStatus.getQueued());
 
@@ -909,6 +909,14 @@ public class DonkeyEngineController implements EngineController {
         });
 
         return statuses;
+    }
+
+    protected Long getSourceQueueSize(Channel channel) {
+        return new Long(channel.getSourceQueue().size());
+    }
+
+    protected Long getDestinationQueueSize(DestinationConnector destinationConnector) {
+        return new Long(destinationConnector.getQueue().size());
     }
 
     @Override
@@ -956,7 +964,7 @@ public class DonkeyEngineController implements EngineController {
                     Map<Status, Long> sourceConnectorStats = stats.getConnectorStats(channelId, 0);
                     addConnectorToChannelStatistics(sourceConnectorStats, statistics, true);
 
-                    statistics.setQueued(new Long(channel.getSourceQueue().size()));
+                    statistics.setQueued(getSourceQueueSize(channel));
                 }
 
                 for (DestinationChainProvider chainProvider : channel.getDestinationChainProviders()) {
@@ -968,7 +976,7 @@ public class DonkeyEngineController implements EngineController {
                             Map<Status, Long> destinationConnectorStats = stats.getConnectorStats(channelId, metaDataId);
                             addConnectorToChannelStatistics(destinationConnectorStats, statistics, false);
 
-                            statistics.setQueued(statistics.getQueued() + new Long(connector.getQueue().size()));
+                            statistics.setQueued(statistics.getQueued() + getDestinationQueueSize(connector));
                         }
                     }
                 }
