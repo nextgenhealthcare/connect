@@ -1699,7 +1699,7 @@ public class Channel implements Runnable {
                     MessageContent raw = new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, sourceEncoded.getContent(), destinationConnector.getInboundDataType().getType(), sourceEncoded.isEncrypted());
 
                     // create the message and set the raw content
-                    ConnectorMessage message = new ConnectorMessage(channelId, name, messageId, metaDataId, sourceMessage.getServerId(), Calendar.getInstance(), Status.RECEIVED);
+                    ConnectorMessage message = new ConnectorMessage(channelId, name, messageId, metaDataId, serverId, Calendar.getInstance(), Status.RECEIVED);
                     message.setConnectorName(destinationConnector.getDestinationName());
                     message.setChainId(chainProvider.getChainId());
                     message.setOrderId(destinationConnector.getOrderId());
