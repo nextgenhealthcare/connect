@@ -223,8 +223,8 @@ public class DefaultAlertPanel extends AlertPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed. Deselects the rows if no row was selected.
+     * Shows the popup menu when the trigger button (right-click) has been pushed. Deselects the
+     * rows if no row was selected.
      */
     private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = alertTable.rowAtPoint(new Point(evt.getX(), evt.getY()));

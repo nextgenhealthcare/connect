@@ -119,11 +119,11 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                
+
                 component.setEnabled(row == 0 || !(Boolean) table.getValueAt(0, 0));
                 return component;
             }
-            
+
         });
 
         errorTable.getColumnExt(SELECTION_COLUMN_NUMBER).setCellEditor(editor);

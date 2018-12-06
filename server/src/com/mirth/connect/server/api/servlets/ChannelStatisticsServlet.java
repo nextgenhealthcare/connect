@@ -44,11 +44,11 @@ public class ChannelStatisticsServlet extends MirthServlet implements ChannelSta
     public ChannelStatisticsServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
     }
-    
+
     public ChannelStatisticsServlet(@Context HttpServletRequest request, @Context SecurityContext sc, ControllerFactory controllerFactory) {
         super(request, sc, controllerFactory);
     }
-    
+
     @Override
     protected void initializeControllers() {
         super.initializeControllers();

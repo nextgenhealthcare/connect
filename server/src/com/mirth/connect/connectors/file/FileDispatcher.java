@@ -194,7 +194,7 @@ public class FileDispatcher extends DestinationConnector {
                     } else {
                         fileConnector.releaseConnection(fileSystemConnection, fileSystemOptions);
                     }
-                    
+
                 } catch (Exception e) {
                     // TODO: Ignore?
                 }

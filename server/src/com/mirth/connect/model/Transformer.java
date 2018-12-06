@@ -212,7 +212,7 @@ public class Transformer extends FilterTransformer<Step> {
 
     @Override
     public void migrate3_6_0(DonkeyElement element) {}
-    
+
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();

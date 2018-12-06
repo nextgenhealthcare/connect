@@ -36,35 +36,29 @@ public class MirthTheme extends SkyBluer {
     }
 
     /*
-     * protected ColorUIResource getSecondary1() { return
-     * Colors.GRAY_MEDIUMDARK; }
+     * protected ColorUIResource getSecondary1() { return Colors.GRAY_MEDIUMDARK; }
      * 
      * protected ColorUIResource getSecondary2() { return Colors.GRAY_LIGHT; }
      * 
      * protected ColorUIResource getSecondary3() { return Colors.GRAY_LIGHTER; }
      * 
-     * public ColorUIResource getMenuItemSelectedBackground() { return
-     * getPrimary2(); }
+     * public ColorUIResource getMenuItemSelectedBackground() { return getPrimary2(); }
      * 
-     * public ColorUIResource getMenuItemSelectedForeground() { return
-     * getWhite(); }
+     * public ColorUIResource getMenuItemSelectedForeground() { return getWhite(); }
      * 
-     * public ColorUIResource getMenuSelectedBackground() { return
-     * getSecondary2(); }
+     * public ColorUIResource getMenuSelectedBackground() { return getSecondary2(); }
      * 
-     * public ColorUIResource getFocusColor() { return
-     * PlasticLookAndFeel.useHighContrastFocusColors ? Colors.YELLOW_FOCUS :
-     * super.getFocusColor(); }
+     * public ColorUIResource getFocusColor() { return PlasticLookAndFeel.useHighContrastFocusColors
+     * ? Colors.YELLOW_FOCUS : super.getFocusColor(); }
      */
     /*
-     * TODO: The following two lines are likely an improvement. However, they
-     * require a rewrite of the PlasticInternalFrameTitlePanel. public
-     * ColorUIResource getWindowTitleBackground() { return getPrimary1(); }
-     * public ColorUIResource getWindowTitleForeground() { return WHITE; }
+     * TODO: The following two lines are likely an improvement. However, they require a rewrite of
+     * the PlasticInternalFrameTitlePanel. public ColorUIResource getWindowTitleBackground() {
+     * return getPrimary1(); } public ColorUIResource getWindowTitleForeground() { return WHITE; }
      */
     public void addCustomEntriesToTable(UIDefaults table) {
         super.addCustomEntriesToTable(table);
-        Object[] uiDefaults = {PlasticScrollBarUI.MAX_BUMPS_WIDTH_KEY, new Integer(30),};
+        Object[] uiDefaults = { PlasticScrollBarUI.MAX_BUMPS_WIDTH_KEY, new Integer(30), };
         table.putDefaults(uiDefaults);
     }
 }

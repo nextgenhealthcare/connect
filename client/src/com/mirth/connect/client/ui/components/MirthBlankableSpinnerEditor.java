@@ -22,17 +22,17 @@ public class MirthBlankableSpinnerEditor extends DefaultEditor {
         getTextField().setEditable(true);
         getTextField().setHorizontalAlignment(JTextField.RIGHT);
     }
-    
+
     @Override
     public void propertyChange(PropertyChangeEvent e) {
         JSpinner spinner = getSpinner();
-        
+
         if (spinner == null) {
             return;
         }
-        
+
         super.propertyChange(e);
-        
+
         if ((e.getSource() instanceof JFormattedTextField) && e.getPropertyName().equals("editValid")) {
             spinner.setValue("");
         }

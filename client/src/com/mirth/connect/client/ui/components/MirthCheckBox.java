@@ -13,8 +13,7 @@ import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 
 /**
- * Mirth's implementation of the JCheckbox. Adds enabling of the save button in
- * parent.
+ * Mirth's implementation of the JCheckbox. Adds enabling of the save button in parent.
  */
 public class MirthCheckBox extends javax.swing.JCheckBox {
 
@@ -24,12 +23,12 @@ public class MirthCheckBox extends javax.swing.JCheckBox {
         super();
         init();
     }
-    
+
     public MirthCheckBox(String text) {
         super(text);
         init();
     }
-    
+
     private void init() {
         this.setFocusable(true);
         this.parent = PlatformUI.MIRTH_FRAME;

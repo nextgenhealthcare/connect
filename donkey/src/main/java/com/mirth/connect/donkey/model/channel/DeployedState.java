@@ -19,7 +19,7 @@ public enum DeployedState {
     public String toString() {
         return WordUtils.capitalizeFully(super.toString());
     }
-    
+
     public static DeployedState fromString(String value) {
         for (DeployedState state : values()) {
             if (StringUtils.equalsIgnoreCase(state.toString(), value)) {

@@ -8,10 +8,11 @@
  */
 
 package com.mirth.connect.client.ui;
-/** 
+
+/**
  * http://svn.chorem.org/svn/jtimer/tags/jtimer-1.0-beta4/src/java/org/codelutin/jtimer/ui/treetable/sorting/
  * 
- * SortableTreeTable.java                 
+ * SortableTreeTable.java
  *
  * Created 23/12/2007 12:43:37 PM
  * 
@@ -24,7 +25,8 @@ import org.jdesktop.swingx.treetable.TreeTableModel;
 
 /**
  * Subclassed to allow clicking on column headers to sort, and display sort indicator in header.<br>
- * Also hacked to notify model of treetable(this) to allow expanded nodes to be maintained, and sort indicators in header to be set if sort set or changed programmatically
+ * Also hacked to notify model of treetable(this) to allow expanded nodes to be maintained, and sort
+ * indicators in header to be set if sort set or changed programmatically
  * <p>
  * Must be used with SortableTreeTableModel
  */

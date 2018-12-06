@@ -118,7 +118,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         }
         properties.setResponseAddress(responseAddressField.getText());
         properties.setResponsePort(responsePortField.getText());
-        
+
         if (responseConnectorPropertiesPanel != null) {
             Set<ConnectorPluginProperties> connectorPluginProperties = new HashSet<ConnectorPluginProperties>();
             connectorPluginProperties.add(responseConnectorPropertiesPanel.getProperties());
@@ -184,7 +184,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         }
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingComboBox, props.getCharsetEncoding());
-        
+
         if (responseConnectorPropertiesPanel != null) {
             Set<ConnectorPluginProperties> connectorPluginProperties = props.getResponseConnectorPluginProperties();
             if (CollectionUtils.isEmpty(connectorPluginProperties)) {
@@ -337,7 +337,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
-        
+
         transmissionModeLabel = new JLabel("Transmission Mode:");
         transmissionModeComboBox = new MirthComboBox<String>();
         transmissionModeComboBox.addActionListener(new ActionListener() {
@@ -348,12 +348,12 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         });
 
         settingsPlaceHolder = new JPanel();
-        
+
         sampleLabel = new JLabel("Sample Frame:");
         sampleValue = new JLabel("<html><b>&lt;VT&gt;</b> <i>&lt;Message Data&gt;</i> <b>&lt;FS&gt;&lt;CR&gt;</b></html>");
         sampleValue.setForeground(new Color(153, 153, 153));
         sampleValue.setEnabled(false);
-        
+
         modeLabel = new JLabel("Mode:");
         ButtonGroup modeButtonGroup = new ButtonGroup();
 
@@ -376,16 +376,16 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
             }
         });
         modeButtonGroup.add(modeClientRadio);
-        
+
         remoteAddressLabel = new JLabel("Remote Address:");
         remoteAddressField = new MirthTextField();
-        
+
         remotePortLabel = new JLabel("Remote Port:");
         remotePortField = new MirthTextField();
-        
+
         overrideLocalBindingLabel = new JLabel("Override Local Binding:");
         ButtonGroup overrideLocalBindingButtonGroup = new ButtonGroup();
-        
+
         overrideLocalBindingYesRadio = new MirthRadioButton("Yes");
         overrideLocalBindingYesRadio.setBackground(getBackground());
         overrideLocalBindingButtonGroup.add(overrideLocalBindingYesRadio);
@@ -393,16 +393,16 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         overrideLocalBindingNoRadio = new MirthRadioButton("No");
         overrideLocalBindingNoRadio.setBackground(getBackground());
         overrideLocalBindingButtonGroup.add(overrideLocalBindingNoRadio);
-        
+
         reconnectIntervalLabel = new JLabel("Reconnect Interval (ms):");
         reconnectIntervalField = new MirthTextField();
-        
+
         maxConnectionsLabel = new JLabel("Max Connections:");
         maxConnectionsField = new MirthTextField();
-        
+
         receiveTimeoutLabel = new JLabel("Receive Timeout (ms):");
         receiveTimeoutField = new MirthTextField();
-        
+
         bufferSizeLabel = new JLabel("Buffer Size (bytes):");
         bufferSizeField = new MirthTextField();
 
@@ -416,10 +416,10 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         keepConnectionOpenNoRadio = new MirthRadioButton("No");
         keepConnectionOpenNoRadio.setBackground(getBackground());
         keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
-        
+
         dataTypeLabel = new JLabel("Data Type:");
         ButtonGroup dataTypeButtonGroup = new ButtonGroup();
-        
+
         dataTypeBinaryRadio = new MirthRadioButton("Binary");
         dataTypeBinaryRadio.setBackground(getBackground());
         dataTypeBinaryRadio.addActionListener(new ActionListener() {
@@ -429,7 +429,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
             }
         });
         dataTypeButtonGroup.add(dataTypeBinaryRadio);
-        
+
         dataTypeTextRadio = new MirthRadioButton("Text");
         dataTypeTextRadio.setBackground(getBackground());
         dataTypeTextRadio.addActionListener(new ActionListener() {
@@ -442,10 +442,10 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
         charsetEncodingLabel = new JLabel("Encoding:");
         charsetEncodingComboBox = new MirthComboBox<CharsetEncodingInformation>();
-        
+
         respondOnNewConnectionLabel = new JLabel("Respond on New Connection:");
         ButtonGroup respondOnNewConnectionButtonGroup = new ButtonGroup();
-        
+
         respondOnNewConnectionYesRadio = new MirthRadioButton("Yes");
         respondOnNewConnectionYesRadio.setBackground(getBackground());
         respondOnNewConnectionYesRadio.addActionListener(new ActionListener() {
@@ -475,10 +475,10 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
             }
         });
         respondOnNewConnectionButtonGroup.add(respondOnNewConnectionRecoveryRadio);
-        
+
         responseAddressLabel = new JLabel("Response Address:");
         responseAddressField = new MirthTextField();
-        
+
         responsePortLabel = new JLabel("Response Port:");
         responsePortField = new MirthTextField();
     }
@@ -487,38 +487,38 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         String toolTipText = "<html>Select the transmission mode to use for sending and receiving data.<br/></html>";
         transmissionModeLabel.setToolTipText(toolTipText);
         transmissionModeComboBox.setToolTipText(toolTipText);
-        
+
         toolTipText = "<html>Select Server to listen for connections from clients, or Client to connect to a TCP Server.<br/>In Client mode, the listener settings will only be used if Override Local Binding is enabled.</html>";
         modeServerRadio.setToolTipText(toolTipText);
         modeClientRadio.setToolTipText(toolTipText);
-        
+
         remoteAddressField.setToolTipText("<html>The DNS domain name or IP address on which to connect.</html>");
         remotePortField.setToolTipText("<html>The port on which to connect.</html>");
-        
+
         toolTipText = "<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 0.0.0.0:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>";
         overrideLocalBindingYesRadio.setToolTipText(toolTipText);
         overrideLocalBindingNoRadio.setToolTipText(toolTipText);
-        
+
         reconnectIntervalField.setToolTipText("<html>If Client mode is selected, enter the time (in milliseconds) to wait<br/>between disconnecting from the TCP server and connecting to it again.</html>");
         maxConnectionsField.setToolTipText("<html>The maximum number of client connections to accept.<br/>After this number has been reached, subsequent socket requests will result in a rejection.</html>");
         receiveTimeoutField.setToolTipText("The amount of time, in milliseconds, to wait without receiving a message before closing a connection.");
         bufferSizeField.setToolTipText("<html>Use larger values for larger messages, and smaller values <br>for smaller messages. Generally, the default value is fine.</html>");
-        
+
         toolTipText = "<html>Select No to close the listening socket after a received message has finished processing.<br/>Otherwise the socket will remain open until the sending system closes it. In that case,<br/>messages will only be processed if data is received and either the receive timeout is reached,<br/>the client closes the socket, or an end of message byte sequence has been detected.</html>";
         keepConnectionOpenYesRadio.setToolTipText(toolTipText);
         keepConnectionOpenNoRadio.setToolTipText(toolTipText);
-        
+
         toolTipText = "<html>Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.<br>Select Text if the inbound messages are text streams; the payload will be encoded with the specified character set encoding.</html>";
         dataTypeBinaryRadio.setToolTipText(toolTipText);
         dataTypeTextRadio.setToolTipText(toolTipText);
-        
+
         charsetEncodingComboBox.setToolTipText("<html>Select the character set encoding used by the message sender,<br/>or Select Default to use the default character set encoding for the JVM running Mirth.</html>");
-        
+
         toolTipText = "<html>Select No to send responses only via the same connection the inbound message was received on.<br/>Select Yes to always send responses on a new connection (during normal processing as well as recovery).<br/>Select Message Recovery to only send responses on a new connection during message recovery.<br/>Connections will be bound locally on the same interface chosen in the Listener Settings with an ephemeral port.</html>";
         respondOnNewConnectionYesRadio.setToolTipText(toolTipText);
         respondOnNewConnectionNoRadio.setToolTipText(toolTipText);
         respondOnNewConnectionRecoveryRadio.setToolTipText(toolTipText);
-        
+
         responseAddressField.setToolTipText("<html>Enter the DNS domain name or IP address to send message responses to.</html>");
         responsePortField.setToolTipText("<html>Enter the port to send message responses to.</html>");
 
@@ -531,13 +531,13 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
     private void initLayout() {
         setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, gap 12 6", "", "[][]4[]4[][]4[]4[][][][]4[]4[]4[]4[]4[][]"));
-        
+
         add(transmissionModeLabel, "right");
         add(transmissionModeComboBox, "h 22!, split 2");
-        
+
         settingsPlaceHolder.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
         add(settingsPlaceHolder, "gapbefore 6, h 22!");
-        
+
         add(sampleLabel, "newline, right");
         add(sampleValue, "growx, sx");
         add(modeLabel, "newline, right");
@@ -574,7 +574,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         add(responseAddressField, "w 200!, sx");
         add(responsePortLabel, "newline, right");
         add(responsePortField, "w 50!, sx");
-        
+
         if (responseConnectorPropertiesPanel != null && responseConnectorPropertiesPanel.getLayoutComponents() != null) {
             Component[][] components = responseConnectorPropertiesPanel.getLayoutComponents();
             for (int row = 0; row < components.length; row++) {
@@ -670,7 +670,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         responsePortField.setEnabled(true);
         responseAddressLabel.setEnabled(true);
         responsePortLabel.setEnabled(true);
-        
+
         if (responseConnectorPropertiesPanel != null) {
             responseConnectorPropertiesPanel.setLayoutComponentsEnabled(true);
         }
@@ -681,7 +681,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         responsePortField.setEnabled(false);
         responseAddressLabel.setEnabled(false);
         responsePortLabel.setEnabled(false);
-        
+
         if (responseConnectorPropertiesPanel != null) {
             responseConnectorPropertiesPanel.setLayoutComponentsEnabled(false);
         }
@@ -692,7 +692,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         responsePortField.setEnabled(true);
         responseAddressLabel.setEnabled(true);
         responsePortLabel.setEnabled(true);
-        
+
         if (responseConnectorPropertiesPanel != null) {
             responseConnectorPropertiesPanel.setLayoutComponentsEnabled(true);
         }

@@ -2559,7 +2559,7 @@ public class ChannelSetup extends JPanel {
                 props = sourceConnectorPanel.getProperties();
                 ((SourceConnectorPropertiesInterface) props).getSourceConnectorProperties().setResourceIds(resourceIds.get(sourceConnector.getMetaDataId()));
                 sourceConnector.setProperties(props);
-                
+
                 checkAndSetSourceDataType();
             }
 
@@ -2873,7 +2873,7 @@ public class ChannelSetup extends JPanel {
             destinationConnector.setProperties(props);
 
             setResourceIds();
-            
+
             checkAndSetDestinationAndResponseDataType();
         }
 
@@ -3007,21 +3007,21 @@ public class ChannelSetup extends JPanel {
     public String getRequiredOutboundDataType() {
         return sourceConnectorPanel.getRequiredOutboundDataType();
     }
-    
+
     /**
      * Returns the initial, or default, source inbound data type of this channel.
      */
     public String getInitialInboundDataType() {
         return sourceConnectorPanel.getInitialInboundDataType();
     }
-    
+
     /**
      * Returns the initial, or default, source outbound data type of this channel.
      */
     private String getInitialOutboundDataType() {
         return sourceConnectorPanel.getInitialOutboundDataType();
     }
-    
+
     /*
      * Set Data Types for source inbound and outbound which also means destination inbound
      */
@@ -3036,7 +3036,7 @@ public class ChannelSetup extends JPanel {
             currentChannel.getSourceConnector().getTransformer().setInboundDataType(inboundDataType);
             currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);
         }
-        
+
         // Outbound
         String requiredOutboundDataType = getRequiredOutboundDataType();
         String initialOutboundDataType = getInitialOutboundDataType();
@@ -3060,34 +3060,37 @@ public class ChannelSetup extends JPanel {
     public String getRequiredOutboundDestinationDataType() {
         return destinationConnectorPanel.getRequiredOutboundDataType();
     }
-    
+
     /**
-     * Returns the initial, or default, outbound data type for the selected destination of this channel.
+     * Returns the initial, or default, outbound data type for the selected destination of this
+     * channel.
      */
     private String getInitialOutboundDestinationDataType() {
         return destinationConnectorPanel.getInitialOutboundDataType();
     }
-    
+
     /**
-     * Returns the initial, or default, inbound data type for the selected destination response of this channel.
+     * Returns the initial, or default, inbound data type for the selected destination response of
+     * this channel.
      */
     public String getInitialInboundResponseDataType() {
         return destinationConnectorPanel.getInitialInboundResponseDataType();
     }
-    
+
     /**
-     * Returns the initial, or default, outbound data type for the selected destination response of this channel.
+     * Returns the initial, or default, outbound data type for the selected destination response of
+     * this channel.
      */
     public String getInitialOutboundResponseDataType() {
         return destinationConnectorPanel.getInitialOutboundResponseDataType();
     }
-    
+
     /**
      * Set Data types specified by selected destination for destination and response
      */
     public void checkAndSetDestinationAndResponseDataType() {
         // Destination inbound set by source outbound
-        
+
         // Destination outbound
         String requiredOutboundDataType = getRequiredOutboundDestinationDataType();
         String initialOutboundDataType = getInitialOutboundDestinationDataType();
@@ -3097,7 +3100,7 @@ public class ChannelSetup extends JPanel {
             currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getTransformer().setOutboundDataType(outboundDataType);
             currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getTransformer().setOutboundProperties(defaultProperties);
         }
-        
+
         // Response inbound
         String responseInboundDataType = getInitialInboundResponseDataType();
         if (responseInboundDataType != null && !currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().getOutboundDataType().equals(responseInboundDataType)) {
@@ -3105,16 +3108,16 @@ public class ChannelSetup extends JPanel {
             currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().setInboundDataType(responseInboundDataType);
             currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().setInboundProperties(defaultResponseInboundProperties);
         }
-        
+
         // Response outbound
         String responseOutboundDataType = getInitialOutboundResponseDataType();
-        if (responseOutboundDataType!= null && !currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().getOutboundDataType().equals(responseOutboundDataType)) {
+        if (responseOutboundDataType != null && !currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().getOutboundDataType().equals(responseOutboundDataType)) {
             DataTypeProperties defaultResponseOutboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(responseOutboundDataType).getDefaultProperties();
             currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().setOutboundDataType(responseOutboundDataType);
             currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getResponseTransformer().setOutboundProperties(defaultResponseOutboundProperties);
         }
     }
-    
+
     public void updateComponentShown() {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
             sourceComponentShown(null);
@@ -3218,7 +3221,7 @@ public class ChannelSetup extends JPanel {
             }
         }
     }
-    
+
     public int getSelectedDestinationIndex() {
         return destinationTable.getSelectedModelIndex();
     }

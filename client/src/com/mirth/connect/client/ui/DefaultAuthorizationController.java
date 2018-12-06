@@ -13,7 +13,7 @@ public class DefaultAuthorizationController implements AuthorizationController {
 
     @Override
     public void initialize() {
-        
+
     }
 
     @Override

@@ -44,6 +44,7 @@ public class DeleteStatisticsDialog extends MirthDialog {
         setVisible(true);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -178,6 +179,7 @@ public class DeleteStatisticsDialog extends MirthDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void invertButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_invertButtonActionPerformed
     {//GEN-HEADEREND:event_invertButtonActionPerformed
@@ -194,7 +196,8 @@ public class DeleteStatisticsDialog extends MirthDialog {
         }
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+     // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private javax.swing.JCheckBox deleteErrored;
     private javax.swing.JCheckBox deleteFiltered;
     private javax.swing.JCheckBox deleteReceived;

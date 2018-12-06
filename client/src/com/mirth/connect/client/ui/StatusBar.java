@@ -36,7 +36,7 @@ public class StatusBar extends javax.swing.JPanel {
         workingText.setText("");
         StringBuilder statusBarText = new StringBuilder();
         statusBarText.append("Connected to: ");
-        
+
         if (!StringUtils.isBlank(PlatformUI.ENVIRONMENT_NAME)) {
             statusBarText.append(PlatformUI.ENVIRONMENT_NAME);
             if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
@@ -149,6 +149,7 @@ public class StatusBar extends javax.swing.JPanel {
         return statusLabel.getText();
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -217,6 +218,8 @@ public class StatusBar extends javax.swing.JPanel {
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JLabel separator1Label;

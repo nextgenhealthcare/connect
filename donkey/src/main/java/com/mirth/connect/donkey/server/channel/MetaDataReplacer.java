@@ -22,8 +22,8 @@ public class MetaDataReplacer {
     private Logger logger = Logger.getLogger(getClass());
 
     /*
-     * Extracts any custom columns from the connector message and adds them to
-     * the custom column map.
+     * Extracts any custom columns from the connector message and adds them to the custom column
+     * map.
      */
     public void setMetaDataMap(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
         for (MetaDataColumn column : metaDataColumns) {

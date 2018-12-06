@@ -159,6 +159,7 @@ public class BasicModeSettingsDialog extends MirthDialog implements DocumentList
         pack();
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -332,6 +333,7 @@ public class BasicModeSettingsDialog extends MirthDialog implements DocumentList
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void startOfMessageBytesFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startOfMessageBytesFieldActionPerformed
     }//GEN-LAST:event_startOfMessageBytesFieldActionPerformed

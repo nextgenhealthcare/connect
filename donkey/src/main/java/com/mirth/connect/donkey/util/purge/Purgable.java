@@ -17,4 +17,3 @@ public interface Purgable {
      */
     public Map<String, Object> getPurgedProperties();
 }
-

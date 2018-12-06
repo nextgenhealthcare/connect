@@ -1,28 +1,30 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * 
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL license a copy of which has
+ * been included with this distribution in the LICENSE.txt file.
+ */
+
 package com.mirth.connect.util;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.List;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Strings;
-
 public class ArchiveUtilsTest {
-
 
     @Test(expected = ZipException.class)
     public void testExtractZipEntryZipSlipWithRelativePath() throws Exception {
@@ -33,7 +35,7 @@ public class ArchiveUtilsTest {
         ZipInputStream zis = new ZipInputStream(bis);
         ArchiveUtils.extractArchive(installTempDir, zis);
     }
-    
+
     @Test
     public void testExtractZipNoZipSlip() throws Exception {
         File installTempDir = new File("tests/zipextraction");
@@ -67,10 +69,10 @@ public class ArchiveUtilsTest {
             cleanupTestFolder();
         }
     }
-    
+
     @After
     public void cleanupTestFolder() {
-        File tempDir = new File("tests/zipextraction"); 
+        File tempDir = new File("tests/zipextraction");
         if (tempDir.exists()) {
             for (File file : tempDir.listFiles()) {
                 file.delete();

@@ -211,6 +211,7 @@ public class MLLPModeSettingsDialog extends MirthDialog implements DocumentListe
         return StringUtils.isNotBlank(byteString) && TcpUtil.isValidHexString(byteString);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -511,6 +512,7 @@ public class MLLPModeSettingsDialog extends MirthDialog implements DocumentListe
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void startOfMessageBytesFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startOfMessageBytesFieldActionPerformed
     }//GEN-LAST:event_startOfMessageBytesFieldActionPerformed
@@ -547,12 +549,12 @@ public class MLLPModeSettingsDialog extends MirthDialog implements DocumentListe
         ackBytes0XLabel.setEnabled(true);
         ackBytesField.setEnabled(true);
         ackBytesAbbrevLabel.setEnabled(true);
-        
+
         nackBytesLabel.setEnabled(true);
         nackBytes0XLabel.setEnabled(true);
         nackBytesField.setEnabled(true);
         nackBytesAbbrevLabel.setEnabled(true);
-        
+
         maxRetryCountLabel.setEnabled(true);
         maxRetryCountField.setEnabled(true);
     }//GEN-LAST:event_useMLLPv2YesRadioActionPerformed
@@ -562,12 +564,12 @@ public class MLLPModeSettingsDialog extends MirthDialog implements DocumentListe
         ackBytes0XLabel.setEnabled(false);
         ackBytesField.setEnabled(false);
         ackBytesAbbrevLabel.setEnabled(false);
-        
+
         nackBytesLabel.setEnabled(false);
         nackBytes0XLabel.setEnabled(false);
         nackBytesField.setEnabled(false);
         nackBytesAbbrevLabel.setEnabled(false);
-        
+
         maxRetryCountLabel.setEnabled(false);
         maxRetryCountField.setEnabled(false);
     }//GEN-LAST:event_useMLLPv2NoRadioActionPerformed

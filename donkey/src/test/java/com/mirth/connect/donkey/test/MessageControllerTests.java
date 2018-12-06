@@ -69,13 +69,10 @@ public class MessageControllerTests {
     }
 
     /*
-     * Create source connector messages
-     * For each message created, assert that:
-     * - The raw content was set
-     * - The channel map was set
-     * - The Message was inserted into the database
-     * - The source ConnectorMessage was inserted into the database
-     * - The source raw MessageContent was inserted into the database
+     * Create source connector messages For each message created, assert that: - The raw content was
+     * set - The channel map was set - The Message was inserted into the database - The source
+     * ConnectorMessage was inserted into the database - The source raw MessageContent was inserted
+     * into the database
      */
     @Test
     public void testCreateNewMessage() throws Exception {
@@ -101,7 +98,7 @@ public class MessageControllerTests {
                 Connection connection = null;
                 PreparedStatement statement = null;
                 ResultSet result = null;
-                
+
                 // Assert that the Message was inserted into the database
                 try {
                     connection = TestUtils.getConnection();
@@ -138,20 +135,20 @@ public class MessageControllerTests {
         Message message = null;
         ConnectorMessage sourceMessage = null;
         DonkeyDao dao = null;
-        
+
         try {
             dao = TestUtils.getDaoFactory().getDao();
-            
+
             message = new Message();
             message.setMessageId(dao.getNextMessageId(channelId));
             message.setChannelId(channelId);
             message.setServerId(serverId);
             message.setReceivedDate(Calendar.getInstance());
-            
+
             sourceMessage = new ConnectorMessage(channelId, channel.getName(), message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
             sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null, false));
             message.getConnectorMessages().put(0, sourceMessage);
-            
+
             dao.insertMessage(message);
             dao.insertConnectorMessage(sourceMessage, true, true);
             dao.insertMessageContent(sourceMessage.getRaw());
@@ -159,7 +156,7 @@ public class MessageControllerTests {
         } finally {
             TestUtils.close(dao);
         }
-        
+
         // put the message in the source queue
         channel.queue(sourceMessage);
 

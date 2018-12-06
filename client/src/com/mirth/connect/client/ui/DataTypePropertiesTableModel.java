@@ -58,8 +58,8 @@ public class DataTypePropertiesTableModel extends SortableTreeTableModel {
     }
 
     /**
-     * Adds the property set to the tree table. All DataTypeProperties in the
-     * properties list and the default properties must be for the same data type
+     * Adds the property set to the tree table. All DataTypeProperties in the properties list and
+     * the default properties must be for the same data type
      */
     public void addProperties(boolean inbound, List<DataTypePropertiesContainer> propertiesContainers, DataTypeProperties defaultProperties) {
         if (propertiesContainers != null) {
@@ -136,8 +136,7 @@ public class DataTypePropertiesTableModel extends SortableTreeTableModel {
     }
 
     /**
-     * Inserts the group node for each properties group and the children
-     * (properties)
+     * Inserts the group node for each properties group and the children (properties)
      */
     private void createAndInsertNode(String groupName, String groupDescription, List<DataTypePropertiesGroup> propertiesGroups, DataTypePropertiesGroup defaultPropertiesGroup) {
         DataTypePropertiesTableNode groupNode = new DataTypePropertiesTableNode(groupName, groupDescription);
@@ -179,8 +178,7 @@ public class DataTypePropertiesTableModel extends SortableTreeTableModel {
     }
 
     /**
-     * Returns if the node and all of its children have are set to their default
-     * values
+     * Returns if the node and all of its children have are set to their default values
      */
     public boolean isDefaultProperties(TreeTableNode node) {
         if (node == null) {

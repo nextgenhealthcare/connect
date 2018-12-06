@@ -20,12 +20,9 @@ public class Base64Util {
 
     /**
      * Encodes binary data using the base64 algorithm and chunks the encoded output into 76
-     * character blocks.
-     * This method sets the initial output buffer to a value that is "guaranteed" to be slightly
-     * larger than necessary.
-     * Therefore the buffer should never need to be expanded, making the maximum memory requirements
-     * much lower than
-     * using Base64.encodeBase64Chunked.
+     * character blocks. This method sets the initial output buffer to a value that is "guaranteed"
+     * to be slightly larger than necessary. Therefore the buffer should never need to be expanded,
+     * making the maximum memory requirements much lower than using Base64.encodeBase64Chunked.
      * 
      * @param bytes
      * @return
@@ -34,15 +31,12 @@ public class Base64Util {
     public static byte[] encodeBase64(byte[] bytes) throws IOException {
         return encodeBase64(bytes, true);
     }
-    
+
     /**
      * Encodes binary data using the base64 algorithm and chunks the encoded output into 76
-     * character blocks.
-     * This method sets the initial output buffer to a value that is "guaranteed" to be slightly
-     * larger than necessary.
-     * Therefore the buffer should never need to be expanded, making the maximum memory requirements
-     * much lower than
-     * using Base64.encodeBase64Chunked.
+     * character blocks. This method sets the initial output buffer to a value that is "guaranteed"
+     * to be slightly larger than necessary. Therefore the buffer should never need to be expanded,
+     * making the maximum memory requirements much lower than using Base64.encodeBase64Chunked.
      * 
      * @param bytes
      * @param chunked
@@ -71,12 +65,10 @@ public class Base64Util {
     }
 
     /**
-     * Decodes base64 data.
-     * This method sets the initial output buffer to a value that is "guaranteed" to be slightly
-     * larger than necessary.
-     * Therefore the buffer should never need to be expanded, making the maximum memory requirements
-     * much lower than
-     * using Base64.decodeBase64.
+     * Decodes base64 data. This method sets the initial output buffer to a value that is
+     * "guaranteed" to be slightly larger than necessary. Therefore the buffer should never need to
+     * be expanded, making the maximum memory requirements much lower than using
+     * Base64.decodeBase64.
      * 
      * @param bytes
      * @return

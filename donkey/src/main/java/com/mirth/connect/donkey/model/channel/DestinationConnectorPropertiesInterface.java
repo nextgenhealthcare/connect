@@ -10,9 +10,9 @@
 package com.mirth.connect.donkey.model.channel;
 
 public interface DestinationConnectorPropertiesInterface {
-    
+
     public DestinationConnectorProperties getDestinationConnectorProperties();
-    
+
     public boolean canValidateResponse();
 
     public ConnectorProperties clone();

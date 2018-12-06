@@ -21,6 +21,7 @@ public class MLLPModeSettingsPanel extends javax.swing.JPanel {
         settingsButton.addActionListener(actionListener);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -59,10 +60,11 @@ public class MLLPModeSettingsPanel extends javax.swing.JPanel {
             .addComponent(settingsButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void settingsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsButtonActionPerformed
 
-   }//GEN-LAST:event_settingsButtonActionPerformed
+    }//GEN-LAST:event_settingsButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton settingsButton;

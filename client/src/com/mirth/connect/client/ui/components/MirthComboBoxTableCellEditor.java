@@ -99,9 +99,9 @@ public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements 
         comboBox.setSelectedItem(value);
         return comboBox;
     }
-    
+
     public void setTooltips(String[] tooltips) {
-        DataTypeListCellRenderer renderer = (DataTypeListCellRenderer)comboBox.getRenderer();
+        DataTypeListCellRenderer renderer = (DataTypeListCellRenderer) comboBox.getRenderer();
         renderer.setTooltips(tooltips);
     }
 
@@ -109,7 +109,7 @@ public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements 
     private class DataTypeListCellRenderer extends DefaultListCellRenderer {
 
         String[] tooltips;
-        
+
         public DataTypeListCellRenderer() {}
 
         @Override
@@ -127,7 +127,7 @@ public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements 
 
             return component;
         }
-        
+
         public void setTooltips(String[] tooltips) {
             this.tooltips = tooltips;
         }

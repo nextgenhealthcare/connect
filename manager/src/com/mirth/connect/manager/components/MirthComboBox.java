@@ -16,8 +16,7 @@ import com.mirth.connect.manager.ManagerController;
 import com.mirth.connect.manager.PlatformUI;
 
 /**
- * Mirth's implementation of the JComboBox. Adds enabling of the apply button in
- * dialog.
+ * Mirth's implementation of the JComboBox. Adds enabling of the apply button in dialog.
  */
 public class MirthComboBox extends javax.swing.JComboBox {
 
@@ -39,11 +38,9 @@ public class MirthComboBox extends javax.swing.JComboBox {
                 }
             }
 
-            public void keyReleased(KeyEvent e) {
-            }
+            public void keyReleased(KeyEvent e) {}
 
-            public void keyTyped(KeyEvent e) {
-            }
+            public void keyTyped(KeyEvent e) {}
         });
     }
 

@@ -74,6 +74,7 @@ public class ListenerSettingsPanel extends javax.swing.JPanel {
         }
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -167,6 +168,7 @@ public class ListenerSettingsPanel extends javax.swing.JPanel {
 
         getAccessibleContext().setAccessibleName("Listener Settings");
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void allRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allRadioActionPerformed
         addressField.setText(new ListenerConnectorProperties(null).getHost());
@@ -180,7 +182,8 @@ public class ListenerSettingsPanel extends javax.swing.JPanel {
     private void portFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_portFieldKeyReleased
         ((ConnectorPanel) getParent()).updatedField(FIELD_PORT);
     }//GEN-LAST:event_portFieldKeyReleased
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+     // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private com.mirth.connect.client.ui.components.MirthTextField addressField;
     private javax.swing.JLabel addressLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton allRadio;

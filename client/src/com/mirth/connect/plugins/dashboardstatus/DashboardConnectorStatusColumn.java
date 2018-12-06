@@ -110,7 +110,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     public void tableUpdate(List<DashboardStatus> status) {
         // get states from server
         try {
-        	String serverId = "";
+            String serverId = "";
             for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
                 serverId = plugin.getServerId();
                 if (serverId != null) {

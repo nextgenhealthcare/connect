@@ -418,6 +418,7 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
         }
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -597,6 +598,7 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void openBinaryFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_openBinaryFileButtonActionPerformed
     {//GEN-HEADEREND:event_openBinaryFileButtonActionPerformed

@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WindowsServiceController implements ServiceController {
-    
+
     private final String WINDOWS_PATH_SERVER_MANAGER_EXE = "mcmanager.exe";
     private final String WINDOWS_SERVICE_NAME = "Mirth Connect Service";
     private final String WINDOWS_CMD_START = "net start \"";
@@ -81,12 +81,12 @@ public class WindowsServiceController implements ServiceController {
 
         return false;
     }
-    
+
     @Override
     public boolean isStartupPossible() {
         return true;
     }
-    
+
     @Override
     public void setStartup(boolean enabled) {
         if (enabled) {
@@ -120,10 +120,10 @@ public class WindowsServiceController implements ServiceController {
             return false;
         }
     }
-    
+
     @Override
     public String getCommand() {
-    	return "cmd /c";
+        return "cmd /c";
     }
 
     @Override
@@ -135,7 +135,7 @@ public class WindowsServiceController implements ServiceController {
     public boolean isShowServiceTab() {
         return true;
     }
-    
+
     @Override
     public void migrate() {
         // If the old value exists in the registry, then we should remove and re-add it

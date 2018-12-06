@@ -34,11 +34,11 @@ public class RemoveMessagesDialog extends MirthDialog {
 
     public void init(Set<String> selectedChannelIds, boolean restartCheckboxEnabled) {
         yesButton.requestFocus();
-        
+
         boolean canClearStats = AuthorizationControllerFactory.getAuthorizationController().checkTask(TaskConstants.DASHBOARD_KEY, TaskConstants.DASHBOARD_CLEAR_STATS);
         clearStatsCheckBox.setSelected(canClearStats);
         clearStatsCheckBox.setEnabled(canClearStats);
-        
+
         includeRunningChannels.setSelected(false);
         channelIds = selectedChannelIds;
 

@@ -9,8 +9,7 @@
 
 package com.mirth.connect.donkey.model.channel;
 
-
-public enum PollingType  {
+public enum PollingType {
     INTERVAL("Interval"), TIME("Time"), CRON("Cron");
 
     private String displayName;

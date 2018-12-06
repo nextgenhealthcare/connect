@@ -222,7 +222,7 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
             }
         }
     }
-    
+
     @Override
     protected boolean isModified(Transformer properties) {
         if (originalProperties == properties) {
@@ -230,13 +230,7 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
         } else if (originalProperties == null || properties == null) {
             return true;
         }
-        
-        return !StringUtil.equalsIgnoreNull(originalProperties.getInboundDataType(), properties.getInboundDataType()) ||
-                !StringUtil.equalsIgnoreNull(originalProperties.getOutboundDataType(), properties.getOutboundDataType()) ||
-                !StringUtil.equalsIgnoreNull(originalProperties.getInboundTemplate(), properties.getInboundTemplate()) ||
-                !StringUtil.equalsIgnoreNull(originalProperties.getOutboundTemplate(), properties.getOutboundTemplate()) ||
-                !Objects.equals(originalProperties.getInboundProperties(), properties.getInboundProperties()) ||
-                !Objects.equals(originalProperties.getOutboundProperties(), properties.getOutboundProperties()) ||
-                !Objects.equals(originalProperties.getElements(), properties.getElements());
+
+        return !StringUtil.equalsIgnoreNull(originalProperties.getInboundDataType(), properties.getInboundDataType()) || !StringUtil.equalsIgnoreNull(originalProperties.getOutboundDataType(), properties.getOutboundDataType()) || !StringUtil.equalsIgnoreNull(originalProperties.getInboundTemplate(), properties.getInboundTemplate()) || !StringUtil.equalsIgnoreNull(originalProperties.getOutboundTemplate(), properties.getOutboundTemplate()) || !Objects.equals(originalProperties.getInboundProperties(), properties.getInboundProperties()) || !Objects.equals(originalProperties.getOutboundProperties(), properties.getOutboundProperties()) || !Objects.equals(originalProperties.getElements(), properties.getElements());
     }
 }

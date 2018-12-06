@@ -34,6 +34,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.PropertiesConfigurationLayout;
 import org.apache.commons.lang3.StringUtils;
@@ -46,8 +48,6 @@ import com.mirth.connect.client.ui.components.MirthDialogTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthPasswordTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.util.ConfigurationProperty;
-
-import net.miginfocom.swing.MigLayout;
 
 public class SettingsPanelMap extends AbstractSettingsPanel {
 
@@ -70,14 +70,14 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         if (PlatformUI.MIRTH_FRAME.alertRefresh()) {
             return;
         }
-    	// close any open cell editor before refreshing
-    	if (this.configurationMapTable.getCellEditor() != null) {
-    		this.configurationMapTable.getCellEditor().stopCellEditing();
-    	}
-    	
-    	boolean showConfigMapValues = userPreferences.getBoolean(SHOW_VALUES_KEY, false);
-    	showValuesCheckbox.setSelected(showConfigMapValues);
-    	
+        // close any open cell editor before refreshing
+        if (this.configurationMapTable.getCellEditor() != null) {
+            this.configurationMapTable.getCellEditor().stopCellEditing();
+        }
+
+        boolean showConfigMapValues = userPreferences.getBoolean(SHOW_VALUES_KEY, false);
+        showValuesCheckbox.setSelected(showConfigMapValues);
+
         final String workingId = getFrame().startWorking("Loading " + getTabName() + " settings...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -107,11 +107,11 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     }
 
     public boolean doSave() {
-    	// close any open cell editor before saving
-    	if (this.configurationMapTable.getCellEditor() != null) {
-    		this.configurationMapTable.getCellEditor().stopCellEditing();
-    	}
-    	
+        // close any open cell editor before saving
+        if (this.configurationMapTable.getCellEditor() != null) {
+            this.configurationMapTable.getCellEditor().stopCellEditing();
+        }
+
         final Map<String, ConfigurationProperty> configurationMap = getConfigurationMapFromTable();
         if (configurationMap == null) {
             return false;
@@ -142,7 +142,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
 
         return true;
     }
-    
+
     private Map<String, ConfigurationProperty> getConfigurationMapFromTable() {
         // Using a LinkedHashMap so that we can preserve row order when the user is toggling obfuscation on/off.
         final Map<String, ConfigurationProperty> configurationMap = new LinkedHashMap<String, ConfigurationProperty>();
@@ -165,11 +165,11 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     }
 
     public void doImportMap() {
-    	// close any open cell editor before importing
-    	if (this.configurationMapTable.getCellEditor() != null) {
-    		this.configurationMapTable.getCellEditor().stopCellEditing();
-    	}
-    	
+        // close any open cell editor before importing
+        if (this.configurationMapTable.getCellEditor() != null) {
+            this.configurationMapTable.getCellEditor().stopCellEditing();
+        }
+
         File file = getFrame().browseForFile("PROPERTIES");
 
         if (file != null) {
@@ -199,11 +199,11 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
     }
 
     public void doExportMap() {
-    	// close any open cell editor
-    	if (this.configurationMapTable.getCellEditor() != null) {
-    		this.configurationMapTable.getCellEditor().stopCellEditing();
-    	}
-    	
+        // close any open cell editor
+        if (this.configurationMapTable.getCellEditor() != null) {
+            this.configurationMapTable.getCellEditor().stopCellEditing();
+        }
+
         if (isSaveEnabled()) {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings first?");
 
@@ -279,22 +279,22 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         int index = 0;
         for (Entry<String, ConfigurationProperty> entry : sortedMap.entrySet()) {
             data[index][0] = entry.getKey();
-            data[index][1] = entry.getValue().getValue();    
+            data[index][1] = entry.getValue().getValue();
             data[index++][2] = entry.getValue().getComment();
         }
-        
+
         updateCellRenderer(show);
         model.refreshDataVector(data);
     }
-    
+
     private void updateCellRenderer(boolean show) {
-        if (show) { 
+        if (show) {
             configurationMapTable.getColumnExt("Value").setCellRenderer(new DefaultTableCellRenderer());
         } else {
             configurationMapTable.getColumnExt("Value").setCellRenderer(new MirthPasswordTableCellRenderer());
         }
     }
-    
+
     private void showValuesCheckboxActionPerformed(boolean show) {
         updateCellRenderer(show);
         ((RefreshTableModel) configurationMapTable.getModel()).fireTableDataChanged();
@@ -305,7 +305,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         setBackground(Color.WHITE);
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         setLayout(new MigLayout("insets 12, fill"));
-        
+
         showValuesLabel = new JLabel("Show values");
         showValuesCheckbox = new JCheckBox();
         String tooltip = "If enabled, values in the table will be shown.";
@@ -362,7 +362,8 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                ((RefreshTableModel) configurationMapTable.getModel()).addRow(new String[] { "", "" });
+                ((RefreshTableModel) configurationMapTable.getModel()).addRow(new String[] { "",
+                        "" });
 
                 if (configurationMapTable.getRowCount() == 1) {
                     configurationMapTable.setRowSelectionInterval(0, 0);
@@ -405,13 +406,13 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         configurationMapPanel.setBackground(Color.WHITE);
         configurationMapPanel.setLayout(new MigLayout("fill, insets 0", "[grow]", "[][grow]"));
         configurationMapPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Configuration Map", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-        
+
         JPanel showValuesPanel = new JPanel();
         showValuesPanel.setBackground(Color.WHITE);
         showValuesPanel.add(showValuesCheckbox);
         showValuesPanel.add(showValuesLabel);
         configurationMapPanel.add(showValuesPanel, "wrap");
-        
+
         JPanel configurationMapSubPanel = new JPanel();
         configurationMapSubPanel.setBackground(Color.WHITE);
         configurationMapSubPanel.setLayout(new MigLayout("fill, flowy, insets 0", "[grow][]", "[grow]"));

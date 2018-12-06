@@ -10,7 +10,7 @@
 package com.mirth.connect.manager;
 
 public class MacServiceController implements ServiceController {
-    
+
     private final String MAC_SERVICE_NAME = "Mirth\\ Connect\\ Service";
     private final String MAC_SERVICE_CMD = "/Library/StartupItems/Mirth\\ Connect\\ Service/";
     private final String MAC_SERVICE_START = "start";
@@ -20,7 +20,8 @@ public class MacServiceController implements ServiceController {
     @Override
     public int checkService() {
         try {
-        	String[] input = new String[]{MAC_SERVICE_CMD + MAC_SERVICE_NAME + " " + MAC_SERVICE_STATUS};
+            String[] input = new String[] {
+                    MAC_SERVICE_CMD + MAC_SERVICE_NAME + " " + MAC_SERVICE_STATUS };
             String output = CmdUtil.execCmdWithOutput(input);
             System.out.println(output);
             if (output.indexOf("running") != -1) {
@@ -38,7 +39,8 @@ public class MacServiceController implements ServiceController {
     @Override
     public boolean startService() {
         try {
-            if (CmdUtil.execCmd(new String[]{MAC_SERVICE_CMD + MAC_SERVICE_NAME + " " + MAC_SERVICE_START}, true) == 0) {
+            if (CmdUtil.execCmd(new String[] {
+                    MAC_SERVICE_CMD + MAC_SERVICE_NAME + " " + MAC_SERVICE_START }, true) == 0) {
                 return true;
             }
         } catch (Exception e) {
@@ -51,7 +53,8 @@ public class MacServiceController implements ServiceController {
     @Override
     public boolean stopService() {
         try {
-            if (CmdUtil.execCmd(new String[]{MAC_SERVICE_CMD + MAC_SERVICE_NAME + " " + MAC_SERVICE_STOP}, true) == 0) {
+            if (CmdUtil.execCmd(new String[] {
+                    MAC_SERVICE_CMD + MAC_SERVICE_NAME + " " + MAC_SERVICE_STOP }, true) == 0) {
                 return true;
             }
         } catch (Exception e) {
@@ -75,10 +78,10 @@ public class MacServiceController implements ServiceController {
     public void setStartup(boolean enabled) {
         // Not available
     }
-    
+
     @Override
     public String getCommand() {
-    	return "sh -c";
+        return "sh -c";
     }
 
     @Override
@@ -92,7 +95,6 @@ public class MacServiceController implements ServiceController {
     }
 
     @Override
-    public void migrate() {
-    }
+    public void migrate() {}
 
 }

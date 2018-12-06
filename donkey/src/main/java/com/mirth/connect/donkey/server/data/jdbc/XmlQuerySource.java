@@ -29,7 +29,7 @@ import com.mirth.connect.donkey.util.ResourceUtil;
 
 public class XmlQuerySource implements QuerySource {
     private Logger logger = Logger.getLogger(getClass());
-    
+
     private Map<String, String> queries = new HashMap<String, String>();
 
     public void load(String xmlFile) throws XmlQuerySourceException {
@@ -87,7 +87,7 @@ public class XmlQuerySource implements QuerySource {
         logger.debug(query);
         return query;
     }
-    
+
     @Override
     public boolean queryExists(String queryName) {
         return queries.containsKey(queryName);

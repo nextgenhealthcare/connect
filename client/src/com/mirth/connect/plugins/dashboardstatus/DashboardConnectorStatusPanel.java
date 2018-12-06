@@ -49,11 +49,11 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     private static final int RESUMED = 1;
     private HashMap<String, Integer> channelStates = new HashMap<String, Integer>();
     private JPopupMenu rightclickPopup;
-    private ImageIcon greenBullet;      //  CONNECTED
-    private ImageIcon yellowBullet;     //  BUSY
-    private ImageIcon redBullet;        //  DISCONNECTED
-    private ImageIcon blueBullet;       //  INITIALIZED
-    private ImageIcon blackBullet;	    //  DONE
+    private ImageIcon greenBullet; //  CONNECTED
+    private ImageIcon yellowBullet; //  BUSY
+    private ImageIcon redBullet; //  DISCONNECTED
+    private ImageIcon blueBullet; //  INITIALIZED
+    private ImageIcon blackBullet; //  DONE
     private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
     private String selectedChannelId;
     private Map<String, List<Integer>> selectedConnectors;
@@ -84,7 +84,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
 
         makeLogTable();
 
-        logSizeTextField.setDocument(new MirthFieldConstraints(3, false, false, true));     // max 999. all numbers. default to 250.
+        logSizeTextField.setDocument(new MirthFieldConstraints(3, false, false, true)); // max 999. all numbers. default to 250.
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
         currentDashboardLogSize = userPreferences.getInt("dashboardLogSize", 250);
         logSizeTextField.setText(currentDashboardLogSize + "");
@@ -92,21 +92,22 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     }
 
     /*
-    This method overwrites the setting layout part in initComponent generated code by NetBeans, because NetBeans wouldn't support the vertical alignment well enough.
+     * This method overwrites the setting layout part in initComponent generated code by NetBeans,
+     * because NetBeans wouldn't support the vertical alignment well enough.
      */
     public void initLayouts() {
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(2, 2, 2).addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2).addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 336, Short.MAX_VALUE).addComponent(logSizeText).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2).addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2)).addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE));
+        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(2, 2, 2).addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2).addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 336, Short.MAX_VALUE).addComponent(logSizeText).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2).addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2)).addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE));
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[]{clearLog, logSizeChange, pauseResume});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] { clearLog,
+                logSizeChange, pauseResume });
 
-        layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE).addGap(0, 0, 0).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeText))));
+        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE).addGap(0, 0, 0).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeText))));
 
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[]{clearLog, logSizeChange, pauseResume});
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] { clearLog,
+                logSizeChange, pauseResume });
 
     }
 
@@ -216,7 +217,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     public void setSelectedChannelId(String channelId) {
         selectedChannelId = channelId;
     }
-    
+
     public void setSelectedConnectors(Map<String, List<Integer>> selectedConnectors) {
         this.selectedConnectors = selectedConnectors;
     }
@@ -251,6 +252,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
 
     /**
      * This method won't be called when it's in the PAUSED state.
+     * 
      * @param channelLogs
      */
     public synchronized void updateTable(LinkedList<ConnectionLogItem> channelLogs) {
@@ -260,10 +262,10 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
             int tableSize = 0;
             for (int i = 0; i < channelLogs.size(); i++) {
                 ConnectionLogItem logItem = channelLogs.get(i);
-                
+
                 String channelId = logItem.getChannelId();
                 Integer metaDataId = logItem.getMetadataId().intValue();
-                
+
                 // If there are multiple selected channels defined (not null), then 
                 // check to make sure this channel log row is one of those channels.
                 //
@@ -271,7 +273,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                 // This means pausing the list for multi-select would also pause the 
                 // list for no selection.  The log size will also not be correct for
                 // multi-select because it is enforcing the size on the larger list.
-                
+
                 boolean addRow = false;
                 if (selectedConnectors == null) {
                     addRow = true;
@@ -279,14 +281,14 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                     List<Integer> selectedMetaDataIds = selectedConnectors.get(channelId);
                     addRow = selectedMetaDataIds != null && (selectedMetaDataIds.contains(null) || selectedMetaDataIds.contains(metaDataId));
                 }
-                
+
                 if (addRow) {
                     tableSize++;
 
-                    tableData[i][0] = logItem.getLogId();       	// Id (hidden)
-                    tableData[i][1] = logItem.getDateAdded();       // Timestamp
-                    tableData[i][2] = logItem.getChannelName();   	// Channel Name (hidden when viewing a specific channel)
-                    tableData[i][3] = logItem.getConnectorType();   // Connector Info
+                    tableData[i][0] = logItem.getLogId(); // Id (hidden)
+                    tableData[i][1] = logItem.getDateAdded(); // Timestamp
+                    tableData[i][2] = logItem.getChannelName(); // Channel Name (hidden when viewing a specific channel)
+                    tableData[i][3] = logItem.getConnectorType(); // Connector Info
 
                     if (logItem.getEventState().equalsIgnoreCase("IDLE")) {
                         tableData[i][4] = new CellData(yellowBullet, "Idle");
@@ -314,7 +316,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                         tableData[i][4] = new CellData(blackBullet, "Failure");
                     }
 
-                    tableData[i][5] = logItem.getInformation();       // Infomation
+                    tableData[i][5] = logItem.getInformation(); // Infomation
                 }
             }
 
@@ -341,12 +343,11 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
             model.refreshDataVector(tableData);
         } else {
             logTable = new MirthTable();
-            logTable.setModel(new RefreshTableModel(tableData,
-                    new String[]{ID_COLUMN_HEADER, TIME_COLUMN_HEADER,
-                        CHANNEL_COLUMN_HEADER, CONNECTOR_INFO_COLUMN_HEADER,
-                        EVENT_COLUMN_HEADER, INFORMATION_COLUMN_HEADER}) {
+            logTable.setModel(new RefreshTableModel(tableData, new String[] { ID_COLUMN_HEADER,
+                    TIME_COLUMN_HEADER, CHANNEL_COLUMN_HEADER, CONNECTOR_INFO_COLUMN_HEADER,
+                    EVENT_COLUMN_HEADER, INFORMATION_COLUMN_HEADER }) {
 
-                boolean[] canEdit = new boolean[]{false, false, false, false, false, false};
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -360,10 +361,10 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         }
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    // @formatter:off
+    /**
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT
+     * modify this code. The content of this method is always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -482,6 +483,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {clearLog, logSizeChange, pauseResume});
 
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void pauseResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseResumeActionPerformed
         if (!isPaused(selectedChannelId)) {
@@ -548,7 +550,8 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         pauseResume.setBorderPainted(true);
         pauseResume.setContentAreaFilled(true);
     }//GEN-LAST:event_pauseResumeMouseEntered
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+     // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private javax.swing.JButton clearLog;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton logSizeChange;

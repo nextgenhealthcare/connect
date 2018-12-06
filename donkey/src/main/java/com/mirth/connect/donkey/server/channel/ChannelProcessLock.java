@@ -11,12 +11,12 @@ package com.mirth.connect.donkey.server.channel;
 
 public interface ChannelProcessLock {
     public void acquire() throws InterruptedException;
-    
+
     public void acquireAll() throws InterruptedException;
 
     public void release();
-    
+
     public void releaseAll();
-    
+
     public void reset();
 }

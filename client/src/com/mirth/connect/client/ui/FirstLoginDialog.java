@@ -71,6 +71,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         finishButtonActionPerformed(null);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -193,6 +194,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     /**
      * An action for when the finish button is pressed. Checks and saves all of the information.

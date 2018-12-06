@@ -385,7 +385,7 @@ public class TimedDao implements DonkeyDao {
             timer.log("createChannel", System.currentTimeMillis() - startTime);
         }
     }
-    
+
     @Override
     public boolean initTableStructure() {
         long startTime = System.currentTimeMillis();

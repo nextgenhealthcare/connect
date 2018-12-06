@@ -54,13 +54,12 @@ public class FilterTransformerExecutor {
     }
 
     /**
-     * Takes a ConnectorMessage and runs any filtering or transforming logic
-     * against it. Sets the transformed content and encoded content on
-     * connectorMessage and updates it's status to either Status.FILTERED,
-     * Status.TRANSFORMED or Status.ERROR
+     * Takes a ConnectorMessage and runs any filtering or transforming logic against it. Sets the
+     * transformed content and encoded content on connectorMessage and updates it's status to either
+     * Status.FILTERED, Status.TRANSFORMED or Status.ERROR
      * 
-     * @return The new status that was set for connectorMessage
-     *         (Status.FILTERED, Status.TRANSFORMED or Status.ERROR)
+     * @return The new status that was set for connectorMessage (Status.FILTERED, Status.TRANSFORMED
+     *         or Status.ERROR)
      * @throws InterruptedException
      */
     public void processConnectorMessage(ConnectorMessage connectorMessage) throws InterruptedException, DonkeyException {
@@ -126,11 +125,10 @@ public class FilterTransformerExecutor {
         } else {
             /*
              * Since this condition can only occur if the inbound and outbound datatypes are the
-             * same, it is safe to pass the outbound serializer to the inbound serializer
-             * so that it can compare/use the properties from both. The purpose of this method is to
-             * allow the optimization of not serializing, but still modifying the message in certain
-             * circumstances.
-             * It should NOT be used anywhere other than transformers.
+             * same, it is safe to pass the outbound serializer to the inbound serializer so that it
+             * can compare/use the properties from both. The purpose of this method is to allow the
+             * optimization of not serializing, but still modifying the message in certain
+             * circumstances. It should NOT be used anywhere other than transformers.
              */
             String transformedContent = inbound.getSerializer().transformWithoutSerializing(content, outbound.getSerializer());
             // transformWithoutSerializing should return null if it has no effect.

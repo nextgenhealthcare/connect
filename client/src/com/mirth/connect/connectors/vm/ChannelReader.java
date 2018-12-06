@@ -36,8 +36,7 @@ public class ChannelReader extends ConnectorSettingsPanel {
     }
 
     @Override
-    public void setProperties(ConnectorProperties properties) {
-    }
+    public void setProperties(ConnectorProperties properties) {}
 
     @Override
     public ConnectorProperties getDefaults() {
@@ -50,9 +49,9 @@ public class ChannelReader extends ConnectorSettingsPanel {
     }
 
     @Override
-    public void resetInvalidProperties() {
-    }
+    public void resetInvalidProperties() {}
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -83,6 +82,8 @@ public class ChannelReader extends ConnectorSettingsPanel {
             .addComponent(jLabel1)
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables

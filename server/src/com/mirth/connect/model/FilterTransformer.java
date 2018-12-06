@@ -45,7 +45,7 @@ public abstract class FilterTransformer<C extends FilterTransformerElement> impl
     public List<C> getElements() {
         return elements;
     }
-    
+
     public List<C> getEnabledElements() {
         List<C> enabledElements = new ArrayList<>();
         for (C element : elements) {
@@ -77,7 +77,7 @@ public abstract class FilterTransformer<C extends FilterTransformerElement> impl
     @Override public void migrate3_5_0(DonkeyElement element) {}
     @Override public void migrate3_6_0(DonkeyElement element) {}    
     @Override public void migrate3_7_0(DonkeyElement element) {} // @formatter:on
-    
+
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);

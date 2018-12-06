@@ -267,7 +267,7 @@ public class ChannelPanel extends AbstractFramePanel {
             tableModeGroupsButton.setContentFilled(false);
             model.setGroupModeEnabled(false);
         }
-        
+
         if (!canViewChannelGroups) {
             tableModeGroupsButton.setEnabled(false);
         }
@@ -3481,7 +3481,7 @@ public class ChannelPanel extends AbstractFramePanel {
         if (!canViewChannelGroups) {
             groupModeEnabled = false;
         }
-        
+
         ChannelTreeTableModel model = (ChannelTreeTableModel) channelTable.getTreeTableModel();
         if (model.isGroupModeEnabled() != groupModeEnabled) {
             if (promptSave && isSaveEnabled() && !promptSave(true)) {

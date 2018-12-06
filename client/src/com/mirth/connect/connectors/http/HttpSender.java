@@ -405,7 +405,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         int j = 0;
         Iterator<Entry<String, List<String>>> i = properties.entrySet().iterator();
         while (i.hasNext()) {
-        	Entry<String, List<String>> entry = (Entry<String, List<String>>) i.next();
+            Entry<String, List<String>> entry = (Entry<String, List<String>>) i.next();
             for (String keyValue : (List<String>) entry.getValue()) {
                 tableData[j][NAME_COLUMN] = (String) entry.getKey();
                 tableData[j][VALUE_COLUMN] = keyValue;
@@ -590,13 +590,13 @@ public class HttpSender extends ConnectorSettingsPanel {
         }
 
         if (props.getMethod().equalsIgnoreCase("post") || props.getMethod().equalsIgnoreCase("put") || props.getMethod().equalsIgnoreCase("patch")) {
-        	if (props.getContentType().length() == 0) {
+            if (props.getContentType().length() == 0) {
                 valid = false;
                 if (highlight) {
                     contentTypeField.setBackground(UIConstants.INVALID_COLOR);
                 }
             }
-        	
+
             if (isUsingFormUrlEncoded(props.getContentType())) {
                 if (MapUtils.isEmpty(props.getParameters())) {
                     valid = false;
@@ -755,6 +755,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         }
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1386,6 +1387,7 @@ public class HttpSender extends ConnectorSettingsPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void headersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_headersDeleteButtonActionPerformed
     {//GEN-HEADEREND:event_headersDeleteButtonActionPerformed
@@ -1440,8 +1442,8 @@ public class HttpSender extends ConnectorSettingsPanel {
 
     private void patchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patchButtonActionPerformed
         checkMultipartEnabled();
-    	checkContentEnabled();
-    	setQueryParametersEnabled(true);
+        checkContentEnabled();
+        setQueryParametersEnabled(true);
     }//GEN-LAST:event_patchButtonActionPerformed
 
     private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed

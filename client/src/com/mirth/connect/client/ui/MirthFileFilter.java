@@ -21,8 +21,8 @@ public class MirthFileFilter extends javax.swing.filechooser.FileFilter {
     }
 
     /**
-     * Returns true if the file is a directory, or the extension matches the one
-     * specified in the filter.
+     * Returns true if the file is a directory, or the extension matches the one specified in the
+     * filter.
      * 
      */
     @Override

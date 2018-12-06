@@ -41,7 +41,7 @@ public class NumberCellRenderer extends DefaultTableCellRenderer {
             setForeground(table.getForeground());
             setBackground(table.getBackground());
         }
-        
+
         if (value == null) {
             setText("--");
         } else if (value instanceof Integer) {

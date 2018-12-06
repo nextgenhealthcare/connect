@@ -31,8 +31,7 @@ public class MirthFieldConstraints extends PlainDocument {
     private static final String MATCH_ALL_PATTERN = "^.*$";
 
     /**
-     * Constructor that sets a character number limit. Set limit to 0 for no
-     * limit.
+     * Constructor that sets a character number limit. Set limit to 0 for no limit.
      */
     public MirthFieldConstraints(int limit) {
         super();
@@ -66,8 +65,8 @@ public class MirthFieldConstraints extends PlainDocument {
     }
 
     /**
-     * Overwritten insertString method to check if the string should actually be
-     * inserted based on the constraints.
+     * Overwritten insertString method to check if the string should actually be inserted based on
+     * the constraints.
      */
     public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
         if (str == null) {
@@ -88,7 +87,7 @@ public class MirthFieldConstraints extends PlainDocument {
             super.insertString(offset, str, attr);
         }
     }
-    
+
     /**
      * Allow the limit to set after the constructor
      */

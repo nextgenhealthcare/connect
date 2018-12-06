@@ -405,10 +405,10 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
             bgColor.addChildElement("alpha", String.valueOf(newColor.getAlpha()));
         }
     }
-    
+
     @Override
     public void migrate3_6_0(DonkeyElement element) {}
-    
+
     @Override
     public void migrate3_7_0(DonkeyElement element) {}
 }

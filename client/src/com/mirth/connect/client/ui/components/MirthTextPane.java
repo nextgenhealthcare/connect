@@ -29,9 +29,8 @@ import com.mirth.connect.client.ui.actions.PasteAction;
 import com.mirth.connect.client.ui.actions.SelectAllAction;
 
 /**
- * Mirth's implementation of the JTextPane. Adds enabling of the save button in
- * parent. Also adds a trigger button (right click) editor menu with Cut, Copy,
- * Paste, Delete, and Select All.
+ * Mirth's implementation of the JTextPane. Adds enabling of the save button in parent. Also adds a
+ * trigger button (right click) editor menu with Cut, Copy, Paste, Delete, and Select All.
  */
 public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInterface {
 
@@ -48,7 +47,7 @@ public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInt
         this.parent = PlatformUI.MIRTH_FRAME;
         this.setFocusable(true);
         setFont(UIConstants.MONOSPACED_FONT);
-        
+
         cutAction = new CutAction(this);
         copyAction = new CopyAction(this);
         pasteAction = new PasteAction(this);
@@ -103,16 +102,15 @@ public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInt
     }
 
     /**
-     * Overrides setDocument(Document doc) so that a document listener is added
-     * to the current document to listen for changes.
+     * Overrides setDocument(Document doc) so that a document listener is added to the current
+     * document to listen for changes.
      */
     public void setDocument(Document doc) {
         super.setDocument(doc);
 
         this.getDocument().addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent e) {
-            }
+            public void changedUpdate(DocumentEvent e) {}
 
             public void removeUpdate(DocumentEvent e) {
                 parent.setSaveEnabled(true);
@@ -125,8 +123,8 @@ public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInt
     }
 
     /**
-     * Overrides setText(String t) so that the save button is disabled when
-     * Mirth sets the text of a field.
+     * Overrides setText(String t) so that the save button is disabled when Mirth sets the text of a
+     * field.
      */
     public void setText(String t) {
         super.setText(t);
@@ -137,19 +135,16 @@ public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInt
 
         return super.getText();
         /*
-         * StringBuffer sb = new StringBuffer(); // Get paragraph element
-         * Element paragraph = getDocument().getDefaultRootElement(); // Get
-         * number of content elements int contentCount =
-         * paragraph.getElementCount(); // Get index ranges for each content
-         * element. // Each content element represents one line. // Each line
-         * includes the terminating newline. for (int i = 0; i < contentCount;
-         * i++) { Element e = paragraph.getElement(i); int rangeStart =
-         * e.getStartOffset(); int rangeEnd = e.getEndOffset(); try { String
-         * text = getText(rangeStart, rangeEnd - rangeStart);
-         * sb.append(text.replaceAll("\\n", "")); sb.append("\r"); } catch
-         * (BadLocationException ex) { } } String retval = sb.toString(); if
-         * (retval.length() > 0) { retval = retval.substring(0, retval.length()
-         * -1); } return retval;
+         * StringBuffer sb = new StringBuffer(); // Get paragraph element Element paragraph =
+         * getDocument().getDefaultRootElement(); // Get number of content elements int contentCount
+         * = paragraph.getElementCount(); // Get index ranges for each content element. // Each
+         * content element represents one line. // Each line includes the terminating newline. for
+         * (int i = 0; i < contentCount; i++) { Element e = paragraph.getElement(i); int rangeStart
+         * = e.getStartOffset(); int rangeEnd = e.getEndOffset(); try { String text =
+         * getText(rangeStart, rangeEnd - rangeStart); sb.append(text.replaceAll("\\n", ""));
+         * sb.append("\r"); } catch (BadLocationException ex) { } } String retval = sb.toString();
+         * if (retval.length() > 0) { retval = retval.substring(0, retval.length() -1); } return
+         * retval;
          */
     }
 }

@@ -17,8 +17,7 @@ import org.jdesktop.swingx.JXDatePicker;
 import com.mirth.connect.client.ui.UIConstants;
 
 /**
- * Mirth's implementation of the JXDatePicker. Sets the format, editor font, and
- * button image.
+ * Mirth's implementation of the JXDatePicker. Sets the format, editor font, and button image.
  */
 public class MirthDatePicker extends JXDatePicker {
 
@@ -28,7 +27,7 @@ public class MirthDatePicker extends JXDatePicker {
     public MirthDatePicker() {
         super();
         this.setFocusable(true);
-        setFormats(new String[]{"EEE MM-dd-yyyy"});
+        setFormats(new String[] { "EEE MM-dd-yyyy" });
         getEditor().setFont(UIConstants.TEXTFIELD_PLAIN_FONT);
 
         super.getMonthView().setMonthStringBackground(UIConstants.JX_CONTAINER_BACKGROUND_COLOR);

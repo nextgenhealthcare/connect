@@ -22,20 +22,19 @@ import com.mirth.connect.donkey.model.message.Status;
 
 public class StatisticsTest {
 
-    
     Statistics statisticNoNegativeValues;
     Statistics statisticAllowNegatives;
     final String CHANNEL_ID = "StatisticsTest";
     final int CONNECTOR1_ID = 1;
     final int CONNECTOR2_ID = 2;
     final Status KEY = Status.ERROR;
-    
+
     @Before
     public void setup() {
         statisticNoNegativeValues = new Statistics(false); // default statistics object does not allow negative values
         statisticAllowNegatives = new Statistics(false, true);
     }
-    
+
     @Test
     public void decrement_IfAtZero_ShouldStayAtZero() {
         statisticNoNegativeValues.update(CHANNEL_ID, CONNECTOR1_ID, null, KEY);
@@ -53,7 +52,7 @@ public class StatisticsTest {
         assertExistsAndEq(statisticAllowNegatives.getConnectorStats(CHANNEL_ID, CONNECTOR1_ID), KEY, -1L);
         assertExistsAndEq(statisticAllowNegatives.getConnectorStats(CHANNEL_ID, null), KEY, -1L);
     }
-    
+
     @Test
     public void incrementTwice_IfAtZero_ShouldBeTwo() {
         statisticNoNegativeValues.update(CHANNEL_ID, CONNECTOR1_ID, KEY, null);
@@ -119,7 +118,7 @@ public class StatisticsTest {
         assertExistsAndEq(statisticAllowNegatives.getConnectorStats(CHANNEL_ID, CONNECTOR2_ID), KEY, 1L);
         assertExistsAndEq(statisticAllowNegatives.getConnectorStats(CHANNEL_ID, null), KEY, 2L);
     }
-    
+
     @Test
     public void decrementFive_IfStartAt4_ShouldBeZero() {
         Map<Status, Long> diffPlus4 = new HashMap<>();
@@ -128,7 +127,7 @@ public class StatisticsTest {
         // confirm that both the connector stats and aggregate stat are at 4
         assertExistsAndEq(statisticNoNegativeValues.getConnectorStats(CHANNEL_ID, CONNECTOR1_ID), KEY, 4L);
         assertExistsAndEq(statisticNoNegativeValues.getConnectorStats(CHANNEL_ID, null), KEY, 4L);
-        
+
         Map<Status, Long> diffMinus5 = new HashMap<>();
         diffMinus5.put(KEY, -5L);
         statisticNoNegativeValues.update(CHANNEL_ID, CONNECTOR1_ID, diffMinus5);
@@ -146,7 +145,7 @@ public class StatisticsTest {
         // confirm that both the connector stats and aggregate stat are at 4
         assertExistsAndEq(statisticAllowNegatives.getConnectorStats(CHANNEL_ID, CONNECTOR1_ID), KEY, 4L);
         assertExistsAndEq(statisticAllowNegatives.getConnectorStats(CHANNEL_ID, null), KEY, 4L);
-        
+
         Map<Status, Long> diffMinus5 = new HashMap<>();
         diffMinus5.put(KEY, -5L);
         statisticAllowNegatives.update(CHANNEL_ID, CONNECTOR1_ID, diffMinus5);
@@ -155,7 +154,7 @@ public class StatisticsTest {
         assertExistsAndEq(statisticAllowNegatives.getConnectorStats(CHANNEL_ID, CONNECTOR1_ID), KEY, -1L);
         assertExistsAndEq(statisticAllowNegatives.getConnectorStats(CHANNEL_ID, null), KEY, -1L);
     }
-    
+
     private void assertExistsAndEq(final Map<Status, Long> STATS, final Status KEY, final long EXPECTED) {
         assertNotNull(STATS.get(KEY));
         assertEquals(EXPECTED, STATS.get(KEY).longValue());

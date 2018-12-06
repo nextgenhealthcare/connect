@@ -69,7 +69,7 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     public MessageServlet(@Context HttpServletRequest request, @Context ContainerRequestContext containerRequestContext, @Context SecurityContext sc) {
         super(request, containerRequestContext, sc);
     }
-    
+
     public MessageServlet(@Context HttpServletRequest request, @Context ContainerRequestContext containerRequestContext, @Context SecurityContext sc, ControllerFactory controllerFactory) {
         super(request, containerRequestContext, sc, controllerFactory);
     }
@@ -257,7 +257,7 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
         }
         engineController.removeAllMessages(Collections.singleton(channelId), restartRunningChannels, clearStatistics, null);
     }
-    
+
     private void checkClearStatisticsAuthorization() {
         try {
             ChannelStatisticsServlet channelStatsServlet = new ChannelStatisticsServlet(request, sc, controllerFactory);

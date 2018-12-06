@@ -14,14 +14,14 @@ import javax.swing.JButton;
 public class IconButton extends JButton {
     public IconButton() {
         super();
-        
+
         setBorderPainted(false);
         setContentAreaFilled(false);
         setMargin(new java.awt.Insets(4, 4, 4, 4));
         setMaximumSize(new java.awt.Dimension(24, 24));
         setMinimumSize(new java.awt.Dimension(24, 24));
         setPreferredSize(new java.awt.Dimension(24, 24));
-        
+
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 setBorderPainted(true);

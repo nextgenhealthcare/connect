@@ -65,7 +65,7 @@ public class JmsTemplateListModel extends AbstractListModel {
         if (isPredefinedTemplate(templateName)) {
             return;
         }
-        
+
         int index = templateNames.size();
 
         if (!templateNames.contains(templateName)) {
@@ -80,7 +80,7 @@ public class JmsTemplateListModel extends AbstractListModel {
         if (isPredefinedTemplate(templateName)) {
             return;
         }
-        
+
         int index = templateNames.lastIndexOf(templateName);
         templateNames.remove(templateName);
         templates.remove(templateName);

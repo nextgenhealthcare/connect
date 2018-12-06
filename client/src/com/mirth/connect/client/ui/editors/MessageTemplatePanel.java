@@ -150,6 +150,7 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
         split.setResizeWeight(.5);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -182,6 +183,8 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
             .addComponent(split, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 500, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane split;
     private com.mirth.connect.client.ui.TemplatePanel templatePanelInbound;

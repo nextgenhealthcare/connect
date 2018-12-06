@@ -67,7 +67,7 @@ public class TestDestinationConnector extends DestinationConnector {
 
     @Override
     public void onStop() throws ConnectorTaskException {}
-    
+
     @Override
     public void onHalt() throws ConnectorTaskException {}
 

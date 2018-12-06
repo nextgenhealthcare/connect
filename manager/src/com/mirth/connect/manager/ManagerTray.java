@@ -33,8 +33,7 @@ public class ManagerTray {
     public static final int BUSY = -1;
 
     /** Creates a new instance of ManagerTray */
-    public ManagerTray() {
-    }
+    public ManagerTray() {}
 
     public void setupTray() {
         menu = new PopupMenu("Mirth Connect Server Manager");
@@ -127,8 +126,8 @@ public class ManagerTray {
                     System.exit(1);
                 }
             } else {
-            	// If no tray dialog is being shown, open the manager dialog automatically
-            	PlatformUI.MANAGER_DIALOG.open();
+                // If no tray dialog is being shown, open the manager dialog automatically
+                PlatformUI.MANAGER_DIALOG.open();
             }
         } catch (Exception e) {
             // Ignore exceptions getting the service controller.

@@ -29,7 +29,8 @@ public class BareBonesBrowserLaunch {
                         "netscape" };
                 String browser = null;
                 for (int count = 0; count < browsers.length && browser == null; count++) {
-                    if (Runtime.getRuntime().exec(new String[] { "which", browsers[count] }).waitFor() == 0) {
+                    if (Runtime.getRuntime().exec(new String[] { "which",
+                            browsers[count] }).waitFor() == 0) {
                         browser = browsers[count];
                     }
                 }

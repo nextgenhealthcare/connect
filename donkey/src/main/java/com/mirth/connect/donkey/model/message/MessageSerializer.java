@@ -15,9 +15,9 @@ public interface MessageSerializer {
     public String toXML(String message) throws MessageSerializerException;
 
     public String fromXML(String message) throws MessageSerializerException;
-    
+
     public String toJSON(String message) throws MessageSerializerException;
-    
+
     public String fromJSON(String message) throws MessageSerializerException;
 
     public boolean isSerializationRequired(boolean toXml);

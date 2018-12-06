@@ -162,19 +162,19 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
     public void setTimeout(String timeout) {
         this.timeout = timeout;
     }
-    
+
     public boolean isKeepConnectionOpen() {
         return keepConnectionOpen;
     }
-    
+
     public void setKeepConnectionOpen(boolean keepConnectionOpen) {
         this.keepConnectionOpen = keepConnectionOpen;
     }
-    
+
     public String getMaxIdleTime() {
         return maxIdleTime;
     }
-    
+
     public void setMaxIdleTime(String maxIdleTime) {
         this.maxIdleTime = maxIdleTime;
     }
@@ -371,13 +371,13 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
     @Override public void migrate3_4_0(DonkeyElement element) {}
     @Override public void migrate3_5_0(DonkeyElement element) {}
     @Override public void migrate3_6_0(DonkeyElement element) {} // @formatter:on
-    
-    @Override 
+
+    @Override
     public void migrate3_7_0(DonkeyElement element) {
         element.addChildElementIfNotExists("keepConnectionOpen", "true");
         element.addChildElementIfNotExists("maxIdleTime", "0");
-    } 
-    
+    }
+
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();

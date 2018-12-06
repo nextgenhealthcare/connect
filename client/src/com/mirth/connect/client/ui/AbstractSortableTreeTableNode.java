@@ -8,7 +8,8 @@
  */
 
 package com.mirth.connect.client.ui;
-/** 
+
+/**
  * http://svn.chorem.org/svn/jtimer/tags/jtimer-1.0-beta4/src/java/org/codelutin/jtimer/ui/treetable/sorting/
  * 
  * AbstractSortableTreeTableNode.java
@@ -29,17 +30,25 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
 /**
- * This is designed to be used with SortableTreeTableModel. SortableTreeTable Model extends DefaultTreeTableModel.<br>
- * For user interaction by clicking column headers, SortableTreeTable (extends JXTreeTable should be used also.
+ * This is designed to be used with SortableTreeTableModel. SortableTreeTable Model extends
+ * DefaultTreeTableModel.<br>
+ * For user interaction by clicking column headers, SortableTreeTable (extends JXTreeTable should be
+ * used also.
  * <p>
  * It sorts the children of this node.<br>
  * <br>
- * Note that this does not support sorting the underlying table, as that is meaningless for a TreeTable. If the sort column contains values from multiple levels of the table, only those rows which are children of this node will be sorted.<br>
- * Obviously, if a column contains values from children of multiple nodes, and all nodes are sortable, the children of each node will be sorted separately.
+ * Note that this does not support sorting the underlying table, as that is meaningless for a
+ * TreeTable. If the sort column contains values from multiple levels of the table, only those rows
+ * which are children of this node will be sorted.<br>
+ * Obviously, if a column contains values from children of multiple nodes, and all nodes are
+ * sortable, the children of each node will be sorted separately.
  * <p>
- * After the root of this node has been attached to a model, all additions or deletions of children should be done through the model (which is standard for DefaultTreeTableModel)
+ * After the root of this node has been attached to a model, all additions or deletions of children
+ * should be done through the model (which is standard for DefaultTreeTableModel)
  * <p>
- * This class does not handle changes to the values of fields being sorted. This must be done manually by calling {@link SortableTreeTableModel#sort(TreeTableNode)} or {@link SortableTreeTableModel#sort()} to re-sort the whole Treetable
+ * This class does not handle changes to the values of fields being sorted. This must be done
+ * manually by calling {@link SortableTreeTableModel#sort(TreeTableNode)} or
+ * {@link SortableTreeTableModel#sort()} to re-sort the whole Treetable
  * 
  */
 public abstract class AbstractSortableTreeTableNode extends AbstractMutableTreeTableNode {
@@ -48,8 +57,7 @@ public abstract class AbstractSortableTreeTableNode extends AbstractMutableTreeT
     private int[] modelToView;
     private Row[] viewToModel;
 
-    public AbstractSortableTreeTableNode() {
-    }
+    public AbstractSortableTreeTableNode() {}
 
     /**
      * @param userObject
@@ -110,7 +118,9 @@ public abstract class AbstractSortableTreeTableNode extends AbstractMutableTreeT
     }
 
     /**
-     * This should only be called before nodes are added to model. It does not instigate any action. After model set up use {@link SortableTreeTableModel#setSortable(MutableTreeTableNode, boolean)}
+     * This should only be called before nodes are added to model. It does not instigate any action.
+     * After model set up use
+     * {@link SortableTreeTableModel#setSortable(MutableTreeTableNode, boolean)}
      * 
      * @param sortable
      */
@@ -120,8 +130,10 @@ public abstract class AbstractSortableTreeTableNode extends AbstractMutableTreeT
 
     /**
      * This is a utility method to presort children<br>
-     * It should only be used before the nodes are attached to a model. Of itself, it will not cause the tree to be rebuilt.<br>
-     * If run on a sorted node, the sort should be run again. See {@link SortableTreeTableModel#sort(TreeTableNode)}
+     * It should only be used before the nodes are attached to a model. Of itself, it will not cause
+     * the tree to be rebuilt.<br>
+     * If run on a sorted node, the sort should be run again. See
+     * {@link SortableTreeTableModel#sort(TreeTableNode)}
      * 
      * @param column
      *            - the index of the column to sort on
@@ -155,7 +167,8 @@ public abstract class AbstractSortableTreeTableNode extends AbstractMutableTreeT
     // ===================================================== protected methods
 
     /**
-     * subclasses should override if applicable, e.g. if particular column does not exist in this nodes children
+     * subclasses should override if applicable, e.g. if particular column does not exist in this
+     * nodes children
      */
     protected boolean canSort(String column) {
         return true;
@@ -219,8 +232,7 @@ public abstract class AbstractSortableTreeTableNode extends AbstractMutableTreeT
             this.order = order;
             checkAndSetColumnType(key);
         }
-        
-        
+
         /*
          * MIRTH: Rather than just storing the key, if the key coming in is a String, change it to
          * lower case for lexicographical comparison.
@@ -250,7 +262,7 @@ public abstract class AbstractSortableTreeTableNode extends AbstractMutableTreeT
                     result = key.compareTo(r.key);
                 }
             }
-            
+
             if (order != SortOrder.ASCENDING) {
                 result *= -1;
             }

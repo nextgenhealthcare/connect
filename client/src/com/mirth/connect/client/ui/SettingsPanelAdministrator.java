@@ -94,7 +94,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         initComponents();
         initLayout();
-        
+
         addTask(TaskConstants.SETTINGS_ADMIN_DEFAULTS, "Restore Defaults", "Restore all Administrator settings to defaults.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")));
     }
 
@@ -291,12 +291,12 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         return true;
     }
-    
+
     public void doSetAdminDefaults() {
         if (!getFrame().alertOkCancel(this, "<html>Set Administrator Settings to defaults?<br/><br/>This will reset all of your local settings!<br/><br/>It is suggested that you restart the Administrator<br/>since some settings may not take effect until<br/>the Administrator has been reloaded.</html>")) {
             return;
         }
-        
+
         // remove all userPreferences
         try {
             String[] keys = userPreferences.keys();
@@ -305,7 +305,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             }
         } catch (Exception e) {
         }
-        
+
         RSTAPreferences newRstaPreferences = new RSTAPreferences();
         MirthRSyntaxTextArea.getRSTAPreferences().setAutoCompleteProperties(newRstaPreferences.getAutoCompleteProperties());
         MirthRSyntaxTextArea.getRSTAPreferences().setFindReplaceProperties(newRstaPreferences.getFindReplaceProperties());
@@ -315,7 +315,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         MirthRSyntaxTextArea.updateFindReplacePreferences(userPreferences);
         MirthRSyntaxTextArea.updateKeyStrokePreferences(userPreferences);
         MirthRSyntaxTextArea.updateToggleOptionPreferences(userPreferences);
-        
+
         final String workingId = getFrame().startWorking("Resetting " + getTabName() + " settings...");
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {

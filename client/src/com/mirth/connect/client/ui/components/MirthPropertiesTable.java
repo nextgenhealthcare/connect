@@ -69,7 +69,7 @@ public class MirthPropertiesTable extends MirthTable {
             setHighlighters(highlighter);
         }
     }
-    
+
     public TableColumn getPropertyColumn() {
         return getColumnModel().getColumn(getColumnModel().getColumnIndex(PROPERTY_TITLE));
     }
@@ -77,7 +77,7 @@ public class MirthPropertiesTable extends MirthTable {
     public TableColumn getValueColumn() {
         return getColumnModel().getColumn(getColumnModel().getColumnIndex(VALUE_TITLE));
     }
-    
+
     public void setNewButton(final JButton newButton) {
         newButton.addActionListener(new ActionListener() {
             @Override

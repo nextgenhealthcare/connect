@@ -46,6 +46,7 @@ public class ByteAbbreviationList extends javax.swing.JPanel {
         });
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -82,7 +83,9 @@ public class ByteAbbreviationList extends javax.swing.JPanel {
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-     // Variables declaration - do not modify//GEN-BEGIN:variables
+    // @formatter:on
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
 
     private javax.swing.JScrollPane jScrollPane1;
     private com.mirth.connect.client.ui.components.MirthVariableList mirthVariableList;

@@ -10,15 +10,24 @@
 package com.mirth.connect.manager;
 
 public interface ServiceController {
-    
+
     public int checkService();
+
     public boolean startService();
+
     public boolean stopService();
+
     public boolean isStartupPossible();
+
     public void setStartup(boolean enabled);
+
     public boolean isStartup();
+
     public String getCommand();
+
     public boolean isShowTrayIcon();
+
     public boolean isShowServiceTab();
+
     public void migrate();
 }

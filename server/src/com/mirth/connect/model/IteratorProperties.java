@@ -89,7 +89,7 @@ public abstract class IteratorProperties<C extends FilterTransformerElement> imp
         }
         return enabledElements;
     }
-    
+
     public void setChildren(List<C> children) {
         this.children = children;
     }

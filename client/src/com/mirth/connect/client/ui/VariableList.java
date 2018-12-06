@@ -113,6 +113,7 @@ public class VariableList extends javax.swing.JPanel {
         mirthVariableList.setEnabled(enabled);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -149,6 +150,8 @@ public class VariableList extends javax.swing.JPanel {
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private com.mirth.connect.client.ui.components.MirthVariableList mirthVariableList;

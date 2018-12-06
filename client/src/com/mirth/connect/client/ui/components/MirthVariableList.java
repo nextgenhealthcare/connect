@@ -87,8 +87,7 @@ public class MirthVariableList extends JXList {
     }
 
     /**
-     * When moving on the variable list, set the selection to whatever the mouse
-     * is over.
+     * When moving on the variable list, set the selection to whatever the mouse is over.
      */
     private void mirthListMouseMoved(java.awt.event.MouseEvent evt) {
         int index = this.locationToIndex(evt.getPoint());

@@ -323,7 +323,7 @@ public class ConnectorPanel extends JPanel {
     public TransferMode getTransferMode() {
         return getConnectorSettingsPanel().getTransferMode();
     }
-    
+
     public String getRequiredInboundDataType() {
         return getConnectorSettingsPanel().getRequiredInboundDataType();
     }
@@ -331,7 +331,7 @@ public class ConnectorPanel extends JPanel {
     public String getRequiredOutboundDataType() {
         return getConnectorSettingsPanel().getRequiredOutboundDataType();
     }
-    
+
     public String getInitialInboundDataType() {
         return getConnectorSettingsPanel().getInitialInboundDataType();
     }
@@ -343,11 +343,11 @@ public class ConnectorPanel extends JPanel {
     public String getInitialInboundResponseDataType() {
         return getConnectorSettingsPanel().getInitialInboundResponseDataType();
     }
-    
+
     public String getInitialOutboundResponseDataType() {
         return getConnectorSettingsPanel().getInitialOutboundResponseDataType();
     }
-    
+
     public void updatedField(String field) {
         getConnectorSettingsPanel().updatedField(field);
     }

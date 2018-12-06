@@ -90,7 +90,6 @@ public abstract class FilterTransformerElement implements Serializable, Purgable
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
-    
 
     // @formatter:off
     @Override public void migrate3_0_1(DonkeyElement element) {}
@@ -101,8 +100,9 @@ public abstract class FilterTransformerElement implements Serializable, Purgable
     @Override public void migrate3_4_0(DonkeyElement element) {}
     @Override public void migrate3_5_0(DonkeyElement element) {}
     @Override public void migrate3_6_0(DonkeyElement element) {} // @formatter:on
-    
-    @Override public void migrate3_7_0(DonkeyElement element) {
+
+    @Override
+    public void migrate3_7_0(DonkeyElement element) {
         element.addChildElement("enabled", Boolean.toString(Boolean.TRUE));
     }
 }

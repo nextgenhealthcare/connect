@@ -44,7 +44,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
     public DefaultContextFactoryController() {
         extensionController = ControllerFactory.getFactory().createExtensionController();
     }
-    
+
     protected DefaultContextFactoryController(ExtensionController extensionController) {
         this.extensionController = extensionController;
     }
@@ -72,7 +72,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
             return instance;
         }
     }
-    
+
     @Override
     public synchronized void initGlobalContextFactory() {
         logger.debug("Initializing global context factory.");

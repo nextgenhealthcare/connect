@@ -212,7 +212,7 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public void createChannel(String channelId, long localChannelId) {}
-    
+
     @Override
     public boolean initTableStructure() {
         return false;

@@ -760,6 +760,7 @@ public class TreePanel extends javax.swing.JPanel {
         revalidate();
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -815,6 +816,8 @@ public class TreePanel extends javax.swing.JPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox exact;
     private javax.swing.JTextField filterTextBox;

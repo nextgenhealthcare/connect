@@ -13,8 +13,7 @@ import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 
 /**
- * Mirth's implementation of the JButton. Adds enabling of the save button in
- * parent.
+ * Mirth's implementation of the JButton. Adds enabling of the save button in parent.
  */
 public class MirthButton extends javax.swing.JButton {
 
@@ -24,12 +23,12 @@ public class MirthButton extends javax.swing.JButton {
         super();
         init();
     }
-    
+
     public MirthButton(String text) {
         super(text);
         init();
     }
-    
+
     private void init() {
         this.parent = PlatformUI.MIRTH_FRAME;
         this.setFocusable(true);
@@ -40,7 +39,7 @@ public class MirthButton extends javax.swing.JButton {
             }
         });
     }
-    
+
     public void buttonPressed(java.awt.event.ActionEvent evt) {
         parent.setSaveEnabled(true);
     }

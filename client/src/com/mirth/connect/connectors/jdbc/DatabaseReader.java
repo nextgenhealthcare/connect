@@ -327,10 +327,10 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         return (error.length() == 0) ? null : error.toString();
     }
-    
+
     @Override
     public String getRequiredInboundDataType() {
-    	return UIConstants.DATATYPE_XML;
+        return UIConstants.DATATYPE_XML;
     }
 
     private void update() {

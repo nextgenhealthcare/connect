@@ -36,6 +36,7 @@ public class ReferenceListPanel extends javax.swing.JPanel {
         variableReferenceTable.performFilter(filterString);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -65,6 +66,8 @@ public class ReferenceListPanel extends javax.swing.JPanel {
             .addComponent(variableReferenceScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 12, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane variableReferenceScrollPane;
     private com.mirth.connect.client.ui.panels.reference.VariableReferenceTable variableReferenceTable;

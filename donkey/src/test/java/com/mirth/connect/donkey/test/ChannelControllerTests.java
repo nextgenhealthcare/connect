@@ -61,13 +61,11 @@ public class ChannelControllerTests {
     }
 
     /*
-     * Remove the channel corresponding to channelId, if applicable
-     * Call getLocalChannelId, assert that:
-     * - The channel row was inserted
-     * - All channel message tables were created
+     * Remove the channel corresponding to channelId, if applicable Call getLocalChannelId, assert
+     * that: - The channel row was inserted - All channel message tables were created
      * 
-     * Call getLocalChannelId again, assert that:
-     * - The ID returned is the same one returned previously
+     * Call getLocalChannelId again, assert that: - The ID returned is the same one returned
+     * previously
      */
     @Test
     final public void testGetLocalChannelId() throws Exception {
@@ -92,17 +90,14 @@ public class ChannelControllerTests {
     }
 
     /*
-     * Remove the channel corresponding to channelId (if applicable), assert:
-     * - The channel statistics in the database are equal to the ones returned
-     * from getStatistics
+     * Remove the channel corresponding to channelId (if applicable), assert: - The channel
+     * statistics in the database are equal to the ones returned from getStatistics
      * 
-     * Create a new channel (use channelId), then assert:
-     * - The channel statistics in the database are equal to the ones returned
-     * from getStatistics
+     * Create a new channel (use channelId), then assert: - The channel statistics in the database
+     * are equal to the ones returned from getStatistics
      * 
-     * Send messages through the channel, and after each message, assert:
-     * - The channel statistics in the database are equal to the ones returned
-     * from getStatistics
+     * Send messages through the channel, and after each message, assert: - The channel statistics
+     * in the database are equal to the ones returned from getStatistics
      */
     @Test
     public final void testGetTotals() throws Exception {
@@ -137,11 +132,10 @@ public class ChannelControllerTests {
     }
 
     /*
-     * Create a new default channel
-     * Insert some random initial source/destination/aggregate statistics
-     * Start up the channel, send messages, and after each message assert:
-     * - The statistics returned from getStatistics is equal to the difference
-     * between the statistics in the database and the initial statistics
+     * Create a new default channel Insert some random initial source/destination/aggregate
+     * statistics Start up the channel, send messages, and after each message assert: - The
+     * statistics returned from getStatistics is equal to the difference between the statistics in
+     * the database and the initial statistics
      */
     @Test
     public final void testGetStatistics() throws Exception {
@@ -159,7 +153,7 @@ public class ChannelControllerTests {
                 statement = connection.prepareStatement("DELETE FROM d_ms" + localChannelId);
                 statement.executeUpdate();
                 statement.close();
-                
+
                 for (Integer metaDataId : new Integer[] { null, 0, 1 }) {
                     statement = connection.prepareStatement("INSERT INTO d_ms" + localChannelId + " (metadata_id, received, filtered, transformed, pending, sent, error) VALUES (?,?,?,?,?,?,?)");
                     if (metaDataId != null) {
@@ -212,15 +206,15 @@ public class ChannelControllerTests {
             Map<Status, Long> connectorStats = new HashMap<Status, Long>();
 
             for (Status status : Status.values()) {
-            	if (status != Status.QUEUED) {
-	                connectorStats.put(status, 0L);
-	                if (minuend.containsKey(metaDataId) && minuend.get(metaDataId).containsKey(status)) {
-	                    connectorStats.put(status, minuend.get(metaDataId).get(status));
-	                }
-	                if (subtrahend.containsKey(metaDataId) && subtrahend.get(metaDataId).containsKey(status)) {
-	                    connectorStats.put(status, connectorStats.get(status) - subtrahend.get(metaDataId).get(status));
-	                }
-            	}
+                if (status != Status.QUEUED) {
+                    connectorStats.put(status, 0L);
+                    if (minuend.containsKey(metaDataId) && minuend.get(metaDataId).containsKey(status)) {
+                        connectorStats.put(status, minuend.get(metaDataId).get(status));
+                    }
+                    if (subtrahend.containsKey(metaDataId) && subtrahend.get(metaDataId).containsKey(status)) {
+                        connectorStats.put(status, connectorStats.get(status) - subtrahend.get(metaDataId).get(status));
+                    }
+                }
             }
 
             stats.put(metaDataId, connectorStats);

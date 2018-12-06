@@ -493,7 +493,7 @@ public class LoginPanel extends javax.swing.JFrame {
                     if (!StringUtils.isBlank(environmentName)) {
                         PlatformUI.ENVIRONMENT_NAME = environmentName;
                     }
-                    
+
                     String serverName = client.getServerSettings().getServerName();
                     if (!StringUtils.isBlank(serverName)) {
                         PlatformUI.SERVER_NAME = serverName;

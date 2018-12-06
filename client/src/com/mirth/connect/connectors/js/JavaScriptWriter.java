@@ -127,6 +127,7 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
         return scripts;
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -166,6 +167,8 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane javaScriptTextScrollPane;
     private javax.swing.JLabel jsLabel;

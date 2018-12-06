@@ -32,8 +32,7 @@ public class MirthButtonCellEditor extends AbstractCellEditor implements TableCe
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-    }
+    public void actionPerformed(ActionEvent e) {}
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {

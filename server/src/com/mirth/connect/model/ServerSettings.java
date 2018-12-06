@@ -123,11 +123,11 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setSmtpUsername(properties.getProperty(SMTP_USERNAME));
         setSmtpPassword(properties.getProperty(SMTP_PASSWORD));
     }
-    
+
     public String getEnvironmentName() {
         return environmentName;
     }
-    
+
     public void setEnvironmentName(String environmentName) {
         this.environmentName = environmentName;
     }

@@ -92,8 +92,8 @@ public class HttpListener extends ConnectorSettingsPanel {
     private boolean usingHttps = false;
 
     private enum StaticResourcesColumn {
-        CONTEXT_PATH(0, "Context Path"), RESOURCE_TYPE(1, "Resource Type"), VALUE(2, "Value"), CONTENT_TYPE(
-                3, "Content Type");
+        CONTEXT_PATH(0, "Context Path"), RESOURCE_TYPE(1, "Resource Type"), VALUE(2,
+                "Value"), CONTENT_TYPE(3, "Content Type");
 
         private int index;
         private String name;
@@ -259,14 +259,14 @@ public class HttpListener extends ConnectorSettingsPanel {
         usingHttps = connectorTypeDecoration != null;
         updateHttpUrl();
     }
-    
+
     @Override
     public String getRequiredInboundDataType() {
-    	if (((HttpReceiverProperties) getProperties()).isXmlBody()) {
-    		return UIConstants.DATATYPE_XML;
-    	} else {
-    		return null;
-    	}
+        if (((HttpReceiverProperties) getProperties()).isXmlBody()) {
+            return UIConstants.DATATYPE_XML;
+        } else {
+            return null;
+        }
     }
 
     public void updateHttpUrl() {
@@ -283,7 +283,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         httpUrlField.setText("http" + (usingHttps ? "s" : "") + "://" + server + ":" + ((HttpReceiverProperties) getFilledProperties()).getListenerConnectorProperties().getPort() + (contextPathField.getText().startsWith("/") ? "" : "/") + contextPathField.getText() + ((StringUtils.isBlank(contextPathField.getText()) || contextPathField.getText().endsWith("/")) ? "" : "/"));
     }
 
-	public void setResponseHeaders(Map<String, List<String>> responseHeaders) {
+    public void setResponseHeaders(Map<String, List<String>> responseHeaders) {
         int size = 0;
         for (List<String> property : responseHeaders.values()) {
             size += property.size();
@@ -870,7 +870,8 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         responseContentTypeLabel.setText("Response Content Type:");
 
-        charsetEncodingCombobox.setModel(new DefaultComboBoxModel<String>(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
+        charsetEncodingCombobox.setModel(new DefaultComboBoxModel<String>(new String[] { "default",
+                "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
         charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding to be used for the response to the sending system.<br>Set to Default to assume the default character set encoding for the JVM running Mirth.</html>");
 
         charsetEncodingLabel.setText("Charset Encoding:");
@@ -894,14 +895,9 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         headersLabel.setText("Response Headers:");
 
-        responseHeadersTable.setModel(new DefaultTableModel(
-            new Object [][] {
+        responseHeadersTable.setModel(new DefaultTableModel(new Object[][] {
 
-            },
-            new String [] {
-                "Name", "Value"
-            }
-        ));
+        }, new String[] { "Name", "Value" }));
         responseHeadersTable.setToolTipText("Response header parameters are encoded as HTTP headers in the response sent to the client.");
         responseHeadersPane.setViewportView(responseHeadersTable);
 
@@ -978,14 +974,11 @@ public class HttpListener extends ConnectorSettingsPanel {
             }
         });
 
-        staticResourcesTable.setModel(new DefaultTableModel(
-            new Object [][] {
+        staticResourcesTable.setModel(new DefaultTableModel(new Object[][] {
 
-            },
-            new String [] {
+        }, new String[] {
 
-            }
-        ));
+        }));
         staticResourcesTable.setToolTipText("<html>Values in this table are automatically sent back to any request<br/>with the matching context path. There are three resource types:<br/> - <b>File</b>: The value field specifies the path of the file to return.<br/> - <b>Directory</b>: Any file within the directory given by the value<br/>&nbsp;&nbsp;&nbsp;field may be requested, but subdirectories are not included.<br/> - <b>Custom</b>: The value field itself is returned as the response.<br/></html>");
         responseHeadersPane1.setViewportView(staticResourcesTable);
 
@@ -1160,7 +1153,7 @@ public class HttpListener extends ConnectorSettingsPanel {
                 .addContainerGap())
         );
     } // @formatter:on
-    
+
     private void messageContentPlainBodyRadioActionPerformed(ActionEvent evt) {
         parent.channelEditPanel.checkAndSetSourceDataType();
         parseMultipartLabel.setEnabled(false);

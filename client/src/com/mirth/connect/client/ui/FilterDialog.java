@@ -23,6 +23,7 @@ public class FilterDialog extends MirthDialog {
         initComponents();
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -47,9 +48,11 @@ public class FilterDialog extends MirthDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     /**
-     * @param args the command line arguments
+     * @param args
+     *            the command line arguments
      */
     public static void main(String args[]) {
         /*
@@ -57,8 +60,8 @@ public class FilterDialog extends MirthDialog {
          */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /*
-         * If Nimbus (introduced in Java SE 6) is not available, stay with the
-         * default look and feel. For details see
+         * If Nimbus (introduced in Java SE 6) is not available, stay with the default look and
+         * feel. For details see
          * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {

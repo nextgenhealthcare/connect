@@ -177,7 +177,8 @@ public class RegexAttachmentDialog extends MirthDialog {
         regexExampleTextField.setOpaque(false);
 
         regexTable = new MirthTable();
-        regexTable.setModel(new RefreshTableModel(new Object[] { "Regular Expression", "MIME Type" }, 0));
+        regexTable.setModel(new RefreshTableModel(new Object[] { "Regular Expression",
+                "MIME Type" }, 0));
         regexTable.setDragEnabled(false);
         regexTable.setRowSelectionAllowed(true);
         regexTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

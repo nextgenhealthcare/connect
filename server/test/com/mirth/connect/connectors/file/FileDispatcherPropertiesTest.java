@@ -10,7 +10,8 @@ import org.junit.Test;
 import com.mirth.connect.donkey.util.DonkeyElement;
 
 public class FileDispatcherPropertiesTest {
-    
+
+    // @formatter:off
     static final String properties3_6 = "<properties class=\"com.mirth.connect.connectors.file.FileDispatcherProperties\" version=\"3.6.0\">\n" + 
             "    <pluginProperties/>\n" + 
             "    <destinationConnectorProperties version=\"3.6.0\">\n" + 
@@ -94,7 +95,8 @@ public class FileDispatcherPropertiesTest {
             "    <maxIdleTime>0</maxIdleTime>\n" + 
             "  </properties>\n" + 
             "";
-    
+    // @formatter:on
+
     @Test
     public void testMigrate3_7_0() throws Exception {
         DonkeyElement oldDonkey = new DonkeyElement(properties3_6);

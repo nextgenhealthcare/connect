@@ -12,10 +12,10 @@ package com.mirth.connect.donkey.server.event;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 
 public class ConnectorCountEvent extends ConnectionStatusEvent {
-    
+
     private Integer maximum;
     private Boolean increment;
-    
+
     public ConnectorCountEvent(String channelId, Integer metaDataId, String connectorName, ConnectionStatusEventType state, String message, Integer maximum) {
         super(channelId, metaDataId, connectorName, state, message);
 

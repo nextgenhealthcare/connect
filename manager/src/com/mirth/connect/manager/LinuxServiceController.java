@@ -20,7 +20,8 @@ public class LinuxServiceController implements ServiceController {
     @Override
     public int checkService() {
         try {
-            String[] input = new String[]{LINUX_SERVICE_CMD + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_STATUS};
+            String[] input = new String[] {
+                    LINUX_SERVICE_CMD + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_STATUS };
             String output = CmdUtil.execCmdWithOutput(input);
             System.out.println(output);
             if (output.indexOf("running") != -1) {
@@ -38,7 +39,8 @@ public class LinuxServiceController implements ServiceController {
     @Override
     public boolean startService() {
         try {
-            if (CmdUtil.execCmd(new String[]{LINUX_SERVICE_CMD + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_START}, true) == 0) {
+            if (CmdUtil.execCmd(new String[] {
+                    LINUX_SERVICE_CMD + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_START }, true) == 0) {
                 return true;
             }
         } catch (Exception e) {
@@ -51,7 +53,8 @@ public class LinuxServiceController implements ServiceController {
     @Override
     public boolean stopService() {
         try {
-            if (CmdUtil.execCmd(new String[]{LINUX_SERVICE_CMD + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_STOP}, true) == 0) {
+            if (CmdUtil.execCmd(new String[] {
+                    LINUX_SERVICE_CMD + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_STOP }, true) == 0) {
                 return true;
             }
         } catch (Exception e) {
@@ -75,7 +78,7 @@ public class LinuxServiceController implements ServiceController {
     public void setStartup(boolean enabled) {
         // Not available
     }
-    
+
     @Override
     public String getCommand() {
         return "sh -c";
@@ -92,7 +95,6 @@ public class LinuxServiceController implements ServiceController {
     }
 
     @Override
-    public void migrate() {
-    }
+    public void migrate() {}
 
 }

@@ -32,7 +32,7 @@ import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public abstract class ConnectorSettingsPanel extends JPanel {
-	
+
     protected ConnectorPanel connectorPanel;
 
     private Map<String, SwingWorker<Object, Void>> workerMap = new ConcurrentHashMap<String, SwingWorker<Object, Void>>();
@@ -96,23 +96,23 @@ public abstract class ConnectorSettingsPanel extends JPanel {
     public String getRequiredOutboundDataType() {
         return null;
     }
-    
+
     public String getInitialInboundDataType() {
         return null;
     }
-    
+
     public String getInitialOutboundDataType() {
         return null;
     }
-    
+
     public String getInitialInboundResponseDataType() {
         return null;
     }
-    
+
     public String getInitialOutboundResponseDataType() {
         return null;
     }
-    
+
     public List<String> getScripts(ConnectorProperties properties) {
         return new ArrayList<String>();
     }
@@ -199,72 +199,73 @@ public abstract class ConnectorSettingsPanel extends JPanel {
      */
     @SuppressWarnings("unchecked")
     public final <T> T getServlet(final Class<T> servletInterface, final String workerDisplayText, final String errorText, final ResponseHandler responseHandler, final String workerId) {
-        return (T) Proxy.newProxyInstance(AccessController.doPrivileged(ReflectionHelper.getClassLoaderPA(servletInterface)), new Class[] { servletInterface }, new InvocationHandler() {
-            @Override
-            public Object invoke(final Object proxy, final Method method, final Object[] args) throws ClientException {
-                final String workingId = PlatformUI.MIRTH_FRAME.startWorking(workerDisplayText);
-                final ResponseHandler responseHandlerWrapper = connectorPanel.getResponseHandler(responseHandler, method);
-
-                SwingWorker<Object, Void> worker = new SwingWorker<Object, Void>() {
+        return (T) Proxy.newProxyInstance(AccessController.doPrivileged(ReflectionHelper.getClassLoaderPA(servletInterface)), new Class[] {
+                servletInterface }, new InvocationHandler() {
                     @Override
-                    public Object doInBackground() throws ClientException {
-                        try {
-                            if (servletInterface.isAssignableFrom(PlatformUI.MIRTH_FRAME.mirthClient.getClass())) {
-                                return method.invoke(PlatformUI.MIRTH_FRAME.mirthClient, args);
-                            }
-                            return method.invoke(PlatformUI.MIRTH_FRAME.mirthClient.getServlet(servletInterface), args);
-                        } catch (Throwable t) {
-                            Throwable cause = t;
-                            if (cause instanceof InvocationTargetException && cause.getCause() != null) {
-                                cause = cause.getCause();
-                            }
-                            if (cause instanceof ClientException) {
-                                throw (ClientException) cause;
-                            } else {
-                                throw new ClientException(cause);
-                            }
-                        }
-                    }
+                    public Object invoke(final Object proxy, final Method method, final Object[] args) throws ClientException {
+                        final String workingId = PlatformUI.MIRTH_FRAME.startWorking(workerDisplayText);
+                        final ResponseHandler responseHandlerWrapper = connectorPanel.getResponseHandler(responseHandler, method);
 
-                    @Override
-                    public void done() {
-                        try {
-                            if (!isCancelled()) {
+                        SwingWorker<Object, Void> worker = new SwingWorker<Object, Void>() {
+                            @Override
+                            public Object doInBackground() throws ClientException {
                                 try {
-                                    if (responseHandlerWrapper != null) {
-                                        responseHandlerWrapper.handle(get());
+                                    if (servletInterface.isAssignableFrom(PlatformUI.MIRTH_FRAME.mirthClient.getClass())) {
+                                        return method.invoke(PlatformUI.MIRTH_FRAME.mirthClient, args);
                                     }
-                                } catch (Exception e) {
-                                    Throwable cause = e;
-                                    if (e instanceof ExecutionException && e.getCause() != null) {
-                                        cause = e.getCause();
+                                    return method.invoke(PlatformUI.MIRTH_FRAME.mirthClient.getServlet(servletInterface), args);
+                                } catch (Throwable t) {
+                                    Throwable cause = t;
+                                    if (cause instanceof InvocationTargetException && cause.getCause() != null) {
+                                        cause = cause.getCause();
                                     }
-
-                                    PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, errorText + cause.getMessage());
+                                    if (cause instanceof ClientException) {
+                                        throw (ClientException) cause;
+                                    } else {
+                                        throw new ClientException(cause);
+                                    }
                                 }
                             }
-                        } finally {
-                            PlatformUI.MIRTH_FRAME.stopWorking(workingId);
-                            if (workerId != null) {
-                                workerMap.remove(workerId);
+
+                            @Override
+                            public void done() {
+                                try {
+                                    if (!isCancelled()) {
+                                        try {
+                                            if (responseHandlerWrapper != null) {
+                                                responseHandlerWrapper.handle(get());
+                                            }
+                                        } catch (Exception e) {
+                                            Throwable cause = e;
+                                            if (e instanceof ExecutionException && e.getCause() != null) {
+                                                cause = e.getCause();
+                                            }
+
+                                            PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, errorText + cause.getMessage());
+                                        }
+                                    }
+                                } finally {
+                                    PlatformUI.MIRTH_FRAME.stopWorking(workingId);
+                                    if (workerId != null) {
+                                        workerMap.remove(workerId);
+                                    }
+                                }
                             }
+                        };
+
+                        if (workerId != null) {
+                            workerMap.put(workerId, worker);
                         }
+
+                        worker.execute();
+
+                        // Make sure to return the right type
+                        if (method.getReturnType().isPrimitive()) {
+                            return method.getReturnType() == boolean.class ? false : (byte) 0x00;
+                        }
+                        return null;
                     }
-                };
-
-                if (workerId != null) {
-                    workerMap.put(workerId, worker);
-                }
-
-                worker.execute();
-
-                // Make sure to return the right type
-                if (method.getReturnType().isPrimitive()) {
-                    return method.getReturnType() == boolean.class ? false : (byte) 0x00;
-                }
-                return null;
-            }
-        });
+                });
     }
 
     public final String getChannelId() {

@@ -15,7 +15,8 @@ package com.mirth.connect.donkey.model.message;
  * RECEIVED, FILTERED, TRANSFORMED, SENT, QUEUED, ERROR, PENDING
  */
 public enum Status {
-    RECEIVED('R'), FILTERED('F'), TRANSFORMED('T'), SENT('S'), QUEUED('Q'), ERROR('E'), PENDING('P');
+    RECEIVED('R'), FILTERED('F'), TRANSFORMED('T'), SENT('S'), QUEUED('Q'), ERROR('E'), PENDING(
+            'P');
 
     private char status;
 

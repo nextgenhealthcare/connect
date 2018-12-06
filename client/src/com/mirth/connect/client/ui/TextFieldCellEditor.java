@@ -53,8 +53,8 @@ public abstract class TextFieldCellEditor extends AbstractCellEditor implements 
     }
 
     /**
-     * This method is called just before the cell value is saved. If the value
-     * is not valid, false should be returned.
+     * This method is called just before the cell value is saved. If the value is not valid, false
+     * should be returned.
      */
     public boolean stopCellEditing() {
         String s = (String) getCellEditorValue();
@@ -66,8 +66,8 @@ public abstract class TextFieldCellEditor extends AbstractCellEditor implements 
     }
 
     /**
-     * This method is called when editing is completed. It must return the new
-     * value to be stored in the cell.
+     * This method is called when editing is completed. It must return the new value to be stored in
+     * the cell.
      */
     public Object getCellEditorValue() {
         return getTextField().getText();

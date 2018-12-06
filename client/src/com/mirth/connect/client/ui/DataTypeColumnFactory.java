@@ -24,7 +24,7 @@ public class DataTypeColumnFactory extends ColumnFactory {
     @Override
     public TableColumnExt createAndConfigureTableColumn(TableModel model, int modelIndex) {
         TableColumnExt column = super.createAndConfigureTableColumn(model, modelIndex);
-        
+
         switch (modelIndex) {
             case 0:
                 column.setCellRenderer(new DefaultTableCellRenderer());
@@ -36,7 +36,6 @@ public class DataTypeColumnFactory extends ColumnFactory {
                 column.setCellEditor(new DataTypePropertiesCellEditor());
                 column.setMinWidth(UIConstants.MIN_WIDTH);
                 break;
-
 
             default:
                 column.setCellRenderer(new DefaultTableCellRenderer());

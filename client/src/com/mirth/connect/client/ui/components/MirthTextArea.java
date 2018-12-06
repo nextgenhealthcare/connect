@@ -29,9 +29,8 @@ import com.mirth.connect.client.ui.actions.PasteAction;
 import com.mirth.connect.client.ui.actions.SelectAllAction;
 
 /**
- * Mirth's implementation of the JTextArea. Adds enabling of the save button in
- * parent. Also adds a trigger button (right click) editor menu with Cut, Copy,
- * Paste, Delete, and Select All.
+ * Mirth's implementation of the JTextArea. Adds enabling of the save button in parent. Also adds a
+ * trigger button (right click) editor menu with Cut, Copy, Paste, Delete, and Select All.
  */
 public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInterface {
 
@@ -103,16 +102,15 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
     }
 
     /**
-     * Overrides setDocument(Document doc) so that a document listener is added
-     * to the current document to listen for changes.
+     * Overrides setDocument(Document doc) so that a document listener is added to the current
+     * document to listen for changes.
      */
     public void setDocument(Document doc) {
         super.setDocument(doc);
 
         this.getDocument().addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent e) {
-            }
+            public void changedUpdate(DocumentEvent e) {}
 
             public void removeUpdate(DocumentEvent e) {
                 parent.setSaveEnabled(true);
@@ -125,13 +123,13 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
     }
 
     /**
-     * Overrides setText(String t) so that the save button is disabled when
-     * Mirth sets the text of a field.
+     * Overrides setText(String t) so that the save button is disabled when Mirth sets the text of a
+     * field.
      */
     public void setText(String t) {
         boolean visible = parent.changesHaveBeenMade();
         super.setText(t);
-        
+
         if (visible) {
             parent.setSaveEnabled(true);
         } else {

@@ -60,9 +60,8 @@ public class LineNumber extends JComponent {
     }
 
     /**
-     * The line height defaults to the line height of the font for this
-     * component. The line height can be overridden by setting it to a positive
-     * non-zero value.
+     * The line height defaults to the line height of the font for this component. The line height
+     * can be overridden by setting it to a positive non-zero value.
      */
     public int getLineHeight() {
         if (lineHeight == 0) {
@@ -116,23 +115,20 @@ public class LineNumber extends JComponent {
     }
 
     /*
-     * public static void main(String[] args) { JFrame frame = new
-     * JFrame("LineNumberDemo"); frame.setDefaultCloseOperation(
-     * JFrame.EXIT_ON_CLOSE );
+     * public static void main(String[] args) { JFrame frame = new JFrame("LineNumberDemo");
+     * frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
      * 
      * JPanel panel = new JPanel(); frame.setContentPane( panel );
-     * panel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
-     * panel.setLayout(new BorderLayout());
+     * panel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20)); panel.setLayout(new
+     * BorderLayout());
      * 
      * JTextArea textPane = new JTextArea();
      * 
-     * JScrollPane scrollPane = new JScrollPane(textPane);
-     * panel.add(scrollPane); scrollPane.setPreferredSize(new Dimension(300,
-     * 250));
+     * JScrollPane scrollPane = new JScrollPane(textPane); panel.add(scrollPane);
+     * scrollPane.setPreferredSize(new Dimension(300, 250));
      * 
-     * LineNumber lineNumber = new LineNumber( textPane );
-     * lineNumber.setPreferredSize(WIDTH); scrollPane.setRowHeaderView(
-     * lineNumber );
+     * LineNumber lineNumber = new LineNumber( textPane ); lineNumber.setPreferredSize(WIDTH);
+     * scrollPane.setRowHeaderView( lineNumber );
      * 
      * frame.pack(); frame.setVisible(true); }
      */

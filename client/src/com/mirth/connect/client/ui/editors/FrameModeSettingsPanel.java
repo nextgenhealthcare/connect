@@ -16,9 +16,9 @@ import javax.swing.event.DocumentListener;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 
 public class FrameModeSettingsPanel extends javax.swing.JPanel {
-    
+
     private JComponent fillerComponent;
-    
+
     /**
      * Creates new form FrameEncodingSettingsPanel
      */
@@ -30,12 +30,13 @@ public class FrameModeSettingsPanel extends javax.swing.JPanel {
         endOfMessageBytesField.getDocument().addDocumentListener(documentListener);
         fillerComponent = fillerLabel;
     }
-    
+
     public void switchComponent(JComponent component) {
         ((GroupLayout) getLayout()).replace(fillerComponent, component);
         fillerComponent = component;
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -108,6 +109,7 @@ public class FrameModeSettingsPanel extends javax.swing.JPanel {
                 .addComponent(fillerLabel))
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void endOfMessageBytesFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_endOfMessageBytesFieldActionPerformed
 

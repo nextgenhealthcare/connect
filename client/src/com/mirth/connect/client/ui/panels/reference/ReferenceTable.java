@@ -26,8 +26,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 
 /**
- * ReferenceTable This class provides some basic properties and drag & drop
- * support for a JXTable
+ * ReferenceTable This class provides some basic properties and drag & drop support for a JXTable
  * 
  */
 public class ReferenceTable extends JXTable {
@@ -51,8 +50,7 @@ public class ReferenceTable extends JXTable {
             return new StringSelection(exportString(c));
         }
 
-        protected void exportDone(JComponent c, Transferable data, int action) {
-        }
+        protected void exportDone(JComponent c, Transferable data, int action) {}
 
         public int getSourceActions(JComponent c) {
             return COPY;
@@ -98,8 +96,7 @@ public class ReferenceTable extends JXTable {
         }
     }
 
-    private void refTableMouseDragged(MouseEvent evt) {
-    }
+    private void refTableMouseDragged(MouseEvent evt) {}
 
     private void refTableMouseMoved(MouseEvent evt) {
         int row = this.rowAtPoint(evt.getPoint());
@@ -109,5 +106,6 @@ public class ReferenceTable extends JXTable {
             this.setRowSelectionInterval(row, row);
         }
     }
+
     protected Frame parent = PlatformUI.MIRTH_FRAME;
 }

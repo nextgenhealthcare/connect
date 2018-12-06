@@ -69,6 +69,7 @@ public class UserDialog extends MirthDialog implements UserDialogInterface {
         finishButtonActionPerformed(null);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -178,36 +179,37 @@ public class UserDialog extends MirthDialog implements UserDialogInterface {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     /**
-     * An action for when the finish button is pressed. Checks and saves all of
-     * the information.
+     * An action for when the finish button is pressed. Checks and saves all of the information.
      */
-private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
-    finishButton.requestFocus();
-    String validateUserMessage = userEditPanel.validateUser();
-    if (validateUserMessage != null) {
-        parent.alertWarning(this, validateUserMessage);
-    } else {
-        User user = userEditPanel.getUser();
-        boolean success = false;
-        
-        if (editingLoggedInUser) {
-            success = parent.updateCurrentUser(this, user, userEditPanel.getPassword());
+    private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
+        finishButton.requestFocus();
+        String validateUserMessage = userEditPanel.validateUser();
+        if (validateUserMessage != null) {
+            parent.alertWarning(this, validateUserMessage);
         } else {
-            success = parent.updateUser(this, user, userEditPanel.getPassword());
-        }
-        
-        if (success) {
-            this.dispose();
-        }
-    }
-}//GEN-LAST:event_finishButtonActionPerformed
+            User user = userEditPanel.getUser();
+            boolean success = false;
 
-private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-    this.dispose();
-}//GEN-LAST:event_cancelButtonActionPerformed
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+            if (editingLoggedInUser) {
+                success = parent.updateCurrentUser(this, user, userEditPanel.getPassword());
+            } else {
+                success = parent.updateUser(this, user, userEditPanel.getPassword());
+            }
+
+            if (success) {
+                this.dispose();
+            }
+        }
+    }//GEN-LAST:event_finishButtonActionPerformed
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_cancelButtonActionPerformed
+     // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private javax.swing.JButton cancelButton;
     private javax.swing.JPanel channelOverview;
     private javax.swing.JButton finishButton;

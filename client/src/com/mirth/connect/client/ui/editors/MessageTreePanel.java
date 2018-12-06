@@ -90,6 +90,7 @@ public class MessageTreePanel extends javax.swing.JPanel {
         split.setDividerLocation(.5);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -134,6 +135,8 @@ public class MessageTreePanel extends javax.swing.JPanel {
             .addComponent(split, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 451, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane split;
     private com.mirth.connect.client.ui.TreePanel treePanelInbound;

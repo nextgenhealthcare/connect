@@ -49,7 +49,7 @@ public class TestDaoFactory extends JdbcDaoFactory {
             }
         };
     }
-    
+
     public int getErrorPct() {
         return errorPct;
     }
@@ -73,7 +73,7 @@ public class TestDaoFactory extends JdbcDaoFactory {
     public void setHangMillis(int hangMillis) {
         this.hangMillis = hangMillis;
     }
-    
+
     @Override
     public JdbcDao getDao() {
         ConnectionPool connectionPool = getConnectionPool();
@@ -93,13 +93,13 @@ public class TestDaoFactory extends JdbcDaoFactory {
         if (statementSource == null) {
             statementSource = new CachedPreparedStatementSource(internalConnection, getQuerySource());
             statementSources.put(internalConnection, statementSource);
-            
+
             Integer maxConnections = connectionPool.getMaxConnections();
-            
+
             // TODO: find a more efficient way of cleaning up old connections
             if (maxConnections == null || statementSources.size() > maxConnections) {
                 logger.debug("cleaning up prepared statement cache");
-                
+
                 try {
                     for (Connection currentConnection : statementSources.keySet()) {
                         if (currentConnection.isClosed()) {

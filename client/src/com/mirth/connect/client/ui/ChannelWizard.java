@@ -73,6 +73,7 @@ public class ChannelWizard extends MirthDialog {
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -232,6 +233,7 @@ public class ChannelWizard extends MirthDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void skipWizardButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_skipWizardButtonActionPerformed
     {//GEN-HEADEREND:event_skipWizardButtonActionPerformed
@@ -285,7 +287,8 @@ public class ChannelWizard extends MirthDialog {
 
         this.dispose();
     }//GEN-LAST:event_runWizardButtonActionPerformed
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+     // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private javax.swing.JButton cancelButton;
     private javax.swing.JPanel channelOverview;
     private javax.swing.JLabel descriptionLabel;

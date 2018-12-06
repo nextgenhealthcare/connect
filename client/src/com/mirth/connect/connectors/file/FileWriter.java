@@ -92,7 +92,7 @@ public class FileWriter extends ConnectorSettingsPanel {
         properties.setPassword(new String(passwordField.getPassword()));
 
         properties.setTimeout(timeoutField.getText());
-        
+
         properties.setKeepConnectionOpen(keepConnectionOpenYesRadio.isSelected());
         properties.setMaxIdleTime(maxIdleTimeField.getText());
 
@@ -209,7 +209,7 @@ public class FileWriter extends ConnectorSettingsPanel {
         }
 
         timeoutField.setText(props.getTimeout());
-        
+
         if (props.isKeepConnectionOpen()) {
             keepConnectionOpenYesRadio.setSelected(true);
             keepConnectionOpenNoRadio.setSelected(false);
@@ -219,7 +219,7 @@ public class FileWriter extends ConnectorSettingsPanel {
             keepConnectionOpenNoRadio.setSelected(true);
             keepConnectionOpenNoActionPerformed(null);
         }
-        
+
         maxIdleTimeField.setText(props.getMaxIdleTime());
 
         if (props.isSecure()) {
@@ -469,10 +469,10 @@ public class FileWriter extends ConnectorSettingsPanel {
         timeoutLabel = new JLabel();
         timeoutLabel.setText("Timeout (ms):");
         timeoutField = new MirthTextField();
-        
+
         keepConnectionOpenLabel = new JLabel();
         keepConnectionOpenLabel.setText("Keep Connection Open: ");
-        
+
         keepConnectionOpenYesRadio = new MirthRadioButton();
         keepConnectionOpenYesRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         keepConnectionOpenYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -484,7 +484,7 @@ public class FileWriter extends ConnectorSettingsPanel {
                 keepConnectionOpenYesActionPerformed(evt);
             }
         });
-        
+
         keepConnectionOpenNoRadio = new MirthRadioButton();
         keepConnectionOpenNoRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         keepConnectionOpenNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -495,11 +495,11 @@ public class FileWriter extends ConnectorSettingsPanel {
                 keepConnectionOpenNoActionPerformed(evt);
             }
         });
-        
+
         keepConnectionOpenButtonGroup = new ButtonGroup();
         keepConnectionOpenButtonGroup.add(keepConnectionOpenYesRadio);
         keepConnectionOpenButtonGroup.add(keepConnectionOpenNoRadio);
-        
+
         maxIdleTimeLabel = new JLabel();
         maxIdleTimeLabel.setText("Max Idle Time (ms): ");
         maxIdleTimeField = new MirthTextField();
@@ -689,7 +689,7 @@ public class FileWriter extends ConnectorSettingsPanel {
         usernameField.setToolTipText("The user name used to gain access to the server.");
         passwordField.setToolTipText("The password used to gain access to the server.");
         timeoutField.setToolTipText("The socket timeout (in ms) for connecting to the server.");
-        
+
         String toolTipText = "Select yes to keep the connection to the file system open after writing to it.";
         keepConnectionOpenYesRadio.setToolTipText(toolTipText);
         keepConnectionOpenNoRadio.setToolTipText(toolTipText);
@@ -753,11 +753,11 @@ public class FileWriter extends ConnectorSettingsPanel {
 
         add(timeoutLabel);
         add(timeoutField, "w 75!, wrap");
-        
+
         add(keepConnectionOpenLabel);
         add(keepConnectionOpenYesRadio, "split 2");
         add(keepConnectionOpenNoRadio, "wrap");
-        
+
         add(maxIdleTimeLabel);
         add(maxIdleTimeField, "w 75!, wrap");
 
@@ -823,11 +823,11 @@ public class FileWriter extends ConnectorSettingsPanel {
             passwordField.setText("anonymous");
         }
     }
-    
+
     private void keepConnectionOpenNoActionPerformed(ActionEvent evt) {
         maxIdleTimeField.setEnabled(false);
     }
-    
+
     private void keepConnectionOpenYesActionPerformed(ActionEvent evt) {
         maxIdleTimeField.setEnabled(true);
     }

@@ -38,7 +38,7 @@ public class TestChannelWriter extends DestinationConnector {
 
     @Override
     public void onStop() throws ConnectorTaskException {}
-    
+
     @Override
     public void onHalt() throws ConnectorTaskException {}
 
@@ -58,11 +58,11 @@ public class TestChannelWriter extends DestinationConnector {
         }
 
         Response response = dispatchResult.getSelectedResponse();
-        
+
         if (response == null) {
             response = new Response();
         }
-        
+
         return response;
     }
 }

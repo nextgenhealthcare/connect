@@ -10,14 +10,14 @@
 package com.mirth.connect.cli;
 
 public class StringToken extends Token {
-	private String value;
+    private String value;
 
-	public StringToken(String value) {
-		super(value);
-		this.value = value;
-	}
+    public StringToken(String value) {
+        super(value);
+        this.value = value;
+    }
 
-	boolean equalsIgnoreCase(String s) {
-		return value.equalsIgnoreCase(s);
-	}
+    boolean equalsIgnoreCase(String s) {
+        return value.equalsIgnoreCase(s);
+    }
 }

@@ -33,8 +33,7 @@ public class VariableTransferable implements Transferable {
 
     /**
      * @param data
-     *            the type of Ant element being transferred, e.g., target, task,
-     *            type, etc.
+     *            the type of Ant element being transferred, e.g., target, task, type, etc.
      */
     public VariableTransferable(String data, TransferMode transferMode, Map<String, Integer> metaDataMap) {
         this.transferMode = transferMode;
@@ -50,9 +49,8 @@ public class VariableTransferable implements Transferable {
     }
 
     /**
-     * Set up the supported flavors: DataFlavor.stringFlavor for a raw string
-     * containing an Ant element name (e.g. task, target, etc), or an
-     * ElementFlavor containing an ElementPanel.
+     * Set up the supported flavors: DataFlavor.stringFlavor for a raw string containing an Ant
+     * element name (e.g. task, target, etc), or an ElementFlavor containing an ElementPanel.
      */
     private void init() {
         try {
@@ -65,10 +63,9 @@ public class VariableTransferable implements Transferable {
 
     /**
      * @param df
-     *            the flavor type desired for the data. Acceptable value is
-     *            DataFlavor.stringFlavor.
-     * @return if df is DataFlavor.stringFlavor, returns a raw string containing
-     *         an Ant element name.
+     *            the flavor type desired for the data. Acceptable value is DataFlavor.stringFlavor.
+     * @return if df is DataFlavor.stringFlavor, returns a raw string containing an Ant element
+     *         name.
      */
     public Object getTransferData(DataFlavor df) {
         if (df == null) {

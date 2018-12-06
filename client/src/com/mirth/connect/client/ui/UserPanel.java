@@ -182,8 +182,8 @@ public class UserPanel extends javax.swing.JPanel {
                     USERORGANIZATION_COLUMN_NAME, USERINDUSTRY_COLUMN_NAME,
                     USERLASTLOGIN_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false,
-                        false, false, false };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false,
+                        false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -277,6 +277,7 @@ public class UserPanel extends javax.swing.JPanel {
         parent.setVisibleTasks(parent.userTasks, parent.userPopupMenu, 2, -1, false);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -303,6 +304,8 @@ public class UserPanel extends javax.swing.JPanel {
             .addComponent(usersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane usersPane;
     public com.mirth.connect.client.ui.components.MirthTable usersTable;

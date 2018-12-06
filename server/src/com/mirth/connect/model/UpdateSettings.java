@@ -84,7 +84,7 @@ public class UpdateSettings extends AbstractSettings implements Serializable, Au
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         return purgedProperties;
     }
-    
+
     // @formatter:off
     @Override public void migrate3_0_1(DonkeyElement element) {}
     @Override public void migrate3_0_2(DonkeyElement element) {} // @formatter:on

@@ -2102,6 +2102,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         loadPageNumber(messages.getPageNumber() - 1);
     }
 
+    // @formatter:off
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -2857,6 +2858,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void advSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advSearchButtonActionPerformed
         advancedSearchPopup.setBackground(UIConstants.COMBO_BOX_BACKGROUND);

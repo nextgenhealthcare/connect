@@ -65,6 +65,7 @@ public class ErrorDialog extends MirthDialog {
         errorContent.setText(message);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -135,12 +136,14 @@ public class ErrorDialog extends MirthDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void cancelActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_cancelActionPerformed
     {// GEN-HEADEREND:event_cancelActionPerformed
         this.dispose();
     }// GEN-LAST:event_cancelActionPerformed
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+     // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private javax.swing.JButton cancel;
     private javax.swing.JTextPane errorContent;
     private javax.swing.JLabel image;

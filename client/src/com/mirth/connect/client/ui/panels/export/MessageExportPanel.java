@@ -440,9 +440,8 @@ public class MessageExportPanel extends JPanel {
         archiveComponents = new Component[] { archiverBlockSizeLabel, archiverBlockSizeField,
                 contentLabel, contentComboBox, encryptCheckBox, attachmentsCheckBox, varList,
                 varListScrollPane, varListPanel, compressLabel, compressComboBox, exportToLabel,
-                exportServerRadio, exportLocalRadio, browseButton, rootPathLabel,
-                rootPathTextField, rootPathExtLabel, filePatternLabel, filePatternScrollPane,
-                filePatternTextPane };
+                exportServerRadio, exportLocalRadio, browseButton, rootPathLabel, rootPathTextField,
+                rootPathExtLabel, filePatternLabel, filePatternScrollPane, filePatternTextPane };
 
         // @formatter:off
         archiveYes.addActionListener(new ActionListener() {

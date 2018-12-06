@@ -49,25 +49,25 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
     private DataTypePropertiesTableModel tableModel;
     private boolean inbound;
     private Style style;
-    
+
     /**
      * Creates new form DataTypePropertiesPanel
      */
     public DataTypePropertiesPanel() {
         initComponents();
-        
+
         // Add the bold style to the description pane
         style = descriptionPane.addStyle("BOLD", null);
         StyleConstants.setBold(style, true);
-        
+
         tableModel = new DataTypePropertiesTableModel() {
-        	
-        	@Override
-        	public void setValueAt(Object value, Object node, int column) {
-        		super.setValueAt(value, node, column);
-        		
-        		updateDefaultButton();
-        	}
+
+            @Override
+            public void setValueAt(Object value, Object node, int column) {
+                super.setValueAt(value, node, column);
+
+                updateDefaultButton();
+            }
         };
         tableModel.setColumnIdentifiers(Arrays.asList(new String[] { "Name", "Value" }));
         propertiesTreeTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -107,36 +107,36 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
             }
 
         });
-        
+
         // This listener updates the property description pane.
         propertiesTreeTable.getTreeSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
 
             @Override
             public void valueChanged(TreeSelectionEvent e) {
                 descriptionPane.setText("");
-                
+
                 if (e.getNewLeadSelectionPath() != null) {
                     StyledDocument document = descriptionPane.getStyledDocument();
-                    DataTypePropertiesTableNode tableNode = (DataTypePropertiesTableNode)e.getNewLeadSelectionPath().getLastPathComponent();
-                    
+                    DataTypePropertiesTableNode tableNode = (DataTypePropertiesTableNode) e.getNewLeadSelectionPath().getLastPathComponent();
+
                     String descriptionTitle = tableNode.getName();
                     String descriptionBody = tableNode.getDescription();
-                    
+
                     try {
                         if (descriptionTitle != null && descriptionBody != null) {
                             document.insertString(0, descriptionTitle, style);
                             document.insertString(document.getLength(), "\n" + descriptionBody, null);
                         }
                     } catch (BadLocationException e1) {
-                        
+
                     }
-                    
+
                     descriptionPane.setCaretPosition(0);
                 }
             }
-            
+
         });
-        
+
         // This listener forces the focus onto the value column so the user can start editing no matter which column they selected
         propertiesTreeTable.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -146,123 +146,126 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
                     propertiesTreeTable.getColumnModel().getSelectionModel().setLeadSelectionIndex(1);
                 }
             }
-            
+
         });
-        
+
         // This listener shows the popup menu to restore a single value or group to its default value when the mouse is right clicked.
         propertiesTreeTable.addMouseListener(new MouseAdapter() {
 
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (SwingUtilities.isRightMouseButton(e)) {
-					final int x = e.getX();
-					final int y = e.getY();
-					
-					final TreePath path = propertiesTreeTable.getPathForLocation(x, y);
-					propertiesTreeTable.getTreeSelectionModel().setSelectionPath(path);
-					
-					JPopupMenu popupMenu = new JPopupMenu();
-					 
-					JMenuItem menuItem = new JMenuItem("Restore Defaults");
-					menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    final int x = e.getX();
+                    final int y = e.getY();
 
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							DataTypePropertiesTableNode tableNode = (DataTypePropertiesTableNode) path.getLastPathComponent();
-							
-							tableModel.resetToDefault(tableNode);
-							
-							updateDefaultButton();
-						}
-					 
-					});
-					 
-					popupMenu.add(menuItem);
-					popupMenu.show(e.getComponent(), x, y);
+                    final TreePath path = propertiesTreeTable.getPathForLocation(x, y);
+                    propertiesTreeTable.getTreeSelectionModel().setSelectionPath(path);
 
-				}
-			}
-        	
+                    JPopupMenu popupMenu = new JPopupMenu();
+
+                    JMenuItem menuItem = new JMenuItem("Restore Defaults");
+                    menuItem.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            DataTypePropertiesTableNode tableNode = (DataTypePropertiesTableNode) path.getLastPathComponent();
+
+                            tableModel.resetToDefault(tableNode);
+
+                            updateDefaultButton();
+                        }
+
+                    });
+
+                    popupMenu.add(menuItem);
+                    popupMenu.show(e.getComponent(), x, y);
+
+                }
+            }
+
         });
-        
+
         // Sets the alternating highlighter for the table
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             propertiesTreeTable.setHighlighters(highlighter);
         }
     }
-    
+
     public JComboBox getDataTypeComboBox() {
-    	return dataTypeComboBox;
+        return dataTypeComboBox;
     }
-    
+
     public JButton getDefaultButton() {
-    	return defaultButton;
+        return defaultButton;
     }
-    
+
     /**
-     * Enable or disable the reset defaults button based on whether the properties are already the defaults
+     * Enable or disable the reset defaults button based on whether the properties are already the
+     * defaults
      */
     public void updateDefaultButton() {
-    	defaultButton.setEnabled(!tableModel.isDefaultProperties(null));
+        defaultButton.setEnabled(!tableModel.isDefaultProperties(null));
     }
-    
+
     /**
-     *  Sets whether this pane should show inbound or outbound properties
+     * Sets whether this pane should show inbound or outbound properties
      */
     public void setInbound(boolean inbound) {
         this.inbound = inbound;
     }
-    
+
     /**
      * Shows or hides the title border
      */
     public void setUseTitleBorder(boolean useTitleBorder) {
-    	if (useTitleBorder) {
-			// If no data type was provided, just show inbound or outbound
-			setBorder(BorderFactory.createTitledBorder((inbound ? "Inbound" : "Outbound") + " Properties"));
-    	} else {
-    		setBorder(BorderFactory.createEmptyBorder());
-    	}
+        if (useTitleBorder) {
+            // If no data type was provided, just show inbound or outbound
+            setBorder(BorderFactory.createTitledBorder((inbound ? "Inbound" : "Outbound") + " Properties"));
+        } else {
+            setBorder(BorderFactory.createEmptyBorder());
+        }
     }
-    
+
     /**
      * Wraps a single DataTypeProperties in a list and forwards the method call
      */
     public void setDataTypeProperties(String dataType, DataTypePropertiesContainer propertiesContainer) {
-    	// If a single DataTypeProperties object is provided, wrap it in an list
-    	List<DataTypePropertiesContainer> propertiesContainerList = null;
-    	if (propertiesContainer != null) {
-    		propertiesContainerList = new ArrayList<DataTypePropertiesContainer>();
-			propertiesContainerList.add(propertiesContainer);
-    	}
-    	
-    	setDataTypeProperties(dataType, propertiesContainerList);
+        // If a single DataTypeProperties object is provided, wrap it in an list
+        List<DataTypePropertiesContainer> propertiesContainerList = null;
+        if (propertiesContainer != null) {
+            propertiesContainerList = new ArrayList<DataTypePropertiesContainer>();
+            propertiesContainerList.add(propertiesContainer);
+        }
+
+        setDataTypeProperties(dataType, propertiesContainerList);
     }
-    
+
     /**
-     *  Load a new property set. Multiple DataTypeProperties objects can be loaded and they will all be updated when the user makes a change
+     * Load a new property set. Multiple DataTypeProperties objects can be loaded and they will all
+     * be updated when the user makes a change
      */
     public void setDataTypeProperties(String displayName, List<DataTypePropertiesContainer> propertiesContainers) {
         // Gets the default properties for a data type 
         DataTypeProperties defaultProperties = null;
         if (displayName != null) {
-        	defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(displayName)).getDefaultProperties();
+            defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(displayName)).getDefaultProperties();
         }
-        
+
         // Remove all nodes from the tree table
         tableModel.clear();
-        
+
         // Adds the properties to the tree table
         tableModel.addProperties(inbound, propertiesContainers, defaultProperties);
-        
+
         // Enable or disable the default button depending on whether the properties already equal the defaults
         updateDefaultButton();
-        
+
         // Show all nodes
         propertiesTreeTable.expandAll();
     }
-    
+
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -331,6 +334,8 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox dataTypeComboBox;
     private javax.swing.JButton defaultButton;

@@ -29,8 +29,8 @@ import com.mirth.connect.donkey.server.event.MessageEvent;
 
 public class Statistics {
 
-    public static final Status[] TRACKED_STATUSES = new Status[] { Status.RECEIVED,
-            Status.FILTERED, Status.SENT, Status.ERROR };
+    public static final Status[] TRACKED_STATUSES = new Status[] { Status.RECEIVED, Status.FILTERED,
+            Status.SENT, Status.ERROR };
 
     private Map<String, Map<Integer, Map<Status, AtomicLong>>> stats = new ConcurrentHashMap<String, Map<Integer, Map<Status, AtomicLong>>>();
     private EventDispatcher eventDispatcher;
@@ -45,7 +45,7 @@ public class Statistics {
         this.sendEvents = sendEvents;
         this.allowNegatives = allowNegatives;
     }
-    
+
     public Map<String, Map<Integer, Map<Status, Long>>> getStats() {
         Map<String, Map<Integer, Map<Status, Long>>> stats = new HashMap<String, Map<Integer, Map<Status, Long>>>();
 
@@ -151,10 +151,10 @@ public class Statistics {
 
                 AtomicLong statValue = connectorStats.get(status);
                 Long connectorCount = updateStat(statValue, diff);
-                
+
                 // update the channel statistics
                 switch (status) {
-                // update the following statuses based on the source connector
+                    // update the following statuses based on the source connector
                     case RECEIVED:
                         if (metaDataId == 0) {
                             updateStat(aggregateStats.get(status), diff);
@@ -197,18 +197,18 @@ public class Statistics {
         if (!allowNegatives && diff < 0) {
             synchronized (stat) {
                 long connectorDiff = diff;
-                long statValueL =stat.get();
+                long statValueL = stat.get();
                 // if the resulting value < 0, floor the resulting value at zero.
                 if (statValueL + diff < 0L) {
                     connectorDiff = -statValueL;
                 }
                 return stat.addAndGet(connectorDiff);
             }
-        } else {    // else just do an add like usual. Atomic Long will make sure multiple threads increment correctly.
+        } else { // else just do an add like usual. Atomic Long will make sure multiple threads increment correctly.
             return stat.addAndGet(diff);
         }
     }
-    
+
     public void overwrite(String channelId, Integer metaDataId, Map<Status, Long> stats) {
         Map<Status, AtomicLong> connectorStats = getConnectorStatsMap(getChannelStatsMap(channelId), metaDataId);
         for (Entry<Status, Long> entry : stats.entrySet()) {

@@ -11,8 +11,7 @@ package com.mirth.connect.client.ui;
 
 // ast: class for encoding information
 /*
- * class CharsetEncodingInformation gets all the information we need for an
- * encoding class
+ * class CharsetEncodingInformation gets all the information we need for an encoding class
  */
 public class CharsetEncodingInformation {
 

@@ -139,17 +139,17 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     StringBuilder titleText = new StringBuilder();
                     StringBuilder statusBarText = new StringBuilder();
                     statusBarText.append("Connected to: ");
-                    
+
                     if (!StringUtils.isBlank(environmentName)) {
                         titleText.append(environmentName + " - ");
                         statusBarText.append(environmentName);
-                        
+
                         if (!StringUtils.isBlank(serverName)) {
                             statusBarText.append(" - ");
                         } else {
                             statusBarText.append(" | ");
                         }
-                        
+
                         PlatformUI.ENVIRONMENT_NAME = environmentName;
                     }
 
@@ -193,7 +193,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         } else {
             environmentNameField.setText("");
         }
-        
+
         if (serverSettings.getServerName() != null) {
             serverNameField.setText(serverSettings.getServerName());
         } else {
@@ -291,7 +291,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         ServerSettings serverSettings = new ServerSettings();
 
         serverSettings.setEnvironmentName(environmentNameField.getText());
-        
+
         serverSettings.setServerName(serverNameField.getText());
 
         serverSettings.setClearGlobalMap(clearGlobalMapYesRadio.isSelected());
@@ -443,7 +443,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 final JCheckBox overwriteConfigMap = new JCheckBox("Overwrite Configuration Map");
                 overwriteConfigMap.setSelected(false);
                 String warningMessage = "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels,\nalerts, server properties, and plugin properties.\n";
-                Object[] params = { warningMessage, new JLabel(" "), deployChannelsCheckBox, overwriteConfigMap };
+                Object[] params = { warningMessage, new JLabel(" "), deployChannelsCheckBox,
+                        overwriteConfigMap };
                 int option = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_OPTION);
 
                 if (option == JOptionPane.YES_OPTION) {
@@ -539,6 +540,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         passwordField.setBackground(null);
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -955,6 +957,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 .addContainerGap(19, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void provideUsageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_provideUsageStatsMoreInfoLabelMouseClicked
         BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);

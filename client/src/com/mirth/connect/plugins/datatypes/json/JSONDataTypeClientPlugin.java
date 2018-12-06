@@ -28,7 +28,7 @@ public class JSONDataTypeClientPlugin extends DataTypeClientPlugin {
     public String getDisplayName() {
         return "JSON";
     }
-    
+
     @Override
     public AttachmentHandlerType getDefaultAttachmentHandlerType() {
         return null;

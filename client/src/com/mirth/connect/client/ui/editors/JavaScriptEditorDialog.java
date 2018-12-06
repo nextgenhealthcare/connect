@@ -144,6 +144,7 @@ public class JavaScriptEditorDialog extends MirthDialog implements DropTargetLis
         }
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -245,6 +246,7 @@ public class JavaScriptEditorDialog extends MirthDialog implements DropTargetLis
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
         String content = parent.browseForFileString(null);

@@ -63,8 +63,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Gets the selected extension index that corresponds to the saved extensions
-     * list
+     * Gets the selected extension index that corresponds to the saved extensions list
      */
     public MetaData getSelectedExtension() {
         if (loadedConnectorsTable.getSelectedRowCount() > 0) {
@@ -111,7 +110,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
                 }
             }
         }
-        
+
         // Change the current task to reflect the new status
         if (enabled) {
             parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 1, 1, false);
@@ -224,7 +223,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
                 } catch (ClientException e) {
                     // Show a plugin as disabled if the status cannot be retrieved
                 }
-                
+
                 if (enabled) {
                     tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 } else {
@@ -246,9 +245,11 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             model.refreshDataVector(tableData);
         } else {
             loadedConnectorsTable = new MirthTable();
-            loadedConnectorsTable.setModel(new RefreshTableModel(tableData, new String[]{PLUGIN_STATUS_COLUMN_NAME, PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME}) {
+            loadedConnectorsTable.setModel(new RefreshTableModel(tableData, new String[] {
+                    PLUGIN_STATUS_COLUMN_NAME, PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME,
+                    PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[]{false, false, false, false, false, false};
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -289,8 +290,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed.  Deselects the rows if no row was selected.
+     * Shows the popup menu when the trigger button (right-click) has been pushed. Deselects the
+     * rows if no row was selected.
      */
     private void checkConnectorSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = loadedConnectorsTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
@@ -391,7 +392,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
                 } catch (ClientException e) {
                     // Show a plugin as disabled if the status cannot be retrieved
                 }
-                
+
                 if (enabled) {
                     tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 } else {
@@ -413,9 +414,11 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             model.refreshDataVector(tableData);
         } else {
             loadedPluginsTable = new MirthTable();
-            loadedPluginsTable.setModel(new RefreshTableModel(tableData, new String[]{PLUGIN_STATUS_COLUMN_NAME, PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME}) {
+            loadedPluginsTable.setModel(new RefreshTableModel(tableData, new String[] {
+                    PLUGIN_STATUS_COLUMN_NAME, PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME,
+                    PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[]{false, false, false, false, false, false};
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -456,8 +459,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed.  Deselects the rows if no row was selected.
+     * Shows the popup menu when the trigger button (right-click) has been pushed. Deselects the
+     * rows if no row was selected.
      */
     private void checkPluginSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = loadedPluginsTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
@@ -477,15 +480,15 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         loadedPluginsTable.clearSelection();
         parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 1, -1, false);
     }
-    
+
     public void setRestartRequired(boolean restartRequired) {
         restartRequiredPanel.setVisible(restartRequired);
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    // @formatter:off
+    /**
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT
+     * modify this code. The content of this method is always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -627,6 +630,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void installButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_installButtonActionPerformed
     {//GEN-HEADEREND:event_installButtonActionPerformed
@@ -653,7 +657,6 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
         worker.execute();
 
-
     }//GEN-LAST:event_installButtonActionPerformed
 
     private void browseButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_browseButtonActionPerformed
@@ -664,7 +667,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             fileText.setText(pluginFile.getAbsolutePath());
         }
     }//GEN-LAST:event_browseButtonActionPerformed
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+     // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private javax.swing.JButton browseButton;
     private javax.swing.JTextField fileText;
     private javax.swing.JButton installButton;

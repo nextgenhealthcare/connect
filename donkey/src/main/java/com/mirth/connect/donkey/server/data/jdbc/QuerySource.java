@@ -15,6 +15,6 @@ public interface QuerySource {
     public String getQuery(String queryId);
 
     public String getQuery(String queryId, Map<String, Object> values);
-    
+
     public boolean queryExists(String queryId);
 }

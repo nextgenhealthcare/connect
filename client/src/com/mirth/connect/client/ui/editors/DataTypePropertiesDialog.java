@@ -79,6 +79,7 @@ public class DataTypePropertiesDialog extends MirthDialog {
         this.transformerType = transformerType;
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -162,6 +163,7 @@ public class DataTypePropertiesDialog extends MirthDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void okButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButton2ActionPerformed
         revert = false;

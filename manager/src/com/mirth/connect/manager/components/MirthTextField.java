@@ -20,8 +20,7 @@ import com.mirth.connect.manager.ManagerController;
 import com.mirth.connect.manager.PlatformUI;
 
 /**
- * Mirth's implementation of the JTextField. Adds enabling of the apply button in
- * dialog.
+ * Mirth's implementation of the JTextField. Adds enabling of the apply button in dialog.
  */
 public class MirthTextField extends javax.swing.JTextField {
 
@@ -37,25 +36,22 @@ public class MirthTextField extends javax.swing.JTextField {
                 }
             }
 
-            public void keyReleased(KeyEvent e) {
-            }
+            public void keyReleased(KeyEvent e) {}
 
-            public void keyTyped(KeyEvent e) {
-            }
+            public void keyTyped(KeyEvent e) {}
         });
     }
 
     /**
-     * Overrides setDocument(Document doc) so that a document listener is added
-     * to the current document to listen for changes.
+     * Overrides setDocument(Document doc) so that a document listener is added to the current
+     * document to listen for changes.
      */
     public void setDocument(Document doc) {
         super.setDocument(doc);
 
         this.getDocument().addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent e) {
-            }
+            public void changedUpdate(DocumentEvent e) {}
 
             public void removeUpdate(DocumentEvent e) {
                 ManagerController.getInstance().setApplyEnabled(true);
@@ -68,8 +64,8 @@ public class MirthTextField extends javax.swing.JTextField {
     }
 
     /**
-     * Overrides setText(String t) so that the save button is disabled when
-     * Mirth sets the text of a field.
+     * Overrides setText(String t) so that the save button is disabled when Mirth sets the text of a
+     * field.
      */
     public void setText(String t) {
         super.setText(t);

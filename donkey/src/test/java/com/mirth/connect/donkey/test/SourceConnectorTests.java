@@ -48,22 +48,17 @@ public class SourceConnectorTests {
     }
 
     /*
-     * Deploy a new channel, assert that:
-     * - The default behaviour for the source connector is to wait for
-     * destinations
+     * Deploy a new channel, assert that: - The default behaviour for the source connector is to
+     * wait for destinations
      * 
-     * Send messages that should immediately process, assert that:
-     * - The message was created and marked as processed in the database
-     * - The MessageResponse returned is not null
-     * - The response status is correct (TRANSFORMED)
-     * - The channel's final transaction was created
-     * - The source connector response was stored
+     * Send messages that should immediately process, assert that: - The message was created and
+     * marked as processed in the database - The MessageResponse returned is not null - The response
+     * status is correct (TRANSFORMED) - The channel's final transaction was created - The source
+     * connector response was stored
      * 
-     * Send messages that should immediately queue, assert that:
-     * - The message was stored in the database
-     * - The MessageResponse returned is not null
-     * - The response is not null
-     * - The source connector response was not stored
+     * Send messages that should immediately queue, assert that: - The message was stored in the
+     * database - The MessageResponse returned is not null - The response is not null - The source
+     * connector response was not stored
      */
     @Test
     public final void testHandleRawMessage() throws Exception {
@@ -86,7 +81,7 @@ public class SourceConnectorTests {
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
                 dispatchResult.setAttemptedResponse(true);
-                
+
                 if (dispatchResult.getSelectedResponse() != null) {
                     dispatchResult.getSelectedResponse().setMessage("response");
                 }
@@ -162,22 +157,18 @@ public class SourceConnectorTests {
     }
 
     /*
-     * Deploy a new channel, send messages, assert
-     * that:
-     * - The message was stored in the database
-     * - The MessageResponse returned is not null
-     * - The response is null
-     * - The source connector response was not stored
+     * Deploy a new channel, send messages, assert that: - The message was stored in the database -
+     * The MessageResponse returned is not null - The response is null - The source connector
+     * response was not stored
      * 
-     * Call storeMessageResponse using a null MessageResponse assert:
-     * - The source connector response was not stored
+     * Call storeMessageResponse using a null MessageResponse assert: - The source connector
+     * response was not stored
      * 
-     * Call storeMessageResponse using the returned MessageResponse, assert:
-     * - The source connector response was not stored
+     * Call storeMessageResponse using the returned MessageResponse, assert: - The source connector
+     * response was not stored
      * 
-     * Modify the MessageResponse, creating/setting a new Response object
-     * Call storeMessageResponse using the returned MessageResponse, assert:
-     * - The source connector response was stored
+     * Modify the MessageResponse, creating/setting a new Response object Call storeMessageResponse
+     * using the returned MessageResponse, assert: - The source connector response was stored
      */
     @Test
     public final void testStoreMessageResponse() throws Exception {
@@ -197,7 +188,7 @@ public class SourceConnectorTests {
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
                 dispatchResult.setAttemptedResponse(true);
-                
+
                 if (dispatchResult.getSelectedResponse() != null) {
                     dispatchResult.getSelectedResponse().setMessage("response");
                 }
@@ -235,24 +226,17 @@ public class SourceConnectorTests {
 
     /*
      * Deploys and starts a channel, sets the source respond-from name to
-     * RESPONSE_SOURCE_TRANSFORMED, sends messages, and asserts that:
-     * - Each response returned is TRANSFORMED
-     * - TEST_SIZE messages are processed
+     * RESPONSE_SOURCE_TRANSFORMED, sends messages, and asserts that: - Each response returned is
+     * TRANSFORMED - TEST_SIZE messages are processed
      * 
-     * Then sets the source respond-from name to
-     * RESPONSE_DESTINATIONS_COMPLETED, sends messages, and asserts that:
-     * - Each response returned is SENT
-     * - 2*TEST_SIZE messages are processed
+     * Then sets the source respond-from name to RESPONSE_DESTINATIONS_COMPLETED, sends messages,
+     * and asserts that: - Each response returned is SENT - 2*TEST_SIZE messages are processed
      * 
-     * Then sets the source respond-from name to the destination name, sends
-     * messages, and asserts that:
-     * - Each response returned is SENT
-     * - 3*TEST_SIZE messages are processed
+     * Then sets the source respond-from name to the destination name, sends messages, and asserts
+     * that: - Each response returned is SENT - 3*TEST_SIZE messages are processed
      * 
-     * Then sets the source respond-from name to an invalid destination name,
-     * sends messages, and asserts that:
-     * - Each response returned is null
-     * - 4*TEST_SIZE messages are processed
+     * Then sets the source respond-from name to an invalid destination name, sends messages, and
+     * asserts that: - Each response returned is null - 4*TEST_SIZE messages are processed
      */
     @Test
     public final void testGetResponse() throws Exception {

@@ -30,7 +30,7 @@ public class MapContent extends Content {
         if (content instanceof Map) {
             return (Map<String, Object>) content;
         }
-        
+
         return null;
     }
 

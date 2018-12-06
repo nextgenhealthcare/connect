@@ -17,7 +17,7 @@ public abstract class ChannelTabPlugin extends ClientPlugin {
     }
 
     public abstract AbstractChannelTabPanel getChannelTabPanel();
-    
+
     @Override
     public void start() {}
 

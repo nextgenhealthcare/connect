@@ -110,12 +110,12 @@ public class PurgeUtil {
         }
         return purgedList;
     }
-    
+
     public static Map<Status, Long> getMessageStatistics(String channelId, Integer metaDataId) {
         com.mirth.connect.donkey.server.controllers.ChannelController donkeyChannelController = com.mirth.connect.donkey.server.controllers.ChannelController.getInstance();
         Statistics totalStats = donkeyChannelController.getTotalStatistics();
         Map<Status, Long> lifetimeStats = new HashMap<Status, Long>();
-        
+
         if (totalStats != null) {
             lifetimeStats = totalStats.getConnectorStats(channelId, metaDataId);
         }

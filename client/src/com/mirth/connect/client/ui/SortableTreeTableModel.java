@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui;
 
-/** 
+/**
  * http://svn.chorem.org/svn/jtimer/tags/jtimer-1.0-beta4/src/java/org/codelutin/jtimer/ui/treetable/sorting/
  * 
  * SortableTreeTableModel.java
@@ -33,16 +33,22 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 
 /**
  * This is designed to be used with AbstractSortableTreeTableNode.<br>
- * For user interaction by clicking column headers, SortableTreeTable (extends JXTreeTable) should be used also.<br>
+ * For user interaction by clicking column headers, SortableTreeTable (extends JXTreeTable) should
+ * be used also.<br>
  * The model must be set up using string Column Identifiers.
  * <p>
  * It controls the sorting of the children of each node.<br>
  * <br>
- * Note that this does not support sorting the underlying table, as that is meaningless for a TreeTable.<br>
- * All nodes wiil have their immediate children sorted seperately, and the process will continue down through each generation, starting from the specified node.<br>
- * If any of the sort options are set or changed, sorting will start from the root node. If a node has a child added or removed, sorting will start from that node. The sorts may also be called manually, e.g if sort parameters are loaded before the model is attached to the TreeTable
+ * Note that this does not support sorting the underlying table, as that is meaningless for a
+ * TreeTable.<br>
+ * All nodes wiil have their immediate children sorted seperately, and the process will continue
+ * down through each generation, starting from the specified node.<br>
+ * If any of the sort options are set or changed, sorting will start from the root node. If a node
+ * has a child added or removed, sorting will start from that node. The sorts may also be called
+ * manually, e.g if sort parameters are loaded before the model is attached to the TreeTable
  * <p>
- * This class does not handle changes to the values of fields being sorted. This must be done manually by calling sort.
+ * This class does not handle changes to the values of fields being sorted. This must be done
+ * manually by calling sort.
  * 
  * @see #sort(TreeTableNode)
  * @see #sort()
@@ -71,7 +77,8 @@ public class SortableTreeTableModel extends DefaultTreeTableModel implements Tre
     // =========================================================== public api
 
     /**
-     * Set name of column to sort. If null, will reset to unsorted. Sort Order will be set ASCENDING<br>
+     * Set name of column to sort. If null, will reset to unsorted. Sort Order will be set
+     * ASCENDING<br>
      * Name must exist in the Column Identifiers.
      * 
      * @param column
@@ -90,7 +97,8 @@ public class SortableTreeTableModel extends DefaultTreeTableModel implements Tre
     }
 
     /**
-     * Set column to sort by column index. If -1 or greater than number of columns - 1, will be set Unsorted, otherwise sort order will be set Ascending.
+     * Set column to sort by column index. If -1 or greater than number of columns - 1, will be set
+     * Unsorted, otherwise sort order will be set Ascending.
      * 
      * @param column
      *            - index of column name in columnNames List
@@ -124,7 +132,8 @@ public class SortableTreeTableModel extends DefaultTreeTableModel implements Tre
     }
 
     /**
-     * Toggle sort order. Unsorted will be sorted ascending, and sorted columns order will be reversed. If sort column not set, has no effect.
+     * Toggle sort order. Unsorted will be sorted ascending, and sorted columns order will be
+     * reversed. If sort column not set, has no effect.
      */
     public void toggleSortOrder() {
         if (sortOrder == SortOrder.ASCENDING) {
@@ -154,7 +163,9 @@ public class SortableTreeTableModel extends DefaultTreeTableModel implements Tre
     }
 
     /**
-     * Sorts complete TreeTable. This will be called automatically if any of the sort options (column or order) are changed. It is not usually neccessary to called this directly unless TreeTable is changed external to model, or TreeTable data changed.
+     * Sorts complete TreeTable. This will be called automatically if any of the sort options
+     * (column or order) are changed. It is not usually neccessary to called this directly unless
+     * TreeTable is changed external to model, or TreeTable data changed.
      */
     public void sort() {
         if (sortOrder == SortOrder.UNSORTED) {
@@ -165,7 +176,10 @@ public class SortableTreeTableModel extends DefaultTreeTableModel implements Tre
     }
 
     /**
-     * Sorts children of node, and all their children. Node need not be sortable. (Although if it is not and neither are any descendants, nothing will happen.) Called automatically if a child is added to or removed from a node. Usually not necessary to call this directly unless node added outside model or data changed.
+     * Sorts children of node, and all their children. Node need not be sortable. (Although if it is
+     * not and neither are any descendants, nothing will happen.) Called automatically if a child is
+     * added to or removed from a node. Usually not necessary to call this directly unless node
+     * added outside model or data changed.
      * 
      * @param parent
      *            - first node to be sorted.
@@ -244,8 +258,10 @@ public class SortableTreeTableModel extends DefaultTreeTableModel implements Tre
     // ======================================================= private methods
 
     /**
-     * this is a hack to enable expanded nodes to be re-expanded after structure change. It is called from SortableTreeTable<br>
-     * It is also used to retrieve the table header to repaint if sort options changed programatically
+     * this is a hack to enable expanded nodes to be re-expanded after structure change. It is
+     * called from SortableTreeTable<br>
+     * It is also used to retrieve the table header to repaint if sort options changed
+     * programatically
      * <p>
      * It means model can only be used in one treetable.
      * 
@@ -325,7 +341,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel implements Tre
         } else {
             node.reset();
         }
-        
+
         // MIRTH: Modified Sorting Code
 
         // Sort Child Nodes
@@ -333,7 +349,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel implements Tre
             doSortChildNodes(parent, reset);
         }
     }
-    
+
     private void reExpand() {
         if (treeTable == null)
             return;
@@ -367,7 +383,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel implements Tre
     }
 
     // MIRTH: Modified Sorting Code
-    
+
     // Hack to allow column header clicks to set the column and toggle the sort order
     public void setColumnAndToggleSortOrder(int column) {
         if (column == -1 || column > columnIdentifiers.size() - 1) {
@@ -384,7 +400,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel implements Tre
             }
         }
     }
-    
+
     private void doSortChildNodes(TreeTableNode parent, boolean reset) {
         for (int i = 0; i < getChildCount(parent); ++i) {
             TreeTableNode child = (TreeTableNode) getChild(parent, i);

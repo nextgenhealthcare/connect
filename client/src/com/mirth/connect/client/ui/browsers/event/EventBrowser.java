@@ -661,8 +661,8 @@ public class EventBrowser extends javax.swing.JPanel {
                     EVENT_NAME_COLUMN_NAME, EVENT_SERVER_ID_COLUMN_NAME, EVENT_USER_COLUMN_NAME,
                     EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false,
-                        false, false };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false,
+                        false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -861,6 +861,7 @@ public class EventBrowser extends javax.swing.JPanel {
         return eventFilter;
     }
 
+    // @formatter:off
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1182,6 +1183,7 @@ public class EventBrowser extends javax.swing.JPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
         resetSearchCriteria();

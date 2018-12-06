@@ -22,7 +22,7 @@ public class TestFilterTransformer implements FilterTransformer {
     public boolean isTransformed() {
         return transformed;
     }
-    
+
     public void setFiltered(boolean filtered) {
         this.filtered = filtered;
     }

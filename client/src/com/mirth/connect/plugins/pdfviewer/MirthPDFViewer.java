@@ -20,17 +20,19 @@ public class MirthPDFViewer extends com.sun.pdfview.PDFViewer {
 
     public final static String TITLE = "Mirth PDF Viewer";
     private File tempFile;
-    
+
     /**
      * Standard constructor with no file open.
+     * 
      * @param useThumbs
      */
     public MirthPDFViewer(boolean useThumbs) {
         super(useThumbs);
     }
-    
+
     /**
      * Will open the tempFile and delete it on close.
+     * 
      * @param useThumbs
      * @param tempFile
      * @throws IOException
@@ -40,20 +42,22 @@ public class MirthPDFViewer extends com.sun.pdfview.PDFViewer {
         super.openFile(tempFile);
         this.tempFile = tempFile;
     }
-    
+
     @Override
     public void doQuit() {
         super.doClose();
         super.dispose();
-        
+
         if (tempFile != null) {
             tempFile.delete();
         }
     }
-    
+
     /**
      * utility method to get an icon from the resources of this class
-     * @param name the name of the icon
+     * 
+     * @param name
+     *            the name of the icon
      * @return the icon, or null if the icon wasn't found.
      */
     @Override
@@ -73,7 +77,7 @@ public class MirthPDFViewer extends com.sun.pdfview.PDFViewer {
         }
         return icon;
     }
-    
+
     /**
      * Set the title to "Mirth PDF Viewer: <name of file>"
      */

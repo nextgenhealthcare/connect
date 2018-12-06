@@ -33,13 +33,13 @@ public class ChangePasswordDialog extends MirthDialog {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         DisplayUtil.setResizable(this, false);
-        
+
         mirthHeadingLabel.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
 
         passwordTextArea.setText(message);
         passwordTextArea.setBackground(Color.WHITE);
         passwordTextArea.setDisabledTextColor(Color.RED);
-        
+
         finishButton.setEnabled(false);
 
         setModal(true);
@@ -84,6 +84,7 @@ public class ChangePasswordDialog extends MirthDialog {
         }
     }
 
+    // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -244,32 +245,32 @@ public class ChangePasswordDialog extends MirthDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     /**
-     * An action for when the finish button is pressed. Checks and saves all of
-     * the information.
+     * An action for when the finish button is pressed. Checks and saves all of the information.
      */
     private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
         password.requestFocusInWindow();
-    
+
         if (!String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
             parent.alertError(this, "The passwords you entered do not match.");
             return;
         } else if (!parent.checkOrUpdateUserPassword(this, currentUser, String.valueOf(password.getPassword()))) {
             return;
         }
-    
+
         this.dispose();
     }//GEN-LAST:event_finishButtonActionPerformed
-    
+
     private void passwordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordKeyReleased
         checkAndTriggerFinishButton(evt);
     }//GEN-LAST:event_passwordKeyReleased
-    
+
     private void confirmPasswordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_confirmPasswordKeyReleased
         checkAndTriggerFinishButton(evt);
     }//GEN-LAST:event_confirmPasswordKeyReleased
-    
+
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         this.dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * 
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL license a copy of which has
+ * been included with this distribution in the LICENSE.txt file.
+ */
+
 package com.mirth.connect.server.builders;
 
 import static org.junit.Assert.assertEquals;
@@ -45,10 +54,10 @@ public class JavaScriptBuilderTest {
         builder = new StringBuilder();
         JavaScriptBuilder.appendFilterScript(builder, filter);
         String scriptAll3 = builder.toString();
-        
+
         assertEquals(scriptOnly2, scriptAll3);
     }
-    
+
     @Test
     public void testFilterDisableAllRules() throws ScriptBuilderException {
         Filter filter = new Filter();
@@ -72,10 +81,9 @@ public class JavaScriptBuilderTest {
         builder = new StringBuilder();
         JavaScriptBuilder.appendFilterScript(builder, filter);
         String scriptAll3 = builder.toString();
-        
+
         assertEquals(scriptEmpty, scriptAll3);
     }
-    
 
     @Test
     public void testTransformerDisable1Step() throws ScriptBuilderException {
@@ -99,10 +107,10 @@ public class JavaScriptBuilderTest {
         builder = new StringBuilder();
         JavaScriptBuilder.appendTransformerScript(builder, transformer, false);
         String scriptAll3 = builder.toString();
-        
+
         assertEquals(scriptOnly2, scriptAll3);
     }
-    
+
     @Test
     public void testTransformerDisableAllSteps() throws ScriptBuilderException {
         Transformer transformer = new Transformer();
@@ -126,7 +134,7 @@ public class JavaScriptBuilderTest {
         builder = new StringBuilder();
         JavaScriptBuilder.appendTransformerScript(builder, transformer, false);
         String scriptAll3 = builder.toString();
-        
+
         assertEquals(scriptOnly2, scriptAll3);
     }
 
@@ -149,8 +157,7 @@ public class JavaScriptBuilderTest {
         StringBuilder builder = new StringBuilder();
         JavaScriptBuilder.appendTransformerScript(builder, transformer, false);
         String scriptOuterOnly = builder.toString();
-        
-        
+
         // create a transformer with:
         // outerIterStep {
         //      innerStep (disabled) {
@@ -165,7 +172,7 @@ public class JavaScriptBuilderTest {
         IteratorStepProperties innerIterProps = new IteratorStepProperties();
         innerIterProps.setChildren(Arrays.asList(step4));
         innerIterStep.setProperties(innerIterProps);
-        
+
         transformer.setElements(Arrays.asList(outerIterStep));
         innerIterStep.setEnabled(false);
         builder = new StringBuilder();
@@ -173,9 +180,9 @@ public class JavaScriptBuilderTest {
         String scriptInnerDisabled = builder.toString();
 
         assertEquals(scriptOuterOnly, scriptInnerDisabled);
-        
+
     }
-    
+
     @Test
     public void testNestedIteratorsOuterDisabled() throws ScriptBuilderException {
         Transformer transformer = new Transformer();
@@ -189,12 +196,12 @@ public class JavaScriptBuilderTest {
         IteratorStepProperties outerIterProps = new IteratorStepProperties();
         outerIterProps.setChildren(Arrays.asList(step3));
         outerIterStep.setProperties(outerIterProps);
-        
+
         transformer.setElements(Arrays.asList());
         StringBuilder builder = new StringBuilder();
         JavaScriptBuilder.appendTransformerScript(builder, transformer, false);
         String scriptEmpty = builder.toString();
-        
+
         // create a transformer with:
         // outerIterStep (disabled) {
         //      innerStep {
@@ -209,7 +216,7 @@ public class JavaScriptBuilderTest {
         IteratorStepProperties innerIterProps = new IteratorStepProperties();
         innerIterProps.setChildren(Arrays.asList(step4));
         innerIterStep.setProperties(innerIterProps);
-        
+
         transformer.setElements(Arrays.asList(outerIterStep));
         outerIterStep.setEnabled(false);
         builder = new StringBuilder();

@@ -524,7 +524,8 @@ public class PollingSettingsPanel extends JPanel {
                 model.setNumRows(0);
 
                 for (CronProperty property : cronJobs) {
-                    model.addRow(new Object[] { property.getExpression(), property.getDescription() });
+                    model.addRow(new Object[] { property.getExpression(),
+                            property.getDescription() });
                 }
 
                 deleteJobButton.setEnabled(true);

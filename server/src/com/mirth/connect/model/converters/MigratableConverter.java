@@ -146,7 +146,7 @@ public class MigratableConverter extends ReflectionConverter {
             if (MigrationUtil.compareVersions(elementVersion, "3.6.0") < 0) {
                 instance.migrate3_6_0(element);
             }
-            
+
             if (MigrationUtil.compareVersions(elementVersion, "3.7.0") < 0) {
                 instance.migrate3_7_0(element);
             }

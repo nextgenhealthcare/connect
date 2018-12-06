@@ -23,7 +23,8 @@ import org.apache.log4j.Logger;
 public class SQLParserUtil {
 
     private Logger logger = Logger.getLogger(this.getClass());
-    private String[] keywords = { "INTO", "DISTINCT", "UNIQUE", "FIRST", "MIDDLE", "SKIP", "LIMIT" };
+    private String[] keywords = { "INTO", "DISTINCT", "UNIQUE", "FIRST", "MIDDLE", "SKIP",
+            "LIMIT" };
     private final String SQL_PATTERN = "[s|S][e|E][l|L][e|E][c|C][t|T].*[f|F][r|R][o|O][m|M][\\s]";
     String _sqlStatement = "";
 

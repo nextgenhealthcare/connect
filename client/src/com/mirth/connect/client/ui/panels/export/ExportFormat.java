@@ -42,11 +42,11 @@ public class ExportFormat implements Serializable {
         return "";
     }
 
-	public String getConnectorType() {
-		return connectorType;
-	}
+    public String getConnectorType() {
+        return connectorType;
+    }
 
-	public void setConnectorType(String connectorType) {
-		this.connectorType = connectorType;
-	}
+    public void setConnectorType(String connectorType) {
+        this.connectorType = connectorType;
+    }
 }

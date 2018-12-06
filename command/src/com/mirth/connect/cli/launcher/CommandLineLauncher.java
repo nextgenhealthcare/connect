@@ -38,10 +38,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-
 public class CommandLineLauncher {
     protected static Logger logger;
-    
+
     public static void main(String[] args) {
         System.setProperty("log4j.configuration", "log4j-cli.properties");
         logger = Logger.getLogger(CommandLineLauncher.class);
@@ -51,8 +50,9 @@ public class CommandLineLauncher {
             ManifestFile mirthClientCoreJar = new ManifestFile("cli-lib/mirth-client-core.jar");
             ManifestDirectory cliLibDir = new ManifestDirectory("cli-lib");
             cliLibDir.setExcludes(new String[] { "mirth-client-core.jar" });
-            
-            ManifestEntry[] manifest = new ManifestEntry[] { mirthCliJar, mirthClientCoreJar, cliLibDir };
+
+            ManifestEntry[] manifest = new ManifestEntry[] { mirthCliJar, mirthClientCoreJar,
+                    cliLibDir };
 
             List<URL> classpathUrls = new ArrayList<URL>();
             addManifestToClasspath(manifest, classpathUrls);
@@ -84,7 +84,7 @@ public class CommandLineLauncher {
                 if (manifestEntryFile.isDirectory()) {
                     ManifestDirectory manifestDir = (ManifestDirectory) manifestEntry;
                     IOFileFilter fileFilter = null;
-                    
+
                     if (manifestDir.getExcludes().length > 0) {
                         fileFilter = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.notFileFilter(new NameFileFilter(manifestDir.getExcludes())));
                     } else {
@@ -108,7 +108,7 @@ public class CommandLineLauncher {
     }
 
     private static void addSharedLibsToClasspath(List<URL> urls, File extensionsFolder) throws Exception {
-        
+
         if (extensionsFolder.exists() && extensionsFolder.isDirectory()) {
             File[] directoryFiles = extensionsFolder.listFiles((FileFilter) FileFilterUtils.directoryFileFilter());
             for (File d : directoryFiles) {
@@ -119,12 +119,12 @@ public class CommandLineLauncher {
                         urls.add(lib.toURI().toURL());
                     }
                 }
-            }       
+            }
         } else {
             logger.warn("no extensions folder found");
         }
     }
-    
+
     // visibility set to protected so we can unit test it
     protected static Set<String> getSharedLibsForExtension(File extensionFolder) throws Exception {
         List<String> extensionXml = new LinkedList<>();
@@ -132,8 +132,8 @@ public class CommandLineLauncher {
         extensionXml.add("destination.xml");
         extensionXml.add("plugin.xml");
         Set<String> libs = new HashSet<>();
-        
-        if (extensionFolder.exists() && extensionFolder.isDirectory()) {            
+
+        if (extensionFolder.exists() && extensionFolder.isDirectory()) {
 
             IOFileFilter extensionXmlFileFilter = new NameFileFilter(extensionXml);
             // look for plugin.xml, source.xml, destination.xml
@@ -144,13 +144,13 @@ public class CommandLineLauncher {
                 // TODO: make sure the mirthVersion is compatible with our current version of Mirth Server
                 List<String> newLibs = getSharedLibsFromXml(root);
                 libs.addAll(newLibs);
-            }              
+            }
         } else {
             logger.warn("no extension found");
         }
         return libs;
     }
-    
+
     private static List<String> getSharedLibsFromXml(Element root) throws IOException, ParserConfigurationException, SAXException {
         // Unfortunately, we can't use the ExtensionLibarary at this point since none of it has been loaded, so we'll have
         // to get parse the xml manually
@@ -164,9 +164,10 @@ public class CommandLineLauncher {
                 sharedLibs.add(libElement.getAttribute("path"));
             }
         }
-        
+
         return sharedLibs;
     }
+
     private static Document parseXml(String xml) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
