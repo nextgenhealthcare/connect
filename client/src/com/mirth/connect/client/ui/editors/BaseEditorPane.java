@@ -285,6 +285,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             propertiesScrollPane.setViewportView(null);
             propertiesContainer.removeAll();
             tabPane.updateUI();
+            previouslySelectedIndex = -1;
 
             if (connector.getMode() == Connector.Mode.SOURCE) {
                 templatePanel.setSourceView();
@@ -1423,8 +1424,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
 
                 if (previousRow != selectedRow) {
                     saveData(previousRow);
+                    loadData(selectedRow);
                 }
-                loadData(selectedRow);
                 updateTaskPane();
                 updateTable();
                 updateGeneratedCode();
