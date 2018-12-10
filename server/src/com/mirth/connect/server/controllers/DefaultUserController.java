@@ -484,7 +484,7 @@ public class DefaultUserController extends UserController {
 
             User updatedUser = getUser(userId, null);
             if (updatedUser != null) {
-                return new LoginStrike(updatedUser.getStrikeCount(), updatedUser.getLastStrikeTime());
+                return new LoginStrike(updatedUser.getStrikeCount() != null ? updatedUser.getStrikeCount() : 0, updatedUser.getLastStrikeTime());
             }
             return null;
         } catch (Exception e) {
@@ -499,7 +499,7 @@ public class DefaultUserController extends UserController {
 
             User updatedUser = getUser(userId, null);
             if (updatedUser != null) {
-                return new LoginStrike(updatedUser.getStrikeCount(), updatedUser.getLastStrikeTime());
+                return new LoginStrike(updatedUser.getStrikeCount() != null ? updatedUser.getStrikeCount() : 0, updatedUser.getLastStrikeTime());
             }
             return null;
         } catch (Exception e) {
