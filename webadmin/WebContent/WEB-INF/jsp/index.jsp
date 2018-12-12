@@ -296,7 +296,17 @@
         </script>
         <script type="text/javascript">
         	function downloadAdministratorLauncher(){
-       			window.location.href = '${actionBean.context.currentScheme}://' + window.location.hostname + ':${actionBean.context.currentPort}${actionBean.context.contextPath}/launcher/' + $('#operatingSystemSelect').val();
+        		var url = '${actionBean.context.currentScheme}://' + window.location.hostname + ':${actionBean.context.currentPort}${actionBean.context.contextPath}/launcher/' + $('#operatingSystemSelect').val();
+        		
+        		$.ajax({url: url, type: 'HEAD', success: function() {
+        			window.location.href = url;
+        		}, error: function() {
+        			var suffix = $('#operatingSystemSelect').val();
+        			if (suffix == 'linux.sh') {
+        				suffix = 'unix.sh';
+        			}
+        			window.location.href = 'https://s3.amazonaws.com/downloads.mirthcorp.com/connect-client-launcher/mirth-administrator-launcher-1.0.0-' + suffix;
+        		}});
        		}
         
        		function launchAdministrator(){
