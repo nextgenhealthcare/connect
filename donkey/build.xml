@@ -71,24 +71,32 @@
 		</javac>
 	</target>
 	
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath path="${server}/lib/ant/jacocoant.jar"/>
+	</taskdef>	
+	
 	<target name="test-run" depends="test-compile">
-		<property name="reports" value="junit-reports" />
-		<mkdir dir="${reports}" />
+		<property name="junit-reports" value="junit-reports" />
+		<property name="code-coverage-reports" value="code-coverage-reports" />
+		<mkdir dir="${junit-reports}" />
+		<mkdir dir="${code-coverage-reports}" />
 		
-		<junit haltonfailure="false" fork="true" forkmode="once">
-			<jvmarg value="-Xms128m" />
-			<jvmarg value="-Xmx1024m" />
-			<classpath>
-				<path refid="testclasspath" />
-				<dirset dir="${test_classes}"/>
-			</classpath>
-			<formatter type="xml" />
-			<batchtest todir="${reports}">
-				<fileset dir="${test_classes}">
-					<include name="**/*Test.class" />
-				</fileset>
-			</batchtest>
-		</junit>
+		<jacoco:coverage destfile="${code-coverage-reports}/jacoco.exec" xmlns:jacoco="antlib:org.jacoco.ant" exclclassloader="sun.reflect.DelegatingClassLoader:javassist.Loader" >
+			<junit haltonfailure="false" fork="true" forkmode="once">
+				<jvmarg value="-Xms128m" />
+				<jvmarg value="-Xmx1024m" />
+				<classpath>
+					<path refid="testclasspath" />
+					<dirset dir="${test_classes}"/>
+				</classpath>
+				<formatter type="xml" />
+				<batchtest todir="${junit-reports}">
+					<fileset dir="${test_classes}">
+						<include name="**/*Test.class" />
+					</fileset>
+				</batchtest>
+			</junit>
+		</jacoco:coverage>
 	</target>
 	
 	<target name="remove-classes" depends="init">
