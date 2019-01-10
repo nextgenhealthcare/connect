@@ -114,14 +114,25 @@ public abstract class ExtensionController extends Controller {
     public abstract void updatePluginProperties(String name, Properties properties);
 
     /**
+     * Stores the properties for the specified plugin in the database.
+     * @param name
+     * @param properties
+     * @param mergeProperties true to merge properties into the database. false to replace all values.
+     * @throws ControllerException
+     */
+    public abstract void setPluginProperties(String name, Properties properties, boolean mergeProperties) throws ControllerException;
+
+    /**
      * Stores the properties for the specified plugin in the database. Removes any properties
      * beforehand.
-     * 
+     *
      * @param name
      * @param properties
      * @throws ControllerException
      */
-    public abstract void setPluginProperties(String name, Properties properties) throws ControllerException;
+    public void setPluginProperties(String name, Properties properties) throws ControllerException {
+        setPluginProperties(name, properties, false);
+    }
 
     /**
      * Returns properties for the specified plugin from the database.

@@ -2558,7 +2558,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ExtensionServletInterface#setPluginProperties
      */
     @Override
+    public void setPluginProperties(String extensionName, Properties properties, boolean mergeProperties) throws ClientException {
+        getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties, mergeProperties);
+    }
+
+    /**
+     * Sets properties for a specified extension.
+     *
+     * @see ExtensionServletInterface#setPluginProperties
+     */
     public void setPluginProperties(String extensionName, Properties properties) throws ClientException {
-        getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties);
+        getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties, false);
     }
 }

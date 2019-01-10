@@ -38,7 +38,11 @@ public abstract class ClientPlugin {
     }
 
     public void setPropertiesToServer(Properties properties) throws ClientException {
-        parent.mirthClient.setPluginProperties(pluginName, properties);
+        setPropertiesToServer(properties, false);
+    }
+
+    public void setPropertiesToServer(Properties properties, boolean mergeProperties) throws ClientException {
+        parent.mirthClient.setPluginProperties(pluginName, properties, mergeProperties);
     }
 
     // Each plugin point a plugin implements should define its own name

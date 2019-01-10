@@ -106,6 +106,7 @@ public interface ExtensionServletInterface extends BaseServletInterface {
     @MirthOperation(name = OPERATION_PLUGIN_PROPERTIES_SET, display = "Set plugin properties")
     public void setPluginProperties(// @formatter:off
             @Param("extensionName") @ApiParam(value = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
-            @Param("properties") @ApiParam(value = "The new properties to set.", required = true) Properties properties) throws ClientException;
+            @Param("properties") @ApiParam(value = "The new properties to set.", required = true) Properties properties,
+            @Param("mergeProperties") @ApiParam(value = "Merge or replace properties. Defaults to replace.", required = false, defaultValue = "false") @QueryParam("mergeProperties") boolean mergeProperties) throws ClientException;
     // @formatter:on
 }

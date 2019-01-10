@@ -124,12 +124,12 @@ public class ExtensionServlet extends MirthServlet implements ExtensionServletIn
 
     @Override
     @DontCheckAuthorized
-    public void setPluginProperties(String extensionName, Properties properties) {
+    public void setPluginProperties(String extensionName, Properties properties, boolean mergeProperties) {
         parameterMap.put("extensionName", extensionName);
         parameterMap.put("properties", properties);
         checkUserAuthorizedForExtension(extensionName);
         try {
-            extensionController.setPluginProperties(extensionName, properties);
+            extensionController.setPluginProperties(extensionName, properties, mergeProperties);
             extensionController.updatePluginProperties(extensionName, properties);
         } catch (ControllerException e) {
             throw new MirthApiException(e);

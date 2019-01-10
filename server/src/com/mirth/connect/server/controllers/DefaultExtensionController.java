@@ -587,8 +587,10 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     @Override
-    public void setPluginProperties(String pluginName, Properties properties) throws ControllerException {
-        configurationController.removePropertiesForGroup(pluginName);
+    public void setPluginProperties(String pluginName, Properties properties, boolean mergeProperties) throws ControllerException {
+        if (!mergeProperties) {
+            configurationController.removePropertiesForGroup(pluginName);
+        }
 
         for (Object name : properties.keySet()) {
             configurationController.saveProperty(pluginName, (String) name, (String) properties.get(name));
