@@ -19,6 +19,7 @@ APACHE-LICENSE-2.0.txt):
 	AWS SDK for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java)
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
 	Fast Infoset Project 1.2.13 [Mirth Connect only] (https://github.com/javaee/metro-fi/tree/fastinfoset-project-1.2.13)
+	Google Code Prettify [Mirth Connect only] (https://github.com/google/code-prettify)
 	Guava 18.0 (https://code.google.com/p/guava-libraries)
 	Guice 4.1 (https://github.com/google/guice)
 	HikariCP 2.3.2 [Mirth Connect only]
@@ -1348,3 +1349,33 @@ The source code for OSHI is available at: https://github.com/oshi/oshi
 
 --------------------------------------------------------------------------------
 
+
+Mirth Connect includes SonarQube Scanner for Ant version 2.5, which is licensed
+under LGPL version 3. A copy of this license is available in the file named
+LGPL-3.0.txt.
+
+The source code for SonarQube Scanner for Ant is available at 
+https://github.com/SonarSource/sonar-scanner-ant/.
+
+--------------------------------------------------------------------------------
+
+
+Mirth Connect includes the JaCoCo Java Code Coverage Library version 0.8.2,
+which is licensed under the Eclipse Public License version 1.0. A copy of this
+license is available in the file named EPL-1.0.txt.
+
+The source code for the JaCoCo Java Code Coverage Library is available at
+https://github.com/jacoco/jacoco/.
+
+
+--------------------------------------------------------------------------------
+
+
+Mirth Connect includes the args4j library, which is licensed under the MIT
+License. A copy of this license is available in the file named MIT.txt.
+
+The source code for the args4j library is available at 
+https://github.com/kohsuke/args4j/.
+
+
+--------------------------------------------------------------------------------
