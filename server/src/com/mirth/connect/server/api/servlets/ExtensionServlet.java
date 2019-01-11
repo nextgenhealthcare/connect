@@ -12,6 +12,7 @@ package com.mirth.connect.server.api.servlets;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
@@ -112,11 +113,22 @@ public class ExtensionServlet extends MirthServlet implements ExtensionServletIn
 
     @Override
     @DontCheckAuthorized
-    public Properties getPluginProperties(String extensionName) {
+    public Properties getPluginProperties(String extensionName, Set<String> propertyKeys) {
         parameterMap.put("extensionName", extensionName);
         checkUserAuthorizedForExtension(extensionName);
         try {
-            return extensionController.getPluginProperties(extensionName);
+            Properties extensionProperties = extensionController.getPluginProperties(extensionName);
+            if (propertyKeys == null || propertyKeys.size() == 0) {
+                return extensionProperties;
+            }
+
+            Properties filteredProperties = new Properties();
+            for (String key: propertyKeys) {
+                if (extensionProperties.containsKey(key)) {
+                    filteredProperties.setProperty(key, extensionProperties.getProperty(key));
+                }
+            }
+            return filteredProperties;
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }

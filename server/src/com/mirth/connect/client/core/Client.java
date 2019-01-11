@@ -2548,8 +2548,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ExtensionServletInterface#getPluginProperties
      */
     @Override
-    public Properties getPluginProperties(String extensionName) throws ClientException {
-        return getServlet(ExtensionServletInterface.class).getPluginProperties(extensionName);
+    public Properties getPluginProperties(String extensionName, Set<String> propertyKeys) throws ClientException {
+        return getServlet(ExtensionServletInterface.class).getPluginProperties(extensionName, propertyKeys);
     }
 
     /**
