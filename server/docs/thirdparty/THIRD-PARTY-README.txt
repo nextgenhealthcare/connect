@@ -1371,11 +1371,33 @@ https://github.com/jacoco/jacoco/.
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes the args4j library, which is licensed under the MIT
-License. A copy of this license is available in the file named MIT.txt.
+The license below pertains to the args4j library, which is
+included with Mirth Connect.
 
-The source code for the args4j library is available at 
-https://github.com/kohsuke/args4j/.
+=================== Beginning of License Information ===================
+
+Copyright (c) 2003-2016 by Kohsuke Kawaguchi
+https://github.com/kohsuke/args4j
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+=================== End of License Information ===================
 
 
 --------------------------------------------------------------------------------
