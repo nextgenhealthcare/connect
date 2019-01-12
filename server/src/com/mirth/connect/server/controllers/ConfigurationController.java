@@ -308,8 +308,11 @@ public abstract class ConfigurationController extends Controller {
     public abstract void setConfigurationProperties(Map<String, ConfigurationProperty> map, boolean persist) throws ControllerException;
 
     // properties
+    public Properties getPropertiesForGroup(String group) {
+        return getPropertiesForGroup(group, null);
+    }
 
-    public abstract Properties getPropertiesForGroup(String group);
+    public abstract Properties getPropertiesForGroup(String group, Set<String> propertyKeys);
 
     public abstract void removePropertiesForGroup(String group);
 

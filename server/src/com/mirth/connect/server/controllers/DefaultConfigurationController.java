@@ -784,19 +784,27 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public Properties getPropertiesForGroup(String category) {
-        logger.debug("retrieving properties: category=" + category);
+    public Properties getPropertiesForGroup(String category, Set<String> propertyKeys) {
+        logger.debug("retrieving properties: category=" + category + " propertyKeys=" + propertyKeys);
         Properties properties = new Properties();
 
         StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
         try {
-            List<KeyValuePair> result = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Configuration.selectPropertiesForCategory", category);
+            List<KeyValuePair> result;
+            if (propertyKeys == null || propertyKeys.size() == 0) {
+                result = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Configuration.selectPropertiesForCategory", category);
+            } else {
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("category", category);
+                parameterMap.put("propertyKeys", propertyKeys);
+                result = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Configuration.selectFilteredPropertiesForCategory", parameterMap);
+            }
 
             for (KeyValuePair pair : result) {
                 properties.setProperty(pair.getKey(), StringUtils.defaultString(pair.getValue()));
             }
         } catch (Exception e) {
-            logger.error("Could not retrieve properties: category=" + category, e);
+            logger.error("Could not retrieve properties: category=" + category + " propertyKeys=" + propertyKeys, e);
         } finally {
             StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readUnlock();
         }

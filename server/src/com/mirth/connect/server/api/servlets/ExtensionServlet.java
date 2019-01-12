@@ -117,18 +117,7 @@ public class ExtensionServlet extends MirthServlet implements ExtensionServletIn
         parameterMap.put("extensionName", extensionName);
         checkUserAuthorizedForExtension(extensionName);
         try {
-            Properties extensionProperties = extensionController.getPluginProperties(extensionName);
-            if (propertyKeys == null || propertyKeys.size() == 0) {
-                return extensionProperties;
-            }
-
-            Properties filteredProperties = new Properties();
-            for (String key: propertyKeys) {
-                if (extensionProperties.containsKey(key)) {
-                    filteredProperties.setProperty(key, extensionProperties.getProperty(key));
-                }
-            }
-            return filteredProperties;
+            return extensionController.getPluginProperties(extensionName, propertyKeys);
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }
