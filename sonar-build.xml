@@ -48,14 +48,14 @@ ant -buildfile sonar-build.xml -Dsonar.host.url="<sonarqube-server-url>" -Dsonar
 	<property name="generator.sonar.projectKey" value="com.mirth.connect.generator" />
 	<property name="generator.sonar.projectName" value="Generator" />
 	<property name="generator.sonar.sources" value="src" />
-	<property name="generator.sonar.java.binaries" value="classes" />
+	<property name="generator.sonar.java.binaries" value="." />
 	<property name="generator.sonar.java.libraries" value="lib/*.jar" />
 	<property name="generator.sonar.projectBaseDir" value="generator" />
 
 	<property name="manager.sonar.projectKey" value="com.mirth.connect.manager" />
 	<property name="manager.sonar.projectName" value="Manager" />
 	<property name="manager.sonar.sources" value="src" />
-	<property name="manager.sonar.java.binaries" value="bin" />
+	<property name="manager.sonar.java.binaries" value="classes" />
 	<property name="manager.sonar.java.libraries" value="lib/*.jar" />
 	<property name="manager.sonar.projectBaseDir" value="manager" />
 
@@ -72,7 +72,7 @@ ant -buildfile sonar-build.xml -Dsonar.host.url="<sonarqube-server-url>" -Dsonar
 	<property name="simplesender.sonar.projectKey" value="com.mirth.connect.simplesender" />
 	<property name="simplesender.sonar.projectName" value="SimpleSender" />
 	<property name="simplesender.sonar.sources" value="src" />
-	<property name="simplesender.sonar.java.binaries" value="bin" />
+	<property name="simplesender.sonar.java.binaries" value="." />
 	<property name="simplesender.sonar.java.libraries" value="lib/*.jar" />
 	<property name="simplesender.sonar.projectBaseDir" value="simplesender" />
 
