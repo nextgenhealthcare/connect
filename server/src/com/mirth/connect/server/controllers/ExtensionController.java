@@ -114,15 +114,6 @@ public abstract class ExtensionController extends Controller {
     public abstract void updatePluginProperties(String name, Properties properties);
 
     /**
-     * Stores the properties for the specified plugin in the database.
-     * @param name
-     * @param properties
-     * @param mergeProperties true to merge properties into the database. false to replace all values.
-     * @throws ControllerException
-     */
-    public abstract void setPluginProperties(String name, Properties properties, boolean mergeProperties) throws ControllerException;
-
-    /**
      * Stores the properties for the specified plugin in the database. Removes any properties
      * beforehand.
      *
@@ -135,14 +126,13 @@ public abstract class ExtensionController extends Controller {
     }
 
     /**
-     * Returns properties for the specified plugin from the database filtered by propertyKeys.
-     *
+     * Stores the properties for the specified plugin in the database.
      * @param name
-     * @param propertyKeys
-     * @return
+     * @param properties
+     * @param mergeProperties true to merge properties into the database. false to replace all values.
      * @throws ControllerException
      */
-    public abstract Properties getPluginProperties(String name, Set<String> propertyKeys) throws ControllerException;
+    public abstract void setPluginProperties(String name, Properties properties, boolean mergeProperties) throws ControllerException;
 
     /**
      * Returns properties for the specified plugin from the database.
@@ -154,6 +144,16 @@ public abstract class ExtensionController extends Controller {
     public Properties getPluginProperties(String name) throws ControllerException {
         return getPluginProperties(name, null);
     }
+
+    /**
+     * Returns properties for the specified plugin from the database filtered by propertyKeys.
+     *
+     * @param name
+     * @param propertyKeys
+     * @return
+     * @throws ControllerException
+     */
+    public abstract Properties getPluginProperties(String name, Set<String> propertyKeys) throws ControllerException;
 
     public abstract Map<String, MetaData> getInvalidMetaData();
 
