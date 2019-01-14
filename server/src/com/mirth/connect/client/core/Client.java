@@ -2543,7 +2543,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
-     * Returns the specified properties for a specified extension.
+     * Returns the specified properties for the specified extension. 
+     * If propertyKeys is null or empty, then all properties for the extension are returned.
      * 
      * @see ExtensionServletInterface#getPluginProperties
      */
@@ -2553,7 +2554,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
-     * Returns all properties for a specified extension.
+     * Returns all properties for the specified extension.
      * 
      * @see ExtensionServletInterface#getPluginProperties
      */
@@ -2562,21 +2563,23 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
-     * Sets properties for a specified extension.
+     * Sets properties for the specified extension. Replaces all properties for that extension.
+     *
+     * @see ExtensionServletInterface#setPluginProperties
+     */
+    public void setPluginProperties(String extensionName, Properties properties) throws ClientException {
+        getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties, false);
+    }
+    
+    /**
+     * Sets properties for the specified extension. 
+     * 
+     * @param mergeProperties true to merge the given properties with an properties on the server. false to overwrite all values on the server.
      * 
      * @see ExtensionServletInterface#setPluginProperties
      */
     @Override
     public void setPluginProperties(String extensionName, Properties properties, boolean mergeProperties) throws ClientException {
         getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties, mergeProperties);
-    }
-
-    /**
-     * Sets properties for a specified extension.
-     *
-     * @see ExtensionServletInterface#setPluginProperties
-     */
-    public void setPluginProperties(String extensionName, Properties properties) throws ClientException {
-        getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties, false);
     }
 }
