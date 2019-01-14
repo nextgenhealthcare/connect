@@ -805,7 +805,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 properties.setProperty(pair.getKey(), StringUtils.defaultString(pair.getValue()));
             }
         } catch (Exception e) {
-            logger.error("Could not retrieve properties: category=" + category + " propertyKeys=" + propertyKeys, e);
+            logger.error("Could not retrieve properties: category=" + category + " propertyKeys=" + StringUtils.join(propertyKeys.toArray(), ","), e);
         } finally {
             StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readUnlock();
         }
