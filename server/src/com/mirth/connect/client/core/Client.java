@@ -2543,6 +2543,15 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
+     * Returns all properties for the specified extension.
+     * 
+     * @see ExtensionServletInterface#getPluginProperties
+     */
+    public Properties getPluginProperties(String extensionName) throws ClientException {
+        return this.getPluginProperties(extensionName, null);
+    }
+
+    /**
      * Returns the specified properties for the specified extension. 
      * If propertyKeys is null or empty, then all properties for the extension are returned.
      * 
@@ -2551,15 +2560,6 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     @Override
     public Properties getPluginProperties(String extensionName, Set<String> propertyKeys) throws ClientException {
         return getServlet(ExtensionServletInterface.class).getPluginProperties(extensionName, propertyKeys);
-    }
-
-    /**
-     * Returns all properties for the specified extension.
-     * 
-     * @see ExtensionServletInterface#getPluginProperties
-     */
-    public Properties getPluginProperties(String extensionName) throws ClientException {
-        return this.getPluginProperties(extensionName, null);
     }
 
     /**
