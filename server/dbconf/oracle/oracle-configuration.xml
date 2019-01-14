@@ -7,7 +7,16 @@
 		FROM CONFIGURATION
 		WHERE CATEGORY = #{value}
 	</select>
-
+	<select id='selectFilteredPropertiesForCategory' parameterType='java.util.Map' resultType='KeyValuePair'>
+		SELECT NAME AS "key", VALUE AS "value"
+		FROM CONFIGURATION
+		WHERE CATEGORY = #{category}
+		AND NAME in
+		<foreach item="item" index="index" collection="propertyKeys"
+				 open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
 	<select id="selectProperty" parameterType="java.util.Map" resultType="java.lang.String">
 		SELECT VALUE
 		FROM CONFIGURATION

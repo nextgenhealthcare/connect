@@ -598,8 +598,8 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     @Override
-    public Properties getPluginProperties(String pluginName) throws ControllerException {
-        return ControllerFactory.getFactory().createConfigurationController().getPropertiesForGroup(pluginName);
+    public Properties getPluginProperties(String pluginName, Set<String> propertyKeys) throws ControllerException {
+        return ControllerFactory.getFactory().createConfigurationController().getPropertiesForGroup(pluginName, propertyKeys);
     }
 
     @Override

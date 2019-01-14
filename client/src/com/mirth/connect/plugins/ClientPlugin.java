@@ -36,7 +36,7 @@ public abstract class ClientPlugin {
     }
 
     public Properties getPropertiesFromServer() throws ClientException {
-        return parent.mirthClient.getPluginProperties(pluginName, null);
+        return getPropertiesFromServer(null);
     }
 
     public Properties getPropertiesFromServer(Set<String> propertyKeys) throws ClientException {

@@ -135,13 +135,25 @@ public abstract class ExtensionController extends Controller {
     }
 
     /**
+     * Returns properties for the specified plugin from the database filtered by propertyKeys.
+     *
+     * @param name
+     * @param propertyKeys
+     * @return
+     * @throws ControllerException
+     */
+    public abstract Properties getPluginProperties(String name, Set<String> propertyKeys) throws ControllerException;
+
+    /**
      * Returns properties for the specified plugin from the database.
      * 
      * @param name
      * @return
      * @throws ControllerException
      */
-    public abstract Properties getPluginProperties(String name) throws ControllerException;
+    public Properties getPluginProperties(String name) throws ControllerException {
+        return getPluginProperties(name, null);
+    }
 
     public abstract Map<String, MetaData> getInvalidMetaData();
 
