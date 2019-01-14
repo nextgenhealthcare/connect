@@ -51,6 +51,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.configuration.ConfigurationConverter;
 import org.apache.commons.configuration.ConfigurationException;
@@ -791,7 +792,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
         try {
             List<KeyValuePair> result;
-            if (propertyKeys == null || propertyKeys.size() == 0) {
+            if (CollectionUtils.isEmpty(propertyKeys)) {
                 result = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Configuration.selectPropertiesForCategory", category);
             } else {
                 Map<String, Object> parameterMap = new HashMap<>();
