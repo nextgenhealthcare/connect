@@ -786,7 +786,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public Properties getPropertiesForGroup(String category, Set<String> propertyKeys) {
-        logger.debug("retrieving properties: category=" + category + " propertyKeys=" + StringUtils.join(propertyKeys.toArray(), ","));
+        logger.debug("retrieving properties: category=" + category + " propertyKeys=" + StringUtils.join(propertyKeys, ","));
         Properties properties = new Properties();
 
         StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
@@ -805,7 +805,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 properties.setProperty(pair.getKey(), StringUtils.defaultString(pair.getValue()));
             }
         } catch (Exception e) {
-            logger.error("Could not retrieve properties: category=" + category + " propertyKeys=" + StringUtils.join(propertyKeys.toArray(), ","), e);
+            logger.error("Could not retrieve properties: category=" + category + " propertyKeys=" + StringUtils.join(propertyKeys, ","), e);
         } finally {
             StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readUnlock();
         }
