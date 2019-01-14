@@ -1,6 +1,10 @@
 
 # /
 
+.sonar
+**/junit-reports
+**/code-coverage-reports
+
 # /client/
 /client/logs
 /client/classes

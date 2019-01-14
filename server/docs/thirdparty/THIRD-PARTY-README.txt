@@ -19,6 +19,7 @@ APACHE-LICENSE-2.0.txt):
 	AWS SDK for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java)
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
 	Fast Infoset Project 1.2.13 [Mirth Connect only] (https://github.com/javaee/metro-fi/tree/fastinfoset-project-1.2.13)
+	Google Code Prettify [Mirth Connect only] (https://github.com/google/code-prettify)
 	Guava 18.0 (https://code.google.com/p/guava-libraries)
 	Guice 4.1 (https://github.com/google/guice)
 	HikariCP 2.3.2 [Mirth Connect only]
@@ -1348,3 +1349,55 @@ The source code for OSHI is available at: https://github.com/oshi/oshi
 
 --------------------------------------------------------------------------------
 
+
+Mirth Connect includes SonarQube Scanner for Ant version 2.5, which is licensed
+under LGPL version 3. A copy of this license is available in the file named
+LGPL-3.0.txt.
+
+The source code for SonarQube Scanner for Ant is available at 
+https://github.com/SonarSource/sonar-scanner-ant/.
+
+--------------------------------------------------------------------------------
+
+
+Mirth Connect includes the JaCoCo Java Code Coverage Library version 0.8.2,
+which is licensed under the Eclipse Public License version 1.0. A copy of this
+license is available in the file named EPL-1.0.txt.
+
+The source code for the JaCoCo Java Code Coverage Library is available at
+https://github.com/jacoco/jacoco/.
+
+
+--------------------------------------------------------------------------------
+
+
+The license below pertains to the args4j library, which is
+included with Mirth Connect.
+
+=================== Beginning of License Information ===================
+
+Copyright (c) 2003-2016 by Kohsuke Kawaguchi
+https://github.com/kohsuke/args4j
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+=================== End of License Information ===================
+
+
+--------------------------------------------------------------------------------
