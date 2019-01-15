@@ -14,8 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 import java.io.InputStream;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -96,9 +95,12 @@ public interface ExtensionServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/{extensionName}/properties")
-    @ApiOperation("Returns properties for a specified extension.")
-    @MirthOperation(name = OPERATION_PLUGIN_PROPERTIES_GET, display = "Get plugin properties", auditable = false)
-    public Properties getPluginProperties(@Param("extensionName") @ApiParam(value = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName) throws ClientException;
+    @ApiOperation("Returns filtered properties for a specified extension.")
+    @MirthOperation(name = OPERATION_PLUGIN_PROPERTIES_GET, display = "Get filtered plugin properties", auditable = false)
+    public Properties getPluginProperties(// @formatter:off
+        @Param("extensionName") @ApiParam(value = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
+        @Param("propertyKeys") @ApiParam(value = "The set of properties to retrieve.", required = false) @QueryParam("propertyKeys") Set<String> propertyKeys) throws ClientException;
+    // @formatter:on
 
     @PUT
     @Path("/{extensionName}/properties")
@@ -106,6 +108,7 @@ public interface ExtensionServletInterface extends BaseServletInterface {
     @MirthOperation(name = OPERATION_PLUGIN_PROPERTIES_SET, display = "Set plugin properties")
     public void setPluginProperties(// @formatter:off
             @Param("extensionName") @ApiParam(value = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
-            @Param("properties") @ApiParam(value = "The new properties to set.", required = true) Properties properties) throws ClientException;
+            @Param("properties") @ApiParam(value = "The new properties to set.", required = true) Properties properties,
+            @Param("mergeProperties") @ApiParam(value = "Merge or replace properties. Defaults to replace.", required = false, defaultValue = "false") @QueryParam("mergeProperties") boolean mergeProperties) throws ClientException;
     // @formatter:on
 }

@@ -10,7 +10,9 @@
 package com.mirth.connect.plugins;
 
 import java.util.Properties;
+import java.util.Set;
 
+import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -34,11 +36,19 @@ public abstract class ClientPlugin {
     }
 
     public Properties getPropertiesFromServer() throws ClientException {
-        return parent.mirthClient.getPluginProperties(pluginName);
+        return getPropertiesFromServer(null);
+    }
+
+    public Properties getPropertiesFromServer(Set<String> propertyKeys) throws ClientException {
+        return parent.mirthClient.getPluginProperties(pluginName, propertyKeys);
     }
 
     public void setPropertiesToServer(Properties properties) throws ClientException {
-        parent.mirthClient.setPluginProperties(pluginName, properties);
+        setPropertiesToServer(properties, false);
+    }
+
+    public void setPropertiesToServer(Properties properties, boolean mergeProperties) throws ClientException {
+        parent.mirthClient.setPluginProperties(pluginName, properties, mergeProperties);
     }
 
     // Each plugin point a plugin implements should define its own name

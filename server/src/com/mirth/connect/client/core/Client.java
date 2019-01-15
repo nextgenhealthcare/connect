@@ -2543,22 +2543,43 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
-     * Returns properties for a specified extension.
+     * Returns all properties for the specified extension.
+     * 
+     * @see ExtensionServletInterface#getPluginProperties
+     */
+    public Properties getPluginProperties(String extensionName) throws ClientException {
+        return this.getPluginProperties(extensionName, null);
+    }
+
+    /**
+     * Returns the specified properties for the specified extension. 
+     * If propertyKeys is null or empty, then all properties for the extension are returned.
      * 
      * @see ExtensionServletInterface#getPluginProperties
      */
     @Override
-    public Properties getPluginProperties(String extensionName) throws ClientException {
-        return getServlet(ExtensionServletInterface.class).getPluginProperties(extensionName);
+    public Properties getPluginProperties(String extensionName, Set<String> propertyKeys) throws ClientException {
+        return getServlet(ExtensionServletInterface.class).getPluginProperties(extensionName, propertyKeys);
     }
 
     /**
-     * Sets properties for a specified extension.
+     * Sets properties for the specified extension. Replaces all properties for that extension.
+     *
+     * @see ExtensionServletInterface#setPluginProperties
+     */
+    public void setPluginProperties(String extensionName, Properties properties) throws ClientException {
+        getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties, false);
+    }
+    
+    /**
+     * Sets properties for the specified extension. 
+     * 
+     * @param mergeProperties true to merge the given properties with an properties on the server. false to overwrite all values on the server.
      * 
      * @see ExtensionServletInterface#setPluginProperties
      */
     @Override
-    public void setPluginProperties(String extensionName, Properties properties) throws ClientException {
-        getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties);
+    public void setPluginProperties(String extensionName, Properties properties, boolean mergeProperties) throws ClientException {
+        getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties, mergeProperties);
     }
 }
