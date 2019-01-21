@@ -8,6 +8,8 @@
 	</target>
 
 	<target name="dependency-check" description="Dependency-Check Analysis">
+		<echo>${basedir}</echo>
+		<echo>${user.home}</echo>
 		<property file="dependency-check.properties" />
 		<property name="dependency-check.home" location="${user.home}/dependency-check"/>
 		<path id="dependency-check.path">
