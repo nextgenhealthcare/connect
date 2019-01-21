@@ -10,9 +10,9 @@
 	<target name="dependency-check" description="Dependency-Check Analysis">
 		<echo>${basedir}</echo>
 		<echo>${user.home}</echo>
-		<echo>~</echo>
+		<echo>${jenkins.home}</echo>
 		<property file="dependency-check.properties" />
-		<property name="dependency-check.home" location="/~/dependency-check"/>
+		<property name="dependency-check.home" location="${jenkins.home}/dependency-check"/>
 		<path id="dependency-check.path">
 		   <pathelement location="${dependency-check.home}/dependency-check-ant.jar"/>
 		    <fileset dir="${dependency-check.home}/lib">
