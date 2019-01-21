@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
-<project name="mirth-server" basedir="." default="help">
+<project name="mirth-connect" basedir="." default="help">
 
 	<target name="help">
 		<echo>NG Connect Dependency Checker Help</echo>
 		<echo>Run target 'dependency-check' to execute dependency check.</echo>
 		<echo>Report will be outputted to ./dependency-check-lib/dependency-check-report.html.</echo>
+		<echo>${dependency-check.path}</echo>
 	</target>
 
 	<target name="dependency-check" description="Dependency-Check Analysis">
@@ -19,7 +20,7 @@
 		   <classpath refid="dependency-check.path" />
 		</taskdef>
 	    <dependency-check projectname="Connect Core"
-	                      reportoutputdirectory="${dependency-check.home}"
+	                      reportoutputdirectory="${basedir}"
 	                      reportformat="HTML">
 	        <suppressionfile path="${dependency-check.home}/suppression.xml" />
 	        <multirootfileset basedirs="${basedir}/server/lib,${basedir}/donkey/lib,${basedir}/client/lib,${basedir}/command/lib,${basedir}/manager/lib">
