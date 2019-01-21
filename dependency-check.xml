@@ -4,8 +4,7 @@
 	<target name="help">
 		<echo>NG Connect Dependency Checker Help</echo>
 		<echo>Run target 'dependency-check' to execute dependency check.</echo>
-		<echo>Report will be outputted to ./dependency-check-lib/dependency-check-report.html.</echo>
-		<echo>${dependency-check.path}</echo>
+		<echo>Report will be outputted to ./dependency-check-report.html.</echo>
 	</target>
 
 	<target name="dependency-check" description="Dependency-Check Analysis">
@@ -20,8 +19,9 @@
 		<taskdef resource="dependency-check-taskdefs.properties">
 		   <classpath refid="dependency-check.path" />
 		</taskdef>
+		<echo>${basedir}</echo>
 	    <dependency-check projectname="Connect Core"
-	                      reportoutputdirectory="${basedir}"
+	                      reportOutputDirectory="${basedir}"
 	                      reportformat="HTML">
 	        <suppressionfile path="${dependency-check.home}/suppression.xml" />
 	        <multirootfileset basedirs="${basedir}/server/lib,${basedir}/donkey/lib,${basedir}/client/lib,${basedir}/command/lib,${basedir}/manager/lib">
