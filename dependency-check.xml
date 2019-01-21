@@ -16,6 +16,9 @@
 		        <include name="*.jar"/>
 		    </fileset>
 		</path>
+		<taskdef resource="dependency-check-taskdefs.properties">
+		   <classpath refid="dependency-check.path" />
+		</taskdef>
 	    <dependency-check projectname="Connect Core"
 	                      reportoutputdirectory="${basedir}"
 	                      reportformat="HTML">
