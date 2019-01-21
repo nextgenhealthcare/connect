@@ -21,7 +21,7 @@
 		</taskdef>
 		<echo>${basedir}</echo>
 	    <dependency-check projectname="Connect Core"
-	                      reportOutputDirectory="${basedir}"
+	                      reportoutputdirectory="${basedir}"
 	                      reportformat="HTML">
 	        <suppressionfile path="${dependency-check.home}/suppression.xml" />
 	        <multirootfileset basedirs="${basedir}/server/lib,${basedir}/donkey/lib,${basedir}/client/lib,${basedir}/command/lib,${basedir}/manager/lib">
