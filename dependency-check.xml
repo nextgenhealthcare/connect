@@ -8,10 +8,6 @@
 	</target>
 
 	<target name="dependency-check" description="Dependency-Check Analysis">
-		<echo>${basedir}</echo>
-		<echo>${user.home}</echo>
-		<echo>${jenkins.home}</echo>
-		<echo>${user.name}</echo>
 		<property file="dependency-check.properties" />
 		<property name="dependency-check.home" location="${jenkins.home}/dependency-check"/>
 		<path id="dependency-check.path">
