@@ -19,7 +19,7 @@
 		<mkdir dir="${reports}" />
 		
 		<ant antfile="mirth-build.xml" target="test-run">
-			<property name="reports" value="${reports}" />
+			<property name="junit-reports" value="${reports}" />
 		</ant>
 	</target>
 </project>
