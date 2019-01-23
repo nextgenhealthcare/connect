@@ -13,13 +13,17 @@
 	</target>
 
 	<target name="test-run">
-		<property name="reports" value="../server/junit-reports" />
+		<property name="junit-reports" value="../server/junit-reports" />
+		<property name="code-coverage-reports" value="../server/code-coverage-reports" />
 
-		<delete dir="${reports}" />
-		<mkdir dir="${reports}" />
+		<delete dir="${junit-reports}" />
+		<mkdir dir="${junit-reports}" />
+		<delete dir="${code-coverage-reports}" />
+		<mkdir dir="${code-coverage-reports}" />
 		
 		<ant antfile="mirth-build.xml" target="test-run">
-			<property name="reports" value="${reports}" />
+			<property name="junit-reports" value="${junit-reports}" />
+			<property name="code-coverage-reports" value="${code-coverage-reports}" />
 		</ant>
 	</target>
 </project>
