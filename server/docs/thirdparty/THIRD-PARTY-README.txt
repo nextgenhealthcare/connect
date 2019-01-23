@@ -1350,16 +1350,6 @@ The source code for OSHI is available at: https://github.com/oshi/oshi
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes SonarQube Scanner for Ant version 2.5, which is licensed
-under LGPL version 3. A copy of this license is available in the file named
-LGPL-3.0.txt.
-
-The source code for SonarQube Scanner for Ant is available at 
-https://github.com/SonarSource/sonar-scanner-ant/.
-
---------------------------------------------------------------------------------
-
-
 Mirth Connect includes the JaCoCo Java Code Coverage Library version 0.8.2,
 which is licensed under the Eclipse Public License version 1.0. A copy of this
 license is available in the file named EPL-1.0.txt.
