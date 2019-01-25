@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<project name="mirth-connect" basedir="." default="help">
+
+	<target name="help">
+		<echo>NG Connect Dependency Checker Help</echo>
+		<echo>Run target 'dependency-check' to execute dependency check.</echo>
+		<echo>Whatever user is running the job needs read/write access to dependency-check.home directory.</echo>
+		<echo>Use chmod and chown to change permissions/ownership.</echo>
+		<echo>Report will be outputted to ./dependency-check-report.html.</echo>
+	</target>
+
+	<target name="dependency-check" description="Dependency-Check Analysis">
+		<property name="dependency-check.home" location="${lib.home}/dependency-check"/>
+		<path id="dependency-check.path">
+		   <pathelement location="${dependency-check.home}/dependency-check-ant.jar"/>
+		    <fileset dir="${dependency-check.home}/lib">
+		        <include name="*.jar"/>
+		    </fileset>
+		</path>
+		<taskdef resource="dependency-check-taskdefs.properties">
+		   <classpath refid="dependency-check.path" />
+		</taskdef>
+	    <dependency-check projectname="Connect Core"
+	                      reportoutputdirectory="${basedir}"
+	                      reportformat="HTML">
+	        <suppressionfile path="${dependency-check.home}/suppression.xml" />
+	        <multirootfileset basedirs="${basedir}/server/lib,${basedir}/donkey/lib,${basedir}/client/lib,${basedir}/command/lib,${basedir}/manager/lib">
+	            <include name="**/*.jar"/>
+	        </multirootfileset>
+	    </dependency-check>
+	</target>
+</project>
