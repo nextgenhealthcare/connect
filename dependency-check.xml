@@ -4,7 +4,7 @@
 	<target name="help">
 		<echo>NG Connect Dependency Checker Help</echo>
 		<echo>Run target 'dependency-check' to execute dependency check.</echo>
-		<echo>Jenkins user (or whoever is running the job) needs read/write access to dependency-check.home directory.</echo>
+		<echo>Whatever user is running the job needs read/write access to dependency-check.home directory.</echo>
 		<echo>Use chmod and chown to change permissions/ownership.</echo>
 		<echo>Report will be outputted to ./dependency-check-report.html.</echo>
 	</target>
