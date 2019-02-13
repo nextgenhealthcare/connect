@@ -699,11 +699,11 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public Map<String, String> getConfigurationMap() {
+        loadDatabaseConfigPropsIfNecessary();
         return configurationMap;
     }
-
-    @Override
-    public synchronized Map<String, ConfigurationProperty> getConfigurationProperties() {
+    
+    private void loadDatabaseConfigPropsIfNecessary() {
         try {
             if (!configMapLoaded && "database".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
                 // load configurations from database
@@ -718,6 +718,11 @@ public class DefaultConfigurationController extends ConfigurationController {
         } catch (ControllerException e) {
             logger.error("Failed to load configuration map from database", e);
         }
+    }
+
+    @Override
+    public synchronized Map<String, ConfigurationProperty> getConfigurationProperties() {
+        loadDatabaseConfigPropsIfNecessary();
         Map<String, ConfigurationProperty> map = new HashMap<String, ConfigurationProperty>();
 
         for (Entry<String, String> entry : configurationMap.entrySet()) {
