@@ -9,7 +9,9 @@
 
 package com.mirth.connect.model;
 
-public class MessageImportResult {
+import java.io.Serializable;
+
+public class MessageImportResult implements Serializable {
     private int totalCount;
     private int successCount;
 

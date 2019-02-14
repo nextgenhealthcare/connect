@@ -9,7 +9,9 @@
 
 package com.mirth.connect.model.notification;
 
-public class Notification {
+import java.io.Serializable;
+
+public class Notification implements Serializable {
     private Integer id;
     private String name;
     private String date;

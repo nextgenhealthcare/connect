@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model.alert;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,7 @@ import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertActionGroup")
-public class AlertActionGroup implements Migratable, Purgable {
+public class AlertActionGroup implements Serializable, Migratable, Purgable {
 
     protected List<AlertAction> actions;
     protected String subject;

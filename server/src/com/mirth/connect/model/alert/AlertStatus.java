@@ -9,10 +9,12 @@
 
 package com.mirth.connect.model.alert;
 
+import java.io.Serializable;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertStatus")
-public class AlertStatus {
+public class AlertStatus implements Serializable {
 
     private String id;
     private String name;

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model.codetemplates;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +21,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import com.mirth.connect.model.CalendarToStringStyle;
 import com.mirth.connect.model.Parameter;
 
-public class CodeTemplateFunctionDefinition {
+public class CodeTemplateFunctionDefinition implements Serializable {
 
     private String name;
     private List<Parameter> parameters;

@@ -9,12 +9,13 @@
 
 package com.mirth.connect.model.alert;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.mirth.connect.donkey.util.purge.Purgable;
 
-public abstract class ChannelTrigger implements Purgable {
+public abstract class ChannelTrigger implements Serializable, Purgable {
 
     private AlertChannels alertChannels = new AlertChannels();
 
