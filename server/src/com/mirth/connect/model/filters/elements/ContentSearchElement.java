@@ -9,9 +9,10 @@
 
 package com.mirth.connect.model.filters.elements;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ContentSearchElement {
+public class ContentSearchElement implements Serializable {
 
     private int contentCode;
     private List<String> searches;

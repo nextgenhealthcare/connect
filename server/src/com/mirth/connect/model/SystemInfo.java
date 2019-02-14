@@ -9,10 +9,12 @@
 
 package com.mirth.connect.model;
 
+import java.io.Serializable;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("systemInfo")
-public class SystemInfo {
+public class SystemInfo implements Serializable {
     private String jvmVersion;
     private String osName;
     private String osVersion;

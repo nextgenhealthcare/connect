@@ -11,6 +11,7 @@ package com.mirth.connect.model;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
@@ -26,7 +27,7 @@ import com.mirth.connect.donkey.model.event.Event;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("event")
-public class ServerEvent extends Event {
+public class ServerEvent extends Event implements Serializable {
     public static final String ATTR_EXCEPTION = "Exception";
 
     public enum Level {

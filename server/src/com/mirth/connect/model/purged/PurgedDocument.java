@@ -9,10 +9,11 @@
 
 package com.mirth.connect.model.purged;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class PurgedDocument {
+public class PurgedDocument implements Serializable {
     private String mirthVersion;
     private String serverId;
     private String databaseType;

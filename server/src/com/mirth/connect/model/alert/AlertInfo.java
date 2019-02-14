@@ -9,12 +9,13 @@
 
 package com.mirth.connect.model.alert;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 import com.mirth.connect.model.ChannelSummary;
 
-public class AlertInfo {
+public class AlertInfo implements Serializable {
     private AlertModel model;
     private Map<String, Map<String, String>> protocolOptions;
     private List<ChannelSummary> changedChannels;
