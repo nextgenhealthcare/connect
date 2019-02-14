@@ -2828,8 +2828,10 @@ public class ChannelPanel extends AbstractFramePanel {
         int visibleChannelCount = filteredChannelStatuses.size();
 
         List<Channel> filteredChannels = new ArrayList<Channel>();
+        Set<String> filteredChannelIds = new HashSet<>();
         for (ChannelStatus filteredChannelStatus : filteredChannelStatuses) {
             filteredChannels.add(filteredChannelStatus.getChannel());
+            filteredChannelIds.add(filteredChannelStatus.getChannel().getId());
         }
 
         List<ChannelGroupStatus> filteredGroupStatuses = new ArrayList<ChannelGroupStatus>();
@@ -2880,10 +2882,6 @@ public class ChannelPanel extends AbstractFramePanel {
             if (totalGroupCount != 1) {
                 builder.append('s');
             }
-
-            if (totalGroupCount != visibleGroupCount) {
-                builder.append(" (").append(totalGroupCount - visibleGroupCount).append(" filtered)");
-            }
             builder.append(", ");
         }
 
@@ -2897,11 +2895,26 @@ public class ChannelPanel extends AbstractFramePanel {
         if (totalChannelCount != 1) {
             builder.append('s');
         }
-
-        if (totalChannelCount != visibleChannelCount) {
-            builder.append(" (").append(totalChannelCount - visibleChannelCount).append(" filtered)");
+        
+        int totalEnabledChannels = 0;
+        int visibleEnabledChannel = 0;
+        for (Map.Entry<String, ChannelStatus> entry : channelStatuses.entrySet()) {
+            if (entry.getValue().getChannel().getExportData().getMetadata().isEnabled()) {
+                if (filteredChannelIds.contains(entry.getKey())) {
+                    visibleEnabledChannel++;
+                }
+                totalEnabledChannels++;
+            }
         }
-        builder.append(", ").append(totalChannelCount).append(" Enabled");
+        
+        builder.append(", ");
+        
+        if (totalEnabledChannels == visibleEnabledChannel) {
+            builder.append(totalEnabledChannels);
+        } else {
+            builder.append(visibleEnabledChannel).append(" of ").append(totalEnabledChannels);
+        }
+        builder.append(" Enabled");
 
         if (tagField.isFilterEnabled()) {
             builder.append(" (");
