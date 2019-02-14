@@ -107,8 +107,8 @@ public class DisplayUtil {
      * Shows a confirmation dialog with a text input. This is needed due to
      * https://bugs.openjdk.java.net/browse/JDK-8208743.
      */
-    public static String showInputDialog(Component parentComponent, Object message, String title) throws HeadlessException {
-        return showInputDialog(parentComponent, message, title, JOptionPane.QUESTION_MESSAGE);
+    public static String showInputDialog(Component parentComponent, Object message, Object initialSelectionValue) throws HeadlessException {
+        return showInputDialog(parentComponent, message, "Input", JOptionPane.QUESTION_MESSAGE, null, null, initialSelectionValue);
     }
 
     /**
