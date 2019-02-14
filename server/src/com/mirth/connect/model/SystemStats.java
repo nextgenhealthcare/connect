@@ -9,12 +9,13 @@
 
 package com.mirth.connect.model;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("systemStats")
-public class SystemStats {
+public class SystemStats implements Serializable {
     private Calendar timestamp;
     private double cpuUsagePct;
     private long allocatedMemoryBytes;

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model.filters;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * A EventFilter is used to search the event log.
  */
 @XStreamAlias("eventFilter")
-public class EventFilter {
+public class EventFilter implements Serializable {
     /*
      * Note that any filter criteria that is an int must be represented using Integer otherwise it
      * will default to 0 and not pass the isNotNull check in the SQL mapping.

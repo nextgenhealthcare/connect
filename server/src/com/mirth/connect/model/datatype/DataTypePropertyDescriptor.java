@@ -9,7 +9,9 @@
 
 package com.mirth.connect.model.datatype;
 
-public class DataTypePropertyDescriptor {
+import java.io.Serializable;
+
+public class DataTypePropertyDescriptor implements Serializable {
 
     private Object value;
     private String displayName;

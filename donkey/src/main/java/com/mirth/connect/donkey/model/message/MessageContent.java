@@ -9,9 +9,7 @@
 
 package com.mirth.connect.donkey.model.message;
 
-import java.io.Serializable;
-
-public class MessageContent extends Content implements Serializable {
+public class MessageContent extends Content {
     private String channelId;
     private long messageId;
     private int metaDataId;

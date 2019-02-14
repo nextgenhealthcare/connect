@@ -141,6 +141,7 @@
 /command/build
 /command/classes
 /command/dist
+/command/junit-reports
 
 # /command/conf/
 
@@ -328,6 +329,7 @@
 /server/classes
 /server/setup
 /server/bin
+/server/derby.log
 /server/dist
 /server/.settings
 /server/build

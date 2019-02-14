@@ -9,13 +9,15 @@
 
 package com.mirth.connect.model;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("parameter")
-public class Parameter {
+public class Parameter implements Serializable {
 
     private String name;
     private String type;

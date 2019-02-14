@@ -9,7 +9,9 @@
 
 package com.mirth.connect.donkey.model.message;
 
-public abstract class Content {
+import java.io.Serializable;
+
+public abstract class Content implements Serializable {
     private boolean encrypted = false;
 
     public Content() {}

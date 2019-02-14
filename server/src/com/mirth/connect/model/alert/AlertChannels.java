@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model.alert;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,7 +22,7 @@ import com.mirth.connect.donkey.util.purge.Purgable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertChannels")
-public class AlertChannels implements Migratable, Purgable {
+public class AlertChannels implements Serializable, Migratable, Purgable {
 
     private boolean newChannelSource = false;
     private boolean newChannelDestination = false;
