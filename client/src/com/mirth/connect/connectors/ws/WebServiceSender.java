@@ -163,8 +163,6 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         WebServiceDispatcherProperties props = (WebServiceDispatcherProperties) properties;
 
         wsdlUrlField.setText(props.getWsdlUrl());
-        soapActionField.setText(props.getSoapAction());
-        urlFieldChanged();
 
         soapEnvelopeTextArea.setText(props.getEnvelope());
         socketTimeoutField.setText(props.getSocketTimeout());
@@ -196,6 +194,9 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         locationURIComboBox.setSelectedItem(props.getLocationURI());
         operationComboBox.setSelectedItem(props.getOperation());
         updateGenerateEnvelopeButtonEnabled();
+
+        soapActionField.setText(props.getSoapAction());
+        urlFieldChanged();
 
         parent.setSaveEnabled(enabled);
 
