@@ -378,6 +378,9 @@ public class Frame extends JXFrame {
                 logger.error("Synchronization lost in the list of the encoding characters.");
                 index = 0;
             }
+            if (allowNone && index > 0) {   // need to increment since this.availableCharsetEncodings does not include the None option
+                index++;
+            }
             charsetEncodingCombobox.setSelectedIndex(index);
         } else {
             alertInformation(this, "Sorry, the JVM of the server can't support the previously selected " + selectedCharset + " encoding. Please choose another one or install more encodings in the server.");
