@@ -24,7 +24,11 @@ public class ObjectXMLSerializerTest {
 
     @BeforeClass
     public static void setup() throws Exception {
-        ObjectXMLSerializer.getInstance().init(Version.getLatest().toString());
+        try {
+            ObjectXMLSerializer.getInstance().init(Version.getLatest().toString());
+        } catch (Exception e) {
+            // Ignore if it has already been initialized
+        }
     }
 
     @Test
