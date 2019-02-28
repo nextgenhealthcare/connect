@@ -73,7 +73,11 @@ public class ServerConfigurationRestorerTest {
     @BeforeClass
     public static void setup() throws Exception {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        serializer.init(Version.getLatest().toString());
+        try {
+            serializer.init(Version.getLatest().toString());
+        } catch (Exception e) {
+            // Ignore if it has already been initialized
+        }
 
         config1 = serializer.deserialize(IOUtils.toString(ServerConfigurationRestorerTest.class.getResourceAsStream("Config 1.xml")), ServerConfiguration.class);
     }
