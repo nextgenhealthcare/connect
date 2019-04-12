@@ -17,6 +17,7 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/PageSize"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/Unit"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SchemeProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FTPSchemeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SftpSchemeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/S3SchemeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileReceiverProperties"/>

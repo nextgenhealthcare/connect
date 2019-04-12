@@ -62,6 +62,7 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
         if (scheme.equals(FileScheme.FILE)) {
             return "file://";
         } else if (scheme.equals(FileScheme.FTP)) {
+            // TODO - append scheme properties to poolkey
             return "ftp://" + username + ":" + password + "@" + host + ":" + port;
         } else if (scheme.equals(FileScheme.SFTP)) {
             StringBuilder poolKey = new StringBuilder();
