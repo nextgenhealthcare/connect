@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.util.DisplayUtil;
-import com.sun.istack.internal.NotNull;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -121,7 +120,6 @@ public class AdvancedFTPSettingsDialog extends AdvancedSettingsDialog {
         dispose();
     }
     
-    @NotNull
     private List<String> commandStringToList(String commandString) {
         List<String> commandList = new ArrayList<>();
         String[] commandArray = commandString.split(",");
@@ -134,7 +132,6 @@ public class AdvancedFTPSettingsDialog extends AdvancedSettingsDialog {
         return commandList;
     }
     
-    @NotNull
     private String commandListToString(List<String> commandList) {
         String commandString = null;
         if (CollectionUtils.isNotEmpty(commandList)) {
