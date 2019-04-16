@@ -12,8 +12,6 @@ package com.mirth.connect.connectors.file;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import javax.swing.BorderFactory;
@@ -23,8 +21,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-
-import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
@@ -44,6 +40,8 @@ import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
+
+import net.miginfocom.swing.MigLayout;
 
 public class FileWriter extends ConnectorSettingsPanel {
 
@@ -958,18 +956,11 @@ public class FileWriter extends ConnectorSettingsPanel {
                 setSummaryText();
             }
         } else if (selectedScheme == FileScheme.FTP) {
-            // TODO - FTP dialog
-            
-            // TESTING WITH SOME BASIC COMMANDS
-            List<String>commands = new ArrayList<>();
-            commands.add("MKD HELLO1");
-            commands.add("MKD HELLO2");
-            advancedProperties = new FTPSchemeProperties();
-            ((FTPSchemeProperties)advancedProperties).setCommands(commands);
-            PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
-            // END TESTING
-            
-            setSummaryText();
+            AdvancedFTPSettingsDialog dialog = new AdvancedFTPSettingsDialog((FTPSchemeProperties) advancedProperties);
+            if (dialog.wasSaved()) {
+                advancedProperties = dialog.getSchemeProperties();
+                setSummaryText();
+            }
         }
     }
 

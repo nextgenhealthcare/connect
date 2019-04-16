@@ -12,8 +12,6 @@ package com.mirth.connect.connectors.file;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import javax.swing.AbstractListModel;
@@ -1074,18 +1072,11 @@ public class FileReader extends ConnectorSettingsPanel {
                 setSummaryText();
             }
         } else if (selectedScheme == FileScheme.FTP) {
-            // TODO - FTP dialog with commands
-            
-            // TESTING WITH SOME BASIC COMMANDS
-            List<String>commands = new ArrayList<>();
-            commands.add("MKD HELLO1");
-            commands.add("MKD HELLO2");
-            advancedProperties = new FTPSchemeProperties();
-            ((FTPSchemeProperties)advancedProperties).setCommands(commands);
-            PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
-            // END TESTING
-            
-            setSummaryText();
+            AdvancedSettingsDialog dialog = new AdvancedFTPSettingsDialog((FTPSchemeProperties) advancedProperties);
+            if (dialog.wasSaved()) {
+                advancedProperties = dialog.getSchemeProperties();
+                setSummaryText();
+            }
         }
     }
 

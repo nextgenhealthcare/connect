@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +27,6 @@ import org.apache.commons.net.ftp.FTPReply;
 
 import com.mirth.connect.connectors.file.FTPSchemeProperties;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
-import com.mirth.connect.connectors.file.SchemeProperties;
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 /**
@@ -145,11 +145,13 @@ public class FtpConnection implements FileSystemConnection {
      */
     protected void initialize(FTPSchemeProperties schemeProperties) throws Exception {
         if (schemeProperties != null) {
-            List<String> commands = schemeProperties.getCommands();
-            for (String command: commands) {
-                int result = client.sendCommand(command);
-                if (!FTPReply.isPositiveCompletion(result)) {
-                    logger.error("failed to issue command " + command + " with result " + client.getReplyString());
+            List<String> commands = schemeProperties.getInitialCommands();
+            if (CollectionUtils.isNotEmpty(commands)) {
+                for (String command: commands) {
+                    int result = client.sendCommand(command);
+                    if (!FTPReply.isPositiveCompletion(result)) {
+                        logger.error("failed to issue command " + command + " with result " + client.getReplyString());
+                    }
                 }
             }
         }

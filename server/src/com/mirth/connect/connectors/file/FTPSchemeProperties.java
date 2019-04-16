@@ -5,29 +5,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class FTPSchemeProperties extends SchemeProperties {
 
-    private List<String> commands;
+    private List<String> initialCommands;
     
     public FTPSchemeProperties() {
-        commands = new ArrayList<>();
+        initialCommands = new ArrayList<>();
     }
     
     public FTPSchemeProperties(FTPSchemeProperties props) {
-        commands = new ArrayList<>();
-        for (String command: props.getCommands()) {
-            commands.add(command);
+        initialCommands = new ArrayList<>();
+        
+        List<String> propCommands = props.getInitialCommands();
+        if (CollectionUtils.isNotEmpty(propCommands)) {
+            for (String command: props.getInitialCommands()) {
+                initialCommands.add(command);
+            }
         }
     }
     
-    public List<String> getCommands() {
-        return commands;
+    public List<String> getInitialCommands() {
+        return initialCommands;
     }
     
-    public void setCommands(List<String> commands) {
-        this.commands = commands;
+    public void setInitialCommands(List<String> commands) {
+        this.initialCommands = commands;
     }
 
     @Override
@@ -40,11 +45,11 @@ public class FTPSchemeProperties extends SchemeProperties {
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
         
-        if (!commands.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(initialCommands)) {
             builder.append("[INITIAL COMMANDS]");
             builder.append(newLine);
             
-            for (String command: commands) {
+            for (String command: initialCommands) {
                 builder.append(command);
                 builder.append(newLine);
             }
@@ -58,7 +63,7 @@ public class FTPSchemeProperties extends SchemeProperties {
         StringBuilder builder = new StringBuilder();
         
         builder.append("Initial Commands: ");
-        builder.append(String.join(",", commands));
+        builder.append(String.join(",", initialCommands));
         
         return builder.toString();
     }
@@ -71,7 +76,7 @@ public class FTPSchemeProperties extends SchemeProperties {
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<>();
-        purgedProperties.put("initialCommandsCount", commands.size());
+        purgedProperties.put("initialCommandsCount", initialCommands.size());
         return purgedProperties;
     }
     
