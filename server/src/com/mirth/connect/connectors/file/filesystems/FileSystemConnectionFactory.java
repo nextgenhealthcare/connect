@@ -10,9 +10,11 @@
 package com.mirth.connect.connectors.file.filesystems;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,6 +22,7 @@ import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 
+import com.mirth.connect.connectors.file.FTPSchemeProperties;
 import com.mirth.connect.connectors.file.FileScheme;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.S3SchemeProperties;
@@ -62,7 +65,19 @@ public class FileSystemConnectionFactory implements PooledObjectFactory<FileSyst
         if (scheme.equals(FileScheme.FILE)) {
             return "file://";
         } else if (scheme.equals(FileScheme.FTP)) {
-            return "ftp://" + username + ":" + password + "@" + host + ":" + port;
+            StringBuilder poolKey = new StringBuilder("ftp://" + username + ":" + password + "@" + host + ":" + port);
+            
+            FTPSchemeProperties ftpSchemeProperties = (FTPSchemeProperties) fileSystemOptions.getSchemeProperties();
+            if (ftpSchemeProperties != null) {
+                List<String> commandList = ftpSchemeProperties.getInitialCommands();
+                if (CollectionUtils.isNotEmpty(commandList)) {
+                    for (String command: commandList) {
+                        poolKey.append(":" + command);
+                    }
+                }
+            }
+            
+            return poolKey.toString();
         } else if (scheme.equals(FileScheme.SFTP)) {
             StringBuilder poolKey = new StringBuilder();
             SftpSchemeProperties sftpSchemeProperties = (SftpSchemeProperties) fileSystemOptions.getSchemeProperties();

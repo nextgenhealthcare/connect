@@ -22,8 +22,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
@@ -42,6 +40,8 @@ import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
+
+import net.miginfocom.swing.MigLayout;
 
 public class FileWriter extends ConnectorSettingsPanel {
 
@@ -899,6 +899,8 @@ public class FileWriter extends ConnectorSettingsPanel {
             validateConnectionNoRadio.setEnabled(true);
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
+            advancedSettingsButton.setEnabled(true);
+            advancedProperties = new FTPSchemeProperties();
         } else if (scheme.equals(FileScheme.SFTP)) {
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
@@ -953,6 +955,12 @@ public class FileWriter extends ConnectorSettingsPanel {
                 advancedProperties = dialog.getSchemeProperties();
                 setSummaryText();
             }
+        } else if (selectedScheme == FileScheme.FTP) {
+            AdvancedFTPSettingsDialog dialog = new AdvancedFTPSettingsDialog((FTPSchemeProperties) advancedProperties);
+            if (dialog.wasSaved()) {
+                advancedProperties = dialog.getSchemeProperties();
+                setSummaryText();
+            }
         }
     }
 
@@ -961,6 +969,8 @@ public class FileWriter extends ConnectorSettingsPanel {
             return Objects.equals(advancedProperties, new SftpSchemeProperties());
         } else if (selectedScheme == FileScheme.S3) {
             return Objects.equals(advancedProperties, new S3SchemeProperties());
+        } else if (selectedScheme == FileScheme.FTP) {
+            return Objects.equals(advancedProperties, new FTPSchemeProperties());
         }
         return true;
     }

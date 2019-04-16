@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +25,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
+import com.mirth.connect.connectors.file.FTPSchemeProperties;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
@@ -124,7 +126,7 @@ public class FtpConnection implements FileSystemConnection {
                 throw new IOException("Ftp error");
             }
 
-            initialize();
+            initialize((FTPSchemeProperties)fileSystemOptions.getSchemeProperties());
 
             if (passive) {
                 client.enterLocalPassiveMode();
@@ -141,7 +143,19 @@ public class FtpConnection implements FileSystemConnection {
      * This method allows subclasses of FtpConnection to issue additional commands after a
      * connection is established.
      */
-    protected void initialize() throws Exception {}
+    protected void initialize(FTPSchemeProperties schemeProperties) throws Exception {
+        if (schemeProperties != null) {
+            List<String> commands = schemeProperties.getInitialCommands();
+            if (CollectionUtils.isNotEmpty(commands)) {
+                for (String command: commands) {
+                    int result = client.sendCommand(command);
+                    if (!FTPReply.isPositiveCompletion(result)) {
+                        logger.error("failed to issue command " + command + " with result " + client.getReplyString());
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
