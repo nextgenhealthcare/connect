@@ -516,6 +516,8 @@ public class WebServiceDispatcher extends DestinationConnector {
                     attachment.setContentId(attachmentContentId);
                     message.addAttachmentPart(attachment);
                 }
+            } else {
+                soapBinding.setMTOMEnabled(false);
             }
 
             message.saveChanges();
