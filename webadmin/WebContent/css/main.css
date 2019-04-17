@@ -1131,3 +1131,9 @@ body .select2-container .select2-results li {
 	width: 720px; 
 	margin: 0 auto;
 }
+
+.launch-button {
+	font-size: 15px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
