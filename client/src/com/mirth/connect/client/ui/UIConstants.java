@@ -30,8 +30,8 @@ public class UIConstants {
     public static final String TITLE_TEXT = "Mirth Connect Administrator";
     public static final int MIRTH_WIDTH = 950;
     public static final int MIRTH_HEIGHT = 650;
-    public static final ImageIcon MIRTHCORP_LOGO = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirthcorp_24h.png"));
-    public static final ImageIcon MIRTHCONNECT_LOGO_GRAY = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirthconnect_gray_24h.png"));
+    public static final ImageIcon MIRTHCORP_LOGO = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/ng_logo_24h.png"));
+    public static final ImageIcon MIRTHCONNECT_LOGO_GRAY = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/nextgenconnect_gray_24h.png"));
     public static final String MIRTHCORP_TOOLTIP = "Mirth Corporation";
     public static final String MIRTHCONNECT_TOOLTIP = "Mirth Connect";
     public static final String MIRTHCORP_URL = "http://www.mirthcorp.com";

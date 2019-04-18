@@ -46,7 +46,7 @@ public class LoginPanel extends javax.swing.JFrame {
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         jLabel5.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
+        setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/ngc_32_ico.png")).getImage());
 
         mirthCorpImage.setIcon(UIConstants.MIRTHCORP_LOGO);
         mirthCorpImage.setText("");
