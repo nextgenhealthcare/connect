@@ -98,7 +98,7 @@
               <Border info="null"/>
             </Property>
             <Property name="editable" type="boolean" value="false"/>
-            <Property name="text" type="java.lang.String" value="An unexpected error has occurred.  If this is a severe error and you are on Mirth Support, please contact the Mirth Help Desk."/>
+            <Property name="text" type="java.lang.String" value="An unexpected error has occurred.  If this is a severe error and you are on NextGen Healthcare Support, please contact the NextGen Healthcare Help Desk."/>
             <Property name="focusable" type="boolean" value="false"/>
           </Properties>
         </Component>

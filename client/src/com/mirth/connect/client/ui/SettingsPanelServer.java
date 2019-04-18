@@ -773,14 +773,14 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         provideUsageStatsYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         provideUsageStatsButtonGroup.add(provideUsageStatsYesRadio);
         provideUsageStatsYesRadio.setText("Yes");
-        provideUsageStatsYesRadio.setToolTipText("<html>Toggles sending usage statistics to Mirth.  These statistics <br>do not contain any PHI or channel/script implementations,<br> and help Mirth determine which connectors or areas of<br>Mirth Connect are most widely used.</html>");
+        provideUsageStatsYesRadio.setToolTipText("<html>Toggles sending usage statistics to NextGen Healthcare.  These statistics <br>do not contain any PHI or channel/script implementations,<br> and help NextGen Healthcare determine which connectors or areas of<br>NextGen Connect are most widely used.</html>");
         provideUsageStatsYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         provideUsageStatsNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         provideUsageStatsNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         provideUsageStatsButtonGroup.add(provideUsageStatsNoRadio);
         provideUsageStatsNoRadio.setText("No");
-        provideUsageStatsNoRadio.setToolTipText("<html>Toggles sending usage statistics to Mirth.  These statistics <br>do not contain any PHI or channel/script implementations,<br> and help Mirth determine which connectors or areas of<br>Mirth Connect are most widely used.</html>");
+        provideUsageStatsNoRadio.setToolTipText("<html>Toggles sending usage statistics to NextGen Healthcare.  These statistics <br>do not contain any PHI or channel/script implementations,<br> and help NextGen Healthcare determine which connectors or areas of<br>NextGen Connect are most widely used.</html>");
         provideUsageStatsNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         provideUsageStatsMoreInfoLabel.setText("<html><font color=blue><u>More Info</u></font></html>");
@@ -796,7 +796,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         environmentNameLabel.setText("Environment name:");
 
-        environmentNameField.setToolTipText("<html>The name of this Mirth Connect environment. There is one environment name per Mirth Connect database.</html>");
+        environmentNameField.setToolTipText("<html>The name of this NextGen Connect environment. There is one environment name per NextGen Connect database.</html>");
 
         javax.swing.GroupLayout generalPanelLayout = new javax.swing.GroupLayout(generalPanel);
         generalPanel.setLayout(generalPanelLayout);

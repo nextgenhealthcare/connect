@@ -18,7 +18,7 @@ import javax.swing.ImageIcon;
 
 public class MirthPDFViewer extends com.sun.pdfview.PDFViewer {
 
-    public final static String TITLE = "Mirth PDF Viewer";
+    public final static String TITLE = "NextGen Connect PDF Viewer";
     private File tempFile;
 
     /**
@@ -79,7 +79,7 @@ public class MirthPDFViewer extends com.sun.pdfview.PDFViewer {
     }
 
     /**
-     * Set the title to "Mirth PDF Viewer: <name of file>"
+     * Set the title to "NextGen Connect PDF Viewer: <name of file>"
      */
     @Override
     public void setTitle(String title) {

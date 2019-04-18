@@ -461,7 +461,7 @@
               <ComponentRef name="provideUsageStatsButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Yes"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI or channel/script implementations,&lt;br&gt; and help Mirth determine which connectors or areas of&lt;br&gt;Mirth Connect are most widely used.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to NextGen Healthcare.  These statistics &lt;br&gt;do not contain any PHI or channel/script implementations,&lt;br&gt; and help NextGen Healthcare determine which connectors or areas of&lt;br&gt;NextGen Connect are most widely used.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -481,7 +481,7 @@
               <ComponentRef name="provideUsageStatsButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="No"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI or channel/script implementations,&lt;br&gt; and help Mirth determine which connectors or areas of&lt;br&gt;Mirth Connect are most widely used.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to NextGen Healthcare.  These statistics &lt;br&gt;do not contain any PHI or channel/script implementations,&lt;br&gt; and help NextGen Healthcare determine which connectors or areas of&lt;br&gt;NextGen Connect are most widely used.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -512,7 +512,7 @@
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="environmentNameField">
           <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The name of this Mirth Connect environment. There is one environment name per Mirth Connect database.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The name of this NextGen Connect environment. There is one environment name per NextGen Connect database.&lt;/html&gt;"/>
           </Properties>
         </Component>
       </SubComponents>

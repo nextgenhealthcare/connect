@@ -241,7 +241,7 @@
               <Color blue="0" green="0" red="cc" type="rgb"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="0"/>
-            <Property name="text" type="java.lang.String" value="The Mirth Connect Server and Administrator must be restarted before your changes will take effect."/>
+            <Property name="text" type="java.lang.String" value="The NextGen Connect Server and Administrator must be restarted before your changes will take effect."/>
           </Properties>
         </Component>
       </SubComponents>

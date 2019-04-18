@@ -587,7 +587,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
         restartRequiredLabel.setForeground(new java.awt.Color(204, 0, 0));
         restartRequiredLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        restartRequiredLabel.setText("The Mirth Connect Server and Administrator must be restarted before your changes will take effect.");
+        restartRequiredLabel.setText("The NextGen Connect Server and Administrator must be restarted before your changes will take effect.");
 
         javax.swing.GroupLayout restartRequiredPanelLayout = new javax.swing.GroupLayout(restartRequiredPanel);
         restartRequiredPanel.setLayout(restartRequiredPanelLayout);
