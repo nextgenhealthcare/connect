@@ -36,7 +36,7 @@ public class ManagerTray {
     public ManagerTray() {}
 
     public void setupTray() {
-        menu = new PopupMenu("Mirth Connect Server Manager");
+        menu = new PopupMenu("NextGen Connect Server Manager");
 
         viewItem = new MenuItem("Show Manager");
 //        viewItem.setIcon(new ImageIcon(this.getClass().getResource("images/start.png")));

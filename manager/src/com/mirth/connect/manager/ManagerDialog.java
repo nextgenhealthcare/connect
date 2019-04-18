@@ -70,7 +70,7 @@ public class ManagerDialog extends JDialog {
             LookAndFeelAddons.setAddon(WindowsLookAndFeelAddons.class);
 
             getContentPane().setBackground(Color.WHITE);
-            setTitle("Mirth Connect Server Manager");
+            setTitle("NextGen Connect Server Manager");
             DisplayUtil.setResizable(this, false);
 
             serviceController = ServiceControllerFactory.getServiceController();
@@ -160,7 +160,7 @@ public class ManagerDialog extends JDialog {
                 startButtonActionPerformed(evt);
             }
         });
-        startLabel = new JLabel("Starts the Mirth Connect service");
+        startLabel = new JLabel("Starts the NextGen Connect service");
 
         restartButton = new JButton("Restart");
         restartButton.addActionListener(new ActionListener() {
@@ -168,7 +168,7 @@ public class ManagerDialog extends JDialog {
                 restartButtonActionPerformed(evt);
             }
         });
-        restartLabel = new JLabel("Restarts the Mirth Connect service");
+        restartLabel = new JLabel("Restarts the NextGen Connect service");
 
         stopButton = new JButton("Stop");
         stopButton.addActionListener(new ActionListener() {
@@ -176,7 +176,7 @@ public class ManagerDialog extends JDialog {
                 stopButtonActionPerformed(evt);
             }
         });
-        stopLabel = new JLabel("Stops the Mirth Connect service");
+        stopLabel = new JLabel("Stops the NextGen Connect service");
 
         refreshButton = new JButton("Refresh");
         refreshButton.addActionListener(new ActionListener() {
@@ -184,9 +184,9 @@ public class ManagerDialog extends JDialog {
                 refreshButtonActionPerformed(evt);
             }
         });
-        refreshLabel = new JLabel("Refreshes the Mirth Connect service status");
+        refreshLabel = new JLabel("Refreshes the NextGen Connect service status");
 
-        startup = new JCheckBox("Start Mirth Connect Server Manager on system startup");
+        startup = new JCheckBox("Start NextGen Connect Server Manager on system startup");
         startup.setFocusable(false);
         startup.setToolTipText("Starts this application when logging into the operating system. Currently only enabled for Windows.");
         startup.setBackground(new Color(255, 255, 255));
@@ -304,8 +304,8 @@ public class ManagerDialog extends JDialog {
         javaVersionField = new JLabel("javaVersion");
 
         contactPrefixLabel = new JLabel("Need Help?  Contact");
-        mirthSupportLink = new JLabel("<html><font color=blue><u>Mirth Corporation</u></font></html>");
-        mirthSupportLink.setToolTipText("Visit Mirth Corporation's website.");
+        mirthSupportLink = new JLabel("<html><font color=blue><u>NextGen Healthcare</u></font></html>");
+        mirthSupportLink.setToolTipText("Visit NextGen Healthcare's website.");
         mirthSupportLink.setCursor(new Cursor(Cursor.HAND_CURSOR));
         mirthSupportLink.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
@@ -435,7 +435,7 @@ public class ManagerDialog extends JDialog {
     }
 
     private void mirthSupportLinkMouseClicked(MouseEvent evt) {
-        BareBonesBrowserLaunch.openURL("http://www.mirthcorp.com/services/support");
+        BareBonesBrowserLaunch.openURL("https://www.nextgen.com/contact-us");
     }
 
     private void startupActionPerformed(ActionEvent evt) {
