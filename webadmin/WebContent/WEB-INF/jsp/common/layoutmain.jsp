@@ -10,7 +10,7 @@
     <!DOCTYPE html>
     <html>
         <head>
-            <title>Mirth Connect Web Administrator</title>
+            <title>NextGen Connect Web Administrator</title>
             <link rel="shortcut icon" type="image/x-icon" href="${contextPath}/images/favicon.ico" />
             <link rel="stylesheet" type="text/css" href="${contextPath}/css/bootstrap.css" />
             <link rel="stylesheet" type="text/css" href="${contextPath}/css/statistics.css" />
@@ -21,7 +21,7 @@
             <nav id="header" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
                 <div class="navbar-inner">
                     <div id="statisticsNavbarContainer" class="container" style="width: 98%;">
-                        <a class="navbar-brand"> <img alt="Mirth Connect" src="${contextPath}/css/mirthconnectlogowide.png" style="height: 30px"></a>
+                        <a class="navbar-brand"> <img alt="NextGen Connect" src="${contextPath}/css/nextgenconnectlogowide.png" style="height: 30px"></a>
                         <ul id="navbarList" class="nav navbar-nav">
                             <li id="li_dashboardstatistics"><s:link beanclass="com.mirth.connect.webadmin.action.DashboardStatisticsActionBean">Dashboard Statistics</s:link></li>
                         </ul>
