@@ -1,10 +1,10 @@
 <connectorMetaData path="jdbc">
 	<name>Database Reader</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This connector allows Mirth to poll any supported JDBC-compatabile database for data. Rows are returned as XML and JavaScript can be used for advanced logic.</description>
+	<url>http://www.nextgen.com</url>
+	<description>This connector allows NextGen Connect to poll any supported JDBC-compatabile database for data. Rows are returned as XML and JavaScript can be used for advanced logic.</description>
 	<clientClassName>com.mirth.connect.connectors.jdbc.DatabaseReader</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.jdbc.DatabaseReceiver</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.jdbc.DatabaseReceiverProperties</sharedClassName>

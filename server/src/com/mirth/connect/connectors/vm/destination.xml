@@ -1,10 +1,10 @@
 <connectorMetaData path="vm">
 	<name>Channel Writer</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This connector allows Mirth to send events to other channels in the same Mirth instance.</description>
+	<url>http://www.nextgen.com</url>
+	<description>This connector allows NextGen Connect to send events to other channels in the same NextGen Connect instance.</description>
 	<clientClassName>com.mirth.connect.connectors.vm.ChannelWriter</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.vm.VmDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.vm.VmDispatcherProperties</sharedClassName>

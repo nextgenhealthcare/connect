@@ -1,9 +1,9 @@
 <pluginMetaData path="mllpmode">
 	<name>Transmission Mode - MLLP</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
+	<url>http://www.nextgen.com</url>
 	<description>This plugin provides an MLLP transmission mode for socket/serial connectors.</description>
 	<serverClasses>
 		<string>com.mirth.connect.plugins.mllpmode.MLLPModeProvider</string>

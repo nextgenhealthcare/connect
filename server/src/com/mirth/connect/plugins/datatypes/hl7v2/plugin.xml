@@ -1,9 +1,9 @@
 <pluginMetaData path="datatype-hl7v2">
 	<name>HL7v2 Data Type</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
+	<url>http://www.nextgen.com</url>
 	<description>This plugin provides support for the HL7v2 data type</description>
 	<serverClasses>
 		<string>com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeServerPlugin</string>

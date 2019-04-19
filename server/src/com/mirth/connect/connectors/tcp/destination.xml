@@ -1,10 +1,10 @@
 <connectorMetaData path="tcp">
 	<name>TCP Sender</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This connector allows Mirth to send messages to a TCP server.</description>
+	<url>http://www.nextgen.com</url>
+	<description>This connector allows NextGen Connect to send messages to a TCP server.</description>
 	<clientClassName>com.mirth.connect.connectors.tcp.TcpSender</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.tcp.TcpDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.tcp.TcpDispatcherProperties</sharedClassName>

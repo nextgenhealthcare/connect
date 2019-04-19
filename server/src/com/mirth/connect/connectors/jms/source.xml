@@ -1,10 +1,10 @@
 <connectorMetaData path="jms">
 	<name>JMS Listener</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This connector allows Mirth to read messages from a JMS queue.</description>
+	<url>http://www.nextgen.com</url>
+	<description>This connector allows NextGen Connect to read messages from a JMS queue.</description>
 	<clientClassName>com.mirth.connect.connectors.jms.JmsListener</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.jms.JmsReceiver</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.jms.JmsReceiverProperties</sharedClassName>

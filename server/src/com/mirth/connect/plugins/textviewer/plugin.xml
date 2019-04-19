@@ -1,9 +1,9 @@
 <pluginMetaData path="textviewer">
 	<name>Text Viewer</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
+	<url>http://www.nextgen.com</url>
 	<description>This plugin provides text and RTF attachment viewing capability in message browser.</description>
 	<clientClasses>
 		<string>com.mirth.connect.plugins.textviewer.TextViewer</string>

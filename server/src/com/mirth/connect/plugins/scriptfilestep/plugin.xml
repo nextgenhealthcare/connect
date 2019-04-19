@@ -1,10 +1,10 @@
 <pluginMetaData path="scriptfilestep">
 	<name>External Script Transformer Step</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This plugin provides an External Script step-type for Mirth Connect transformers</description>
+	<url>http://www.nextgen.com</url>
+	<description>This plugin provides an External Script step-type for NextGen Connect transformers</description>
 	<clientClasses>
 		<string>com.mirth.connect.plugins.scriptfilestep.ExternalScriptStepPlugin</string>
 	</clientClasses>
