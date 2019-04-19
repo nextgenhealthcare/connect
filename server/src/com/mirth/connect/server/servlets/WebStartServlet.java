@@ -300,11 +300,11 @@ public class WebStartServlet extends HttpServlet {
         Element informationElement = document.createElement("information");
 
         Element titleElement = document.createElement("title");
-        titleElement.setTextContent("Mirth Connect Extension - [" + StringUtils.join(extensionsWithThePath, ",") + "]");
+        titleElement.setTextContent("NextGen Connect Extension - [" + StringUtils.join(extensionsWithThePath, ",") + "]");
         informationElement.appendChild(titleElement);
 
         Element vendorElement = document.createElement("vendor");
-        vendorElement.setTextContent("Mirth Corporation");
+        vendorElement.setTextContent("NextGen Healthcare");
         informationElement.appendChild(vendorElement);
 
         jnlpElement.appendChild(informationElement);
