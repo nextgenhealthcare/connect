@@ -102,7 +102,7 @@ public class ManagerTray {
         menu.add(quitItem);
 
         ImageIcon icon = new ImageIcon(this.getClass().getResource("images/ngc_32_ico_gray.png"));
-        mirthTrayIcon = new TrayIcon(icon.getImage(), "Mirth Connect Server Manager", menu);
+        mirthTrayIcon = new TrayIcon(icon.getImage(), "NextGen Connect Server Manager", menu);
         mirthTrayIcon.setImageAutoSize(true);
 
         // Action listener for left click.

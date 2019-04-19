@@ -204,7 +204,7 @@ public class ExtensionLoader {
                                 pluginMetaDataMap.put(metaData.getName(), (PluginMetaData) metaData);
                             }
                         } else {
-                            logger.error("Extension \"" + metaData.getName() + "\" is not compatible with this version of Mirth Connect and was not loaded. Please install a compatible version.");
+                            logger.error("Extension \"" + metaData.getName() + "\" is not compatible with this version of NextGen Connect and was not loaded. Please install a compatible version.");
                             invalidMetaDataMap.put(metaData.getName(), metaData);
                         }
                     } catch (Exception e) {
