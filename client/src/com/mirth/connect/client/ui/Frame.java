@@ -378,7 +378,7 @@ public class Frame extends JXFrame {
                 logger.error("Synchronization lost in the list of the encoding characters.");
                 index = 0;
             }
-            if (allowNone && index > 0) {   // need to increment since this.availableCharsetEncodings does not include the None option
+            if (allowNone && index > 0) { // need to increment since this.availableCharsetEncodings does not include the None option
                 index++;
             }
             charsetEncodingCombobox.setSelectedIndex(index);
@@ -468,15 +468,23 @@ public class Frame extends JXFrame {
 
         buildContentPanel(rightContainer, contentPane, false);
 
-        // Set task pane container background painter
-        MattePainter taskPanePainter = new MattePainter(new GradientPaint(0f, 0f, UIConstants.JX_CONTAINER_BACKGROUND_COLOR, 0f, 1f, UIConstants.JX_CONTAINER_BACKGROUND_COLOR));
-        taskPanePainter.setPaintStretched(true);
-        taskPaneContainer.setBackgroundPainter(taskPanePainter);
-
-        // Set main content container title painter
-        MattePainter contentTitlePainter = new MattePainter(new GradientPaint(0f, 0f, UIConstants.JX_CONTAINER_BACKGROUND_COLOR, 0f, 1f, UIConstants.JX_CONTAINER_BACKGROUND_COLOR));
-        contentTitlePainter.setPaintStretched(true);
-        rightContainer.setTitlePainter(contentTitlePainter);
+        // Determine background color from user preference if available
+        Color backgroundColor = PlatformUI.DEFAULT_BACKGROUND_COLOR;
+        try {
+            User currentUser = getCurrentUser(this);
+            if (currentUser != null) {
+                String backgroundColorStr = mirthClient.getUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR);
+                if (StringUtils.isNotBlank(backgroundColorStr)) {
+                    Color backgroundColorPreference = ObjectXMLSerializer.getInstance().deserialize(backgroundColorStr, Color.class);
+                    if (backgroundColorPreference != null) {
+                        backgroundColor = backgroundColorPreference;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            alertThrowable(this, e);
+        }
+        setupBackgroundPainters(backgroundColor);
 
         splitPane.add(rightContainer, JSplitPane.RIGHT);
         splitPane.add(taskPane, JSplitPane.LEFT);
@@ -556,6 +564,18 @@ public class Frame extends JXFrame {
 //         System.out.println("UIManager.put(\"" + key.toString() + "\",\"" +
 //         (null != val ? val.toString() : "(null)") + "\");"); }
 
+    }
+
+    public void setupBackgroundPainters(Color color) {
+        // Set task pane container background painter
+        MattePainter taskPanePainter = new MattePainter(new GradientPaint(0f, 0f, color, 0f, 1f, color));
+        taskPanePainter.setPaintStretched(true);
+        taskPaneContainer.setBackgroundPainter(taskPanePainter);
+
+        // Set main content container title painter
+        MattePainter contentTitlePainter = new MattePainter(new GradientPaint(0f, 0f, color, 0f, 1f, color));
+        contentTitlePainter.setPaintStretched(true);
+        rightContainer.setTitlePainter(contentTitlePainter);
     }
 
     @Override
