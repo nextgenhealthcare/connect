@@ -1,6 +1,6 @@
-Copyright (c) Mirth Corporation. All rights reserved.
+Copyright (c) NextGen Healthcare. All rights reserved.
 
-http://www.mirthcorp.com
+https://www.nextgen.com/products-and-services/integration-engine
 
 The software in this package is published under the terms of the MPL license a copy of which has been included below:
 
