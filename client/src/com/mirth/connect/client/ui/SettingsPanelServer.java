@@ -9,7 +9,13 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,11 +26,19 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.mail.internet.InternetAddress;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingWorker;
+import javax.swing.border.TitledBorder;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -32,7 +46,11 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
+import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthPasswordField;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
@@ -54,6 +72,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         super(tabName);
 
         initComponents();
+        initLayout();
 
         addTask(TaskConstants.SETTINGS_SERVER_BACKUP, "Backup Config", "Backup your server configuration to an XML file. The backup includes channels, alerts, code templates, server properties, global scripts, and plugin properties.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")));
         addTask(TaskConstants.SETTINGS_SERVER_RESTORE, "Restore Config", "Restore your server configuration from a server configuration XML file. This will remove and restore your channels, alerts, code templates, server properties, global scripts, and plugin properties.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")));
@@ -130,6 +149,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
+            private boolean usingServerDefaultColor = true;
+
             public Void doInBackground() {
                 try {
                     getFrame().mirthClient.setServerSettings(serverSettings);
@@ -171,11 +192,31 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     getFrame().alertThrowable(getFrame(), e);
                 }
 
+                try {
+                    Color defaultBackgroundColor = serverSettings.getDefaultAdministratorBackgroundColor();
+                    if (defaultBackgroundColor != null) {
+                        PlatformUI.DEFAULT_BACKGROUND_COLOR = defaultBackgroundColor;
+                    }
+
+                    String backgroundColorStr = getFrame().mirthClient.getUserPreference(getFrame().getCurrentUser(getFrame()).getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR);
+                    if (StringUtils.isNotBlank(backgroundColorStr)) {
+                        Color backgroundColor = ObjectXMLSerializer.getInstance().deserialize(backgroundColorStr, Color.class);
+                        if (backgroundColor != null) {
+                            usingServerDefaultColor = false;
+                        }
+                    }
+                } catch (Exception e) {
+                    getFrame().alertThrowable(getFrame(), e);
+                }
+
                 return null;
             }
 
             @Override
             public void done() {
+                if (usingServerDefaultColor) {
+                    getFrame().setupBackgroundPainters(PlatformUI.DEFAULT_BACKGROUND_COLOR);
+                }
                 setSaveEnabled(false);
                 getFrame().stopWorking(workingId);
             }
@@ -198,6 +239,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             serverNameField.setText(serverSettings.getServerName());
         } else {
             serverNameField.setText("");
+        }
+
+        if (serverSettings.getDefaultAdministratorBackgroundColor() != null) {
+            defaultAdministratorColorButton.setBackground(serverSettings.getDefaultAdministratorBackgroundColor());
+        } else {
+            defaultAdministratorColorButton.setBackground(ServerSettings.DEFAULT_COLOR);
         }
 
         if (serverSettings.getSmtpHost() != null) {
@@ -293,6 +340,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         serverSettings.setEnvironmentName(environmentNameField.getText());
 
         serverSettings.setServerName(serverNameField.getText());
+
+        serverSettings.setDefaultAdministratorBackgroundColor(defaultAdministratorColorButton.getBackground());
 
         serverSettings.setClearGlobalMap(clearGlobalMapYesRadio.isSelected());
 
@@ -540,444 +589,244 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         passwordField.setBackground(null);
     }
 
-    // @formatter:off
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        setBackground(UIConstants.BACKGROUND_COLOR);
 
-        requireAuthenticationButtonGroup = new javax.swing.ButtonGroup();
-        clearGlobalMapButtonGroup = new javax.swing.ButtonGroup();
-        provideUsageStatsButtonGroup = new javax.swing.ButtonGroup();
-        secureConnectionButtonGroup = new javax.swing.ButtonGroup();
-        emailPanel = new javax.swing.JPanel();
-        passwordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
-        passwordLabel = new javax.swing.JLabel();
-        usernameLabel = new javax.swing.JLabel();
-        usernameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        requireAuthenticationYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        requireAuthenticationNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        requireAuthenticationLabel = new javax.swing.JLabel();
-        defaultFromAddressLabel = new javax.swing.JLabel();
-        defaultFromAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
-        smtpPortLabel = new javax.swing.JLabel();
-        smtpPortField = new com.mirth.connect.client.ui.components.MirthTextField();
-        smtpHostField = new com.mirth.connect.client.ui.components.MirthTextField();
-        smtpHostLabel = new javax.swing.JLabel();
-        secureConnectionLabel = new javax.swing.JLabel();
-        secureConnectionNoneRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        secureConnectionTLSRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        secureConnectionSSLRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        smtpTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
-        smtpTimeoutLabel = new javax.swing.JLabel();
-        testEmailButton = new javax.swing.JButton();
-        generalPanel = new javax.swing.JPanel();
-        provideUsageStatsLabel = new javax.swing.JLabel();
-        provideUsageStatsYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        provideUsageStatsNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        provideUsageStatsMoreInfoLabel = new javax.swing.JLabel();
-        serverNameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        serverNameLabel = new javax.swing.JLabel();
-        environmentNameLabel = new javax.swing.JLabel();
-        environmentNameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        channelPanel = new javax.swing.JPanel();
-        clearGlobalMapLabel = new javax.swing.JLabel();
-        clearGlobalMapYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        clearGlobalMapNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        queueBufferSizeLabel = new javax.swing.JLabel();
-        defaultMetaDataLabel = new javax.swing.JLabel();
-        defaultMetaDataSourceCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        defaultMetaDataTypeCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        defaultMetaDataVersionCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        queueBufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        generalPanel = new JPanel();
+        generalPanel.setBackground(getBackground());
+        generalPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "General", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        environmentNameLabel = new JLabel("Environment name:");
+        environmentNameField = new MirthTextField();
+        environmentNameField.setToolTipText("<html>The name of this NextGen Connect environment. There is one environment name per NextGen Connect database.</html>");
 
-        emailPanel.setBackground(new java.awt.Color(255, 255, 255));
-        emailPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Email", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        serverNameLabel = new JLabel("Server name:");
+        serverNameField = new MirthTextField();
+        serverNameField.setToolTipText("<html>The server name which will appear in the Administrator title, taskbar/dock<br>and desktop shortcut. This setting applies for all users on this server.</html>");
 
-        passwordField.setToolTipText("Password for global SMTP settings.");
+        defaultAdministratorColorLabel = new JLabel("Default Background Color:");
 
-        passwordLabel.setText("Password:");
-
-        usernameLabel.setText("Username:");
-
-        usernameField.setToolTipText("Username for global SMTP settings.");
-
-        requireAuthenticationYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        requireAuthenticationYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        requireAuthenticationButtonGroup.add(requireAuthenticationYesRadio);
-        requireAuthenticationYesRadio.setSelected(true);
-        requireAuthenticationYesRadio.setText("Yes");
-        requireAuthenticationYesRadio.setToolTipText("Toggles authentication for global SMTP settings.");
-        requireAuthenticationYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        requireAuthenticationYesRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                requireAuthenticationYesRadioActionPerformed(evt);
+        defaultAdministratorColorButton = new JButton();
+        defaultAdministratorColorButton.setBackground(ServerSettings.DEFAULT_COLOR);
+        defaultAdministratorColorButton.setToolTipText("<html>The default Administrator GUI background color this server should use.<br/>Users can override this with their own custom background color.</html>");
+        defaultAdministratorColorButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        defaultAdministratorColorButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                Color color = JColorChooser.showDialog(PlatformUI.MIRTH_FRAME, "Edit Background Color", defaultAdministratorColorButton.getBackground());
+                if (color != null) {
+                    defaultAdministratorColorButton.setBackground(color);
+                    getFrame().setSaveEnabled(true);
+                }
             }
         });
 
-        requireAuthenticationNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        requireAuthenticationNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        requireAuthenticationButtonGroup.add(requireAuthenticationNoRadio);
-        requireAuthenticationNoRadio.setText("No");
-        requireAuthenticationNoRadio.setToolTipText("Toggles authentication for global SMTP settings.");
-        requireAuthenticationNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        requireAuthenticationNoRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                requireAuthenticationNoRadioActionPerformed(evt);
-            }
-        });
+        provideUsageStatsLabel = new JLabel("Prvide usage statistics:");
+        provideUsageStatsButtonGroup = new ButtonGroup();
 
-        requireAuthenticationLabel.setText("Require Authentication:");
-
-        defaultFromAddressLabel.setText("Default From Address:");
-
-        defaultFromAddressField.setToolTipText("Default \"from\" email address used for global SMTP settings.");
-
-        smtpPortLabel.setText("SMTP Port:");
-
-        smtpPortField.setToolTipText("SMTP port used for global SMTP settings.");
-
-        smtpHostField.setToolTipText("SMTP host used for global SMTP settings.");
-
-        smtpHostLabel.setText("SMTP Host:");
-
-        secureConnectionLabel.setText("Secure Connection:");
-
-        secureConnectionNoneRadio.setBackground(new java.awt.Color(255, 255, 255));
-        secureConnectionNoneRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        secureConnectionButtonGroup.add(secureConnectionNoneRadio);
-        secureConnectionNoneRadio.setSelected(true);
-        secureConnectionNoneRadio.setText("None");
-        secureConnectionNoneRadio.setToolTipText("Toggles STARTTLS and SSL connections for global SMTP settings.");
-        secureConnectionNoneRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        secureConnectionTLSRadio.setBackground(new java.awt.Color(255, 255, 255));
-        secureConnectionTLSRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        secureConnectionButtonGroup.add(secureConnectionTLSRadio);
-        secureConnectionTLSRadio.setText("STARTTLS");
-        secureConnectionTLSRadio.setToolTipText("Toggles STARTTLS and SSL connections for global SMTP settings.");
-        secureConnectionTLSRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        secureConnectionSSLRadio.setBackground(new java.awt.Color(255, 255, 255));
-        secureConnectionSSLRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        secureConnectionButtonGroup.add(secureConnectionSSLRadio);
-        secureConnectionSSLRadio.setText("SSL");
-        secureConnectionSSLRadio.setToolTipText("Toggles STARTTLS and SSL connections for global SMTP settings.");
-        secureConnectionSSLRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        smtpTimeoutField.setToolTipText("SMTP socket connection timeout in milliseconds used for global SMTP settings.");
-
-        smtpTimeoutLabel.setText("Send Timeout (ms):");
-
-        testEmailButton.setText("Send Test Email");
-        testEmailButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                testEmailButtonActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout emailPanelLayout = new javax.swing.GroupLayout(emailPanel);
-        emailPanel.setLayout(emailPanelLayout);
-        emailPanelLayout.setHorizontalGroup(
-            emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(emailPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel)
-                    .addComponent(usernameLabel)
-                    .addComponent(requireAuthenticationLabel)
-                    .addComponent(secureConnectionLabel)
-                    .addComponent(defaultFromAddressLabel)
-                    .addComponent(smtpPortLabel)
-                    .addComponent(smtpHostLabel)
-                    .addComponent(smtpTimeoutLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(smtpTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(emailPanelLayout.createSequentialGroup()
-                        .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(testEmailButton))
-                    .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(defaultFromAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(emailPanelLayout.createSequentialGroup()
-                        .addComponent(secureConnectionNoneRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(secureConnectionTLSRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(secureConnectionSSLRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(emailPanelLayout.createSequentialGroup()
-                        .addComponent(requireAuthenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(requireAuthenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(usernameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(passwordField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-
-        emailPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {defaultFromAddressField, passwordField, smtpHostField, usernameField});
-
-        emailPanelLayout.setVerticalGroup(
-            emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(emailPanelLayout.createSequentialGroup()
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(smtpHostLabel)
-                    .addComponent(testEmailButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(smtpPortLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(smtpTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(smtpTimeoutLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(defaultFromAddressLabel)
-                    .addComponent(defaultFromAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(secureConnectionLabel)
-                    .addComponent(secureConnectionNoneRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(secureConnectionTLSRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(secureConnectionSSLRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(requireAuthenticationLabel)
-                    .addComponent(requireAuthenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(requireAuthenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(usernameLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passwordLabel)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        );
-
-        generalPanel.setBackground(new java.awt.Color(255, 255, 255));
-        generalPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "General", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-
-        provideUsageStatsLabel.setText("Provide usage statistics:");
-
-        provideUsageStatsYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        provideUsageStatsYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        provideUsageStatsButtonGroup.add(provideUsageStatsYesRadio);
-        provideUsageStatsYesRadio.setText("Yes");
+        provideUsageStatsYesRadio = new MirthRadioButton("Yes");
+        provideUsageStatsYesRadio.setBackground(getBackground());
         provideUsageStatsYesRadio.setToolTipText("<html>Toggles sending usage statistics to NextGen Healthcare.  These statistics <br>do not contain any PHI or channel/script implementations,<br> and help NextGen Healthcare determine which connectors or areas of<br>NextGen Connect are most widely used.</html>");
-        provideUsageStatsYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        provideUsageStatsButtonGroup.add(provideUsageStatsYesRadio);
 
-        provideUsageStatsNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        provideUsageStatsNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        provideUsageStatsButtonGroup.add(provideUsageStatsNoRadio);
-        provideUsageStatsNoRadio.setText("No");
+        provideUsageStatsNoRadio = new MirthRadioButton("No");
+        provideUsageStatsNoRadio.setBackground(getBackground());
         provideUsageStatsNoRadio.setToolTipText("<html>Toggles sending usage statistics to NextGen Healthcare.  These statistics <br>do not contain any PHI or channel/script implementations,<br> and help NextGen Healthcare determine which connectors or areas of<br>NextGen Connect are most widely used.</html>");
-        provideUsageStatsNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        provideUsageStatsButtonGroup.add(provideUsageStatsNoRadio);
 
-        provideUsageStatsMoreInfoLabel.setText("<html><font color=blue><u>More Info</u></font></html>");
-        provideUsageStatsMoreInfoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+        provideUsageStatsMoreInfoLabel = new JLabel("<html><font color=blue><u>More Info</u></font></html>");
+        provideUsageStatsMoreInfoLabel.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
                 provideUsageStatsMoreInfoLabelMouseClicked(evt);
             }
         });
 
-        serverNameField.setToolTipText("<html>The server name which will appear in the Administrator title, taskbar/dock<br>and desktop shortcut. This setting applies for all users on this server.</html>");
+        channelPanel = new JPanel();
+        channelPanel.setBackground(getBackground());
+        channelPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Channel", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-        serverNameLabel.setText("Server name:");
+        clearGlobalMapLabel = new JLabel("Clear global map on redeploy:");
+        clearGlobalMapButtonGroup = new ButtonGroup();
 
-        environmentNameLabel.setText("Environment name:");
-
-        environmentNameField.setToolTipText("<html>The name of this NextGen Connect environment. There is one environment name per NextGen Connect database.</html>");
-
-        javax.swing.GroupLayout generalPanelLayout = new javax.swing.GroupLayout(generalPanel);
-        generalPanel.setLayout(generalPanelLayout);
-        generalPanelLayout.setHorizontalGroup(
-            generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(generalPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(generalPanelLayout.createSequentialGroup()
-                        .addComponent(environmentNameLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(environmentNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(generalPanelLayout.createSequentialGroup()
-                        .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(serverNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(provideUsageStatsLabel, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(generalPanelLayout.createSequentialGroup()
-                                .addComponent(provideUsageStatsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(provideUsageStatsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(provideUsageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(serverNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        generalPanelLayout.setVerticalGroup(
-            generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(generalPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(environmentNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(environmentNameLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(serverNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(serverNameLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(provideUsageStatsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(provideUsageStatsLabel)
-                    .addComponent(provideUsageStatsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(provideUsageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(1, 1, 1))
-        );
-
-        channelPanel.setBackground(new java.awt.Color(255, 255, 255));
-        channelPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Channel", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-
-        clearGlobalMapLabel.setText("Clear global map on redeploy:");
-
-        clearGlobalMapYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        clearGlobalMapYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        clearGlobalMapButtonGroup.add(clearGlobalMapYesRadio);
+        clearGlobalMapYesRadio = new MirthRadioButton("Yes");
+        clearGlobalMapYesRadio.setBackground(getBackground());
         clearGlobalMapYesRadio.setSelected(true);
-        clearGlobalMapYesRadio.setText("Yes");
         clearGlobalMapYesRadio.setToolTipText("Toggles clearing the global map when redeploying all channels.");
-        clearGlobalMapYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        clearGlobalMapButtonGroup.add(clearGlobalMapYesRadio);
 
-        clearGlobalMapNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        clearGlobalMapNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        clearGlobalMapButtonGroup.add(clearGlobalMapNoRadio);
-        clearGlobalMapNoRadio.setText("No");
+        clearGlobalMapNoRadio = new MirthRadioButton("No");
+        clearGlobalMapNoRadio.setBackground(getBackground());
         clearGlobalMapNoRadio.setToolTipText("Toggles clearing the global map when redeploying all channels.");
-        clearGlobalMapNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        clearGlobalMapButtonGroup.add(clearGlobalMapNoRadio);
 
-        queueBufferSizeLabel.setText("Default Queue Buffer Size:");
-
-        defaultMetaDataLabel.setText("Default Metadata Columns:");
-
-        defaultMetaDataSourceCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        defaultMetaDataSourceCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        defaultMetaDataSourceCheckBox.setText("Source");
-        defaultMetaDataSourceCheckBox.setToolTipText("<html>If checked, the Source metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
-        defaultMetaDataSourceCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        defaultMetaDataTypeCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        defaultMetaDataTypeCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        defaultMetaDataTypeCheckBox.setText("Type");
-        defaultMetaDataTypeCheckBox.setToolTipText("<html>If checked, the Type metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
-        defaultMetaDataTypeCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        defaultMetaDataVersionCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        defaultMetaDataVersionCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        defaultMetaDataVersionCheckBox.setText("Version");
-        defaultMetaDataVersionCheckBox.setToolTipText("<html>If checked, the Version metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
-        defaultMetaDataVersionCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
+        queueBufferSizeLabel = new JLabel("Default Queue Buffer Size:");
+        queueBufferSizeField = new MirthTextField();
         queueBufferSizeField.setToolTipText("The default source/destination queue buffer size to use for new channels.");
 
-        javax.swing.GroupLayout channelPanelLayout = new javax.swing.GroupLayout(channelPanel);
-        channelPanel.setLayout(channelPanelLayout);
-        channelPanelLayout.setHorizontalGroup(
-            channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(channelPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(defaultMetaDataLabel)
-                    .addComponent(clearGlobalMapLabel)
-                    .addComponent(queueBufferSizeLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(channelPanelLayout.createSequentialGroup()
-                        .addComponent(clearGlobalMapYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(clearGlobalMapNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(channelPanelLayout.createSequentialGroup()
-                        .addComponent(defaultMetaDataSourceCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(defaultMetaDataTypeCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(defaultMetaDataVersionCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        channelPanelLayout.setVerticalGroup(
-            channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(channelPanelLayout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addGroup(channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(clearGlobalMapLabel)
-                    .addComponent(clearGlobalMapYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(clearGlobalMapNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(queueBufferSizeLabel)
-                    .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(defaultMetaDataLabel)
-                    .addComponent(defaultMetaDataSourceCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(defaultMetaDataTypeCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(defaultMetaDataVersionCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        );
+        defaultMetaDataLabel = new JLabel("Default Metadata Columns:");
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(generalPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(emailPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(channelPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addComponent(generalPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(channelPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(emailPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
-        );
-    }// </editor-fold>//GEN-END:initComponents
-    // @formatter:on
+        defaultMetaDataSourceCheckBox = new MirthCheckBox("Source");
+        defaultMetaDataSourceCheckBox.setBackground(getBackground());
+        defaultMetaDataSourceCheckBox.setToolTipText("<html>If checked, the Source metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
 
-    private void provideUsageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_provideUsageStatsMoreInfoLabelMouseClicked
+        defaultMetaDataTypeCheckBox = new MirthCheckBox("Type");
+        defaultMetaDataTypeCheckBox.setBackground(getBackground());
+        defaultMetaDataTypeCheckBox.setToolTipText("<html>If checked, the Type metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
+
+        defaultMetaDataVersionCheckBox = new MirthCheckBox("Version");
+        defaultMetaDataVersionCheckBox.setBackground(getBackground());
+        defaultMetaDataVersionCheckBox.setToolTipText("<html>If checked, the Version metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
+
+        emailPanel = new JPanel();
+        emailPanel.setBackground(getBackground());
+        emailPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Email", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+
+        smtpHostLabel = new JLabel("SMTP Host:");
+        smtpHostField = new MirthTextField();
+        smtpHostField.setToolTipText("SMTP host used for global SMTP settings.");
+
+        testEmailButton = new JButton("Send Test Email");
+        testEmailButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                testEmailButtonActionPerformed(evt);
+            }
+        });
+
+        smtpPortLabel = new JLabel("SMTP Port:");
+        smtpPortField = new MirthTextField();
+        smtpPortField.setToolTipText("SMTP port used for global SMTP settings.");
+
+        smtpTimeoutLabel = new JLabel("Send Timeout (ms):");
+        smtpTimeoutField = new MirthTextField();
+        smtpTimeoutField.setToolTipText("SMTP socket connection timeout in milliseconds used for global SMTP settings.");
+
+        defaultFromAddressLabel = new JLabel("Default From Address:");
+        defaultFromAddressField = new MirthTextField();
+        defaultFromAddressField.setToolTipText("Default \"from\" email address used for global SMTP settings.");
+
+        secureConnectionLabel = new JLabel("Secure Connection:");
+        secureConnectionButtonGroup = new ButtonGroup();
+
+        secureConnectionNoneRadio = new MirthRadioButton("None");
+        secureConnectionNoneRadio.setBackground(getBackground());
+        secureConnectionNoneRadio.setSelected(true);
+        secureConnectionNoneRadio.setToolTipText("Toggles STARTTLS and SSL connections for global SMTP settings.");
+        secureConnectionButtonGroup.add(secureConnectionNoneRadio);
+
+        secureConnectionTLSRadio = new MirthRadioButton("STARTTLS");
+        secureConnectionTLSRadio.setBackground(getBackground());
+        secureConnectionTLSRadio.setToolTipText("Toggles STARTTLS and SSL connections for global SMTP settings.");
+        secureConnectionButtonGroup.add(secureConnectionTLSRadio);
+
+        secureConnectionSSLRadio = new MirthRadioButton("SSL");
+        secureConnectionSSLRadio.setBackground(getBackground());
+        secureConnectionSSLRadio.setToolTipText("Toggles STARTTLS and SSL connections for global SMTP settings.");
+        secureConnectionButtonGroup.add(secureConnectionSSLRadio);
+
+        requireAuthenticationLabel = new JLabel("Require Authentication:");
+        requireAuthenticationButtonGroup = new ButtonGroup();
+
+        requireAuthenticationYesRadio = new MirthRadioButton("Yes");
+        requireAuthenticationYesRadio.setBackground(getBackground());
+        requireAuthenticationYesRadio.setSelected(true);
+        requireAuthenticationYesRadio.setToolTipText("Toggles authentication for global SMTP settings.");
+        requireAuthenticationYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                requireAuthenticationYesRadioActionPerformed(evt);
+            }
+        });
+        requireAuthenticationButtonGroup.add(requireAuthenticationYesRadio);
+
+        requireAuthenticationNoRadio = new MirthRadioButton("No");
+        requireAuthenticationNoRadio.setBackground(getBackground());
+        requireAuthenticationNoRadio.setToolTipText("Toggles authentication for global SMTP settings.");
+        requireAuthenticationNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                requireAuthenticationNoRadioActionPerformed(evt);
+            }
+        });
+        requireAuthenticationButtonGroup.add(requireAuthenticationNoRadio);
+
+        usernameLabel = new JLabel("Username:");
+        usernameField = new MirthTextField();
+        usernameField.setToolTipText("Username for global SMTP settings.");
+
+        passwordLabel = new JLabel("Password:");
+        passwordField = new MirthPasswordField();
+        passwordField.setToolTipText("Password for global SMTP settings.");
+    }
+
+    private void initLayout() {
+        setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gap 6", "", "[][][][grow]"));
+
+        generalPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gap 6", "[]12[][grow]", ""));
+        generalPanel.add(environmentNameLabel, "right");
+        generalPanel.add(environmentNameField, "w 168!");
+        generalPanel.add(serverNameLabel, "newline, right");
+        generalPanel.add(serverNameField, "w 168!");
+        generalPanel.add(defaultAdministratorColorLabel, "newline, right");
+        generalPanel.add(defaultAdministratorColorButton, "h 22!, w 22!");
+        generalPanel.add(provideUsageStatsLabel, "newline, right");
+        generalPanel.add(provideUsageStatsYesRadio, "split 3");
+        generalPanel.add(provideUsageStatsNoRadio);
+        generalPanel.add(provideUsageStatsMoreInfoLabel, "gapbefore 12");
+        add(generalPanel, "growx");
+
+        channelPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gap 6", "[]12[][grow]", ""));
+        channelPanel.add(clearGlobalMapLabel, "right");
+        channelPanel.add(clearGlobalMapYesRadio, "split 2");
+        channelPanel.add(clearGlobalMapNoRadio);
+        channelPanel.add(queueBufferSizeLabel, "newline, right");
+        channelPanel.add(queueBufferSizeField, "w 50!");
+        channelPanel.add(defaultMetaDataLabel, "newline, right");
+        channelPanel.add(defaultMetaDataSourceCheckBox, "split 3");
+        channelPanel.add(defaultMetaDataTypeCheckBox);
+        channelPanel.add(defaultMetaDataVersionCheckBox);
+        add(channelPanel, "newline, growx");
+
+        emailPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gap 6", "[]12[][grow]", "[][][][][][][][][grow]"));
+        emailPanel.add(smtpHostLabel, "right");
+        emailPanel.add(smtpHostField, "w 117!, split 2");
+        emailPanel.add(testEmailButton);
+        emailPanel.add(smtpPortLabel, "newline, right");
+        emailPanel.add(smtpPortField, "w 50!");
+        emailPanel.add(smtpTimeoutLabel, "newline, right");
+        emailPanel.add(smtpTimeoutField, "w 75!");
+        emailPanel.add(defaultFromAddressLabel, "newline, right");
+        emailPanel.add(defaultFromAddressField, "w 117!");
+        emailPanel.add(secureConnectionLabel, "newline, right");
+        emailPanel.add(secureConnectionNoneRadio, "split 3");
+        emailPanel.add(secureConnectionTLSRadio);
+        emailPanel.add(secureConnectionSSLRadio);
+        emailPanel.add(requireAuthenticationLabel, "newline, right");
+        emailPanel.add(requireAuthenticationYesRadio, "split 2");
+        emailPanel.add(requireAuthenticationNoRadio);
+        emailPanel.add(usernameLabel, "newline, right");
+        emailPanel.add(usernameField, "w 117!");
+        emailPanel.add(passwordLabel, "newline, right");
+        emailPanel.add(passwordField, "w 117!");
+        add(emailPanel, "newline, growx");
+    }
+
+    private void provideUsageStatsMoreInfoLabelMouseClicked(MouseEvent evt) {
         BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
-    }//GEN-LAST:event_provideUsageStatsMoreInfoLabelMouseClicked
+    }
 
-    private void requireAuthenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_requireAuthenticationNoRadioActionPerformed
+    private void requireAuthenticationNoRadioActionPerformed(ActionEvent evt) {
         usernameField.setEnabled(false);
         passwordField.setEnabled(false);
         usernameLabel.setEnabled(false);
         passwordLabel.setEnabled(false);
-    }//GEN-LAST:event_requireAuthenticationNoRadioActionPerformed
+    }
 
-    private void requireAuthenticationYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_requireAuthenticationYesRadioActionPerformed
+    private void requireAuthenticationYesRadioActionPerformed(ActionEvent evt) {
         usernameField.setEnabled(true);
         passwordField.setEnabled(true);
         usernameLabel.setEnabled(true);
         passwordLabel.setEnabled(true);
-    }//GEN-LAST:event_requireAuthenticationYesRadioActionPerformed
+    }
 
-    private void testEmailButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testEmailButtonActionPerformed
+    private void testEmailButtonActionPerformed(ActionEvent evt) {
         resetInvalidSettings();
         ServerSettings serverSettings = getServerSettings();
         StringBuilder invalidFields = new StringBuilder();
@@ -1072,52 +921,55 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
             worker.execute();
         }
-    }//GEN-LAST:event_testEmailButtonActionPerformed
+    }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel channelPanel;
-    private javax.swing.ButtonGroup clearGlobalMapButtonGroup;
-    private javax.swing.JLabel clearGlobalMapLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton clearGlobalMapNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton clearGlobalMapYesRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField defaultFromAddressField;
-    private javax.swing.JLabel defaultFromAddressLabel;
-    private javax.swing.JLabel defaultMetaDataLabel;
-    private com.mirth.connect.client.ui.components.MirthCheckBox defaultMetaDataSourceCheckBox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox defaultMetaDataTypeCheckBox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox defaultMetaDataVersionCheckBox;
-    private javax.swing.JPanel emailPanel;
-    private com.mirth.connect.client.ui.components.MirthTextField environmentNameField;
-    private javax.swing.JLabel environmentNameLabel;
-    private javax.swing.JPanel generalPanel;
-    private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
-    private javax.swing.JLabel passwordLabel;
-    private javax.swing.ButtonGroup provideUsageStatsButtonGroup;
-    private javax.swing.JLabel provideUsageStatsLabel;
-    private javax.swing.JLabel provideUsageStatsMoreInfoLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton provideUsageStatsNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton provideUsageStatsYesRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField queueBufferSizeField;
-    private javax.swing.JLabel queueBufferSizeLabel;
-    private javax.swing.ButtonGroup requireAuthenticationButtonGroup;
-    private javax.swing.JLabel requireAuthenticationLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton requireAuthenticationNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton requireAuthenticationYesRadio;
-    private javax.swing.ButtonGroup secureConnectionButtonGroup;
-    private javax.swing.JLabel secureConnectionLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton secureConnectionNoneRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton secureConnectionSSLRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton secureConnectionTLSRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField serverNameField;
-    private javax.swing.JLabel serverNameLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField smtpHostField;
-    private javax.swing.JLabel smtpHostLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField smtpPortField;
-    private javax.swing.JLabel smtpPortLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField smtpTimeoutField;
-    private javax.swing.JLabel smtpTimeoutLabel;
-    private javax.swing.JButton testEmailButton;
-    private com.mirth.connect.client.ui.components.MirthTextField usernameField;
-    private javax.swing.JLabel usernameLabel;
-    // End of variables declaration//GEN-END:variables
+    private JPanel generalPanel;
+    private JLabel environmentNameLabel;
+    private MirthTextField environmentNameField;
+    private JLabel serverNameLabel;
+    private MirthTextField serverNameField;
+    private JLabel defaultAdministratorColorLabel;
+    private JButton defaultAdministratorColorButton;
+
+    private JLabel provideUsageStatsLabel;
+    private ButtonGroup provideUsageStatsButtonGroup;
+    private MirthRadioButton provideUsageStatsYesRadio;
+    private MirthRadioButton provideUsageStatsNoRadio;
+    private JLabel provideUsageStatsMoreInfoLabel;
+
+    private JPanel channelPanel;
+    private JLabel clearGlobalMapLabel;
+    private ButtonGroup clearGlobalMapButtonGroup;
+    private MirthRadioButton clearGlobalMapYesRadio;
+    private MirthRadioButton clearGlobalMapNoRadio;
+    private JLabel queueBufferSizeLabel;
+    private MirthTextField queueBufferSizeField;
+    private JLabel defaultMetaDataLabel;
+    private MirthCheckBox defaultMetaDataSourceCheckBox;
+    private MirthCheckBox defaultMetaDataTypeCheckBox;
+    private MirthCheckBox defaultMetaDataVersionCheckBox;
+
+    private JPanel emailPanel;
+    private JLabel smtpHostLabel;
+    private MirthTextField smtpHostField;
+    private JButton testEmailButton;
+    private JLabel smtpPortLabel;
+    private MirthTextField smtpPortField;
+    private JLabel smtpTimeoutLabel;
+    private MirthTextField smtpTimeoutField;
+    private JLabel defaultFromAddressLabel;
+    private MirthTextField defaultFromAddressField;
+    private JLabel secureConnectionLabel;
+    private ButtonGroup secureConnectionButtonGroup;
+    private MirthRadioButton secureConnectionNoneRadio;
+    private MirthRadioButton secureConnectionSSLRadio;
+    private MirthRadioButton secureConnectionTLSRadio;
+    private JLabel requireAuthenticationLabel;
+    private ButtonGroup requireAuthenticationButtonGroup;
+    private MirthRadioButton requireAuthenticationYesRadio;
+    private MirthRadioButton requireAuthenticationNoRadio;
+    private JLabel usernameLabel;
+    private MirthTextField usernameField;
+    private JLabel passwordLabel;
+    private MirthPasswordField passwordField;
 }

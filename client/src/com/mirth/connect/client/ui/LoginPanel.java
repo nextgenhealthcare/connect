@@ -29,6 +29,7 @@ import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.ExtendedLoginStatus;
 import com.mirth.connect.model.LoginStatus;
+import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.MultiFactorAuthenticationClientPlugin;
@@ -489,16 +490,23 @@ public class LoginPanel extends javax.swing.JFrame {
 
             private void handleSuccess(LoginStatus loginStatus) throws ClientException {
                 try {
-                    String environmentName = client.getServerSettings().getEnvironmentName();
+                    ServerSettings serverSettings = client.getServerSettings();
+
+                    String environmentName = serverSettings.getEnvironmentName();
                     if (!StringUtils.isBlank(environmentName)) {
                         PlatformUI.ENVIRONMENT_NAME = environmentName;
                     }
 
-                    String serverName = client.getServerSettings().getServerName();
+                    String serverName = serverSettings.getServerName();
                     if (!StringUtils.isBlank(serverName)) {
                         PlatformUI.SERVER_NAME = serverName;
                     } else {
                         PlatformUI.SERVER_NAME = null;
+                    }
+
+                    Color defaultBackgroundColor = serverSettings.getDefaultAdministratorBackgroundColor();
+                    if (defaultBackgroundColor != null) {
+                        PlatformUI.DEFAULT_BACKGROUND_COLOR = defaultBackgroundColor;
                     }
                 } catch (ClientException e) {
                     PlatformUI.SERVER_NAME = null;

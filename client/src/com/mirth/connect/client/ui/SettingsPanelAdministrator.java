@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +31,7 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -66,6 +68,7 @@ import com.mirth.connect.client.ui.components.rsta.MirthRSyntaxTextArea;
 import com.mirth.connect.client.ui.components.rsta.RSTAPreferences;
 import com.mirth.connect.client.ui.components.rsta.actions.ActionInfo;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
@@ -169,6 +172,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             private String checkForNotifications = null;
+            private Color backgroundColor = null;
 
             public Void doInBackground() {
                 try {
@@ -176,6 +180,16 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
+
+                try {
+                    String backgroundColorStr = getFrame().mirthClient.getUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR);
+                    if (StringUtils.isNotBlank(backgroundColorStr)) {
+                        backgroundColor = ObjectXMLSerializer.getInstance().deserialize(backgroundColorStr, Color.class);
+                    }
+                } catch (Exception e) {
+                    getFrame().alertThrowable(getFrame(), e);
+                }
+
                 return null;
             }
 
@@ -186,6 +200,16 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                 } else {
                     checkForNotificationsNoRadio.setSelected(true);
                 }
+
+                if (backgroundColor != null) {
+                    backgroundColorCustomRadio.setSelected(true);
+                    backgroundColorRadioActionPerformed(false);
+                    backgroundColorButton.setBackground(backgroundColor);
+                } else {
+                    backgroundColorServerDefaultRadio.setSelected(true);
+                    backgroundColorRadioActionPerformed(true);
+                }
+
                 getFrame().stopWorking(workingId);
             }
         };
@@ -253,12 +277,32 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                 userPreferences.putBoolean("exportChannelCodeTemplateLibraries", exportChannelLibrariesYesRadio.isSelected());
             }
         }
+
+        final Color backgroundColor;
+        if (backgroundColorServerDefaultRadio.isSelected()) {
+            backgroundColor = null;
+        } else {
+            backgroundColor = backgroundColorButton.getBackground();
+        }
+
+        if (backgroundColor != null) {
+            getFrame().setupBackgroundPainters(backgroundColor);
+        } else {
+            getFrame().setupBackgroundPainters(PlatformUI.DEFAULT_BACKGROUND_COLOR);
+        }
+
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " settings...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
                 try {
                     getFrame().mirthClient.setUserPreference(currentUser.getId(), "checkForNotifications", Boolean.toString(checkForNotificationsYesRadio.isSelected()));
+                } catch (ClientException e) {
+                    getFrame().alertThrowable(getFrame(), e);
+                }
+
+                try {
+                    getFrame().mirthClient.setUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR, ObjectXMLSerializer.getInstance().serialize(backgroundColor));
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
@@ -321,6 +365,12 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             public Void doInBackground() {
                 try {
                     getFrame().mirthClient.setUserPreference(currentUser.getId(), "checkForNotifications", Boolean.toString(true));
+                } catch (ClientException e) {
+                    getFrame().alertThrowable(getFrame(), e);
+                }
+
+                try {
+                    getFrame().mirthClient.setUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR, ObjectXMLSerializer.getInstance().serialize(null));
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
@@ -530,6 +580,38 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         checkForNotificationsNoRadio.setToolTipText("<html>Checks for notifications from NextGen Healthcare (announcements, available updates, etc.)<br/>relevant to this version of NextGen Connect whenever user logs in.</html>");
         notificationButtonGroup.add(checkForNotificationsNoRadio);
 
+        backgroundColorLabel = new JLabel("Administrator Background Color:");
+        backgroundColorButtonGroup = new ButtonGroup();
+
+        backgroundColorServerDefaultRadio = new MirthRadioButton("Server Default");
+        backgroundColorServerDefaultRadio.setSelected(true);
+        backgroundColorServerDefaultRadio.setBackground(userSettingsPanel.getBackground());
+        backgroundColorServerDefaultRadio.setToolTipText("If selected, the server default background color will be used for the Administrator GUI.");
+        backgroundColorServerDefaultRadio.addActionListener(e -> backgroundColorRadioActionPerformed(true));
+        backgroundColorButtonGroup.add(backgroundColorServerDefaultRadio);
+
+        backgroundColorCustomRadio = new MirthRadioButton("Custom:");
+        backgroundColorCustomRadio.setBackground(userSettingsPanel.getBackground());
+        backgroundColorCustomRadio.setToolTipText("If selected, the following custom color will be used for the Administrator GUI.");
+        backgroundColorCustomRadio.addActionListener(e -> backgroundColorRadioActionPerformed(false));
+        backgroundColorButtonGroup.add(backgroundColorCustomRadio);
+
+        backgroundColorButton = new JButton();
+        backgroundColorButton.setEnabled(false);
+        backgroundColorButton.setBackground(PlatformUI.DEFAULT_BACKGROUND_COLOR);
+        backgroundColorButton.setToolTipText("<html>The background color to use for the Administrator GUI.</html>");
+        backgroundColorButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        backgroundColorButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                Color color = JColorChooser.showDialog(PlatformUI.MIRTH_FRAME, "Edit Background Color", backgroundColorButton.getBackground());
+                if (color != null) {
+                    backgroundColorButton.setBackground(color);
+                    getFrame().setSaveEnabled(true);
+                }
+            }
+        });
+
         codeEditorSettingsPanel = new JPanel();
         codeEditorSettingsPanel.setBackground(getBackground());
         codeEditorSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Code Editor Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
@@ -663,6 +745,10 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         userSettingsPanel.add(checkForNotificationsLabel, "right");
         userSettingsPanel.add(checkForNotificationsYesRadio, "split");
         userSettingsPanel.add(checkForNotificationsNoRadio);
+        userSettingsPanel.add(backgroundColorLabel, "newline, right");
+        userSettingsPanel.add(backgroundColorServerDefaultRadio, "split 3");
+        userSettingsPanel.add(backgroundColorCustomRadio);
+        userSettingsPanel.add(backgroundColorButton, "h 22!, w 22!");
         add(userSettingsPanel, "newline, grow");
 
         codeEditorSettingsPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "12[]13[][]", ""));
@@ -675,6 +761,15 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         codeEditorSettingsPanel.add(shortcutKeyScrollPane, "grow, push, h ::179");
         codeEditorSettingsPanel.add(restoreDefaultsButton, "top");
         add(codeEditorSettingsPanel, "newline, grow");
+    }
+
+    private void backgroundColorRadioActionPerformed(boolean serverDefault) {
+        if (serverDefault) {
+            backgroundColorButton.setBackground(PlatformUI.DEFAULT_BACKGROUND_COLOR);
+            backgroundColorButton.setEnabled(false);
+        } else {
+            backgroundColorButton.setEnabled(true);
+        }
     }
 
     private class KeyStrokeCellRenderer extends KeyStrokeTextField implements TableCellRenderer {
@@ -781,6 +876,11 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     private ButtonGroup notificationButtonGroup;
     private JRadioButton checkForNotificationsYesRadio;
     private JRadioButton checkForNotificationsNoRadio;
+    private JLabel backgroundColorLabel;
+    private ButtonGroup backgroundColorButtonGroup;
+    private JRadioButton backgroundColorServerDefaultRadio;
+    private JRadioButton backgroundColorCustomRadio;
+    private JButton backgroundColorButton;
     private JPanel codeEditorSettingsPanel;
     private JLabel autoCompleteCharactersLabel;
     private JTextField autoCompleteCharactersField;

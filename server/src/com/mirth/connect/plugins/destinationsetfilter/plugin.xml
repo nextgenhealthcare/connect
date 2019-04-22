@@ -1,9 +1,9 @@
 <pluginMetaData path="destinationsetfilter">
 	<name>Destination Set Filter Step</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
+	<url>http://www.nextgen.com</url>
 	<description>Provides an easy method in the source transformer to filter destinations from being executed.</description>
 	<clientClasses>
 		<string>com.mirth.connect.plugins.destinationsetfilter.DestinationSetFilterPlugin</string>

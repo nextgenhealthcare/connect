@@ -1,10 +1,10 @@
 <connectorMetaData path="jms">
 	<name>JMS Sender</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This connector allows Mirth to write messages to a JMS queue.</description>
+	<url>http://www.nextgen.com</url>
+	<description>This connector allows NextGen Connect to write messages to a JMS queue.</description>
 	<clientClassName>com.mirth.connect.connectors.jms.JmsSender</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.jms.JmsDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.jms.JmsDispatcherProperties</sharedClassName>

@@ -1,10 +1,10 @@
 <connectorMetaData path="file">
 	<name>File Writer</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This connector allows Mirth to write files to a local or network file system. A velocity template is available to dynamically generate files.</description>
+	<url>http://www.nextgen.com</url>
+	<description>This connector allows NextGen Connect to write files to a local or network file system. A velocity template is available to dynamically generate files.</description>
 	<clientClassName>com.mirth.connect.connectors.file.FileWriter</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.file.FileDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.file.FileDispatcherProperties</sharedClassName>

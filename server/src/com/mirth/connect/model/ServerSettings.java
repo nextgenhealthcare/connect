@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model;
 
+import java.awt.Color;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -29,9 +30,12 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("serverSettings")
 public class ServerSettings extends AbstractSettings implements Serializable, Auditable, Purgable {
 
+    public static final Color DEFAULT_COLOR = new Color(0x9EB1C9);
+
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
     private static final String DEFAULT_METADATA_COLUMNS = "server.defaultmetadatacolumns";
+    private static final String DEFAULT_ADMINISTRATOR_COLOR = "server.defaultadministratorcolor";
     private static final String SMTP_HOST = "smtp.host";
     private static final String SMTP_PORT = "smtp.port";
     private static final String SMTP_TIMEOUT = "smtp.timeout";
@@ -47,6 +51,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     private Boolean clearGlobalMap;
     private Integer queueBufferSize;
     private List<MetaDataColumn> defaultMetaDataColumns;
+    private Color defaultAdministratorBackgroundColor;
 
     // SMTP
     private String smtpHost;
@@ -81,6 +86,9 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         if (getDefaultMetaDataColumns() != null) {
             properties.put(DEFAULT_METADATA_COLUMNS, ObjectXMLSerializer.getInstance().serialize(getDefaultMetaDataColumns()));
         }
+        if (getDefaultAdministratorBackgroundColor() != null) {
+            properties.put(DEFAULT_ADMINISTRATOR_COLOR, ObjectXMLSerializer.getInstance().serialize(getDefaultAdministratorBackgroundColor()));
+        }
         if (getSmtpHost() != null) {
             properties.put(SMTP_HOST, getSmtpHost());
         }
@@ -114,6 +122,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setClearGlobalMap(intToBooleanObject(properties.getProperty(CLEAR_GLOBAL_MAP)));
         setQueueBufferSize(toIntegerObject(properties.getProperty(QUEUE_BUFFER_SIZE)));
         setDefaultMetaDataColumns(toList(properties.getProperty(DEFAULT_METADATA_COLUMNS), MetaDataColumn.class, DefaultMetaData.DEFAULT_COLUMNS));
+        setDefaultAdministratorBackgroundColor(deserialize(properties.getProperty(DEFAULT_ADMINISTRATOR_COLOR), Color.class, DEFAULT_COLOR));
         setSmtpHost(properties.getProperty(SMTP_HOST));
         setSmtpPort(properties.getProperty(SMTP_PORT));
         setSmtpTimeout(properties.getProperty(SMTP_TIMEOUT));
@@ -162,6 +171,14 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     public void setDefaultMetaDataColumns(List<MetaDataColumn> defaultMetaDataColumns) {
         this.defaultMetaDataColumns = defaultMetaDataColumns;
+    }
+
+    public Color getDefaultAdministratorBackgroundColor() {
+        return defaultAdministratorBackgroundColor;
+    }
+
+    public void setDefaultAdministratorBackgroundColor(Color defaultAdministratorBackgroundColor) {
+        this.defaultAdministratorBackgroundColor = defaultAdministratorBackgroundColor;
     }
 
     public String getSmtpHost() {
@@ -239,6 +256,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         purgedProperties.put("clearGlobalMap", clearGlobalMap);
         purgedProperties.put("queueBufferSize", queueBufferSize);
         purgedProperties.put("defaultMetaDataColumns", PurgeUtil.purgeList(defaultMetaDataColumns));
+        purgedProperties.put("defaultAdministratorBackgroundColor", defaultAdministratorBackgroundColor);
         purgedProperties.put("smtpTimeout", PurgeUtil.getNumericValue(smtpTimeout));
         purgedProperties.put("smtpSecure", smtpSecure);
         purgedProperties.put("smtpAuth", smtpAuth);

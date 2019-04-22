@@ -1,9 +1,9 @@
 <pluginMetaData path="httpauth">
 	<name>HTTP Authentication Settings</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
+	<url>http://www.nextgen.com</url>
 	<description>This plugin provides advanced authentication support for HTTP-based source connectors.</description>
 	<serverClasses>
 		<string>com.mirth.connect.plugins.httpauth.HttpAuthServicePlugin</string>

@@ -122,6 +122,16 @@ public abstract class AbstractSettings {
         }
     }
 
+    protected <T> T deserialize(String str, Class<T> expectedClass, T defaultValue) {
+        if (str != null) {
+            try {
+                return ObjectXMLSerializer.getInstance().deserialize(str, expectedClass);
+            } catch (SerializerException e) {
+            }
+        }
+        return defaultValue;
+    }
+
     protected <T> List<T> toList(String str, Class<T> expectedListItemClass, List<T> defaultValue) {
         if (str != null) {
             try {

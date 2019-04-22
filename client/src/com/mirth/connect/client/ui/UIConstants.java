@@ -140,4 +140,7 @@ public class UIConstants {
     public static final String DATATYPE_DEFAULT = "HL7V2";
     public static final String DATATYPE_XML = "XML";
     public static final String DATATYPE_JSON = "JSON";
+
+    // User preferences
+    public static final String USER_PREF_KEY_BACKGROUND_COLOR = "backgroundColor";
 }

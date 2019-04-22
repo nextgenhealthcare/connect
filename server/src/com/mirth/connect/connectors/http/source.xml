@@ -1,10 +1,10 @@
 <connectorMetaData path="http">
 	<name>HTTP Listener</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This connector allows Mirth to listen for incoming HTTP data. Messages are received as XML and include the full header contents.</description>
+	<url>http://www.nextgen.com</url>
+	<description>This connector allows NextGen Connect to listen for incoming HTTP data. Messages are received as XML and include the full header contents.</description>
 	<clientClassName>com.mirth.connect.connectors.http.HttpListener</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.http.HttpReceiver</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.http.HttpReceiverProperties</sharedClassName>

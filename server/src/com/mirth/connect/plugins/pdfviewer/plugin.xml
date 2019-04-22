@@ -1,9 +1,9 @@
 <pluginMetaData path="pdfviewer">
 	<name>PDF Viewer</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
+	<url>http://www.nextgen.com</url>
 	<description>This plugin provides PDF attachment viewing capability in message browser.</description>
 	<clientClasses>
 		<string>com.mirth.connect.plugins.pdfviewer.PDFViewer</string>
