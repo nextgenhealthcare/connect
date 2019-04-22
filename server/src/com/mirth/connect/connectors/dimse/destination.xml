@@ -1,10 +1,10 @@
 <connectorMetaData path="dicom">
 	<name>DICOM Sender</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This connector allows Mirth to send messages using DICOM protocol.</description>
+	<url>http://www.nextgen.com</url>
+	<description>This connector allows NextGen Connect to send messages using DICOM protocol.</description>
 	<clientClassName>com.mirth.connect.connectors.dimse.DICOMSender</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.dimse.DICOMDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.dimse.DICOMDispatcherProperties</sharedClassName>

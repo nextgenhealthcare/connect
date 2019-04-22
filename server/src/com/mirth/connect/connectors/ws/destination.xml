@@ -1,10 +1,10 @@
 <connectorMetaData path="ws">
 	<name>Web Service Sender</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This connector allows Mirth Connect to invoke remote Web Services over HTTP.</description>
+	<url>http://www.nextgen.com</url>
+	<description>This connector allows NextGen Connect to invoke remote Web Services over HTTP.</description>
 	<clientClassName>com.mirth.connect.connectors.ws.WebServiceSender</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.ws.WebServiceDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.ws.WebServiceDispatcherProperties</sharedClassName>

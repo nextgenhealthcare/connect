@@ -1,10 +1,10 @@
 <pluginMetaData path="datapruner">
 	<name>Data Pruner</name>
-	<author>Mirth Corporation</author>
+	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
-	<url>http://www.mirthcorp.com</url>
-	<description>This plugin provides data pruning capability for Mirth Connect</description>
+	<url>http://www.nextgen.com</url>
+	<description>This plugin provides data pruning capability for NextGen Connect</description>
 	<serverClasses>
 		<string>com.mirth.connect.plugins.datapruner.DataPrunerService</string>
 	</serverClasses>
