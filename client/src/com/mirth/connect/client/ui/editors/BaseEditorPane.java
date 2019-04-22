@@ -1222,7 +1222,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         };
 
         viewTasks = new JXTaskPane();
-        viewTasks.setTitle("Mirth Views");
+        viewTasks.setTitle("NextGen Connect Views");
         viewTasks.setFocusable(false);
         viewTasks.add(initActionCallback("accept", "Return back to channel.", ActionFactory.createBoundAction("accept", "Back to Channel", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
         PlatformUI.MIRTH_FRAME.setNonFocusable(viewTasks);

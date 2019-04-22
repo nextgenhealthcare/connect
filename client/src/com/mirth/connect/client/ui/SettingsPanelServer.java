@@ -598,7 +598,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         environmentNameLabel = new JLabel("Environment name:");
         environmentNameField = new MirthTextField();
-        environmentNameField.setToolTipText("<html>The name of this Mirth Connect environment. There is one environment name per Mirth Connect database.</html>");
+        environmentNameField.setToolTipText("<html>The name of this NextGen Connect environment. There is one environment name per NextGen Connect database.</html>");
 
         serverNameLabel = new JLabel("Server name:");
         serverNameField = new MirthTextField();
@@ -626,12 +626,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         provideUsageStatsYesRadio = new MirthRadioButton("Yes");
         provideUsageStatsYesRadio.setBackground(getBackground());
-        provideUsageStatsYesRadio.setToolTipText("<html>Toggles sending usage statistics to Mirth.  These statistics <br>do not contain any PHI or channel/script implementations,<br> and help Mirth determine which connectors or areas of<br>Mirth Connect are most widely used.</html>");
+        provideUsageStatsYesRadio.setToolTipText("<html>Toggles sending usage statistics to NextGen Healthcare.  These statistics <br>do not contain any PHI or channel/script implementations,<br> and help NextGen Healthcare determine which connectors or areas of<br>NextGen Connect are most widely used.</html>");
         provideUsageStatsButtonGroup.add(provideUsageStatsYesRadio);
 
         provideUsageStatsNoRadio = new MirthRadioButton("No");
         provideUsageStatsNoRadio.setBackground(getBackground());
-        provideUsageStatsNoRadio.setToolTipText("<html>Toggles sending usage statistics to Mirth.  These statistics <br>do not contain any PHI or channel/script implementations,<br> and help Mirth determine which connectors or areas of<br>Mirth Connect are most widely used.</html>");
+        provideUsageStatsNoRadio.setToolTipText("<html>Toggles sending usage statistics to NextGen Healthcare.  These statistics <br>do not contain any PHI or channel/script implementations,<br> and help NextGen Healthcare determine which connectors or areas of<br>NextGen Connect are most widely used.</html>");
         provideUsageStatsButtonGroup.add(provideUsageStatsNoRadio);
 
         provideUsageStatsMoreInfoLabel = new JLabel("<html><font color=blue><u>More Info</u></font></html>");

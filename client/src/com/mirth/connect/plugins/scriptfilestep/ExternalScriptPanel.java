@@ -73,7 +73,7 @@ public class ExternalScriptPanel extends EditorPanel<Step> {
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
 
-        infoLabel = new JLabel("Enter the path of an external JavaScript file accessible from the Mirth Connect server.");
+        infoLabel = new JLabel("Enter the path of an external JavaScript file accessible from the NextGen Connect server.");
 
         pathLabel = new JLabel("Script Path:");
         pathField = new JTextField();

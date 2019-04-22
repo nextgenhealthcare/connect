@@ -87,7 +87,7 @@ public class MessageImportDialog extends MirthDialog {
         importServerRadio.setSelected(true);
         importServerRadio.setBackground(UIConstants.BACKGROUND_COLOR);
         importServerRadio.addActionListener(importDestinationChanged);
-        importServerRadio.setToolTipText("<html>Import messages from a file, folder or archive<br />on the Mirth Connect Server.</html>");
+        importServerRadio.setToolTipText("<html>Import messages from a file, folder or archive<br />on the NextGen Connect Server.</html>");
 
         importLocalRadio = new MirthRadioButton("My Computer");
         importLocalRadio.setBackground(UIConstants.BACKGROUND_COLOR);

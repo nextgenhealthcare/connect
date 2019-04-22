@@ -216,7 +216,7 @@ public class ServerConfiguration implements Serializable, Migratable, Auditable 
         DirectoryResourceProperties defaultResource = new DirectoryResourceProperties();
         defaultResource.setId(ResourceProperties.DEFAULT_RESOURCE_ID);
         defaultResource.setName(ResourceProperties.DEFAULT_RESOURCE_NAME);
-        defaultResource.setDescription("Loads libraries from the custom-lib folder in the Mirth Connect home directory.");
+        defaultResource.setDescription("Loads libraries from the custom-lib folder in the NextGen Connect home directory.");
         defaultResource.setIncludeWithGlobalScripts(true);
         defaultResource.setDirectory("custom-lib");
         list.getList().add(defaultResource);

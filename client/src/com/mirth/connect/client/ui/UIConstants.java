@@ -27,15 +27,15 @@ public class UIConstants {
     public static final String EOL_MAC = "\r";
     // for Frame
     public static final int TASK_PANE_WIDTH = 170;
-    public static final String TITLE_TEXT = "Mirth Connect Administrator";
+    public static final String TITLE_TEXT = "NextGen Connect Administrator";
     public static final int MIRTH_WIDTH = 950;
     public static final int MIRTH_HEIGHT = 650;
     public static final ImageIcon MIRTHCORP_LOGO = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/ng_logo_24h.png"));
     public static final ImageIcon MIRTHCONNECT_LOGO_GRAY = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/nextgenconnect_gray_24h.png"));
-    public static final String MIRTHCORP_TOOLTIP = "Mirth Corporation";
-    public static final String MIRTHCONNECT_TOOLTIP = "Mirth Connect";
-    public static final String MIRTHCORP_URL = "http://www.mirthcorp.com";
-    public static final String MIRTHCONNECT_URL = "http://www.mirthcorp.com/products/mirth-connect";
+    public static final String MIRTHCORP_TOOLTIP = "NextGen Healthcare";
+    public static final String MIRTHCONNECT_TOOLTIP = "NextGen Connect";
+    public static final String MIRTHCORP_URL = "https://www.nextgen.com/products-and-services/integration-engine";
+    public static final String MIRTHCONNECT_URL = "https://www.nextgen.com/products-and-services/integration-engine";
     public static final String EDIT_FILTER = "Edit Filter";
     public static final String EDIT_TRANSFORMER = "Edit Transformer";
     public static final String EDIT_RESPONSE_TRANSFORMER = "Edit Response";
@@ -130,7 +130,7 @@ public class UIConstants {
     public static final ImageIcon ICON_WARNING = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error.png"));
     public static final ImageIcon ICON_ERROR = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/exclamation.png"));
     // for privacy
-    public static final String PRIVACY_URL = "http://www.mirthcorp.com/company/about/privacy";
+    public static final String PRIVACY_URL = "https://www.nextgen.com/legal-notice";
     public static final String PRIVACY_TOOLTIP = "Privacy Information";
 
     // FileUtils reading/writing

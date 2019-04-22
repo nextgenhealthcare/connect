@@ -55,7 +55,7 @@ public class AboutMirth extends MirthDialog {
         StringBuilder content = new StringBuilder();
 
         if (PlatformUI.SERVER_VERSION != null) {
-            content.append("Mirth Connect Server " + PlatformUI.SERVER_VERSION + "\n\n");
+            content.append("NextGen Connect Server " + PlatformUI.SERVER_VERSION + "\n\n");
         }
 
         if (PlatformUI.BUILD_DATE != null) {
@@ -68,8 +68,8 @@ public class AboutMirth extends MirthDialog {
 
         content.append("Java version: " + System.getProperty("java.version") + "\n\n");
 
-        content.append("(c) 2005-" + Calendar.getInstance().get(Calendar.YEAR) + " Mirth Corporation. All rights reserved. Visit http://www.mirthcorp.com\n\n");
-        content.append("The following is a list of acknowledgements for third-party software that is included with Mirth Connect:\n\n");
+        content.append("(c) 2005-" + Calendar.getInstance().get(Calendar.YEAR) + " NextGen Healthcare. All rights reserved. Visit http://www.nextgen.com\n\n");
+        content.append("The following is a list of acknowledgements for third-party software that is included with NextGen Connect:\n\n");
         content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
         content.append("This product includes all or a portion of the HL7 Vocabulary database, or is derived from the HL7 Vocabulary database, subject to a license from Health Level Seven, Inc.\n\n");
         content.append("This product includes a portion of images from http://www.famfamfam.com/lab/icons/silk/.\n\n");
@@ -116,7 +116,7 @@ public class AboutMirth extends MirthDialog {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("About Mirth Connect");
+        jLabel2.setText("About NextGen Connect");
 
         javax.swing.GroupLayout mirthHeadingPanel1Layout = new javax.swing.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);

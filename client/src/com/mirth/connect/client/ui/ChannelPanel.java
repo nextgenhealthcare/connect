@@ -218,7 +218,7 @@ public class ChannelPanel extends AbstractFramePanel {
         parent.addTask(TaskConstants.CHANNEL_REDEPLOY_ALL, "Redeploy All", "Undeploy all channels and deploy all currently enabled channels.", "A", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_DEPLOY, "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EDIT_GLOBAL_SCRIPTS, "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/script_edit.png")), channelTasks, channelPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_EDIT_CODE_TEMPLATES, "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_edit.png")), channelTasks, channelPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_EDIT_CODE_TEMPLATES, "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout NextGen Connect.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_edit.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_NEW_CHANNEL, "New Channel", "Create a new channel.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_add.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_IMPORT_CHANNEL, "Import Channel", "Import a channel from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EXPORT_ALL_CHANNELS, "Export All Channels", "Export all of the channels to XML files.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu, this);
@@ -2677,7 +2677,7 @@ public class ChannelPanel extends AbstractFramePanel {
         StringBuilder builder = new StringBuilder();
 
         if (!missingConnectors.isEmpty()) {
-            builder.append("\n\nYour Mirth Connect installation is missing required connectors for this channel:\n     ");
+            builder.append("\n\nYour NextGen Connect installation is missing required connectors for this channel:\n     ");
             builder.append(StringUtils.join(missingConnectors.toArray(), "\n     "));
             builder.append("\n\n");
         }
@@ -2686,7 +2686,7 @@ public class ChannelPanel extends AbstractFramePanel {
             if (missingConnectors.isEmpty()) {
                 builder.append("\n\n");
             }
-            builder.append("Your Mirth Connect installation is missing required data types for this channel:\n     ");
+            builder.append("Your NextGen Connect installation is missing required data types for this channel:\n     ");
             builder.append(StringUtils.join(missingDataTypes.toArray(), "\n     "));
             builder.append("\n\n");
         }

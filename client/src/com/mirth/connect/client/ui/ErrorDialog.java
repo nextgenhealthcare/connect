@@ -100,7 +100,7 @@ public class ErrorDialog extends MirthDialog {
         question.setBackground(new java.awt.Color(224, 223, 227));
         question.setBorder(null);
         question.setEditable(false);
-        question.setText("An unexpected error has occurred.  If this is a severe error and you are on Mirth Support, please contact the Mirth Help Desk.");
+        question.setText("An unexpected error has occurred.  If this is a severe error and you are on NextGen Healthcare Support, please contact the NextGen Healthcare Help Desk.");
         question.setFocusable(false);
         questionPane.setViewportView(question);
 

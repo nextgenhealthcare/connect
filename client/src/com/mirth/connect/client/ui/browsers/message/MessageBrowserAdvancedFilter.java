@@ -624,7 +624,7 @@ public class MessageBrowserAdvancedFilter extends MirthDialog {
         messageIdLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         messageIdLabel.setText("Message Id:");
 
-        serverIdField.setToolTipText("<html>The GUID of the message in the Mirth Connect database.<br>This can be retrieved from the Meta Data tab in the Message Browser.</html>");
+        serverIdField.setToolTipText("<html>The GUID of the message in the NextGen Connect database.<br>This can be retrieved from the Meta Data tab in the Message Browser.</html>");
 
         serverIdLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         serverIdLabel.setText("Server Id:");

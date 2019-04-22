@@ -98,7 +98,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
             PlatformUI.CLIENT_VERSION = version;
 
-            setTitle("Mirth Connect " + version + " - Login");
+            setTitle("NextGen Connect " + version + " - Login");
 
             serverName.setText(mirthServer);
 
@@ -161,7 +161,7 @@ public class LoginPanel extends javax.swing.JFrame {
         placeholderButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Mirth Connect - Login");
+        setTitle("NextGen Connect - Login");
 
         loginMain.setBackground(new java.awt.Color(255, 255, 255));
         loginMain.setName(""); // NOI18N
@@ -192,7 +192,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Mirth Connect Login");
+        jLabel2.setText("NextGen Connect Login");
 
         javax.swing.GroupLayout mirthHeadingPanel2Layout = new javax.swing.GroupLayout(mirthHeadingPanel2);
         mirthHeadingPanel2.setLayout(mirthHeadingPanel2Layout);
@@ -309,7 +309,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Mirth Connect Login");
+        jLabel5.setText("NextGen Connect Login");
 
         javax.swing.GroupLayout mirthHeadingPanel1Layout = new javax.swing.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);

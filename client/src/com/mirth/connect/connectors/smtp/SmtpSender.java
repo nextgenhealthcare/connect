@@ -718,7 +718,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
     }
 
     private void initToolTips() {
-        smtpHostField.setToolTipText("<html>Enter the DNS domain name or IP address of the SMTP server to use to send the email messages.<br>Note that sending email to an SMTP server that is not expecting it may result in the IP of the box running Mirth being added to the server's \"blacklist.\"</html>");
+        smtpHostField.setToolTipText("<html>Enter the DNS domain name or IP address of the SMTP server to use to send the email messages.<br>Note that sending email to an SMTP server that is not expecting it may result in the IP of the box running NextGen Connect being added to the server's \"blacklist.\"</html>");
         smtpPortField.setToolTipText("<html>The port number of the SMTP server to send the email message to.<br>Generally, the default port of 25 is used.</html>");
 
         String toolTipText = "<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default value picked by the Socket class.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>";
@@ -741,7 +741,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         toField.setToolTipText("The name of the mailbox (person, usually) to which the email should be sent.");
         fromField.setToolTipText("The name that should appear as the \"From address\" in the email.");
         subjectField.setToolTipText("The text that should appear as the subject of the email, as seen by the receiver's email client.");
-        charsetEncodingComboBox.setToolTipText("<html>Select the character set encoding used by the sender of the message,<br> or Default to assume the default character set encoding for the JVM running Mirth.</html>");
+        charsetEncodingComboBox.setToolTipText("<html>Select the character set encoding used by the sender of the message,<br> or Default to assume the default character set encoding for the JVM running NextGen Connect.</html>");
 
         toolTipText = "Selects whether HTML tags can be used in the email message body.";
         htmlYes.setToolTipText(toolTipText);

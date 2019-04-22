@@ -708,7 +708,7 @@
             <StringItem index="6" value="us-ascii"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the character set encoding used by the sender of the message,&lt;br&gt; or Default to assume the default character set encoding for the JVM running Mirth.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the character set encoding used by the sender of the message,&lt;br&gt; or Default to assume the default character set encoding for the JVM running NextGen Connect.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="sendTimeoutField">
