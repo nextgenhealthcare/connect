@@ -11,7 +11,6 @@
 			<accessrule kind="nonaccessible" pattern="*/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons-codec-1.10.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.7.jar"/>
@@ -21,9 +20,6 @@
 	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/httpclient-4.5.3.jar"/>
-	<classpathentry kind="lib" path="lib/httpcore-4.4.6.jar"/>
-	<classpathentry kind="lib" path="lib/httpmime-4.5.3.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
 		<accessrules>
 			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/model/**"/>
@@ -35,5 +31,9 @@
 	<classpathentry kind="lib" path="lib/miglayout-core-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-swing-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/swingx-core-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.4.11.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.5.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

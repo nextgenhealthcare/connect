@@ -54,11 +54,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.4.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.10.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://commons.apache.org/codec/api-release/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/logging/apidocs/"/>
@@ -77,9 +72,6 @@
 	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.7.jar"/>
-	<classpathentry kind="lib" path="lib/httpclient-4.5.3.jar"/>
-	<classpathentry kind="lib" path="lib/httpcore-4.4.6.jar"/>
-	<classpathentry kind="lib" path="lib/httpmime-4.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
@@ -87,5 +79,9 @@
 	<classpathentry kind="lib" path="lib/commons-vfs2-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-util-9.4.6.v20170531.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.4.11.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.5.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
