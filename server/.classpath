@@ -14,7 +14,6 @@
 	<classpathentry kind="lib" path="lib/extensions/doc/pdfbox-1.8.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.9.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-cli-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-codec-1.10.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-dbcp2-2.0.1.jar"/>
@@ -101,9 +100,6 @@
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-jetty-servlet-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/swagger/ext/jackson-dataformat-yaml-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-media-multipart-2.22.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons/httpclient-4.5.3.jar"/>
-	<classpathentry kind="lib" path="lib/commons/httpcore-4.4.6.jar"/>
-	<classpathentry kind="lib" path="lib/commons/httpmime-4.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-proxy-client-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-collections4-4.0.jar"/>
 	<classpathentry kind="lib" path="lib/swagger/ext/reflections-0.9.10.jar"/>
@@ -208,6 +204,10 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-vfs/apidocs"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="output" path="bin"/>
 	<classpathentry kind="lib" path="lib/commons/commons-compress-1.17.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpclient-4.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpcore-4.4.11.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpmime-4.5.8.jar"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>

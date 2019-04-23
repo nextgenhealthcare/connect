@@ -103,7 +103,6 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/wizard.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.10.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.7.jar"/>
 	<classpathentry kind="lib" path="lib/looks-2.3.1.jar"/>
@@ -156,9 +155,6 @@
 	<classpathentry kind="lib" path="lib/commons-collections4-4.0.jar"/>
 	<classpathentry kind="lib" path="lib/reflections-0.9.10.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-common-2.22.1.jar"/>
-	<classpathentry kind="lib" path="lib/httpclient-4.5.3.jar"/>
-	<classpathentry kind="lib" path="lib/httpcore-4.4.6.jar"/>
-	<classpathentry kind="lib" path="lib/httpmime-4.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/hk2-api-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/hk2-locator-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/hk2-utils-2.4.0-b31.jar"/>
@@ -185,5 +181,9 @@
 	<classpathentry kind="lib" path="lib/openjfx.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb-api-2.4.0-b180725.0427.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb-runtime-2.4.0-b180725.0644.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.4.11.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.5.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
