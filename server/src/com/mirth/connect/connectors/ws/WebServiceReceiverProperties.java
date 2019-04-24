@@ -34,7 +34,7 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
         sourceConnectorProperties = new SourceConnectorProperties();
 
         this.className = "com.mirth.connect.connectors.ws.DefaultAcceptMessage";
-        this.serviceName = "Mirth";
+        this.serviceName = "NGConnect";
         this.soapBinding = Binding.DEFAULT;
     }
 
