@@ -24,9 +24,11 @@ public class WindowsServiceController implements ServiceController {
     private final int WINDOWS_STATUS_STOPPED = 2184;
     private final String WINDOWS_STATUS_CHANGING = "2189";
     private final String WINDOWS_CMD_QUERY_REGEX = "NET HELPMSG ([0-9]{4})";
-    private final String WINDOWS_CMD_REG_QUERY = "REG QUERY HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v \"Mirth Connect Server Manager\"";
-    private final String WINDOWS_CMD_REG_DELETE = "REG DELETE HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\"";
-    private final String WINDOWS_CMD_REG_ADD = "REG ADD HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\" /d ";
+    private final String WINDOWS_CMD_REG_QUERY = "REG QUERY HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v \"NextGen Connect Server Manager\"";
+    private final String WINDOWS_CMD_REG_DELETE = "REG DELETE HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"NextGen Connect Server Manager\"";
+    private final String WINDOWS_CMD_REG_ADD = "REG ADD HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"NextGen Connect Server Manager\" /d ";
+    private final String WINDOWS_CMD_REG_QUERY_MIRTH = "REG QUERY HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v \"Mirth Connect Server Manager\"";
+    private final String WINDOWS_CMD_REG_DELETE_MIRTH = "REG DELETE HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\"";
 
     @Override
     public int checkService() {
@@ -140,12 +142,15 @@ public class WindowsServiceController implements ServiceController {
     public void migrate() {
         // If the old value exists in the registry, then we should remove and re-add it
         try {
-            String output = CmdUtil.execCmdWithOutput(WINDOWS_CMD_REG_QUERY);
-            if (output.indexOf("Mirth Connect Server Manager.exe") != -1) {
-                setStartup(false);
+            int keyQueryResult = CmdUtil.execCmd(WINDOWS_CMD_REG_QUERY_MIRTH, true);
+            if (keyQueryResult == 0) {
+                
+                // deregister the old mirth startup
+                CmdUtil.execCmd(WINDOWS_CMD_REG_DELETE_MIRTH, true);
+                
+                // register with new name
                 setStartup(true);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }

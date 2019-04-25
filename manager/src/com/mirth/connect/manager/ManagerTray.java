@@ -59,7 +59,7 @@ public class ManagerTray {
         });
         menu.add(administratorItem);
 
-        startItem = new MenuItem("Start Mirth");
+        startItem = new MenuItem("Start NextGen Connect");
 //        startItem.setIcon(new ImageIcon(this.getClass().getResource("images/start.png")));
         startItem.addActionListener(new ActionListener() {
 
@@ -69,7 +69,7 @@ public class ManagerTray {
         });
         menu.add(startItem);
 
-        stopItem = new MenuItem("Stop Mirth");
+        stopItem = new MenuItem("Stop NextGen Connect");
 //        stopItem.setIcon(new ImageIcon(this.getClass().getResource("images/stop.png")));
         stopItem.addActionListener(new ActionListener() {
 
@@ -79,7 +79,7 @@ public class ManagerTray {
         });
         menu.add(stopItem);
 
-        restartItem = new MenuItem("Restart Mirth");
+        restartItem = new MenuItem("Restart NextGen Connect");
 //        restartItem.setIcon(new ImageIcon(this.getClass().getResource("images/restart.png")));
         restartItem.addActionListener(new ActionListener() {
 
