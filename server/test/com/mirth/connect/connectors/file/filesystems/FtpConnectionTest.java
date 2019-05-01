@@ -40,7 +40,7 @@ public class FtpConnectionTest {
 			@Override
 			public Integer answer(InvocationOnMock arg0) throws Throwable {
 				recievedCommands.add(arg0.getArgument(0));
-				return 0;
+				return 200;
 			}
 		};
 		when(client.sendCommand(anyString())).thenAnswer(answer);
@@ -61,11 +61,12 @@ public class FtpConnectionTest {
 	@Test
 	public void testInitializeSendsZeroCommands() throws Exception {
 		FTPClient client = mock(FTPClient.class);
+		
 		Answer<Integer> answer = new Answer<Integer>() {
 			@Override
 			public Integer answer(InvocationOnMock arg0) throws Throwable {
 				recievedCommands.add(arg0.getArgument(0));
-				return 0;
+				return 200;
 			}
 		};
 		when(client.sendCommand(anyString())).thenAnswer(answer);
