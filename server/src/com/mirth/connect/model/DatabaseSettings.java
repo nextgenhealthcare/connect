@@ -236,7 +236,11 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
 
     private String getMappedReadOnlyDatabaseDriver() {
         if (StringUtils.isEmpty(databaseReadOnlyDriver)) {
-            return MapUtils.getString(databaseDriverMap, StringUtils.defaultIfBlank(getDatabaseReadOnly(), getDatabase()));
+            if (StringUtils.isEmpty(getDatabaseReadOnly())) {
+                return getMappedDatabaseDriver();
+            } else {
+                return MapUtils.getString(databaseDriverMap, getDatabaseReadOnly());
+            }
         } else {
             return databaseReadOnlyDriver;
         }
