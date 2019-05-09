@@ -259,7 +259,7 @@ public class Frame extends JXFrame {
 
         setTitle(titleText.toString());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/ngc_32_ico.png")).getImage());
+        setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
         makePaneContainer();
 
         connectionError = false;
@@ -862,7 +862,7 @@ public class Frame extends JXFrame {
     private void createViewPane() {
         // Create View pane
         viewPane = new JXTaskPane();
-        viewPane.setTitle("NextGen Connect");
+        viewPane.setTitle("Mirth Connect");
         viewPane.setName(TaskConstants.VIEW_KEY);
         viewPane.setFocusable(false);
 
@@ -872,7 +872,7 @@ public class Frame extends JXFrame {
         addTask(TaskConstants.VIEW_SETTINGS, "Settings", "Contains local and system settings.", "S", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/wrench.png")), viewPane, null);
         addTask(TaskConstants.VIEW_ALERTS, "Alerts", "Contains alert settings.", "A", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error.png")), viewPane, null);
         addTask(TaskConstants.VIEW_EVENTS, "Events", "Show the event logs for the system.", "E", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table.png")), viewPane, null);
-        addTask(TaskConstants.VIEW_EXTENSIONS, "Extensions", "View and manage NextGen Connect extensions", "X", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/plugin.png")), viewPane, null);
+        addTask(TaskConstants.VIEW_EXTENSIONS, "Extensions", "View and manage Mirth Connect extensions", "X", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/plugin.png")), viewPane, null);
 
         setNonFocusable(viewPane);
         taskPaneContainer.add(viewPane);
@@ -1101,12 +1101,12 @@ public class Frame extends JXFrame {
         otherPane.setName(TaskConstants.OTHER_KEY);
         otherPane.setFocusable(false);
         addTask(TaskConstants.OTHER_NOTIFICATIONS, UIConstants.VIEW_NOTIFICATIONS, "View notifications from NextGen Healthcare.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/flag_orange.png")), otherPane, null);
-        addTask(TaskConstants.OTHER_VIEW_USER_API, "View User API", "View documentation for the NextGen Connect User API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
-        addTask(TaskConstants.OTHER_VIEW_CLIENT_API, "View Client API", "View documentation for the NextGen Connect Client API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
-        addTask(TaskConstants.OTHER_HELP, "Help", "View the NextGen Connect wiki.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
-        addTask(TaskConstants.OTHER_ABOUT, "About NextGen Connect", "View the about page for NextGen Connect.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png")), otherPane, null);
-        addTask(TaskConstants.OTHER_VISIT_MIRTH, "Visit nextgen.com", "View NextGen Connect's homepage.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/house.png")), otherPane, null);
-        addTask(TaskConstants.OTHER_REPORT_ISSUE, "Report Issue", "Visit NextGen Connect's issue tracker.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bug.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_VIEW_USER_API, "View User API", "View documentation for the Mirth Connect User API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_VIEW_CLIENT_API, "View Client API", "View documentation for the Mirth Connect Client API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_HELP, "Help", "View the Mirth Connect wiki.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_ABOUT, "About NextGen Connect", "View the about page for Mirth Connect.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_VISIT_MIRTH, "Visit nextgen.com", "View Mirth Connect's homepage.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/house.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_REPORT_ISSUE, "Report Issue", "Visit Mirth Connect's issue tracker.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bug.png")), otherPane, null);
         addTask(TaskConstants.OTHER_LOGOUT, "Logout", "Logout and return to the login screen.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disconnect.png")), otherPane, null);
         setNonFocusable(otherPane);
         taskPaneContainer.add(otherPane);
@@ -1358,7 +1358,7 @@ public class Frame extends JXFrame {
                     connectionError = true;
                     statusUpdaterExecutor.shutdownNow();
 
-                    alertWarning(parentComponent, "Sorry your connection to NextGen Connect has either timed out or there was an error in the connection.  Please login again.");
+                    alertWarning(parentComponent, "Sorry your connection to Mirth Connect has either timed out or there was an error in the connection.  Please login again.");
                     if (!exportChannelOnError()) {
                         return;
                     }
@@ -1376,7 +1376,7 @@ public class Frame extends JXFrame {
                     } else {
                         server = PlatformUI.SERVER_URL;
                     }
-                    alertWarning(parentComponent, "The NextGen Connect server " + server + " is no longer running.  Please start it and log in again.");
+                    alertWarning(parentComponent, "The Mirth Connect server " + server + " is no longer running.  Please start it and log in again.");
                     if (!exportChannelOnError()) {
                         return;
                     }
@@ -4494,7 +4494,7 @@ public class Frame extends JXFrame {
         StringBuilder message = new StringBuilder();
 
         if (version == null) {
-            message.append("The " + objectName + " being imported is from an older or unknown version of NextGen Connect.\n");
+            message.append("The " + objectName + " being imported is from an older or unknown version of Mirth Connect.\n");
         } else {
             int comparison = MigrationUtil.compareVersions(version, PlatformUI.SERVER_VERSION);
 
@@ -4503,16 +4503,16 @@ public class Frame extends JXFrame {
             }
 
             if (comparison > 0) {
-                alertInformation(this, "The " + objectName + " being imported originated from NextGen Connect version " + version + ".\nYou are using NextGen Connect version " + PlatformUI.SERVER_VERSION + ".\nThe " + objectName + " cannot be imported, because it originated from a newer version of NextGen Connect.");
+                alertInformation(this, "The " + objectName + " being imported originated from Mirth Connect version " + version + ".\nYou are using Mirth Connect version " + PlatformUI.SERVER_VERSION + ".\nThe " + objectName + " cannot be imported, because it originated from a newer version of Mirth Connect.");
                 return false;
             }
 
             if (comparison < 0) {
-                message.append("The " + objectName + " being imported originated from NextGen Connect version " + version + ".\n");
+                message.append("The " + objectName + " being imported originated from Mirth Connect version " + version + ".\n");
             }
         }
 
-        message.append("You are using NextGen Connect version " + PlatformUI.SERVER_VERSION + ".\nWould you like to automatically convert the " + objectName + " to the " + PlatformUI.SERVER_VERSION + " format?");
+        message.append("You are using Mirth Connect version " + PlatformUI.SERVER_VERSION + ".\nWould you like to automatically convert the " + objectName + " to the " + PlatformUI.SERVER_VERSION + " format?");
         return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this, message.toString(), "Select an Option", JOptionPane.YES_NO_OPTION);
     }
 

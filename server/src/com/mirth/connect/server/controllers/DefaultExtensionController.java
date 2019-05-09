@@ -442,7 +442,7 @@ public class DefaultExtensionController extends ExtensionController {
 
                     if (!extensionLoader.isExtensionCompatible(extensionMetaData)) {
                         if (cause == null) {
-                            cause = new VersionMismatchException("Extension \"" + entry.getName() + "\" is not compatible with this version of NextGen Connect.");
+                            cause = new VersionMismatchException("Extension \"" + entry.getName() + "\" is not compatible with this version of Mirth Connect.");
                         }
                     }
                 }

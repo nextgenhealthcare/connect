@@ -140,7 +140,7 @@ public class ManagerController {
 
             public void done() {
                 if (errorMessage == null) {
-                    PlatformUI.MANAGER_TRAY.alertInfo("The NextGen Connect Service was started successfully.");
+                    PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was started successfully.");
                 } else {
                     PlatformUI.MANAGER_TRAY.alertError(errorMessage);
                 }
@@ -182,7 +182,7 @@ public class ManagerController {
             updating = true;
 
             if (!serviceController.startService()) {
-                errorMessage = "The NextGen Connect Service could not be started.  Please verify that it is installed and not already started.";
+                errorMessage = "The Mirth Connect Service could not be started.  Please verify that it is installed and not already started.";
             } else {
                 String contextPath = getContextPath();
 
@@ -207,13 +207,13 @@ public class ManagerController {
                 }
 
                 if (!started) {
-                    errorMessage = "The NextGen Connect Service could not be started.";
+                    errorMessage = "The Mirth Connect Service could not be started.";
                 }
             }
         } catch (Throwable t) { // Need to catch Throwable in case Client fails
             // internally
             t.printStackTrace();
-            errorMessage = "The NextGen Connect Service could not be started.";
+            errorMessage = "The Mirth Connect Service could not be started.";
         } finally {
             if (client != null) {
                 client.close();
@@ -238,7 +238,7 @@ public class ManagerController {
 
             public void done() {
                 if (errorMessage == null) {
-                    PlatformUI.MANAGER_TRAY.alertInfo("The NextGen Connect Service was stopped successfully.");
+                    PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was stopped successfully.");
                 } else {
                     PlatformUI.MANAGER_TRAY.alertError(errorMessage);
                 }
@@ -256,11 +256,11 @@ public class ManagerController {
         try {
             updating = true;
             if (!serviceController.stopService()) {
-                errorMessage = "The NextGen Connect Service could not be stopped.  Please verify that it is installed and started.";
+                errorMessage = "The Mirth Connect Service could not be stopped.  Please verify that it is installed and started.";
             }
         } catch (Exception e) {
             e.printStackTrace();
-            errorMessage = "The NextGen Connect Service could not be stopped.  Please verify that it is installed and started.";
+            errorMessage = "The Mirth Connect Service could not be stopped.  Please verify that it is installed and started.";
         }
 
         updating = false;
@@ -281,7 +281,7 @@ public class ManagerController {
 
             public void done() {
                 if (errorMessage == null) {
-                    PlatformUI.MANAGER_TRAY.alertInfo("The NextGen Connect Service was restarted successfully.");
+                    PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was restarted successfully.");
                 } else {
                     PlatformUI.MANAGER_TRAY.alertError(errorMessage);
                 }
@@ -344,7 +344,7 @@ public class ManagerController {
         }
 
         if (!success) {
-            PlatformUI.MANAGER_TRAY.alertError("The NextGen Connect Administator could not be launched.");
+            PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Administator could not be launched.");
         }
     }
 

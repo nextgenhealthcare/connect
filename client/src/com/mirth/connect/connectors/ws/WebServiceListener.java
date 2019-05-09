@@ -204,7 +204,7 @@ public class WebServiceListener extends ConnectorSettingsPanel {
         classNameButtonGroup.add(classNameCustomRadio);
 
         classNameField = new MirthTextField();
-        classNameField.setToolTipText("<html>The fully qualified class name of the web service that should be hosted.<br>If this is a custom class, it should be added in a custom jar so it is loaded with NextGen Connect.</html>");
+        classNameField.setToolTipText("<html>The fully qualified class name of the web service that should be hosted.<br>If this is a custom class, it should be added in a custom jar so it is loaded with Mirth Connect.</html>");
     }
 
     private void initLayout() {
