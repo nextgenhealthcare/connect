@@ -1,6 +1,6 @@
 <jnlp>
 	<information>
-		<title>NextGen Connect Administrator</title>
+		<title>Mirth Connect Administrator</title>
 		<vendor>NextGen Healthcare</vendor>
 		<homepage href="http://www.nextgen.com"/>
 		<description>Open Source Healthcare Integration Engine</description>
@@ -14,7 +14,7 @@
             <!-- put a shortcut on the desktop -->
             <desktop/>
             <!-- put shortcut in start menu too -->
-            <menu submenu="NextGen Connect"/>
+            <menu submenu="Mirth Connect"/>
     	</shortcut>
     	
 	</information>
