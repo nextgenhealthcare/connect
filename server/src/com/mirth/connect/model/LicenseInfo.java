@@ -17,12 +17,30 @@ public class LicenseInfo implements Serializable {
 
     public static final LicenseInfo INSTANCE = new LicenseInfo();
 
+    private boolean activated;
+    private boolean online;
     private Long expirationDate;
     private Long warningPeriod;
     private Long gracePeriod;
     private Set<String> extensions = new HashSet<String>();
 
     public LicenseInfo() {}
+
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
 
     public Long getExpirationDate() {
         return expirationDate;
