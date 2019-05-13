@@ -43,7 +43,7 @@ import com.mirth.connect.server.util.ServerSMTPConnectionFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public abstract class AlertWorker extends EventListener implements AlertActionAcceptor {
-    private static final String DEFAULT_SUBJECT = "NextGen Connect Alert";
+    private static final String DEFAULT_SUBJECT = "Mirth Connect Alert";
 
     protected Logger logger = Logger.getLogger(this.getClass());
     protected ExecutorService actionExecutor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());

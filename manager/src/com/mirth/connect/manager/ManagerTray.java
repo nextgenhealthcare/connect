@@ -36,7 +36,7 @@ public class ManagerTray {
     public ManagerTray() {}
 
     public void setupTray() {
-        menu = new PopupMenu("NextGen Connect Server Manager");
+        menu = new PopupMenu("Mirth Connect Server Manager");
 
         viewItem = new MenuItem("Show Manager");
 //        viewItem.setIcon(new ImageIcon(this.getClass().getResource("images/start.png")));
@@ -59,7 +59,7 @@ public class ManagerTray {
         });
         menu.add(administratorItem);
 
-        startItem = new MenuItem("Start NextGen Connect");
+        startItem = new MenuItem("Start Mirth Connect");
 //        startItem.setIcon(new ImageIcon(this.getClass().getResource("images/start.png")));
         startItem.addActionListener(new ActionListener() {
 
@@ -69,7 +69,7 @@ public class ManagerTray {
         });
         menu.add(startItem);
 
-        stopItem = new MenuItem("Stop NextGen Connect");
+        stopItem = new MenuItem("Stop Mirth Connect");
 //        stopItem.setIcon(new ImageIcon(this.getClass().getResource("images/stop.png")));
         stopItem.addActionListener(new ActionListener() {
 
@@ -79,7 +79,7 @@ public class ManagerTray {
         });
         menu.add(stopItem);
 
-        restartItem = new MenuItem("Restart NextGen Connect");
+        restartItem = new MenuItem("Restart Mirth Connect");
 //        restartItem.setIcon(new ImageIcon(this.getClass().getResource("images/restart.png")));
         restartItem.addActionListener(new ActionListener() {
 
@@ -101,8 +101,8 @@ public class ManagerTray {
         });
         menu.add(quitItem);
 
-        ImageIcon icon = new ImageIcon(this.getClass().getResource("images/ngc_32_ico_gray.png"));
-        mirthTrayIcon = new TrayIcon(icon.getImage(), "NextGen Connect Server Manager", menu);
+        ImageIcon icon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
+        mirthTrayIcon = new TrayIcon(icon.getImage(), "Mirth Connect Server Manager", menu);
         mirthTrayIcon.setImageAutoSize(true);
 
         // Action listener for left click.
@@ -166,11 +166,11 @@ public class ManagerTray {
     public void setTrayIcon(int icon) {
         ImageIcon imageIcon;
         if (icon == STARTED) {
-            imageIcon = new ImageIcon(this.getClass().getResource("images/ngc_32_ico.png"));
+            imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico.png"));
         } else if (icon == STOPPED) {
-            imageIcon = new ImageIcon(this.getClass().getResource("images/ngc_32_ico_gray.png"));
+            imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
         } else {
-            imageIcon = new ImageIcon(this.getClass().getResource("images/ngc_32_ico_gray.png"));
+            imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
         }
 
         mirthTrayIcon.setImage(imageIcon.getImage());

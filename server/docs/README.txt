@@ -1,69 +1,69 @@
-NEXTGEN CONNECT README
+MIRTH CONNECT README
 
 Contents
 ==================================================
 
 1. General Information
 2. Installation and Upgrade
-3. Starting NextGen Connect
-4. Running NextGen Connect in Java 9 or greater
+3. Starting Mirth Connect
+4. Running Mirth Connect in Java 9 or greater
 5. More Information
 
 1. General Information
 ==================================================
 
-NextGen Connect is an open source health care integration engine. By supporting numerous standards (like HL7, EDI/X12, XML, NCPDP, DICOM, and Delimited Text) and protocols (like TCP/LLP, HTTP, JDBC, and File/FTP/SFTP), NextGen Connect allows for the filtering, transformation, and routing of messages between disparate systems to allow them to share data.
+Mirth Connect is an open source health care integration engine. By supporting numerous standards (like HL7, EDI/X12, XML, NCPDP, DICOM, and Delimited Text) and protocols (like TCP/LLP, HTTP, JDBC, and File/FTP/SFTP), Mirth Connect allows for the filtering, transformation, and routing of messages between disparate systems to allow them to share data.
 
 
 2. Installation and Upgrade
 ==================================================
 
-NextGen Connect installers are available for individual operating systems (EXE for Windows, RPM and SH for Linux, and DMG for Mac OS X). Pre-packaged distributions are also available for individual operating systems (ZIP for Windows, TAR.GZ for Linux, and TAR.GZ for Mac OS X). The installer allows you to automatically upgrade previous NextGen Connect installations (starting with version 1.5).
+Mirth Connect installers are available for individual operating systems (EXE for Windows, RPM and SH for Linux, and DMG for Mac OS X). Pre-packaged distributions are also available for individual operating systems (ZIP for Windows, TAR.GZ for Linux, and TAR.GZ for Mac OS X). The installer allows you to automatically upgrade previous Mirth Connect installations (starting with version 1.5).
 
-NextGen Connect installers also come with the option to install and start a service which will run the background. You also have the option of installing and running the NextGen Connect Server Manager, which allows you to start and stop the service on some operating systems, change NextGen Connect properties and backend database settings, and view the server logs.
+Mirth Connect installers also come with the option to install and start a service which will run the background. You also have the option of installing and running the Mirth Connect Server Manager, which allows you to start and stop the service on some operating systems, change Mirth Connect properties and backend database settings, and view the server logs.
 
-An optional NextGen Connect Command Line Interface can be installed, allowing you to connect to a running NextGen Connect Server using a command line. This tool is useful for performing or scripting server tasks without opening the NextGen Connect Administrator.
+An optional Mirth Connect Command Line Interface can be installed, allowing you to connect to a running Mirth Connect Server using a command line. This tool is useful for performing or scripting server tasks without opening the Mirth Connect Administrator.
 
-After the installation, the NextGen Connect directory layout will look as follows:
+After the installation, the Mirth Connect directory layout will look as follows:
 
-/appdata/mirthdb: The embedded database (Do NOT delete if you specify Derby as your database). This will be created when the NextGen Connect Server is started. The path for appdata is defined by the dir.appdata property in mirth.properties.
-/cli-lib: Libraries for the NextGen Connect Command Line Interface (if installed)
-/client-lib: Libraries for the NextGen Connect Administrator
+/appdata/mirthdb: The embedded database (Do NOT delete if you specify Derby as your database). This will be created when the Mirth Connect Server is started. The path for appdata is defined by the dir.appdata property in mirth.properties.
+/cli-lib: Libraries for the Mirth Connect Command Line Interface (if installed)
+/client-lib: Libraries for the Mirth Connect Administrator
 /conf: Configuration files
-/custom-lib: Place your custom user libraries here. These libraries will be loaded on the NextGen Connect Server classpath when it is started, making them accessible to channel scripts.
-/docs: This document and a copy of the NextGen Connect license
-/docs/javadocs: Generated javadocs for the installed version of NextGen Connect. These documents are also available when the server is running at http://[server address]:8080/javadocs/ (i.e. http://localhost:8080/javadocs/).
+/custom-lib: Place your custom user libraries here. These libraries will be loaded on the Mirth Connect Server classpath when it is started, making them accessible to channel scripts.
+/docs: This document and a copy of the Mirth Connect license
+/docs/javadocs: Generated javadocs for the installed version of Mirth Connect. These documents are also available when the server is running at http://[server address]:8080/javadocs/ (i.e. http://localhost:8080/javadocs/).
 /extensions: Libraries and meta data for Plug-ins and Connectors
-/logs: Default location for logs generated by NextGen Connect and its sub-components
-/manager-lib: Libraries for the NextGen Connect Server Manager (if installed)
+/logs: Default location for logs generated by Mirth Connect and its sub-components
+/manager-lib: Libraries for the Mirth Connect Server Manager (if installed)
 /public_html: Directory exposed by the embedded web server
-/server-lib: NextGen Connect server libraries
+/server-lib: Mirth Connect server libraries
 /webapps: Directory exposed by the embedded web server to host webapps
 
 
-3. Starting NextGen Connect
+3. Starting Mirth Connect
 ==================================================
 
-Once NextGen Connect has been installed, there are several ways to connect to launch the NextGen Connect Administrator. On a Windows installation, there is a NextGen Connect Administrator item in the Start Menu which launches the application directly.
+Once Mirth Connect has been installed, there are several ways to connect to launch the Mirth Connect Administrator. On a Windows installation, there is a Mirth Connect Administrator item in the Start Menu which launches the application directly.
 
-If the option is not available, you can connect to the NextGen Connect Administrator launch page which by default should be available at http://[server address]:8080 (i.e. http://localhost:8080). Clicking the Launch NextGen Connect Administrator button will connect you to the server which will be listening on https://[server address]:8443 (i.e. https://localhost:8443). If running a new installation, the default username and password for the login screen is admin and admin. This should be changed immediately for security purposes.
+If the option is not available, you can connect to the Mirth Connect Administrator launch page which by default should be available at http://[server address]:8080 (i.e. http://localhost:8080). Clicking the Launch Mirth Connect Administrator button will connect you to the server which will be listening on https://[server address]:8443 (i.e. https://localhost:8443). If running a new installation, the default username and password for the login screen is admin and admin. This should be changed immediately for security purposes.
 
-If you are launching the administrator for the first time, you will notice that the libraries for the NextGen Connect Administrator will be loaded. This feature allows you run the Administrator from any remote NextGen Connect server without having to download and install a separate client.
+If you are launching the administrator for the first time, you will notice that the libraries for the Mirth Connect Administrator will be loaded. This feature allows you run the Administrator from any remote Mirth Connect server without having to download and install a separate client.
 
 You may also notice a security warning when starting the administrator (dialog box depends on browser being used). This is normal and you should click Run to continue launching the administrator.
 
 
-4. Running NextGen Connect in Java 9 or greater
+4. Running Mirth Connect in Java 9 or greater
 ==================================================
 
-In order to run NextGen Connect in Java 9 or greater, copy the options from /docs/mcservice-java9+.vmoptions and append them to either mcserver.vmoptions or mcservice.vmoptions, depending on your deployment. Then restart NextGen Connect.
+In order to run Mirth Connect in Java 9 or greater, copy the options from /docs/mcservice-java9+.vmoptions and append them to either mcserver.vmoptions or mcservice.vmoptions, depending on your deployment. Then restart Mirth Connect.
 
-To run the NextGen Connect Command Line Interface, create a new file named mccommand.vmoptions in the NextGen Connect root directory. Copy all of the options from /docs/mcservice-java9+.vmoptions into mccommand.vmoptions and save before launching the Command Line Interface.
+To run the Mirth Connect Command Line Interface, create a new file named mccommand.vmoptions in the Mirth Connect root directory. Copy all of the options from /docs/mcservice-java9+.vmoptions into mccommand.vmoptions and save before launching the Command Line Interface.
 
 
 5. More Information
 ==================================================
 
-You can find the latest NextGen Connect release information, documentation, and more at: https://www.nextgen.com/products-and-services/integration-engine
+You can find the latest Mirth Connect release information, documentation, and more at: https://www.nextgen.com/products-and-services/integration-engine
 
-Join the NextGen Community at: http://www.mirthcorp.com/community/registration
+Join the Mirth Connect Community at: http://www.mirthcorp.com/community/registration

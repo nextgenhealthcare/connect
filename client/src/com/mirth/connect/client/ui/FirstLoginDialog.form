@@ -129,7 +129,7 @@
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Welcome to NextGen Connect"/>
+                <Property name="text" type="java.lang.String" value="Welcome to Mirth Connect"/>
               </Properties>
             </Component>
           </SubComponents>
@@ -149,7 +149,7 @@
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="d2" green="fa" red="fa" type="rgb"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="You may now customize your NextGen Connect user account information. You also have the option of changing your account password."/>
+                <Property name="text" type="java.lang.String" value="You may now customize your Mirth Connect user account information. You also have the option of changing your account password."/>
                 <Property name="autoscrolls" type="boolean" value="false"/>
                 <Property name="disabledTextColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="0" green="0" red="0" type="rgb"/>

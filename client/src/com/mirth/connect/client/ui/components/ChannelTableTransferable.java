@@ -23,7 +23,7 @@ import com.mirth.connect.model.ChannelGroup;
 
 public class ChannelTableTransferable implements Transferable {
 
-    public static final DataFlavor CHANNEL_DATA_FLAVOR = new DataFlavor(List.class, "NextGen Connect Channel");
+    public static final DataFlavor CHANNEL_DATA_FLAVOR = new DataFlavor(List.class, "Mirth Connect Channel");
 
     private static final DataFlavor[] flavors = { DataFlavor.stringFlavor,
             DataFlavor.plainTextFlavor, CHANNEL_DATA_FLAVOR };

@@ -872,7 +872,7 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         charsetEncodingCombobox.setModel(new DefaultComboBoxModel<String>(new String[] { "default",
                 "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
-        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding to be used for the response to the sending system.<br>Set to Default to assume the default character set encoding for the JVM running NextGen Connect.</html>");
+        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding to be used for the response to the sending system.<br>Set to Default to assume the default character set encoding for the JVM running Mirth Connect.</html>");
 
         charsetEncodingLabel.setText("Charset Encoding:");
 

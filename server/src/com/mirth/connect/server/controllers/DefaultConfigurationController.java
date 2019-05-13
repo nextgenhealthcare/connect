@@ -927,7 +927,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             DirectoryResourceProperties defaultResource = new DirectoryResourceProperties();
             defaultResource.setId(ResourceProperties.DEFAULT_RESOURCE_ID);
             defaultResource.setName(ResourceProperties.DEFAULT_RESOURCE_NAME);
-            defaultResource.setDescription("Loads libraries from the custom-lib folder in the NextGen Connect home directory.");
+            defaultResource.setDescription("Loads libraries from the custom-lib folder in the Mirth Connect home directory.");
             defaultResource.setIncludeWithGlobalScripts(true);
             defaultResource.setDirectory("custom-lib");
 
@@ -1466,7 +1466,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
         }
 
-        email.setSubject("NextGen Connect Test Email");
+        email.setSubject("Mirth Connect Test Email");
 
         try {
             for (String toAddress : StringUtils.split(to, ",")) {
@@ -1474,7 +1474,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             email.setFrom(from);
-            email.setMsg("Receipt of this email confirms that mail originating from this NextGen Connect Server is capable of reaching its intended destination.\n\nSMTP Configuration:\n- Host: " + host + "\n- Port: " + port);
+            email.setMsg("Receipt of this email confirms that mail originating from this Mirth Connect Server is capable of reaching its intended destination.\n\nSMTP Configuration:\n- Host: " + host + "\n- Port: " + port);
 
             email.send();
             return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Sucessfully sent test email to: " + to);
