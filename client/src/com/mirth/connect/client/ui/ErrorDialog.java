@@ -115,7 +115,7 @@ public class ErrorDialog extends MirthDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(image)
                         .addGap(20, 20, 20)
-                        .addComponent(questionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
+                        .addComponent(questionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
                         .addGap(20, 20, 20))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE))
                 .addContainerGap())
