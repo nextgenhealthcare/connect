@@ -305,7 +305,7 @@ public class ReferenceListFactory {
         addReference(new VariableReference(CONTEXT_GLOBAL, Category.DATABASE.toString(), "SQL Server Connection Template", "String template for SQL Server database connection.", "\"jdbc:jtds:sqlserver://host:port/dbname\""));
         addReference(new VariableReference(CONTEXT_GLOBAL, Category.DATABASE.toString(), "Oracle Connection Template", "String template for Oracle database connection.", "\"jdbc:oracle:thin:@host:port:dbname\""));
         addReference(new VariableReference(CONTEXT_GLOBAL, Category.DATABASE.toString(), "Postgres Driver", "String used for Postgres database driver.", "\"org.postgresql.Driver\""));
-        addReference(new VariableReference(CONTEXT_GLOBAL, Category.DATABASE.toString(), "MySQL Driver", "String used for MySQL database driver.", "\"com.mysql.jdbc.Driver\""));
+        addReference(new VariableReference(CONTEXT_GLOBAL, Category.DATABASE.toString(), "MySQL Driver", "String used for MySQL database driver.", "\"com.mysql.cj.jdbc.Driver\""));
         addReference(new VariableReference(CONTEXT_GLOBAL, Category.DATABASE.toString(), "SQL Server Driver", "String used for SQL Server database driver.", "\"net.sourceforge.jtds.jdbc.Driver\""));
         addReference(new VariableReference(CONTEXT_GLOBAL, Category.DATABASE.toString(), "Oracle Driver", "String used for Oracle database driver.", "\"oracle.jdbc.OracleDriver\""));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.DATABASE.toString(), "Initialize Driver", "Initialize the specified JDBC driver. (Same as calling Class.forName)", "DatabaseConnectionFactory.initializeDriver('${driver}');"));

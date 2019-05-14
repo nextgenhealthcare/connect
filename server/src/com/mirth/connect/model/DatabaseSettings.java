@@ -40,7 +40,7 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
     static {
         databaseDriverMap = new HashMap<String, String>();
         databaseDriverMap.put("derby", "org.apache.derby.jdbc.EmbeddedDriver");
-        databaseDriverMap.put("mysql", "com.mysql.jdbc.Driver");
+        databaseDriverMap.put("mysql", "com.mysql.cj.jdbc.Driver");
         databaseDriverMap.put("oracle", "oracle.jdbc.OracleDriver");
         databaseDriverMap.put("postgres", "org.postgresql.Driver");
         databaseDriverMap.put("sqlserver", "net.sourceforge.jtds.jdbc.Driver");
