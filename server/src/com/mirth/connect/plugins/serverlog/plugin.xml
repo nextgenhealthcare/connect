@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This plugin allows you to view the server log on the NextGen Connect administrator.</description>
+	<description>This plugin allows you to view the server log on the Mirth Connect administrator.</description>
 	<serverClasses>
 		<string>com.mirth.connect.plugins.serverlog.ServerLogProvider</string>
 	</serverClasses>

@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This connector allows NextGen Connect to poll for files from a local or network file system.</description>
+	<description>This connector allows Mirth Connect to poll for files from a local or network file system.</description>
 	<clientClassName>com.mirth.connect.connectors.file.FileReader</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.file.FileReceiver</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.file.FileReceiverProperties</sharedClassName>

@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This plugin provides a JavaScript rule-type for NextGen Connect filters</description>
+	<description>This plugin provides a JavaScript rule-type for Mirth Connect filters</description>
 	<clientClasses>
 		<string>com.mirth.connect.plugins.javascriptrule.JavaScriptRulePlugin</string>
 	</clientClasses>

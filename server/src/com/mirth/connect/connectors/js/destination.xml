@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This connector allows NextGen Connect to execute JavaScript to connect to an arbitrary destination.</description>
+	<description>This connector allows Mirth Connect to execute JavaScript to connect to an arbitrary destination.</description>
 	<clientClassName>com.mirth.connect.connectors.js.JavaScriptWriter</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.js.JavaScriptDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.js.JavaScriptDispatcherProperties</sharedClassName>

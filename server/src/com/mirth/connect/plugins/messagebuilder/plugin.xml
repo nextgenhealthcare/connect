@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This plugin provides a Message Builder step-type for NextGen Connect transformers</description>
+	<description>This plugin provides a Message Builder step-type for Mirth Connect transformers</description>
 	<clientClasses>
 		<string>com.mirth.connect.plugins.messagebuilder.MessageBuilderPlugin</string>
 	</clientClasses>
