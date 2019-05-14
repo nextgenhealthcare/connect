@@ -76,7 +76,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/xstream-1.4.7.jar"/>
-	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.32-bin.jar"/>
+	<classpathentry kind="lib" path="lib/database/mysql-connector-java-8.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-common-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-servlet-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-servlet-core-2.22.1.jar"/>
