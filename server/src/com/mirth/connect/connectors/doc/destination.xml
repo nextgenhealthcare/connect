@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This connector allows NextGen Connect to create RTF or PDF documents based on an HTML template. PDF files can be password protected.</description>
+	<description>This connector allows Mirth Connect to create RTF or PDF documents based on an HTML template. PDF files can be password protected.</description>
 	<clientClassName>com.mirth.connect.connectors.doc.DocumentWriter</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.doc.DocumentDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.doc.DocumentDispatcherProperties</sharedClassName>

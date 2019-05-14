@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This connector allows NextGen Connect to listen on an HTTP port for incoming Web Service calls. This connector also provides a WSDL for SOAP clients to use.</description>
+	<description>This connector allows Mirth Connect to listen on an HTTP port for incoming Web Service calls. This connector also provides a WSDL for SOAP clients to use.</description>
 	<clientClassName>com.mirth.connect.connectors.ws.WebServiceListener</clientClassName>
 	<sharedClassName>com.mirth.connect.connectors.ws.WebServiceReceiverProperties</sharedClassName>
 	<serverClassName>com.mirth.connect.connectors.ws.WebServiceReceiver</serverClassName>

@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This connector allows NextGen Connect to listen for incoming messages over a standard TCP connection.</description>
+	<description>This connector allows Mirth Connect to listen for incoming messages over a standard TCP connection.</description>
 	<clientClassName>com.mirth.connect.connectors.dimse.DICOMListener</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.dimse.DICOMReceiver</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.dimse.DICOMReceiverProperties</sharedClassName>

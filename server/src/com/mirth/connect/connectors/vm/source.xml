@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This connector allows NextGen Connect to listen for incoming events from other channels in the same NextGen Connect instance.</description>
+	<description>This connector allows Mirth Connect to listen for incoming events from other channels in the same Mirth Connect instance.</description>
 	<clientClassName>com.mirth.connect.connectors.vm.ChannelReader</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.vm.VmReceiver</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.vm.VmReceiverProperties</sharedClassName>

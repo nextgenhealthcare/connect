@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This connector allows NextGen Connect to write to any JDBC-compatabile database with Insert, Update or JavaScript statements.</description>
+	<description>This connector allows Mirth Connect to write to any JDBC-compatabile database with Insert, Update or JavaScript statements.</description>
 	<clientClassName>com.mirth.connect.connectors.jdbc.DatabaseWriter</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.jdbc.DatabaseDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.jdbc.DatabaseDispatcherProperties</sharedClassName>

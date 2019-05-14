@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This connector allows NextGen Connect to send email messages via SMTP. A template is available to dynamically create messages.</description>
+	<description>This connector allows Mirth Connect to send email messages via SMTP. A template is available to dynamically create messages.</description>
 	<clientClassName>com.mirth.connect.connectors.smtp.SmtpSender</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.smtp.SmtpDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.smtp.SmtpDispatcherProperties</sharedClassName>

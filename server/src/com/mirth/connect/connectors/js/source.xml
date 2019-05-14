@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.8.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
-	<description>This connector allows NextGen Connect to execute arbitrary JavaScript to pull in messages to a channel.</description>
+	<description>This connector allows Mirth Connect to execute arbitrary JavaScript to pull in messages to a channel.</description>
 	<clientClassName>com.mirth.connect.connectors.js.JavaScriptReader</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.js.JavaScriptReceiver</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.js.JavaScriptReceiverProperties</sharedClassName>
