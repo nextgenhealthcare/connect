@@ -5,7 +5,7 @@
 		<homepage href="http://www.nextgen.com"/>
 		<description>Open Source Healthcare Integration Engine</description>
 		
-		<icon href="images/ngc_128_ico.png"/>
+		<icon href="images/mirth_128_ico.png"/>
 		<icon href="images/splashscreen.png" kind="splash"/> 
 		
 		<offline-allowed/>
