@@ -5,7 +5,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta http-equiv="x-ua-compatible" content="IE=edge">
         
-        <title>NextGen Connect Administrator</title>
+        <title>Mirth Connect Administrator</title>
         
         <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
@@ -26,17 +26,17 @@
         <div id="centerWrapper" class="container">
             <div class="row">
                 <div id="mirthLogoWrapper">
-                    <img id="mirthLogo" src="images/nextgenconnectlogowide.png" />
+                    <img id="mirthLogo" src="images/mirthconnectlogowide.png" />
                 </div>
     
                 <div id="mcadministrator" class="col-xs-6 col-xs-6-custom">
-                    <h1 style="text-align: center;">NextGen Connect Administrator</h1>
+                    <h1 style="text-align: center;">Mirth Connect Administrator</h1>
                     
                     <div id="launchbuttoncontainer">
 	                    <div class="help-block">
 	                        Click the big green button below, and choose to open the file with the Administrator Launcher instead of using Java Web Start. If you don't have the Administrator Launcher installed, click the big blue button below.
 	                    </div>
-                        <a class="btn btn-md btn-themebutton launch-button" href="javascript:launchAdministrator()">Launch NextGen Connect Administrator</a>
+                        <a class="btn btn-md btn-themebutton" href="javascript:launchAdministrator()">Launch Mirth Connect Administrator</a>
                         <div id="optionsDropdownContainer" class="dropdown" style="text-align: center;">
                         	<button id="optionsButton" class="btn btn-default btn-lg dropdown-toggle opt-button" data-toggle="dropdown" role="button">
 	                        	<span class="glyphicon glyphicon-cog"></span>
@@ -55,7 +55,7 @@
                     
                     <div>
 	                    <div class="help-block">
-	                        <strong>NextGen Connect Administrator Launcher:</strong><br /> This is a separate application that replaces<br/>Java Web Start and allows you to launch the Administrator from your local workstation.  
+	                        <strong>Mirth Connect Administrator Launcher:</strong><br /> This is a separate application that replaces<br/>Java Web Start and allows you to launch the Administrator from your local workstation.  
 	                    </div>
                         <a class="btn btn-md btn-downloadbutton" href="javascript:downloadAdministratorLauncher()">Download Administrator Launcher</a>
                         <div id="administratorLauncherOptionsDropdownContainer" class="dropdown">
@@ -100,7 +100,7 @@
 		            	</c:when>
 		              	<c:otherwise>
 		              		<div id="securesiteaccess">
-		              			<p id="httpsInfoParagraph">The NextGen Connect Web Dashboard must be accessed over HTTPS. Click below button to switch to the secure site.</p>
+		              			<p id="httpsInfoParagraph">The Mirth Connect Web Dashboard must be accessed over HTTPS. Click below button to switch to the secure site.</p>
 		                   		<div class="help-block">
 		                	        <br/><strong>Note:</strong><br/> You may see a certificate error if your server is using a <a href="http://en.wikipedia.org/wiki/Self-signed_certificate" target="_blank">self-signed certificate</a>. To prevent further warnings, you can add this certificate to your browser or operating system.
 		                        </div>
@@ -114,7 +114,7 @@
             </div>
         </div>
         <div id="smallSubPage">
-        	<p>&copy; 2019 NextGen Healthcare | NextGen Connect</p>
+        	<p>&copy; 2019 NextGen Healthcare | Mirth Connect</p>
         </div>
     
         <script type="text/javascript">
