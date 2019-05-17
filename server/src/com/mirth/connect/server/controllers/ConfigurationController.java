@@ -201,13 +201,23 @@ public abstract class ConfigurationController extends Controller {
     public abstract String generateGuid();
 
     /**
-     * A list of database driver metadata specified in the dbdrivers.xml file.
+     * Returns the database driver list used for the Database Reader/Writer connectors.
      * 
      * @return a list of database driver metadata
      * @throws ControllerException
      *             if the list could not be retrieved or parsed
      */
     public abstract List<DriverInfo> getDatabaseDrivers() throws ControllerException;
+
+    /**
+     * Updates the list of database drivers used for the Database Reader/Writer connectors.
+     * 
+     * @param drivers
+     *            The list of database drivers to update.
+     * @throws ControllerException
+     *             if the list could not be updated or parsed
+     */
+    public abstract void setDatabaseDrivers(List<DriverInfo> drivers) throws ControllerException;
 
     /**
      * Returns the server version (ex. 1.8.2).

@@ -13,16 +13,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingWorker;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
+import com.mirth.connect.client.ui.components.MirthComboBox;
+import com.mirth.connect.client.ui.components.MirthPasswordField;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthTextField;
+import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -35,26 +55,14 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
 
     private List<DriverInfo> drivers;
     private Frame parent;
+    private AtomicBoolean driverAdjusting = new AtomicBoolean(false);
 
     public DatabaseWriter() {
         this.parent = PlatformUI.MIRTH_FRAME;
 
-        try {
-            drivers = this.parent.mirthClient.getDatabaseDrivers();
-        } catch (ClientException e) {
-            parent.alertThrowable(this, e);
-        }
-
         initComponents();
-
-        drivers.add(0, new DriverInfo(DatabaseDispatcherProperties.DRIVER_DEFAULT, DatabaseDispatcherProperties.DRIVER_DEFAULT, "", ""));
-        String[] driverNames = new String[drivers.size()];
-
-        for (int i = 0; i < drivers.size(); i++) {
-            driverNames[i] = drivers.get(i).getName();
-        }
-
-        databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));
+        initToolTips();
+        initLayout();
     }
 
     @Override
@@ -66,19 +74,13 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     public ConnectorProperties getProperties() {
         DatabaseDispatcherProperties properties = new DatabaseDispatcherProperties();
 
-        for (int i = 0; i < drivers.size(); i++) {
-            DriverInfo driver = drivers.get(i);
-            if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                properties.setDriver(driver.getClassName());
-            }
-        }
+        properties.setDriver(driverField.getText());
+        properties.setUrl(urlField.getText());
+        properties.setUsername(usernameField.getText());
+        properties.setPassword(new String(passwordField.getPassword()));
 
-        properties.setUrl(databaseURLField.getText());
-        properties.setUsername(databaseUsernameField.getText());
-        properties.setPassword(new String(databasePasswordField.getPassword()));
-
-        properties.setUseScript(useJavaScriptYes.isSelected());
-        properties.setQuery(databaseSQLTextPane.getText());
+        properties.setUseScript(useJavaScriptYesRadio.isSelected());
+        properties.setQuery(sqlTextPane.getText());
 
         return properties;
     }
@@ -89,30 +91,30 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
 
         boolean enabled = parent.isSaveEnabled();
 
-        for (int i = 0; i < drivers.size(); i++) {
-            DriverInfo driver = drivers.get(i);
-            if (driver.getClassName().equalsIgnoreCase(props.getDriver())) {
-                databaseDriverCombobox.setSelectedItem(driver.getName());
-            }
+        if (StringUtils.equals(props.getDriver(), DatabaseReceiverProperties.DRIVER_DEFAULT)) {
+            driverField.setText("");
+        } else {
+            driverField.setText(props.getDriver());
         }
+        updateDriverComboBoxFromField();
+        retrieveDatabaseDrivers(props.getDriver());
 
         parent.setSaveEnabled(enabled);
 
-        databaseURLField.setText(props.getUrl());
-        databaseUsernameField.setText(props.getUsername());
-        databasePasswordField.setText(props.getPassword());
+        urlField.setText(props.getUrl());
+        usernameField.setText(props.getUsername());
+        passwordField.setText(props.getPassword());
 
         if (props.isUseScript()) {
-            useJavaScriptYes.setSelected(true);
-            useJavaScriptYesActionPerformed(null);
+            useJavaScriptYesRadio.setSelected(true);
+            useJavaScriptYesActionPerformed();
 
         } else {
-            useJavaScriptNo.setSelected(true);
-            useJavaScriptNoActionPerformed(null);
+            useJavaScriptNoRadio.setSelected(true);
+            useJavaScriptNoActionPerformed();
         }
 
-        databaseSQLTextPane.setText(props.getQuery());
-
+        sqlTextPane.setText(props.getQuery());
     }
 
     @Override
@@ -129,19 +131,19 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         if (!props.isUseScript() && props.getUrl().length() == 0) {
             valid = false;
             if (highlight) {
-                databaseURLField.setBackground(UIConstants.INVALID_COLOR);
+                urlField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         if (props.getQuery().length() == 0) {
             valid = false;
             if (highlight) {
-                databaseSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
+                sqlTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (props.getDriver().equals(DatabaseDispatcherProperties.DRIVER_DEFAULT)) {
+        if (StringUtils.isBlank(props.getDriver()) || props.getDriver().equals(DatabaseDispatcherProperties.DRIVER_DEFAULT)) {
             valid = false;
             if (highlight) {
-                databaseDriverCombobox.setBackground(UIConstants.INVALID_COLOR);
+                driverComboBox.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -155,15 +157,15 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
 
     @Override
     public void resetInvalidProperties() {
-        databaseURLField.setBackground(null);
-        databaseSQLTextPane.setBackground(null);
-        databaseDriverCombobox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
+        urlField.setBackground(null);
+        sqlTextPane.setBackground(null);
+        driverComboBox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
     }
 
     @Override
     public void setVisible(boolean aFlag) {
         super.setVisible(aFlag);
-        databaseSQLTextPane.updateDisplayOptions();
+        sqlTextPane.updateDisplayOptions();
     }
 
     @Override
@@ -211,216 +213,271 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         return scripts;
     }
 
-    // @formatter:off
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        setBackground(UIConstants.BACKGROUND_COLOR);
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        sqlLabel = new javax.swing.JLabel();
-        databaseDriverCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        databaseURLField = new com.mirth.connect.client.ui.components.MirthTextField();
-        databaseUsernameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        databasePasswordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
-        databaseSQLTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.DESTINATION_DISPATCHER, true);
-        useJavaScriptYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        useJavaScriptNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        jLabel6 = new javax.swing.JLabel();
-        generateConnection = new javax.swing.JButton();
-        jLabel7 = new javax.swing.JLabel();
-        generateInsert = new javax.swing.JButton();
-        insertURLTemplateButton = new javax.swing.JButton();
+        driverLabel = new JLabel("Driver:");
 
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-
-        jLabel1.setText("Driver:");
-
-        jLabel2.setText("URL:");
-
-        jLabel3.setText("Username:");
-
-        jLabel4.setText("Password:");
-
-        sqlLabel.setText("SQL:");
-
-        databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Sun JDBC-ODBC Bridge", "ODBC - MySQL", "ODBC - PostgreSQL", "ODBC - SQL Server/Sybase", "ODBC - Oracle 10g Release 2" }));
-        databaseDriverCombobox.setToolTipText("Specifies the type of database driver to use to connect to the database.");
-
-        databaseURLField.setToolTipText("<html>The JDBC URL to connect to the database.<br>This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
-
-        databaseUsernameField.setToolTipText("<html>The username to connect to the database.<br>This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
-
-        databasePasswordField.setToolTipText("<html>The password to connect to the database.<br>This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
-
-        databaseSQLTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        useJavaScriptYes.setBackground(new java.awt.Color(255, 255, 255));
-        useJavaScriptYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(useJavaScriptYes);
-        useJavaScriptYes.setText("Yes");
-        useJavaScriptYes.setToolTipText("Implement JavaScript code using JDBC to insert a message into the database.");
-        useJavaScriptYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        useJavaScriptYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                useJavaScriptYesActionPerformed(evt);
+        driverComboBox = new MirthComboBox<DriverInfo>();
+        driverComboBox.addActionListener(evt -> {
+            if (!driverAdjusting.getAndSet(true)) {
+                try {
+                    updateDriverFieldFromComboBox();
+                } finally {
+                    driverAdjusting.set(false);
+                }
             }
         });
 
-        useJavaScriptNo.setBackground(new java.awt.Color(255, 255, 255));
-        useJavaScriptNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(useJavaScriptNo);
-        useJavaScriptNo.setText("No");
-        useJavaScriptNo.setToolTipText("Specify the SQL statements to insert a message into the database.");
-        useJavaScriptNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        useJavaScriptNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                useJavaScriptNoActionPerformed(evt);
+        driverField = new MirthTextField();
+        driverField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void removeUpdate(DocumentEvent evt) {
+                update();
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent evt) {
+                update();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent evt) {
+                update();
+            }
+
+            private void update() {
+                if (!driverAdjusting.getAndSet(true)) {
+                    try {
+                        updateDriverComboBoxFromField();
+                    } finally {
+                        driverAdjusting.set(false);
+                    }
+                }
             }
         });
 
-        jLabel6.setText("Use JavaScript:");
+        updateDriversComboBox();
 
-        generateConnection.setText("Connection");
-        generateConnection.setToolTipText("<html>If \"Yes\" is selected for Use JavaScript, this button is enabled.<br>When clicked, it inserts boilerplate Connection construction code into the JavaScript control at the current caret location.</html>");
-        generateConnection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                generateConnectionActionPerformed(evt);
+        manageDriversButton = new JButton(new ImageIcon(Frame.class.getResource("images/wrench.png")));
+        manageDriversButton.addActionListener(evt -> {
+            DatabaseDriversDialog dialog = new DatabaseDriversDialog(parent, drivers);
+            if (dialog.wasSaved()) {
+                drivers = dialog.getDrivers();
+                updateDriversComboBox();
             }
         });
 
-        jLabel7.setText("Generate:");
+        urlLabel = new JLabel("URL:");
+        urlField = new MirthTextField();
 
-        generateInsert.setText("Insert");
-        generateInsert.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                generateInsertActionPerformed(evt);
+        insertURLTemplateButton = new JButton("Insert URL Template");
+        insertURLTemplateButton.addActionListener(evt -> insertURLTemplateButtonActionPerformed());
+
+        usernameLabel = new JLabel("Username:");
+        usernameField = new MirthTextField();
+
+        passwordLabel = new JLabel("Password:");
+        passwordField = new MirthPasswordField();
+
+        useJavaScriptLabel = new JLabel("Use JavaScript:");
+
+        useJavaScriptRadioPanel = new JPanel();
+        useJavaScriptRadioPanel.setBackground(getBackground());
+
+        ButtonGroup useJavaScriptButtonGroup = new ButtonGroup();
+
+        useJavaScriptYesRadio = new MirthRadioButton("Yes");
+        useJavaScriptYesRadio.setBackground(getBackground());
+        useJavaScriptYesRadio.addActionListener(evt -> useJavaScriptYesActionPerformed());
+        useJavaScriptButtonGroup.add(useJavaScriptYesRadio);
+
+        useJavaScriptNoRadio = new MirthRadioButton("No");
+        useJavaScriptNoRadio.setBackground(getBackground());
+        useJavaScriptNoRadio.addActionListener(evt -> useJavaScriptNoActionPerformed());
+        useJavaScriptButtonGroup.add(useJavaScriptNoRadio);
+
+        generateLabel = new JLabel("Generate:");
+
+        generatePanel = new JPanel();
+        generatePanel.setBackground(getBackground());
+
+        generateConnectionButton = new JButton("Connection");
+        generateConnectionButton.addActionListener(evt -> generateConnectionActionPerformed());
+
+        generateInsertButton = new JButton("Insert");
+        generateInsertButton.addActionListener(evt -> generateInsertActionPerformed());
+
+        sqlLabel = new JLabel("SQL:");
+
+        sqlTextPane = new MirthRTextScrollPane(ContextType.DESTINATION_DISPATCHER, true);
+        sqlTextPane.setBorder(BorderFactory.createEtchedBorder());
+    }
+
+    private void initToolTips() {
+        driverComboBox.setToolTipText("Specifies the type of database driver to use to connect to the database.");
+        driverField.setToolTipText("The fully-qualified class name of the JDBC driver to use to connect to the database.");
+        manageDriversButton.setToolTipText("<html>Click here to view and manage the list of database JDBC drivers.<br/>Any changes will require re-saving and redeploying the channel.</html>");
+        urlField.setToolTipText("<html>The JDBC URL to connect to the database.<br>This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
+        usernameField.setToolTipText("<html>The username to connect to the database.<br>This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
+        passwordField.setToolTipText("<html>The password to connect to the database.<br>This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
+        useJavaScriptYesRadio.setToolTipText("Implement JavaScript code using JDBC to insert a message into the database.");
+        useJavaScriptNoRadio.setToolTipText("Specify the SQL statements to insert a message into the database.");
+        generateConnectionButton.setToolTipText("<html>If \"Yes\" is selected for Use JavaScript, this button is enabled.<br>When clicked, it inserts boilerplate Connection construction code into the JavaScript control at the current caret location.</html>");
+    }
+
+    private void initLayout() {
+        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6", "[]12[grow]", "[][][][][][grow]"));
+
+        add(driverLabel, "right");
+        add(driverComboBox, "split 3");
+        add(driverField, "w 200!");
+        add(manageDriversButton, "h 22!, w 22!");
+        add(urlLabel, "newline, right");
+        add(urlField, "w 318!, split 2");
+        add(insertURLTemplateButton);
+        add(usernameLabel, "newline, right");
+        add(usernameField, "w 125!");
+        add(passwordLabel, "newline, right");
+        add(passwordField, "w 125!");
+        add(useJavaScriptLabel, "newline, right");
+
+        generatePanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6", "[][grow][][][]"));
+        generatePanel.add(useJavaScriptYesRadio, "left");
+        generatePanel.add(useJavaScriptNoRadio, "left");
+
+        generatePanel.add(generateLabel, "right, gapafter 12");
+        generatePanel.add(generateConnectionButton, "right, sg");
+        generatePanel.add(generateInsertButton, "right, sg");
+        add(generatePanel, "growx, pushx, right");
+
+        add(sqlLabel, "newline, top, right");
+        add(sqlTextPane, "grow, push");
+    }
+
+    private void retrieveDatabaseDrivers(final String selectedDriver) {
+        final String workingId = parent.startWorking("Retrieving database drivers...");
+
+        SwingWorker<List<DriverInfo>, Void> worker = new SwingWorker<List<DriverInfo>, Void>() {
+            @Override
+            protected List<DriverInfo> doInBackground() throws Exception {
+                return parent.mirthClient.getDatabaseDrivers();
             }
-        });
 
-        insertURLTemplateButton.setText("Insert URL Template");
-        insertURLTemplateButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                insertURLTemplateButtonActionPerformed(evt);
+            @Override
+            protected void done() {
+                try {
+                    drivers = get();
+                    boolean enabled = parent.isSaveEnabled();
+                    updateDriversComboBox();
+                    parent.setSaveEnabled(enabled);
+                    parent.stopWorking(workingId);
+                } catch (Exception e) {
+                    parent.stopWorking(workingId);
+                    parent.alertThrowable(parent, e, false);
+                }
             }
-        });
+        };
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel6)
-                    .addComponent(sqlLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(databaseURLField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(databaseUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(databaseDriverCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(insertURLTemplateButton))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(useJavaScriptYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(useJavaScriptNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(databasePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
-                                .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(generateConnection)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(generateInsert))
-                            .addComponent(databaseSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE))
-                        .addContainerGap())))
-        );
+        worker.execute();
+    }
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {generateConnection, generateInsert});
+    private DriverInfo getSelectedDriver() {
+        DriverInfo selectedDriver = (DriverInfo) driverComboBox.getSelectedItem();
+        if (selectedDriver == null) {
+            selectedDriver = getSelectOneDriver();
+        }
+        return selectedDriver;
+    }
 
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(databaseDriverCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(insertURLTemplateButton))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(databaseURLField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(databaseUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(databasePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(useJavaScriptYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(useJavaScriptNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6)))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(generateConnection)
-                        .addComponent(jLabel7)
-                        .addComponent(generateInsert)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(sqlLabel)
-                    .addComponent(databaseSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-    }// </editor-fold>//GEN-END:initComponents
-    // @formatter:on
+    private DriverInfo getSelectOneDriver() {
+        return new DriverInfo(DatabaseReceiverProperties.DRIVER_DEFAULT, "", "", "");
+    }
 
-    private void generateInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateInsertActionPerformed
+    private DriverInfo getCustomDriver() {
+        return new DriverInfo(DatabaseReceiverProperties.DRIVER_CUSTOM, "", "", "");
+    }
+
+    private void fixDriversList() {
+        if (CollectionUtils.isEmpty(drivers)) {
+            drivers = DriverInfo.getDefaultDrivers();
+        }
+        if (!StringUtils.equals(drivers.get(0).getName(), DatabaseReceiverProperties.DRIVER_DEFAULT)) {
+            drivers.add(0, getSelectOneDriver());
+        }
+        if (!StringUtils.equals(drivers.get(drivers.size() - 1).getName(), DatabaseReceiverProperties.DRIVER_CUSTOM)) {
+            drivers.add(getCustomDriver());
+        }
+    }
+
+    private void updateDriversComboBox() {
+        fixDriversList();
+        driverAdjusting.set(true);
+        try {
+            driverComboBox.setModel(new DefaultComboBoxModel<DriverInfo>(drivers.toArray(new DriverInfo[drivers.size()])));
+            updateDriverComboBoxFromField();
+        } finally {
+            driverAdjusting.set(false);
+        }
+    }
+
+    private void updateDriverFieldFromComboBox() {
+        DriverInfo driver = getSelectedDriver();
+        if (!StringUtils.equals(driver.getName(), DatabaseReceiverProperties.DRIVER_CUSTOM)) {
+            driverField.setText(driver.getClassName());
+            driverField.setCaretPosition(0);
+        }
+    }
+
+    private void updateDriverComboBoxFromField() {
+        String driverClassName = driverField.getText();
+
+        DriverInfo foundDriver = null;
+        for (int i = 0; i < driverComboBox.getModel().getSize(); i++) {
+            DriverInfo driver = driverComboBox.getModel().getElementAt(i);
+
+            if (StringUtils.equals(driverClassName, driver.getClassName())) {
+                foundDriver = driver;
+                break;
+            }
+
+            if (CollectionUtils.isNotEmpty(driver.getAlternativeClassNames())) {
+                for (String alternativeClassName : driver.getAlternativeClassNames()) {
+                    if (StringUtils.equals(driverClassName, alternativeClassName)) {
+                        foundDriver = driver;
+                        break;
+                    }
+                }
+                if (foundDriver != null) {
+                    break;
+                }
+            }
+        }
+
+        if (foundDriver != null) {
+            driverComboBox.setSelectedItem(foundDriver);
+        } else {
+            driverComboBox.setSelectedIndex(driverComboBox.getItemCount() - 1);
+        }
+    }
+
+    private void generateInsertActionPerformed() {
         showDatabaseMetaData(STATEMENT_TYPE.INSERT_TYPE);
-    }//GEN-LAST:event_generateInsertActionPerformed
+    }
 
-    private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertURLTemplateButtonActionPerformed
+    private void insertURLTemplateButtonActionPerformed() {
 
-        if (!databaseURLField.getText().equals("")) {
+        if (!urlField.getText().equals("")) {
             if (!parent.alertOption(parent, "Are you sure you would like to replace your current connection URL with the template URL?")) {
                 return;
             }
         }
 
-        String template = "";
-
-        for (int i = 0; i < drivers.size(); i++) {
-            DriverInfo driverInfo = drivers.get(i);
-            if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                template = driverInfo.getTemplate();
-            }
-        }
-
-        databaseURLField.setText(template);
-        databaseURLField.grabFocus();
+        urlField.setText(getSelectedDriver().getTemplate());
+        urlField.grabFocus();
         parent.setSaveEnabled(true);
 
-    }//GEN-LAST:event_insertURLTemplateButtonActionPerformed
+    }
 
     public void showDatabaseMetaData(STATEMENT_TYPE type) {
         DatabaseDispatcherProperties properties = (DatabaseDispatcherProperties) getProperties();
@@ -428,25 +485,16 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         if (properties.getUrl().length() == 0 || properties.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             parent.alertError(parent, "A valid Driver and URL are required to perform this operation.");
         } else {
-            String selectLimit = null;
-
-            for (int i = 0; i < drivers.size(); i++) {
-                DriverInfo driver = drivers.get(i);
-                if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                    selectLimit = driver.getSelectLimit();
-                }
-            }
-
             Connector destinationConnector = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getDestinationConnectors().get(PlatformUI.MIRTH_FRAME.channelEditPanel.lastModelIndex);
             Set<String> resourceIds = PlatformUI.MIRTH_FRAME.channelEditPanel.resourceIds.get(destinationConnector.getMetaDataId()).keySet();
-            new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", selectLimit, resourceIds));
+            new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", getSelectedDriver().getSelectLimit(), resourceIds));
         }
     }
 
     public void setInsertText(List<String> statements) {
-        if (!useJavaScriptYes.isSelected()) {
+        if (!useJavaScriptYesRadio.isSelected()) {
             for (String statement : statements) {
-                databaseSQLTextPane.setText(statement.replaceAll("\\?", "") + "\n\n" + databaseSQLTextPane.getText());
+                sqlTextPane.setText(statement.replaceAll("\\?", "") + "\n\n" + sqlTextPane.getText());
             }
         } else {
             StringBuilder connectionString = new StringBuilder();
@@ -455,76 +503,65 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
                 connectionString.append(statement.replaceAll("\\n", " "));
                 connectionString.append("\");\n");
             }
-            databaseSQLTextPane.setSelectedText("\n" + connectionString.toString());
+            sqlTextPane.setSelectedText("\n" + connectionString.toString());
         }
 
         parent.setSaveEnabled(true);
     }
 
     private String generateConnectionString() {
-        String driver = "";
-
-        for (int i = 0; i < drivers.size(); i++) {
-            DriverInfo driverInfo = drivers.get(i);
-            if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                driver = driverInfo.getClassName();
-            }
-        }
-
         StringBuilder connectionString = new StringBuilder();
         connectionString.append("var dbConn;\n");
         connectionString.append("\ntry {\n\tdbConn = DatabaseConnectionFactory.createDatabaseConnection('");
-        connectionString.append(driver + "','" + databaseURLField.getText() + "','");
-        connectionString.append(databaseUsernameField.getText() + "','" + new String(databasePasswordField.getPassword()) + "\');\n\n} finally {");
+        connectionString.append(driverField.getText() + "','" + urlField.getText() + "','");
+        connectionString.append(usernameField.getText() + "','" + new String(passwordField.getPassword()) + "\');\n\n} finally {");
         connectionString.append("\n\tif (dbConn) { \n\t\tdbConn.close();\n\t}\n}");
 
         return connectionString.toString();
     }
 
-    private void generateConnectionActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_generateConnectionActionPerformed
-    {// GEN-HEADEREND:event_generateConnectionActionPerformed
-        databaseSQLTextPane.setText(generateConnectionString() + "\n\n" + databaseSQLTextPane.getText());
-        databaseSQLTextPane.getTextArea().requestFocus();
-        databaseSQLTextPane.setCaretPosition(databaseSQLTextPane.getText().lastIndexOf("\n\n", databaseSQLTextPane.getText().length() - 3) + 1);
+    private void generateConnectionActionPerformed() {
+        sqlTextPane.setText(generateConnectionString() + "\n\n" + sqlTextPane.getText());
+        sqlTextPane.getTextArea().requestFocus();
+        sqlTextPane.setCaretPosition(sqlTextPane.getText().lastIndexOf("\n\n", sqlTextPane.getText().length() - 3) + 1);
         parent.setSaveEnabled(true);
-    }// GEN-LAST:event_generateConnectionActionPerformed
+    }
 
-    private void useJavaScriptYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptYesActionPerformed
-    {// GEN-HEADEREND:event_useJavaScriptYesActionPerformed
+    private void useJavaScriptYesActionPerformed() {
         sqlLabel.setText("JavaScript:");
-        databaseSQLTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
-        databaseSQLTextPane.setText(generateConnectionString());
-        generateConnection.setEnabled(true);
+        sqlTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+        sqlTextPane.setText(generateConnectionString());
+        generateConnectionButton.setEnabled(true);
         parent.channelEditPanel.destinationVariableList.setTransferMode(TransferMode.JAVASCRIPT);
-    }// GEN-LAST:event_useJavaScriptYesActionPerformed
+    }
 
-    private void useJavaScriptNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptNoActionPerformed
-    {// GEN-HEADEREND:event_useJavaScriptNoActionPerformed
+    private void useJavaScriptNoActionPerformed() {
         sqlLabel.setText("SQL:");
-        databaseSQLTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
-        databaseSQLTextPane.setText("");
-        generateConnection.setEnabled(false);
+        sqlTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
+        sqlTextPane.setText("");
+        generateConnectionButton.setEnabled(false);
         parent.channelEditPanel.destinationVariableList.setTransferMode(TransferMode.VELOCITY);
-    }// GEN-LAST:event_useJavaScriptNoActionPerformed
+    }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup buttonGroup1;
-    private com.mirth.connect.client.ui.components.MirthComboBox databaseDriverCombobox;
-    private com.mirth.connect.client.ui.components.MirthPasswordField databasePasswordField;
-    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane databaseSQLTextPane;
-    private com.mirth.connect.client.ui.components.MirthTextField databaseURLField;
-    private com.mirth.connect.client.ui.components.MirthTextField databaseUsernameField;
-    private javax.swing.JButton generateConnection;
-    private javax.swing.JButton generateInsert;
-    private javax.swing.JButton insertURLTemplateButton;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel sqlLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton useJavaScriptNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton useJavaScriptYes;
-    // End of variables declaration//GEN-END:variables
+    private JLabel driverLabel;
+    private MirthComboBox<DriverInfo> driverComboBox;
+    private MirthTextField driverField;
+    private JButton manageDriversButton;
+    private JLabel urlLabel;
+    private MirthTextField urlField;
+    private JButton insertURLTemplateButton;
+    private JLabel usernameLabel;
+    private MirthTextField usernameField;
+    private JLabel passwordLabel;
+    private MirthPasswordField passwordField;
+    private JLabel useJavaScriptLabel;
+    private JPanel useJavaScriptRadioPanel;
+    private MirthRadioButton useJavaScriptYesRadio;
+    private MirthRadioButton useJavaScriptNoRadio;
+    private JPanel generatePanel;
+    private JLabel generateLabel;
+    private JButton generateConnectionButton;
+    private JButton generateInsertButton;
+    private JLabel sqlLabel;
+    private MirthRTextScrollPane sqlTextPane;
 }

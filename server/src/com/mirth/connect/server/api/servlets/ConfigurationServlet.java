@@ -305,6 +305,15 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
     }
 
     @Override
+    public void setDatabaseDrivers(List<DriverInfo> drivers) {
+        try {
+            configurationController.setDatabaseDrivers(drivers);
+        } catch (ControllerException e) {
+            throw new MirthApiException(e);
+        }
+    }
+
+    @Override
     public PasswordRequirements getPasswordRequirements() {
         return configurationController.getPasswordRequirements();
     }

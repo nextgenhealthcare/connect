@@ -25,6 +25,7 @@ import com.mirth.connect.util.CharsetUtils;
 public class DatabaseReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, SourceConnectorPropertiesInterface {
     public static final String NAME = "Database Reader";
     public static final String DRIVER_DEFAULT = "Please Select One";
+    public static final String DRIVER_CUSTOM = "Custom";
     public static final int UPDATE_NEVER = 1;
     public static final int UPDATE_ONCE = 2;
     public static final int UPDATE_EACH = 3;
