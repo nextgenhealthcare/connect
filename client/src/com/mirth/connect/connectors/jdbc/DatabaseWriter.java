@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -312,6 +313,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
 
         sqlTextPane = new MirthRTextScrollPane(ContextType.DESTINATION_DISPATCHER, true);
         sqlTextPane.setBorder(BorderFactory.createEtchedBorder());
+        sqlTextPane.setPreferredSize(new Dimension(470, 140));
     }
 
     private void initToolTips() {
@@ -346,13 +348,13 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         generatePanel.add(useJavaScriptYesRadio, "left");
         generatePanel.add(useJavaScriptNoRadio, "left");
 
-        generatePanel.add(generateLabel, "right, gapafter 12");
+        generatePanel.add(generateLabel, "right");
         generatePanel.add(generateConnectionButton, "right, sg");
         generatePanel.add(generateInsertButton, "right, sg");
         add(generatePanel, "growx, pushx, right");
 
         add(sqlLabel, "newline, top, right");
-        add(sqlTextPane, "grow, push");
+        add(sqlTextPane, "grow");
     }
 
     private void retrieveDatabaseDrivers(final String selectedDriver) {
