@@ -35,7 +35,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -284,19 +283,35 @@ public class DatabaseDriversDialog extends MirthDialog {
     }
 
     private void save() {
-        List<DriverInfo> drivers = getDrivers();
+        final List<DriverInfo> drivers = getDrivers();
 
         if (checkDrivers(drivers)) {
-            String workingId = PlatformUI.MIRTH_FRAME.startWorking("Updating database drivers...");
-            try {
-                PlatformUI.MIRTH_FRAME.mirthClient.setDatabaseDrivers(drivers);
-                PlatformUI.MIRTH_FRAME.stopWorking(workingId);
-                saved = true;
-                dispose();
-            } catch (ClientException e) {
-                PlatformUI.MIRTH_FRAME.stopWorking(workingId);
-                PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
-            }
+            final String workingId = PlatformUI.MIRTH_FRAME.startWorking("Updating database drivers...");
+
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    PlatformUI.MIRTH_FRAME.mirthClient.setDatabaseDrivers(drivers);
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        get();
+                        PlatformUI.MIRTH_FRAME.stopWorking(workingId);
+                        saved = true;
+                        dispose();
+                    } catch (Exception e) {
+                        PlatformUI.MIRTH_FRAME.stopWorking(workingId);
+                        PlatformUI.MIRTH_FRAME.alertThrowable(DatabaseDriversDialog.this, e);
+                        saveButton.setEnabled(true);
+                    }
+                }
+            };
+
+            saveButton.setEnabled(false);
+            worker.execute();
         }
     }
 

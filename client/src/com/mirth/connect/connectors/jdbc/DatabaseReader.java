@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -19,9 +20,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
@@ -401,6 +404,16 @@ public class DatabaseReader extends ConnectorSettingsPanel {
                 } finally {
                     driverAdjusting.set(false);
                 }
+            }
+        });
+        driverComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DriverInfo) {
+                    setText(((DriverInfo) value).getName());
+                }
+                return component;
             }
         });
 

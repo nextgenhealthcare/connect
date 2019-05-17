@@ -605,7 +605,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 }
 
                 DriverInfo driver = new DriverInfo(name, className, template, selectLimit, alternativeClassNames);
-                logger.debug("Found database driver: " + driver.toFormattedString());
+                logger.debug("Found database driver: " + driver);
                 drivers.add(driver);
             } else {
                 logger.error("Error adding database driver: Name, class, or template is blank.");

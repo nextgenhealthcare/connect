@@ -97,10 +97,6 @@ public class DriverInfo implements Serializable {
 
     @Override
     public String toString() {
-        return name;
-    }
-
-    public String toFormattedString() {
         StringBuilder builder = new StringBuilder();
         builder.append(this.getClass().getName() + "[");
         builder.append("name=" + getName() + ", ");
