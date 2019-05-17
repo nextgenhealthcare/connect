@@ -97,7 +97,13 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         } else {
             driverField.setText(props.getDriver());
         }
-        updateDriverComboBoxFromField();
+
+        driverAdjusting.set(true);
+        try {
+            updateDriverComboBoxFromField();
+        } finally {
+            driverAdjusting.set(false);
+        }
         retrieveDatabaseDrivers(props.getDriver());
 
         parent.setSaveEnabled(enabled);
