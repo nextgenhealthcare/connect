@@ -218,6 +218,7 @@ public class DatabaseDriversDialog extends MirthDialog {
 
         removeButton = new JButton("Remove");
         removeButton.addActionListener(evt -> removeDriver());
+        removeButton.setEnabled(getSelectedRow() >= 0);
 
         separator = new JSeparator();
 
@@ -255,10 +256,10 @@ public class DatabaseDriversDialog extends MirthDialog {
     private void addDriver() {
         int selectedRow = getSelectedRow();
         if (selectedRow >= 0) {
-            ((RefreshTableModel) driversTable.getModel()).insertRow(selectedRow, new Object[] { "",
-                    "", "", "", "" });
-            driversTable.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
-            driversTable.scrollRowToVisible(selectedRow);
+            ((RefreshTableModel) driversTable.getModel()).insertRow(selectedRow + 1, new Object[] {
+                    "", "", "", "", "" });
+            driversTable.getSelectionModel().setSelectionInterval(selectedRow + 1, selectedRow + 1);
+            driversTable.scrollRowToVisible(selectedRow + 1);
         } else {
             ((RefreshTableModel) driversTable.getModel()).addRow(new Object[] { "", "", "", "",
                     "" });
