@@ -775,6 +775,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
+     * Updates the list of database drivers.
+     * 
+     * @see ConfigurationServletInterface#setDatabaseDrivers
+     */
+    @Override
+    public void setDatabaseDrivers(List<DriverInfo> drivers) throws ClientException {
+        getServlet(ConfigurationServletInterface.class).setDatabaseDrivers(drivers);
+    }
+
+    /**
      * Returns all password requirements for the server.
      * 
      * @see ConfigurationServletInterface#getPasswordRequirements
@@ -2552,8 +2562,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
-     * Returns the specified properties for the specified extension. 
-     * If propertyKeys is null or empty, then all properties for the extension are returned.
+     * Returns the specified properties for the specified extension. If propertyKeys is null or
+     * empty, then all properties for the extension are returned.
      * 
      * @see ExtensionServletInterface#getPluginProperties
      */
@@ -2570,11 +2580,13 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public void setPluginProperties(String extensionName, Properties properties) throws ClientException {
         getServlet(ExtensionServletInterface.class).setPluginProperties(extensionName, properties, false);
     }
-    
+
     /**
-     * Sets properties for the specified extension. 
+     * Sets properties for the specified extension.
      * 
-     * @param mergeProperties true to merge the given properties with an properties on the server. false to overwrite all values on the server.
+     * @param mergeProperties
+     *            true to merge the given properties with an properties on the server. false to
+     *            overwrite all values on the server.
      * 
      * @see ExtensionServletInterface#setPluginProperties
      */

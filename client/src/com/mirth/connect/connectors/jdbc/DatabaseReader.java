@@ -9,15 +9,24 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
@@ -26,6 +35,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.mozilla.javascript.Context;
@@ -33,13 +43,17 @@ import org.mozilla.javascript.EvaluatorException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
+import com.mirth.connect.client.ui.components.MirthComboBox;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthPasswordField;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthTextField;
+import com.mirth.connect.client.ui.components.MirthVariableList;
+import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.util.SQLParserUtil;
 import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
@@ -51,55 +65,18 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 
 public class DatabaseReader extends ConnectorSettingsPanel {
+
     private List<DriverInfo> drivers;
     private Frame parent;
     private Timer timer;
+    private AtomicBoolean driverAdjusting = new AtomicBoolean(false);
 
     public DatabaseReader() {
         this.parent = PlatformUI.MIRTH_FRAME;
 
-        try {
-            drivers = this.parent.mirthClient.getDatabaseDrivers();
-        } catch (ClientException e) {
-            parent.alertThrowable(this, e);
-        }
-
         initComponents();
+        initToolTips();
         initLayout();
-
-        retryCountField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        retryIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
-
-        drivers.add(0, new DriverInfo(DatabaseReceiverProperties.DRIVER_DEFAULT, DatabaseReceiverProperties.DRIVER_DEFAULT, "", ""));
-        String[] driverNames = new String[drivers.size()];
-
-        for (int i = 0; i < drivers.size(); i++) {
-            driverNames[i] = drivers.get(i).getName();
-        }
-
-        databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));
-        fetchSizeField.setDocument(new MirthFieldConstraints(9, false, false, true));
-
-        selectTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
-        updateTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
-
-        DocumentListener documentListener = new DocumentListener() {
-
-            public void changedUpdate(DocumentEvent e) {}
-
-            public void removeUpdate(DocumentEvent e) {
-                update();
-            }
-
-            public void insertUpdate(DocumentEvent e) {
-                update();
-            }
-        };
-
-        selectTextPane.getDocument().addDocumentListener(documentListener);
-        updateTextPane.getDocument().addDocumentListener(documentListener);
-
-        parent.setupCharsetEncodingForConnector(encodingCombobox);
     }
 
     @Override
@@ -111,35 +88,29 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     public ConnectorProperties getProperties() {
         DatabaseReceiverProperties properties = new DatabaseReceiverProperties();
 
-        for (int i = 0; i < drivers.size(); i++) {
-            DriverInfo driver = drivers.get(i);
-            if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                properties.setDriver(driver.getClassName());
-            }
-        }
-
-        properties.setUrl(databaseURLField.getText());
-        properties.setUsername(databaseUsernameField.getText());
-        properties.setPassword(new String(databasePasswordField.getPassword()));
-        properties.setKeepConnectionOpen(keepConnOpenYes.isSelected());
+        properties.setDriver(driverField.getText());
+        properties.setUrl(urlField.getText());
+        properties.setUsername(usernameField.getText());
+        properties.setPassword(new String(passwordField.getPassword()));
+        properties.setKeepConnectionOpen(keepConnectionOpenYesRadio.isSelected());
         properties.setAggregateResults(aggregateResultsYesRadio.isSelected());
-        properties.setCacheResults(cacheResultsYesButton.isSelected());
+        properties.setCacheResults(cacheResultsYesRadio.isSelected());
         properties.setFetchSize(fetchSizeField.getText());
         properties.setRetryCount(retryCountField.getText());
         properties.setRetryInterval(retryIntervalField.getText());
-        properties.setUseScript(useScriptYes.isSelected());
-        properties.setSelect(selectTextPane.getText());
-        properties.setUpdate(updateTextPane.getText());
+        properties.setUseScript(useJavaScriptYesRadio.isSelected());
+        properties.setSelect(selectSQLTextPane.getText());
+        properties.setUpdate(postProcessSQLTextPane.getText());
 
-        if (updateOnce.isSelected()) {
+        if (runPostProcessSQLOnceRadio.isSelected()) {
             properties.setUpdateMode(DatabaseReceiverProperties.UPDATE_ONCE);
-        } else if (updateEach.isSelected()) {
+        } else if (runPostProcessSQLEachRadio.isSelected()) {
             properties.setUpdateMode(DatabaseReceiverProperties.UPDATE_EACH);
         } else {
             properties.setUpdateMode(DatabaseReceiverProperties.UPDATE_NEVER);
         }
 
-        properties.setEncoding(parent.getSelectedEncodingForConnector(encodingCombobox));
+        properties.setEncoding(parent.getSelectedEncodingForConnector(encodingComboBox));
 
         return properties;
     }
@@ -150,33 +121,40 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         boolean enabled = parent.isSaveEnabled();
 
-        for (int i = 0; i < drivers.size(); i++) {
-            DriverInfo driver = drivers.get(i);
-            if (driver.getClassName().equalsIgnoreCase(props.getDriver())) {
-                databaseDriverCombobox.setSelectedItem(driver.getName());
-            }
+        if (StringUtils.equals(props.getDriver(), DatabaseReceiverProperties.DRIVER_DEFAULT)) {
+            driverField.setText("");
+        } else {
+            driverField.setText(props.getDriver());
         }
+
+        driverAdjusting.set(true);
+        try {
+            updateDriverComboBoxFromField();
+        } finally {
+            driverAdjusting.set(false);
+        }
+        retrieveDatabaseDrivers(props.getDriver());
 
         parent.setSaveEnabled(enabled);
 
-        databaseURLField.setText(props.getUrl());
-        databaseUsernameField.setText(props.getUsername());
-        databasePasswordField.setText(props.getPassword());
+        urlField.setText(props.getUrl());
+        usernameField.setText(props.getUsername());
+        passwordField.setText(props.getPassword());
 
         if (props.isKeepConnectionOpen()) {
-            keepConnOpenYes.setSelected(true);
-            keepConnOpenNo.setSelected(false);
+            keepConnectionOpenYesRadio.setSelected(true);
+            keepConnectionOpenNoRadio.setSelected(false);
         } else {
-            keepConnOpenYes.setSelected(false);
-            keepConnOpenNo.setSelected(true);
+            keepConnectionOpenYesRadio.setSelected(false);
+            keepConnectionOpenNoRadio.setSelected(true);
         }
 
         if (props.isCacheResults()) {
-            cacheResultsYesButton.setSelected(true);
-            cacheResultsYesButtonActionPerformed(null);
+            cacheResultsYesRadio.setSelected(true);
+            cacheResultsYesButtonActionPerformed();
         } else {
-            cacheResultsNoButton.setSelected(true);
-            cacheResultsNoButtonActionPerformed(null);
+            cacheResultsNoRadio.setSelected(true);
+            cacheResultsNoButtonActionPerformed();
         }
 
         if (props.isAggregateResults()) {
@@ -191,33 +169,33 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         retryCountField.setText(props.getRetryCount());
         retryIntervalField.setText(props.getRetryInterval());
 
-        parent.setPreviousSelectedEncodingForConnector(encodingCombobox, props.getEncoding());
+        parent.setPreviousSelectedEncodingForConnector(encodingComboBox, props.getEncoding());
 
         if (props.isUseScript()) {
-            useScriptYes.setSelected(true);
-            useScriptYesActionPerformed(null);
+            useJavaScriptYesRadio.setSelected(true);
+            useScriptYesActionPerformed();
         } else {
-            useScriptNo.setSelected(true);
-            useScriptNoActionPerformed(null);
+            useJavaScriptNoRadio.setSelected(true);
+            useScriptNoActionPerformed();
         }
 
-        selectTextPane.setText(props.getSelect());
-        updateTextPane.setText(props.getUpdate());
+        selectSQLTextPane.setText(props.getSelect());
+        postProcessSQLTextPane.setText(props.getUpdate());
 
         switch (props.getUpdateMode()) {
             case DatabaseReceiverProperties.UPDATE_EACH:
-                updateEach.setSelected(true);
-                updateEachActionPerformed(null);
+                runPostProcessSQLEachRadio.setSelected(true);
+                updateEachActionPerformed();
                 break;
 
             case DatabaseReceiverProperties.UPDATE_ONCE:
-                updateOnce.setSelected(true);
-                updateOnceActionPerformed(null);
+                runPostProcessSQLOnceRadio.setSelected(true);
+                updateOnceActionPerformed();
                 break;
 
             default:
-                updateNever.setSelected(true);
-                updateNeverActionPerformed(null);
+                runPostProcessSQLNeverRadio.setSelected(true);
+                updateNeverActionPerformed();
                 break;
         }
     }
@@ -236,7 +214,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         if (!props.isUseScript() && props.getUrl().length() == 0) {
             valid = false;
             if (highlight) {
-                databaseURLField.setBackground(UIConstants.INVALID_COLOR);
+                urlField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -244,7 +222,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
             valid = false;
 
             if (highlight) {
-                selectTextPane.setBackground(UIConstants.INVALID_COLOR);
+                selectSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -252,15 +230,15 @@ public class DatabaseReader extends ConnectorSettingsPanel {
             valid = false;
 
             if (highlight) {
-                updateTextPane.setBackground(UIConstants.INVALID_COLOR);
+                postProcessSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
-        if (props.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
+        if (StringUtils.isBlank(props.getDriver()) || props.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             valid = false;
 
             if (highlight) {
-                databaseDriverCombobox.setBackground(UIConstants.INVALID_COLOR);
+                driverComboBox.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -269,18 +247,18 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
     @Override
     public void resetInvalidProperties() {
-        databaseURLField.setBackground(null);
+        urlField.setBackground(null);
         fetchSizeField.setBackground(null);
-        selectTextPane.setBackground(null);
-        updateTextPane.setBackground(null);
-        databaseDriverCombobox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
+        selectSQLTextPane.setBackground(null);
+        postProcessSQLTextPane.setBackground(null);
+        driverComboBox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
     }
 
     @Override
     public void setVisible(boolean aFlag) {
         super.setVisible(aFlag);
-        selectTextPane.updateDisplayOptions();
-        updateTextPane.updateDisplayOptions();
+        selectSQLTextPane.updateDisplayOptions();
+        postProcessSQLTextPane.updateDisplayOptions();
     }
 
     @Override
@@ -347,7 +325,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         @Override
         public void actionPerformed(ActionEvent evt) {
             final String workingId = PlatformUI.MIRTH_FRAME.startWorking("Parsing...");
-            final String sqlStatement = selectTextPane.getText();
+            final String sqlStatement = selectSQLTextPane.getText();
 
             SwingWorker<String[], Void> worker = new SwingWorker<String[], Void>() {
                 @Override
@@ -414,469 +392,532 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     }
 
     private void initComponents() {
+        setBackground(UIConstants.BACKGROUND_COLOR);
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
-        buttonGroup3 = new javax.swing.ButtonGroup();
-        buttonGroup4 = new javax.swing.ButtonGroup();
-        driverLabel = new javax.swing.JLabel();
-        urlLabel = new javax.swing.JLabel();
-        usernameLabel = new javax.swing.JLabel();
-        passwordLabel = new javax.swing.JLabel();
-        selectLabel = new javax.swing.JLabel();
-        databaseDriverCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        databaseURLField = new com.mirth.connect.client.ui.components.MirthTextField();
-        databaseUsernameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        databasePasswordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
-        updateLabel = new javax.swing.JLabel();
-        updateEach = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        updateOnce = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        runUpdateLabel = new javax.swing.JLabel();
-        dbVarScrollPane = new javax.swing.JScrollPane();
-        dbVarList = new com.mirth.connect.client.ui.components.MirthVariableList();
-        selectTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.SOURCE_RECEIVER, true);
-        updateTextPane = new com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane(ContextType.SOURCE_RECEIVER, true);
-        useScriptLabel = new javax.swing.JLabel();
-        useScriptYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        useScriptNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        generateConnection = new javax.swing.JButton();
-        generateUpdateConnection = new javax.swing.JButton();
-        generateSelect = new javax.swing.JButton();
-        generateLabel = new javax.swing.JLabel();
-        generateUpdateUpdate = new javax.swing.JButton();
-        generateUpdateLabel = new javax.swing.JLabel();
-        cacheResultsNoButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        cacheResultsYesButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        cacheResultsLabel = new javax.swing.JLabel();
-        insertURLTemplateButton = new javax.swing.JButton();
-        fetchSizeLabel = new javax.swing.JLabel();
-        fetchSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
-        updateNever = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        retryCountLabel = new javax.swing.JLabel();
-        keepConnOpenLabel = new javax.swing.JLabel();
-        keepConnOpenYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        keepConnOpenNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        retryCountField = new com.mirth.connect.client.ui.components.MirthTextField();
-        retryIntervalLabel = new javax.swing.JLabel();
-        retryIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
-        contentEncodingLabel = new javax.swing.JLabel();
-        encodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        driverLabel = new JLabel("Driver:");
 
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-
-        driverLabel.setText("Driver:");
-
-        urlLabel.setText("URL:");
-
-        usernameLabel.setText("Username:");
-
-        passwordLabel.setText("Password:");
-
-        selectLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        selectLabel.setText("JavaScript:");
-
-        databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
-                "Sun JDBC-ODBC Bridge", "ODBC - MySQL", "ODBC - PostgresSQL",
-                "ODBC - SQL Server/Sybase", "ODBC - Oracle 10g Release 2" }));
-        databaseDriverCombobox.setToolTipText("Specifies the type of database driver to use to connect to the database.");
-
-        databaseURLField.setToolTipText("<html>The JDBC URL to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
-
-        databaseUsernameField.setToolTipText("<html>The user name to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
-
-        databasePasswordField.setToolTipText("<html>The password to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
-
-        updateLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        updateLabel.setText("JavaScript:");
-
-        updateEach.setBackground(new java.awt.Color(255, 255, 255));
-        updateEach.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(updateEach);
-        updateEach.setText("After each message");
-        updateEach.setToolTipText("<html>Run the post-process statement/script after each message finishes processing.</html>");
-        updateEach.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        updateEach.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                updateEachActionPerformed(evt);
+        driverComboBox = new MirthComboBox<DriverInfo>();
+        driverComboBox.addActionListener(evt -> {
+            if (!driverAdjusting.getAndSet(true)) {
+                try {
+                    updateDriverFieldFromComboBox();
+                } finally {
+                    driverAdjusting.set(false);
+                }
+            }
+        });
+        driverComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DriverInfo) {
+                    setText(((DriverInfo) value).getName());
+                }
+                return component;
             }
         });
 
-        updateOnce.setBackground(new java.awt.Color(255, 255, 255));
-        updateOnce.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(updateOnce);
-        updateOnce.setText("Once after all messages");
-        updateOnce.setToolTipText("<html>Run the post-process statement/script only after all messages have finished processing.</html>");
-        updateOnce.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        updateOnce.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                updateOnceActionPerformed(evt);
+        driverField = new MirthTextField();
+        driverField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void removeUpdate(DocumentEvent evt) {
+                update();
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent evt) {
+                update();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent evt) {
+                update();
+            }
+
+            private void update() {
+                if (!driverAdjusting.getAndSet(true)) {
+                    try {
+                        updateDriverComboBoxFromField();
+                    } finally {
+                        driverAdjusting.set(false);
+                    }
+                }
             }
         });
 
-        runUpdateLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        runUpdateLabel.setText("Run Post-Process Script:");
-        runUpdateLabel.setToolTipText("<html>When using a database reader, it is usually necessary to execute a separate SQL statement<br>to mark the message that was just fetched as processed, so it will not be fetched again the next time a poll occurs.</html>");
+        updateDriversComboBox();
 
-        dbVarList.setToolTipText("<html>This list is populated with mappings based on the select statement in the JavaScript or SQL editor.<br>These mappings can dragged into the post-process JavaScript or SQL editors.</html>");
-        dbVarScrollPane.setViewportView(dbVarList);
-
-        selectTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        updateTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        useScriptLabel.setText("Use JavaScript:");
-
-        useScriptYes.setBackground(new java.awt.Color(255, 255, 255));
-        useScriptYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(useScriptYes);
-        useScriptYes.setText("Yes");
-        useScriptYes.setToolTipText("<html>Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed.</html>");
-        useScriptYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        useScriptYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                useScriptYesActionPerformed(evt);
+        manageDriversButton = new JButton(new ImageIcon(Frame.class.getResource("images/wrench.png")));
+        manageDriversButton.setToolTipText("<html>Click here to view and manage the list of database JDBC drivers.<br/>Any changes will require re-saving and redeploying the channel.</html>");
+        manageDriversButton.addActionListener(evt -> {
+            DatabaseDriversDialog dialog = new DatabaseDriversDialog(parent, drivers);
+            if (dialog.wasSaved()) {
+                drivers = dialog.getDrivers();
+                updateDriversComboBox();
             }
         });
 
-        useScriptNo.setBackground(new java.awt.Color(255, 255, 255));
-        useScriptNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(useScriptNo);
-        useScriptNo.setText("No");
-        useScriptNo.setToolTipText("<html>Specify the SQL statements to get messages to be processed and mark messages in the database as processed.</html>");
-        useScriptNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        useScriptNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                useScriptNoActionPerformed(evt);
-            }
-        });
+        urlLabel = new JLabel("URL:");
+        urlField = new MirthTextField();
 
-        generateConnection.setText("Connection");
-        generateConnection.setToolTipText("<html>If \"Yes\" is selected for Use JavaScript, this button is enabled.<br>When clicked, it inserts boilerplate Connection construction code into the JavaScript control at the current caret location.</html>");
-        generateConnection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                generateConnectionActionPerformed(evt);
-            }
-        });
+        insertURLTemplateButton = new JButton("Insert URL Template");
+        insertURLTemplateButton.addActionListener(evt -> insertURLTemplateButtonActionPerformed());
 
-        generateUpdateConnection.setText("Connection");
-        generateUpdateConnection.setToolTipText("<html>This button is enabled when using JavaScript and a post-process script.<br>When clicked, it inserts boilerplate Connection construction code into the post-process JavaScript control at the current caret location.</html>");
-        generateUpdateConnection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                generateUpdateConnectionActionPerformed(evt);
-            }
-        });
+        usernameLabel = new JLabel("Username:");
+        usernameField = new MirthTextField();
 
-        generateSelect.setText("Select");
-        generateSelect.setToolTipText("<html>Opens a window to assist in building a select query to select records from the database specified in the URL above.</html>");
-        generateSelect.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                generateSelectActionPerformed(evt);
-            }
-        });
+        passwordLabel = new JLabel("Password:");
+        passwordField = new MirthPasswordField();
 
-        generateLabel.setText("Generate:");
+        useJavaScriptLabel = new JLabel("Use JavaScript:");
+        ButtonGroup useJavaScriptButtonGroup = new ButtonGroup();
 
-        generateUpdateUpdate.setText("Update");
-        generateUpdateUpdate.setToolTipText("<html>Opens a window to assist in building an update query to update records in the database specified in the URL above.<br/>(Only enabled if a post-process statement/script is enabled)</html>");
-        generateUpdateUpdate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                generateUpdateUpdateActionPerformed(evt);
-            }
-        });
+        useJavaScriptYesRadio = new MirthRadioButton("Yes");
+        useJavaScriptYesRadio.setBackground(getBackground());
+        useJavaScriptYesRadio.addActionListener(evt -> useScriptYesActionPerformed());
+        useJavaScriptButtonGroup.add(useJavaScriptYesRadio);
 
-        generateUpdateLabel.setText("Generate:");
+        useJavaScriptNoRadio = new MirthRadioButton("No");
+        useJavaScriptNoRadio.setBackground(getBackground());
+        useJavaScriptNoRadio.addActionListener(evt -> useScriptNoActionPerformed());
+        useJavaScriptButtonGroup.add(useJavaScriptNoRadio);
+
+        keepConnectionOpenLabel = new JLabel("Keep Connection Open:");
+        ButtonGroup keepConnectionOpenButtonGroup = new ButtonGroup();
+
+        keepConnectionOpenYesRadio = new MirthRadioButton("Yes");
+        keepConnectionOpenYesRadio.setBackground(getBackground());
+        keepConnectionOpenButtonGroup.add(keepConnectionOpenYesRadio);
+
+        keepConnectionOpenNoRadio = new MirthRadioButton("No");
+        keepConnectionOpenNoRadio.setBackground(getBackground());
+        keepConnectionOpenButtonGroup.add(keepConnectionOpenNoRadio);
 
         aggregateResultsLabel = new JLabel("Aggregate Results:");
         ButtonGroup aggregateResultsButtonGroup = new ButtonGroup();
-        String toolTipText = "<html>If enabled, all rows returned in the query will be<br/>aggregated into a single XML message. Note that all rows<br/>will be read into memory at once, so use this with caution.</html>";
 
         aggregateResultsYesRadio = new MirthRadioButton("Yes");
         aggregateResultsYesRadio.setBackground(getBackground());
-        aggregateResultsYesRadio.setToolTipText(toolTipText);
-        aggregateResultsYesRadio.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                if (!parent.alertOption(parent, "<html><b>Warning:</b> All rows returned by the query below will be aggregated<br/>into a single message. This could cause memory issues if you are<br/>reading in large amounts of data. Consider using LIMIT to limit<br/>the number of rows to return. Are you sure you wish to continue?</html>")) {
-                    aggregateResultsNoRadio.setSelected(true);
-                } else {
-                    aggregateResultsActionPerformed(true);
-                }
+        aggregateResultsYesRadio.addActionListener(evt -> {
+            if (!parent.alertOption(parent, "<html><b>Warning:</b> All rows returned by the query below will be aggregated<br/>into a single message. This could cause memory issues if you are<br/>reading in large amounts of data. Consider using LIMIT to limit<br/>the number of rows to return. Are you sure you wish to continue?</html>")) {
+                aggregateResultsNoRadio.setSelected(true);
+            } else {
+                aggregateResultsActionPerformed(true);
             }
         });
         aggregateResultsButtonGroup.add(aggregateResultsYesRadio);
 
         aggregateResultsNoRadio = new MirthRadioButton("No");
         aggregateResultsNoRadio.setBackground(getBackground());
-        aggregateResultsNoRadio.setToolTipText(toolTipText);
-        aggregateResultsNoRadio.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                aggregateResultsActionPerformed(false);
-            }
-        });
+        aggregateResultsNoRadio.addActionListener(evt -> aggregateResultsActionPerformed(false));
         aggregateResultsButtonGroup.add(aggregateResultsNoRadio);
 
-        cacheResultsNoButton.setBackground(new java.awt.Color(255, 255, 255));
-        cacheResultsNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(cacheResultsNoButton);
-        cacheResultsNoButton.setText("No");
-        cacheResultsNoButton.setToolTipText("<html>Do not cache the entire result set in memory prior to processing messages.</html>");
-        cacheResultsNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        cacheResultsNoButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cacheResultsNoButtonActionPerformed(evt);
+        cacheResultsLabel = new JLabel("Cache Results:");
+        ButtonGroup cacheResultsButtonGroup = new ButtonGroup();
+
+        cacheResultsYesRadio = new MirthRadioButton("Yes");
+        cacheResultsYesRadio.setBackground(getBackground());
+        cacheResultsYesRadio.addActionListener(evt -> cacheResultsYesButtonActionPerformed());
+        cacheResultsButtonGroup.add(cacheResultsYesRadio);
+
+        cacheResultsNoRadio = new MirthRadioButton("No");
+        cacheResultsNoRadio.setBackground(getBackground());
+        cacheResultsNoRadio.addActionListener(evt -> cacheResultsNoButtonActionPerformed());
+        cacheResultsButtonGroup.add(cacheResultsNoRadio);
+
+        fetchSizeLabel = new JLabel("Fetch Size:");
+        fetchSizeField = new MirthTextField();
+        fetchSizeField.setDocument(new MirthFieldConstraints(9, false, false, true));
+
+        retryCountLabel = new JLabel("# of Retries on Error:");
+        retryCountField = new MirthTextField();
+        retryCountField.setDocument(new MirthFieldConstraints(0, false, false, true));
+
+        retryIntervalLabel = new JLabel("Retry Interval (ms):");
+        retryIntervalField = new MirthTextField();
+        retryIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
+
+        encodingLabel = new JLabel("Encoding:");
+        encodingComboBox = new MirthComboBox();
+        parent.setupCharsetEncodingForConnector(encodingComboBox);
+
+        generateLabel = new JLabel("Generate:");
+
+        generateConnectionButton = new JButton("Connection");
+        generateConnectionButton.addActionListener(evt -> generateConnectionActionPerformed());
+
+        generateSelectButton = new JButton("Select");
+        generateSelectButton.addActionListener(evt -> generateSelectActionPerformed());
+
+        selectSQLLabel = new JLabel("JavaScript:");
+
+        DocumentListener documentListener = new DocumentListener() {
+            @Override
+            public void changedUpdate(DocumentEvent e) {}
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                update();
             }
-        });
 
-        cacheResultsYesButton.setBackground(new java.awt.Color(255, 255, 255));
-        cacheResultsYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(cacheResultsYesButton);
-        cacheResultsYesButton.setText("Yes");
-        cacheResultsYesButton.setToolTipText("<html>Cache the entire result set in memory prior to processing messages.</html>");
-        cacheResultsYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        cacheResultsYesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cacheResultsYesButtonActionPerformed(evt);
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                update();
             }
-        });
+        };
 
-        cacheResultsLabel.setText("Cache Results:");
+        selectSQLTextPane = new MirthRTextScrollPane(ContextType.SOURCE_RECEIVER, true);
+        selectSQLTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
+        selectSQLTextPane.setBorder(BorderFactory.createEtchedBorder());
+        selectSQLTextPane.getDocument().addDocumentListener(documentListener);
 
-        insertURLTemplateButton.setText("Insert URL Template");
-        insertURLTemplateButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                insertURLTemplateButtonActionPerformed(evt);
-            }
-        });
+        runPostProcessSQLLabel = new JLabel("Run Post-Process Script:");
+        ButtonGroup postProcessSQLButtonGroup = new ButtonGroup();
 
-        fetchSizeLabel.setText("Fetch Size:");
+        runPostProcessSQLNeverRadio = new MirthRadioButton("Never");
+        runPostProcessSQLNeverRadio.setBackground(getBackground());
+        runPostProcessSQLNeverRadio.addActionListener(evt -> updateNeverActionPerformed());
+        postProcessSQLButtonGroup.add(runPostProcessSQLNeverRadio);
 
+        runPostProcessSQLEachRadio = new MirthRadioButton("After each message");
+        runPostProcessSQLEachRadio.setBackground(getBackground());
+        runPostProcessSQLEachRadio.addActionListener(evt -> updateEachActionPerformed());
+        postProcessSQLButtonGroup.add(runPostProcessSQLEachRadio);
+
+        runPostProcessSQLOnceRadio = new MirthRadioButton("Once after all messages");
+        runPostProcessSQLOnceRadio.setBackground(getBackground());
+        runPostProcessSQLOnceRadio.addActionListener(evt -> updateOnceActionPerformed());
+        postProcessSQLButtonGroup.add(runPostProcessSQLOnceRadio);
+
+        generatePostProcessSQLLabel = new JLabel("Generate:");
+
+        generatePostProcessSQLConnectionButton = new JButton("Connection");
+        generatePostProcessSQLConnectionButton.addActionListener(evt -> generateUpdateConnectionActionPerformed());
+
+        generatePostProcessSQLUpdateButton = new JButton("Update");
+        generatePostProcessSQLUpdateButton.addActionListener(evt -> generateUpdateUpdateActionPerformed());
+
+        postProcessSQLLabel = new JLabel("JavaScript:");
+        postProcessSQLTextPane = new MirthRTextScrollPane(ContextType.SOURCE_RECEIVER, true);
+        postProcessSQLTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
+        postProcessSQLTextPane.setBorder(BorderFactory.createEtchedBorder());
+        postProcessSQLTextPane.getDocument().addDocumentListener(documentListener);
+
+        dbVarList = new MirthVariableList();
+        dbVarScrollPane = new JScrollPane(dbVarList);
+    }
+
+    private void initToolTips() {
+        driverComboBox.setToolTipText("Specifies the type of database driver to use to connect to the database.");
+        driverField.setToolTipText("The fully-qualified class name of the JDBC driver to use to connect to the database.");
+        urlField.setToolTipText("<html>The JDBC URL to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
+        usernameField.setToolTipText("<html>The user name to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
+        passwordField.setToolTipText("<html>The password to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
+        useJavaScriptYesRadio.setToolTipText("<html>Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed.</html>");
+        useJavaScriptNoRadio.setToolTipText("<html>Specify the SQL statements to get messages to be processed and mark messages in the database as processed.</html>");
+        keepConnectionOpenYesRadio.setToolTipText("<html>Re-use the same database connection each time the select query is executed.</html>");
+        keepConnectionOpenNoRadio.setToolTipText("<html>Close the database connection after selected messages have finished processing.</html>");
+
+        String toolTipText = "<html>If enabled, all rows returned in the query will be<br/>aggregated into a single XML message. Note that all rows<br/>will be read into memory at once, so use this with caution.</html>";
+        aggregateResultsYesRadio.setToolTipText(toolTipText);
+        aggregateResultsNoRadio.setToolTipText(toolTipText);
+
+        cacheResultsYesRadio.setToolTipText("<html>Cache the entire result set in memory prior to processing messages.</html>");
+        cacheResultsNoRadio.setToolTipText("<html>Do not cache the entire result set in memory prior to processing messages.</html>");
         fetchSizeField.setToolTipText("<html>The JDBC ResultSet fetch size to be used when fetching results from the current cursor position.</html>");
-
-        updateNever.setBackground(new java.awt.Color(255, 255, 255));
-        updateNever.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(updateNever);
-        updateNever.setSelected(true);
-        updateNever.setText("Never");
-        updateNever.setToolTipText("<html>Do not run the post-process statement/script.</html>");
-        updateNever.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        updateNever.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                updateNeverActionPerformed(evt);
-            }
-        });
-
-        retryCountLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        retryCountLabel.setText("# of Retries on Error:");
-
-        keepConnOpenLabel.setText("Keep Connection Open:");
-
-        keepConnOpenYes.setBackground(new java.awt.Color(255, 255, 255));
-        keepConnOpenYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup3.add(keepConnOpenYes);
-        keepConnOpenYes.setText("Yes");
-        keepConnOpenYes.setToolTipText("<html>Re-use the same database connection each time the select query is executed.</html>");
-        keepConnOpenYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        keepConnOpenNo.setBackground(new java.awt.Color(255, 255, 255));
-        keepConnOpenNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup3.add(keepConnOpenNo);
-        keepConnOpenNo.setText("No");
-        keepConnOpenNo.setToolTipText("<html>Close the database connection after selected messages have finished processing.</html>");
-        keepConnOpenNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
         retryCountField.setToolTipText("<html>The number of times to retry executing the statement or script if an error occurs.</html>");
-
-        retryIntervalLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        retryIntervalLabel.setText("Retry Interval (ms):");
-
         retryIntervalField.setToolTipText("<html>The amount of time that should elapse between retry attempts.</html>");
-
-        contentEncodingLabel = new javax.swing.JLabel("Encoding:");
-        encodingCombobox.setToolTipText("<html>Select the character set encoding used by the source database,<br/>or select Default to use the default character set encoding for the JVM running Mirth Connect.</html>");
+        encodingComboBox.setToolTipText("<html>Select the character set encoding used by the source database,<br/>or select Default to use the default character set encoding for the JVM running Mirth Connect.</html>");
+        generateConnectionButton.setToolTipText("<html>If \"Yes\" is selected for Use JavaScript, this button is enabled.<br>When clicked, it inserts boilerplate Connection construction code into the JavaScript control at the current caret location.</html>");
+        generateSelectButton.setToolTipText("<html>Opens a window to assist in building a select query to select records from the database specified in the URL above.</html>");
+        runPostProcessSQLLabel.setToolTipText("<html>When using a database reader, it is usually necessary to execute a separate SQL statement<br>to mark the message that was just fetched as processed, so it will not be fetched again the next time a poll occurs.</html>");
+        runPostProcessSQLNeverRadio.setToolTipText("<html>Do not run the post-process statement/script.</html>");
+        runPostProcessSQLEachRadio.setToolTipText("<html>Run the post-process statement/script after each message finishes processing.</html>");
+        runPostProcessSQLOnceRadio.setToolTipText("<html>Run the post-process statement/script only after all messages have finished processing.</html>");
+        generatePostProcessSQLConnectionButton.setToolTipText("<html>This button is enabled when using JavaScript and a post-process script.<br>When clicked, it inserts boilerplate Connection construction code into the post-process JavaScript control at the current caret location.</html>");
+        generatePostProcessSQLUpdateButton.setToolTipText("<html>Opens a window to assist in building an update query to update records in the database specified in the URL above.<br/>(Only enabled if a post-process statement/script is enabled)</html>");
+        dbVarList.setToolTipText("<html>This list is populated with mappings based on the select statement in the JavaScript or SQL editor.<br>These mappings can dragged into the post-process JavaScript or SQL editors.</html>");
     }
 
     private void initLayout() {
-        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "6[]13[grow]", "[][][][][][][][][][][][][sgy][][sgy]"));
+        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6", "[]12[grow]", "[][][][][][][][][][][][][sgy][][sgy]"));
 
         add(driverLabel, "right");
-        add(databaseDriverCombobox, "split");
-        add(insertURLTemplateButton);
+        add(driverComboBox, "split 3");
+        add(driverField, "w 200!");
+        add(manageDriversButton, "h 22!, w 22!");
         add(urlLabel, "newline, right");
-        add(databaseURLField, "w 331!");
+        add(urlField, "w 318!, split 2");
+        add(insertURLTemplateButton);
         add(usernameLabel, "newline, right");
-        add(databaseUsernameField, "w 121!");
+        add(usernameField, "w 121!");
         add(passwordLabel, "newline, right");
-        add(databasePasswordField, "w 121!");
-        add(useScriptLabel, "newline, right");
-        add(useScriptYes, "split");
-        add(useScriptNo);
-        add(keepConnOpenLabel, "newline, right");
-        add(keepConnOpenYes, "split");
-        add(keepConnOpenNo);
+        add(passwordField, "w 121!");
+        add(useJavaScriptLabel, "newline, right");
+        add(useJavaScriptYesRadio, "split");
+        add(useJavaScriptNoRadio);
+        add(keepConnectionOpenLabel, "newline, right");
+        add(keepConnectionOpenYesRadio, "split");
+        add(keepConnectionOpenNoRadio);
         add(aggregateResultsLabel, "newline, right");
         add(aggregateResultsYesRadio, "split");
         add(aggregateResultsNoRadio);
         add(cacheResultsLabel, "newline, right");
-        add(cacheResultsYesButton, "split");
-        add(cacheResultsNoButton);
+        add(cacheResultsYesRadio, "split");
+        add(cacheResultsNoRadio);
         add(fetchSizeLabel, "newline, right");
         add(fetchSizeField, "w 121!");
         add(retryCountLabel, "newline, right");
         add(retryCountField, "w 121!");
         add(retryIntervalLabel, "newline, right");
         add(retryIntervalField, "w 121!");
-        add(contentEncodingLabel, "newline, right");
-        add(encodingCombobox, "split 1, left");
-        add(generateLabel, "split 3, sx, right");
-        add(generateConnection, "w 67!");
-        add(generateSelect, "w 67!");
-        add(selectLabel, "newline, top, right");
-        add(selectTextPane, "sx, grow, pushy, w :400, h :100");
-        add(runUpdateLabel, "newline, right, w 120!");
-        add(updateNever, "split 3");
-        add(updateEach);
-        add(updateOnce);
-        add(generateUpdateLabel, "sx, split 3, right");
-        add(generateUpdateConnection, "w 67!");
-        add(generateUpdateUpdate, "w 67!");
-        add(updateLabel, "newline, top, right");
-        add(updateTextPane, "grow, split, sx, pushy, w :400, h :100");
+        add(encodingLabel, "newline, right");
+        add(encodingComboBox, "split 1, left");
+        add(generateLabel, "split 3, sx, right, gapafter 12");
+        add(generateConnectionButton, "w 67!");
+        add(generateSelectButton, "w 67!");
+        add(selectSQLLabel, "newline, top, right");
+        add(selectSQLTextPane, "sx, grow, pushy, w :400, h :100");
+        add(runPostProcessSQLLabel, "newline, right");
+        add(runPostProcessSQLNeverRadio, "split 3");
+        add(runPostProcessSQLEachRadio);
+        add(runPostProcessSQLOnceRadio);
+        add(generatePostProcessSQLLabel, "sx, split 3, right, gapafter 12");
+        add(generatePostProcessSQLConnectionButton, "w 67!");
+        add(generatePostProcessSQLUpdateButton, "w 67!");
+        add(postProcessSQLLabel, "newline, top, right");
+        add(postProcessSQLTextPane, "grow, split, sx, pushy, w :400, h :100");
         add(dbVarScrollPane, "growy, right, w 195!");
     }
 
-    private void generateUpdateUpdateActionPerformed(java.awt.event.ActionEvent evt) {
+    private void retrieveDatabaseDrivers(final String selectedDriver) {
+        final String workingId = parent.startWorking("Retrieving database drivers...");
+
+        SwingWorker<List<DriverInfo>, Void> worker = new SwingWorker<List<DriverInfo>, Void>() {
+            @Override
+            protected List<DriverInfo> doInBackground() throws Exception {
+                return parent.mirthClient.getDatabaseDrivers();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    drivers = get();
+                    boolean enabled = parent.isSaveEnabled();
+                    updateDriversComboBox();
+                    parent.setSaveEnabled(enabled);
+                    parent.stopWorking(workingId);
+                } catch (Exception e) {
+                    parent.stopWorking(workingId);
+                    parent.alertThrowable(parent, e, false);
+                }
+            }
+        };
+
+        worker.execute();
+    }
+
+    private DriverInfo getSelectedDriver() {
+        DriverInfo selectedDriver = (DriverInfo) driverComboBox.getSelectedItem();
+        if (selectedDriver == null) {
+            selectedDriver = getSelectOneDriver();
+        }
+        return selectedDriver;
+    }
+
+    private DriverInfo getSelectOneDriver() {
+        return new DriverInfo(DatabaseReceiverProperties.DRIVER_DEFAULT, "", "", "");
+    }
+
+    private DriverInfo getCustomDriver() {
+        return new DriverInfo(DatabaseReceiverProperties.DRIVER_CUSTOM, "", "", "");
+    }
+
+    private void fixDriversList() {
+        if (CollectionUtils.isEmpty(drivers)) {
+            drivers = DriverInfo.getDefaultDrivers();
+        }
+        if (!StringUtils.equals(drivers.get(0).getName(), DatabaseReceiverProperties.DRIVER_DEFAULT)) {
+            drivers.add(0, getSelectOneDriver());
+        }
+        if (!StringUtils.equals(drivers.get(drivers.size() - 1).getName(), DatabaseReceiverProperties.DRIVER_CUSTOM)) {
+            drivers.add(getCustomDriver());
+        }
+    }
+
+    private void updateDriversComboBox() {
+        fixDriversList();
+        driverAdjusting.set(true);
+        try {
+            driverComboBox.setModel(new DefaultComboBoxModel<DriverInfo>(drivers.toArray(new DriverInfo[drivers.size()])));
+            updateDriverComboBoxFromField();
+        } finally {
+            driverAdjusting.set(false);
+        }
+    }
+
+    private void updateDriverFieldFromComboBox() {
+        DriverInfo driver = getSelectedDriver();
+        if (!StringUtils.equals(driver.getName(), DatabaseReceiverProperties.DRIVER_CUSTOM)) {
+            driverField.setText(driver.getClassName());
+            driverField.setCaretPosition(0);
+        }
+    }
+
+    private void updateDriverComboBoxFromField() {
+        String driverClassName = driverField.getText();
+
+        DriverInfo foundDriver = null;
+        for (int i = 0; i < driverComboBox.getModel().getSize(); i++) {
+            DriverInfo driver = driverComboBox.getModel().getElementAt(i);
+
+            if (StringUtils.equals(driverClassName, driver.getClassName())) {
+                foundDriver = driver;
+                break;
+            }
+
+            if (CollectionUtils.isNotEmpty(driver.getAlternativeClassNames())) {
+                for (String alternativeClassName : driver.getAlternativeClassNames()) {
+                    if (StringUtils.equals(driverClassName, alternativeClassName)) {
+                        foundDriver = driver;
+                        break;
+                    }
+                }
+                if (foundDriver != null) {
+                    break;
+                }
+            }
+        }
+
+        if (foundDriver != null) {
+            driverComboBox.setSelectedItem(foundDriver);
+        } else {
+            driverComboBox.setSelectedIndex(driverComboBox.getItemCount() - 1);
+        }
+    }
+
+    private void generateUpdateUpdateActionPerformed() {
         showDatabaseMetaData(STATEMENT_TYPE.UPDATE_TYPE);
     }
 
-    private void generateUpdateConnectionActionPerformed(java.awt.event.ActionEvent evt) {
-        updateTextPane.setText(generateUpdateConnectionString() + "\n\n" + updateTextPane.getText());
-        updateTextPane.requestFocus();
-        updateTextPane.setCaretPosition(updateTextPane.getText().lastIndexOf("\n\n", updateTextPane.getText().length() - 3) + 1);
+    private void generateUpdateConnectionActionPerformed() {
+        postProcessSQLTextPane.setText(generateUpdateConnectionString() + "\n\n" + postProcessSQLTextPane.getText());
+        postProcessSQLTextPane.requestFocus();
+        postProcessSQLTextPane.setCaretPosition(postProcessSQLTextPane.getText().lastIndexOf("\n\n", postProcessSQLTextPane.getText().length() - 3) + 1);
         parent.setSaveEnabled(true);
     }
 
-    private void generateSelectActionPerformed(java.awt.event.ActionEvent evt) {
+    private void generateSelectActionPerformed() {
         showDatabaseMetaData(STATEMENT_TYPE.SELECT_TYPE);
     }
 
-    private void useScriptNoActionPerformed(java.awt.event.ActionEvent evt) {
-        selectLabel.setText("SQL:");
-        updateLabel.setText("SQL:");
-        runUpdateLabel.setText("Run Post-Process SQL:");
-        selectTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
-        updateTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
-        selectTextPane.setText("");
-        updateTextPane.setText("");
+    private void useScriptNoActionPerformed() {
+        selectSQLLabel.setText("SQL:");
+        postProcessSQLLabel.setText("SQL:");
+        runPostProcessSQLLabel.setText("Run Post-Process SQL:");
+        selectSQLTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
+        postProcessSQLTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
+        selectSQLTextPane.setText("");
+        postProcessSQLTextPane.setText("");
 
-        keepConnOpenLabel.setEnabled(true);
-        keepConnOpenNo.setEnabled(true);
-        keepConnOpenYes.setEnabled(true);
+        keepConnectionOpenLabel.setEnabled(true);
+        keepConnectionOpenNoRadio.setEnabled(true);
+        keepConnectionOpenYesRadio.setEnabled(true);
 
         aggregateResultsActionPerformed(aggregateResultsYesRadio.isSelected());
 
         update();
 
-        generateConnection.setEnabled(false);
-        generateUpdateConnection.setEnabled(false);
+        generateConnectionButton.setEnabled(false);
+        generatePostProcessSQLConnectionButton.setEnabled(false);
         dbVarList.setTransferMode(TransferMode.VELOCITY);
     }
 
-    private void useScriptYesActionPerformed(java.awt.event.ActionEvent evt) {
-        selectLabel.setText("JavaScript:");
-        updateLabel.setText("JavaScript:");
-        runUpdateLabel.setText("Run Post-Process Script:");
-        selectTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
-        updateTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
-        selectTextPane.setText(generateConnectionString());
-        updateTextPane.setText(generateUpdateConnectionString());
+    private void useScriptYesActionPerformed() {
+        selectSQLLabel.setText("JavaScript:");
+        postProcessSQLLabel.setText("JavaScript:");
+        runPostProcessSQLLabel.setText("Run Post-Process Script:");
+        selectSQLTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+        postProcessSQLTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+        selectSQLTextPane.setText(generateConnectionString());
+        postProcessSQLTextPane.setText(generateUpdateConnectionString());
 
-        generateConnection.setEnabled(true);
+        generateConnectionButton.setEnabled(true);
 
-        keepConnOpenLabel.setEnabled(false);
-        keepConnOpenNo.setEnabled(false);
-        keepConnOpenYes.setEnabled(false);
+        keepConnectionOpenLabel.setEnabled(false);
+        keepConnectionOpenNoRadio.setEnabled(false);
+        keepConnectionOpenYesRadio.setEnabled(false);
 
         cacheResultsLabel.setEnabled(false);
-        cacheResultsNoButton.setEnabled(false);
-        cacheResultsYesButton.setEnabled(false);
+        cacheResultsNoRadio.setEnabled(false);
+        cacheResultsYesRadio.setEnabled(false);
 
         fetchSizeField.setEnabled(false);
         fetchSizeLabel.setEnabled(false);
         update();
 
-        if (!updateNever.isSelected()) {
-            generateUpdateConnection.setEnabled(true);
+        if (!runPostProcessSQLNeverRadio.isSelected()) {
+            generatePostProcessSQLConnectionButton.setEnabled(true);
         }
         dbVarList.setTransferMode(TransferMode.JAVASCRIPT);
     }
 
-    private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        if (!databaseURLField.getText().equals("")) {
+    private void insertURLTemplateButtonActionPerformed() {
+        if (!urlField.getText().equals("")) {
             if (!parent.alertOption(parent, "Are you sure you would like to replace your current connection URL with the template URL?")) {
                 return;
             }
         }
 
-        String template = "";
-
-        for (int i = 0; i < drivers.size(); i++) {
-            DriverInfo driverInfo = drivers.get(i);
-            if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                template = driverInfo.getTemplate();
-            }
-        }
-
-        databaseURLField.setText(template);
-        databaseURLField.grabFocus();
+        urlField.setText(getSelectedDriver().getTemplate());
+        urlField.grabFocus();
         parent.setSaveEnabled(true);
     }
 
-    private void cacheResultsYesButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void cacheResultsYesButtonActionPerformed() {
         fetchSizeField.setEnabled(false);
         fetchSizeLabel.setEnabled(false);
     }
 
-    private void cacheResultsNoButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        fetchSizeField.setEnabled(useScriptNo.isSelected());
-        fetchSizeLabel.setEnabled(useScriptNo.isSelected());
+    private void cacheResultsNoButtonActionPerformed() {
+        fetchSizeField.setEnabled(useJavaScriptNoRadio.isSelected());
+        fetchSizeLabel.setEnabled(useJavaScriptNoRadio.isSelected());
     }
 
-    private void updateNeverActionPerformed(java.awt.event.ActionEvent evt) {
-        updateLabel.setEnabled(false);
-        updateTextPane.setEnabled(false);
-        generateUpdateConnection.setEnabled(false);
-        generateUpdateUpdate.setEnabled(false);
-        generateUpdateLabel.setEnabled(false);
+    private void updateNeverActionPerformed() {
+        postProcessSQLLabel.setEnabled(false);
+        postProcessSQLTextPane.setEnabled(false);
+        generatePostProcessSQLConnectionButton.setEnabled(false);
+        generatePostProcessSQLUpdateButton.setEnabled(false);
+        generatePostProcessSQLLabel.setEnabled(false);
         dbVarList.setEnabled(false);
     }
 
-    private void updateEachActionPerformed(java.awt.event.ActionEvent evt) {
-        updateLabel.setEnabled(true);
-        updateTextPane.setEnabled(true);
+    private void updateEachActionPerformed() {
+        postProcessSQLLabel.setEnabled(true);
+        postProcessSQLTextPane.setEnabled(true);
 
-        if (useScriptYes.isSelected()) {
-            generateUpdateConnection.setEnabled(true);
+        if (useJavaScriptYesRadio.isSelected()) {
+            generatePostProcessSQLConnectionButton.setEnabled(true);
             dbVarList.setEnabled(true);
         }
 
-        generateUpdateUpdate.setEnabled(true);
-        generateUpdateLabel.setEnabled(true);
+        generatePostProcessSQLUpdateButton.setEnabled(true);
+        generatePostProcessSQLLabel.setEnabled(true);
         dbVarList.setEnabled(true);
     }
 
-    private void updateOnceActionPerformed(java.awt.event.ActionEvent evt) {
-        updateLabel.setEnabled(true);
-        updateTextPane.setEnabled(true);
+    private void updateOnceActionPerformed() {
+        postProcessSQLLabel.setEnabled(true);
+        postProcessSQLTextPane.setEnabled(true);
 
-        if (useScriptYes.isSelected()) {
-            generateUpdateConnection.setEnabled(true);
+        if (useJavaScriptYesRadio.isSelected()) {
+            generatePostProcessSQLConnectionButton.setEnabled(true);
             dbVarList.setEnabled(false);
         }
 
-        generateUpdateUpdate.setEnabled(true);
-        generateUpdateLabel.setEnabled(true);
+        generatePostProcessSQLUpdateButton.setEnabled(true);
+        generatePostProcessSQLLabel.setEnabled(true);
         dbVarList.setEnabled(false);
     }
 
@@ -886,38 +927,29 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         if (properties.getUrl().length() == 0 || properties.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             parent.alertError(parent, "A valid Driver and URL are required to perform this operation.");
         } else {
-            String selectLimit = null;
-
-            for (int i = 0; i < drivers.size(); i++) {
-                DriverInfo driver = drivers.get(i);
-                if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                    selectLimit = driver.getSelectLimit();
-                }
-            }
-
             Connector sourceConnector = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getSourceConnector();
             Set<String> resourceIds = PlatformUI.MIRTH_FRAME.channelEditPanel.resourceIds.get(sourceConnector.getMetaDataId()).keySet();
-            new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", selectLimit, resourceIds));
+            new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", getSelectedDriver().getSelectLimit(), resourceIds));
         }
     }
 
     public void setSelectText(String statement) {
-        if (!useScriptYes.isSelected()) {
-            selectTextPane.setText(statement + "\n\n" + selectTextPane.getText());
+        if (!useJavaScriptYesRadio.isSelected()) {
+            selectSQLTextPane.setText(statement + "\n\n" + selectSQLTextPane.getText());
         } else {
             StringBuilder connectionString = new StringBuilder();
             connectionString.append("\tvar result = dbConn.executeCachedQuery(\"");
             connectionString.append(statement.replaceAll("\\n", " "));
             connectionString.append("\");\n");
-            selectTextPane.setSelectedText("\n" + connectionString.toString());
+            selectSQLTextPane.setSelectedText("\n" + connectionString.toString());
         }
         parent.setSaveEnabled(true);
     }
 
     public void setUpdateText(List<String> statements) {
-        if (!useScriptYes.isSelected()) {
+        if (!useJavaScriptYesRadio.isSelected()) {
             for (String statement : statements) {
-                updateTextPane.setText(statement.replaceAll("\\?", "") + "\n\n" + updateTextPane.getText());
+                postProcessSQLTextPane.setText(statement.replaceAll("\\?", "") + "\n\n" + postProcessSQLTextPane.getText());
             }
         } else {
             StringBuilder connectionString = new StringBuilder();
@@ -926,52 +958,34 @@ public class DatabaseReader extends ConnectorSettingsPanel {
                 connectionString.append(statement.replaceAll("\\n", " "));
                 connectionString.append("\");\n");
             }
-            updateTextPane.setSelectedText("\n" + connectionString.toString());
+            postProcessSQLTextPane.setSelectedText("\n" + connectionString.toString());
         }
 
         parent.setSaveEnabled(true);
     }
 
-    private void generateConnectionActionPerformed(java.awt.event.ActionEvent evt) {
+    private void generateConnectionActionPerformed() {
         String connString = generateConnectionString();
-        selectTextPane.setText(connString + "\n\n" + selectTextPane.getText());
-        selectTextPane.getTextArea().requestFocus();
-        selectTextPane.setCaretPosition(selectTextPane.getText().lastIndexOf("\n\n", selectTextPane.getText().length() - 3) + 1);
+        selectSQLTextPane.setText(connString + "\n\n" + selectSQLTextPane.getText());
+        selectSQLTextPane.getTextArea().requestFocus();
+        selectSQLTextPane.setCaretPosition(selectSQLTextPane.getText().lastIndexOf("\n\n", selectSQLTextPane.getText().length() - 3) + 1);
         parent.setSaveEnabled(true);
     }
 
     private String generateConnectionString() {
-        String driver = "";
-
-        for (int i = 0; i < drivers.size(); i++) {
-            DriverInfo driverInfo = drivers.get(i);
-            if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                driver = driverInfo.getClassName();
-            }
-        }
-
         StringBuilder connectionString = new StringBuilder();
         connectionString.append("var dbConn;\n");
         connectionString.append("\ntry {\n\tdbConn = DatabaseConnectionFactory.createDatabaseConnection('");
-        connectionString.append(driver + "','" + databaseURLField.getText() + "','");
-        connectionString.append(databaseUsernameField.getText() + "','" + new String(databasePasswordField.getPassword()) + "\');\n\n\t// You may access this result below with $('column_name')\n\treturn result;\n} finally {");
+        connectionString.append(driverField.getText() + "','" + urlField.getText() + "','");
+        connectionString.append(usernameField.getText() + "','" + new String(passwordField.getPassword()) + "\');\n\n\t// You may access this result below with $('column_name')\n\treturn result;\n} finally {");
         connectionString.append("\n\tif (dbConn) { \n\t\tdbConn.close();\n\t}\n}");
 
         return connectionString.toString();
     }
 
     private String generateUpdateConnectionString() {
-        String driver = "";
-
-        for (int i = 0; i < drivers.size(); i++) {
-            DriverInfo driverInfo = drivers.get(i);
-            if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                driver = driverInfo.getClassName();
-            }
-        }
-
         StringBuilder connectionString = new StringBuilder();
-        if (updateEach.isSelected()) {
+        if (runPostProcessSQLEachRadio.isSelected()) {
             connectionString.append("// This update script will be executed once for every result returned from the above query.\n");
         } else {
             connectionString.append("// This update script will be executed once after all results have been processed.\n");
@@ -981,8 +995,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         }
         connectionString.append("var dbConn;\n");
         connectionString.append("\ntry {\n\tdbConn = DatabaseConnectionFactory.createDatabaseConnection('");
-        connectionString.append(driver + "','" + databaseURLField.getText() + "','");
-        connectionString.append(databaseUsernameField.getText() + "','" + new String(databasePasswordField.getPassword()) + "\');\n\n} finally {");
+        connectionString.append(driverField.getText() + "','" + urlField.getText() + "','");
+        connectionString.append(usernameField.getText() + "','" + new String(passwordField.getPassword()) + "\');\n\n} finally {");
         connectionString.append("\n\tif (dbConn) { \n\t\tdbConn.close();\n\t}\n}");
 
         return connectionString.toString();
@@ -990,82 +1004,80 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
     private void aggregateResultsActionPerformed(boolean aggregateResults) {
         if (aggregateResults) {
-            cacheResultsYesButton.setSelected(true);
-            cacheResultsYesButtonActionPerformed(null);
+            cacheResultsYesRadio.setSelected(true);
+            cacheResultsYesButtonActionPerformed();
             cacheResultsLabel.setEnabled(false);
-            cacheResultsYesButton.setEnabled(false);
-            cacheResultsNoButton.setEnabled(false);
+            cacheResultsYesRadio.setEnabled(false);
+            cacheResultsNoRadio.setEnabled(false);
 
-            updateEach.setText("For each row");
-            updateEach.setToolTipText("<html>Run the post-process statement/script for each row in the result set.</html>");
+            runPostProcessSQLEachRadio.setText("For each row");
+            runPostProcessSQLEachRadio.setToolTipText("<html>Run the post-process statement/script for each row in the result set.</html>");
 
-            updateOnce.setText("Once for all rows");
-            updateOnce.setToolTipText("<html>Run the post-process statement/script only once.<br/>If JavaScript mode is used, a List of Maps representing all rows<br/>in the result set will be available as the variable \"results\".</html>");
+            runPostProcessSQLOnceRadio.setText("Once for all rows");
+            runPostProcessSQLOnceRadio.setToolTipText("<html>Run the post-process statement/script only once.<br/>If JavaScript mode is used, a List of Maps representing all rows<br/>in the result set will be available as the variable \"results\".</html>");
         } else {
-            cacheResultsLabel.setEnabled(useScriptNo.isSelected());
-            cacheResultsYesButton.setEnabled(useScriptNo.isSelected());
-            cacheResultsNoButton.setEnabled(useScriptNo.isSelected());
-            if (cacheResultsYesButton.isSelected()) {
-                cacheResultsYesButtonActionPerformed(null);
+            cacheResultsLabel.setEnabled(useJavaScriptNoRadio.isSelected());
+            cacheResultsYesRadio.setEnabled(useJavaScriptNoRadio.isSelected());
+            cacheResultsNoRadio.setEnabled(useJavaScriptNoRadio.isSelected());
+            if (cacheResultsYesRadio.isSelected()) {
+                cacheResultsYesButtonActionPerformed();
             } else {
-                cacheResultsNoButtonActionPerformed(null);
+                cacheResultsNoButtonActionPerformed();
             }
 
-            updateEach.setText("After each message");
-            updateEach.setToolTipText("<html>Run the post-process statement/script after each message finishes processing.</html>");
+            runPostProcessSQLEachRadio.setText("After each message");
+            runPostProcessSQLEachRadio.setToolTipText("<html>Run the post-process statement/script after each message finishes processing.</html>");
 
-            updateOnce.setText("Once after all messages");
-            updateOnce.setToolTipText("<html>Run the post-process statement/script only after all messages have finished processing.</html>");
+            runPostProcessSQLOnceRadio.setText("Once after all messages");
+            runPostProcessSQLOnceRadio.setToolTipText("<html>Run the post-process statement/script only after all messages have finished processing.</html>");
         }
     }
 
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.ButtonGroup buttonGroup4;
-    private javax.swing.JLabel cacheResultsLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton cacheResultsNoButton;
-    private com.mirth.connect.client.ui.components.MirthRadioButton cacheResultsYesButton;
-    private com.mirth.connect.client.ui.components.MirthComboBox databaseDriverCombobox;
-    private com.mirth.connect.client.ui.components.MirthPasswordField databasePasswordField;
-    private com.mirth.connect.client.ui.components.MirthTextField databaseURLField;
-    private com.mirth.connect.client.ui.components.MirthTextField databaseUsernameField;
-    private com.mirth.connect.client.ui.components.MirthVariableList dbVarList;
-    private javax.swing.JScrollPane dbVarScrollPane;
-    private javax.swing.JLabel driverLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField fetchSizeField;
-    private javax.swing.JLabel fetchSizeLabel;
-    private javax.swing.JButton generateConnection;
-    private javax.swing.JLabel generateLabel;
-    private javax.swing.JButton generateSelect;
-    private javax.swing.JButton generateUpdateConnection;
-    private javax.swing.JLabel generateUpdateLabel;
-    private javax.swing.JButton generateUpdateUpdate;
-    private javax.swing.JButton insertURLTemplateButton;
-    private javax.swing.JLabel keepConnOpenLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton keepConnOpenNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton keepConnOpenYes;
+    private JLabel driverLabel;
+    private MirthComboBox<DriverInfo> driverComboBox;
+    private MirthTextField driverField;
+    private JButton manageDriversButton;
+    private JLabel urlLabel;
+    private MirthTextField urlField;
+    private JButton insertURLTemplateButton;
+    private JLabel usernameLabel;
+    private MirthTextField usernameField;
+    private JLabel passwordLabel;
+    private MirthPasswordField passwordField;
+    private JLabel useJavaScriptLabel;
+    private MirthRadioButton useJavaScriptYesRadio;
+    private MirthRadioButton useJavaScriptNoRadio;
+    private JLabel keepConnectionOpenLabel;
+    private MirthRadioButton keepConnectionOpenYesRadio;
+    private MirthRadioButton keepConnectionOpenNoRadio;
     private JLabel aggregateResultsLabel;
     private JRadioButton aggregateResultsYesRadio;
     private JRadioButton aggregateResultsNoRadio;
-    private javax.swing.JLabel passwordLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField retryCountField;
-    private javax.swing.JLabel retryCountLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField retryIntervalField;
-    private javax.swing.JLabel retryIntervalLabel;
-    private javax.swing.JLabel runUpdateLabel;
-    private javax.swing.JLabel selectLabel;
-    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane selectTextPane;
-    private com.mirth.connect.client.ui.components.MirthRadioButton updateEach;
-    private javax.swing.JLabel updateLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton updateNever;
-    private com.mirth.connect.client.ui.components.MirthRadioButton updateOnce;
-    private com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane updateTextPane;
-    private javax.swing.JLabel urlLabel;
-    private javax.swing.JLabel useScriptLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton useScriptNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton useScriptYes;
-    private javax.swing.JLabel usernameLabel;
-    private javax.swing.JLabel contentEncodingLabel;
-    private com.mirth.connect.client.ui.components.MirthComboBox encodingCombobox;
+    private JLabel cacheResultsLabel;
+    private MirthRadioButton cacheResultsYesRadio;
+    private MirthRadioButton cacheResultsNoRadio;
+    private JLabel fetchSizeLabel;
+    private MirthTextField fetchSizeField;
+    private JLabel retryCountLabel;
+    private MirthTextField retryCountField;
+    private JLabel retryIntervalLabel;
+    private MirthTextField retryIntervalField;
+    private JLabel encodingLabel;
+    private MirthComboBox encodingComboBox;
+    private JLabel generateLabel;
+    private JButton generateConnectionButton;
+    private JButton generateSelectButton;
+    private JLabel selectSQLLabel;
+    private MirthRTextScrollPane selectSQLTextPane;
+    private JLabel runPostProcessSQLLabel;
+    private MirthRadioButton runPostProcessSQLNeverRadio;
+    private MirthRadioButton runPostProcessSQLEachRadio;
+    private MirthRadioButton runPostProcessSQLOnceRadio;
+    private JLabel generatePostProcessSQLLabel;
+    private JButton generatePostProcessSQLConnectionButton;
+    private JButton generatePostProcessSQLUpdateButton;
+    private JLabel postProcessSQLLabel;
+    private MirthRTextScrollPane postProcessSQLTextPane;
+    private MirthVariableList dbVarList;
+    private JScrollPane dbVarScrollPane;
 }

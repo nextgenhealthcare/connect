@@ -348,6 +348,7 @@
 /server/junit-reports
 /server/test_classes
 /server/testdist
+/server/testconf
 
 # /server/conf/
 /server/conf/mule-config.xml

@@ -70,6 +70,9 @@ public class Permissions {
     public static final String CONFIGURATION_MAP_VIEW = "viewConfigurationMap";
     public static final String CONFIGURATION_MAP_EDIT = "editConfigurationMap";
 
+    // Database Drivers
+    public static final String DATABASE_DRIVERS_EDIT = "editDatabaseDrivers";
+
     // Database Tasks
     public static final String DATABASE_TASKS_VIEW = "viewDatabaseTasks";
     public static final String DATABASE_TASKS_MANAGE = "manageDatabaseTasks";

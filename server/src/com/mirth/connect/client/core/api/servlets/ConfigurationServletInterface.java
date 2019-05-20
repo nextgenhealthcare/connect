@@ -212,8 +212,14 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @GET
     @Path("/databaseDrivers")
     @ApiOperation("Returns the database driver list.")
-    @MirthOperation(name = "getDatabaseDrivers", display = "Get database drivers", auditable = false)
+    @MirthOperation(name = "getDatabaseDrivers", display = "Get database drivers", auditable = false, type = ExecuteType.ASYNC)
     public List<DriverInfo> getDatabaseDrivers() throws ClientException;
+
+    @PUT
+    @Path("/databaseDrivers")
+    @ApiOperation("Updates the list of database drivers.")
+    @MirthOperation(name = "setDatabaseDrivers", display = "Update database drivers", permission = Permissions.DATABASE_DRIVERS_EDIT)
+    public void setDatabaseDrivers(@Param("drivers") @ApiParam(value = "The new list of database drivers to update.", required = true) List<DriverInfo> drivers) throws ClientException;
 
     @GET
     @Path("/passwordRequirements")
