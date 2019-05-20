@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.math.BigInteger;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -563,7 +564,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         } else {
             File driversFile = getDbDriversFile();
 
-            if (driversFile.exists()) {
+            if (driversFile != null && driversFile.exists()) {
                 try (InputStream is = new FileInputStream(driversFile);
                         Reader reader = new InputStreamReader(is, "UTF-8");) {
                     drivers = parseDbdriversXml(reader);
@@ -581,9 +582,13 @@ public class DefaultConfigurationController extends ConfigurationController {
         return drivers;
     }
 
-    File getDbDriversFile() {
-        return new File(ClassPathResource.getResourceURI("dbdrivers.xml"));
-    }
+	File getDbDriversFile() {
+		URI uri = ClassPathResource.getResourceURI("dbdrivers.xml");
+		if (uri != null) {
+			return new File(uri);
+		}
+		return null;
+	}
 
     List<DriverInfo> parseDbdriversXml(Reader reader) throws Exception {
         List<DriverInfo> drivers = new ArrayList<DriverInfo>();
