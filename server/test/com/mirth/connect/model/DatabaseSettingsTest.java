@@ -26,7 +26,7 @@ public class DatabaseSettingsTest {
         databaseSettings.setDatabaseDriver(null);
         assertNull(databaseSettings.getMappedDatabaseDriver());
     }
-    
+
     @Test
     public void getMappedDatabaseDriver_BlankDriver_ValidDatabase() throws Exception {
         DatabaseSettings databaseSettings = new DatabaseSettings();
@@ -34,7 +34,7 @@ public class DatabaseSettingsTest {
         databaseSettings.setDatabaseDriver(" ");
         assertEquals("org.postgresql.Driver", databaseSettings.getMappedDatabaseDriver());
     }
-    
+
     @Test
     public void getMappedDatabaseDriver_NonBlankDriver() throws Exception {
         DatabaseSettings databaseSettings = new DatabaseSettings();
@@ -42,7 +42,7 @@ public class DatabaseSettingsTest {
         databaseSettings.setDatabaseDriver("test");
         assertEquals("test", databaseSettings.getMappedDatabaseDriver());
     }
-    
+
     @Test
     public void getMappedReadOnlyDatabaseDriver_NullDriver_NullRODriver_NullDatabaseRO() throws Exception {
         DatabaseSettings databaseSettings = spy(new DatabaseSettings());
@@ -53,7 +53,7 @@ public class DatabaseSettingsTest {
         assertEquals("oracle.jdbc.OracleDriver", databaseSettings.getMappedReadOnlyDatabaseDriver());
         verify(databaseSettings, times(1)).getMappedDatabaseDriver();
     }
-    
+
     @Test
     public void getMappedReadOnlyDatabaseDriver_NullDriver_NullRODriver_InvalidDatabaseRO() throws Exception {
         DatabaseSettings databaseSettings = spy(new DatabaseSettings());
@@ -64,7 +64,18 @@ public class DatabaseSettingsTest {
         assertNull(databaseSettings.getMappedReadOnlyDatabaseDriver());
         verify(databaseSettings, times(0)).getMappedDatabaseDriver();
     }
-    
+
+    @Test
+    public void getMappedReadOnlyDatabaseDriver_NullDriver_NullRODriver_DifferentDatabaseRO() throws Exception {
+        DatabaseSettings databaseSettings = spy(new DatabaseSettings());
+        databaseSettings.setDatabase("oracle");
+        databaseSettings.setDatabaseDriver(null);
+        databaseSettings.setDatabaseReadOnly("mysql");
+        databaseSettings.setDatabaseReadOnlyDriver(null);
+        assertEquals("com.mysql.cj.jdbc.Driver", databaseSettings.getMappedReadOnlyDatabaseDriver());
+        verify(databaseSettings, times(0)).getMappedDatabaseDriver();
+    }
+
     @Test
     public void getMappedReadOnlyDatabaseDriver_NullDriver_NullRODriver_ValidDatabaseRO() throws Exception {
         DatabaseSettings databaseSettings = spy(new DatabaseSettings());
@@ -75,7 +86,7 @@ public class DatabaseSettingsTest {
         assertEquals("net.sourceforge.jtds.jdbc.Driver", databaseSettings.getMappedReadOnlyDatabaseDriver());
         verify(databaseSettings, times(0)).getMappedDatabaseDriver();
     }
-    
+
     @Test
     public void getMappedReadOnlyDatabaseDriver_NonBlankRODriver() throws Exception {
         DatabaseSettings databaseSettings = spy(new DatabaseSettings());
