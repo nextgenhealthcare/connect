@@ -100,6 +100,7 @@ import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
 import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.httpauth.AuthenticationResult;
 import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.AuthenticatorProvider;
@@ -410,16 +411,21 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
         // Replace response headers
         Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
-        for (Entry<String, List<String>> entry : connectorProperties.getResponseHeaders().entrySet()) {
-            String replacedKey = replaceValues(entry.getKey(), dispatchResult);
-
-            for (String headerValue : entry.getValue()) {
-                List<String> list = responseHeaders.get(replacedKey);
-                if (list == null) {
-                    list = new ArrayList<String>();
-                    responseHeaders.put(replacedKey, list);
+        if (connectorProperties.isUseHeadersVariable()) {
+            String headersStr = replaceValues(connectorProperties.getResponseHeaderVariable(), dispatchResult);
+            responseHeaders = ObjectXMLSerializer.getInstance().deserialize(headersStr, Map.class);
+        } else {
+            for (Entry<String, List<String>> entry : connectorProperties.getResponseHeadersMap().entrySet()) {
+                String replacedKey = replaceValues(entry.getKey(), dispatchResult);
+    
+                for (String headerValue : entry.getValue()) {
+                    List<String> list = responseHeaders.get(replacedKey);
+                    if (list == null) {
+                        list = new ArrayList<String>();
+                        responseHeaders.put(replacedKey, list);
+                    }
+                    list.add(replaceValues(headerValue, dispatchResult));
                 }
-                list.add(replaceValues(headerValue, dispatchResult));
             }
         }
 

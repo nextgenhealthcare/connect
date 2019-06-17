@@ -100,6 +100,7 @@ import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.util.Base64Util;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -191,8 +192,10 @@ public class HttpDispatcher extends DestinationConnector {
         httpDispatcherProperties.setProxyAddress(replacer.replaceValues(httpDispatcherProperties.getProxyAddress(), connectorMessage));
         httpDispatcherProperties.setProxyPort(replacer.replaceValues(httpDispatcherProperties.getProxyPort(), connectorMessage));
         httpDispatcherProperties.setResponseBinaryMimeTypes(replacer.replaceValues(httpDispatcherProperties.getResponseBinaryMimeTypes(), connectorMessage));
-        httpDispatcherProperties.setHeaders(replacer.replaceKeysAndValuesInMap(httpDispatcherProperties.getHeaders(), connectorMessage));
-        httpDispatcherProperties.setParameters(replacer.replaceKeysAndValuesInMap(httpDispatcherProperties.getParameters(), connectorMessage));
+        httpDispatcherProperties.setHeadersMap(replacer.replaceKeysAndValuesInMap(httpDispatcherProperties.getHeadersMap(), connectorMessage));
+        httpDispatcherProperties.setHeadersVariable(replacer.replaceValues(httpDispatcherProperties.getHeadersVariable(), connectorMessage));
+        httpDispatcherProperties.setParametersMap(replacer.replaceKeysAndValuesInMap(httpDispatcherProperties.getParametersMap(), connectorMessage));
+        httpDispatcherProperties.setParametersVariable(replacer.replaceValues(httpDispatcherProperties.getParametersVariable(), connectorMessage));
         httpDispatcherProperties.setUsername(replacer.replaceValues(httpDispatcherProperties.getUsername(), connectorMessage));
         httpDispatcherProperties.setPassword(replacer.replaceValues(httpDispatcherProperties.getPassword(), connectorMessage));
         httpDispatcherProperties.setContent(replacer.replaceValues(httpDispatcherProperties.getContent(), connectorMessage));
@@ -438,8 +441,18 @@ public class HttpDispatcher extends DestinationConnector {
     private HttpRequestBase buildHttpRequest(URI hostURI, HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile, ContentType contentType, Charset charset) throws Exception {
         String method = httpDispatcherProperties.getMethod();
         boolean isMultipart = httpDispatcherProperties.isMultipart();
-        Map<String, List<String>> headers = httpDispatcherProperties.getHeaders();
-        Map<String, List<String>> parameters = httpDispatcherProperties.getParameters();
+        Map<String, List<String>> headers;
+        if (httpDispatcherProperties.isUseHeadersVariable()) {
+            headers = ObjectXMLSerializer.getInstance().deserialize(httpDispatcherProperties.getHeadersVariable(), Map.class);
+        } else {
+            headers = httpDispatcherProperties.getHeadersMap();
+        }
+        Map<String, List<String>> parameters;
+        if (httpDispatcherProperties.isUseParametersVariable()) {
+            parameters = ObjectXMLSerializer.getInstance().deserialize(httpDispatcherProperties.getParametersVariable(), Map.class);
+        } else {
+            parameters = httpDispatcherProperties.getParametersMap();
+        }
 
         Object content = null;
         if (httpDispatcherProperties.isDataTypeBinary()) {

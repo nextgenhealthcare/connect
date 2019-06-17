@@ -10,11 +10,15 @@
 package com.mirth.connect.connectors.smtp;
 
 import java.util.Map.Entry;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.ByteArrayDataSource;
 import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.MultiPartEmail;
 import org.apache.log4j.Logger;
@@ -30,10 +34,12 @@ import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.userutil.AttachmentEntry;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
@@ -104,18 +110,20 @@ public class SmtpDispatcher extends DestinationConnector {
         smtpDispatcherProperties.setBcc(replacer.replaceValues(smtpDispatcherProperties.getBcc(), connectorMessage));
         smtpDispatcherProperties.setReplyTo(replacer.replaceValues(smtpDispatcherProperties.getReplyTo(), connectorMessage));
 
-        smtpDispatcherProperties.setHeaders(replacer.replaceValuesInMap(smtpDispatcherProperties.getHeaders(), connectorMessage));
+        smtpDispatcherProperties.setHeadersMap(replacer.replaceValuesInMap(smtpDispatcherProperties.getHeadersMap(), connectorMessage));
+        smtpDispatcherProperties.setHeadersVariable(replacer.replaceValues(smtpDispatcherProperties.getHeadersVariable(), connectorMessage));
 
         smtpDispatcherProperties.setFrom(replacer.replaceValues(smtpDispatcherProperties.getFrom(), connectorMessage));
         smtpDispatcherProperties.setSubject(replacer.replaceValues(smtpDispatcherProperties.getSubject(), connectorMessage));
 
         smtpDispatcherProperties.setBody(replacer.replaceValues(smtpDispatcherProperties.getBody(), connectorMessage));
 
-        for (Attachment attachment : smtpDispatcherProperties.getAttachments()) {
+        for (AttachmentEntry attachment : smtpDispatcherProperties.getAttachmentsList()) {
             attachment.setName(replacer.replaceValues(attachment.getName(), connectorMessage));
             attachment.setMimeType(replacer.replaceValues(attachment.getMimeType(), connectorMessage));
             attachment.setContent(replacer.replaceValues(attachment.getContent(), connectorMessage));
         }
+        smtpDispatcherProperties.setAttachmentsVariable(replacer.replaceValues(smtpDispatcherProperties.getAttachmentsVariable(), connectorMessage));
     }
 
     @Override
@@ -195,10 +203,16 @@ public class SmtpDispatcher extends DestinationConnector {
                 email.addReplyTo(replyTo);
             }
 
-            for (Entry<String, String> header : smtpDispatcherProperties.getHeaders().entrySet()) {
+            Map<String, String> headers;
+            if (smtpDispatcherProperties.isUseHeadersVariable()) {
+                headers = ObjectXMLSerializer.getInstance().deserialize(smtpDispatcherProperties.getHeadersVariable(), Map.class);
+            } else {
+                headers = smtpDispatcherProperties.getHeadersMap();
+            }
+            for (Entry<String, String> header : headers.entrySet()) {
                 email.addHeader(header.getKey(), header.getValue());
             }
-
+            
             email.setFrom(smtpDispatcherProperties.getFrom());
             email.setSubject(smtpDispatcherProperties.getSubject());
 
@@ -213,13 +227,18 @@ public class SmtpDispatcher extends DestinationConnector {
                     email.setMsg(body);
                 }
             }
-
+            List<AttachmentEntry> attachmentSource;
+            if (smtpDispatcherProperties.isUseAttachmentsVariable()) {
+                attachmentSource = ObjectXMLSerializer.getInstance().deserialize(smtpDispatcherProperties.getHeadersVariable(), List.class);
+            } else {
+                attachmentSource = smtpDispatcherProperties.getAttachmentsList();
+            }
             /*
              * If the MIME type for the attachment is missing, we display a warning and set the
              * content anyway. If the MIME type is of type "text" or "application/xml", then we add
              * the content. If it is anything else, we assume it should be Base64 decoded first.
              */
-            for (Attachment attachment : smtpDispatcherProperties.getAttachments()) {
+            for (AttachmentEntry attachment : attachmentSource) {
                 String name = attachment.getName();
                 String mimeType = attachment.getMimeType();
                 String content = attachment.getContent();

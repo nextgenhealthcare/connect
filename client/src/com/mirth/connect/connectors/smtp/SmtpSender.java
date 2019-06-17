@@ -52,6 +52,7 @@ import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.userutil.AttachmentEntry;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class SmtpSender extends ConnectorSettingsPanel {
@@ -118,8 +119,14 @@ public class SmtpSender extends ConnectorSettingsPanel {
         properties.setHtml(htmlYes.isSelected());
 
         properties.setBody(bodyTextPane.getText());
-        properties.setHeaders(getHeaders());
-        properties.setAttachments(getAttachments());
+        
+        properties.setUseHeadersVariable(useHeadersTemplateRadio.isSelected());
+        properties.setHeadersMap(getHeaders());
+        properties.setHeadersVariable(headersTemplateField.getText());
+        
+        properties.setUseAttachmentsVariable(useAttachmentsTemplateRadio.isSelected());
+        properties.setAttachmentsList(getAttachments());
+        properties.setAttachmentsVariable(attachmentsTemplateField.getText());
 
         return properties;
     }
@@ -132,11 +139,27 @@ public class SmtpSender extends ConnectorSettingsPanel {
         smtpPortField.setText(props.getSmtpPort());
         if (props.isOverrideLocalBinding()) {
             overrideLocalBindingYesRadio.setSelected(true);
-            overrideLocalBindingYesRadioActionPerformed();
+            overrideLocalBindingFieldsEnabled(true);
         } else {
             overrideLocalBindingNoRadio.setSelected(true);
-            overrideLocalBindingNoRadioActionPerformed();
+            overrideLocalBindingFieldsEnabled(false);
         }
+        
+        if (props.isUseHeadersVariable()) {
+            useHeadersTemplateRadio.setSelected(true);
+        } else {
+            useHeadersTableRadio.setSelected(true);
+        }
+        headersTemplateField.setText(props.getHeadersVariable());
+        useHeadersTemplateFieldsEnabled(props.isUseHeadersVariable());
+        
+        if (props.isUseAttachmentsVariable()) {
+            useAttachmentsTemplateRadio.setSelected(true);
+        } else {
+            useAttachmentsListRadio.setSelected(true);
+        }
+        attachmentsTemplateField.setText(props.getAttachmentsVariable());
+        useAttachmentsTemplateFieldsEnabled(props.isUseAttachmentsVariable());
 
         localAddressField.setText(props.getLocalAddress());
         localPortField.setText(props.getLocalPort());
@@ -151,10 +174,10 @@ public class SmtpSender extends ConnectorSettingsPanel {
         }
 
         if (props.isAuthentication()) {
-            useAuthenticationYesActionPerformed();
+            setAuthenticationFieldsEnabled(true);
             useAuthenticationYes.setSelected(true);
         } else {
-            useAuthenticationNoActionPerformed();
+            setAuthenticationFieldsEnabled(false);
             useAuthenticationNo.setSelected(true);
         }
 
@@ -174,9 +197,9 @@ public class SmtpSender extends ConnectorSettingsPanel {
 
         bodyTextPane.setText(props.getBody());
 
-        setHeaders(props.getHeaders());
+        setHeaders(props.getHeadersMap());
 
-        setAttachments(props.getAttachments());
+        setAttachments(props.getAttachmentsList());
     }
 
     @Override
@@ -392,15 +415,16 @@ public class SmtpSender extends ConnectorSettingsPanel {
         return headers;
     }
 
-    private void setAttachments(List<Attachment> attachments) {
+    private void setAttachments(List<AttachmentEntry> attachments) {
         Object[][] tableData = new Object[attachments.size()][3];
 
         attachmentsTable = new MirthTable();
 
         for (int i = 0; i < attachments.size(); i++) {
-            tableData[i][ATTACHMENTS_NAME_COLUMN] = attachments.get(i).getName();
-            tableData[i][ATTACHMENTS_CONTENT_COLUMN] = attachments.get(i).getContent();
-            tableData[i][ATTACHMENTS_MIME_TYPE_COLUMN] = attachments.get(i).getMimeType();
+            AttachmentEntry entry = attachments.get(i);
+            tableData[i][ATTACHMENTS_NAME_COLUMN] = entry.getName();
+            tableData[i][ATTACHMENTS_CONTENT_COLUMN] = entry.getContent();
+            tableData[i][ATTACHMENTS_MIME_TYPE_COLUMN] = entry.getMimeType();
         }
 
         attachmentsTable.setModel(new DefaultTableModel(tableData, new String[] {
@@ -492,12 +516,12 @@ public class SmtpSender extends ConnectorSettingsPanel {
         attachmentsPane.setViewportView(attachmentsTable);
     }
 
-    private List<Attachment> getAttachments() {
-        List<Attachment> attachments = new ArrayList<Attachment>();
+    private List<AttachmentEntry> getAttachments() {
+        List<AttachmentEntry> attachments = new ArrayList<AttachmentEntry>();
 
         for (int i = 0; i < attachmentsTable.getRowCount(); i++) {
             if (((String) attachmentsTable.getValueAt(i, ATTACHMENTS_NAME_COLUMN)).length() > 0) {
-                Attachment attachment = new Attachment();
+                AttachmentEntry attachment = new AttachmentEntry();
                 attachment.setName((String) attachmentsTable.getValueAt(i, ATTACHMENTS_NAME_COLUMN));
                 attachment.setContent((String) attachmentsTable.getValueAt(i, ATTACHMENTS_CONTENT_COLUMN));
                 attachment.setMimeType((String) attachmentsTable.getValueAt(i, ATTACHMENTS_MIME_TYPE_COLUMN));
@@ -579,7 +603,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         overrideLocalBindingYesRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                overrideLocalBindingYesRadioActionPerformed();
+                overrideLocalBindingFieldsEnabled(true);
             }
         });
         overrideLocalBindingButtonGroup.add(overrideLocalBindingYesRadio);
@@ -589,7 +613,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         overrideLocalBindingNoRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                overrideLocalBindingNoRadioActionPerformed();
+                overrideLocalBindingFieldsEnabled(false);
             }
         });
         overrideLocalBindingButtonGroup.add(overrideLocalBindingNoRadio);
@@ -626,7 +650,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         useAuthenticationYes.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                useAuthenticationYesActionPerformed();
+                setAuthenticationFieldsEnabled(true);
             }
         });
         useAuthenticationButtonGroup.add(useAuthenticationYes);
@@ -636,7 +660,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         useAuthenticationNo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                useAuthenticationNoActionPerformed();
+                setAuthenticationFieldsEnabled(false);
             }
         });
         useAuthenticationButtonGroup.add(useAuthenticationNo);
@@ -695,6 +719,28 @@ public class SmtpSender extends ConnectorSettingsPanel {
             }
         });
 
+        useHeadersTableRadio = new MirthRadioButton("Use Table");
+        useHeadersTableRadio.setBackground(getBackground());
+        useHeadersTableRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                useHeadersTemplateFieldsEnabled(false);
+            }
+        });
+        useHeadersTemplateRadio = new MirthRadioButton("Use Map:");
+        useHeadersTemplateRadio.setBackground(getBackground());
+        useHeadersTemplateRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                useHeadersTemplateFieldsEnabled(true);
+            }
+        });
+        ButtonGroup headersSourceButtonGroup = new ButtonGroup();
+        headersSourceButtonGroup.add(useHeadersTableRadio);
+        headersSourceButtonGroup.add(useHeadersTemplateRadio);     
+
+        headersTemplateField = new MirthTextField();
+        
         attachmentsLabel = new JLabel("Attachments:");
 
         attachmentsTable = new MirthTable();
@@ -715,6 +761,28 @@ public class SmtpSender extends ConnectorSettingsPanel {
                 deleteAttachmentButtonActionPerformed();
             }
         });
+        
+        useAttachmentsListRadio = new MirthRadioButton("Use Table");
+        useAttachmentsListRadio.setBackground(getBackground());
+        useAttachmentsListRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                useAttachmentsTemplateFieldsEnabled(false);
+            }
+        });
+        useAttachmentsTemplateRadio = new MirthRadioButton("Use Map:");
+        useAttachmentsTemplateRadio.setBackground(getBackground());
+        useAttachmentsTemplateRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                useAttachmentsTemplateFieldsEnabled(true);
+            }
+        });
+        ButtonGroup attachmentSourceButtonGroup = new ButtonGroup();
+        attachmentSourceButtonGroup.add(useAttachmentsListRadio);
+        attachmentSourceButtonGroup.add(useAttachmentsTemplateRadio);     
+
+        attachmentsTemplateField = new MirthTextField();
     }
 
     private void initToolTips() {
@@ -790,11 +858,17 @@ public class SmtpSender extends ConnectorSettingsPanel {
         add(bodyLabel, "newline, top, right");
         add(bodyTextPane, "grow, push, sx, h 89:");
         add(headersLabel, "newline, top, right");
-        add(headersPane, "growx, pushx, span 2, h 85!");
+        add(useHeadersTableRadio, "split 3");
+        add(useHeadersTemplateRadio);
+        add(headersTemplateField, "w 125");
+        add(headersPane, "newline, growx, pushx, skip 1, span 2, h 85!");
         add(newHeaderButton, "top, flowy, split 2, w 44!");
         add(deleteHeaderButton, "w 44!");
         add(attachmentsLabel, "newline, top, right");
-        add(attachmentsPane, "growx, pushx, span 2, h 85!");
+        add(useAttachmentsListRadio, "split 3");
+        add(useAttachmentsTemplateRadio);
+        add(attachmentsTemplateField, "w 125");
+        add(attachmentsPane, "newline, growx, pushx, skip 1, span 2, h 85!");
         add(newAttachmentButton, "top, flowy, split 2, w 44!");
         add(deleteAttachmentButton, "w 44!");
     }
@@ -824,20 +898,12 @@ public class SmtpSender extends ConnectorSettingsPanel {
         }
     }
 
-    private void useAuthenticationYesActionPerformed() {
-        usernameLabel.setEnabled(true);
-        usernameField.setEnabled(true);
+    private void setAuthenticationFieldsEnabled(boolean useAuthentication) {
+        usernameLabel.setEnabled(useAuthentication);
+        usernameField.setEnabled(useAuthentication);
 
-        passwordLabel.setEnabled(true);
-        passwordField.setEnabled(true);
-    }
-
-    private void useAuthenticationNoActionPerformed() {
-        usernameLabel.setEnabled(false);
-        usernameField.setEnabled(false);
-
-        passwordLabel.setEnabled(false);
-        passwordField.setEnabled(false);
+        passwordLabel.setEnabled(useAuthentication);
+        passwordField.setEnabled(useAuthentication);
     }
 
     private void sendTestEmailButtonActionPerformed() {
@@ -892,18 +958,25 @@ public class SmtpSender extends ConnectorSettingsPanel {
         }
     }
 
-    private void overrideLocalBindingYesRadioActionPerformed() {
-        localAddressField.setEnabled(true);
-        localAddressLabel.setEnabled(true);
-        localPortField.setEnabled(true);
-        localPortLabel.setEnabled(true);
+    private void overrideLocalBindingFieldsEnabled(boolean isUseLocal) {
+        localAddressField.setEnabled(isUseLocal);
+        localAddressLabel.setEnabled(isUseLocal);
+        localPortField.setEnabled(isUseLocal);
+        localPortLabel.setEnabled(isUseLocal);
     }
 
-    private void overrideLocalBindingNoRadioActionPerformed() {
-        localAddressField.setEnabled(false);
-        localAddressLabel.setEnabled(false);
-        localPortField.setEnabled(false);
-        localPortLabel.setEnabled(false);
+    private void useAttachmentsTemplateFieldsEnabled(boolean useTemplate) {
+        attachmentsTemplateField.setEnabled(useTemplate);
+        attachmentsTable.setEnabled(!useTemplate);
+        newAttachmentButton.setEnabled(!useTemplate);
+        deleteAttachmentButton.setEnabled(!useTemplate && attachmentsTable.getSelectedRow() > -1);
+    }
+    
+    private void useHeadersTemplateFieldsEnabled(boolean useTemplate) {
+        headersTemplateField.setEnabled(useTemplate);
+        headersTable.setEnabled(!useTemplate);
+        newHeaderButton.setEnabled(!useTemplate);
+        deleteHeaderButton.setEnabled(!useTemplate && headersTable.getSelectedRow() > -1);
     }
 
     private JLabel smtpHostLabel;
@@ -949,9 +1022,15 @@ public class SmtpSender extends ConnectorSettingsPanel {
     private JScrollPane headersPane;
     private JButton newHeaderButton;
     private JButton deleteHeaderButton;
+    private MirthRadioButton useHeadersTableRadio;
+    private MirthRadioButton useHeadersTemplateRadio;
+    private MirthTextField headersTemplateField;
     private JLabel attachmentsLabel;
     private MirthTable attachmentsTable;
     private JScrollPane attachmentsPane;
     private JButton newAttachmentButton;
     private JButton deleteAttachmentButton;
+    private MirthRadioButton useAttachmentsListRadio;
+    private MirthRadioButton useAttachmentsTemplateRadio;
+    private MirthTextField attachmentsTemplateField;
 }

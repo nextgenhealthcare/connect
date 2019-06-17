@@ -21,6 +21,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
 
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.httpauth.AuthenticationResult;
 import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.RequestInfo;
@@ -58,8 +59,14 @@ public class BasicAuthenticator extends Authenticator {
                         String username = credentials.substring(0, index);
                         String password = credentials.substring(index + 1);
 
+                        Map<String, String> credentialsSource;
+                        if (properties.isUseCredentialsVariable()) {
+                            credentialsSource = ObjectXMLSerializer.getInstance().deserialize(properties.getCredentialsVariable(), Map.class);
+                        } else {
+                            credentialsSource = properties.getCredentialsMap();
+                        }
                         // Return successful result if the passwords match
-                        if (StringUtils.equals(password, properties.getCredentials().get(username))) {
+                        if (StringUtils.equals(password, credentialsSource.get(username))) {
                             return AuthenticationResult.Success(username, properties.getRealm());
                         }
                     }
@@ -81,14 +88,16 @@ public class BasicAuthenticator extends Authenticator {
         properties.setRealm(replacer.replaceValues(properties.getRealm(), channelId, channelName, map));
 
         Map<String, String> credentials = new LinkedHashMap<String, String>();
-        for (Entry<String, String> entry : properties.getCredentials().entrySet()) {
+        for (Entry<String, String> entry : properties.getCredentialsMap().entrySet()) {
             String username = replacer.replaceValues(entry.getKey(), channelId, channelName, map);
             if (StringUtils.isNotBlank(username)) {
                 credentials.put(username, replacer.replaceValues(entry.getValue(), channelId, channelName, map));
             }
         }
-        properties.setCredentials(credentials);
+        properties.setCredentialsMap(credentials);
 
+        properties.setCredentialsVariable(replacer.replaceValues(properties.getCredentialsVariable()));
+        
         return properties;
     }
 }

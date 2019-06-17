@@ -100,10 +100,12 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.userutil.AttachmentEntry;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.HttpUtil;
 
@@ -408,16 +410,21 @@ public class WebServiceDispatcher extends DestinationConnector {
         webServiceDispatcherProperties.setSoapAction(replacer.replaceValues(webServiceDispatcherProperties.getSoapAction(), connectorMessage));
         webServiceDispatcherProperties.setEnvelope(replacer.replaceValues(webServiceDispatcherProperties.getEnvelope(), connectorMessage));
 
-        Map<String, List<String>> headers = webServiceDispatcherProperties.getHeaders();
+        Map<String, List<String>> headers = webServiceDispatcherProperties.getHeadersMap();
         for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
             replacer.replaceValuesInList(entry.getValue(), connectorMessage);
         }
-        webServiceDispatcherProperties.setHeaders(headers);
+        webServiceDispatcherProperties.setHeadersMap(headers);
+        webServiceDispatcherProperties.setHeadersVariable(replacer.replaceValues(webServiceDispatcherProperties.getHeadersVariable(), connectorMessage));
 
         if (webServiceDispatcherProperties.isUseMtom()) {
-            replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentNames(), connectorMessage);
-            replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentContents(), connectorMessage);
-            replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentTypes(), connectorMessage);
+            for (AttachmentEntry entry : webServiceDispatcherProperties.getAttachmentsList()) {
+                replacer.replaceValues(entry.getName(), connectorMessage);
+                replacer.replaceValues(entry.getContent(), connectorMessage);
+                replacer.replaceValues(entry.getMimeType(), connectorMessage);
+            }
+            webServiceDispatcherProperties.setAttachmentsVariable(replacer.replaceValues(webServiceDispatcherProperties.getAttachmentsVariable(), connectorMessage));
+            
         }
     }
 
@@ -476,8 +483,16 @@ public class WebServiceDispatcher extends DestinationConnector {
             Map<String, List<String>> requestHeaders = new HashMap<String, List<String>>(dispatchContainer.getDefaultRequestHeaders());
 
             // Add custom headers
-            if (MapUtils.isNotEmpty(webServiceDispatcherProperties.getHeaders())) {
-                for (Entry<String, List<String>> entry : webServiceDispatcherProperties.getHeaders().entrySet()) {
+            Map<String, List<String>> headersSource;
+            
+            if (webServiceDispatcherProperties.isUseHeadersVariable()) {
+                headersSource = ObjectXMLSerializer.getInstance().deserialize(webServiceDispatcherProperties.getAttachmentsVariable(), Map.class);
+            } else {
+                headersSource = webServiceDispatcherProperties.getHeadersMap();
+            }
+            
+            if (MapUtils.isNotEmpty(headersSource)) {
+                for (Entry<String, List<String>> entry : headersSource.entrySet()) {
                     List<String> valueList = requestHeaders.get(entry.getKey());
 
                     if (valueList == null) {
@@ -501,19 +516,19 @@ public class WebServiceDispatcher extends DestinationConnector {
 
             if (webServiceDispatcherProperties.isUseMtom()) {
                 soapBinding.setMTOMEnabled(true);
-
-                List<String> attachmentIds = webServiceDispatcherProperties.getAttachmentNames();
-                List<String> attachmentContents = webServiceDispatcherProperties.getAttachmentContents();
-                List<String> attachmentTypes = webServiceDispatcherProperties.getAttachmentTypes();
-
-                for (int i = 0; i < attachmentIds.size(); i++) {
-                    String attachmentContentId = attachmentIds.get(i);
-                    String attachmentContentType = attachmentTypes.get(i);
-                    String attachmentContent = attachmentHandlerProvider.reAttachMessage(attachmentContents.get(i), connectorMessage, webServiceDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
+                List<AttachmentEntry> attachmentSource;
+                if (webServiceDispatcherProperties.isUseAttachmentsVariable()) {
+                    attachmentSource = ObjectXMLSerializer.getInstance().deserialize(webServiceDispatcherProperties.getAttachmentsVariable(), List.class);
+                } else {
+                    attachmentSource = webServiceDispatcherProperties.getAttachmentsList();
+                }
+                for (AttachmentEntry attachmentEntry : attachmentSource) {
+                    String attachmentContentType = attachmentEntry.getContent();
+                    String attachmentContent = attachmentHandlerProvider.reAttachMessage(attachmentEntry.getContent(), connectorMessage, webServiceDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
 
                     AttachmentPart attachment = message.createAttachmentPart();
-                    attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);
-                    attachment.setContentId(attachmentContentId);
+                    attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentEntry.getMimeType());
+                    attachment.setContentId(attachmentEntry.getMimeType());
                     message.addAttachmentPart(attachment);
                 }
             } else {

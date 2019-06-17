@@ -22,6 +22,7 @@ import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
+import com.mirth.connect.userutil.AttachmentEntry;
 import com.mirth.connect.util.CharsetUtils;
 
 public class SmtpDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
@@ -44,11 +45,15 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
     private String bcc;
     private String replyTo;
     private Map<String, String> headers;
+    private String headersVariable;
+    private boolean isUseHeadersVariable;  // true to use headers, false to use headersVariable
     private String subject;
     private String charsetEncoding;
     private boolean html;
     private String body;
-    private List<Attachment> attachments;
+    private List<AttachmentEntry> attachments;
+    private String attachmentsVariable;
+    private boolean isUseAttachmentsVariable;  // true to use attachments, false to use attachmentsVariable
 
     public SmtpDispatcherProperties() {
         destinationConnectorProperties = new DestinationConnectorProperties();
@@ -69,11 +74,15 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
         this.bcc = "";
         this.replyTo = "";
         this.headers = new LinkedHashMap<String, String>();
+        this.isUseHeadersVariable = false;
+        this.headersVariable = "";
         this.subject = "";
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
         this.html = false;
         this.body = "";
-        this.attachments = new ArrayList<Attachment>();
+        this.attachments = new ArrayList<AttachmentEntry>();
+        this.isUseAttachmentsVariable = false;
+        this.attachmentsVariable = "";
     }
 
     public SmtpDispatcherProperties(SmtpDispatcherProperties props) {
@@ -95,16 +104,20 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
         cc = props.getCc();
         bcc = props.getBcc();
         replyTo = props.getReplyTo();
-        headers = new LinkedHashMap<String, String>(props.getHeaders());
+        headers = new LinkedHashMap<String, String>(props.getHeadersMap());
+        isUseHeadersVariable = props.isUseHeadersVariable();
+        headersVariable = props.getHeadersVariable();
         subject = props.getSubject();
         charsetEncoding = props.getCharsetEncoding();
         html = props.isHtml();
         body = props.getBody();
 
-        attachments = new ArrayList<Attachment>();
-        for (Attachment attachment : props.getAttachments()) {
-            attachments.add(new Attachment(attachment));
+        attachments = new ArrayList<AttachmentEntry>();
+        for (AttachmentEntry attachment : props.getAttachmentsList()) {
+            attachments.add(new AttachmentEntry(attachment));
         }
+        isUseHeadersVariable = props.isUseAttachmentsVariable();
+        attachmentsVariable = props.getAttachmentsVariable();
     }
 
     public String getSmtpHost() {
@@ -227,12 +240,28 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
         this.replyTo = replyTo;
     }
 
-    public Map<String, String> getHeaders() {
-        return headers;
+    public Map<String, String> getHeadersMap() {
+        return this.headers;
+    }
+    
+    public void setHeadersMap(Map<String, String> headers) {
+        this.headers = headers;
     }
 
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
+    public boolean isUseHeadersVariable() {
+        return isUseHeadersVariable;
+    }
+
+    public void setUseHeadersVariable(boolean isUseHeadersVariable) {
+        this.isUseHeadersVariable = isUseHeadersVariable;
+    }
+
+    public String getHeadersVariable() {
+        return this.headersVariable;
+    }
+    
+    public void setHeadersVariable(String variableName) {
+        this.headersVariable = variableName;
     }
 
     public String getSubject() {
@@ -267,12 +296,28 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
         this.body = body;
     }
 
-    public List<Attachment> getAttachments() {
+    public List<AttachmentEntry> getAttachmentsList() {
         return attachments;
     }
-
-    public void setAttachments(List<Attachment> attachments) {
+    
+    public void setAttachmentsList(List<AttachmentEntry> attachments) {
         this.attachments = attachments;
+    }
+
+    public String getAttachmentsVariable() {
+        return attachmentsVariable;
+    }
+
+    public void setAttachmentsVariable(String attachmentsVariable) {
+        this.attachmentsVariable = attachmentsVariable;
+    }
+
+    public boolean isUseAttachmentsVariable() {
+        return isUseAttachmentsVariable;
+    }
+
+    public void setUseAttachmentsVariable(boolean isUseAttachmentsVariable) {
+        this.isUseAttachmentsVariable = isUseAttachmentsVariable;
     }
 
     @Override
@@ -326,7 +371,7 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
 
         builder.append(newLine);
         builder.append("[ATTACHMENTS]");
-        for (Attachment attachment : attachments) {
+        for (AttachmentEntry attachment : attachments) {
             builder.append(newLine);
             builder.append(attachment.getName());
             builder.append(" (");

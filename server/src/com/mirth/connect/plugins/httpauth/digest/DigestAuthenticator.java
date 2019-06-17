@@ -36,6 +36,7 @@ import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.QuotedStringTokenizer;
 import org.eclipse.jetty.util.TypeUtil;
 
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.httpauth.AuthenticationResult;
 import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.RequestInfo;
@@ -199,7 +200,13 @@ public class DigestAuthenticator extends Authenticator {
                     throw new Exception("Opaque value \"" + opaque + "\" does not match the expected value \"" + properties.getOpaque() + "\".");
                 }
 
-                String password = properties.getCredentials().get(username);
+                Map<String, String> credentialsSource;
+                if (properties.isUseCredentialsVariable()) {
+                    credentialsSource = ObjectXMLSerializer.getInstance().deserialize(properties.getCredentialsVariable(), Map.class);
+                } else {
+                    credentialsSource = properties.getCredentialsMap();
+                }
+                String password = credentialsSource.get(username);
                 if (password == null) {
                     throw new Exception("Credentials for username " + username + " not found.");
                 }
@@ -385,14 +392,15 @@ public class DigestAuthenticator extends Authenticator {
         properties.setOpaque(replacer.replaceValues(properties.getOpaque(), channelId, channelName, map));
 
         Map<String, String> credentials = new LinkedHashMap<String, String>();
-        for (Entry<String, String> entry : properties.getCredentials().entrySet()) {
+        for (Entry<String, String> entry : properties.getCredentialsMap().entrySet()) {
             String username = replacer.replaceValues(entry.getKey(), channelId, channelName, map);
             if (StringUtils.isNotBlank(username)) {
                 credentials.put(username, replacer.replaceValues(entry.getValue(), channelId, channelName, map));
             }
         }
-        properties.setCredentials(credentials);
-
+        properties.setCredentialsMap(credentials);
+        properties.setCredentialsVariable(replacer.replaceValues(properties.getCredentialsVariable(), map));
+        
         return properties;
     }
 

@@ -7,20 +7,20 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.smtp;
+package com.mirth.connect.userutil;
 
 import java.io.Serializable;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-public class Attachment implements Serializable {
+public class AttachmentEntry implements Serializable {
     private String name;
     private String content;
     private String mimeType;
 
-    public Attachment() {}
+    public AttachmentEntry() {}
 
-    public Attachment(Attachment attachment) {
+    public AttachmentEntry(AttachmentEntry attachment) {
         name = attachment.getName();
         content = attachment.getContent();
         mimeType = attachment.getMimeType();

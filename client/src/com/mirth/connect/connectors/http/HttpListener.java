@@ -153,7 +153,10 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         properties.setResponseStatusCode(responseStatusCodeField.getText());
 
-        properties.setResponseHeaders(getResponseHeaders());
+        properties.setResponseHeadersMap(getResponseHeaders());
+        properties.setIsUseHeadersVariable(useResponseHeadersTemplateRadio.isSelected());
+        properties.setResponseHeaderVariable(responseHeadersTemplateField.getText());
+        
         properties.setStaticResources(getStaticResources());
 
         return properties;
@@ -205,12 +208,20 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         responseStatusCodeField.setText(props.getResponseStatusCode());
 
-        if (props.getResponseHeaders() != null) {
-            setResponseHeaders(props.getResponseHeaders());
+        if (props.getResponseHeadersMap() != null) {
+            setResponseHeaders(props.getResponseHeadersMap());
         } else {
             setResponseHeaders(new LinkedHashMap<String, List<String>>());
         }
 
+        if (props.isUseHeadersVariable()) {
+            useResponseHeadersTemplateRadio.setSelected(true);
+        } else {
+            useResponseHeadersTableRadio.setSelected(true);
+        }
+        responseHeadersTemplateField.setText(props.getResponseHeaderVariable());
+        useResponseHeadersTemplateFieldsEnabled(props.isUseHeadersVariable());
+        
         if (props.getStaticResources() != null) {
             setStaticResources(props.getStaticResources());
         } else {
@@ -915,6 +926,28 @@ public class HttpListener extends ConnectorSettingsPanel {
             }
         });
 
+        useResponseHeadersTableRadio = new MirthRadioButton("Use Table");
+        useResponseHeadersTableRadio.setBackground(getBackground());
+        useResponseHeadersTableRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                useResponseHeadersTemplateFieldsEnabled(false);
+            }
+        });
+        useResponseHeadersTemplateRadio = new MirthRadioButton("Use Map:");
+        useResponseHeadersTemplateRadio.setBackground(getBackground());
+        useResponseHeadersTemplateRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                useResponseHeadersTemplateFieldsEnabled(true);
+            }
+        });
+        ButtonGroup headersSourceButtonGroup = new ButtonGroup();
+        headersSourceButtonGroup.add(useResponseHeadersTableRadio);
+        headersSourceButtonGroup.add(useResponseHeadersTemplateRadio);     
+
+        responseHeadersTemplateField = new MirthTextField();
+        
         receiveTimeoutLabel1.setText("Response Status Code:");
 
         responseStatusCodeField.setToolTipText("<html>Enter the status code for the HTTP response.  If this field is left blank a <br>default status code of 200 will be returned for a successful message, <br>and 500 will be returned for an errored message. If a \"Respond from\" <br>value is chosen, that response will be used to determine a successful <br>or errored response.<html>");
@@ -1247,6 +1280,13 @@ public class HttpListener extends ConnectorSettingsPanel {
         charsetEncodingLabel.setEnabled(true);
         charsetEncodingCombobox.setEnabled(true);
     }
+    
+    private void useResponseHeadersTemplateFieldsEnabled(boolean useTemplate) {
+        responseHeadersTemplateField.setEnabled(useTemplate);
+        responseHeadersTable.setEnabled(!useTemplate);
+        responseHeadersNewButton.setEnabled(!useTemplate);
+        responseHeadersDeleteButton.setEnabled(!useTemplate && responseHeadersTable.getSelectedRow() > -1);
+    }
 
     // Variables declaration - do not modify
     private MirthTextField binaryMimeTypesField;
@@ -1285,6 +1325,9 @@ public class HttpListener extends ConnectorSettingsPanel {
     private JScrollPane responseHeadersPane;
     private JScrollPane responseHeadersPane1;
     private MirthTable responseHeadersTable;
+    private MirthRadioButton useResponseHeadersTableRadio;
+    private MirthRadioButton useResponseHeadersTemplateRadio;
+    private MirthTextField responseHeadersTemplateField;
     private MirthTextField responseStatusCodeField;
     private JButton staticResourcesDeleteButton;
     private JLabel staticResourcesLabel;

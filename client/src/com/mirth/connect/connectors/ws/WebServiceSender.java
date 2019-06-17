@@ -79,6 +79,7 @@ import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.userutil.AttachmentEntry;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class WebServiceSender extends ConnectorSettingsPanel {
@@ -146,14 +147,16 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         }
 
         properties.setWsdlDefinitionMap(currentServiceMap);
-        properties.setHeaders(getHeaderProperties());
+        properties.setHeadersMap(getHeaderProperties());
+        properties.setUseHeadersVariable(useHeadersTemplateRadio.isSelected());
+        properties.setHeadersVariable(headersTemplateField.getText());
 
         properties.setUseMtom(useMtomYesRadio.isSelected());
 
-        List<List<String>> attachments = getAttachments();
-        properties.setAttachmentNames(attachments.get(0));
-        properties.setAttachmentContents(attachments.get(1));
-        properties.setAttachmentTypes(attachments.get(2));
+        List<AttachmentEntry> attachments = getAttachments();
+        properties.setAttachmentsList(attachments);
+        properties.setUseAttachmentsVariable(useAttachmentsTemplateRadio.isSelected());
+        properties.setAttachmentsVariable(attachmentsTemplateField.getText());
 
         return properties;
     }
@@ -200,17 +203,25 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
         parent.setSaveEnabled(enabled);
 
-        if (props.getHeaders() != null) {
-            setHeaderProperties(props.getHeaders());
+        if (props.getHeadersMap() != null) {
+            setHeaderProperties(props.getHeadersMap());
         } else {
             setHeaderProperties(new LinkedHashMap<String, List<String>>());
         }
 
-        List<List<String>> attachments = new ArrayList<List<String>>();
+        if (props.isUseHeadersVariable()) {
+            useHeadersTemplateRadio.setSelected(true);
+        } else {
+            useHeadersTableRadio.setSelected(true);
+        }
+        headersTemplateField.setText(props.getHeadersVariable());
+        useHeadersTemplateFieldsEnabled(props.isUseHeadersVariable());
+        
+        List<AttachmentEntry> attachments = new ArrayList<AttachmentEntry>();
 
-        attachments.add(props.getAttachmentNames());
-        attachments.add(props.getAttachmentContents());
-        attachments.add(props.getAttachmentTypes());
+        for (AttachmentEntry entry : props.getAttachmentsList()) {
+            attachments.add(entry);
+        }
 
         setAttachments(attachments);
 
@@ -221,6 +232,13 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             useMtomNoRadio.setSelected(true);
             useMtomNoRadioActionPerformed(null);
         }
+        if (props.isUseAttachmentsVariable()) {
+            useAttachmentsTemplateRadio.setSelected(true);
+        } else {
+            useAttachmentsListRadio.setSelected(true);
+        }
+        attachmentsTemplateField.setText(props.getAttachmentsVariable());
+        useAttachmentTemplateFieldsEnabled(props.isUseAttachmentsVariable());
     }
 
     @Override
@@ -439,41 +457,31 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         return "";
     }
 
-    private void setAttachments(List<List<String>> attachments) {
-        List<String> attachmentIds = attachments.get(0);
-        List<String> attachmentContents = attachments.get(1);
-        List<String> attachmentTypes = attachments.get(2);
+    private void setAttachments(List<AttachmentEntry> attachments) {
+        Object[][] tableData = new Object[attachments.size()][3];
 
-        Object[][] tableData = new Object[attachmentIds.size()][3];
-
-        for (int i = 0; i < attachmentIds.size(); i++) {
-            tableData[i][ID_COLUMN_NUMBER] = attachmentIds.get(i);
-            tableData[i][CONTENT_COLUMN_NUMBER] = attachmentContents.get(i);
-            tableData[i][MIME_TYPE_COLUMN_NUMBER] = attachmentTypes.get(i);
+        for (int i = 0; i < attachments.size(); i++) {
+            AttachmentEntry entry = attachments.get(i);
+            tableData[i][ID_COLUMN_NUMBER] = entry.getName();
+            tableData[i][CONTENT_COLUMN_NUMBER] = entry.getContent();
+            tableData[i][MIME_TYPE_COLUMN_NUMBER] = entry.getMimeType();
         }
 
         ((RefreshTableModel) attachmentsTable.getModel()).refreshDataVector(tableData);
     }
 
-    private List<List<String>> getAttachments() {
-        List<List<String>> attachments = new ArrayList<List<String>>();
-
-        ArrayList<String> attachmentIds = new ArrayList<String>();
-        ArrayList<String> attachmentContents = new ArrayList<String>();
-        ArrayList<String> attachmentTypes = new ArrayList<String>();
-
+    private List<AttachmentEntry> getAttachments() {
+        List<AttachmentEntry> attachments = new ArrayList<AttachmentEntry>();
+        
         for (int i = 0; i < attachmentsTable.getModel().getRowCount(); i++) {
             if (((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER)).length() > 0) {
-                attachmentIds.add((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER));
-                attachmentContents.add((String) attachmentsTable.getModel().getValueAt(i, CONTENT_COLUMN_NUMBER));
-                attachmentTypes.add((String) attachmentsTable.getModel().getValueAt(i, MIME_TYPE_COLUMN_NUMBER));
+                AttachmentEntry entry = new AttachmentEntry();
+                entry.setName((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER));
+                entry.setContent((String) attachmentsTable.getModel().getValueAt(i, CONTENT_COLUMN_NUMBER));
+                entry.setMimeType((String) attachmentsTable.getModel().getValueAt(i, MIME_TYPE_COLUMN_NUMBER));
+                attachments.add(entry);
             }
         }
-
-        attachments.add(attachmentIds);
-        attachments.add(attachmentContents);
-        attachments.add(attachmentTypes);
-
         return attachments;
     }
 
@@ -755,6 +763,30 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             }
         });
 
+        useHeadersTableRadio = new MirthRadioButton("Use Table");
+        useHeadersTableRadio.setBackground(getBackground());
+        useHeadersTableRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                useHeadersTemplateFieldsEnabled(true);
+                
+            }
+        });
+        useHeadersTemplateRadio = new MirthRadioButton("Use Map:");
+        useHeadersTemplateRadio.setBackground(getBackground());
+        useHeadersTemplateRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                useHeadersTemplateFieldsEnabled(false);
+                
+            }
+        });
+        ButtonGroup headersSourceButtonGroup = new ButtonGroup();
+        headersSourceButtonGroup.add(useHeadersTemplateRadio);
+        headersSourceButtonGroup.add(useHeadersTableRadio);     
+
+        headersTemplateField = new MirthTextField();
+        
         useMtomLabel = new JLabel("Use MTOM:");
         ButtonGroup useMtomButtonGroup = new ButtonGroup();
 
@@ -911,6 +943,30 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         });
 
         sslWarningPanel = new SSLWarningPanel();
+
+        useAttachmentsListRadio = new MirthRadioButton("Use Table");
+        useAttachmentsListRadio.setBackground(getBackground());
+        useAttachmentsListRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                useAttachmentTemplateFieldsEnabled(true);
+                
+            }
+        });
+        useAttachmentsTemplateRadio = new MirthRadioButton("Use Map:");
+        useAttachmentsTemplateRadio.setBackground(getBackground());
+        useAttachmentsTemplateRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                useAttachmentTemplateFieldsEnabled(false);
+                
+            }
+        });
+        ButtonGroup attachmentSourceButtonGroup = new ButtonGroup();
+        attachmentSourceButtonGroup.add(useAttachmentsListRadio);
+        attachmentSourceButtonGroup.add(useAttachmentsTemplateRadio);     
+
+        attachmentsTemplateField = new MirthTextField();
     }
 
     protected void initToolTips() {
@@ -969,14 +1025,20 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         add(soapEnvelopeLabel, "newline, top, right");
         add(soapEnvelopeTextArea, "grow, push, sx");
         add(headersLabel, "newline, top, right");
-        add(headersScrollPane, "top, growx, pushx, h 80!");
+        add(useHeadersTableRadio, "split 3");
+        add(useHeadersTemplateRadio);
+        add(headersTemplateField, "w 125");
+        add(headersScrollPane, "newline, top, growx, pushx, skip 1, h 80!");
         add(headersNewButton, "top, flowy, split 2, w 50!");
         add(headersDeleteButton, "w 50!");
         add(useMtomLabel, "newline, right");
         add(useMtomYesRadio, "split 2");
         add(useMtomNoRadio);
         add(attachmentsLabel, "newline, top, right");
-        add(attachmentsScrollPane, "top, growx, pushx, h 80!");
+        add(useAttachmentsListRadio, "split 3");
+        add(useAttachmentsTemplateRadio);
+        add(attachmentsTemplateField, "w 125");
+        add(attachmentsScrollPane, "newline, top, growx, pushx, skip 1, h 80!");
         add(attachmentsNewButton, "top, flowy, split 2, w 50!");
         add(attachmentsDeleteButton, "w 50!");
     }
@@ -1143,11 +1205,28 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         passwordField.setText("");
     }
 
+    private void useHeadersTemplateFieldsEnabled(boolean useTemplate) {
+        headersTemplateField.setEnabled(useTemplate);
+        headersTable.setEnabled(!useTemplate);
+        headersNewButton.setEnabled(!useTemplate);
+        headersDeleteButton.setEnabled(!useTemplate);
+    }
+
+    private void useAttachmentTemplateFieldsEnabled(boolean useTemplate) {
+        attachmentsTemplateField.setEnabled(useTemplate && useMtomYesRadio.isSelected());
+        attachmentsTable.setEnabled(!useTemplate && useMtomYesRadio.isSelected());
+        attachmentsNewButton.setEnabled(!useTemplate && useMtomYesRadio.isSelected());
+        attachmentsDeleteButton.setEnabled(!useTemplate && useMtomYesRadio.isSelected() && attachmentsTable.getSelectedRow() > -1);
+    }
+    
     private void useMtomYesRadioActionPerformed(ActionEvent evt) {
         attachmentsLabel.setEnabled(true);
         attachmentsScrollPane.setEnabled(true);
         attachmentsTable.setEnabled(true);
-        attachmentsNewButton.setEnabled(true);
+        attachmentsNewButton.setEnabled(useAttachmentsListRadio.isSelected());
+        useAttachmentsListRadio.setEnabled(true);
+        useAttachmentsTemplateRadio.setEnabled(true);
+        attachmentsTemplateField.setEnabled(useAttachmentsTemplateRadio.isSelected());
 
         attachmentsTable.setRowSelectionAllowed(true);
         if (attachmentsTable.getModel().getRowCount() > 0) {
@@ -1163,6 +1242,9 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         attachmentsTable.setEnabled(false);
         attachmentsNewButton.setEnabled(false);
         attachmentsDeleteButton.setEnabled(false);
+        useAttachmentsListRadio.setEnabled(false);
+        useAttachmentsTemplateRadio.setEnabled(false);
+        attachmentsTemplateField.setEnabled(useAttachmentsTemplateRadio.isSelected());
 
         stopCellEditing();
         attachmentsTable.setRowSelectionAllowed(false);
@@ -1375,6 +1457,9 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     protected JScrollPane headersScrollPane;
     protected JButton headersNewButton;
     protected JButton headersDeleteButton;
+    protected MirthTextField headersTemplateField;
+    protected MirthRadioButton useHeadersTableRadio;
+    protected MirthRadioButton useHeadersTemplateRadio;
     protected JLabel useMtomLabel;
     protected MirthRadioButton useMtomYesRadio;
     protected MirthRadioButton useMtomNoRadio;
@@ -1383,5 +1468,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     protected JScrollPane attachmentsScrollPane;
     protected JButton attachmentsNewButton;
     protected JButton attachmentsDeleteButton;
+    protected MirthTextField attachmentsTemplateField;
+    protected MirthRadioButton useAttachmentsListRadio;
+    protected MirthRadioButton useAttachmentsTemplateRadio;
     protected SSLWarningPanel sslWarningPanel;
 }
