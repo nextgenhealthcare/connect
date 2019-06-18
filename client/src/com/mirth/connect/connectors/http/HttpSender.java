@@ -1468,11 +1468,11 @@ public class HttpSender extends ConnectorSettingsPanel {
         headersDeleteButton.setEnabled(!useVariable && headersTable.getSelectedRow() > -1);
     }
     
-    private void useQueryParamsVariableFieldsEnabled(boolean useTemplate) {
-        queryParamsVariableField.setEnabled(useTemplate);
-        queryParametersTable.setEnabled(!useTemplate);
-        queryParametersNewButton.setEnabled(!useTemplate);
-        queryParametersDeleteButton.setEnabled(!useTemplate && queryParametersTable.getSelectedRow() > -1);
+    private void useQueryParamsVariableFieldsEnabled(boolean useVariable) {
+        queryParamsVariableField.setEnabled(useVariable);
+        queryParametersTable.setEnabled(!useVariable);
+        queryParametersNewButton.setEnabled(!useVariable);
+        queryParametersDeleteButton.setEnabled(!useVariable && queryParametersTable.getSelectedRow() > -1);
     }
     
     private ButtonGroup authenticationButtonGroup;

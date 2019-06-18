@@ -840,7 +840,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseHeadersTable = new MirthTable();
         responseHeadersNewButton = new JButton();
         responseHeadersDeleteButton = new JButton();
-        receiveTimeoutLabel1 = new JLabel();
+        responseStatusCodeLabel = new JLabel();
         responseStatusCodeField = new MirthTextField();
         messageContentXmlBodyRadio = new MirthRadioButton();
         parseMultipartLabel = new JLabel();
@@ -948,7 +948,7 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         responseHeadersVariableField = new MirthTextField();
         
-        receiveTimeoutLabel1.setText("Response Status Code:");
+        responseStatusCodeLabel.setText("Response Status Code:");
 
         responseStatusCodeField.setToolTipText("<html>Enter the status code for the HTTP response.  If this field is left blank a <br>default status code of 200 will be returned for a successful message, <br>and 500 will be returned for an errored message. If a \"Respond from\" <br>value is chosen, that response will be used to determine a successful <br>or errored response.<html>");
 
@@ -1051,152 +1051,48 @@ public class HttpListener extends ConnectorSettingsPanel {
 
     }
 
-    // @formatter:off
     protected void initLayout() {
-        GroupLayout layout = new GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addComponent(receiveTimeoutLabel1, GroupLayout.Alignment.TRAILING)
-                    .addComponent(binaryMimeTypesLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(headersLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(httpUrlLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseDataTypeLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(receiveTimeoutLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(contextPathLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(messageContentLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(staticResourcesLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(includeMetadataLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(charsetEncodingLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseContentTypeLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(parseMultipartLabel, GroupLayout.Alignment.TRAILING))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addComponent(responseHeadersPane)
-                    .addComponent(responseHeadersPane1)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                            .addComponent(responseStatusCodeField, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(httpUrlField, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(responseDataTypeBinaryRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(responseDataTypeTextRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addComponent(receiveTimeoutField, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(contextPathField, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(messageContentPlainBodyRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(messageContentXmlBodyRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(includeMetadataYesRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(includeMetadataNoRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addComponent(charsetEncodingCombobox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(parseMultipartYesRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(parseMultipartNoRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addComponent(responseContentTypeField, GroupLayout.PREFERRED_SIZE, 125, GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(binaryMimeTypesField, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(binaryMimeTypesRegexCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(useResponseHeadersTableRadio)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(useResponseHeadersVariableRadio)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(responseHeadersVariableField, GroupLayout.PREFERRED_SIZE, 125, GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addGroup(GroupLayout.Alignment.TRAILING, layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                        .addComponent(responseHeadersNewButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(responseHeadersDeleteButton))
-                    .addGroup(GroupLayout.Alignment.TRAILING, layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                        .addComponent(staticResourcesNewButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(staticResourcesDeleteButton)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(contextPathLabel)
-                    .addComponent(contextPathField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(receiveTimeoutField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(receiveTimeoutLabel))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(messageContentLabel)
-                    .addComponent(messageContentPlainBodyRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageContentXmlBodyRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(parseMultipartLabel)
-                    .addComponent(parseMultipartYesRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(parseMultipartNoRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(includeMetadataLabel)
-                    .addComponent(includeMetadataYesRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(includeMetadataNoRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(binaryMimeTypesLabel)
-                    .addComponent(binaryMimeTypesField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(binaryMimeTypesRegexCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(httpUrlLabel)
-                    .addComponent(httpUrlField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseContentTypeLabel)
-                    .addComponent(responseContentTypeField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseDataTypeLabel)
-                    .addComponent(responseDataTypeBinaryRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseDataTypeTextRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(charsetEncodingLabel)
-                    .addComponent(charsetEncodingCombobox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(receiveTimeoutLabel1)
-                    .addComponent(responseStatusCodeField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addComponent(headersLabel)
-                    .addComponent(useResponseHeadersTableRadio)
-                    .addComponent(useResponseHeadersVariableRadio)
-                    .addComponent(responseHeadersVariableField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(responseHeadersNewButton)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(responseHeadersDeleteButton))
-                    .addComponent(responseHeadersPane, GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addComponent(staticResourcesLabel)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(staticResourcesNewButton)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(staticResourcesDeleteButton))
-                    .addComponent(responseHeadersPane1, GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-    } // @formatter:on
+        setLayout(new MigLayout("insets 0 8 0 8, novisualpadding, hidemode 3, gap 12 6", "[][]6[]"));
+
+        add(contextPathLabel, "right");
+        add(contextPathField, "w 150!, sx");
+        add(receiveTimeoutLabel, "newline, right");
+        add(receiveTimeoutField, "w 100!, sx");
+        add(messageContentLabel, "newline, right");
+        add(messageContentPlainBodyRadio, "split 2");
+        add(messageContentXmlBodyRadio);
+        add(parseMultipartLabel, "newline, right");
+        add(parseMultipartYesRadio, "split 2");
+        add(parseMultipartNoRadio);
+        add(includeMetadataLabel, "newline, right");
+        add(includeMetadataYesRadio, "split 2");
+        add(includeMetadataNoRadio);
+        add(binaryMimeTypesLabel, "newline, right");
+        add(binaryMimeTypesField, "w 300!, sx, split 3");
+        add(binaryMimeTypesRegexCheckBox);
+        add(httpUrlLabel, "newline, right");
+        add(httpUrlField, "w 250!, sx");
+        add(responseContentTypeLabel, "newline, right");
+        add(responseContentTypeField, "w 125!, sx");
+        add(responseDataTypeLabel, "newline, right");
+        add(responseDataTypeBinaryRadio, "split 2");
+        add(responseDataTypeTextRadio);
+        add(charsetEncodingLabel, "newline, right");
+        add(charsetEncodingCombobox);
+        add(responseStatusCodeLabel, "newline, right");
+        add(responseStatusCodeField, "w 125!");
+        add(headersLabel, "newline, right");
+        add(useResponseHeadersTableRadio, "split 3");
+        add(useResponseHeadersVariableRadio);
+        add(responseHeadersVariableField, "w 125!, sx");
+        add(responseHeadersPane, "newline, growx, pushx, skip 1, span 2, h 150!");
+        add(responseHeadersNewButton, "top, flowy, split 2, w 44!");
+        add(responseHeadersDeleteButton, "w 44!");
+        add(staticResourcesLabel, "newline, right");
+        add(responseHeadersPane1, "growx, pushx, span 2, h 150!");
+        add(staticResourcesNewButton, "top, flowy, split 2, w 44!");
+        add(staticResourcesDeleteButton, "w 44!");
+    }
 
     private void messageContentPlainBodyRadioActionPerformed(ActionEvent evt) {
         parent.channelEditPanel.checkAndSetSourceDataType();
@@ -1324,7 +1220,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     private MirthRadioButton parseMultipartYesRadio;
     protected MirthTextField receiveTimeoutField;
     protected JLabel receiveTimeoutLabel;
-    protected JLabel receiveTimeoutLabel1;
+    protected JLabel responseStatusCodeLabel;
     private MirthTextField responseContentTypeField;
     private JLabel responseContentTypeLabel;
     private MirthRadioButton responseDataTypeBinaryRadio;
