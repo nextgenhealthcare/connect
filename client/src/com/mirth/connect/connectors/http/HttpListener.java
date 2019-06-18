@@ -154,8 +154,8 @@ public class HttpListener extends ConnectorSettingsPanel {
         properties.setResponseStatusCode(responseStatusCodeField.getText());
 
         properties.setResponseHeadersMap(getResponseHeaders());
-        properties.setIsUseHeadersVariable(useResponseHeadersTemplateRadio.isSelected());
-        properties.setResponseHeaderVariable(responseHeadersTemplateField.getText());
+        properties.setIsUseHeadersVariable(useResponseHeadersVariableRadio.isSelected());
+        properties.setResponseHeaderVariable(responseHeadersVariableField.getText());
         
         properties.setStaticResources(getStaticResources());
 
@@ -215,12 +215,12 @@ public class HttpListener extends ConnectorSettingsPanel {
         }
 
         if (props.isUseHeadersVariable()) {
-            useResponseHeadersTemplateRadio.setSelected(true);
+            useResponseHeadersVariableRadio.setSelected(true);
         } else {
             useResponseHeadersTableRadio.setSelected(true);
         }
-        responseHeadersTemplateField.setText(props.getResponseHeaderVariable());
-        useResponseHeadersTemplateFieldsEnabled(props.isUseHeadersVariable());
+        responseHeadersVariableField.setText(props.getResponseHeaderVariable());
+        useResponseHeadersVariableFieldsEnabled(props.isUseHeadersVariable());
         
         if (props.getStaticResources() != null) {
             setStaticResources(props.getStaticResources());
@@ -931,22 +931,22 @@ public class HttpListener extends ConnectorSettingsPanel {
         useResponseHeadersTableRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                useResponseHeadersTemplateFieldsEnabled(false);
+                useResponseHeadersVariableFieldsEnabled(false);
             }
         });
-        useResponseHeadersTemplateRadio = new MirthRadioButton("Use Map:");
-        useResponseHeadersTemplateRadio.setBackground(getBackground());
-        useResponseHeadersTemplateRadio.addActionListener(new ActionListener() {
+        useResponseHeadersVariableRadio = new MirthRadioButton("Use Map:");
+        useResponseHeadersVariableRadio.setBackground(getBackground());
+        useResponseHeadersVariableRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                useResponseHeadersTemplateFieldsEnabled(true);
+                useResponseHeadersVariableFieldsEnabled(true);
             }
         });
         ButtonGroup headersSourceButtonGroup = new ButtonGroup();
         headersSourceButtonGroup.add(useResponseHeadersTableRadio);
-        headersSourceButtonGroup.add(useResponseHeadersTemplateRadio);     
+        headersSourceButtonGroup.add(useResponseHeadersVariableRadio);     
 
-        responseHeadersTemplateField = new MirthTextField();
+        responseHeadersVariableField = new MirthTextField();
         
         receiveTimeoutLabel1.setText("Response Status Code:");
 
@@ -1104,7 +1104,13 @@ public class HttpListener extends ConnectorSettingsPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(binaryMimeTypesField, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(binaryMimeTypesRegexCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(binaryMimeTypesRegexCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(useResponseHeadersTableRadio)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(useResponseHeadersVariableRadio)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(responseHeadersVariableField, GroupLayout.PREFERRED_SIZE, 125, GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -1170,6 +1176,11 @@ public class HttpListener extends ConnectorSettingsPanel {
                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                     .addComponent(headersLabel)
+                    .addComponent(useResponseHeadersTableRadio)
+                    .addComponent(useResponseHeadersVariableRadio)
+                    .addComponent(responseHeadersVariableField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(responseHeadersNewButton)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
@@ -1281,8 +1292,8 @@ public class HttpListener extends ConnectorSettingsPanel {
         charsetEncodingCombobox.setEnabled(true);
     }
     
-    private void useResponseHeadersTemplateFieldsEnabled(boolean useTemplate) {
-        responseHeadersTemplateField.setEnabled(useTemplate);
+    private void useResponseHeadersVariableFieldsEnabled(boolean useTemplate) {
+        responseHeadersVariableField.setEnabled(useTemplate);
         responseHeadersTable.setEnabled(!useTemplate);
         responseHeadersNewButton.setEnabled(!useTemplate);
         responseHeadersDeleteButton.setEnabled(!useTemplate && responseHeadersTable.getSelectedRow() > -1);
@@ -1326,8 +1337,8 @@ public class HttpListener extends ConnectorSettingsPanel {
     private JScrollPane responseHeadersPane1;
     private MirthTable responseHeadersTable;
     private MirthRadioButton useResponseHeadersTableRadio;
-    private MirthRadioButton useResponseHeadersTemplateRadio;
-    private MirthTextField responseHeadersTemplateField;
+    private MirthRadioButton useResponseHeadersVariableRadio;
+    private MirthTextField responseHeadersVariableField;
     private MirthTextField responseStatusCodeField;
     private JButton staticResourcesDeleteButton;
     private JLabel staticResourcesLabel;

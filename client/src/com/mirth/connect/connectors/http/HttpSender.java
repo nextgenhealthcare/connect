@@ -188,12 +188,12 @@ public class HttpSender extends ConnectorSettingsPanel {
         properties.setCharset(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
         properties.setParametersMap(getProperties(queryParametersTable));
-        properties.setUseParametersVariable(useQueryParamsTemplateRadio.isSelected());
-        properties.setParametersVariable(queryParamsTemplateField.getText());
+        properties.setUseParametersVariable(useQueryParamsVariableRadio.isSelected());
+        properties.setParametersVariable(queryParamsVariableField.getText());
         
         properties.setHeadersMap(getProperties(headersTable));
-        properties.setUseHeadersVariable(useHeadersTemplateRadio.isSelected());
-        properties.setHeadersVariable(headersTemplateField.getText());
+        properties.setUseHeadersVariable(useHeadersVariableRadio.isSelected());
+        properties.setHeadersVariable(headersVariableField.getText());
 
         properties.setContentType(contentTypeField.getText());
         properties.setContent(contentTextArea.getText());
@@ -294,12 +294,12 @@ public class HttpSender extends ConnectorSettingsPanel {
             setParameters(new LinkedHashMap<String, List<String>>());
         }
         if (props.isUseParametersVariable()) {
-            useQueryParamsTemplateRadio.setSelected(true);
+            useQueryParamsVariableRadio.setSelected(true);
         } else {
             useQueryParamsTableRadio.setSelected(true);
         }
-        queryParamsTemplateField.setText(props.getParametersVariable());
-        useQueryParamsTemplateFieldsEnabled(props.isUseParametersVariable());
+        queryParamsVariableField.setText(props.getParametersVariable());
+        useQueryParamsVariableFieldsEnabled(props.isUseParametersVariable());
 
         if (props.getHeadersMap() != null) {
             setHeaders(props.getHeadersMap());
@@ -307,12 +307,12 @@ public class HttpSender extends ConnectorSettingsPanel {
             setHeaders(new LinkedHashMap<String, List<String>>());
         }
         if (props.isUseHeadersVariable()) {
-            useHeadersTemplateRadio.setSelected(true);
+            useHeadersVariableRadio.setSelected(true);
         } else {
             useHeadersTableRadio.setSelected(true);
         }
-        headersTemplateField.setText(props.getHeadersVariable());
-        useHeadersTemplateFieldsEnabled(props.isUseHeadersVariable());
+        headersVariableField.setText(props.getHeadersVariable());
+        useHeadersVariableFieldsEnabled(props.isUseHeadersVariable());
 
         contentTypeField.setText(props.getContentType());
 
@@ -813,9 +813,9 @@ public class HttpSender extends ConnectorSettingsPanel {
         queryParametersPane = new JScrollPane();
         queryParametersTable = new MirthTable();
         queryParametersLabel = new JLabel();
-        queryParamsTemplateField = new MirthTextField();
+        queryParamsVariableField = new MirthTextField();
         useQueryParamsTableRadio = new MirthRadioButton();
-        useQueryParamsTemplateRadio = new MirthRadioButton();
+        useQueryParamsVariableRadio = new MirthRadioButton();
         methodLabel = new JLabel();
         postButton = new MirthRadioButton();
         getButton = new MirthRadioButton();
@@ -824,9 +824,9 @@ public class HttpSender extends ConnectorSettingsPanel {
         headersLabel = new JLabel();
         headersNewButton = new JButton();
         headersDeleteButton = new JButton();
-        headersTemplateField = new MirthTextField();
+        headersVariableField = new MirthTextField();
         useHeadersTableRadio = new MirthRadioButton();
-        useHeadersTemplateRadio = new MirthRadioButton();
+        useHeadersVariableRadio = new MirthRadioButton();
         responseContentLabel = new JLabel();
         responseContentXmlBodyRadio = new MirthRadioButton();
         responseContentPlainBodyRadio = new MirthRadioButton();
@@ -913,18 +913,18 @@ public class HttpSender extends ConnectorSettingsPanel {
         useQueryParamsTableRadio.setText("Use Table");
         useQueryParamsTableRadio.setBackground(new Color(255, 255, 255));
         useQueryParamsTableRadio.addActionListener(event -> {
-            useQueryParamsTemplateFieldsEnabled(false);
+            useQueryParamsVariableFieldsEnabled(false);
         });
         
-        useQueryParamsTemplateRadio.setText("Use Map:");
-        useQueryParamsTemplateRadio.setBackground(new Color(255, 255, 255));
-        useQueryParamsTemplateRadio.addActionListener(event -> {
-            useQueryParamsTemplateFieldsEnabled(true);
+        useQueryParamsVariableRadio.setText("Use Map:");
+        useQueryParamsVariableRadio.setBackground(new Color(255, 255, 255));
+        useQueryParamsVariableRadio.addActionListener(event -> {
+            useQueryParamsVariableFieldsEnabled(true);
         });
         
         ButtonGroup queryParamsButtonGroup = new ButtonGroup();
         queryParamsButtonGroup.add(useQueryParamsTableRadio);
-        queryParamsButtonGroup.add(useQueryParamsTemplateRadio);
+        queryParamsButtonGroup.add(useQueryParamsVariableRadio);
 
         methodLabel.setText("Method:");
 
@@ -979,18 +979,18 @@ public class HttpSender extends ConnectorSettingsPanel {
         useHeadersTableRadio.setText("Use Table");
         useHeadersTableRadio.setBackground(new Color(255, 255, 255));
         useHeadersTableRadio.addActionListener(event -> {
-            useHeadersTemplateFieldsEnabled(false);
+            useHeadersVariableFieldsEnabled(false);
         });
         
-        useHeadersTemplateRadio.setText("Use Map:");
-        useHeadersTemplateRadio.setBackground(new Color(255, 255, 255));
-        useHeadersTemplateRadio.addActionListener(event -> {
-            useHeadersTemplateFieldsEnabled(true);
+        useHeadersVariableRadio.setText("Use Map:");
+        useHeadersVariableRadio.setBackground(new Color(255, 255, 255));
+        useHeadersVariableRadio.addActionListener(event -> {
+            useHeadersVariableFieldsEnabled(true);
         });
         
         ButtonGroup headersButtonGroup = new ButtonGroup();
         headersButtonGroup.add(useHeadersTableRadio);
-        headersButtonGroup.add(useHeadersTemplateRadio);
+        headersButtonGroup.add(useHeadersVariableRadio);
         
         responseContentLabel.setText("Response Content:");
 
@@ -1282,15 +1282,15 @@ public class HttpSender extends ConnectorSettingsPanel {
         add(passwordField, "w 125!, sx");
         add(queryParametersLabel, "newline, right");
         add(useQueryParamsTableRadio, "split 3");
-        add(useQueryParamsTemplateRadio);
-        add(queryParamsTemplateField, "w 125!, sx");
+        add(useQueryParamsVariableRadio);
+        add(queryParamsVariableField, "w 125!, sx");
         add(queryParametersPane, "newline, growx, pushx, skip 1, span 2, h 150!");
         add(queryParametersNewButton, "top, flowy, split 2, w 44!");
         add(queryParametersDeleteButton, "w 44!");
         add(headersLabel, "newline, right");
         add(useHeadersTableRadio, "split 3");
-        add(useHeadersTemplateRadio);
-        add(headersTemplateField, "w 125!, sx");
+        add(useHeadersVariableRadio);
+        add(headersVariableField, "w 125!, sx");
         add(headersPane, "newline, growx, pushx, skip 1, span 2, h 150!");
         add(headersNewButton, "top, flowy, split 2, w 44!");
         add(headersDeleteButton, "w 44!");
@@ -1461,15 +1461,15 @@ public class HttpSender extends ConnectorSettingsPanel {
         }
     }
     
-    private void useHeadersTemplateFieldsEnabled(boolean useTemplate) {
-        headersTemplateField.setEnabled(useTemplate);
-        headersTable.setEnabled(!useTemplate);
-        headersNewButton.setEnabled(!useTemplate);
-        headersDeleteButton.setEnabled(!useTemplate && headersTable.getSelectedRow() > -1);
+    private void useHeadersVariableFieldsEnabled(boolean useVariable) {
+        headersVariableField.setEnabled(useVariable);
+        headersTable.setEnabled(!useVariable);
+        headersNewButton.setEnabled(!useVariable);
+        headersDeleteButton.setEnabled(!useVariable && headersTable.getSelectedRow() > -1);
     }
     
-    private void useQueryParamsTemplateFieldsEnabled(boolean useTemplate) {
-        queryParamsTemplateField.setEnabled(useTemplate);
+    private void useQueryParamsVariableFieldsEnabled(boolean useTemplate) {
+        queryParamsVariableField.setEnabled(useTemplate);
         queryParametersTable.setEnabled(!useTemplate);
         queryParametersNewButton.setEnabled(!useTemplate);
         queryParametersDeleteButton.setEnabled(!useTemplate && queryParametersTable.getSelectedRow() > -1);
@@ -1501,9 +1501,9 @@ public class HttpSender extends ConnectorSettingsPanel {
     private JButton headersNewButton;
     private JScrollPane headersPane;
     private MirthTable headersTable;
-    protected MirthTextField headersTemplateField;
+    protected MirthTextField headersVariableField;
     protected MirthRadioButton useHeadersTableRadio;
-    protected MirthRadioButton useHeadersTemplateRadio;
+    protected MirthRadioButton useHeadersVariableRadio;
     private ButtonGroup includeMetadataButtonGroup;
     private JLabel includeMetadataLabel;
     private MirthRadioButton includeMetadataNoRadio;
@@ -1533,9 +1533,9 @@ public class HttpSender extends ConnectorSettingsPanel {
     private JButton queryParametersNewButton;
     private JScrollPane queryParametersPane;
     private MirthTable queryParametersTable;
-    protected MirthTextField queryParamsTemplateField;
+    protected MirthTextField queryParamsVariableField;
     protected MirthRadioButton useQueryParamsTableRadio;
-    protected MirthRadioButton useQueryParamsTemplateRadio;
+    protected MirthRadioButton useQueryParamsVariableRadio;
     private MirthTextField responseBinaryMimeTypesField;
     private JLabel responseBinaryMimeTypesLabel;
     private MirthCheckBox responseBinaryMimeTypesRegexCheckBox;
