@@ -1298,7 +1298,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         add(charsetEncodingLabel, "newline, right");
         add(charsetEncodingCombobox);
         add(contentLabel, "newline, top, right");
-        add(contentTextArea, "grow, push, sx, h 89:");
+        add(contentTextArea, "grow, push, sx, h 132:");
     }
 
     private void headersDeleteButtonActionPerformed(ActionEvent evt) {
