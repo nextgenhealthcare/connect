@@ -41,8 +41,6 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -82,6 +80,8 @@ import com.mirth.connect.plugins.httpauth.oauth2.OAuth2HttpAuthProperties;
 import com.mirth.connect.plugins.httpauth.oauth2.OAuth2HttpAuthProperties.TokenLocation;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 
+import net.miginfocom.swing.MigLayout;
+
 public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertiesPanel {
 
     private static final String SCRIPT_DEFAULT = "<Default Script Set>";
@@ -93,6 +93,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
 
     public HttpAuthConnectorPropertiesPanel() {
         initComponents();
+        initToolTips();
         initLayout();
     }
 
@@ -781,6 +782,16 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             }
         }
     }
+    
+    private void initToolTips() {
+        useBasicCredentialsTableRadio.setToolTipText("<html>The table below will be used to populate credentials.</html>");
+        useBasicCredentialsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate credentials.<br/>The map must have String keys and String values.</html>");
+        basicCredentailsVariableField.setToolTipText("<html>The variable of a Java map to use to populate credentials.<br/>The map must have String keys and String values.</html>");
+        
+        useDigestCredentialsTableRadio.setToolTipText("<html>The table below will be used to populate credentials.</html>");
+        useDigestCredentialsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate credentials.<br/>The map must have String keys and String values.</html>");
+        digestCredentailsVariableField.setToolTipText("<html>The variable of a Java map to use to populate credentials.<br/>The map must have String keys and String values.</html>");
+    }
 
     private void initLayout() {
         setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3", "[]12[]", ""));
@@ -791,7 +802,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         add(basicRealmLabel, "newline, right");
         add(basicRealmField, "w 164!");
 
-        add(basicCredentialsLabel, "newline, top, right");
+        add(basicCredentialsLabel, "newline, right");
         add(useBasicCredentialsTableRadio, "split 3");
         add(useBasicCredentialsVariableRadio);
         add(basicCredentailsVariableField, "w 125");
@@ -816,7 +827,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         add(digestOpaqueLabel, "newline, right");
         add(digestOpaqueField, "w 200!");
 
-        add(digestCredentialsLabel, "newline, top, right");
+        add(digestCredentialsLabel, "newline, right");
         add(useDigestCredentialsTableRadio, "split 3");
         add(useDigestCredentialsVariableRadio);
         add(digestCredentailsVariableField, "w 125");

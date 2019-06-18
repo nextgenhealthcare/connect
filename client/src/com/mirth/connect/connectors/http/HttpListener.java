@@ -124,6 +124,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     public HttpListener() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        initToolTips();
         initLayout();
         initComponentsManual();
         httpUrlField.setEditable(false);
@@ -1047,6 +1048,12 @@ public class HttpListener extends ConnectorSettingsPanel {
         binaryMimeTypesRegexCheckBox.setText("Regular Expression");
         binaryMimeTypesRegexCheckBox.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
 
+    }
+    
+    protected void initToolTips() {
+        useResponseHeadersTableRadio.setToolTipText("<html>The table below will be used to populate response headers.</html>");
+        useResponseHeadersVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate response headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
+        responseHeadersVariableField.setToolTipText("<html>The variable of a Java map to use to populate response headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
     }
 
     protected void initLayout() {

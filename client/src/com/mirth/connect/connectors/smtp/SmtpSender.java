@@ -814,6 +814,14 @@ public class SmtpSender extends ConnectorSettingsPanel {
         toolTipText = "Selects whether HTML tags can be used in the email message body.";
         htmlYes.setToolTipText(toolTipText);
         htmlNo.setToolTipText(toolTipText);
+        
+        useHeadersTableRadio.setToolTipText("<html>The table below will be used to populate headers.</html>");
+        useHeadersVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
+        headersVariableField.setToolTipText("<html>The variable of a Java map to use to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
+        
+        useAttachmentsListRadio.setToolTipText("<html>The table below will be used to populate attachments.</html>");
+        useAttachmentsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate attachments.<br/>The map must have String keys and AttachmentEntry values.</html>");
+        attachmentsVariableField.setToolTipText("<html>The variable of a Java map to use to populate attachments.<br/>The map must have String keys and AttachmentEntry values.</html>");
     }
 
     private void initLayout() {

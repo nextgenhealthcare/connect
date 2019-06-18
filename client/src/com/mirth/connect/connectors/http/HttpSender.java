@@ -132,6 +132,7 @@ public class HttpSender extends ConnectorSettingsPanel {
             }
         });
         
+        initToolTips();
         initLayout();
     }
 
@@ -1231,6 +1232,16 @@ public class HttpSender extends ConnectorSettingsPanel {
                 patchButtonActionPerformed(evt);
             }
         });
+    }
+    
+    private void initToolTips() {
+        useQueryParamsTableRadio.setToolTipText("<html>The table below will be used to populate query parameters.</html>");
+        useQueryParamsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate query parameters.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
+        queryParamsVariableField.setToolTipText("<html>The variable of a Java map to use to populate query parameters.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
+        
+        useHeadersTableRadio.setToolTipText("<html>The table below will be used to populate headers.</html>");
+        useHeadersVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
+        headersVariableField.setToolTipText("<html>The variable of a Java map to use to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
     }
     
     private void initLayout() {

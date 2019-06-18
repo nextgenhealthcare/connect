@@ -985,9 +985,15 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         operationComboBox.setToolTipText("<html>Select the web service operation to be called from this list.<br>This is only used for generating the envelope</html>");
         generateEnvelopeButton.setToolTipText("<html>Clicking this button regenerates the contents of the SOAP Envelope control based on the<br>schema defined in the WSDL, discarding any changes that may have been made.<br>It also populates the SOAP Action field, if available.</html>");
         soapActionField.setToolTipText("<html>The SOAPAction HTTP request header field can be used to indicate the intent of the SOAP HTTP request.<br>This field is optional for most web services, and will be auto-populated when you select an operation.</html>");
+        useHeadersTableRadio.setToolTipText("<html>The table below will be used to populate headers.</html>");
+        useHeadersVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
+        headersVariableField.setToolTipText("<html>The variable of a Java map to use to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");        
         headersTable.setToolTipText("Header parameters are encoded as HTTP headers in the HTTP request sent to the server.");
         useMtomYesRadio.setToolTipText("<html>Enables MTOM on the SOAP Binding. If MTOM is enabled,<br>attachments can be added to the table below and dropped into the envelope.</html>");
         useMtomNoRadio.setToolTipText("<html>Does not enable MTOM on the SOAP Binding. If MTOM is enabled,<br>attachments can be added to the table below and dropped into the envelope.</html>");
+        useAttachmentsListRadio.setToolTipText("<html>The table below will be used to populate attachments.</html>");
+        useAttachmentsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate attachments.<br/>The map must have String keys and AttachmentEntry values.</html>");
+        attachmentsVariableField.setToolTipText("<html>The variable of a Java map to use to populate attachments.<br/>The map must have String keys and AttachmentEntry values.</html>");
         attachmentsTable.setToolTipText("<html>Attachments should be added with an ID, Base64 encoded content,<br>and a valid MIME type. Once an attachment is added<br>the row can be dropped into an argument in the envelope.</html>");
     }
 
