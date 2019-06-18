@@ -10,7 +10,6 @@
 package com.mirth.connect.connectors.http;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -32,7 +31,6 @@ import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -1259,6 +1257,12 @@ public class HttpSender extends ConnectorSettingsPanel {
         add(multipartNoButton);
         add(sendTimeoutLabel, "newline, right");
         add(sendTimeoutField, "w 75!, sx");
+        add(responseContentLabel, "newline, right");
+        add(responseContentPlainBodyRadio, "split 2");
+        add(responseContentXmlBodyRadio);
+        add(parseMultipartLabel, "newline, right");
+        add(parseMultipartYesRadio, "split 2");
+        add(parseMultipartNoRadio);
         add(includeMetadataLabel, "newline, right");
         add(includeMetadataYesRadio, "split 2");
         add(includeMetadataNoRadio);
