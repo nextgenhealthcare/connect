@@ -866,7 +866,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         messageContentPlainBodyRadio.setBackground(new Color(255, 255, 255));
         includeHeadersGroup.add(messageContentPlainBodyRadio);
         messageContentPlainBodyRadio.setText("Plain Body");
-        messageContentPlainBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as a raw string.</html>");
         messageContentPlainBodyRadio.setMargin(new Insets(0, 0, 0, 0));
         messageContentPlainBodyRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -876,19 +875,15 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         messageContentLabel.setText("Message Content:");
 
-        responseContentTypeField.setToolTipText("The MIME type to be used for the response.");
-
         responseContentTypeLabel.setText("Response Content Type:");
 
         charsetEncodingCombobox.setModel(new DefaultComboBoxModel<String>(new String[] { "default",
                 "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
-        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding to be used for the response to the sending system.<br>Set to Default to assume the default character set encoding for the JVM running Mirth Connect.</html>");
 
         charsetEncodingLabel.setText("Charset Encoding:");
 
         contextPathLabel.setText("Base Context Path:");
 
-        contextPathField.setToolTipText("The context path for the HTTP Listener URL.");
         contextPathField.addKeyListener(new KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 contextPathFieldKeyReleased(evt);
@@ -897,10 +892,6 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         receiveTimeoutLabel.setText("Receive Timeout (ms):");
 
-        receiveTimeoutField.setToolTipText("Enter the maximum idle time in milliseconds for a connection.");
-
-        httpUrlField.setToolTipText("<html>Displays the generated HTTP URL for the HTTP Listener.</html>");
-
         httpUrlLabel.setText("HTTP URL:");
 
         headersLabel.setText("Response Headers:");
@@ -908,7 +899,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseHeadersTable.setModel(new DefaultTableModel(new Object[][] {
 
         }, new String[] { "Name", "Value" }));
-        responseHeadersTable.setToolTipText("Response header parameters are encoded as HTTP headers in the response sent to the client.");
         responseHeadersPane.setViewportView(responseHeadersTable);
 
         responseHeadersNewButton.setText("New");
@@ -949,12 +939,9 @@ public class HttpListener extends ConnectorSettingsPanel {
         
         responseStatusCodeLabel.setText("Response Status Code:");
 
-        responseStatusCodeField.setToolTipText("<html>Enter the status code for the HTTP response.  If this field is left blank a <br>default status code of 200 will be returned for a successful message, <br>and 500 will be returned for an errored message. If a \"Respond from\" <br>value is chosen, that response will be used to determine a successful <br>or errored response.<html>");
-
         messageContentXmlBodyRadio.setBackground(new Color(255, 255, 255));
         includeHeadersGroup.add(messageContentXmlBodyRadio);
         messageContentXmlBodyRadio.setText("XML Body");
-        messageContentXmlBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as serialized XML.</html>");
         messageContentXmlBodyRadio.setMargin(new Insets(0, 0, 0, 0));
         messageContentXmlBodyRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -967,13 +954,11 @@ public class HttpListener extends ConnectorSettingsPanel {
         parseMultipartYesRadio.setBackground(new Color(255, 255, 255));
         parseMultipartButtonGroup.add(parseMultipartYesRadio);
         parseMultipartYesRadio.setText("Yes");
-        parseMultipartYesRadio.setToolTipText("<html>Select Yes to automatically parse multipart requests into separate XML nodes.<br/>Select No to always keep the request body as a single XML node.</html>");
         parseMultipartYesRadio.setMargin(new Insets(0, 0, 0, 0));
 
         parseMultipartNoRadio.setBackground(new Color(255, 255, 255));
         parseMultipartButtonGroup.add(parseMultipartNoRadio);
         parseMultipartNoRadio.setText("No");
-        parseMultipartNoRadio.setToolTipText("<html>Select Yes to automatically parse multipart requests into separate XML nodes.<br/>Select No to always keep the request body as a single XML node.</html>");
         parseMultipartNoRadio.setMargin(new Insets(0, 0, 0, 0));
 
         includeMetadataLabel.setText("Include Metadata:");
@@ -981,13 +966,11 @@ public class HttpListener extends ConnectorSettingsPanel {
         includeMetadataYesRadio.setBackground(new Color(255, 255, 255));
         includeMetadataButtonGroup.add(includeMetadataYesRadio);
         includeMetadataYesRadio.setText("Yes");
-        includeMetadataYesRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
         includeMetadataYesRadio.setMargin(new Insets(0, 0, 0, 0));
 
         includeMetadataNoRadio.setBackground(new Color(255, 255, 255));
         includeMetadataButtonGroup.add(includeMetadataNoRadio);
         includeMetadataNoRadio.setText("No");
-        includeMetadataNoRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
         includeMetadataNoRadio.setMargin(new Insets(0, 0, 0, 0));
 
         staticResourcesLabel.setText("Static Resources:");
@@ -1011,7 +994,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         }, new String[] {
 
         }));
-        staticResourcesTable.setToolTipText("<html>Values in this table are automatically sent back to any request<br/>with the matching context path. There are three resource types:<br/> - <b>File</b>: The value field specifies the path of the file to return.<br/> - <b>Directory</b>: Any file within the directory given by the value<br/>&nbsp;&nbsp;&nbsp;field may be requested, but subdirectories are not included.<br/> - <b>Custom</b>: The value field itself is returned as the response.<br/></html>");
         responseHeadersPane1.setViewportView(staticResourcesTable);
 
         responseDataTypeLabel.setText("Response Data Type:");
@@ -1019,7 +1001,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseDataTypeBinaryRadio.setBackground(new Color(255, 255, 255));
         responseDataTypeButtonGroup.add(responseDataTypeBinaryRadio);
         responseDataTypeBinaryRadio.setText("Binary");
-        responseDataTypeBinaryRadio.setToolTipText("<html>If Binary is selected, responses will be decoded from Base64 into raw byte streams.<br/>If Text is selected, responses will be encoded with the specified character set encoding.</html>");
         responseDataTypeBinaryRadio.setMargin(new Insets(0, 0, 0, 0));
         responseDataTypeBinaryRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1030,7 +1011,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseDataTypeTextRadio.setBackground(new Color(255, 255, 255));
         responseDataTypeButtonGroup.add(responseDataTypeTextRadio);
         responseDataTypeTextRadio.setText("Text");
-        responseDataTypeTextRadio.setToolTipText("<html>If Binary is selected, responses will be decoded from Base64 into raw byte streams.<br/>If Text is selected, responses will be encoded with the specified character set encoding.</html>");
         responseDataTypeTextRadio.setMargin(new Insets(0, 0, 0, 0));
         responseDataTypeTextRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1040,17 +1020,32 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         binaryMimeTypesLabel.setText("Binary MIME Types:");
 
-        binaryMimeTypesField.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
         binaryMimeTypesField.setMinimumSize(new java.awt.Dimension(200, 21));
         binaryMimeTypesField.setPreferredSize(new java.awt.Dimension(200, 21));
 
         binaryMimeTypesRegexCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         binaryMimeTypesRegexCheckBox.setText("Regular Expression");
-        binaryMimeTypesRegexCheckBox.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
-
     }
     
     protected void initToolTips() {
+        messageContentPlainBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as a raw string.</html>");
+        responseContentTypeField.setToolTipText("The MIME type to be used for the response.");
+        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding to be used for the response to the sending system.<br>Set to Default to assume the default character set encoding for the JVM running Mirth Connect.</html>");
+        contextPathField.setToolTipText("The context path for the HTTP Listener URL.");
+        receiveTimeoutField.setToolTipText("Enter the maximum idle time in milliseconds for a connection.");
+        httpUrlField.setToolTipText("<html>Displays the generated HTTP URL for the HTTP Listener.</html>");
+        responseHeadersTable.setToolTipText("Response header parameters are encoded as HTTP headers in the response sent to the client.");
+        responseStatusCodeField.setToolTipText("<html>Enter the status code for the HTTP response.  If this field is left blank a <br>default status code of 200 will be returned for a successful message, <br>and 500 will be returned for an errored message. If a \"Respond from\" <br>value is chosen, that response will be used to determine a successful <br>or errored response.<html>");
+        messageContentXmlBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as serialized XML.</html>");
+        parseMultipartYesRadio.setToolTipText("<html>Select Yes to automatically parse multipart requests into separate XML nodes.<br/>Select No to always keep the request body as a single XML node.</html>");
+        parseMultipartNoRadio.setToolTipText("<html>Select Yes to automatically parse multipart requests into separate XML nodes.<br/>Select No to always keep the request body as a single XML node.</html>");
+        includeMetadataYesRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
+        includeMetadataNoRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
+        staticResourcesTable.setToolTipText("<html>Values in this table are automatically sent back to any request<br/>with the matching context path. There are three resource types:<br/> - <b>File</b>: The value field specifies the path of the file to return.<br/> - <b>Directory</b>: Any file within the directory given by the value<br/>&nbsp;&nbsp;&nbsp;field may be requested, but subdirectories are not included.<br/> - <b>Custom</b>: The value field itself is returned as the response.<br/></html>");
+        responseDataTypeBinaryRadio.setToolTipText("<html>If Binary is selected, responses will be decoded from Base64 into raw byte streams.<br/>If Text is selected, responses will be encoded with the specified character set encoding.</html>");
+        responseDataTypeTextRadio.setToolTipText("<html>If Binary is selected, responses will be decoded from Base64 into raw byte streams.<br/>If Text is selected, responses will be encoded with the specified character set encoding.</html>");
+        binaryMimeTypesField.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
+        binaryMimeTypesRegexCheckBox.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
         useResponseHeadersTableRadio.setToolTipText("<html>The table below will be used to populate response headers.</html>");
         useResponseHeadersVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate response headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
         responseHeadersVariableField.setToolTipText("<html>The variable of a Java map to use to populate response headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");

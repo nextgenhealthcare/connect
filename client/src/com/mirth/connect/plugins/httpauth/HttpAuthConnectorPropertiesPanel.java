@@ -408,11 +408,9 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
                 authTypeChanged();
             }
         });
-        typeComboBox.setToolTipText("Select the type of HTTP authentication to perform for incoming requests.");
-
+        
         basicRealmLabel = new JLabel("Realm:");
         basicRealmField = new MirthTextField();
-        basicRealmField.setToolTipText("The protection space for this server.");
         basicCredentialsLabel = new JLabel("Credentials:");
 
         basicCredentialsPanel = new JPanel();
@@ -430,7 +428,6 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         basicCredentialsTable.setSortable(false);
         basicCredentialsTable.getTableHeader().setReorderingAllowed(false);
         basicCredentialsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        basicCredentialsTable.setToolTipText("<html>Username and password pairs to authenticate<br/>users with. At least one pair is required.</html>");
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
@@ -439,10 +436,8 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
 
         CredentialsTableCellEditor basicCredentialsTableCellEditor = new CredentialsTableCellEditor(basicCredentialsTable);
         basicCredentialsTable.getColumnExt(0).setCellEditor(basicCredentialsTableCellEditor);
-        basicCredentialsTable.getColumnExt(0).setToolTipText("The username to authenticate with.");
         basicCredentialsTable.getColumnExt(1).setCellRenderer(new PasswordCellRenderer());
         basicCredentialsTable.getColumnExt(1).setCellEditor(new DefaultCellEditor(new JPasswordField()));
-        basicCredentialsTable.getColumnExt(1).setToolTipText("The password to authenticate with.");
 
         basicCredentialsTableScrollPane = new JScrollPane(basicCredentialsTable);
 
@@ -521,41 +516,32 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
 
         digestRealmLabel = new JLabel("Realm:");
         digestRealmField = new MirthTextField();
-        digestRealmField.setToolTipText("The protection space for this server.");
 
         digestAlgorithmLabel = new JLabel("Algorithms:");
         ButtonGroup digestAlgorithmButtonGroup = new ButtonGroup();
-        String toolTipText = "<html>Specifies the digest algorithms supported by this server.<br/><b>&nbsp;- MD5:</b> The security data A1 will contain the username, realm, and password.<br/><b>&nbsp;- MD5-sess:</b> The security data A1 will also contain the server and client nonces.</html>";
 
         digestAlgorithmMD5Radio = new MirthRadioButton(Algorithm.MD5.toString());
         digestAlgorithmMD5Radio.setBackground(getBackground());
-        digestAlgorithmMD5Radio.setToolTipText(toolTipText);
         digestAlgorithmButtonGroup.add(digestAlgorithmMD5Radio);
 
         digestAlgorithmMD5SessRadio = new MirthRadioButton(Algorithm.MD5_SESS.toString());
         digestAlgorithmMD5SessRadio.setBackground(getBackground());
-        digestAlgorithmMD5SessRadio.setToolTipText(toolTipText);
         digestAlgorithmButtonGroup.add(digestAlgorithmMD5SessRadio);
 
         digestAlgorithmBothRadio = new MirthRadioButton("Both");
         digestAlgorithmBothRadio.setBackground(getBackground());
-        digestAlgorithmBothRadio.setToolTipText(toolTipText);
         digestAlgorithmButtonGroup.add(digestAlgorithmBothRadio);
 
         digestQOPLabel = new JLabel("QOP Modes:");
-        toolTipText = "<html>The quality of protection modes to support.<br/><b>&nbsp;- auth:</b> Regular auth with client nonce and count in the digest.<br/><b>&nbsp;- auth-int:</b> Same as auth, but also with message integrity protection enabled.</html>";
 
         digestQOPAuthCheckBox = new MirthCheckBox(QOPMode.AUTH.toString());
         digestQOPAuthCheckBox.setBackground(getBackground());
-        digestQOPAuthCheckBox.setToolTipText(toolTipText);
 
         digestQOPAuthIntCheckBox = new MirthCheckBox(QOPMode.AUTH_INT.toString());
         digestQOPAuthIntCheckBox.setBackground(getBackground());
-        digestQOPAuthIntCheckBox.setToolTipText(toolTipText);
 
         digestOpaqueLabel = new JLabel("Opaque:");
         digestOpaqueField = new MirthTextField();
-        digestOpaqueField.setToolTipText("A string of data that should be returned by the client unchanged.");
         digestCredentialsLabel = new JLabel("Credentials:");
 
         digestCredentialsPanel = new JPanel();
@@ -573,7 +559,6 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         digestCredentialsTable.setSortable(false);
         digestCredentialsTable.getTableHeader().setReorderingAllowed(false);
         digestCredentialsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        digestCredentialsTable.setToolTipText("<html>Username and password pairs to authenticate<br/>users with. At least one pair is required.</html>");
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
@@ -582,10 +567,8 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
 
         CredentialsTableCellEditor digestCredentialsTableCellEditor = new CredentialsTableCellEditor(digestCredentialsTable);
         digestCredentialsTable.getColumnExt(0).setCellEditor(digestCredentialsTableCellEditor);
-        digestCredentialsTable.getColumnExt(0).setToolTipText("The username to authenticate with.");
         digestCredentialsTable.getColumnExt(1).setCellRenderer(new PasswordCellRenderer());
         digestCredentialsTable.getColumnExt(1).setCellEditor(new DefaultCellEditor(new JPasswordField()));
-        digestCredentialsTable.getColumnExt(1).setToolTipText("The password to authenticate with.");
 
         digestCredentialsTableScrollPane = new JScrollPane(digestCredentialsTable);
 
@@ -677,11 +660,9 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
                 }
             }
         });
-        jsScriptField.setToolTipText("<html>Click here to open the JavaScript editor dialog.<br/>The return value of this script is used to accept or reject requests.</html>");
 
         customClassNameLabel = new JLabel("Class Name:");
         customClassNameField = new MirthTextField();
-        customClassNameField.setToolTipText("The fully-qualified Java class name of the Authenticator class to use.");
         customPropertiesLabel = new JLabel("Properties:");
 
         customPropertiesPanel = new JPanel();
@@ -698,7 +679,6 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         customPropertiesTable.setSortable(false);
         customPropertiesTable.getTableHeader().setReorderingAllowed(false);
         customPropertiesTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        customPropertiesTable.setToolTipText("Optional properties to pass into the Authenticator class when it is instantiated.");
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
@@ -707,8 +687,6 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
 
         CredentialsTableCellEditor customPropertiesTableCellEditor = new CredentialsTableCellEditor(customPropertiesTable);
         customPropertiesTable.getColumnExt(0).setCellEditor(customPropertiesTableCellEditor);
-        customPropertiesTable.getColumnExt(0).setToolTipText("The name of the property to include.");
-        customPropertiesTable.getColumnExt(1).setToolTipText("The value of the property to include.");
 
         customPropertiesTableScrollPane = new JScrollPane(customPropertiesTable);
 
@@ -767,14 +745,11 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
 
         oauth2TokenLocationComboBox = new MirthComboBox();
         oauth2TokenLocationComboBox.setModel(new DefaultComboBoxModel<TokenLocation>(TokenLocation.values()));
-        oauth2TokenLocationComboBox.setToolTipText("Determines where the access token is located in client requests.");
 
         oauth2TokenField = new MirthTextField();
-        oauth2TokenField.setToolTipText("The header or query parameter to pass along with the verification request.");
 
         oauth2VerificationURLLabel = new JLabel("Verification URL:");
         oauth2VerificationURLField = new MirthTextField();
-        oauth2VerificationURLField.setToolTipText("<html>The HTTP URL to perform a GET request to for access<br/>token verification. If the response code is >= 400,<br/>the authentication attempt is rejected by the server.</html>");
 
         for (ConnectorPropertiesPlugin connectorPropertiesPlugin : LoadedExtensions.getInstance().getConnectorPropertiesPlugins().values()) {
             if (connectorPropertiesPlugin.isConnectorPropertiesPluginSupported(HttpAuthConnectorPluginProperties.PLUGIN_POINT)) {
@@ -784,6 +759,35 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
     }
     
     private void initToolTips() {
+        typeComboBox.setToolTipText("Select the type of HTTP authentication to perform for incoming requests.");
+        basicRealmField.setToolTipText("The protection space for this server.");
+        basicCredentialsTable.setToolTipText("<html>Username and password pairs to authenticate<br/>users with. At least one pair is required.</html>");
+        basicCredentialsTable.getColumnExt(0).setToolTipText("The username to authenticate with.");
+        basicCredentialsTable.getColumnExt(1).setToolTipText("The password to authenticate with.");
+        digestRealmField.setToolTipText("The protection space for this server.");
+        
+        String toolTipText = "<html>Specifies the digest algorithms supported by this server.<br/><b>&nbsp;- MD5:</b> The security data A1 will contain the username, realm, and password.<br/><b>&nbsp;- MD5-sess:</b> The security data A1 will also contain the server and client nonces.</html>";
+        digestAlgorithmMD5Radio.setToolTipText(toolTipText);
+        digestAlgorithmMD5SessRadio.setToolTipText(toolTipText);
+        digestAlgorithmBothRadio.setToolTipText(toolTipText);
+        
+        toolTipText = "<html>The quality of protection modes to support.<br/><b>&nbsp;- auth:</b> Regular auth with client nonce and count in the digest.<br/><b>&nbsp;- auth-int:</b> Same as auth, but also with message integrity protection enabled.</html>";
+        digestQOPAuthCheckBox.setToolTipText(toolTipText);
+        digestQOPAuthIntCheckBox.setToolTipText(toolTipText);
+        
+        digestOpaqueField.setToolTipText("A string of data that should be returned by the client unchanged.");
+        digestCredentialsTable.setToolTipText("<html>Username and password pairs to authenticate<br/>users with. At least one pair is required.</html>");
+        digestCredentialsTable.getColumnExt(0).setToolTipText("The username to authenticate with.");
+        digestCredentialsTable.getColumnExt(1).setToolTipText("The password to authenticate with.");
+        jsScriptField.setToolTipText("<html>Click here to open the JavaScript editor dialog.<br/>The return value of this script is used to accept or reject requests.</html>");
+        customClassNameField.setToolTipText("The fully-qualified Java class name of the Authenticator class to use.");
+        customPropertiesTable.setToolTipText("Optional properties to pass into the Authenticator class when it is instantiated.");
+        customPropertiesTable.getColumnExt(0).setToolTipText("The name of the property to include.");
+        customPropertiesTable.getColumnExt(1).setToolTipText("The value of the property to include.");
+        oauth2TokenLocationComboBox.setToolTipText("Determines where the access token is located in client requests.");
+        oauth2TokenField.setToolTipText("The header or query parameter to pass along with the verification request.");
+        oauth2VerificationURLField.setToolTipText("<html>The HTTP URL to perform a GET request to for access<br/>token verification. If the response code is >= 400,<br/>the authentication attempt is rejected by the server.</html>");
+        
         useBasicCredentialsTableRadio.setToolTipText("<html>The table below will be used to populate credentials.</html>");
         useBasicCredentialsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate credentials.<br/>The map must have String keys and String values.</html>");
         basicCredentailsVariableField.setToolTipText("<html>The variable of a Java map to use to populate credentials.<br/>The map must have String keys and String values.</html>");

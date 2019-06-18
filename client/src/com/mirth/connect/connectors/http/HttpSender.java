@@ -882,8 +882,6 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         urlLabel.setText("URL:");
 
-        urlField.setToolTipText("Enter the URL of the HTTP server to send each message to.");
-
         queryParametersNewButton.setText("New");
         queryParametersNewButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -906,7 +904,6 @@ public class HttpSender extends ConnectorSettingsPanel {
                 "Name", "Value"
             }
         ));
-        queryParametersTable.setToolTipText("Query parameters are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
         queryParametersPane.setViewportView(queryParametersTable);
 
         queryParametersLabel.setText("Query Parameters:");
@@ -932,7 +929,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         postButton.setBackground(new Color(255, 255, 255));
         methodButtonGroup.add(postButton);
         postButton.setText("POST");
-        postButton.setToolTipText("Selects the HTTP operation used to send each message.");
         postButton.setMargin(new Insets(0, 0, 0, 0));
         postButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -943,7 +939,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         getButton.setBackground(new Color(255, 255, 255));
         methodButtonGroup.add(getButton);
         getButton.setText("GET");
-        getButton.setToolTipText("Selects the HTTP operation used to send each message.");
         getButton.setMargin(new Insets(0, 0, 0, 0));
         getButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -959,7 +954,6 @@ public class HttpSender extends ConnectorSettingsPanel {
                 "Name", "Value"
             }
         ));
-        headersTable.setToolTipText("Header parameters are encoded as HTTP headers in the HTTP request sent to the server.");
         headersPane.setViewportView(headersTable);
 
         headersLabel.setText("Headers:");
@@ -998,7 +992,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         responseContentXmlBodyRadio.setBackground(new Color(255, 255, 255));
         responseContentButtonGroup.add(responseContentXmlBodyRadio);
         responseContentXmlBodyRadio.setText("XML Body");
-        responseContentXmlBodyRadio.setToolTipText("<html>If selected, the response content will include the response body as serialized XML.</html>");
         responseContentXmlBodyRadio.setMargin(new Insets(0, 0, 0, 0));
         responseContentXmlBodyRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1009,7 +1002,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         responseContentPlainBodyRadio.setBackground(new Color(255, 255, 255));
         responseContentButtonGroup.add(responseContentPlainBodyRadio);
         responseContentPlainBodyRadio.setText("Plain Body");
-        responseContentPlainBodyRadio.setToolTipText("<html>If selected, the response content will only include the response body as a raw string.</html>");
         responseContentPlainBodyRadio.setMargin(new Insets(0, 0, 0, 0));
         responseContentPlainBodyRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1020,7 +1012,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         putButton.setBackground(new Color(255, 255, 255));
         methodButtonGroup.add(putButton);
         putButton.setText("PUT");
-        putButton.setToolTipText("Selects the HTTP operation used to send each message.");
         putButton.setMargin(new Insets(0, 0, 0, 0));
         putButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1031,7 +1022,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         deleteButton.setBackground(new Color(255, 255, 255));
         methodButtonGroup.add(deleteButton);
         deleteButton.setText("DELETE");
-        deleteButton.setToolTipText("Selects the HTTP operation used to send each message.");
         deleteButton.setMargin(new Insets(0, 0, 0, 0));
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1051,21 +1041,16 @@ public class HttpSender extends ConnectorSettingsPanel {
         multipartYesButton.setBackground(new Color(255, 255, 255));
         multipartButtonGroup.add(multipartYesButton);
         multipartYesButton.setText("Yes");
-        multipartYesButton.setToolTipText("Set to use multipart in the Content-Type header. Multipart can only be used with POST.");
         multipartYesButton.setMargin(new Insets(0, 0, 0, 0));
 
         multipartNoButton.setBackground(new Color(255, 255, 255));
         multipartButtonGroup.add(multipartNoButton);
         multipartNoButton.setText("No");
-        multipartNoButton.setToolTipText("Set not to use multipart in the Content-Type header.");
         multipartNoButton.setMargin(new Insets(0, 0, 0, 0));
 
         contentTextArea.setBorder(BorderFactory.createEtchedBorder());
-        contentTextArea.setToolTipText("The HTTP message body.");
 
         contentLabel.setText("Content:");
-
-        contentTypeField.setToolTipText("<html>The HTTP message body MIME type to use. If<br/>application/x-www-form-urlencoded is used,<br/>the query parameters specified above will be<br/>automatically encoded into the request body.</html>");
 
         contentTypeLabel.setText("Content Type:");
 
@@ -1074,7 +1059,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         dataTypeBinaryRadio.setBackground(new Color(255, 255, 255));
         dataTypeButtonGroup.add(dataTypeBinaryRadio);
         dataTypeBinaryRadio.setText("Binary");
-        dataTypeBinaryRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select Text if the outbound message is text (will be encoded with the specified character set encoding).</html>");
         dataTypeBinaryRadio.setMargin(new Insets(0, 0, 0, 0));
         dataTypeBinaryRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1085,7 +1069,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         authenticationNoRadio.setBackground(new Color(255, 255, 255));
         authenticationButtonGroup.add(authenticationNoRadio);
         authenticationNoRadio.setText("No");
-        authenticationNoRadio.setToolTipText("<html>Turning on authentication uses a username and password to communicate with the HTTP server.</html>");
         authenticationNoRadio.setMargin(new Insets(0, 0, 0, 0));
         authenticationNoRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1093,24 +1076,18 @@ public class HttpSender extends ConnectorSettingsPanel {
             }
         });
 
-        usernameField.setToolTipText("The username used to connect to the HTTP server.");
-
         usernameLabel.setText("Username:");
 
         passwordLabel.setText("Password:");
 
-        passwordField.setToolTipText("The password used to connect to the HTTP server.");
-
         authenticationTypeDigestRadio.setBackground(new Color(255, 255, 255));
         authenticationTypeButtonGroup.add(authenticationTypeDigestRadio);
         authenticationTypeDigestRadio.setText("Digest");
-        authenticationTypeDigestRadio.setToolTipText("Use the digest authentication scheme.");
         authenticationTypeDigestRadio.setMargin(new Insets(0, 0, 0, 0));
 
         authenticationTypeBasicRadio.setBackground(new Color(255, 255, 255));
         authenticationTypeButtonGroup.add(authenticationTypeBasicRadio);
         authenticationTypeBasicRadio.setText("Basic");
-        authenticationTypeBasicRadio.setToolTipText("Use the basic authentication scheme.");
         authenticationTypeBasicRadio.setMargin(new Insets(0, 0, 0, 0));
 
         authenticationTypeLabel.setText("Authentication Type:");
@@ -1118,9 +1095,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         charsetEncodingLabel.setText("Charset Encoding:");
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel<String>(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
-        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding used by the sender of the message,<br> or Default to assume the default character set encoding for the JVM running Mirth Connect.</html>");
-
-        sendTimeoutField.setToolTipText("<html>Sets the socket timeout (SO_TIMEOUT) in milliseconds to be used when executing the method.<br>A timeout value of zero is interpreted as an infinite timeout.</html>");
 
         sendTimeoutLabel.setText("Send Timeout (ms):");
 
@@ -1129,13 +1103,11 @@ public class HttpSender extends ConnectorSettingsPanel {
         parseMultipartYesRadio.setBackground(new Color(255, 255, 255));
         parseMultipartButtonGroup.add(parseMultipartYesRadio);
         parseMultipartYesRadio.setText("Yes");
-        parseMultipartYesRadio.setToolTipText("<html>Select Yes to automatically parse multipart responses into separate XML nodes.<br/>Select No to always keep the response body as a single XML node.</html>");
         parseMultipartYesRadio.setMargin(new Insets(0, 0, 0, 0));
 
         parseMultipartNoRadio.setBackground(new Color(255, 255, 255));
         parseMultipartButtonGroup.add(parseMultipartNoRadio);
         parseMultipartNoRadio.setText("No");
-        parseMultipartNoRadio.setToolTipText("<html>Select Yes to automatically parse multipart responses into separate XML nodes.<br/>Select No to always keep the response body as a single XML node.</html>");
         parseMultipartNoRadio.setMargin(new Insets(0, 0, 0, 0));
 
         includeMetadataLabel.setText("Include Metadata:");
@@ -1143,13 +1115,11 @@ public class HttpSender extends ConnectorSettingsPanel {
         includeMetadataYesRadio.setBackground(new Color(255, 255, 255));
         includeMetadataButtonGroup.add(includeMetadataYesRadio);
         includeMetadataYesRadio.setText("Yes");
-        includeMetadataYesRadio.setToolTipText("<html>Select Yes to include response metadata (status<br/>line and headers) in the XML content. Note that<br/>regardless of this setting, the same metadata<br/>will be available in the connector map.</html>");
         includeMetadataYesRadio.setMargin(new Insets(0, 0, 0, 0));
 
         includeMetadataNoRadio.setBackground(new Color(255, 255, 255));
         includeMetadataButtonGroup.add(includeMetadataNoRadio);
         includeMetadataNoRadio.setText("No");
-        includeMetadataNoRadio.setToolTipText("<html>Select Yes to include response metadata (status<br/>line and headers) in the XML content. Note that<br/>regardless of this setting, the same metadata<br/>will be available in the connector map.</html>");
         includeMetadataNoRadio.setMargin(new Insets(0, 0, 0, 0));
 
         useProxyServerLabel.setText("Use Proxy Server:");
@@ -1157,7 +1127,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         useProxyServerYesRadio.setBackground(new Color(255, 255, 255));
         proxyTypeButtonGroup.add(useProxyServerYesRadio);
         useProxyServerYesRadio.setText("Yes");
-        useProxyServerYesRadio.setToolTipText("<html>If enabled, requests will be forwarded to the proxy<br/>server specified in the address/port fields below.</html>");
         useProxyServerYesRadio.setMargin(new Insets(0, 0, 0, 0));
         useProxyServerYesRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1168,7 +1137,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         useProxyServerNoRadio.setBackground(new Color(255, 255, 255));
         proxyTypeButtonGroup.add(useProxyServerNoRadio);
         useProxyServerNoRadio.setText("No");
-        useProxyServerNoRadio.setToolTipText("<html>If enabled, requests will be forwarded to the proxy<br/>server specified in the address/port fields below.</html>");
         useProxyServerNoRadio.setMargin(new Insets(0, 0, 0, 0));
         useProxyServerNoRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1178,22 +1146,16 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         proxyAddressLabel.setText("Proxy Address:");
 
-        proxyAddressField.setToolTipText("The domain name or IP address of the proxy server to connect to.");
-
         proxyPortLabel.setText("Proxy Port:");
-
-        proxyPortField.setToolTipText("The port on which to connect to the proxy server.");
 
         authenticationPreemptiveCheckBox.setBackground(com.mirth.connect.client.ui.UIConstants.BACKGROUND_COLOR);
         authenticationPreemptiveCheckBox.setText("Preemptive");
-        authenticationPreemptiveCheckBox.setToolTipText("<html>If checked, the authorization header will be sent to the server with the initial<br/>request. Otherwise, the header will only be sent when the server requests it.<br/>When using digest authentication, an Authorization header containing the<br/>realm/nonce/algorithm/qop values must be included in the Headers table.</html>");
 
         dataTypeLabel.setText("Data Type:");
 
         authenticationYesRadio.setBackground(new Color(255, 255, 255));
         authenticationButtonGroup.add(authenticationYesRadio);
         authenticationYesRadio.setText("Yes");
-        authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password to communicate with the HTTP server.</html>");
         authenticationYesRadio.setMargin(new Insets(0, 0, 0, 0));
         authenticationYesRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1204,7 +1166,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         dataTypeTextRadio.setBackground(new Color(255, 255, 255));
         dataTypeButtonGroup.add(dataTypeTextRadio);
         dataTypeTextRadio.setText("Text");
-        dataTypeTextRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select Text if the outbound message is text (will be encoded with the specified character set encoding).</html>");
         dataTypeTextRadio.setMargin(new Insets(0, 0, 0, 0));
         dataTypeTextRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1214,18 +1175,15 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         responseBinaryMimeTypesLabel.setText("Binary MIME Types:");
 
-        responseBinaryMimeTypesField.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
         responseBinaryMimeTypesField.setMinimumSize(new Dimension(200, 21));
         responseBinaryMimeTypesField.setPreferredSize(new Dimension(200, 21));
 
         responseBinaryMimeTypesRegexCheckBox.setBackground(new Color(255, 255, 255));
         responseBinaryMimeTypesRegexCheckBox.setText("Regular Expression");
-        responseBinaryMimeTypesRegexCheckBox.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
 
         patchButton.setBackground(new Color(255, 255, 255));
         methodButtonGroup.add(patchButton);
         patchButton.setText("PATCH");
-        patchButton.setToolTipText("Selects the HTTP operation used to send each message.");
         patchButton.setMargin(new Insets(0, 0, 0, 0));
         patchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1235,10 +1193,44 @@ public class HttpSender extends ConnectorSettingsPanel {
     }
     
     private void initToolTips() {
+        urlField.setToolTipText("Enter the URL of the HTTP server to send each message to.");
+        queryParametersTable.setToolTipText("Query parameters are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
+        postButton.setToolTipText("Selects the HTTP operation used to send each message.");
+        getButton.setToolTipText("Selects the HTTP operation used to send each message.");
+        headersTable.setToolTipText("Header parameters are encoded as HTTP headers in the HTTP request sent to the server.");
+        responseContentXmlBodyRadio.setToolTipText("<html>If selected, the response content will include the response body as serialized XML.</html>");
+        responseContentPlainBodyRadio.setToolTipText("<html>If selected, the response content will only include the response body as a raw string.</html>");
+        putButton.setToolTipText("Selects the HTTP operation used to send each message.");
+        deleteButton.setToolTipText("Selects the HTTP operation used to send each message.");
+        multipartYesButton.setToolTipText("Set to use multipart in the Content-Type header. Multipart can only be used with POST.");
+        multipartNoButton.setToolTipText("Set not to use multipart in the Content-Type header.");
+        contentTextArea.setToolTipText("The HTTP message body.");
+        contentTypeField.setToolTipText("<html>The HTTP message body MIME type to use. If<br/>application/x-www-form-urlencoded is used,<br/>the query parameters specified above will be<br/>automatically encoded into the request body.</html>");
+        dataTypeBinaryRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select Text if the outbound message is text (will be encoded with the specified character set encoding).</html>");
+        authenticationNoRadio.setToolTipText("<html>Turning on authentication uses a username and password to communicate with the HTTP server.</html>");
+        usernameField.setToolTipText("The username used to connect to the HTTP server.");
+        passwordField.setToolTipText("The password used to connect to the HTTP server.");
+        authenticationTypeDigestRadio.setToolTipText("Use the digest authentication scheme.");
+        authenticationTypeBasicRadio.setToolTipText("Use the basic authentication scheme.");
+        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding used by the sender of the message,<br> or Default to assume the default character set encoding for the JVM running Mirth Connect.</html>");
+        sendTimeoutField.setToolTipText("<html>Sets the socket timeout (SO_TIMEOUT) in milliseconds to be used when executing the method.<br>A timeout value of zero is interpreted as an infinite timeout.</html>");
+        parseMultipartYesRadio.setToolTipText("<html>Select Yes to automatically parse multipart responses into separate XML nodes.<br/>Select No to always keep the response body as a single XML node.</html>");
+        parseMultipartNoRadio.setToolTipText("<html>Select Yes to automatically parse multipart responses into separate XML nodes.<br/>Select No to always keep the response body as a single XML node.</html>");
+        includeMetadataYesRadio.setToolTipText("<html>Select Yes to include response metadata (status<br/>line and headers) in the XML content. Note that<br/>regardless of this setting, the same metadata<br/>will be available in the connector map.</html>");
+        includeMetadataNoRadio.setToolTipText("<html>Select Yes to include response metadata (status<br/>line and headers) in the XML content. Note that<br/>regardless of this setting, the same metadata<br/>will be available in the connector map.</html>");
+        useProxyServerYesRadio.setToolTipText("<html>If enabled, requests will be forwarded to the proxy<br/>server specified in the address/port fields below.</html>");
+        useProxyServerNoRadio.setToolTipText("<html>If enabled, requests will be forwarded to the proxy<br/>server specified in the address/port fields below.</html>");
+        proxyAddressField.setToolTipText("The domain name or IP address of the proxy server to connect to.");
+        proxyPortField.setToolTipText("The port on which to connect to the proxy server.");
+        authenticationPreemptiveCheckBox.setToolTipText("<html>If checked, the authorization header will be sent to the server with the initial<br/>request. Otherwise, the header will only be sent when the server requests it.<br/>When using digest authentication, an Authorization header containing the<br/>realm/nonce/algorithm/qop values must be included in the Headers table.</html>");
+        authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password to communicate with the HTTP server.</html>");
+        dataTypeTextRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select Text if the outbound message is text (will be encoded with the specified character set encoding).</html>");
+        responseBinaryMimeTypesField.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
+        responseBinaryMimeTypesRegexCheckBox.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
+        patchButton.setToolTipText("Selects the HTTP operation used to send each message.");
         useQueryParamsTableRadio.setToolTipText("<html>The table below will be used to populate query parameters.</html>");
         useQueryParamsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate query parameters.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
-        queryParamsVariableField.setToolTipText("<html>The variable of a Java map to use to populate query parameters.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
-        
+        queryParamsVariableField.setToolTipText("<html>The variable of a Java map to use to populate query parameters.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");  
         useHeadersTableRadio.setToolTipText("<html>The table below will be used to populate headers.</html>");
         useHeadersVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
         headersVariableField.setToolTipText("<html>The variable of a Java map to use to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
