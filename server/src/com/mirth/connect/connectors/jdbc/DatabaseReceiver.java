@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -26,8 +28,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -52,7 +56,26 @@ import com.mirth.connect.util.CharsetUtils;
 
 public class DatabaseReceiver extends PollConnector {
 
-    private DatabaseReceiverProperties connectorProperties;
+    /**
+     * @formatter:off
+     * 
+     * NameStartChar    ::=    ":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] |
+     *                  [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] |
+     *                  [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] |
+     *                  [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] |
+     *                  [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
+     *                  
+     * NameChar         ::=    NameStartChar | "-" | "." | [0-9] | #xB7 |
+     *                         [#x0300-#x036F] | [#x203F-#x2040] 
+     *
+     * Name             ::=    NameStartChar (NameChar)* 
+     * 
+     * @formatter:on
+     */
+    private static Pattern INVALID_XML_ELEMENT_NAMESTARTCHAR = Pattern.compile("[^:A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD\\x{10000}-\\x{EFFFF}]");
+    private static Pattern INVALID_XML_ELEMENT_NAMECHAR = Pattern.compile("[^:A-Z_a-z-\\.0-9\\xB7\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0300-\\u036F\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u203F-\\u2040\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD\\x{10000}-\\x{EFFFF}]+");
+
+    protected DatabaseReceiverProperties connectorProperties;
     private DatabaseReceiverDelegate delegate;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private Logger logger = Logger.getLogger(getClass());
@@ -299,7 +322,19 @@ public class DatabaseReceiver extends PollConnector {
     /**
      * Convert a resultMap representing a message into XML.
      */
-    private String resultMapToXml(Map<String, Object> resultMap) throws Exception {
+    String resultMapToXml(Map<String, Object> resultMap) throws Exception {
+        /*
+         * Fixing column names can take a few milliseconds per column, so we should try to do
+         * without and only fix if a DOMException was thrown when creating the XML.
+         */
+        try {
+            return doResultMapToXml(resultMap, false);
+        } catch (DOMException e) {
+            return doResultMapToXml(resultMap, true);
+        }
+    }
+
+    private String doResultMapToXml(Map<String, Object> resultMap, boolean fixColumnNames) throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element root = document.createElement("result");
         document.appendChild(root);
@@ -308,13 +343,36 @@ public class DatabaseReceiver extends PollConnector {
             String value = objectToString(entry.getValue());
 
             if (value != null) {
-                Element child = document.createElement(entry.getKey());
+                String key = entry.getKey();
+                if (fixColumnNames) {
+                    key = fixColumnName(key);
+                }
+
+                Element child = document.createElement(key);
                 child.appendChild(document.createTextNode(value));
                 root.appendChild(child);
             }
         }
 
         return new DocumentSerializer().toXML(document);
+    }
+
+    String fixColumnName(String columnName) {
+        if (StringUtils.isNotBlank(columnName)) {
+            Matcher matcher = INVALID_XML_ELEMENT_NAMESTARTCHAR.matcher(Character.toString(columnName.charAt(0)));
+            if (matcher.find()) {
+                columnName = "_" + columnName.substring(1);
+            }
+
+            matcher = INVALID_XML_ELEMENT_NAMECHAR.matcher(columnName);
+            if (matcher.find()) {
+                columnName = matcher.replaceAll("_");
+            }
+        } else {
+            columnName = "_";
+        }
+
+        return columnName;
     }
 
     /**
