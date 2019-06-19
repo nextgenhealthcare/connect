@@ -72,8 +72,8 @@ public class DatabaseReceiver extends PollConnector {
      * 
      * @formatter:on
      */
-    private static Pattern INVALID_XML_ELEMENT_NAMESTARTCHAR = Pattern.compile("[^:A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD]");
-    private static Pattern INVALID_XML_ELEMENT_NAMECHAR = Pattern.compile("[^:A-Z_a-z-\\.0-9\\xB7\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0300-\\u036F\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u203F-\\u2040\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD]+");
+    private static Pattern INVALID_XML_ELEMENT_NAMESTARTCHAR = Pattern.compile("[^:A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD\\x{10000}-\\x{EFFFF}]");
+    private static Pattern INVALID_XML_ELEMENT_NAMECHAR = Pattern.compile("[^:A-Z_a-z-\\.0-9\\xB7\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0300-\\u036F\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u203F-\\u2040\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD\\x{10000}-\\x{EFFFF}]+");
 
     protected DatabaseReceiverProperties connectorProperties;
     private DatabaseReceiverDelegate delegate;
