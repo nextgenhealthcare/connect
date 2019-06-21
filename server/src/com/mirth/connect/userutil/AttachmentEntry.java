@@ -26,6 +26,12 @@ public class AttachmentEntry implements Serializable {
         mimeType = attachment.getMimeType();
     }
 
+    public AttachmentEntry(String name, String content, String mimeType) {
+        this.name = name;
+        this.content = content;
+        this.mimeType = mimeType;
+    }
+    
     public String getName() {
         return name;
     }
