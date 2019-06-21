@@ -68,7 +68,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         this.isUseHeadersVariable = false;
         this.headersVariable = "";
         this.parameters = new LinkedHashMap<String, List<String>>();
-        this.isUseParametersVariable = true;
+        this.isUseParametersVariable = false;
         this.parametersVariable = "";
         this.responseXmlBody = false;
         this.responseParseMultipart = true;
