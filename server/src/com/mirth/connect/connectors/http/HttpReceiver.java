@@ -100,7 +100,6 @@ import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
 import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.httpauth.AuthenticationResult;
 import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.AuthenticatorProvider;
@@ -412,8 +411,19 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         // Replace response headers
         Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
         if (connectorProperties.isUseHeadersVariable()) {
-            String headersStr = replaceValues(connectorProperties.getResponseHeaderVariable(), dispatchResult);
-            responseHeaders = ObjectXMLSerializer.getInstance().deserialize(headersStr, Map.class);
+            try {
+                Map<?,?> test = (Map<?, ?>) channel.getMessageMaps().get(connectorProperties.getResponseHeaderVariable(), dispatchResult.getProcessedMessage().getMergedConnectorMessage());
+                for (Entry<?, ?> entry : test.entrySet()) {
+                    try {
+                        responseHeaders.put((String) entry.getKey(), (List<String>) entry.getValue());
+                    } catch (Exception ex) {
+                        logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + connectorProperties.getResponseHeaderVariable() + "'. Skipping entry.", ex);
+                    }
+                }
+            } catch (ClassCastException castEx) {
+                logger.trace("Error getting map " + connectorProperties.getResponseHeaderVariable() + "'.", castEx);
+            }
+            
         } else {
             for (Entry<String, List<String>> entry : connectorProperties.getResponseHeadersMap().entrySet()) {
                 String replacedKey = replaceValues(entry.getKey(), dispatchResult);

@@ -19,18 +19,21 @@ import java.util.Map.Entry;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpHeader;
 
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.httpauth.AuthenticationResult;
 import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.RequestInfo;
+import com.mirth.connect.server.channel.MirthMessageMaps;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class BasicAuthenticator extends Authenticator {
 
     private BasicAuthenticatorProvider provider;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    protected Logger logger = Logger.getLogger(this.getClass());
 
     public BasicAuthenticator(BasicAuthenticatorProvider provider) {
         this.provider = provider;
@@ -61,7 +64,21 @@ public class BasicAuthenticator extends Authenticator {
 
                         Map<String, String> credentialsSource;
                         if (properties.isUseCredentialsVariable()) {
-                            credentialsSource = ObjectXMLSerializer.getInstance().deserialize(properties.getCredentialsVariable(), Map.class);
+                            credentialsSource = new HashMap<>();
+                            try {
+                                MirthMessageMaps messageMaps = new MirthMessageMaps(provider.getConnector().getChannelId());
+                                Map<?,?> source = (Map<?, ?>) messageMaps.get(properties.getCredentialsVariable(), null);
+                                for (Entry<?, ?> entry : source.entrySet()) {
+                                    if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
+                                        credentialsSource.put((String) entry.getKey(), (String) entry.getValue());
+                                    } else {
+                                        logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + properties.getCredentialsVariable() + "'. Skipping entry.");
+                                    }
+                                }
+
+                            } catch (ClassCastException ex) {
+                                logger.warn("Error getting credentials from map '" + properties.getCredentialsVariable() + "'.", ex);
+                            }
                         } else {
                             credentialsSource = properties.getCredentialsMap();
                         }

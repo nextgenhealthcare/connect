@@ -43,7 +43,7 @@ public class ResponseMap implements Map<String, Object> {
     }
 
     @Override
-    public boolean containsKey(Object key) {
+    public boolean containsKey(Object key) { 
         return delegate.containsKey(key) || (destinationIdMap != null && destinationIdMap.containsKey(key) && delegate.containsKey(getResponseMapKey(destinationIdMap.get(key))));
     }
 

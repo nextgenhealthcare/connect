@@ -65,7 +65,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         this.proxyPort = "";
         this.method = "post";
         this.headers = new LinkedHashMap<String, List<String>>();
-        this.isUseHeadersVariable = true;
+        this.isUseHeadersVariable = false;
         this.headersVariable = "";
         this.parameters = new LinkedHashMap<String, List<String>>();
         this.isUseParametersVariable = true;

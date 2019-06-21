@@ -29,7 +29,6 @@ import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.userutil.AttachmentEntry;
 
 public class WebServiceDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
 
@@ -50,7 +49,9 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     private String headersVariable;
     private boolean isUseHeadersVariable;
     private boolean useMtom;
-    private List<AttachmentEntry> attachments;
+    private List<String> attachmentNames;
+    private List<String> attachmentContents;
+    private List<String> attachmentTypes;
     private String attachmentsVariable;
     private boolean isUseAttachmentsVariable;  // true to use attachments, false to use attachmentsVariable
     private String soapAction;
@@ -77,7 +78,9 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.isUseHeadersVariable = false;
         this.headersVariable = "";
         this.useMtom = false;
-        this.attachments = new ArrayList<AttachmentEntry>();
+        this.attachmentNames = new ArrayList<String>();
+        this.attachmentContents = new ArrayList<String>();
+        this.attachmentTypes = new ArrayList<String>();
         this.isUseAttachmentsVariable = false;
         this.attachmentsVariable = "";
         this.soapAction = "";
@@ -107,7 +110,9 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         headers = headerCopy;
 
         useMtom = props.isUseMtom();
-        attachments = new ArrayList<AttachmentEntry>(props.getAttachmentsList());
+        attachmentNames = new ArrayList<String>(props.getAttachmentNames());
+        attachmentContents = new ArrayList<String>(props.getAttachmentContents());
+        attachmentTypes = new ArrayList<String>(props.getAttachmentTypes());
         isUseAttachmentsVariable = props.isUseAttachmentsVariable();
         attachmentsVariable = props.getAttachmentsVariable();
         soapAction = props.getSoapAction();
@@ -233,21 +238,36 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.useMtom = useMtom;
     }
 
-
-    public List<AttachmentEntry> getAttachmentsList() {
-        return attachments;
-    }
-    
-    public void setAttachmentsList(List<AttachmentEntry> attachments) {
-        this.attachments = attachments;
-    }
-
     public String getAttachmentsVariable() {
         return attachmentsVariable;
     }
 
     public void setAttachmentsVariable(String attachmentsVariable) {
         this.attachmentsVariable = attachmentsVariable;
+    }
+    
+    public List<String> getAttachmentNames() {
+        return attachmentNames;
+    }
+    
+    public void setAttachmentNames(List<String> attachmentNames) {
+        this.attachmentNames = attachmentNames;
+    }
+
+    public List<String> getAttachmentContents() {
+        return attachmentContents;
+    }
+
+    public void setAttachmentContents(List<String> attachmentContents) {
+        this.attachmentContents = attachmentContents;
+    }
+
+    public List<String> getAttachmentTypes() {
+        return attachmentTypes;
+    }
+
+    public void setAttachmentTypes(List<String> attachmentTypes) {
+        this.attachmentTypes = attachmentTypes;
     }
 
     public boolean isUseAttachmentsVariable() {
@@ -339,11 +359,11 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
         builder.append(newLine);
         builder.append("[ATTACHMENTS]");
-        for (int i = 0; i < attachments.size(); i++) {
+        for (int i = 0; i < attachmentNames.size(); i++) {
             builder.append(newLine);
-            builder.append(attachments.get(i).getName());
+            builder.append(attachmentNames.get(i));
             builder.append(" (");
-            builder.append(attachments.get(i).getMimeType());
+            builder.append(attachmentTypes.get(i));
             builder.append(")");
         }
         builder.append(newLine);
@@ -460,7 +480,8 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         purgedProperties.put("oneWay", oneWay);
         purgedProperties.put("headersCount", headers.size());
         purgedProperties.put("useMtom", useMtom);
-        purgedProperties.put("attachmentCount", attachments.size());
+        purgedProperties.put("attachmentNamesCount", attachmentNames.size());
+        purgedProperties.put("attachmentContentCount", attachmentContents.size());
         purgedProperties.put("wsdlDefinitionMapCount", wsdlDefinitionMap != null ? wsdlDefinitionMap.getMap().size() : 0);
         purgedProperties.put("socketTimeout", PurgeUtil.getNumericValue(socketTimeout));
         return purgedProperties;

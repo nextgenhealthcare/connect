@@ -22,7 +22,6 @@ import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
-import com.mirth.connect.userutil.AttachmentEntry;
 import com.mirth.connect.util.CharsetUtils;
 
 public class SmtpDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
@@ -51,7 +50,7 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
     private String charsetEncoding;
     private boolean html;
     private String body;
-    private List<AttachmentEntry> attachments;
+    private List<Attachment> attachments;
     private String attachmentsVariable;
     private boolean isUseAttachmentsVariable;  // true to use attachments, false to use attachmentsVariable
 
@@ -80,7 +79,7 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
         this.html = false;
         this.body = "";
-        this.attachments = new ArrayList<AttachmentEntry>();
+        this.attachments = new ArrayList<Attachment>();
         this.isUseAttachmentsVariable = false;
         this.attachmentsVariable = "";
     }
@@ -112,9 +111,9 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
         html = props.isHtml();
         body = props.getBody();
 
-        attachments = new ArrayList<AttachmentEntry>();
-        for (AttachmentEntry attachment : props.getAttachmentsList()) {
-            attachments.add(new AttachmentEntry(attachment));
+        attachments = new ArrayList<Attachment>();
+        for (Attachment attachment : props.getAttachmentsList()) {
+            attachments.add(new Attachment(attachment));
         }
         isUseHeadersVariable = props.isUseAttachmentsVariable();
         attachmentsVariable = props.getAttachmentsVariable();
@@ -296,11 +295,11 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
         this.body = body;
     }
 
-    public List<AttachmentEntry> getAttachmentsList() {
+    public List<Attachment> getAttachmentsList() {
         return attachments;
     }
     
-    public void setAttachmentsList(List<AttachmentEntry> attachments) {
+    public void setAttachmentsList(List<Attachment> attachments) {
         this.attachments = attachments;
     }
 
@@ -371,7 +370,7 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
 
         builder.append(newLine);
         builder.append("[ATTACHMENTS]");
-        for (AttachmentEntry attachment : attachments) {
+        for (Attachment attachment : attachments) {
             builder.append(newLine);
             builder.append(attachment.getName());
             builder.append(" (");

@@ -42,6 +42,7 @@ import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.RequestInfo;
 import com.mirth.connect.plugins.httpauth.digest.DigestHttpAuthProperties.Algorithm;
 import com.mirth.connect.plugins.httpauth.digest.DigestHttpAuthProperties.QOPMode;
+import com.mirth.connect.server.channel.MirthMessageMaps;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class DigestAuthenticator extends Authenticator {
@@ -202,7 +203,21 @@ public class DigestAuthenticator extends Authenticator {
 
                 Map<String, String> credentialsSource;
                 if (properties.isUseCredentialsVariable()) {
-                    credentialsSource = ObjectXMLSerializer.getInstance().deserialize(properties.getCredentialsVariable(), Map.class);
+                    credentialsSource = new HashMap<>();
+                    try {
+                        MirthMessageMaps messageMaps = new MirthMessageMaps(provider.getConnector().getChannelId());
+                        Map<?,?> source = (Map<?, ?>) messageMaps.get(properties.getCredentialsVariable(), null);
+                        for (Entry<?, ?> entry : source.entrySet()) {
+                            if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
+                                credentialsSource.put((String) entry.getKey(), (String) entry.getValue());
+                            } else {
+                                logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + properties.getCredentialsVariable() + "'. Skipping entry.");
+                            }
+                        }
+
+                    } catch (ClassCastException ex) {
+                        logger.warn("Error getting credentials from map " + properties.getCredentialsVariable() + "'.", ex);
+                    }
                 } else {
                     credentialsSource = properties.getCredentialsMap();
                 }

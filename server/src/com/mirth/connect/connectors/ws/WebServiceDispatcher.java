@@ -100,7 +100,6 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -418,11 +417,10 @@ public class WebServiceDispatcher extends DestinationConnector {
         webServiceDispatcherProperties.setHeadersVariable(replacer.replaceValues(webServiceDispatcherProperties.getHeadersVariable(), connectorMessage));
 
         if (webServiceDispatcherProperties.isUseMtom()) {
-            for (AttachmentEntry entry : webServiceDispatcherProperties.getAttachmentsList()) {
-                replacer.replaceValues(entry.getName(), connectorMessage);
-                replacer.replaceValues(entry.getContent(), connectorMessage);
-                replacer.replaceValues(entry.getMimeType(), connectorMessage);
-            }
+            replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentNames(), connectorMessage);
+            replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentContents(), connectorMessage);
+            replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentTypes(), connectorMessage);
+            
             webServiceDispatcherProperties.setAttachmentsVariable(replacer.replaceValues(webServiceDispatcherProperties.getAttachmentsVariable(), connectorMessage));
             
         }
@@ -486,7 +484,19 @@ public class WebServiceDispatcher extends DestinationConnector {
             Map<String, List<String>> headersSource;
             
             if (webServiceDispatcherProperties.isUseHeadersVariable()) {
-                headersSource = ObjectXMLSerializer.getInstance().deserialize(webServiceDispatcherProperties.getAttachmentsVariable(), Map.class);
+                headersSource = new HashMap<>();
+                try {
+                    Map<?,?> source = (Map<?, ?>) getMessageMaps().get(webServiceDispatcherProperties.getHeadersVariable(), connectorMessage);
+                    for (Entry<?, ?> entry : source.entrySet()) {
+                        try {
+                            headersSource.put((String) entry.getKey(), (List<String>) entry.getValue());
+                        } catch (Exception ex) {
+                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + webServiceDispatcherProperties.getHeadersVariable() + "'. Skipping entry.", ex);
+                        }
+                    }
+                } catch (Exception ex) {
+                    logger.warn("Error getting headers from map '" + webServiceDispatcherProperties.getHeadersVariable() + "'.", ex);
+                }
             } else {
                 headersSource = webServiceDispatcherProperties.getHeadersMap();
             }
@@ -516,19 +526,37 @@ public class WebServiceDispatcher extends DestinationConnector {
 
             if (webServiceDispatcherProperties.isUseMtom()) {
                 soapBinding.setMTOMEnabled(true);
-                List<AttachmentEntry> attachmentSource;
+                List<String> attachmentIds;
+                List<String> attachmentContents;
+                List<String> attachmentTypes;
                 if (webServiceDispatcherProperties.isUseAttachmentsVariable()) {
-                    attachmentSource = ObjectXMLSerializer.getInstance().deserialize(webServiceDispatcherProperties.getAttachmentsVariable(), List.class);
+                    attachmentIds = new ArrayList<String>();
+                    attachmentContents = new ArrayList<String>();
+                    attachmentTypes = new ArrayList<String>();
+                    try {
+                        List<AttachmentEntry> attachmentEntries = (List<AttachmentEntry>) getMessageMaps().get(webServiceDispatcherProperties.getAttachmentsVariable(), connectorMessage);
+                        for (AttachmentEntry entry : attachmentEntries) {
+                            attachmentIds.add(entry.getName());
+                            attachmentContents.add(entry.getContent());
+                            attachmentTypes.add(entry.getMimeType());
+                        }
+                    } catch (Exception ex) {
+                        logger.warn("Error getting attachments from map '" + webServiceDispatcherProperties.getHeadersVariable() + "'.", ex);
+                    }
                 } else {
-                    attachmentSource = webServiceDispatcherProperties.getAttachmentsList();
+                    attachmentIds = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentNames());
+                    attachmentContents = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentContents());
+                    attachmentTypes = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentTypes());
                 }
-                for (AttachmentEntry attachmentEntry : attachmentSource) {
-                    String attachmentContentType = attachmentEntry.getContent();
-                    String attachmentContent = attachmentHandlerProvider.reAttachMessage(attachmentEntry.getContent(), connectorMessage, webServiceDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
+                
+                for (int i = 0; i < attachmentIds.size(); i++) {
+                    String attachmentContentId = attachmentIds.get(i);
+                    String attachmentContentType = attachmentTypes.get(i);
+                    String attachmentContent = attachmentHandlerProvider.reAttachMessage(attachmentContents.get(i), connectorMessage, webServiceDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
 
                     AttachmentPart attachment = message.createAttachmentPart();
-                    attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentEntry.getMimeType());
-                    attachment.setContentId(attachmentEntry.getMimeType());
+                    attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);
+                    attachment.setContentId(attachmentContentId);
                     message.addAttachmentPart(attachment);
                 }
             } else {

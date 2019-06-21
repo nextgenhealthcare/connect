@@ -52,7 +52,6 @@ import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
-import com.mirth.connect.userutil.AttachmentEntry;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class SmtpSender extends ConnectorSettingsPanel {
@@ -415,13 +414,13 @@ public class SmtpSender extends ConnectorSettingsPanel {
         return headers;
     }
 
-    private void setAttachments(List<AttachmentEntry> attachments) {
+    private void setAttachments(List<Attachment> attachments) {
         Object[][] tableData = new Object[attachments.size()][3];
 
         attachmentsTable = new MirthTable();
 
         for (int i = 0; i < attachments.size(); i++) {
-            AttachmentEntry entry = attachments.get(i);
+            Attachment entry = attachments.get(i);
             tableData[i][ATTACHMENTS_NAME_COLUMN] = entry.getName();
             tableData[i][ATTACHMENTS_CONTENT_COLUMN] = entry.getContent();
             tableData[i][ATTACHMENTS_MIME_TYPE_COLUMN] = entry.getMimeType();
@@ -516,12 +515,12 @@ public class SmtpSender extends ConnectorSettingsPanel {
         attachmentsPane.setViewportView(attachmentsTable);
     }
 
-    private List<AttachmentEntry> getAttachments() {
-        List<AttachmentEntry> attachments = new ArrayList<AttachmentEntry>();
+    private List<Attachment> getAttachments() {
+        List<Attachment> attachments = new ArrayList<Attachment>();
 
         for (int i = 0; i < attachmentsTable.getRowCount(); i++) {
             if (((String) attachmentsTable.getValueAt(i, ATTACHMENTS_NAME_COLUMN)).length() > 0) {
-                AttachmentEntry attachment = new AttachmentEntry();
+                Attachment attachment = new Attachment();
                 attachment.setName((String) attachmentsTable.getValueAt(i, ATTACHMENTS_NAME_COLUMN));
                 attachment.setContent((String) attachmentsTable.getValueAt(i, ATTACHMENTS_CONTENT_COLUMN));
                 attachment.setMimeType((String) attachmentsTable.getValueAt(i, ATTACHMENTS_MIME_TYPE_COLUMN));

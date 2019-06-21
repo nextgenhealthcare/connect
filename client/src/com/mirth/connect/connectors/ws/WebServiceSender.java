@@ -79,7 +79,6 @@ import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.userutil.AttachmentEntry;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class WebServiceSender extends ConnectorSettingsPanel {
@@ -153,8 +152,10 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
         properties.setUseMtom(useMtomYesRadio.isSelected());
 
-        List<AttachmentEntry> attachments = getAttachments();
-        properties.setAttachmentsList(attachments);
+        List<List<String>> attachments = getAttachments();
+        properties.setAttachmentNames(attachments.get(0));
+        properties.setAttachmentContents(attachments.get(1));
+        properties.setAttachmentTypes(attachments.get(2));
         properties.setUseAttachmentsVariable(useAttachmentsVariableRadio.isSelected());
         properties.setAttachmentsVariable(attachmentsVariableField.getText());
 
@@ -217,12 +218,10 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         headersVariableField.setText(props.getHeadersVariable());
         useHeadersVariableFieldsEnabled(props.isUseHeadersVariable());
         
-        List<AttachmentEntry> attachments = new ArrayList<AttachmentEntry>();
-
-        for (AttachmentEntry entry : props.getAttachmentsList()) {
-            attachments.add(entry);
-        }
-
+        List<List<String>> attachments = new ArrayList<>();
+        attachments.add(props.getAttachmentNames());
+        attachments.add(props.getAttachmentContents());
+        attachments.add(props.getAttachmentTypes());
         setAttachments(attachments);
 
         if (props.isUseMtom()) {
@@ -335,7 +334,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
     protected void loadServiceMap() {
         // First reset the service/port/operation
-        serviceComboBox.setModel(new DefaultComboBoxModel());
+        serviceComboBox.setModel(new DefaultComboBoxModel<>());
         portComboBox.setModel(new DefaultComboBoxModel());
 
         if (canSetLocationURI()) {
@@ -457,31 +456,37 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         return "";
     }
 
-    private void setAttachments(List<AttachmentEntry> attachments) {
-        Object[][] tableData = new Object[attachments.size()][3];
+    private void setAttachments(List<List<String>> attachments) {
+        List<String> attachmentIds = attachments.get(0);
+        List<String> attachmentContents = attachments.get(1);
+        List<String> attachmentTypes = attachments.get(2);
+        Object[][] tableData = new Object[attachmentIds.size()][3];
 
-        for (int i = 0; i < attachments.size(); i++) {
-            AttachmentEntry entry = attachments.get(i);
-            tableData[i][ID_COLUMN_NUMBER] = entry.getName();
-            tableData[i][CONTENT_COLUMN_NUMBER] = entry.getContent();
-            tableData[i][MIME_TYPE_COLUMN_NUMBER] = entry.getMimeType();
+        for (int i = 0; i < attachmentIds.size(); i++) {
+            tableData[i][ID_COLUMN_NUMBER] = attachmentIds.get(i);
+            tableData[i][CONTENT_COLUMN_NUMBER] = attachmentContents.get(i);
+            tableData[i][MIME_TYPE_COLUMN_NUMBER] = attachmentTypes.get(i);
         }
 
         ((RefreshTableModel) attachmentsTable.getModel()).refreshDataVector(tableData);
     }
 
-    private List<AttachmentEntry> getAttachments() {
-        List<AttachmentEntry> attachments = new ArrayList<AttachmentEntry>();
+    private List<List<String>> getAttachments() {
+        List<List<String>> attachments = new ArrayList<>();
+        List<String> attachmentIds = new ArrayList<>();
+        List<String> attachmentContent = new ArrayList<>();
+        List<String> attachmentType = new ArrayList<>();
         
         for (int i = 0; i < attachmentsTable.getModel().getRowCount(); i++) {
-            if (((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER)).length() > 0) {
-                AttachmentEntry entry = new AttachmentEntry();
-                entry.setName((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER));
-                entry.setContent((String) attachmentsTable.getModel().getValueAt(i, CONTENT_COLUMN_NUMBER));
-                entry.setMimeType((String) attachmentsTable.getModel().getValueAt(i, MIME_TYPE_COLUMN_NUMBER));
-                attachments.add(entry);
+            if (attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER) != null && ((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER)).length() > 0) {
+                attachmentIds.add((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER));
+                attachmentContent.add((String) attachmentsTable.getModel().getValueAt(i, CONTENT_COLUMN_NUMBER));
+                attachmentType.add((String) attachmentsTable.getModel().getValueAt(i, MIME_TYPE_COLUMN_NUMBER));
             }
         }
+        attachments.add(attachmentIds);
+        attachments.add(attachmentContent);
+        attachments.add(attachmentType);
         return attachments;
     }
 
@@ -768,7 +773,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         useHeadersTableRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                useHeadersVariableFieldsEnabled(true);
+                useHeadersVariableFieldsEnabled(false);
                 
             }
         });
@@ -777,7 +782,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         useHeadersVariableRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                useHeadersVariableFieldsEnabled(false);
+                useHeadersVariableFieldsEnabled(true);
                 
             }
         });
@@ -949,7 +954,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         useAttachmentsListRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                useAttachmentVariableFieldsEnabled(true);
+                useAttachmentVariableFieldsEnabled(false);
                 
             }
         });
@@ -958,7 +963,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         useAttachmentsVariableRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                useAttachmentVariableFieldsEnabled(false);
+                useAttachmentVariableFieldsEnabled(true);
                 
             }
         });

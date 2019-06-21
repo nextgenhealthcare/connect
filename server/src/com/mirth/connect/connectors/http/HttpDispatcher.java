@@ -104,6 +104,9 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.util.GlobalChannelVariableStore;
+import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
+import com.mirth.connect.server.util.GlobalVariableStore;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.userutil.MessageHeaders;
 import com.mirth.connect.util.CharsetUtils;
@@ -443,13 +446,38 @@ public class HttpDispatcher extends DestinationConnector {
         boolean isMultipart = httpDispatcherProperties.isMultipart();
         Map<String, List<String>> headers;
         if (httpDispatcherProperties.isUseHeadersVariable()) {
-            headers = ObjectXMLSerializer.getInstance().deserialize(httpDispatcherProperties.getHeadersVariable(), Map.class);
+            headers = new HashMap<>();
+            try {
+                Map<?,?> source = (Map<?, ?>) getMessageMaps().get(httpDispatcherProperties.getHeadersVariable(), connectorMessage);
+                for (Entry<?, ?> entry : source.entrySet()) {
+                    try {
+                        headers.put((String) entry.getKey(), (List<String>) entry.getValue());
+                    } catch (Exception ex) {
+                        logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping entry.", ex);
+                    }
+                }
+            } catch (Exception ex) {
+                logger.warn("Error getting headers from map " + httpDispatcherProperties.getHeadersVariable() + "'.", ex);
+            }
         } else {
             headers = httpDispatcherProperties.getHeadersMap();
         }
+        
         Map<String, List<String>> parameters;
         if (httpDispatcherProperties.isUseParametersVariable()) {
-            parameters = ObjectXMLSerializer.getInstance().deserialize(httpDispatcherProperties.getParametersVariable(), Map.class);
+            parameters = new HashMap<>();
+            try {
+                Map<?,?> source = (Map<?, ?>) getMessageMaps().get(httpDispatcherProperties.getParametersVariable(), connectorMessage);
+                for (Entry<?, ?> entry : source.entrySet()) {
+                    try {
+                        parameters.put((String) entry.getKey(), (List<String>) entry.getValue());
+                    } catch (Exception ex) {
+                        logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getParametersVariable() + "'. Skipping entry.", ex);
+                    }
+                }
+            } catch (Exception ex) {
+                logger.warn("Error getting parameters from map " + httpDispatcherProperties.getParametersVariable() + "'.", ex);
+            }
         } else {
             parameters = httpDispatcherProperties.getParametersMap();
         }
