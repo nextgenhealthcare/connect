@@ -997,8 +997,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         useMtomYesRadio.setToolTipText("<html>Enables MTOM on the SOAP Binding. If MTOM is enabled,<br>attachments can be added to the table below and dropped into the envelope.</html>");
         useMtomNoRadio.setToolTipText("<html>Does not enable MTOM on the SOAP Binding. If MTOM is enabled,<br>attachments can be added to the table below and dropped into the envelope.</html>");
         useAttachmentsListRadio.setToolTipText("<html>The table below will be used to populate attachments.</html>");
-        useAttachmentsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate attachments.<br/>The map must have String keys and AttachmentEntry values.</html>");
-        attachmentsVariableField.setToolTipText("<html>The variable of a Java map to use to populate attachments.<br/>The map must have String keys and AttachmentEntry values.</html>");
+        useAttachmentsVariableRadio.setToolTipText("<html>The Java list specified by the following variable will be used to populate attachments.<br/>The list must contain AttachmentEntry values - anything else is ignored.</html>");
+        attachmentsVariableField.setToolTipText("<html>The name of the Java list to use to populate attachments.<br/>The list must contain AttachmentEntry values.</html>");
         attachmentsTable.setToolTipText("<html>Attachments should be added with an ID, Base64 encoded content,<br>and a valid MIME type. Once an attachment is added<br>the row can be dropped into an argument in the envelope.</html>");
     }
 

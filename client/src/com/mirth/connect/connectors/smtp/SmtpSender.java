@@ -819,8 +819,8 @@ public class SmtpSender extends ConnectorSettingsPanel {
         headersVariableField.setToolTipText("<html>The variable of a Java map to use to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
         
         useAttachmentsListRadio.setToolTipText("<html>The table below will be used to populate attachments.</html>");
-        useAttachmentsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate attachments.<br/>The map must have String keys and AttachmentEntry values.</html>");
-        attachmentsVariableField.setToolTipText("<html>The variable of a Java map to use to populate attachments.<br/>The map must have String keys and AttachmentEntry values.</html>");
+        useAttachmentsVariableRadio.setToolTipText("<html>The Java list specified by the following variable will be used to populate attachments.<br/>The list must contain AttachmentEntry values - anything else is ignored.</html>");
+        attachmentsVariableField.setToolTipText("<html>The variable of a Java list to use to populate attachments.<br/>The list must contain AttachmentEntry values.</html>");
     }
 
     private void initLayout() {
