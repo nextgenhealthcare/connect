@@ -378,26 +378,34 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         builder.append(newLine);
         builder.append("[HEADERS]");
         builder.append(newLine);
+        if (isUseHeadersVariable()) {
+            builder.append("Using variable '" + getHeadersVariable() + "'");
+        } else {
         Map<String, List<String>> headers = getHeadersMap();
-        for (Map.Entry<String, List<String>> header : headers.entrySet()) {
-            for (String value : header.getValue()) {
-                builder.append(header.getKey().toString());
-                builder.append(": ");
-                builder.append(value.toString());
-                builder.append(newLine);
+            for (Map.Entry<String, List<String>> header : headers.entrySet()) {
+                for (String value : header.getValue()) {
+                    builder.append(header.getKey().toString());
+                    builder.append(": ");
+                    builder.append(value.toString());
+                    builder.append(newLine);
+                }
             }
         }
 
         builder.append(newLine);
         builder.append("[PARAMETERS]");
         builder.append(newLine);
-        Map<String, List<String>> parameters = getParametersMap();
-        for (Map.Entry<String, List<String>> parameter : parameters.entrySet()) {
-            for (String value : parameter.getValue()) {
-                builder.append(parameter.getKey().toString());
-                builder.append(": ");
-                builder.append(value.toString());
-                builder.append(newLine);
+        if (isUseParametersVariable()) {
+            builder.append("Using variable '" + getParametersVariable() + "'");
+        } else {
+            Map<String, List<String>> parameters = getParametersMap();
+            for (Map.Entry<String, List<String>> parameter : parameters.entrySet()) {
+                for (String value : parameter.getValue()) {
+                    builder.append(parameter.getKey().toString());
+                    builder.append(": ");
+                    builder.append(value.toString());
+                    builder.append(newLine);
+                }
             }
         }
 

@@ -362,20 +362,30 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
 
         builder.append(newLine);
         builder.append("[HEADERS]");
-        for (Map.Entry<String, String> header : headers.entrySet()) {
+        if (isUseHeadersVariable()) {
             builder.append(newLine);
-            builder.append(header.getKey() + ": " + header.getValue());
+            builder.append("Using variable '" + getHeadersVariable() + "'");
+        } else {
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                builder.append(newLine);
+                builder.append(header.getKey() + ": " + header.getValue());
+            }
         }
         builder.append(newLine);
 
         builder.append(newLine);
         builder.append("[ATTACHMENTS]");
-        for (Attachment attachment : attachments) {
+        if (isUseAttachmentsVariable()) {
             builder.append(newLine);
-            builder.append(attachment.getName());
-            builder.append(" (");
-            builder.append(attachment.getMimeType());
-            builder.append(")");
+            builder.append("Using variable '" + getAttachmentsVariable() + "'");
+        } else {
+            for (Attachment attachment : attachments) {
+                builder.append(newLine);
+                builder.append(attachment.getName());
+                builder.append(" (");
+                builder.append(attachment.getMimeType());
+                builder.append(")");
+            }
         }
         builder.append(newLine);
 

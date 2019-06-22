@@ -343,7 +343,12 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
             builder.append(newLine);
         }
 
-        if (MapUtils.isNotEmpty(headers)) {
+        if (isUseHeadersVariable()) {
+            builder.append(newLine);
+            builder.append("[HEADERS]");
+            builder.append(newLine);
+            builder.append("Using variable '" + getHeadersVariable() + "'");            
+        } else if (MapUtils.isNotEmpty(headers)) {
             builder.append(newLine);
             builder.append("[HEADERS]");
             builder.append(newLine);
@@ -359,12 +364,16 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
         builder.append(newLine);
         builder.append("[ATTACHMENTS]");
-        for (int i = 0; i < attachmentNames.size(); i++) {
-            builder.append(newLine);
-            builder.append(attachmentNames.get(i));
-            builder.append(" (");
-            builder.append(attachmentTypes.get(i));
-            builder.append(")");
+        if (isUseAttachmentsVariable()) {
+            builder.append("Using variable '" + getAttachmentsVariable() + "'");       
+        } else {
+            for (int i = 0; i < attachmentNames.size(); i++) {
+                builder.append(newLine);
+                builder.append(attachmentNames.get(i));
+                builder.append(" (");
+                builder.append(attachmentTypes.get(i));
+                builder.append(")");
+            }
         }
         builder.append(newLine);
 
