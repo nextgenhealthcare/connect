@@ -36,7 +36,7 @@ import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.QuotedStringTokenizer;
 import org.eclipse.jetty.util.TypeUtil;
 
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.donkey.util.MessageMaps;
 import com.mirth.connect.plugins.httpauth.AuthenticationResult;
 import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.RequestInfo;
@@ -68,11 +68,18 @@ public class DigestAuthenticator extends Authenticator {
     private DigestAuthenticatorProvider provider;
     private SecureRandom rng = new SecureRandom();
     private Map<String, Nonce> nonceMap = new ConcurrentHashMap<String, Nonce>();
+    private MessageMaps messageMaps;
 
     public DigestAuthenticator(DigestAuthenticatorProvider provider) {
         this.provider = provider;
+        messageMaps = new MirthMessageMaps(provider.getConnector().getChannelId());
     }
 
+    DigestAuthenticator(DigestAuthenticatorProvider provider, MessageMaps messageMaps) {
+        this.provider = provider;
+        this.messageMaps = messageMaps;
+    }
+    
     @Override
     public AuthenticationResult authenticate(RequestInfo request) {
         DigestHttpAuthProperties properties = getReplacedProperties(request);
@@ -201,26 +208,7 @@ public class DigestAuthenticator extends Authenticator {
                     throw new Exception("Opaque value \"" + opaque + "\" does not match the expected value \"" + properties.getOpaque() + "\".");
                 }
 
-                Map<String, String> credentialsSource;
-                if (properties.isUseCredentialsVariable()) {
-                    credentialsSource = new HashMap<>();
-                    try {
-                        MirthMessageMaps messageMaps = new MirthMessageMaps(provider.getConnector().getChannelId());
-                        Map<?,?> source = (Map<?, ?>) messageMaps.get(properties.getCredentialsVariable(), null);
-                        for (Entry<?, ?> entry : source.entrySet()) {
-                            if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
-                                credentialsSource.put((String) entry.getKey(), (String) entry.getValue());
-                            } else {
-                                logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + properties.getCredentialsVariable() + "'. Skipping entry.");
-                            }
-                        }
-
-                    } catch (ClassCastException ex) {
-                        logger.warn("Error getting credentials from map " + properties.getCredentialsVariable() + "'.", ex);
-                    }
-                } else {
-                    credentialsSource = properties.getCredentialsMap();
-                }
+                Map<String, String> credentialsSource = getCredentials(properties);
                 String password = credentialsSource.get(username);
                 if (password == null) {
                     throw new Exception("Credentials for username " + username + " not found.");
@@ -353,6 +341,32 @@ public class DigestAuthenticator extends Authenticator {
         return AuthenticationResult.Challenged(digestBuilder.toString());
     }
 
+    protected Map<String, String> getCredentials(DigestHttpAuthProperties properties) {
+        Map<String, String> credentialsSource;
+        if (properties.isUseCredentialsVariable()) {
+            credentialsSource = new HashMap<>();
+            try {
+                Map<?,?> source = (Map<?, ?>) messageMaps.get(properties.getCredentialsVariable(), null);
+                if (source != null) {
+                    for (Entry<?, ?> entry : source.entrySet()) {
+                        if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
+                            credentialsSource.put((String) entry.getKey(), (String) entry.getValue());
+                        } else {
+                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + properties.getCredentialsVariable() + "'. Skipping entry.");
+                        }
+                    }
+                } else {
+                    logger.warn("No credentials map found at '" + properties.getCredentialsVariable() + "'.");
+                }
+            } catch (ClassCastException ex) {
+                logger.warn("Error getting credentials from map " + properties.getCredentialsVariable() + "'.", ex);
+            }
+        } else {
+            credentialsSource = properties.getCredentialsMap();
+        }
+        return credentialsSource;
+    }
+    
     /**
      * Iterates through all nonces in the cache and removes any that are expired.
      */

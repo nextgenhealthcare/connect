@@ -10,7 +10,6 @@
 package com.mirth.connect.connectors.http;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +23,6 @@ import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
-import com.mirth.connect.donkey.util.xstream.SerializerException;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class HttpReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, SourceConnectorPropertiesInterface {
     private ListenerConnectorProperties listenerConnectorProperties;
@@ -42,7 +38,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     private String responseStatusCode;
     private Map<String, List<String>> responseHeaders;
     private String responseHeadersVariable;
-    private boolean isUseResponseHeadersVariable;  // true to use responseHeaders, false to use responseHeadersVariable
+    private boolean useResponseHeadersVariable;  // true to use responseHeaders, false to use responseHeadersVariable
     private String charset;
     private String contextPath;
     private String timeout;
@@ -66,7 +62,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         this.timeout = "30000";
         this.staticResources = new ArrayList<HttpStaticResource>();
         this.responseHeadersVariable = "";
-        this.isUseResponseHeadersVariable = false;
+        this.useResponseHeadersVariable = false;
     }
 
     public boolean isXmlBody() {
@@ -142,18 +138,18 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     }
 
     public boolean isUseHeadersVariable() {
-        return isUseResponseHeadersVariable;
+        return useResponseHeadersVariable;
     }
     
-    public void setIsUseHeadersVariable(boolean isUseHeadersVariable) {
-        this.isUseResponseHeadersVariable = isUseHeadersVariable;
+    public void setUseHeadersVariable(boolean useResponseHeadersVariable) {
+        this.useResponseHeadersVariable = useResponseHeadersVariable;
     }
 
-    public void setResponseHeaderVariable(String headersVariable) {
+    public void setResponseHeadersVariable(String headersVariable) {
         this.responseHeadersVariable = headersVariable;
     }
     
-    public String getResponseHeaderVariable() {
+    public String getResponseHeadersVariable() {
         return this.responseHeadersVariable;
     }
     

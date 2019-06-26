@@ -153,8 +153,8 @@ public class HttpListener extends ConnectorSettingsPanel {
         properties.setResponseStatusCode(responseStatusCodeField.getText());
 
         properties.setResponseHeadersMap(getResponseHeaders());
-        properties.setIsUseHeadersVariable(useResponseHeadersVariableRadio.isSelected());
-        properties.setResponseHeaderVariable(responseHeadersVariableField.getText());
+        properties.setUseHeadersVariable(useResponseHeadersVariableRadio.isSelected());
+        properties.setResponseHeadersVariable(responseHeadersVariableField.getText());
         
         properties.setStaticResources(getStaticResources());
 
@@ -218,7 +218,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         } else {
             useResponseHeadersTableRadio.setSelected(true);
         }
-        responseHeadersVariableField.setText(props.getResponseHeaderVariable());
+        responseHeadersVariableField.setText(props.getResponseHeadersVariable());
         useResponseHeadersVariableFieldsEnabled(props.isUseHeadersVariable());
         
         if (props.getStaticResources() != null) {

@@ -1,4 +1,3 @@
-package com.mirth.connect.connectors.smtp;
 
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
@@ -8,6 +7,8 @@ package com.mirth.connect.connectors.smtp;
  * The software in this package is published under the terms of the MPL license a copy of which has
  * been included with this distribution in the LICENSE.txt file.
  */
+
+package com.mirth.connect.connectors.smtp;
 
 import java.io.Serializable;
 

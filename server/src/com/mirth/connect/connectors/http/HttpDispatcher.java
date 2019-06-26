@@ -116,7 +116,6 @@ public class HttpDispatcher extends DestinationConnector {
     private static final int MAX_MAP_SIZE = 100;
 
     protected Logger logger = Logger.getLogger(this.getClass());
-    protected HttpDispatcherProperties connectorProperties;
 
     protected ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     protected EventController eventController = ControllerFactory.getFactory().createEventController();
@@ -130,7 +129,7 @@ public class HttpDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        this.connectorProperties = (HttpDispatcherProperties) getConnectorProperties();
+        this.setConnectorProperties((HttpDispatcherProperties) getConnectorProperties());
 
         // load the default configuration
         String configurationClass = getConfigurationClass();
@@ -149,7 +148,7 @@ public class HttpDispatcher extends DestinationConnector {
             throw new ConnectorTaskException(e);
         }
 
-        if (connectorProperties.isResponseBinaryMimeTypesRegex()) {
+        if (getConnectorProperties().isResponseBinaryMimeTypesRegex()) {
             binaryMimeTypesRegexMap = new ConcurrentHashMap<String, Pattern>();
         } else {
             binaryMimeTypesArrayMap = new ConcurrentHashMap<String, String[]>();
@@ -430,7 +429,7 @@ public class HttpDispatcher extends DestinationConnector {
 
     @Override
     protected String getConfigurationClass() {
-        return configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
+        return configurationController.getProperty(getConnectorProperties().getProtocol(), "httpConfigurationClass");
     }
 
     public RegistryBuilder<ConnectionSocketFactory> getSocketFactoryRegistry() {
@@ -440,43 +439,8 @@ public class HttpDispatcher extends DestinationConnector {
     private HttpRequestBase buildHttpRequest(URI hostURI, HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile, ContentType contentType, Charset charset) throws Exception {
         String method = httpDispatcherProperties.getMethod();
         boolean isMultipart = httpDispatcherProperties.isMultipart();
-        Map<String, List<String>> headers;
-        if (httpDispatcherProperties.isUseHeadersVariable()) {
-            headers = new HashMap<>();
-            try {
-                Map<?,?> source = (Map<?, ?>) getMessageMaps().get(httpDispatcherProperties.getHeadersVariable(), connectorMessage);
-                for (Entry<?, ?> entry : source.entrySet()) {
-                    try {
-                        headers.put((String) entry.getKey(), (List<String>) entry.getValue());
-                    } catch (Exception ex) {
-                        logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping entry.", ex);
-                    }
-                }
-            } catch (Exception ex) {
-                logger.warn("Error getting headers from map " + httpDispatcherProperties.getHeadersVariable() + "'.", ex);
-            }
-        } else {
-            headers = httpDispatcherProperties.getHeadersMap();
-        }
-        
-        Map<String, List<String>> parameters;
-        if (httpDispatcherProperties.isUseParametersVariable()) {
-            parameters = new HashMap<>();
-            try {
-                Map<?,?> source = (Map<?, ?>) getMessageMaps().get(httpDispatcherProperties.getParametersVariable(), connectorMessage);
-                for (Entry<?, ?> entry : source.entrySet()) {
-                    try {
-                        parameters.put((String) entry.getKey(), (List<String>) entry.getValue());
-                    } catch (Exception ex) {
-                        logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getParametersVariable() + "'. Skipping entry.", ex);
-                    }
-                }
-            } catch (Exception ex) {
-                logger.warn("Error getting parameters from map " + httpDispatcherProperties.getParametersVariable() + "'.", ex);
-            }
-        } else {
-            parameters = httpDispatcherProperties.getParametersMap();
-        }
+        Map<String, List<String>> headers = getHeaders(httpDispatcherProperties, connectorMessage);
+        Map<String, List<String>> parameters = getParameters(httpDispatcherProperties, connectorMessage);
 
         Object content = null;
         if (httpDispatcherProperties.isDataTypeBinary()) {
@@ -600,6 +564,94 @@ public class HttpDispatcher extends DestinationConnector {
         return httpMethod;
     }
 
+    Map<String, List<String>> getHeaders(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage) {
+        Map<String, List<String>> headers;
+        if (httpDispatcherProperties.isUseHeadersVariable()) {
+            headers = new HashMap<>();
+            try {
+                Map<?,?> source = (Map<?, ?>) getMessageMaps().get(httpDispatcherProperties.getHeadersVariable(), connectorMessage);
+                if (source != null) {
+                    for (Entry<?, ?> entry : source.entrySet()) {
+                        try {
+                            if (entry.getValue() instanceof String) {
+                                List<String> list = new ArrayList<String>();
+                                list.add((String) entry.getValue());
+                                headers.put((String) entry.getKey(), list);
+                            } else {
+                                List<String> validListEntries = new ArrayList<String>();
+                                for (Object listEntry : (List<?>) entry.getValue()) {
+                                    if (listEntry instanceof String) {
+                                        validListEntries.add((String) listEntry);
+                                    } else {
+                                        logger.trace("Found non-string entry in '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping entry.");
+                                    }
+                                }
+                                if (validListEntries.size() > 0) {
+                                    headers.put((String) entry.getKey(), validListEntries);
+                                } else {
+                                    logger.trace("No valid String entries found for '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping.");
+                                }
+                            }
+                        } catch (Exception ex) {
+                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping entry.", ex);
+                        }
+                    }
+                } else {
+                    logger.warn("No headers map found at '" + httpDispatcherProperties.getHeadersVariable() + "'.");
+                }
+            } catch (Exception ex) {
+                logger.warn("Error getting headers from map " + httpDispatcherProperties.getHeadersVariable() + "'.", ex);
+            }
+        } else {
+            headers = httpDispatcherProperties.getHeadersMap();
+        }
+        return headers;
+    }
+
+    Map<String, List<String>> getParameters(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage) {
+        Map<String, List<String>> parameters;
+        if (httpDispatcherProperties.isUseParametersVariable()) {
+            parameters = new HashMap<>();
+            try {
+                Map<?,?> source = (Map<?, ?>) getMessageMaps().get(httpDispatcherProperties.getParametersVariable(), connectorMessage);
+                if (source != null) {
+                    for (Entry<?, ?> entry : source.entrySet()) {
+                        try {
+                            if (entry.getValue() instanceof String) {
+                                List<String> list = new ArrayList<String>();
+                                list.add((String) entry.getValue());
+                                parameters.put((String) entry.getKey(), list);
+                            } else {
+                                List<String> validListEntries = new ArrayList<String>();
+                                for (Object listEntry : (List<?>) entry.getValue()) {
+                                    if (listEntry instanceof String) {
+                                        validListEntries.add((String) listEntry);
+                                    } else {
+                                        logger.trace("Found non-string entry in '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping entry.");
+                                    }
+                                }
+                                if (validListEntries.size() > 0) {
+                                    parameters.put((String) entry.getKey(), validListEntries);
+                                } else {
+                                    logger.trace("No valid String entries found for '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping.");
+                                }
+                            }
+                        } catch (Exception ex) {
+                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getParametersVariable() + "'. Skipping entry.", ex);
+                        }
+                    }
+                } else {
+                    logger.warn("No parameters map found at '" + httpDispatcherProperties.getParametersVariable() + "'.");
+                }
+            } catch (Exception ex) {
+                logger.warn("Error getting parameters from map " + httpDispatcherProperties.getParametersVariable() + "'.", ex);
+            }
+        } else {
+            parameters = httpDispatcherProperties.getParametersMap();
+        }
+        return parameters;
+    }
+
     private void setQueryString(URIBuilder uriBuilder, List<NameValuePair> queryParameters) {
         if (queryParameters.size() > 0) {
             uriBuilder.setParameters(queryParameters);
@@ -670,7 +722,7 @@ public class HttpDispatcher extends DestinationConnector {
     private boolean isBinaryContentType(String binaryMimeTypes, ContentType contentType) {
         String mimeType = contentType.getMimeType();
 
-        if (connectorProperties.isResponseBinaryMimeTypesRegex()) {
+        if (getConnectorProperties().isResponseBinaryMimeTypesRegex()) {
             Pattern binaryMimeTypesRegex = binaryMimeTypesRegexMap.get(binaryMimeTypes);
 
             if (binaryMimeTypesRegex == null) {
@@ -704,5 +756,10 @@ public class HttpDispatcher extends DestinationConnector {
 
             return StringUtils.startsWithAny(mimeType, binaryMimeTypesArray);
         }
+    }
+    
+    @Override
+    public HttpDispatcherProperties getConnectorProperties() {
+        return (HttpDispatcherProperties) super.getConnectorProperties();
     }
 }

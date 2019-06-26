@@ -87,6 +87,7 @@ import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.connectors.http.HttpDispatcherProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
@@ -114,7 +115,6 @@ public class WebServiceDispatcher extends DestinationConnector {
     private static final int MAX_REDIRECTS = NumberUtils.toInt(System.getProperty("http.maxRedirects"), 20);
 
     private Logger logger = Logger.getLogger(this.getClass());
-    protected WebServiceDispatcherProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
@@ -136,7 +136,7 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        this.connectorProperties = (WebServiceDispatcherProperties) getConnectorProperties();
+        setConnectorProperties((WebServiceDispatcherProperties) getConnectorProperties());
 
         // load the default configuration
         String configurationClass = getConfigurationClass();
@@ -210,7 +210,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                 if (numTasks > 0) {
                     String message = "Error halting Web Service Sender: " + numTasks + " request" + (numTasks == 1 ? "" : "s") + " failed to be halted. This can potentially lead to a thread leak if the requests continue to hang.";
                     logger.error(message);
-                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), message, null));
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), getConnectorProperties().getName(), message, null));
                 }
             }
         }
@@ -225,7 +225,7 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     @Override
     protected String getConfigurationClass() {
-        return configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
+        return configurationController.getProperty(getConnectorProperties().getProtocol(), "wsConfigurationClass");
     }
 
     private String sourceToXmlString(Source source) throws TransformerConfigurationException, TransformerException {
@@ -481,25 +481,7 @@ public class WebServiceDispatcher extends DestinationConnector {
             Map<String, List<String>> requestHeaders = new HashMap<String, List<String>>(dispatchContainer.getDefaultRequestHeaders());
 
             // Add custom headers
-            Map<String, List<String>> headersSource;
-            
-            if (webServiceDispatcherProperties.isUseHeadersVariable()) {
-                headersSource = new HashMap<>();
-                try {
-                    Map<?,?> source = (Map<?, ?>) getMessageMaps().get(webServiceDispatcherProperties.getHeadersVariable(), connectorMessage);
-                    for (Entry<?, ?> entry : source.entrySet()) {
-                        try {
-                            headersSource.put((String) entry.getKey(), (List<String>) entry.getValue());
-                        } catch (Exception ex) {
-                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + webServiceDispatcherProperties.getHeadersVariable() + "'. Skipping entry.", ex);
-                        }
-                    }
-                } catch (Exception ex) {
-                    logger.warn("Error getting headers from map '" + webServiceDispatcherProperties.getHeadersVariable() + "'.", ex);
-                }
-            } else {
-                headersSource = webServiceDispatcherProperties.getHeadersMap();
-            }
+            Map<String, List<String>> headersSource = getHeaders(webServiceDispatcherProperties, connectorMessage);
             
             if (MapUtils.isNotEmpty(headersSource)) {
                 for (Entry<String, List<String>> entry : headersSource.entrySet()) {
@@ -526,33 +508,12 @@ public class WebServiceDispatcher extends DestinationConnector {
 
             if (webServiceDispatcherProperties.isUseMtom()) {
                 soapBinding.setMTOMEnabled(true);
-                List<String> attachmentIds;
-                List<String> attachmentContents;
-                List<String> attachmentTypes;
-                if (webServiceDispatcherProperties.isUseAttachmentsVariable()) {
-                    attachmentIds = new ArrayList<String>();
-                    attachmentContents = new ArrayList<String>();
-                    attachmentTypes = new ArrayList<String>();
-                    try {
-                        List<AttachmentEntry> attachmentEntries = (List<AttachmentEntry>) getMessageMaps().get(webServiceDispatcherProperties.getAttachmentsVariable(), connectorMessage);
-                        for (AttachmentEntry entry : attachmentEntries) {
-                            attachmentIds.add(entry.getName());
-                            attachmentContents.add(entry.getContent());
-                            attachmentTypes.add(entry.getMimeType());
-                        }
-                    } catch (Exception ex) {
-                        logger.warn("Error getting attachments from map '" + webServiceDispatcherProperties.getHeadersVariable() + "'.", ex);
-                    }
-                } else {
-                    attachmentIds = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentNames());
-                    attachmentContents = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentContents());
-                    attachmentTypes = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentTypes());
-                }
+                List<AttachmentEntry> attachmentEntries = getAttachments(webServiceDispatcherProperties, connectorMessage);
                 
-                for (int i = 0; i < attachmentIds.size(); i++) {
-                    String attachmentContentId = attachmentIds.get(i);
-                    String attachmentContentType = attachmentTypes.get(i);
-                    String attachmentContent = attachmentHandlerProvider.reAttachMessage(attachmentContents.get(i), connectorMessage, webServiceDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
+                for (AttachmentEntry entry : attachmentEntries) {
+                    String attachmentContentId = entry.getName();
+                    String attachmentContentType = entry.getMimeType();
+                    String attachmentContent = attachmentHandlerProvider.reAttachMessage(entry.getContent(), connectorMessage, webServiceDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
 
                     AttachmentPart attachment = message.createAttachmentPart();
                     attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);
@@ -792,5 +753,83 @@ public class WebServiceDispatcher extends DestinationConnector {
                 }
             }
         }
+    }
+    
+    Map<String, List<String>> getHeaders(WebServiceDispatcherProperties webServiceDispatcherProperties, ConnectorMessage connectorMessage) {
+        Map<String, List<String>> headersSource;
+        if (webServiceDispatcherProperties.isUseHeadersVariable()) {
+            headersSource = new HashMap<>();
+            try {
+                Map<?,?> source = (Map<?, ?>) getMessageMaps().get(webServiceDispatcherProperties.getHeadersVariable(), connectorMessage);
+                if (source != null) {
+                    for (Entry<?, ?> entry : source.entrySet()) {
+                        try {
+                            if (entry.getValue() instanceof String) {
+                                List<String> list = new ArrayList<String>();
+                                list.add((String) entry.getValue());
+                                headersSource.put((String) entry.getKey(), list);
+                            } else {
+                                List<String> validListEntries = new ArrayList<String>();
+                                for (Object listEntry : (List<?>) entry.getValue()) {
+                                    if (listEntry instanceof String) {
+                                        validListEntries.add((String) listEntry);
+                                    } else {
+                                        logger.trace("Found non-string entry in '" + entry.getKey().toString() + "' from map '" + getConnectorProperties().getHeadersVariable() + "'. Skipping entry.");
+                                    }
+                                }
+                                if (validListEntries.size() > 0) {
+                                    headersSource.put((String) entry.getKey(), validListEntries);
+                                } else {
+                                    logger.trace("No valid String entries found for '" + entry.getKey().toString() + "' from map '" + getConnectorProperties().getHeadersVariable() + "'. Skipping.");
+                                }
+                            }
+                        } catch (Exception ex) {
+                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + webServiceDispatcherProperties.getHeadersVariable() + "'. Skipping entry.", ex);
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                logger.warn("Error getting headers from map '" + webServiceDispatcherProperties.getHeadersVariable() + "'.", ex);
+            }
+        } else {
+            headersSource = webServiceDispatcherProperties.getHeadersMap();
+        }
+        return headersSource;
+    }
+    
+    List<AttachmentEntry> getAttachments(WebServiceDispatcherProperties webServiceDispatcherProperties, ConnectorMessage connectorMessage) {
+        List<AttachmentEntry> attachmentList = new ArrayList<>();
+        if (webServiceDispatcherProperties.isUseAttachmentsVariable()) {
+            try {
+                List<Object> attachmentEntries = (List<Object>) getMessageMaps().get(webServiceDispatcherProperties.getAttachmentsVariable(), connectorMessage);
+                if (attachmentEntries != null) {
+                    for (Object entry : attachmentEntries) {
+                        if (entry instanceof AttachmentEntry) {
+                            attachmentList.add(new AttachmentEntry((AttachmentEntry) entry));
+                        } else {
+                            logger.trace("Error getting attachment entry from map '" + webServiceDispatcherProperties.getAttachmentsVariable() + "'. Skipping entry.");
+                        }
+                    }
+                } else {
+                    logger.warn("No attachments list found at '" + webServiceDispatcherProperties.getAttachmentsVariable() + "'.");
+                }
+            } catch (Exception ex) {
+                logger.warn("Error getting attachments from map '" + webServiceDispatcherProperties.getHeadersVariable() + "'.", ex);
+            }
+        } else {
+            List<String> attachmentIds = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentNames());
+            List<String> attachmentContents = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentContents());
+            List<String> attachmentTypes = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentTypes());
+            
+            for (int i = 0; i < attachmentIds.size(); i++) {
+                attachmentList.add(new AttachmentEntry(attachmentIds.get(i), attachmentContents.get(i), attachmentTypes.get(i)));
+            }
+        }
+        return attachmentList;
+    }
+    
+    @Override
+    public WebServiceDispatcherProperties getConnectorProperties() {
+        return (WebServiceDispatcherProperties) super.getConnectorProperties();
     }
 }

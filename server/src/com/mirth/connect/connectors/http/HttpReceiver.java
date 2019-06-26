@@ -119,7 +119,6 @@ import com.mirth.connect.util.CharsetUtils;
 
 public class HttpReceiver extends SourceConnector implements BinaryContentTypeResolver {
     private Logger logger = Logger.getLogger(this.getClass());
-    private HttpReceiverProperties connectorProperties;
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
@@ -135,9 +134,9 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        this.connectorProperties = (HttpReceiverProperties) getConnectorProperties();
+        this.setConnectorProperties((HttpReceiverProperties) getConnectorProperties());
 
-        if (connectorProperties.isXmlBody() && isProcessBatch()) {
+        if (getConnectorProperties().isXmlBody() && isProcessBatch()) {
             throw new ConnectorTaskException("Batch processing is not supported for Xml Body.");
         }
 
@@ -157,8 +156,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             throw new ConnectorTaskException(e);
         }
 
-        String replacedBinaryMimeTypes = replacer.replaceValues(connectorProperties.getBinaryMimeTypes(), getChannelId(), getChannel().getName());
-        if (connectorProperties.isBinaryMimeTypesRegex()) {
+        String replacedBinaryMimeTypes = replacer.replaceValues(getConnectorProperties().getBinaryMimeTypes(), getChannelId(), getChannel().getName());
+        if (getConnectorProperties().isBinaryMimeTypesRegex()) {
             try {
                 binaryMimeTypesRegex = Pattern.compile(replacedBinaryMimeTypes);
             } catch (PatternSyntaxException e) {
@@ -168,8 +167,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             binaryMimeTypesArray = StringUtils.split(replacedBinaryMimeTypes.replaceAll("\\s*,\\s*", ",").trim(), ',');
         }
 
-        if (connectorProperties.getPluginProperties() != null) {
-            for (ConnectorPluginProperties pluginProperties : connectorProperties.getPluginProperties()) {
+        if (getConnectorProperties().getPluginProperties() != null) {
+            for (ConnectorPluginProperties pluginProperties : getConnectorProperties().getPluginProperties()) {
                 if (pluginProperties instanceof HttpAuthConnectorPluginProperties) {
                     authProps = (HttpAuthConnectorPluginProperties) pluginProperties;
                 }
@@ -198,12 +197,12 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     public void onStart() throws ConnectorTaskException {
         String channelId = getChannelId();
         String channelName = getChannel().getName();
-        host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), channelId, channelName);
-        port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), channelId, channelName));
-        timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getTimeout(), channelId, channelName), 0);
+        host = replacer.replaceValues(getConnectorProperties().getListenerConnectorProperties().getHost(), channelId, channelName);
+        port = NumberUtils.toInt(replacer.replaceValues(getConnectorProperties().getListenerConnectorProperties().getPort(), channelId, channelName));
+        timeout = NumberUtils.toInt(replacer.replaceValues(getConnectorProperties().getTimeout(), channelId, channelName), 0);
 
         // Initialize contextPath to "" or its value after replacements
-        String contextPath = (connectorProperties.getContextPath() == null ? "" : replacer.replaceValues(connectorProperties.getContextPath(), channelId, channelName)).trim();
+        String contextPath = (getConnectorProperties().getContextPath() == null ? "" : replacer.replaceValues(getConnectorProperties().getContextPath(), channelId, channelName)).trim();
 
         /*
          * Empty string and "/" are both valid and equal functionally. However if there is a
@@ -225,11 +224,11 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             Handler serverHandler = handlers;
 
             // Add handlers for each static resource
-            if (connectorProperties.getStaticResources() != null) {
+            if (getConnectorProperties().getStaticResources() != null) {
                 NavigableMap<String, List<HttpStaticResource>> staticResourcesMap = new TreeMap<String, List<HttpStaticResource>>();
 
                 // Add each static resource to a map first to allow sorting and deduplication
-                for (HttpStaticResource staticResource : connectorProperties.getStaticResources()) {
+                for (HttpStaticResource staticResource : getConnectorProperties().getStaticResources()) {
                     String resourceContextPath = replacer.replaceValues(staticResource.getContextPath(), channelId, channelName);
                     Map<String, List<String>> queryParameters = new HashMap<String, List<String>>();
 
@@ -328,7 +327,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
     @Override
     protected String getConfigurationClass() {
-        return configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
+        return configurationController.getProperty(getConnectorProperties().getProtocol(), "httpConfigurationClass");
     }
 
     private class RequestHandler extends AbstractHandler {
@@ -356,7 +355,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                         if (messageContent instanceof byte[]) {
                             BatchMessageException e = new BatchMessageException("Batch processing is not supported for binary data.");
                             logger.error(e.getMessage() + " (channel: " + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + ")", e);
-                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, e));
+                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), getConnectorProperties().getName(), null, e));
                         } else {
                             try {
                                 BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader((String) messageContent), sourceMap, attachments);
@@ -398,34 +397,62 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     }
 
     protected void sendResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult) throws Exception {
-        ContentType contentType = ContentType.parse(replaceValues(connectorProperties.getResponseContentType(), dispatchResult));
-        if (!connectorProperties.isResponseDataTypeBinary() && contentType.getCharset() == null) {
+        ContentType contentType = ContentType.parse(replaceValues(getConnectorProperties().getResponseContentType(), dispatchResult));
+        if (!getConnectorProperties().isResponseDataTypeBinary() && contentType.getCharset() == null) {
             /*
              * If text mode is used and a specific charset isn't already defined, use the one from
              * the connector properties. We can't use ContentType.withCharset here because it
              * doesn't preserve other parameters, like boundary definitions
              */
-            contentType = ContentType.parse(contentType.toString() + "; charset=" + CharsetUtils.getEncoding(connectorProperties.getCharset()));
+            contentType = ContentType.parse(contentType.toString() + "; charset=" + CharsetUtils.getEncoding(getConnectorProperties().getCharset()));
         }
 
         // Replace response headers
+        Map<String, List<String>> responseHeaders = getHeaders(dispatchResult);
+
+        sendResponse(baseRequest, servletResponse, dispatchResult, contentType, responseHeaders, null);
+    }
+
+    Map<String, List<String>> getHeaders(DispatchResult dispatchResult) {
         Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
-        if (connectorProperties.isUseHeadersVariable()) {
+        if (getConnectorProperties().isUseHeadersVariable()) {
             try {
-                Map<?,?> test = (Map<?, ?>) channel.getMessageMaps().get(connectorProperties.getResponseHeaderVariable(), dispatchResult.getProcessedMessage().getMergedConnectorMessage());
-                for (Entry<?, ?> entry : test.entrySet()) {
-                    try {
-                        responseHeaders.put((String) entry.getKey(), (List<String>) entry.getValue());
-                    } catch (Exception ex) {
-                        logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + connectorProperties.getResponseHeaderVariable() + "'. Skipping entry.", ex);
+                Map<?,?> test = (Map<?, ?>) channel.getMessageMaps().get(getConnectorProperties().getResponseHeadersVariable(), dispatchResult.getProcessedMessage().getMergedConnectorMessage());
+                if (test != null) {
+                    for (Entry<?, ?> entry : test.entrySet()) {
+                        try {
+                            if (entry.getValue() instanceof String) {
+                                List<String> list = new ArrayList<String>();
+                                list.add((String) entry.getValue());
+                                responseHeaders.put((String) entry.getKey(), list);
+                            } else {
+                                List<String> validListEntries = new ArrayList<String>();
+                                for (Object listEntry : (List<?>) entry.getValue()) {
+                                    if (listEntry instanceof String) {
+                                        validListEntries.add((String) listEntry);
+                                    } else {
+                                        logger.trace("Found non-string entry in '" + entry.getKey().toString() + "' from map '" + getConnectorProperties().getResponseHeadersVariable() + "'. Skipping entry.");
+                                    }
+                                }
+                                if (validListEntries.size() > 0) {
+                                    responseHeaders.put((String) entry.getKey(), validListEntries);
+                                } else {
+                                    logger.trace("No valid String entries found for '" + entry.getKey().toString() + "' from map '" + getConnectorProperties().getResponseHeadersVariable() + "'. Skipping.");
+                                }
+                            }
+                        } catch (Exception ex) {
+                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + getConnectorProperties().getResponseHeadersVariable() + "'. Skipping entry.", ex);
+                        }
                     }
+                } else {
+                    logger.warn("No headers map found at '" + getConnectorProperties().getResponseHeadersVariable() + "'.");
                 }
-            } catch (ClassCastException castEx) {
-                logger.trace("Error getting map " + connectorProperties.getResponseHeaderVariable() + "'.", castEx);
+            } catch (Exception ex) {
+                logger.trace("Error getting map " + getConnectorProperties().getResponseHeadersVariable() + "'.", ex);
             }
             
         } else {
-            for (Entry<String, List<String>> entry : connectorProperties.getResponseHeadersMap().entrySet()) {
+            for (Entry<String, List<String>> entry : getConnectorProperties().getResponseHeadersMap().entrySet()) {
                 String replacedKey = replaceValues(entry.getKey(), dispatchResult);
     
                 for (String headerValue : entry.getValue()) {
@@ -438,10 +465,9 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                 }
             }
         }
-
-        sendResponse(baseRequest, servletResponse, dispatchResult, contentType, responseHeaders, null);
+        return responseHeaders;
     }
-
+   
     protected void sendResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult, ContentType contentType, Map<String, List<String>> responseHeaders, byte[] responseBytes) throws Exception {
         servletResponse.setContentType(contentType.toString());
 
@@ -453,7 +479,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         }
 
         // set the status code
-        int statusCode = NumberUtils.toInt(replaceValues(connectorProperties.getResponseStatusCode(), dispatchResult), -1);
+        int statusCode = NumberUtils.toInt(replaceValues(getConnectorProperties().getResponseStatusCode(), dispatchResult), -1);
 
         /*
          * set the response body and status code (if we choose a response from the drop-down)
@@ -482,10 +508,10 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             if (message != null || responseBytes != null) {
                 OutputStream responseOutputStream = servletResponse.getOutputStream();
                 if (responseBytes == null) {
-                    if (connectorProperties.isResponseDataTypeBinary()) {
+                    if (getConnectorProperties().isResponseDataTypeBinary()) {
                         responseBytes = Base64Util.decodeBase64(message.getBytes("US-ASCII"));
                     } else {
-                        responseBytes = message.getBytes(CharsetUtils.getEncoding(connectorProperties.getCharset()));
+                        responseBytes = message.getBytes(CharsetUtils.getEncoding(getConnectorProperties().getCharset()));
                     }
                 }
 
@@ -525,8 +551,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
     protected void sendErrorResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
         String responseError = ExceptionUtils.getStackTrace(t);
-        logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
-        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), dispatchResult == null ? null : dispatchResult.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", t));
+        logger.error("Error receiving message (" + getConnectorProperties().getName() + " \"Source\" on channel " + getChannelId() + ").", t);
+        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), dispatchResult == null ? null : dispatchResult.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), getConnectorProperties().getName(), "Error receiving message", t));
 
         if (dispatchResult != null) {
             // TODO decide if we still want to send back the exception content or something else?
@@ -554,8 +580,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
          */
         Object rawMessageContent;
 
-        if (connectorProperties.isXmlBody()) {
-            rawMessageContent = HttpMessageConverter.httpRequestToXml(requestMessage, connectorProperties.isParseMultipart(), connectorProperties.isIncludeMetadata(), this);
+        if (getConnectorProperties().isXmlBody()) {
+            rawMessageContent = HttpMessageConverter.httpRequestToXml(requestMessage, getConnectorProperties().isParseMultipart(), getConnectorProperties().isIncludeMetadata(), this);
         } else {
             rawMessageContent = requestMessage.getContent();
         }
@@ -569,7 +595,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
     protected HttpRequestMessage createRequestMessage(Request request, boolean ignorePayload) throws IOException, MessagingException {
         // Only parse multipart if XML Body is selected and Parse Multipart is enabled
-        boolean parseMultipart = connectorProperties.isXmlBody() && connectorProperties.isParseMultipart() && ServletFileUpload.isMultipartContent(request);
+        boolean parseMultipart = getConnectorProperties().isXmlBody() && getConnectorProperties().isParseMultipart() && ServletFileUpload.isMultipartContent(request);
         return createRequestMessage(request, ignorePayload, parseMultipart);
     }
 
@@ -697,12 +723,12 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                 try {
                     contentType = ContentType.parse(contentTypeString);
                 } catch (Exception e) {
-                    contentType = ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), CharsetUtils.getEncoding(connectorProperties.getCharset()));
+                    contentType = ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), CharsetUtils.getEncoding(getConnectorProperties().getCharset()));
                 }
 
                 Charset charset = contentType.getCharset();
                 if (charset == null) {
-                    charset = Charset.forName(CharsetUtils.getEncoding(connectorProperties.getCharset()));
+                    charset = Charset.forName(CharsetUtils.getEncoding(getConnectorProperties().getCharset()));
                 }
 
                 servletResponse.setContentType(contentType.toString());
@@ -770,8 +796,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                     ((GZIPOutputStream) responseOutputStream).finish();
                 }
             } catch (Throwable t) {
-                logger.error("Error handling static HTTP resource request (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
-                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error handling static HTTP resource request", t));
+                logger.error("Error handling static HTTP resource request (" + getConnectorProperties().getName() + " \"Source\" on channel " + getChannelId() + ").", t);
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), getConnectorProperties().getName(), "Error handling static HTTP resource request", t));
 
                 servletResponse.reset();
                 servletResponse.setContentType(ContentType.TEXT_PLAIN.toString());
@@ -976,8 +1002,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                             return org.eclipse.jetty.server.Authentication.SEND_FAILURE;
                     }
                 } catch (Throwable t) {
-                    logger.error("Error in HTTP authentication for " + connectorProperties.getName() + " (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
-                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, "Source", connectorProperties.getName(), "Error in HTTP authentication for " + connectorProperties.getName(), t));
+                    logger.error("Error in HTTP authentication for " + getConnectorProperties().getName() + " (" + getConnectorProperties().getName() + " \"Source\" on channel " + getChannelId() + ").", t);
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, "Source", getConnectorProperties().getName(), "Error in HTTP authentication for " + getConnectorProperties().getName(), t));
                     throw new ServerAuthException(t);
                 }
             }
@@ -997,10 +1023,15 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     public boolean isBinaryContentType(ContentType contentType) {
         String mimeType = contentType.getMimeType();
 
-        if (connectorProperties.isBinaryMimeTypesRegex()) {
+        if (getConnectorProperties().isBinaryMimeTypesRegex()) {
             return binaryMimeTypesRegex.matcher(mimeType).matches();
         } else {
             return StringUtils.startsWithAny(mimeType, binaryMimeTypesArray);
         }
+    }
+    
+    @Override
+    public HttpReceiverProperties getConnectorProperties() {
+        return (HttpReceiverProperties) super.getConnectorProperties();
     }
 }

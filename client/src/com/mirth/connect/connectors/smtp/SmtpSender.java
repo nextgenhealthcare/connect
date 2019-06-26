@@ -726,7 +726,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
                 useHeadersVariableFieldsEnabled(false);
             }
         });
-        useHeadersVariableRadio = new MirthRadioButton("Use Map:");
+        useHeadersVariableRadio = new MirthRadioButton("Use List:");
         useHeadersVariableRadio.setBackground(getBackground());
         useHeadersVariableRadio.addActionListener(new ActionListener() {
             @Override
@@ -864,14 +864,14 @@ public class SmtpSender extends ConnectorSettingsPanel {
         add(htmlNo);
         add(bodyLabel, "newline, top, right");
         add(bodyTextPane, "grow, push, sx, h 89:");
-        add(headersLabel, "newline, top, right");
+        add(headersLabel, "newline, right");
         add(useHeadersTableRadio, "split 3");
         add(useHeadersVariableRadio);
         add(headersVariableField, "w 125");
         add(headersPane, "newline, growx, pushx, skip 1, span 2, h 85!");
         add(newHeaderButton, "top, flowy, split 2, w 44!");
         add(deleteHeaderButton, "w 44!");
-        add(attachmentsLabel, "newline, top, right");
+        add(attachmentsLabel, "newline, right");
         add(useAttachmentsListRadio, "split 3");
         add(useAttachmentsVariableRadio);
         add(attachmentsVariableField, "w 125");

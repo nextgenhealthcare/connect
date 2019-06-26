@@ -35,9 +35,9 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
     private String method;
     private Map<String, List<String>> headers;
     private Map<String, List<String>> parameters;
-    private boolean isUseHeadersVariable;  // true to use headers, false to use headersTemplate
+    private boolean useHeadersVariable;  // true to use headers, false to use headersTemplate
     private String headersVariable;
-    private boolean isUseParametersVariable;  // true to use parameters, false to use parametersTemplate
+    private boolean useParametersVariable;  // true to use parameters, false to use parametersTemplate
     private String parametersVariable;
     private boolean responseXmlBody;
     private boolean responseParseMultipart;
@@ -65,10 +65,10 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         this.proxyPort = "";
         this.method = "post";
         this.headers = new LinkedHashMap<String, List<String>>();
-        this.isUseHeadersVariable = false;
+        this.useHeadersVariable = false;
         this.headersVariable = "";
         this.parameters = new LinkedHashMap<String, List<String>>();
-        this.isUseParametersVariable = false;
+        this.useParametersVariable = false;
         this.parametersVariable = "";
         this.responseXmlBody = false;
         this.responseParseMultipart = true;
@@ -102,14 +102,14 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         for (Entry<String, List<String>> entry : props.getHeadersMap().entrySet()) {
             headers.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
         }
-        isUseHeadersVariable = props.isUseHeadersVariable();
+        useHeadersVariable = props.isUseHeadersVariable();
         headersVariable = props.getHeadersVariable();
 
         parameters = new LinkedHashMap<String, List<String>>();
         for (Entry<String, List<String>> entry : props.getParametersMap().entrySet()) {
             parameters.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
         }
-        isUseParametersVariable = props.isUseParametersVariable();
+        useParametersVariable = props.isUseParametersVariable();
         parametersVariable = props.getParametersVariable();
 
         responseXmlBody = props.isResponseXmlBody();
@@ -175,11 +175,11 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
     }
     
     public boolean isUseHeadersVariable() {
-        return isUseHeadersVariable;
+        return useHeadersVariable;
     }
 
-    public void setUseHeadersVariable(boolean isUseHeadersVariable) {
-        this.isUseHeadersVariable = isUseHeadersVariable;
+    public void setUseHeadersVariable(boolean useHeadersVariable) {
+        this.useHeadersVariable = useHeadersVariable;
     }
 
     public void setHeadersMap(Map<String, List<String>> headers) {
@@ -203,11 +203,11 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
     }
 
     public boolean isUseParametersVariable() {
-        return isUseParametersVariable;
+        return useParametersVariable;
     }
 
-    public void setUseParametersVariable(boolean isUseParametersVariable) {
-        this.isUseParametersVariable = isUseParametersVariable;
+    public void setUseParametersVariable(boolean useParametersVariable) {
+        this.useParametersVariable = useParametersVariable;
     }
     
     public String getParametersVariable() {

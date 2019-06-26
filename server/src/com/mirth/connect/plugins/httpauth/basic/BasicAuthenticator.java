@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpHeader;
 
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.donkey.util.MessageMaps;
 import com.mirth.connect.plugins.httpauth.AuthenticationResult;
 import com.mirth.connect.plugins.httpauth.Authenticator;
 import com.mirth.connect.plugins.httpauth.RequestInfo;
@@ -34,11 +34,18 @@ public class BasicAuthenticator extends Authenticator {
     private BasicAuthenticatorProvider provider;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     protected Logger logger = Logger.getLogger(this.getClass());
+    private MessageMaps messageMaps;
 
     public BasicAuthenticator(BasicAuthenticatorProvider provider) {
         this.provider = provider;
+        this.messageMaps = new MirthMessageMaps(provider.getConnector().getChannelId());
     }
 
+    BasicAuthenticator(BasicAuthenticatorProvider provider, MessageMaps messageMaps) {
+        this.provider = provider;
+        this.messageMaps = messageMaps;
+    }
+    
     @Override
     public AuthenticationResult authenticate(RequestInfo request) {
         BasicHttpAuthProperties properties = getReplacedProperties(request);
@@ -62,26 +69,7 @@ public class BasicAuthenticator extends Authenticator {
                         String username = credentials.substring(0, index);
                         String password = credentials.substring(index + 1);
 
-                        Map<String, String> credentialsSource;
-                        if (properties.isUseCredentialsVariable()) {
-                            credentialsSource = new HashMap<>();
-                            try {
-                                MirthMessageMaps messageMaps = new MirthMessageMaps(provider.getConnector().getChannelId());
-                                Map<?,?> source = (Map<?, ?>) messageMaps.get(properties.getCredentialsVariable(), null);
-                                for (Entry<?, ?> entry : source.entrySet()) {
-                                    if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
-                                        credentialsSource.put((String) entry.getKey(), (String) entry.getValue());
-                                    } else {
-                                        logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + properties.getCredentialsVariable() + "'. Skipping entry.");
-                                    }
-                                }
-
-                            } catch (ClassCastException ex) {
-                                logger.warn("Error getting credentials from map '" + properties.getCredentialsVariable() + "'.", ex);
-                            }
-                        } else {
-                            credentialsSource = properties.getCredentialsMap();
-                        }
+                        Map<String, String> credentialsSource = getCredentials(properties);
                         // Return successful result if the passwords match
                         if (StringUtils.equals(password, credentialsSource.get(username))) {
                             return AuthenticationResult.Success(username, properties.getRealm());
@@ -116,5 +104,31 @@ public class BasicAuthenticator extends Authenticator {
         properties.setCredentialsVariable(replacer.replaceValues(properties.getCredentialsVariable()));
         
         return properties;
+    }
+    
+    protected Map<String, String> getCredentials(BasicHttpAuthProperties properties) {
+        Map<String, String> credentialsSource;
+        if (properties.isUseCredentialsVariable()) {
+            credentialsSource = new HashMap<>();
+            try {
+                Map<?,?> source = (Map<?, ?>) messageMaps.get(properties.getCredentialsVariable(), null);
+                if (source != null) {
+                    for (Entry<?, ?> entry : source.entrySet()) {
+                        if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
+                            credentialsSource.put((String) entry.getKey(), (String) entry.getValue());
+                        } else {
+                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + properties.getCredentialsVariable() + "'. Skipping entry.");
+                        }
+                    }
+                } else {
+                    logger.warn("No credentials map found at '" + properties.getCredentialsVariable() + "'.");
+                }
+            } catch (ClassCastException ex) {
+                logger.warn("Error getting credentials from map '" + properties.getCredentialsVariable() + "'.", ex);
+            }
+        } else {
+            credentialsSource = properties.getCredentialsMap();
+        }
+        return credentialsSource;
     }
 }
