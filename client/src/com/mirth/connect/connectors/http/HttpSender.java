@@ -1237,7 +1237,7 @@ public class HttpSender extends ConnectorSettingsPanel {
     }
     
     private void initLayout() {
-        setLayout(new MigLayout("insets 0 8 0 8, novisualpadding, hidemode 3, gap 12 6", "[][]6[]"));
+        setLayout(new MigLayout("insets 0 8 0 8, novisualpadding, hidemode 3, gap 12 6", "[][]6[]", "[][][][][][][][][][][][][][][][][grow][][grow][][][][grow]"));
         
         add(urlLabel, "right");
         add(urlField, "w 312!, sx, split 2");
@@ -1287,14 +1287,14 @@ public class HttpSender extends ConnectorSettingsPanel {
         add(useQueryParamsTableRadio, "split 3");
         add(useQueryParamsVariableRadio);
         add(queryParamsVariableField, "w 125!, sx");
-        add(queryParametersPane, "newline, growx, pushx, skip 1, span 2, h 150!");
+        add(queryParametersPane, "newline, growx, pushx, growy, skip 1, span 2, h 84:84:150");
         add(queryParametersNewButton, "top, flowy, split 2, w 44!");
         add(queryParametersDeleteButton, "w 44!");
         add(headersLabel, "newline, right");
         add(useHeadersTableRadio, "split 3");
         add(useHeadersVariableRadio);
         add(headersVariableField, "w 125!, sx");
-        add(headersPane, "newline, growx, pushx, skip 1, span 2, h 150!");
+        add(headersPane, "newline, growx, pushx, growy, skip 1, span 2, h 84:84:150");
         add(headersNewButton, "top, flowy, split 2, w 44!");
         add(headersDeleteButton, "w 44!");
         add(contentTypeLabel, "newline, right");

@@ -769,7 +769,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
                 useAttachmentsVariableFieldsEnabled(false);
             }
         });
-        useAttachmentsVariableRadio = new MirthRadioButton("Use Map:");
+        useAttachmentsVariableRadio = new MirthRadioButton("Use List:");
         useAttachmentsVariableRadio.setBackground(getBackground());
         useAttachmentsVariableRadio.addActionListener(new ActionListener() {
             @Override

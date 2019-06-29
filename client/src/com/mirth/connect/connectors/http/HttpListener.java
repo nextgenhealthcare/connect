@@ -1052,7 +1052,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     }
 
     protected void initLayout() {
-        setLayout(new MigLayout("insets 0 8 0 8, novisualpadding, hidemode 3, gap 12 6", "[][]6[]"));
+        setLayout(new MigLayout("insets 0 8 0 8, novisualpadding, hidemode 3, gap 12 6", "[][]6[]", "[][][][][][][][][][][][][grow][grow]"));
 
         add(contextPathLabel, "right");
         add(contextPathField, "w 150!, sx");
@@ -1085,11 +1085,11 @@ public class HttpListener extends ConnectorSettingsPanel {
         add(useResponseHeadersTableRadio, "split 3");
         add(useResponseHeadersVariableRadio);
         add(responseHeadersVariableField, "w 125!, sx");
-        add(responseHeadersPane, "newline, growx, pushx, skip 1, span 2, h 150!");
+        add(responseHeadersPane, "newline, growx, pushx, growy, skip 1, span 2, h 104:104:342");
         add(responseHeadersNewButton, "top, flowy, split 2, w 44!");
         add(responseHeadersDeleteButton, "w 44!");
         add(staticResourcesLabel, "newline, right");
-        add(responseHeadersPane1, "growx, pushx, span 2, h 150!");
+        add(responseHeadersPane1, "growx, pushx, growy, span 2, h 104:104:342");
         add(staticResourcesNewButton, "top, flowy, split 2, w 44!");
         add(staticResourcesDeleteButton, "w 44!");
     }
