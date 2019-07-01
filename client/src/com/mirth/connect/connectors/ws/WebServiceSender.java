@@ -777,7 +777,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 
             }
         });
-        useHeadersVariableRadio = new MirthRadioButton("Use List:");
+        useHeadersVariableRadio = new MirthRadioButton("Use Map:");
         useHeadersVariableRadio.setBackground(getBackground());
         useHeadersVariableRadio.addActionListener(new ActionListener() {
             @Override

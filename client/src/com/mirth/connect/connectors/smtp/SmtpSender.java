@@ -726,7 +726,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
                 useHeadersVariableFieldsEnabled(false);
             }
         });
-        useHeadersVariableRadio = new MirthRadioButton("Use List:");
+        useHeadersVariableRadio = new MirthRadioButton("Use Map:");
         useHeadersVariableRadio.setBackground(getBackground());
         useHeadersVariableRadio.addActionListener(new ActionListener() {
             @Override

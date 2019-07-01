@@ -20,7 +20,7 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.MessageMaps;
 import com.mirth.connect.userutil.AttachmentEntry;
 
-public class WebServiceDispaterTest {
+public class WebServiceDispatcherTest {
 
     WebServiceDispatcher dispatcher;
     WebServiceDispatcherProperties props;

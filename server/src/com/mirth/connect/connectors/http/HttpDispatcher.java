@@ -129,8 +129,6 @@ public class HttpDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        this.setConnectorProperties((HttpDispatcherProperties) getConnectorProperties());
-
         // load the default configuration
         String configurationClass = getConfigurationClass();
 
@@ -583,7 +581,7 @@ public class HttpDispatcher extends DestinationConnector {
                                     if (listEntry instanceof String) {
                                         validListEntries.add((String) listEntry);
                                     } else {
-                                        logger.trace("Found non-string entry in '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping entry.");
+                                        validListEntries.add(String.valueOf(listEntry));
                                     }
                                 }
                                 if (validListEntries.size() > 0) {
@@ -627,7 +625,7 @@ public class HttpDispatcher extends DestinationConnector {
                                     if (listEntry instanceof String) {
                                         validListEntries.add((String) listEntry);
                                     } else {
-                                        logger.trace("Found non-string entry in '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping entry.");
+                                        validListEntries.add(String.valueOf(listEntry));
                                     }
                                 }
                                 if (validListEntries.size() > 0) {

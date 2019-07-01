@@ -1088,7 +1088,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         add(responseHeadersPane, "newline, growx, pushx, growy, skip 1, span 2, h 104:104:342");
         add(responseHeadersNewButton, "top, flowy, split 2, w 44!");
         add(responseHeadersDeleteButton, "w 44!");
-        add(staticResourcesLabel, "newline, right");
+        add(staticResourcesLabel, "newline, top, right");
         add(responseHeadersPane1, "growx, pushx, growy, span 2, h 104:104:342");
         add(staticResourcesNewButton, "top, flowy, split 2, w 44!");
         add(staticResourcesDeleteButton, "w 44!");

@@ -22,7 +22,7 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.MessageMaps;
 import com.mirth.connect.userutil.AttachmentEntry;
 
-public class SmtpDispaterTest {
+public class SmtpDispatcherTest {
 
     SmtpDispatcher dispatcher;
     SmtpDispatcherProperties props;
