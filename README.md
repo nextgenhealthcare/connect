@@ -1,6 +1,7 @@
 # NextGen Connect Integration Engine (formerly Mirth Connect)
 #  我们在原来的基础上，增加了对中文的支持：
 # 包括： 通道名称支持中文，修改了显示字体，解决显示中文乱码处里。
+# easy
 
 1. [General Information](#general-information)
 2. [Installation and Upgrade](#installation-and-upgrade)
