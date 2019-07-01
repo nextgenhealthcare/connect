@@ -944,7 +944,7 @@ public class EventBrowser extends javax.swing.JPanel {
 
         allDayCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         allDayCheckBox.setText("All Day");
-        allDayCheckBox.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        allDayCheckBox.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
         allDayCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 allDayCheckBoxActionPerformed(evt);
@@ -1038,18 +1038,18 @@ public class EventBrowser extends javax.swing.JPanel {
 
         levelBoxInformation.setBackground(new java.awt.Color(255, 255, 255));
         levelBoxInformation.setText("INFORMATION");
-        levelBoxInformation.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        levelBoxInformation.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
         levelBoxInformation.setPreferredSize(new java.awt.Dimension(90, 22));
 
         levelBoxWarning.setBackground(new java.awt.Color(255, 255, 255));
         levelBoxWarning.setText("WARNING");
-        levelBoxWarning.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        levelBoxWarning.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
         levelBoxWarning.setMaximumSize(new java.awt.Dimension(83, 23));
         levelBoxWarning.setMinimumSize(new java.awt.Dimension(83, 23));
 
         levelBoxError.setBackground(new java.awt.Color(255, 255, 255));
         levelBoxError.setText("ERROR");
-        levelBoxError.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        levelBoxError.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
         levelBoxError.setMaximumSize(new java.awt.Dimension(83, 23));
         levelBoxError.setMinimumSize(new java.awt.Dimension(83, 23));
 

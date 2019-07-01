@@ -96,7 +96,7 @@ public class VariableList extends javax.swing.JPanel {
 
     public void setBorder(String title, Color color) {
         borderTitle = title;
-        setBorder(BorderFactory.createTitledBorder(null, title, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 0, 11), color));
+        setBorder(BorderFactory.createTitledBorder(null, title, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 0, 11), color));
     }
 
     @Override

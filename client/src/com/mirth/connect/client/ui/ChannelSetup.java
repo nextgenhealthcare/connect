@@ -2094,7 +2094,7 @@ public class ChannelSetup extends JPanel {
 
             public AlphaNumericCellEditor() {
                 super();
-                MirthFieldConstraints constraints = new MirthFieldConstraints("^[a-zA-Z_0-9]*$");
+                MirthFieldConstraints constraints = new MirthFieldConstraints("^[a-zA-Z_0-9\u2e80-\u9fff]*$");
                 constraints.setLimit(30);
                 getTextField().setDocument(constraints);
             }

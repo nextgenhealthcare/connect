@@ -420,14 +420,14 @@ public class ConnectorPanel extends JPanel {
 
         for (ConnectorPropertiesPlugin connectorPropertiesPlugin : LoadedExtensions.getInstance().getConnectorPropertiesPlugins().values()) {
             AbstractConnectorPropertiesPanel connectorPropertiesPanel = connectorPropertiesPlugin.getConnectorPropertiesPanel();
-            connectorPropertiesPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), connectorPropertiesPlugin.getSettingsTitle(), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+            connectorPropertiesPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), connectorPropertiesPlugin.getSettingsTitle(), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
             connectorPropertiesPanels.put(connectorPropertiesPlugin.getPluginPointName(), connectorPropertiesPanel);
             add(connectorPropertiesPanel, "growx, wrap");
         }
 
         connectorSettingsContainer = new JPanel(new BorderLayout());
         connectorSettingsContainer.setBackground(new Color(255, 255, 255));
-        connectorSettingsContainer.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Connector Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        connectorSettingsContainer.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Connector Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
         add(connectorSettingsContainer, "grow, pushy");
     }
 }

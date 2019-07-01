@@ -317,7 +317,7 @@ public class SourceSettingsPanel extends JPanel {
 
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
-        setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Source Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Source Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         sourceQueueLabel = new JLabel("Source Queue:");
 

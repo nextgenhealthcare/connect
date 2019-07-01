@@ -81,34 +81,34 @@ public class ExtensionInfoDialog extends MirthDialog {
         setTitle("Extension Information");
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jPanel1.setFont(new java.awt.Font("宋体", 1, 11));
         jPanel1.setMaximumSize(null);
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel2.setFont(new java.awt.Font("宋体", 1, 11));
         jLabel2.setLabelFor(nameLabel);
         jLabel2.setText("Name:");
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel3.setFont(new java.awt.Font("宋体", 1, 11));
         jLabel3.setLabelFor(nameLabel);
         jLabel3.setText("Author:");
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel5.setFont(new java.awt.Font("宋体", 1, 11));
         jLabel5.setLabelFor(nameLabel);
         jLabel5.setText("Version:");
 
-        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel6.setFont(new java.awt.Font("宋体", 1, 11));
         jLabel6.setLabelFor(nameLabel);
         jLabel6.setText("Description:");
 
-        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel7.setFont(new java.awt.Font("宋体", 1, 11));
         jLabel7.setLabelFor(nameLabel);
         jLabel7.setText("URL:");
 
-        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel8.setFont(new java.awt.Font("宋体", 1, 11));
         jLabel8.setLabelFor(nameLabel);
         jLabel8.setText("Type:");
 
-        urlLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
+        urlLabel.setFont(new java.awt.Font("宋体", 1, 11));
         urlLabel.setForeground(new java.awt.Color(0, 51, 204));
         urlLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirth/connect/client/ui/images/world_go.png"))); // NOI18N
         urlLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -152,7 +152,7 @@ public class ExtensionInfoDialog extends MirthDialog {
         descriptionLabel.setEnabled(false);
         jScrollPane1.setViewportView(descriptionLabel);
 
-        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel9.setFont(new java.awt.Font("宋体", 1, 11));
         jLabel9.setLabelFor(nameLabel);
         jLabel9.setText("Priority:");
 

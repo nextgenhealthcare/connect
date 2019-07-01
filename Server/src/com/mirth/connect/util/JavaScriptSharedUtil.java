@@ -48,7 +48,7 @@ import org.mozilla.javascript.ast.XmlPropRef;
 public class JavaScriptSharedUtil {
 
     private final static Pattern RESULT_PATTERN = Pattern.compile("responseMap\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)(?<!\\\\)\\1|\\$r\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)(?<!\\\\)\\4(?=\\s*,)");
-    private final static Pattern INVALID_IDENTIFIER_PATTERN = Pattern.compile("[^a-zA-Z0-9_$]");
+    private final static Pattern INVALID_IDENTIFIER_PATTERN = Pattern.compile("[^a-zA-Z0-9_$\u2e80-\u9fff]");
     private final static Pattern INVALID_PROLOG_PATTERN = Pattern.compile("<<\\s*\\?\\s*xml\\s+version\\s*=\\s*\"(?<version>[^\"]*)\"(\\s+encoding\\s*=\\s*\"(?<encoding>[^\"]*)\")?\\s*\\?\\s*>");
     private final static int FULL_NAME_MATCHER_INDEX = 2;
     private final static int SHORT_NAME_MATCHER_INDEX = 5;

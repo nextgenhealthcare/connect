@@ -720,7 +720,7 @@ public class MessageBrowserAdvancedFilter extends MirthDialog {
             }
         });
 
-        jLabel7.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("宋体", 0, 12)); // NOI18N
         jLabel7.setText("|");
 
         addMetaDataSearchButton.setText("New");

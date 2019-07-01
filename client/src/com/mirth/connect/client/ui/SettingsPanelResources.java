@@ -399,7 +399,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
 
         JPanel resourceListPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
         resourceListPanel.setBackground(getBackground());
-        resourceListPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Resources", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        resourceListPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Resources", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         resourceTable = new MirthTable();
         resourceTable.setModel(new RefreshTableModel(new Object[] { "Properties", "Name", "Type",
@@ -469,7 +469,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
 
         fillerPanel = new JPanel(new MigLayout("insets 5, novisualpadding, hidemode 3, fill", "", "[][grow]"));
         fillerPanel.setBackground(getBackground());
-        fillerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Resource Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        fillerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Resource Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
         fillerLabel = new JLabel("Select a resource from the table above.");
         fillerPanel.add(fillerLabel);
 

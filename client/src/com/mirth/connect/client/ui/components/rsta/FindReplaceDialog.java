@@ -233,7 +233,7 @@ public class FindReplaceDialog extends MirthDialog {
 
         directionPanel = new JPanel(new MigLayout("insets 8, novisualpadding, hidemode 3, fill, gap 6"));
         directionPanel.setBackground(getBackground());
-        directionPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)), "Direction", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        directionPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)), "Direction", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         ButtonGroup directionButtonGroup = new ButtonGroup();
 
@@ -247,7 +247,7 @@ public class FindReplaceDialog extends MirthDialog {
 
         optionsPanel = new JPanel(new MigLayout("insets 8, novisualpadding, hidemode 3, fill, gap 6"));
         optionsPanel.setBackground(getBackground());
-        optionsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)), "Options", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        optionsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)), "Options", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         wrapSearchCheckBox = new JCheckBox("Wrap Search");
         matchCaseCheckBox = new JCheckBox("Match Case");

@@ -233,7 +233,7 @@ public class DestinationSettingsPanel extends JPanel {
     private void initComponents() {
         setLayout(new MigLayout("insets 4 8 4 4, novisualpadding, hidemode 3, fill", "[]13[grow]"));
         setBackground(UIConstants.BACKGROUND_COLOR);
-        setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Destination Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Destination Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         queueMessagesLabel = new JLabel("Queue Messages:");
 
@@ -466,7 +466,7 @@ public class DestinationSettingsPanel extends JPanel {
 
             containerPanel = new JPanel();
             containerPanel.setBackground(getBackground());
-            containerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "Advanced Queue Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+            containerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "Advanced Queue Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
             retryCountLabel = new JLabel("Retry Count Before Queue/Error:");
 

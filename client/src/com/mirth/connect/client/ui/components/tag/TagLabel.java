@@ -35,7 +35,7 @@ public class TagLabel extends JLabel {
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2.setColor(getBackground());
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
-            g2.setFont(new Font("Tahoma", Font.PLAIN, 11));
+            g2.setFont(new Font("宋体", Font.PLAIN, 11));
             g2.setColor(getForeground());
             g2.drawString(getText(), 0, 12);
             g2.dispose();

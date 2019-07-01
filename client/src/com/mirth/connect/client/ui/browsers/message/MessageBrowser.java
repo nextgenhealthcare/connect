@@ -2587,7 +2587,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         statusBoxQueued.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxQueued.setText("QUEUED");
-        statusBoxQueued.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxQueued.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
 
         pageTotalLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         pageTotalLabel.setText("of ?");
@@ -2621,7 +2621,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         statusBoxFiltered.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxFiltered.setText("FILTERED");
-        statusBoxFiltered.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxFiltered.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
         statusBoxFiltered.setMaximumSize(new java.awt.Dimension(83, 23));
         statusBoxFiltered.setMinimumSize(new java.awt.Dimension(83, 23));
 
@@ -2631,7 +2631,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         statusBoxSent.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxSent.setText("SENT");
-        statusBoxSent.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxSent.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
 
         resetButton.setText("Reset");
         resetButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2659,11 +2659,11 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         statusBoxError.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxError.setText("ERROR");
-        statusBoxError.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxError.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
 
         statusBoxReceived.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxReceived.setText("RECEIVED");
-        statusBoxReceived.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxReceived.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
         statusBoxReceived.setPreferredSize(new java.awt.Dimension(90, 22));
 
         pageGoButton.setText("Go");
@@ -2676,7 +2676,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         statusBoxTransformed.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxTransformed.setText("TRANSFORMED");
-        statusBoxTransformed.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxTransformed.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
         statusBoxTransformed.setMaximumSize(new java.awt.Dimension(83, 23));
         statusBoxTransformed.setMinimumSize(new java.awt.Dimension(83, 23));
 
@@ -2686,7 +2686,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         allDayCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         allDayCheckBox.setText("All Day");
-        allDayCheckBox.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        allDayCheckBox.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
         allDayCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 allDayCheckBoxActionPerformed(evt);

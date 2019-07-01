@@ -615,7 +615,7 @@ public class IteratorWizardDialog<T extends FilterTransformer<C>, C extends Filt
         @Override
         @SuppressWarnings("unchecked")
         public String toString() {
-            return StringUtils.repeat(' ', Math.max(depth - 1, 0) * 8) + (depth > 0 ? "    — " : "") + ((FilterTransformerTreeTableNode<T, C>) path.getLastPathComponent()).getElement().getName();
+            return StringUtils.repeat(' ', Math.max(depth - 1, 0) * 8) + (depth > 0 ? " - ":"") + ((FilterTransformerTreeTableNode<T, C>) path.getLastPathComponent()).getElement().getName();
         }
     }
 

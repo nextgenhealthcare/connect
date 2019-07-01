@@ -30,7 +30,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class ChannelTag implements Serializable, Purgable {
 
     public static final int MAX_NAME_LENGTH = 24;
-    public static final Pattern INVALID_NAME_PATTERN = Pattern.compile("[^a-zA-Z_0-9\\-\\s]");
+    public static final Pattern INVALID_NAME_PATTERN = Pattern.compile("[^a-zA-Z_0-9\u2e80-\u9fff\\-\\s]");
 
     private String id;
     private String name;

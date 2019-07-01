@@ -414,7 +414,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
         templateScrollPane.setBorder(null);
 
-        templateList.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection Templates", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0))); // NOI18N
+        templateList.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection Templates", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("宋体", 0, 11), new java.awt.Color(0, 0, 0))); // NOI18N
         templateList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         templateScrollPane.setViewportView(templateList);
 

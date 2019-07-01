@@ -622,7 +622,7 @@ public class Frame extends JXFrame {
     private void buildContentPanel(JXTitledPanel container, JScrollPane component, boolean opaque) {
         container.getContentContainer().setLayout(new BorderLayout());
         container.setBorder(null);
-        container.setTitleFont(new Font("Tahoma", Font.BOLD, 18));
+        container.setTitleFont(new Font("宋体", Font.BOLD, 18));
         container.setTitleForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         JLabel mirthConnectImage = new JLabel();
         mirthConnectImage.setIcon(UIConstants.MIRTHCONNECT_LOGO_GRAY);
@@ -4163,7 +4163,7 @@ public class Frame extends JXFrame {
             return false;
         }
 
-        Pattern alphaNumericPattern = Pattern.compile("^[a-zA-Z_0-9\\-\\s]*$");
+        Pattern alphaNumericPattern = Pattern.compile("^[a-zA-Z_0-9\u2e80-\u9fff\\-\\s]*$");
         Matcher matcher = alphaNumericPattern.matcher(name);
 
         if (!matcher.find()) {
@@ -4447,7 +4447,7 @@ public class Frame extends JXFrame {
             return false;
         }
 
-        Pattern alphaNumericPattern = Pattern.compile("^[a-zA-Z_0-9\\-\\s]*$");
+        Pattern alphaNumericPattern = Pattern.compile("^[a-zA-Z_0-9\u2e80-\u9fff\\-\\s]*$");
         Matcher matcher = alphaNumericPattern.matcher(name);
 
         if (!matcher.find()) {

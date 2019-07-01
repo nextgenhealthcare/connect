@@ -266,7 +266,7 @@ public class UserEditPanel extends javax.swing.JPanel {
         usernameLabel.setText("Username:");
 
         description.setColumns(20);
-        description.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        description.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
         description.setLineWrap(true);
         description.setRows(4);
         description.setWrapStyleWord(true);

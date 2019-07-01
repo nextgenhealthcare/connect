@@ -117,7 +117,7 @@ public class ChannelWizard extends MirthDialog {
             }
         });
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("宋体", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("New Channel");
 
@@ -138,7 +138,7 @@ public class ChannelWizard extends MirthDialog {
                 .addContainerGap())
         );
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel1.setFont(new java.awt.Font("宋体", 1, 11));
         jLabel1.setText("Select a channel wizard...");
 
         wizardLabel.setText("Wizard:");

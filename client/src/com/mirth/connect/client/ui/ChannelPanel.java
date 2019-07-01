@@ -2084,7 +2084,7 @@ public class ChannelPanel extends AbstractFramePanel {
     private boolean exportGroup(ChannelGroup group) {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String groupXML = serializer.serialize(group);
-        return parent.exportFile(groupXML, group.getName().replaceAll("[^a-zA-Z_0-9\\-\\s]", ""), "XML", "Channel group");
+        return parent.exportFile(groupXML, group.getName().replaceAll("[^a-zA-Z_0-9\u2e80-\u9fff\\-\\s]", ""), "XML", "Channel group");
     }
 
     private boolean exportGroups(List<ChannelGroup> groups) {
@@ -2109,7 +2109,7 @@ public class ChannelPanel extends AbstractFramePanel {
             exportPath = exportDirectory.getAbsolutePath();
 
             for (ChannelGroup group : groups) {
-                exportFile = new File(exportPath + "/" + group.getName().replaceAll("[^a-zA-Z_0-9\\-\\s]", "") + ".xml");
+                exportFile = new File(exportPath + "/" + group.getName().replaceAll("[^a-zA-Z_0-9\u2e80-\u9fff\\-\\s]", "") + ".xml");
 
                 if (exportFile.exists()) {
                     exportCollisionCount++;
@@ -2123,7 +2123,7 @@ public class ChannelPanel extends AbstractFramePanel {
                 boolean skipAll = false;
                 for (int i = 0, size = groups.size(); i < size; i++) {
                     ChannelGroup group = groups.get(i);
-                    String groupName = group.getName().replaceAll("[^a-zA-Z_0-9\\-\\s]", "");
+                    String groupName = group.getName().replaceAll("[^a-zA-Z_0-9\u2e80-\u9fff\\-\\s]", "");
                     exportFile = new File(exportPath + "/" + groupName + ".xml");
 
                     boolean fileExists = exportFile.exists();

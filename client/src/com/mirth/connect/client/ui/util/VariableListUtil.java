@@ -38,8 +38,8 @@ public class VariableListUtil {
      * a lookahead to ensure that there is a comma after the first argument, indicating that it is
      * the "put" version of the method, not the "get" version.
      */
-    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:channel|global|globalChannel|response)Map\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)\\1|(?<![A-Za-z0-9_$])\\$(?:g|gc|c|r)\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)\\4(?=\\s*,)";
-    final static String LOCAL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:channel|global|globalChannel|response|connector)Map\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)\\1|(?<![A-Za-z0-9_$])\\$(?:g|gc|c|r|co)\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)\\4(?=\\s*,)";
+    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?<![A-Za-z0-9\u2e80-\u9fff_$])(?:channel|global|globalChannel|response)Map\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)\\1|(?<![A-Za-z0-9\u2e80-\u9fff_$])\\$(?:g|gc|c|r)\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)\\4(?=\\s*,)";
+    final static String LOCAL_VARIABLE_PATTERN = "(?<![A-Za-z0-9\u2e80-\u9fff_$])(?:channel|global|globalChannel|response|connector)Map\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)\\1|(?<![A-Za-z0-9\u2e80-\u9fff_$])\\$(?:g|gc|c|r|co)\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)\\4(?=\\s*,)";
     final static int FULL_NAME_MATCHER_INDEX = 2;
     final static int SHORT_NAME_MATCHER_INDEX = 5;
 

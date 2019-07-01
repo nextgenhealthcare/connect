@@ -112,7 +112,7 @@ public class ChangePasswordDialog extends MirthDialog {
         channelOverview.setBackground(new java.awt.Color(255, 255, 255));
         channelOverview.setName(""); // NOI18N
 
-        mirthHeadingLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        mirthHeadingLabel.setFont(new java.awt.Font("宋体", 1, 18)); // NOI18N
         mirthHeadingLabel.setForeground(new java.awt.Color(255, 255, 255));
         mirthHeadingLabel.setText("Change Password");
 
@@ -171,7 +171,7 @@ public class ChangePasswordDialog extends MirthDialog {
 
         passwordTextArea.setColumns(20);
         passwordTextArea.setEditable(false);
-        passwordTextArea.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        passwordTextArea.setFont(new java.awt.Font("宋体", 0, 11)); // NOI18N
         passwordTextArea.setLineWrap(true);
         passwordTextArea.setRows(2);
         passwordTextArea.setText("Your password has expired. You are required to change your password in the next 14 days and 23 hours.");

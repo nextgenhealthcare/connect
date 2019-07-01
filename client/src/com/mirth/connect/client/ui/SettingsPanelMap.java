@@ -405,7 +405,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
         configurationMapPanel = new JPanel();
         configurationMapPanel.setBackground(Color.WHITE);
         configurationMapPanel.setLayout(new MigLayout("fill, insets 0", "[grow]", "[][grow]"));
-        configurationMapPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Configuration Map", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        configurationMapPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Configuration Map", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("宋体", 1, 11))); // NOI18N
 
         JPanel showValuesPanel = new JPanel();
         showValuesPanel.setBackground(Color.WHITE);

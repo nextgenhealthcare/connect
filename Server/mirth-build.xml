@@ -130,8 +130,8 @@
 		<copy todir="${server.build}/client-lib">
 			<fileset dir="${server.setup}/client-lib" />
 		</copy>
-		
-		<antcall target="test-run" />
+		<!--
+		<antcall target="test-run" /-->
 	</target>
 
 	<target name="dist" depends="build-manager, build-cli, build-webadmin">
@@ -178,12 +178,12 @@
 		</header>
 	</target>
 
-	<target name="test-run" depends="init">
+	<!--target name="test-run" depends="init">
 		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="test-run"/>
 		<ant antfile="${server}/build.xml" dir="${server}" target="test-run"/>
 		<ant antfile="${client}/ant-build.xml" dir="${client}" target="test-run"/>
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="test-run"/>
-	</target>
+	</target -->
 
 	<target name="remove-classes" depends="init">
 		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="remove-classes"/>

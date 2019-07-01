@@ -200,7 +200,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
     private void initComponents() {
         JPanel containerPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
         containerPanel.setBackground(getBackground());
-        containerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Database Tasks", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        containerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Database Tasks", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
         containerPanel.add(new JLabel("Cleanup or optimization tasks for the internal database. If no tasks are present, no action is necessary."), "top, wrap");
 
         taskTable = new MirthTable();
@@ -261,7 +261,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
 
         JPanel channelsPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
         channelsPanel.setBackground(getBackground());
-        channelsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Affected Channels", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        channelsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Affected Channels", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         channelsTable = new MirthTable();
         channelsTable.setModel(new RefreshTableModel(new Object[] { "Name", "Id" }, 0));

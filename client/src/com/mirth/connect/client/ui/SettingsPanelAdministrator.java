@@ -440,7 +440,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         systemSettingsPanel = new JPanel();
         systemSettingsPanel.setBackground(getBackground());
-        systemSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "System Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        systemSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "System Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         dashboardRefreshIntervalLabel = new JLabel("Dashboard refresh interval (seconds):");
         dashboardRefreshIntervalField = new MirthTextField();
@@ -565,7 +565,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         userSettingsPanel = new JPanel();
         userSettingsPanel.setBackground(getBackground());
-        userSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "User Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        userSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "User Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         checkForNotificationsLabel = new JLabel("Check for new notifications on login:");
         notificationButtonGroup = new ButtonGroup();
@@ -614,7 +614,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         codeEditorSettingsPanel = new JPanel();
         codeEditorSettingsPanel.setBackground(getBackground());
-        codeEditorSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Code Editor Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        codeEditorSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Code Editor Preferences", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         toolTipText = "<html>The auto-completion popup will be triggered<br/>after any of these characters are typed.</html>";
         autoCompleteCharactersLabel = new JLabel("Auto-Complete Characters:");

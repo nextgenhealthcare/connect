@@ -22,7 +22,7 @@ import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 public class VariableTransferable implements Transferable {
 
     private static DataFlavor[] flavors = null;
-    private static final Pattern VALID_VELOCITY_VARIABLE_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_-]*");
+    private static final Pattern VALID_VELOCITY_VARIABLE_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9\u2e80-\u9fff_-]*");
     private String data = null;
     private TransferMode transferMode;
     private Map<String, Integer> metaDataMap;

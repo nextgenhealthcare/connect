@@ -67,8 +67,8 @@ public class UIConstants {
     public static final int DIVIDER_SIZE = 12;
     // fonts
     public static final String MONOSPACED_FONT_NAME = SystemUtils.IS_OS_MAC ? "Courier" : "Monospaced";
-    public static final Font TEXTFIELD_PLAIN_FONT = new Font("Tahoma", Font.PLAIN, 11);
-    public static final Font TEXTFIELD_BOLD_FONT = new Font("Tahoma", Font.BOLD, 11);
+    public static final Font TEXTFIELD_PLAIN_FONT = new Font("宋体", Font.PLAIN, 11);
+    public static final Font TEXTFIELD_BOLD_FONT = new Font("宋体", Font.BOLD, 11);
     public static final Font BANNER_FONT = new Font("Arial", Font.BOLD, 36);
     public static final Font DIALOG_FONT = new Font("Dialog", Font.PLAIN, 12);
     public static final Font MONOSPACED_FONT = new Font(MONOSPACED_FONT_NAME, Font.PLAIN, 12);

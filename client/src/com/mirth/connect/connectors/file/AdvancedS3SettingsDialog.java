@@ -432,7 +432,7 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
     private void initLayout() {
         JPanel propertiesPanel = new JPanel(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gapy 6", "[right]13[grow]", "[][][][grow]"));
         propertiesPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        propertiesPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "Amazon S3 Advanced Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        propertiesPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "Amazon S3 Advanced Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         propertiesPanel.add(useDefaultCredentialProviderChainLabel);
         propertiesPanel.add(useDefaultCredentialProviderChainYesRadio, "split 3");

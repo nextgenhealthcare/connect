@@ -674,7 +674,7 @@ public class PollingSettingsPanel extends JPanel {
 
         if (channelContext) {
             setLayout(new MigLayout("novisualpadding, hidemode 3, insets 0, gap 6 4", "[]12[]"));
-            setBorder(javax.swing.BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Polling Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+            setBorder(javax.swing.BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Polling Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
             add(scheduleTypeLabel, "right");
             add(scheduleTypeComboBox, "split");

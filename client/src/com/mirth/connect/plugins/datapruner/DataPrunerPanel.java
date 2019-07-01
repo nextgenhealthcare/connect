@@ -439,7 +439,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         statusPanel = new JPanel();
         statusPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        statusPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Status", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        statusPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Status", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         currentStateLabel = new JLabel("Current State:");
         currentStateTextLabel = new JLabel("Unknown");
@@ -455,7 +455,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         pruningSchedulePanel = new JPanel();
         pruningSchedulePanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        pruningSchedulePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Schedule", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11)));
+        pruningSchedulePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Schedule", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new java.awt.Font("宋体", 1, 11)));
 
         enabledLabel = new JLabel("Enable:");
 
@@ -488,7 +488,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         pruneSettingsPanel = new JPanel();
         pruneSettingsPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        pruneSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Prune Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11))); // NOI18N
+        pruneSettingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Prune Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11))); // NOI18N
 
         blockSizeLabel = new JLabel("Block Size:");
         blockSizeTextField = new MirthTextField();
@@ -528,7 +528,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         archiverContainerPanel = new JPanel();
         archiverContainerPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        archiverContainerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Archive Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11))); // NOI18N
+        archiverContainerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Archive Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11))); // NOI18N
         archiverContainerPanel.setLayout(null);
 
         archiverPanel = new MessageExportPanel(Frame.userPreferences, true, false);

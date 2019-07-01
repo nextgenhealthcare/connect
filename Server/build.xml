@@ -2,8 +2,8 @@
 <project name="mirth-server" basedir="." default="help">
 
 	<property name="keystore_property_file" value="keystore.properties" />
-	<property name="manifest_thread_count" value="4" />
-	<property name="signjar_thread_count" value="4" />
+	<property name="manifest_thread_count" value="9" />
+	<property name="signjar_thread_count" value="9" />
 	<property name="jdk_src_path" value="" />
 
 	<target name="help">

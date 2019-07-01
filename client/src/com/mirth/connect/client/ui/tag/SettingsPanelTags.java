@@ -272,7 +272,7 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
 
         container = new JPanel();
         container.setBackground(getBackground());
-        container.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Tags", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        container.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Tags", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         leftPanel = new JPanel();
         leftPanel.setBackground(getBackground());
@@ -376,7 +376,7 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
 
         channelsSeparator = new JPanel();
         channelsSeparator.setBackground(getBackground());
-        channelsSeparator.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Channels", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        channelsSeparator.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Channels", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         channelsLabel = new JLabel("Channel selections will be applied to the currently selected tags.");
 

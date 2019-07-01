@@ -371,7 +371,7 @@ public class AdvancedSftpSettingsDialog extends AdvancedSettingsDialog {
     private void initLayout() {
         JPanel propertiesPanel = new JPanel(new MigLayout("insets 12, novisualpadding, hidemode 3, fillx", "[right][left]"));
         propertiesPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-        propertiesPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "SFTP Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        propertiesPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "SFTP Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         propertiesPanel.add(authenticationLabel);
         propertiesPanel.add(usePasswordRadio, "split 3");

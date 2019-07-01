@@ -594,7 +594,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         generalPanel = new JPanel();
         generalPanel.setBackground(getBackground());
-        generalPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "General", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        generalPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "General", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         environmentNameLabel = new JLabel("Environment name:");
         environmentNameField = new MirthTextField();
@@ -643,7 +643,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         channelPanel = new JPanel();
         channelPanel.setBackground(getBackground());
-        channelPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Channel", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        channelPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Channel", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         clearGlobalMapLabel = new JLabel("Clear global map on redeploy:");
         clearGlobalMapButtonGroup = new ButtonGroup();
@@ -679,7 +679,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         emailPanel = new JPanel();
         emailPanel.setBackground(getBackground());
-        emailPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Email", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        emailPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Email", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("宋体", 1, 11)));
 
         smtpHostLabel = new JLabel("SMTP Host:");
         smtpHostField = new MirthTextField();
