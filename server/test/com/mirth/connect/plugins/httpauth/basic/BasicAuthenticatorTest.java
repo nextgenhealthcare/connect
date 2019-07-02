@@ -61,11 +61,11 @@ public class BasicAuthenticatorTest {
     }
 
     @Test
-    public void testGetCredentailsFromVariableSkippingInvalidValues() {
+    public void testGetCredentailsFromVariableWithNonStringValues() {
         Map<Object, Object> credentials = new HashMap<>();
         credentials.put("user", "name");
         credentials.put("pass", "123");
-        credentials.put("badValue", 1);
+        credentials.put("numValue", 1);
         credentials.put(4, 4);
         messageMap.map.put("myVar", credentials);
         props.setCredentialsVariable("myVar");
@@ -74,6 +74,7 @@ public class BasicAuthenticatorTest {
         HashMap<String, String> expected = new HashMap<>();
         expected.put("user", "name");
         expected.put("pass", "123");
+        expected.put("numValue", "1");
         Map<String, String> result = authenticator.getCredentials(props);
         assertEquals(expected, result);
     }

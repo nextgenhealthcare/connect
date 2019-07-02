@@ -134,8 +134,6 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        this.setConnectorProperties((HttpReceiverProperties) getConnectorProperties());
-
         if (getConnectorProperties().isXmlBody() && isProcessBatch()) {
             throw new ConnectorTaskException("Batch processing is not supported for Xml Body.");
         }
@@ -431,7 +429,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                                     if (listEntry instanceof String) {
                                         validListEntries.add((String) listEntry);
                                     } else {
-                                        logger.trace("Found non-string entry in '" + entry.getKey().toString() + "' from map '" + getConnectorProperties().getResponseHeadersVariable() + "'. Skipping entry.");
+                                        validListEntries.add(String.valueOf(listEntry));
                                     }
                                 }
                                 if (validListEntries.size() > 0) {

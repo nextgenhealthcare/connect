@@ -72,21 +72,27 @@ public class SmtpDispatcherTest {
     }
 
     @Test
-    public void testGetHeadersFromVariableSkippingInvalidValues() {
+    public void testGetHeadersFromVariableWithNonStringValues() {
         Map<Object, Object> headerMap = new HashMap<>();
         headerMap.put("customHeader", "customValue");
-        headerMap.put("badValue", 1);
+        headerMap.put("numValue", 1);
         headerMap.put(4, 4);
         List<Object> mixedList = new ArrayList<>();
         mixedList.add(11);
         mixedList.add("goodValue");
-        headerMap.put("ignoreAllThese", mixedList);
+        headerMap.put("mixedList", mixedList);
         messageMap.map.put("myVar", headerMap);
         props.setHeadersVariable("myVar");
         props.setUseHeadersVariable(true);
         
-        HashMap<String, String> expected = new HashMap<>();
+        Map<Object, Object> expected = new HashMap<>();
         expected.put("customHeader", "customValue");
+        expected.put("numValue", "1");
+        List<Object> expectedMixedList = new ArrayList<>();
+        expectedMixedList.add("11");
+        expectedMixedList.add("goodValue");
+        expected.put("mixedList", String.valueOf(expectedMixedList));
+        
         Map<String, String> result = dispatcher.getHeaders(props, Mockito.mock(ConnectorMessage.class));
         assertEquals(expected, result);
     }

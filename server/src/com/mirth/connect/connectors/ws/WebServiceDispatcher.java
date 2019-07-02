@@ -136,8 +136,6 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        setConnectorProperties((WebServiceDispatcherProperties) getConnectorProperties());
-
         // load the default configuration
         String configurationClass = getConfigurationClass();
 
@@ -774,7 +772,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                                     if (listEntry instanceof String) {
                                         validListEntries.add((String) listEntry);
                                     } else {
-                                        logger.trace("Found non-string entry in '" + entry.getKey().toString() + "' from map '" + getConnectorProperties().getHeadersVariable() + "'. Skipping entry.");
+                                        validListEntries.add(String.valueOf(listEntry));
                                     }
                                 }
                                 if (validListEntries.size() > 0) {

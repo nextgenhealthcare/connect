@@ -96,7 +96,7 @@ public class WebServiceDispatcherTest {
     }
 
     @Test
-    public void testGetHeadersFromVariableWithListThatHasBothBothValidAndInvalidEntries() {
+    public void testGetHeadersFromVariableWithListThatHasBothBothStringandNonStringEntries() {
         Map<Object, Object> headerMap = new HashMap<>();
         List<Object> mixedList = new ArrayList<>();
         mixedList.add(11);
@@ -110,6 +110,7 @@ public class WebServiceDispatcherTest {
         
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> list = new ArrayList<String>();
+        list.add("11");
         list.add("goodValue");
         expected.put("customHeader", list);
         Map<String, List<String>> result = dispatcher.getHeaders(props, Mockito.mock(ConnectorMessage.class));

@@ -53,8 +53,6 @@ public class SmtpDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        setConnectorProperties(getConnectorProperties());
-
         // load the default configuration
         String configurationClass = configurationController.getProperty(getConnectorProperties().getProtocol(), "smtpConfigurationClass");
 
@@ -279,6 +277,8 @@ public class SmtpDispatcher extends DestinationConnector {
                     for (Entry<?, ?> entry : source.entrySet()) {
                         if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
                             headers.put((String) entry.getKey(), (String) entry.getValue());
+                        } else if (entry.getKey() instanceof String) {
+                            headers.put((String) entry.getKey(), String.valueOf(entry.getValue()));
                         } else {
                             logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + smtpDispatcherProperties.getHeadersVariable() + "'. Skipping entry.");
                         }

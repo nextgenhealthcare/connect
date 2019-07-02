@@ -91,7 +91,7 @@ public class HttpDispatcherTest {
     }
 
     @Test
-    public void testGetHeadersFromVariableWithListThatHasBothBothValidAndInvalidEntries() {
+    public void testGetHeadersFromVariableWithListThatHasBothBothStringAndNonStringEntries() {
         Map<Object, Object> headerMap = new HashMap<>();
         List<Object> mixedList = new ArrayList<>();
         mixedList.add(11);
@@ -103,6 +103,7 @@ public class HttpDispatcherTest {
         
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> list = new ArrayList<String>();
+        list.add("11");
         list.add("goodValue");
         expected.put("customHeader", list);
         Map<String, List<String>> result = dispatcher.getHeaders(props, Mockito.mock(ConnectorMessage.class));
@@ -176,29 +177,35 @@ public class HttpDispatcherTest {
     }
 
     @Test
-    public void testGetParametersFromVariableSkippingInvalidValues() {
+    public void testGetParametersWithNonStringValues() {
         Map<Object, Object> parameters = new HashMap<>();
         parameters.put("customParam", "customValue");
-        parameters.put("badValue", 1);
+        parameters.put("numValue", 1);
         parameters.put(4, 4);
-        List<Integer> badList = new ArrayList<>();
-        badList.add(11);
-        badList.add(12);
-        parameters.put("badValue2", badList);
+        List<Integer> numList = new ArrayList<>();
+        numList.add(11);
+        numList.add(12);
+        parameters.put("numValue2", numList);
         messageMap.map.put("myVar", parameters);
         props.setParametersVariable("myVar");
         props.setUseParametersVariable(true);
         
-        HashMap<String, List<String>> expected = new HashMap<>();
-        List<String> list = new ArrayList<String>();
+        HashMap<String, List<Object>> expected = new HashMap<>();
+        List<Object> list = new ArrayList<Object>();
         list.add("customValue");
         expected.put("customParam", list);
+
+        list = new ArrayList<Object>();
+        list.add("11");
+        list.add("12");
+        expected.put("numValue2", list);
+        
         Map<String, List<String>> result = dispatcher.getParameters(props, Mockito.mock(ConnectorMessage.class));
         assertEquals(expected, result);
     }
 
     @Test
-    public void testGetParametersFromVariableWithListThatHasBothBothValidAndInvalidEntries() {
+    public void testGetParametersFromVariableWithListThatHasBothBothStringAndNonStringEntries() {
         Map<Object, Object> parameters = new HashMap<>();
         List<Object> mixedList = new ArrayList<>();
         mixedList.add(11);
@@ -210,6 +217,7 @@ public class HttpDispatcherTest {
         
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> list = new ArrayList<String>();
+        list.add("11");
         list.add("goodValue");
         expected.put("customParam", list);
         Map<String, List<String>> result = dispatcher.getParameters(props, Mockito.mock(ConnectorMessage.class));

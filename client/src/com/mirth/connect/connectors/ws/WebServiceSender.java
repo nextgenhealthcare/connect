@@ -1255,7 +1255,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         attachmentsDeleteButton.setEnabled(false);
         useAttachmentsListRadio.setEnabled(false);
         useAttachmentsVariableRadio.setEnabled(false);
-        attachmentsVariableField.setEnabled(useAttachmentsVariableRadio.isSelected());
+        attachmentsVariableField.setEnabled(false);
 
         stopCellEditing();
         attachmentsTable.setRowSelectionAllowed(false);
