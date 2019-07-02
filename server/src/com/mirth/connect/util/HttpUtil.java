@@ -9,6 +9,12 @@
 
 package com.mirth.connect.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.utils.HttpClientUtils;
@@ -21,8 +27,14 @@ import org.apache.http.impl.cookie.DefaultCookieSpecProvider;
 import org.apache.http.impl.cookie.IgnoreSpecProvider;
 import org.apache.http.impl.cookie.NetscapeDraftSpecProvider;
 import org.apache.http.impl.cookie.RFC6265CookieSpecProvider;
+import org.apache.log4j.Logger;
+
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.util.MessageMaps;
 
 public class HttpUtil {
+
+    private static Logger logger = Logger.getLogger(HttpUtil.class);
 
     /**
      * Applies global settings to any Apache HttpComponents HttpClientBuilder.<br/>
@@ -58,5 +70,55 @@ public class HttpUtil {
             HttpClientUtils.closeQuietly(response);
         } catch (Throwable ignore) {
         }
+    }
+
+    public static Map<String, List<String>> getTableMap(boolean useVariable, String mapVariable, Map<String, List<String>> tableMap, MessageMaps messageMaps, ConnectorMessage connectorMessage) {
+        if (useVariable) {
+            return getTableMap(mapVariable, messageMaps, connectorMessage);
+        } else {
+            return tableMap;
+        }
+    }
+
+    public static Map<String, List<String>> getTableMap(String mapVariable, MessageMaps messageMaps, ConnectorMessage connectorMessage) {
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
+
+        try {
+            Map<?, ?> source = (Map<?, ?>) messageMaps.get(mapVariable, connectorMessage);
+
+            if (source != null) {
+                for (Entry<?, ?> entry : source.entrySet()) {
+                    try {
+                        String key = String.valueOf(entry.getKey());
+                        Object value = entry.getValue();
+
+                        if (value instanceof List) {
+                            List<String> validListEntries = new ArrayList<String>();
+                            for (Object listEntry : (List<?>) value) {
+                                validListEntries.add(String.valueOf(listEntry));
+                            }
+
+                            if (validListEntries.size() > 0) {
+                                map.put(key, validListEntries);
+                            } else {
+                                logger.trace("No values found for '" + key + "' from map '" + mapVariable + "'. Skipping.");
+                            }
+                        } else {
+                            List<String> list = new ArrayList<String>();
+                            list.add(String.valueOf(value));
+                            map.put(key, list);
+                        }
+                    } catch (Exception e) {
+                        logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + mapVariable + "'. Skipping entry.", e);
+                    }
+                }
+            } else {
+                logger.warn("Map variable '" + mapVariable + "' not found.");
+            }
+        } catch (Exception e) {
+            logger.warn("Error getting values from map '" + mapVariable + "'.", e);
+        }
+
+        return map;
     }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * 
@@ -56,4 +55,3 @@ public class Attachment implements Serializable {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
 }
-

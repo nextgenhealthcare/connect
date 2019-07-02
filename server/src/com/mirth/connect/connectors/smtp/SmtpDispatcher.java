@@ -9,11 +9,11 @@
 
 package com.mirth.connect.connectors.smtp;
 
-import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -203,7 +203,7 @@ public class SmtpDispatcher extends DestinationConnector {
             for (Entry<String, String> header : headers.entrySet()) {
                 email.addHeader(header.getKey(), header.getValue());
             }
-            
+
             email.setFrom(smtpDispatcherProperties.getFrom());
             email.setSubject(smtpDispatcherProperties.getSubject());
 
@@ -266,38 +266,39 @@ public class SmtpDispatcher extends DestinationConnector {
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
-    
+
     Map<String, String> getHeaders(SmtpDispatcherProperties smtpDispatcherProperties, ConnectorMessage connectorMessage) {
         Map<String, String> headers;
+
         if (smtpDispatcherProperties.isUseHeadersVariable()) {
             headers = new HashMap<String, String>();
+
             try {
-                Map<?,?> source = (Map<?, ?>) getMessageMaps().get(smtpDispatcherProperties.getHeadersVariable(), connectorMessage);
+                Map<?, ?> source = (Map<?, ?>) getMessageMaps().get(smtpDispatcherProperties.getHeadersVariable(), connectorMessage);
+
                 if (source != null) {
                     for (Entry<?, ?> entry : source.entrySet()) {
-                        if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
-                            headers.put((String) entry.getKey(), (String) entry.getValue());
-                        } else if (entry.getKey() instanceof String) {
-                            headers.put((String) entry.getKey(), String.valueOf(entry.getValue()));
-                        } else {
-                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + smtpDispatcherProperties.getHeadersVariable() + "'. Skipping entry.");
-                        }
+                        headers.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
                     }
+                } else {
+                    logger.trace("Headers map variable '" + smtpDispatcherProperties.getHeadersVariable() + "' not found.");
                 }
-            } catch (Exception ex) {
-                logger.warn("Error getting headers from map " + smtpDispatcherProperties.getHeadersVariable(), ex);
+            } catch (Exception e) {
+                logger.warn("Error getting headers from map " + smtpDispatcherProperties.getHeadersVariable(), e);
             }
         } else {
             headers = smtpDispatcherProperties.getHeadersMap();
-            logger.warn("No headers map found at '" + smtpDispatcherProperties.getHeadersVariable() + "'.");
         }
+
         return headers;
     }
-    
+
     List<Attachment> getAttachments(SmtpDispatcherProperties smtpDispatcherProperties, ConnectorMessage connectorMessage) {
         List<Attachment> attachmentSource;
+
         if (smtpDispatcherProperties.isUseAttachmentsVariable()) {
             attachmentSource = new ArrayList<Attachment>();
+
             try {
                 List<?> source = (List<?>) getMessageMaps().get(smtpDispatcherProperties.getAttachmentsVariable(), connectorMessage);
                 if (source != null) {
@@ -313,17 +314,18 @@ public class SmtpDispatcher extends DestinationConnector {
                         }
                     }
                 } else {
-                    logger.warn("No attachments list found at '" + smtpDispatcherProperties.getAttachmentsVariable() + "'.");
+                    logger.warn("Attachments list variable '" + smtpDispatcherProperties.getAttachmentsVariable() + "' not found.");
                 }
-            } catch (Exception ex) {
-                logger.warn("Error getting attachments from map " + smtpDispatcherProperties.getAttachmentsVariable(), ex);
+            } catch (Exception e) {
+                logger.warn("Error getting attachments from map " + smtpDispatcherProperties.getAttachmentsVariable(), e);
             }
         } else {
             attachmentSource = smtpDispatcherProperties.getAttachmentsList();
         }
+
         return attachmentSource;
     }
-    
+
     @Override
     public SmtpDispatcherProperties getConnectorProperties() {
         return (SmtpDispatcherProperties) super.getConnectorProperties();

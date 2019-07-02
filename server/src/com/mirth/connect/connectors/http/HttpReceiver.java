@@ -116,6 +116,7 @@ import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.userutil.MessageHeaders;
 import com.mirth.connect.userutil.MessageParameters;
 import com.mirth.connect.util.CharsetUtils;
+import com.mirth.connect.util.HttpUtil;
 
 public class HttpReceiver extends SourceConnector implements BinaryContentTypeResolver {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -413,46 +414,13 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
     Map<String, List<String>> getHeaders(DispatchResult dispatchResult) {
         Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
+
         if (getConnectorProperties().isUseHeadersVariable()) {
-            try {
-                Map<?,?> test = (Map<?, ?>) channel.getMessageMaps().get(getConnectorProperties().getResponseHeadersVariable(), dispatchResult.getProcessedMessage().getMergedConnectorMessage());
-                if (test != null) {
-                    for (Entry<?, ?> entry : test.entrySet()) {
-                        try {
-                            if (entry.getValue() instanceof String) {
-                                List<String> list = new ArrayList<String>();
-                                list.add((String) entry.getValue());
-                                responseHeaders.put((String) entry.getKey(), list);
-                            } else {
-                                List<String> validListEntries = new ArrayList<String>();
-                                for (Object listEntry : (List<?>) entry.getValue()) {
-                                    if (listEntry instanceof String) {
-                                        validListEntries.add((String) listEntry);
-                                    } else {
-                                        validListEntries.add(String.valueOf(listEntry));
-                                    }
-                                }
-                                if (validListEntries.size() > 0) {
-                                    responseHeaders.put((String) entry.getKey(), validListEntries);
-                                } else {
-                                    logger.trace("No valid String entries found for '" + entry.getKey().toString() + "' from map '" + getConnectorProperties().getResponseHeadersVariable() + "'. Skipping.");
-                                }
-                            }
-                        } catch (Exception ex) {
-                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + getConnectorProperties().getResponseHeadersVariable() + "'. Skipping entry.", ex);
-                        }
-                    }
-                } else {
-                    logger.warn("No headers map found at '" + getConnectorProperties().getResponseHeadersVariable() + "'.");
-                }
-            } catch (Exception ex) {
-                logger.trace("Error getting map " + getConnectorProperties().getResponseHeadersVariable() + "'.", ex);
-            }
-            
+            responseHeaders = HttpUtil.getTableMap(getConnectorProperties().getResponseHeadersVariable(), channel.getMessageMaps(), dispatchResult.getProcessedMessage().getMergedConnectorMessage());
         } else {
             for (Entry<String, List<String>> entry : getConnectorProperties().getResponseHeadersMap().entrySet()) {
                 String replacedKey = replaceValues(entry.getKey(), dispatchResult);
-    
+
                 for (String headerValue : entry.getValue()) {
                     List<String> list = responseHeaders.get(replacedKey);
                     if (list == null) {
@@ -463,9 +431,10 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                 }
             }
         }
+
         return responseHeaders;
     }
-   
+
     protected void sendResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult, ContentType contentType, Map<String, List<String>> responseHeaders, byte[] responseBytes) throws Exception {
         servletResponse.setContentType(contentType.toString());
 
@@ -1027,7 +996,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             return StringUtils.startsWithAny(mimeType, binaryMimeTypesArray);
         }
     }
-    
+
     @Override
     public HttpReceiverProperties getConnectorProperties() {
         return (HttpReceiverProperties) super.getConnectorProperties();

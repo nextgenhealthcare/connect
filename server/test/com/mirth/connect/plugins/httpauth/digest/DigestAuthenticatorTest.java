@@ -22,8 +22,7 @@ public class DigestAuthenticatorTest {
     DigestAuthenticatorProvider provider;
     CustomMessageMap messageMap;
     DigestHttpAuthProperties props;
-    
-    
+
     @Before
     public void setup() {
         connector = Mockito.mock(Connector.class);
@@ -41,11 +40,11 @@ public class DigestAuthenticatorTest {
         credentials.put("user", "name");
         credentials.put("pass", "123");
         props.setCredentialsMap(credentials);
-        
+
         Map<String, String> result = authenticator.getCredentials(props);
         assertEquals(credentials, result);
     }
-    
+
     @Test
     public void testGetCredentailsFromVariable() {
         Map<String, String> credentials = new HashMap<>();
@@ -54,13 +53,13 @@ public class DigestAuthenticatorTest {
         messageMap.map.put("myVar", credentials);
         props.setCredentialsVariable("myVar");
         props.setUseCredentialsVariable(true);
-        
+
         Map<String, String> result = authenticator.getCredentials(props);
         assertEquals(credentials, result);
     }
 
     @Test
-    public void testGetCredentailsFromVariableWithNonStringValues() {
+    public void testGetCredentialsFromVariableWithNonStringValues() {
         Map<Object, Object> credentials = new HashMap<>();
         credentials.put("user", "name");
         credentials.put("pass", "123");
@@ -69,11 +68,12 @@ public class DigestAuthenticatorTest {
         messageMap.map.put("myVar", credentials);
         props.setCredentialsVariable("myVar");
         props.setUseCredentialsVariable(true);
-        
+
         HashMap<String, String> expected = new HashMap<>();
         expected.put("user", "name");
         expected.put("pass", "123");
         expected.put("numValue", "1");
+        expected.put("4", "4");
         Map<String, String> result = authenticator.getCredentials(props);
         assertEquals(expected, result);
     }
@@ -94,7 +94,7 @@ public class DigestAuthenticatorTest {
         Map<String, String> result = authenticator.getCredentials(props);
         assertEquals(credentialsMap, result);
     }
-    
+
     @Test
     public void testGetCredentialsFromVariableWhenBothMapAndVariableAreSet() {
         Map<Object, Object> credentialsFromVar = new HashMap<>();
@@ -119,16 +119,16 @@ public class DigestAuthenticatorTest {
         Map<String, String> result = authenticator.getCredentials(props);
         assertTrue(result.isEmpty());
     }
-    
+
     class CustomMessageMap extends MessageMaps {
         protected Map<Object, Object> map;
+
         public CustomMessageMap(Map<Object, Object> map) {
             this.map = map;
         }
-        
-        public CustomMessageMap() {
-        }
-        
+
+        public CustomMessageMap() {}
+
         @Override
         public Object get(String key, ConnectorMessage connectorMessage, boolean includeResponseMap) {
             return map.get(key);

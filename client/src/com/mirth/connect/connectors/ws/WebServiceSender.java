@@ -217,7 +217,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         }
         headersVariableField.setText(props.getHeadersVariable());
         useHeadersVariableFieldsEnabled(props.isUseHeadersVariable());
-        
+
         List<List<String>> attachments = new ArrayList<>();
         attachments.add(props.getAttachmentNames());
         attachments.add(props.getAttachmentContents());
@@ -234,7 +234,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         if (props.isUseAttachmentsVariable()) {
             useAttachmentsVariableRadio.setSelected(true);
         } else {
-            useAttachmentsListRadio.setSelected(true);
+            useAttachmentsTableRadio.setSelected(true);
         }
         attachmentsVariableField.setText(props.getAttachmentsVariable());
         useAttachmentVariableFieldsEnabled(props.isUseAttachmentsVariable());
@@ -476,7 +476,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         List<String> attachmentIds = new ArrayList<>();
         List<String> attachmentContent = new ArrayList<>();
         List<String> attachmentType = new ArrayList<>();
-        
+
         for (int i = 0; i < attachmentsTable.getModel().getRowCount(); i++) {
             if (attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER) != null && ((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER)).length() > 0) {
                 attachmentIds.add((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER));
@@ -774,7 +774,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 useHeadersVariableFieldsEnabled(false);
-                
+
             }
         });
         useHeadersVariableRadio = new MirthRadioButton("Use Map:");
@@ -783,15 +783,15 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 useHeadersVariableFieldsEnabled(true);
-                
+
             }
         });
         ButtonGroup headersSourceButtonGroup = new ButtonGroup();
         headersSourceButtonGroup.add(useHeadersVariableRadio);
-        headersSourceButtonGroup.add(useHeadersTableRadio);     
+        headersSourceButtonGroup.add(useHeadersTableRadio);
 
         headersVariableField = new MirthTextField();
-        
+
         useMtomLabel = new JLabel("Use MTOM:");
         ButtonGroup useMtomButtonGroup = new ButtonGroup();
 
@@ -949,13 +949,13 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
         sslWarningPanel = new SSLWarningPanel();
 
-        useAttachmentsListRadio = new MirthRadioButton("Use Table");
-        useAttachmentsListRadio.setBackground(getBackground());
-        useAttachmentsListRadio.addActionListener(new ActionListener() {
+        useAttachmentsTableRadio = new MirthRadioButton("Use Table");
+        useAttachmentsTableRadio.setBackground(getBackground());
+        useAttachmentsTableRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 useAttachmentVariableFieldsEnabled(false);
-                
+
             }
         });
         useAttachmentsVariableRadio = new MirthRadioButton("Use List:");
@@ -964,12 +964,12 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 useAttachmentVariableFieldsEnabled(true);
-                
+
             }
         });
         ButtonGroup attachmentSourceButtonGroup = new ButtonGroup();
-        attachmentSourceButtonGroup.add(useAttachmentsListRadio);
-        attachmentSourceButtonGroup.add(useAttachmentsVariableRadio);     
+        attachmentSourceButtonGroup.add(useAttachmentsTableRadio);
+        attachmentSourceButtonGroup.add(useAttachmentsVariableRadio);
 
         attachmentsVariableField = new MirthTextField();
     }
@@ -992,11 +992,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         soapActionField.setToolTipText("<html>The SOAPAction HTTP request header field can be used to indicate the intent of the SOAP HTTP request.<br>This field is optional for most web services, and will be auto-populated when you select an operation.</html>");
         useHeadersTableRadio.setToolTipText("<html>The table below will be used to populate headers.</html>");
         useHeadersVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
-        headersVariableField.setToolTipText("<html>The variable of a Java map to use to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");        
+        headersVariableField.setToolTipText("<html>The variable of a Java map to use to populate headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
         headersTable.setToolTipText("Header parameters are encoded as HTTP headers in the HTTP request sent to the server.");
         useMtomYesRadio.setToolTipText("<html>Enables MTOM on the SOAP Binding. If MTOM is enabled,<br>attachments can be added to the table below and dropped into the envelope.</html>");
         useMtomNoRadio.setToolTipText("<html>Does not enable MTOM on the SOAP Binding. If MTOM is enabled,<br>attachments can be added to the table below and dropped into the envelope.</html>");
-        useAttachmentsListRadio.setToolTipText("<html>The table below will be used to populate attachments.</html>");
+        useAttachmentsTableRadio.setToolTipText("<html>The table below will be used to populate attachments.</html>");
         useAttachmentsVariableRadio.setToolTipText("<html>The Java list specified by the following variable will be used to populate attachments.<br/>The list must contain AttachmentEntry values - anything else is ignored.</html>");
         attachmentsVariableField.setToolTipText("<html>The name of the Java list to use to populate attachments.<br/>The list must contain AttachmentEntry values.</html>");
         attachmentsTable.setToolTipText("<html>Attachments should be added with an ID, Base64 encoded content,<br>and a valid MIME type. Once an attachment is added<br>the row can be dropped into an argument in the envelope.</html>");
@@ -1046,7 +1046,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         add(useMtomYesRadio, "split 2");
         add(useMtomNoRadio);
         add(attachmentsLabel, "newline, right");
-        add(useAttachmentsListRadio, "split 3");
+        add(useAttachmentsTableRadio, "split 3");
         add(useAttachmentsVariableRadio);
         add(attachmentsVariableField, "w 125");
         add(attachmentsScrollPane, "newline, top, growx, pushx, skip 1, h 80!");
@@ -1229,22 +1229,29 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         attachmentsNewButton.setEnabled(!useVariable && useMtomYesRadio.isSelected());
         attachmentsDeleteButton.setEnabled(!useVariable && useMtomYesRadio.isSelected() && attachmentsTable.getSelectedRow() > -1);
     }
-    
+
     private void useMtomYesRadioActionPerformed(ActionEvent evt) {
         attachmentsLabel.setEnabled(true);
         attachmentsScrollPane.setEnabled(true);
         attachmentsTable.setEnabled(true);
-        attachmentsNewButton.setEnabled(useAttachmentsListRadio.isSelected());
-        useAttachmentsListRadio.setEnabled(true);
+        attachmentsNewButton.setEnabled(useAttachmentsTableRadio.isSelected());
+        useAttachmentsTableRadio.setEnabled(true);
         useAttachmentsVariableRadio.setEnabled(true);
         attachmentsVariableField.setEnabled(useAttachmentsVariableRadio.isSelected());
 
-        attachmentsTable.setRowSelectionAllowed(true);
-        if (attachmentsTable.getModel().getRowCount() > 0) {
-            attachmentsTable.setRowSelectionInterval(0, 0);
-            attachmentsDeleteButton.setEnabled(true);
+        if (useAttachmentsTableRadio.isSelected()) {
+            attachmentsTable.setEnabled(true);
+            attachmentsTable.setRowSelectionAllowed(true);
+            if (attachmentsTable.getModel().getRowCount() > 0) {
+                attachmentsTable.setRowSelectionInterval(0, 0);
+                attachmentsDeleteButton.setEnabled(true);
+            }
+        } else {
+            stopCellEditing();
+            attachmentsTable.setEnabled(false);
+            attachmentsTable.setRowSelectionAllowed(false);
+            attachmentsTable.clearSelection();
         }
-
     }
 
     private void useMtomNoRadioActionPerformed(ActionEvent evt) {
@@ -1253,7 +1260,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         attachmentsTable.setEnabled(false);
         attachmentsNewButton.setEnabled(false);
         attachmentsDeleteButton.setEnabled(false);
-        useAttachmentsListRadio.setEnabled(false);
+        useAttachmentsTableRadio.setEnabled(false);
         useAttachmentsVariableRadio.setEnabled(false);
         attachmentsVariableField.setEnabled(false);
 
@@ -1480,7 +1487,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     protected JButton attachmentsNewButton;
     protected JButton attachmentsDeleteButton;
     protected MirthTextField attachmentsVariableField;
-    protected MirthRadioButton useAttachmentsListRadio;
+    protected MirthRadioButton useAttachmentsTableRadio;
     protected MirthRadioButton useAttachmentsVariableRadio;
     protected SSLWarningPanel sslWarningPanel;
 }

@@ -563,91 +563,11 @@ public class HttpDispatcher extends DestinationConnector {
     }
 
     Map<String, List<String>> getHeaders(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage) {
-        Map<String, List<String>> headers;
-        if (httpDispatcherProperties.isUseHeadersVariable()) {
-            headers = new HashMap<>();
-            try {
-                Map<?,?> source = (Map<?, ?>) getMessageMaps().get(httpDispatcherProperties.getHeadersVariable(), connectorMessage);
-                if (source != null) {
-                    for (Entry<?, ?> entry : source.entrySet()) {
-                        try {
-                            if (entry.getValue() instanceof String) {
-                                List<String> list = new ArrayList<String>();
-                                list.add((String) entry.getValue());
-                                headers.put((String) entry.getKey(), list);
-                            } else {
-                                List<String> validListEntries = new ArrayList<String>();
-                                for (Object listEntry : (List<?>) entry.getValue()) {
-                                    if (listEntry instanceof String) {
-                                        validListEntries.add((String) listEntry);
-                                    } else {
-                                        validListEntries.add(String.valueOf(listEntry));
-                                    }
-                                }
-                                if (validListEntries.size() > 0) {
-                                    headers.put((String) entry.getKey(), validListEntries);
-                                } else {
-                                    logger.trace("No valid String entries found for '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping.");
-                                }
-                            }
-                        } catch (Exception ex) {
-                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping entry.", ex);
-                        }
-                    }
-                } else {
-                    logger.warn("No headers map found at '" + httpDispatcherProperties.getHeadersVariable() + "'.");
-                }
-            } catch (Exception ex) {
-                logger.warn("Error getting headers from map " + httpDispatcherProperties.getHeadersVariable() + "'.", ex);
-            }
-        } else {
-            headers = httpDispatcherProperties.getHeadersMap();
-        }
-        return headers;
+        return HttpUtil.getTableMap(httpDispatcherProperties.isUseHeadersVariable(), httpDispatcherProperties.getHeadersVariable(), httpDispatcherProperties.getHeadersMap(), getMessageMaps(), connectorMessage);
     }
 
     Map<String, List<String>> getParameters(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage) {
-        Map<String, List<String>> parameters;
-        if (httpDispatcherProperties.isUseParametersVariable()) {
-            parameters = new HashMap<>();
-            try {
-                Map<?,?> source = (Map<?, ?>) getMessageMaps().get(httpDispatcherProperties.getParametersVariable(), connectorMessage);
-                if (source != null) {
-                    for (Entry<?, ?> entry : source.entrySet()) {
-                        try {
-                            if (entry.getValue() instanceof String) {
-                                List<String> list = new ArrayList<String>();
-                                list.add((String) entry.getValue());
-                                parameters.put((String) entry.getKey(), list);
-                            } else {
-                                List<String> validListEntries = new ArrayList<String>();
-                                for (Object listEntry : (List<?>) entry.getValue()) {
-                                    if (listEntry instanceof String) {
-                                        validListEntries.add((String) listEntry);
-                                    } else {
-                                        validListEntries.add(String.valueOf(listEntry));
-                                    }
-                                }
-                                if (validListEntries.size() > 0) {
-                                    parameters.put((String) entry.getKey(), validListEntries);
-                                } else {
-                                    logger.trace("No valid String entries found for '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getHeadersVariable() + "'. Skipping.");
-                                }
-                            }
-                        } catch (Exception ex) {
-                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + httpDispatcherProperties.getParametersVariable() + "'. Skipping entry.", ex);
-                        }
-                    }
-                } else {
-                    logger.warn("No parameters map found at '" + httpDispatcherProperties.getParametersVariable() + "'.");
-                }
-            } catch (Exception ex) {
-                logger.warn("Error getting parameters from map " + httpDispatcherProperties.getParametersVariable() + "'.", ex);
-            }
-        } else {
-            parameters = httpDispatcherProperties.getParametersMap();
-        }
-        return parameters;
+        return HttpUtil.getTableMap(httpDispatcherProperties.isUseParametersVariable(), httpDispatcherProperties.getParametersVariable(), httpDispatcherProperties.getParametersMap(), getMessageMaps(), connectorMessage);
     }
 
     private void setQueryString(URIBuilder uriBuilder, List<NameValuePair> queryParameters) {
@@ -755,7 +675,7 @@ public class HttpDispatcher extends DestinationConnector {
             return StringUtils.startsWithAny(mimeType, binaryMimeTypesArray);
         }
     }
-    
+
     @Override
     public HttpDispatcherProperties getConnectorProperties() {
         return (HttpDispatcherProperties) super.getConnectorProperties();

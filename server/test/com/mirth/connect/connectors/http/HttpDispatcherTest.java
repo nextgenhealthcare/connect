@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class HttpDispatcherTest {
     Response response;
     CustomMessageMap messageMap;
     Map<Object, Object> headersFromMessageMap;
-    
+
     @Before
     public void setup() {
         dispatcher = new HttpDispatcher();
@@ -51,7 +52,7 @@ public class HttpDispatcherTest {
         value.add("testItem");
         responseHeaders.put("testKey", value);
         props.setHeadersMap(responseHeaders);
-        
+
         Map<String, List<String>> result = dispatcher.getHeaders(props, Mockito.mock(ConnectorMessage.class));
         assertEquals(responseHeaders, result);
     }
@@ -63,7 +64,7 @@ public class HttpDispatcherTest {
         messageMap.map.put("myVar", headerMap);
         props.setHeadersVariable("myVar");
         props.setUseHeadersVariable(true);
-        
+
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> list = new ArrayList<String>();
         list.add("customValue");
@@ -73,19 +74,19 @@ public class HttpDispatcherTest {
     }
 
     @Test
-    public void testGetHeadersFromVariableSkippingInvalidValues() {
+    public void testGetHeadersFromVariableHandlingInvalidValues() {
         Map<Object, Object> headerMap = new HashMap<>();
         headerMap.put("customHeader", "customValue");
-        headerMap.put("badValue", 1);
+        headerMap.put("numericValue", 1);
         headerMap.put(4, 4);
         messageMap.map.put("myVar", headerMap);
         props.setHeadersVariable("myVar");
         props.setUseHeadersVariable(true);
-        
+
         HashMap<String, List<String>> expected = new HashMap<>();
-        List<String> list = new ArrayList<String>();
-        list.add("customValue");
-        expected.put("customHeader", list);
+        expected.put("customHeader", Collections.singletonList("customValue"));
+        expected.put("numericValue", Collections.singletonList(String.valueOf(1)));
+        expected.put(String.valueOf(4), Collections.singletonList(String.valueOf(4)));
         Map<String, List<String>> result = dispatcher.getHeaders(props, Mockito.mock(ConnectorMessage.class));
         assertEquals(expected, result);
     }
@@ -100,7 +101,7 @@ public class HttpDispatcherTest {
         messageMap.map.put("myVar", headerMap);
         props.setHeadersVariable("myVar");
         props.setUseHeadersVariable(true);
-        
+
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> list = new ArrayList<String>();
         list.add("11");
@@ -109,7 +110,7 @@ public class HttpDispatcherTest {
         Map<String, List<String>> result = dispatcher.getHeaders(props, Mockito.mock(ConnectorMessage.class));
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void testGetHeadersFromMapWhenBothMapAndVariableAreSet() {
         Map<Object, Object> headerMap = new HashMap<>();
@@ -126,7 +127,7 @@ public class HttpDispatcherTest {
         Map<String, List<String>> result = dispatcher.getHeaders(props, Mockito.mock(ConnectorMessage.class));
         assertEquals(responseHeaders, result);
     }
-    
+
     @Test
     public void testGetHeadersFromVariableWhenBothMapAndVariableAreSet() {
         Map<Object, Object> headerMap = new HashMap<>();
@@ -139,7 +140,7 @@ public class HttpDispatcherTest {
         responseHeaders.put("testKey", value);
         props.setHeadersMap(responseHeaders);
         props.setUseHeadersVariable(true);
-        
+
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> list = new ArrayList<String>();
         list.add("customValue");
@@ -155,7 +156,7 @@ public class HttpDispatcherTest {
         value.add("testItem");
         parameters.put("testKey", value);
         props.setParametersMap(parameters);
-        
+
         Map<String, List<String>> result = dispatcher.getParameters(props, Mockito.mock(ConnectorMessage.class));
         assertEquals(parameters, result);
     }
@@ -167,7 +168,7 @@ public class HttpDispatcherTest {
         messageMap.map.put("myVar", parameters);
         props.setParametersVariable("myVar");
         props.setUseParametersVariable(true);
-        
+
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> list = new ArrayList<String>();
         list.add("customValue");
@@ -189,17 +190,17 @@ public class HttpDispatcherTest {
         messageMap.map.put("myVar", parameters);
         props.setParametersVariable("myVar");
         props.setUseParametersVariable(true);
-        
-        HashMap<String, List<Object>> expected = new HashMap<>();
-        List<Object> list = new ArrayList<Object>();
-        list.add("customValue");
-        expected.put("customParam", list);
 
-        list = new ArrayList<Object>();
+        HashMap<String, List<Object>> expected = new HashMap<>();
+        expected.put("customParam", Collections.singletonList("customValue"));
+        expected.put("numValue", Collections.singletonList(String.valueOf(1)));
+        expected.put(String.valueOf(4), Collections.singletonList(String.valueOf(4)));
+
+        List<Object> list = new ArrayList<Object>();
         list.add("11");
         list.add("12");
         expected.put("numValue2", list);
-        
+
         Map<String, List<String>> result = dispatcher.getParameters(props, Mockito.mock(ConnectorMessage.class));
         assertEquals(expected, result);
     }
@@ -214,7 +215,7 @@ public class HttpDispatcherTest {
         messageMap.map.put("myVar", parameters);
         props.setParametersVariable("myVar");
         props.setUseParametersVariable(true);
-        
+
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> list = new ArrayList<String>();
         list.add("11");
@@ -223,7 +224,7 @@ public class HttpDispatcherTest {
         Map<String, List<String>> result = dispatcher.getParameters(props, Mockito.mock(ConnectorMessage.class));
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void testGetParametersFromMapWhenBothMapAndVariableAreSet() {
         Map<Object, Object> varMap = new HashMap<>();
@@ -240,7 +241,7 @@ public class HttpDispatcherTest {
         Map<String, List<String>> result = dispatcher.getParameters(props, Mockito.mock(ConnectorMessage.class));
         assertEquals(parameters, result);
     }
-    
+
     @Test
     public void testGetParametersFromVariableWhenBothMapAndVariableAreSet() {
         Map<Object, Object> varMap = new HashMap<>();
@@ -269,7 +270,7 @@ public class HttpDispatcherTest {
         Map<String, List<String>> result = dispatcher.getHeaders(props, Mockito.mock(ConnectorMessage.class));
         assertTrue(result.isEmpty());
     }
-    
+
     @Test
     public void testGetEmptyMapWhenParameterVariableDoesNotExist() {
         props.setParametersVariable("doesn't exist");
@@ -277,15 +278,16 @@ public class HttpDispatcherTest {
         Map<String, List<String>> result = dispatcher.getParameters(props, Mockito.mock(ConnectorMessage.class));
         assertTrue(result.isEmpty());
     }
-    
+
     class CustomMessageMap extends MessageMaps {
         protected Map<Object, Object> map;
+
         public CustomMessageMap(Map<Object, Object> map) {
             this.map = map;
         }
-        public CustomMessageMap() {
-        }
-        
+
+        public CustomMessageMap() {}
+
         @Override
         public Object get(String key, ConnectorMessage connectorMessage, boolean includeResponseMap) {
             return map.get(key);

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class HttpReceiverTest {
     DispatchResult dispatchResult;
     CustomMessageMap messageMap;
     Map<Object, Object> headersFromMessageMap;
-    
+
     @Before
     public void setup() {
         receiver = new HttpReceiver();
@@ -54,7 +55,7 @@ public class HttpReceiverTest {
         value.add("testItem");
         responseHeaders.put("testKey", value);
         props.setResponseHeadersMap(responseHeaders);
-        
+
         Map<String, List<String>> result = receiver.getHeaders(dispatchResult);
         assertEquals(responseHeaders, result);
     }
@@ -66,7 +67,7 @@ public class HttpReceiverTest {
         messageMap.map.put("myVar", headerMap);
         props.setResponseHeadersVariable("myVar");
         props.setUseHeadersVariable(true);
-        
+
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> list = new ArrayList<String>();
         list.add("customValue");
@@ -74,7 +75,7 @@ public class HttpReceiverTest {
         Map<String, List<String>> result = receiver.getHeaders(dispatchResult);
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void testGetHeadersFromVariableWithListOfValues() {
         Map<Object, Object> headerMap = new HashMap<>();
@@ -85,7 +86,7 @@ public class HttpReceiverTest {
         messageMap.map.put("myVar", headerMap);
         props.setResponseHeadersVariable("myVar");
         props.setUseHeadersVariable(true);
-        
+
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> expectedList = new ArrayList<String>();
         expectedList.add("custom1");
@@ -108,17 +109,17 @@ public class HttpReceiverTest {
         messageMap.map.put("myVar", headerMap);
         props.setResponseHeadersVariable("myVar");
         props.setUseHeadersVariable(true);
-        
+
         HashMap<String, List<Object>> expected = new HashMap<>();
+        expected.put("customHeader", Collections.singletonList("customValue"));
+        expected.put("numValue", Collections.singletonList(String.valueOf(1)));
+        expected.put(String.valueOf(4), Collections.singletonList(String.valueOf(4)));
+
         List<Object> list = new ArrayList<Object>();
-        list.add("customValue");
-        expected.put("customHeader", list);
-        
-        list = new ArrayList<Object>();
         list.add("11");
         list.add("12");
         expected.put("numValue2", list);
-        
+
         Map<String, List<String>> result = receiver.getHeaders(dispatchResult);
         assertEquals(expected, result);
     }
@@ -133,17 +134,17 @@ public class HttpReceiverTest {
         messageMap.map.put("myVar", headerMap);
         props.setResponseHeadersVariable("myVar");
         props.setUseHeadersVariable(true);
-        
+
         HashMap<String, List<String>> expected = new HashMap<>();
-        
+
         List<String> list = new ArrayList<String>();
-        list.add("11");        
+        list.add("11");
         list.add("goodValue");
         expected.put("customHeader", list);
         Map<String, List<String>> result = receiver.getHeaders(dispatchResult);
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void testGetHeadersFromMapWhenBothMapAndVariableAreSet() {
         Map<Object, Object> headerMap = new HashMap<>();
@@ -160,7 +161,7 @@ public class HttpReceiverTest {
         Map<String, List<String>> result = receiver.getHeaders(dispatchResult);
         assertEquals(responseHeaders, result);
     }
-    
+
     @Test
     public void testGetHeadersFromVariableWhenBothMapAndVariableAreSet() {
         Map<Object, Object> headerMap = new HashMap<>();
@@ -173,7 +174,7 @@ public class HttpReceiverTest {
         responseHeaders.put("testKey", value);
         props.setResponseHeadersMap(responseHeaders);
         props.setUseHeadersVariable(true);
-        
+
         HashMap<String, List<String>> expected = new HashMap<>();
         List<String> list = new ArrayList<String>();
         list.add("customValue");
@@ -189,13 +190,13 @@ public class HttpReceiverTest {
         Map<String, List<String>> result = receiver.getHeaders(dispatchResult);
         assertTrue(result.isEmpty());
     }
-    
+
     class TestDispatchResult extends DispatchResult {
         protected TestDispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean lockAcquired) {
             super(messageId, processedMessage, selectedResponse, markAsProcessed, lockAcquired);
         }
     }
-    
+
     class CustomMessageMap extends MessageMaps {
         protected Map<Object, Object> map = new HashMap<>();
 

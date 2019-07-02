@@ -79,7 +79,7 @@ public class DigestAuthenticator extends Authenticator {
         this.provider = provider;
         this.messageMaps = messageMaps;
     }
-    
+
     @Override
     public AuthenticationResult authenticate(RequestInfo request) {
         DigestHttpAuthProperties properties = getReplacedProperties(request);
@@ -343,32 +343,30 @@ public class DigestAuthenticator extends Authenticator {
 
     protected Map<String, String> getCredentials(DigestHttpAuthProperties properties) {
         Map<String, String> credentialsSource;
+
         if (properties.isUseCredentialsVariable()) {
             credentialsSource = new HashMap<>();
+
             try {
-                Map<?,?> source = (Map<?, ?>) messageMaps.get(properties.getCredentialsVariable(), null);
+                Map<?, ?> source = (Map<?, ?>) messageMaps.get(properties.getCredentialsVariable(), null);
+
                 if (source != null) {
                     for (Entry<?, ?> entry : source.entrySet()) {
-                        if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
-                            credentialsSource.put((String) entry.getKey(), (String) entry.getValue());
-                        } else if (entry.getKey() instanceof String) {
-                            credentialsSource.put((String) entry.getKey(), String.valueOf(entry.getValue()));
-                        } else {
-                            logger.trace("Error getting map entry '" + entry.getKey().toString() + "' from map '" + properties.getCredentialsVariable() + "'. Skipping entry.");
-                        }
+                        credentialsSource.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
                     }
                 } else {
-                    logger.warn("No credentials map found at '" + properties.getCredentialsVariable() + "'.");
+                    logger.warn("Credentials map variable '" + properties.getCredentialsVariable() + "' not found.");
                 }
-            } catch (ClassCastException ex) {
-                logger.warn("Error getting credentials from map " + properties.getCredentialsVariable() + "'.", ex);
+            } catch (Exception e) {
+                logger.warn("Error getting credentials from map " + properties.getCredentialsVariable() + "'.", e);
             }
         } else {
             credentialsSource = properties.getCredentialsMap();
         }
+
         return credentialsSource;
     }
-    
+
     /**
      * Iterates through all nonces in the cache and removes any that are expired.
      */
@@ -431,7 +429,7 @@ public class DigestAuthenticator extends Authenticator {
         }
         properties.setCredentialsMap(credentials);
         properties.setCredentialsVariable(replacer.replaceValues(properties.getCredentialsVariable(), map));
-        
+
         return properties;
     }
 
