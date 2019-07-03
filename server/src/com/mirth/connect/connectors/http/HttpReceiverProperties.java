@@ -37,6 +37,8 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     private boolean responseDataTypeBinary;
     private String responseStatusCode;
     private Map<String, List<String>> responseHeaders;
+    private String responseHeadersVariable;
+    private boolean useResponseHeadersVariable;  // true to use responseHeaders, false to use responseHeadersVariable
     private String charset;
     private String contextPath;
     private String timeout;
@@ -59,6 +61,8 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         this.contextPath = "";
         this.timeout = "30000";
         this.staticResources = new ArrayList<HttpStaticResource>();
+        this.responseHeadersVariable = "";
+        this.useResponseHeadersVariable = false;
     }
 
     public boolean isXmlBody() {
@@ -124,15 +128,31 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     public void setResponseStatusCode(String responseStatusCode) {
         this.responseStatusCode = responseStatusCode;
     }
-
-    public Map<String, List<String>> getResponseHeaders() {
+    
+    public Map<String, List<String>> getResponseHeadersMap() {
         return responseHeaders;
     }
 
-    public void setResponseHeaders(Map<String, List<String>> responseHeaders) {
+    public void setResponseHeadersMap(Map<String, List<String>> responseHeaders) {
         this.responseHeaders = responseHeaders;
     }
 
+    public boolean isUseHeadersVariable() {
+        return useResponseHeadersVariable;
+    }
+    
+    public void setUseHeadersVariable(boolean useResponseHeadersVariable) {
+        this.useResponseHeadersVariable = useResponseHeadersVariable;
+    }
+
+    public void setResponseHeadersVariable(String headersVariable) {
+        this.responseHeadersVariable = headersVariable;
+    }
+    
+    public String getResponseHeadersVariable() {
+        return this.responseHeadersVariable;
+    }
+    
     public String getCharset() {
         return charset;
     }

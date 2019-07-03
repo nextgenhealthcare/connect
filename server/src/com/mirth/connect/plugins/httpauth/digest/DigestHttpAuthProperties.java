@@ -13,10 +13,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.mirth.connect.donkey.util.xstream.SerializerException;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.httpauth.HttpAuthConnectorPluginProperties;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class DigestHttpAuthProperties extends HttpAuthConnectorPluginProperties {
 
@@ -55,6 +59,8 @@ public class DigestHttpAuthProperties extends HttpAuthConnectorPluginProperties 
     private Set<QOPMode> qopModes;
     private String opaque;
     private Map<String, String> credentials;
+    private boolean isUseCredentialsVariable;
+    private String credentialsVariable;
 
     public DigestHttpAuthProperties() {
         super(AuthType.DIGEST);
@@ -63,6 +69,8 @@ public class DigestHttpAuthProperties extends HttpAuthConnectorPluginProperties 
         qopModes = new LinkedHashSet<QOPMode>(Arrays.asList(QOPMode.values()));
         opaque = "${UUID}";
         credentials = new LinkedHashMap<String, String>();
+        isUseCredentialsVariable = false;
+        credentialsVariable = "";
     }
 
     public DigestHttpAuthProperties(DigestHttpAuthProperties props) {
@@ -71,7 +79,9 @@ public class DigestHttpAuthProperties extends HttpAuthConnectorPluginProperties 
         algorithms = new LinkedHashSet<Algorithm>(props.getAlgorithms());
         qopModes = new LinkedHashSet<QOPMode>(props.getQopModes());
         opaque = props.getOpaque();
-        credentials = new LinkedHashMap<String, String>(props.getCredentials());
+        credentials = new LinkedHashMap<String, String>(props.getCredentialsMap());
+        isUseCredentialsVariable = props.isUseCredentialsVariable();
+        credentialsVariable = props.getCredentialsVariable();
     }
 
     public String getRealm() {
@@ -106,12 +116,28 @@ public class DigestHttpAuthProperties extends HttpAuthConnectorPluginProperties 
         this.opaque = opaque;
     }
 
-    public Map<String, String> getCredentials() {
+    public Map<String, String> getCredentialsMap() {
         return credentials;
     }
 
-    public void setCredentials(Map<String, String> credentials) {
+    public void setCredentialsMap(Map<String, String> credentials) {
         this.credentials = credentials;
+    }
+
+    public boolean isUseCredentialsVariable() {
+        return isUseCredentialsVariable;
+    }
+
+    public void setUseCredentialsVariable(boolean isUseCredentialsVariable) {
+        this.isUseCredentialsVariable = isUseCredentialsVariable;
+    }
+
+    public String getCredentialsVariable() {
+        return credentialsVariable;
+    }
+
+    public void setCredentialsVariable(String credentialsVariable) {
+        this.credentialsVariable = credentialsVariable;
     }
 
     @Override

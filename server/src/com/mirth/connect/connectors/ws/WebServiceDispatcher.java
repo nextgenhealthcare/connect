@@ -104,6 +104,7 @@ import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.userutil.AttachmentEntry;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.HttpUtil;
 
@@ -113,7 +114,6 @@ public class WebServiceDispatcher extends DestinationConnector {
     private static final int MAX_REDIRECTS = NumberUtils.toInt(System.getProperty("http.maxRedirects"), 20);
 
     private Logger logger = Logger.getLogger(this.getClass());
-    protected WebServiceDispatcherProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
@@ -135,8 +135,6 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        this.connectorProperties = (WebServiceDispatcherProperties) getConnectorProperties();
-
         // load the default configuration
         String configurationClass = getConfigurationClass();
 
@@ -209,7 +207,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                 if (numTasks > 0) {
                     String message = "Error halting Web Service Sender: " + numTasks + " request" + (numTasks == 1 ? "" : "s") + " failed to be halted. This can potentially lead to a thread leak if the requests continue to hang.";
                     logger.error(message);
-                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), message, null));
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), getConnectorProperties().getName(), message, null));
                 }
             }
         }
@@ -224,7 +222,7 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     @Override
     protected String getConfigurationClass() {
-        return configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
+        return configurationController.getProperty(getConnectorProperties().getProtocol(), "wsConfigurationClass");
     }
 
     private String sourceToXmlString(Source source) throws TransformerConfigurationException, TransformerException {
@@ -408,16 +406,20 @@ public class WebServiceDispatcher extends DestinationConnector {
         webServiceDispatcherProperties.setSoapAction(replacer.replaceValues(webServiceDispatcherProperties.getSoapAction(), connectorMessage));
         webServiceDispatcherProperties.setEnvelope(replacer.replaceValues(webServiceDispatcherProperties.getEnvelope(), connectorMessage));
 
-        Map<String, List<String>> headers = webServiceDispatcherProperties.getHeaders();
+        Map<String, List<String>> headers = webServiceDispatcherProperties.getHeadersMap();
         for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
             replacer.replaceValuesInList(entry.getValue(), connectorMessage);
         }
-        webServiceDispatcherProperties.setHeaders(headers);
+        webServiceDispatcherProperties.setHeadersMap(headers);
+        webServiceDispatcherProperties.setHeadersVariable(replacer.replaceValues(webServiceDispatcherProperties.getHeadersVariable(), connectorMessage));
 
         if (webServiceDispatcherProperties.isUseMtom()) {
             replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentNames(), connectorMessage);
             replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentContents(), connectorMessage);
             replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentTypes(), connectorMessage);
+
+            webServiceDispatcherProperties.setAttachmentsVariable(replacer.replaceValues(webServiceDispatcherProperties.getAttachmentsVariable(), connectorMessage));
+
         }
     }
 
@@ -476,8 +478,10 @@ public class WebServiceDispatcher extends DestinationConnector {
             Map<String, List<String>> requestHeaders = new HashMap<String, List<String>>(dispatchContainer.getDefaultRequestHeaders());
 
             // Add custom headers
-            if (MapUtils.isNotEmpty(webServiceDispatcherProperties.getHeaders())) {
-                for (Entry<String, List<String>> entry : webServiceDispatcherProperties.getHeaders().entrySet()) {
+            Map<String, List<String>> headersSource = getHeaders(webServiceDispatcherProperties, connectorMessage);
+
+            if (MapUtils.isNotEmpty(headersSource)) {
+                for (Entry<String, List<String>> entry : headersSource.entrySet()) {
                     List<String> valueList = requestHeaders.get(entry.getKey());
 
                     if (valueList == null) {
@@ -501,15 +505,12 @@ public class WebServiceDispatcher extends DestinationConnector {
 
             if (webServiceDispatcherProperties.isUseMtom()) {
                 soapBinding.setMTOMEnabled(true);
+                List<AttachmentEntry> attachmentEntries = getAttachments(webServiceDispatcherProperties, connectorMessage);
 
-                List<String> attachmentIds = webServiceDispatcherProperties.getAttachmentNames();
-                List<String> attachmentContents = webServiceDispatcherProperties.getAttachmentContents();
-                List<String> attachmentTypes = webServiceDispatcherProperties.getAttachmentTypes();
-
-                for (int i = 0; i < attachmentIds.size(); i++) {
-                    String attachmentContentId = attachmentIds.get(i);
-                    String attachmentContentType = attachmentTypes.get(i);
-                    String attachmentContent = attachmentHandlerProvider.reAttachMessage(attachmentContents.get(i), connectorMessage, webServiceDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
+                for (AttachmentEntry entry : attachmentEntries) {
+                    String attachmentContentId = entry.getName();
+                    String attachmentContentType = entry.getMimeType();
+                    String attachmentContent = attachmentHandlerProvider.reAttachMessage(entry.getContent(), connectorMessage, webServiceDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
 
                     AttachmentPart attachment = message.createAttachmentPart();
                     attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);
@@ -749,5 +750,47 @@ public class WebServiceDispatcher extends DestinationConnector {
                 }
             }
         }
+    }
+
+    Map<String, List<String>> getHeaders(WebServiceDispatcherProperties webServiceDispatcherProperties, ConnectorMessage connectorMessage) {
+        return HttpUtil.getTableMap(webServiceDispatcherProperties.isUseHeadersVariable(), webServiceDispatcherProperties.getHeadersVariable(), webServiceDispatcherProperties.getHeadersMap(), getMessageMaps(), connectorMessage);
+    }
+
+    List<AttachmentEntry> getAttachments(WebServiceDispatcherProperties webServiceDispatcherProperties, ConnectorMessage connectorMessage) {
+        List<AttachmentEntry> attachmentList = new ArrayList<>();
+
+        if (webServiceDispatcherProperties.isUseAttachmentsVariable()) {
+            try {
+                List<?> attachmentEntries = (List<?>) getMessageMaps().get(webServiceDispatcherProperties.getAttachmentsVariable(), connectorMessage);
+                if (attachmentEntries != null) {
+                    for (Object entry : attachmentEntries) {
+                        if (entry instanceof AttachmentEntry) {
+                            attachmentList.add(new AttachmentEntry((AttachmentEntry) entry));
+                        } else {
+                            logger.trace("Error getting attachment entry from map '" + webServiceDispatcherProperties.getAttachmentsVariable() + "'. Skipping entry.");
+                        }
+                    }
+                } else {
+                    logger.warn("Attachments list variable '" + webServiceDispatcherProperties.getAttachmentsVariable() + "' not found.");
+                }
+            } catch (Exception e) {
+                logger.warn("Error getting attachments from map '" + webServiceDispatcherProperties.getHeadersVariable() + "'.", e);
+            }
+        } else {
+            List<String> attachmentIds = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentNames());
+            List<String> attachmentContents = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentContents());
+            List<String> attachmentTypes = new ArrayList<String>(webServiceDispatcherProperties.getAttachmentTypes());
+
+            for (int i = 0; i < attachmentIds.size(); i++) {
+                attachmentList.add(new AttachmentEntry(attachmentIds.get(i), attachmentContents.get(i), attachmentTypes.get(i)));
+            }
+        }
+
+        return attachmentList;
+    }
+
+    @Override
+    public WebServiceDispatcherProperties getConnectorProperties() {
+        return (WebServiceDispatcherProperties) super.getConnectorProperties();
     }
 }

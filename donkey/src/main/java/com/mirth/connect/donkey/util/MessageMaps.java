@@ -20,14 +20,16 @@ public class MessageMaps {
     public Object get(String key, ConnectorMessage connectorMessage, boolean includeResponseMap) {
         Object value = null;
 
-        if (includeResponseMap && connectorMessage.getResponseMap() != null && connectorMessage.getResponseMap().containsKey(key)) {
-            value = connectorMessage.getResponseMap().get(key);
-        } else if (connectorMessage.getConnectorMap() != null && connectorMessage.getConnectorMap().containsKey(key)) {
-            value = connectorMessage.getConnectorMap().get(key);
-        } else if (connectorMessage.getChannelMap() != null && connectorMessage.getChannelMap().containsKey(key)) {
-            value = connectorMessage.getChannelMap().get(key);
-        } else if (connectorMessage.getSourceMap() != null && connectorMessage.getSourceMap().containsKey(key)) {
-            value = connectorMessage.getSourceMap().get(key);
+        if (connectorMessage != null) {
+            if (includeResponseMap && connectorMessage.getResponseMap() != null && connectorMessage.getResponseMap().containsKey(key)) {
+                value = connectorMessage.getResponseMap().get(key);
+            } else if (connectorMessage.getConnectorMap() != null && connectorMessage.getConnectorMap().containsKey(key)) {
+                value = connectorMessage.getConnectorMap().get(key);
+            } else if (connectorMessage.getChannelMap() != null && connectorMessage.getChannelMap().containsKey(key)) {
+                value = connectorMessage.getChannelMap().get(key);
+            } else if (connectorMessage.getSourceMap() != null && connectorMessage.getSourceMap().containsKey(key)) {
+                value = connectorMessage.getSourceMap().get(key);
+            }
         }
 
         return value;

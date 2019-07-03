@@ -32,7 +32,6 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -40,7 +39,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -126,6 +124,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     public HttpListener() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        initToolTips();
         initLayout();
         initComponentsManual();
         httpUrlField.setEditable(false);
@@ -153,7 +152,10 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         properties.setResponseStatusCode(responseStatusCodeField.getText());
 
-        properties.setResponseHeaders(getResponseHeaders());
+        properties.setResponseHeadersMap(getResponseHeaders());
+        properties.setUseHeadersVariable(useResponseHeadersVariableRadio.isSelected());
+        properties.setResponseHeadersVariable(responseHeadersVariableField.getText());
+        
         properties.setStaticResources(getStaticResources());
 
         return properties;
@@ -205,12 +207,20 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         responseStatusCodeField.setText(props.getResponseStatusCode());
 
-        if (props.getResponseHeaders() != null) {
-            setResponseHeaders(props.getResponseHeaders());
+        if (props.getResponseHeadersMap() != null) {
+            setResponseHeaders(props.getResponseHeadersMap());
         } else {
             setResponseHeaders(new LinkedHashMap<String, List<String>>());
         }
 
+        if (props.isUseHeadersVariable()) {
+            useResponseHeadersVariableRadio.setSelected(true);
+        } else {
+            useResponseHeadersTableRadio.setSelected(true);
+        }
+        responseHeadersVariableField.setText(props.getResponseHeadersVariable());
+        useResponseHeadersVariableFieldsEnabled(props.isUseHeadersVariable());
+        
         if (props.getStaticResources() != null) {
             setStaticResources(props.getStaticResources());
         } else {
@@ -829,7 +839,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseHeadersTable = new MirthTable();
         responseHeadersNewButton = new JButton();
         responseHeadersDeleteButton = new JButton();
-        receiveTimeoutLabel1 = new JLabel();
+        responseStatusCodeLabel = new JLabel();
         responseStatusCodeField = new MirthTextField();
         messageContentXmlBodyRadio = new MirthRadioButton();
         parseMultipartLabel = new JLabel();
@@ -856,7 +866,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         messageContentPlainBodyRadio.setBackground(new Color(255, 255, 255));
         includeHeadersGroup.add(messageContentPlainBodyRadio);
         messageContentPlainBodyRadio.setText("Plain Body");
-        messageContentPlainBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as a raw string.</html>");
         messageContentPlainBodyRadio.setMargin(new Insets(0, 0, 0, 0));
         messageContentPlainBodyRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -866,19 +875,15 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         messageContentLabel.setText("Message Content:");
 
-        responseContentTypeField.setToolTipText("The MIME type to be used for the response.");
-
         responseContentTypeLabel.setText("Response Content Type:");
 
         charsetEncodingCombobox.setModel(new DefaultComboBoxModel<String>(new String[] { "default",
                 "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
-        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding to be used for the response to the sending system.<br>Set to Default to assume the default character set encoding for the JVM running Mirth Connect.</html>");
 
         charsetEncodingLabel.setText("Charset Encoding:");
 
         contextPathLabel.setText("Base Context Path:");
 
-        contextPathField.setToolTipText("The context path for the HTTP Listener URL.");
         contextPathField.addKeyListener(new KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 contextPathFieldKeyReleased(evt);
@@ -887,10 +892,6 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         receiveTimeoutLabel.setText("Receive Timeout (ms):");
 
-        receiveTimeoutField.setToolTipText("Enter the maximum idle time in milliseconds for a connection.");
-
-        httpUrlField.setToolTipText("<html>Displays the generated HTTP URL for the HTTP Listener.</html>");
-
         httpUrlLabel.setText("HTTP URL:");
 
         headersLabel.setText("Response Headers:");
@@ -898,7 +899,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseHeadersTable.setModel(new DefaultTableModel(new Object[][] {
 
         }, new String[] { "Name", "Value" }));
-        responseHeadersTable.setToolTipText("Response header parameters are encoded as HTTP headers in the response sent to the client.");
         responseHeadersPane.setViewportView(responseHeadersTable);
 
         responseHeadersNewButton.setText("New");
@@ -915,14 +915,33 @@ public class HttpListener extends ConnectorSettingsPanel {
             }
         });
 
-        receiveTimeoutLabel1.setText("Response Status Code:");
+        useResponseHeadersTableRadio = new MirthRadioButton("Use Table");
+        useResponseHeadersTableRadio.setBackground(getBackground());
+        useResponseHeadersTableRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                useResponseHeadersVariableFieldsEnabled(false);
+            }
+        });
+        useResponseHeadersVariableRadio = new MirthRadioButton("Use Map:");
+        useResponseHeadersVariableRadio.setBackground(getBackground());
+        useResponseHeadersVariableRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                useResponseHeadersVariableFieldsEnabled(true);
+            }
+        });
+        ButtonGroup headersSourceButtonGroup = new ButtonGroup();
+        headersSourceButtonGroup.add(useResponseHeadersTableRadio);
+        headersSourceButtonGroup.add(useResponseHeadersVariableRadio);     
 
-        responseStatusCodeField.setToolTipText("<html>Enter the status code for the HTTP response.  If this field is left blank a <br>default status code of 200 will be returned for a successful message, <br>and 500 will be returned for an errored message. If a \"Respond from\" <br>value is chosen, that response will be used to determine a successful <br>or errored response.<html>");
+        responseHeadersVariableField = new MirthTextField();
+        
+        responseStatusCodeLabel.setText("Response Status Code:");
 
         messageContentXmlBodyRadio.setBackground(new Color(255, 255, 255));
         includeHeadersGroup.add(messageContentXmlBodyRadio);
         messageContentXmlBodyRadio.setText("XML Body");
-        messageContentXmlBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as serialized XML.</html>");
         messageContentXmlBodyRadio.setMargin(new Insets(0, 0, 0, 0));
         messageContentXmlBodyRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -935,13 +954,11 @@ public class HttpListener extends ConnectorSettingsPanel {
         parseMultipartYesRadio.setBackground(new Color(255, 255, 255));
         parseMultipartButtonGroup.add(parseMultipartYesRadio);
         parseMultipartYesRadio.setText("Yes");
-        parseMultipartYesRadio.setToolTipText("<html>Select Yes to automatically parse multipart requests into separate XML nodes.<br/>Select No to always keep the request body as a single XML node.</html>");
         parseMultipartYesRadio.setMargin(new Insets(0, 0, 0, 0));
 
         parseMultipartNoRadio.setBackground(new Color(255, 255, 255));
         parseMultipartButtonGroup.add(parseMultipartNoRadio);
         parseMultipartNoRadio.setText("No");
-        parseMultipartNoRadio.setToolTipText("<html>Select Yes to automatically parse multipart requests into separate XML nodes.<br/>Select No to always keep the request body as a single XML node.</html>");
         parseMultipartNoRadio.setMargin(new Insets(0, 0, 0, 0));
 
         includeMetadataLabel.setText("Include Metadata:");
@@ -949,13 +966,11 @@ public class HttpListener extends ConnectorSettingsPanel {
         includeMetadataYesRadio.setBackground(new Color(255, 255, 255));
         includeMetadataButtonGroup.add(includeMetadataYesRadio);
         includeMetadataYesRadio.setText("Yes");
-        includeMetadataYesRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
         includeMetadataYesRadio.setMargin(new Insets(0, 0, 0, 0));
 
         includeMetadataNoRadio.setBackground(new Color(255, 255, 255));
         includeMetadataButtonGroup.add(includeMetadataNoRadio);
         includeMetadataNoRadio.setText("No");
-        includeMetadataNoRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
         includeMetadataNoRadio.setMargin(new Insets(0, 0, 0, 0));
 
         staticResourcesLabel.setText("Static Resources:");
@@ -979,7 +994,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         }, new String[] {
 
         }));
-        staticResourcesTable.setToolTipText("<html>Values in this table are automatically sent back to any request<br/>with the matching context path. There are three resource types:<br/> - <b>File</b>: The value field specifies the path of the file to return.<br/> - <b>Directory</b>: Any file within the directory given by the value<br/>&nbsp;&nbsp;&nbsp;field may be requested, but subdirectories are not included.<br/> - <b>Custom</b>: The value field itself is returned as the response.<br/></html>");
         responseHeadersPane1.setViewportView(staticResourcesTable);
 
         responseDataTypeLabel.setText("Response Data Type:");
@@ -987,7 +1001,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseDataTypeBinaryRadio.setBackground(new Color(255, 255, 255));
         responseDataTypeButtonGroup.add(responseDataTypeBinaryRadio);
         responseDataTypeBinaryRadio.setText("Binary");
-        responseDataTypeBinaryRadio.setToolTipText("<html>If Binary is selected, responses will be decoded from Base64 into raw byte streams.<br/>If Text is selected, responses will be encoded with the specified character set encoding.</html>");
         responseDataTypeBinaryRadio.setMargin(new Insets(0, 0, 0, 0));
         responseDataTypeBinaryRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -998,7 +1011,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseDataTypeTextRadio.setBackground(new Color(255, 255, 255));
         responseDataTypeButtonGroup.add(responseDataTypeTextRadio);
         responseDataTypeTextRadio.setText("Text");
-        responseDataTypeTextRadio.setToolTipText("<html>If Binary is selected, responses will be decoded from Base64 into raw byte streams.<br/>If Text is selected, responses will be encoded with the specified character set encoding.</html>");
         responseDataTypeTextRadio.setMargin(new Insets(0, 0, 0, 0));
         responseDataTypeTextRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -1008,151 +1020,79 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         binaryMimeTypesLabel.setText("Binary MIME Types:");
 
-        binaryMimeTypesField.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
         binaryMimeTypesField.setMinimumSize(new java.awt.Dimension(200, 21));
         binaryMimeTypesField.setPreferredSize(new java.awt.Dimension(200, 21));
 
         binaryMimeTypesRegexCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         binaryMimeTypesRegexCheckBox.setText("Regular Expression");
+    }
+    
+    protected void initToolTips() {
+        messageContentPlainBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as a raw string.</html>");
+        responseContentTypeField.setToolTipText("The MIME type to be used for the response.");
+        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding to be used for the response to the sending system.<br>Set to Default to assume the default character set encoding for the JVM running Mirth Connect.</html>");
+        contextPathField.setToolTipText("The context path for the HTTP Listener URL.");
+        receiveTimeoutField.setToolTipText("Enter the maximum idle time in milliseconds for a connection.");
+        httpUrlField.setToolTipText("<html>Displays the generated HTTP URL for the HTTP Listener.</html>");
+        responseHeadersTable.setToolTipText("Response header parameters are encoded as HTTP headers in the response sent to the client.");
+        responseStatusCodeField.setToolTipText("<html>Enter the status code for the HTTP response.  If this field is left blank a <br>default status code of 200 will be returned for a successful message, <br>and 500 will be returned for an errored message. If a \"Respond from\" <br>value is chosen, that response will be used to determine a successful <br>or errored response.<html>");
+        messageContentXmlBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as serialized XML.</html>");
+        parseMultipartYesRadio.setToolTipText("<html>Select Yes to automatically parse multipart requests into separate XML nodes.<br/>Select No to always keep the request body as a single XML node.</html>");
+        parseMultipartNoRadio.setToolTipText("<html>Select Yes to automatically parse multipart requests into separate XML nodes.<br/>Select No to always keep the request body as a single XML node.</html>");
+        includeMetadataYesRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
+        includeMetadataNoRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
+        staticResourcesTable.setToolTipText("<html>Values in this table are automatically sent back to any request<br/>with the matching context path. There are three resource types:<br/> - <b>File</b>: The value field specifies the path of the file to return.<br/> - <b>Directory</b>: Any file within the directory given by the value<br/>&nbsp;&nbsp;&nbsp;field may be requested, but subdirectories are not included.<br/> - <b>Custom</b>: The value field itself is returned as the response.<br/></html>");
+        responseDataTypeBinaryRadio.setToolTipText("<html>If Binary is selected, responses will be decoded from Base64 into raw byte streams.<br/>If Text is selected, responses will be encoded with the specified character set encoding.</html>");
+        responseDataTypeTextRadio.setToolTipText("<html>If Binary is selected, responses will be decoded from Base64 into raw byte streams.<br/>If Text is selected, responses will be encoded with the specified character set encoding.</html>");
+        binaryMimeTypesField.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
         binaryMimeTypesRegexCheckBox.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
-
+        useResponseHeadersTableRadio.setToolTipText("<html>The table below will be used to populate response headers.</html>");
+        useResponseHeadersVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate response headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
+        responseHeadersVariableField.setToolTipText("<html>The variable of a Java map to use to populate response headers.<br/>The map must have String keys and either String or List&lt;String&gt; values.</html>");
     }
 
-    // @formatter:off
     protected void initLayout() {
-        GroupLayout layout = new GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addComponent(receiveTimeoutLabel1, GroupLayout.Alignment.TRAILING)
-                    .addComponent(binaryMimeTypesLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(headersLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(httpUrlLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseDataTypeLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(receiveTimeoutLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(contextPathLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(messageContentLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(staticResourcesLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(includeMetadataLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(charsetEncodingLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseContentTypeLabel, GroupLayout.Alignment.TRAILING)
-                    .addComponent(parseMultipartLabel, GroupLayout.Alignment.TRAILING))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addComponent(responseHeadersPane)
-                    .addComponent(responseHeadersPane1)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                            .addComponent(responseStatusCodeField, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(httpUrlField, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(responseDataTypeBinaryRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(responseDataTypeTextRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addComponent(receiveTimeoutField, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(contextPathField, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(messageContentPlainBodyRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(messageContentXmlBodyRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(includeMetadataYesRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(includeMetadataNoRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addComponent(charsetEncodingCombobox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(parseMultipartYesRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(parseMultipartNoRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addComponent(responseContentTypeField, GroupLayout.PREFERRED_SIZE, 125, GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(binaryMimeTypesField, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(binaryMimeTypesRegexCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addGroup(GroupLayout.Alignment.TRAILING, layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                        .addComponent(responseHeadersNewButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(responseHeadersDeleteButton))
-                    .addGroup(GroupLayout.Alignment.TRAILING, layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                        .addComponent(staticResourcesNewButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(staticResourcesDeleteButton)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(contextPathLabel)
-                    .addComponent(contextPathField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(receiveTimeoutField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(receiveTimeoutLabel))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(messageContentLabel)
-                    .addComponent(messageContentPlainBodyRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageContentXmlBodyRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(parseMultipartLabel)
-                    .addComponent(parseMultipartYesRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(parseMultipartNoRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(includeMetadataLabel)
-                    .addComponent(includeMetadataYesRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(includeMetadataNoRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(binaryMimeTypesLabel)
-                    .addComponent(binaryMimeTypesField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(binaryMimeTypesRegexCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(httpUrlLabel)
-                    .addComponent(httpUrlField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseContentTypeLabel)
-                    .addComponent(responseContentTypeField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseDataTypeLabel)
-                    .addComponent(responseDataTypeBinaryRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseDataTypeTextRadio, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(charsetEncodingLabel)
-                    .addComponent(charsetEncodingCombobox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(receiveTimeoutLabel1)
-                    .addComponent(responseStatusCodeField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addComponent(headersLabel)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(responseHeadersNewButton)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(responseHeadersDeleteButton))
-                    .addComponent(responseHeadersPane, GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addComponent(staticResourcesLabel)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(staticResourcesNewButton)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(staticResourcesDeleteButton))
-                    .addComponent(responseHeadersPane1, GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-    } // @formatter:on
+        setLayout(new MigLayout("insets 0 8 0 8, novisualpadding, hidemode 3, gap 12 6", "[][]6[]", "[][][][][][][][][][][][][grow][grow]"));
+
+        add(contextPathLabel, "right");
+        add(contextPathField, "w 150!, sx");
+        add(receiveTimeoutLabel, "newline, right");
+        add(receiveTimeoutField, "w 100!, sx");
+        add(messageContentLabel, "newline, right");
+        add(messageContentPlainBodyRadio, "split 2");
+        add(messageContentXmlBodyRadio);
+        add(parseMultipartLabel, "newline, right");
+        add(parseMultipartYesRadio, "split 2");
+        add(parseMultipartNoRadio);
+        add(includeMetadataLabel, "newline, right");
+        add(includeMetadataYesRadio, "split 2");
+        add(includeMetadataNoRadio);
+        add(binaryMimeTypesLabel, "newline, right");
+        add(binaryMimeTypesField, "w 300!, sx, split 3");
+        add(binaryMimeTypesRegexCheckBox);
+        add(httpUrlLabel, "newline, right");
+        add(httpUrlField, "w 250!, sx");
+        add(responseContentTypeLabel, "newline, right");
+        add(responseContentTypeField, "w 125!, sx");
+        add(responseDataTypeLabel, "newline, right");
+        add(responseDataTypeBinaryRadio, "split 2");
+        add(responseDataTypeTextRadio);
+        add(charsetEncodingLabel, "newline, right");
+        add(charsetEncodingCombobox);
+        add(responseStatusCodeLabel, "newline, right");
+        add(responseStatusCodeField, "w 125!");
+        add(headersLabel, "newline, right");
+        add(useResponseHeadersTableRadio, "split 3");
+        add(useResponseHeadersVariableRadio);
+        add(responseHeadersVariableField, "w 125!, sx");
+        add(responseHeadersPane, "newline, growx, pushx, growy, skip 1, span 2, h 104:104:342");
+        add(responseHeadersNewButton, "top, flowy, split 2, w 44!");
+        add(responseHeadersDeleteButton, "w 44!");
+        add(staticResourcesLabel, "newline, top, right");
+        add(responseHeadersPane1, "growx, pushx, growy, span 2, h 104:104:342");
+        add(staticResourcesNewButton, "top, flowy, split 2, w 44!");
+        add(staticResourcesDeleteButton, "w 44!");
+    }
 
     private void messageContentPlainBodyRadioActionPerformed(ActionEvent evt) {
         parent.channelEditPanel.checkAndSetSourceDataType();
@@ -1247,6 +1187,13 @@ public class HttpListener extends ConnectorSettingsPanel {
         charsetEncodingLabel.setEnabled(true);
         charsetEncodingCombobox.setEnabled(true);
     }
+    
+    private void useResponseHeadersVariableFieldsEnabled(boolean useTemplate) {
+        responseHeadersVariableField.setEnabled(useTemplate);
+        responseHeadersTable.setEnabled(!useTemplate);
+        responseHeadersNewButton.setEnabled(!useTemplate);
+        responseHeadersDeleteButton.setEnabled(!useTemplate && responseHeadersTable.getSelectedRow() > -1);
+    }
 
     // Variables declaration - do not modify
     private MirthTextField binaryMimeTypesField;
@@ -1273,7 +1220,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     private MirthRadioButton parseMultipartYesRadio;
     protected MirthTextField receiveTimeoutField;
     protected JLabel receiveTimeoutLabel;
-    protected JLabel receiveTimeoutLabel1;
+    protected JLabel responseStatusCodeLabel;
     private MirthTextField responseContentTypeField;
     private JLabel responseContentTypeLabel;
     private MirthRadioButton responseDataTypeBinaryRadio;
@@ -1285,6 +1232,9 @@ public class HttpListener extends ConnectorSettingsPanel {
     private JScrollPane responseHeadersPane;
     private JScrollPane responseHeadersPane1;
     private MirthTable responseHeadersTable;
+    private MirthRadioButton useResponseHeadersTableRadio;
+    private MirthRadioButton useResponseHeadersVariableRadio;
+    private MirthTextField responseHeadersVariableField;
     private MirthTextField responseStatusCodeField;
     private JButton staticResourcesDeleteButton;
     private JLabel staticResourcesLabel;

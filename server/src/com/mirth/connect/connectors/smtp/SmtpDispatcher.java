@@ -9,6 +9,10 @@
 
 package com.mirth.connect.connectors.smtp;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -34,12 +38,12 @@ import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.userutil.AttachmentEntry;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class SmtpDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
-    private SmtpDispatcherProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
@@ -49,10 +53,8 @@ public class SmtpDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        this.connectorProperties = (SmtpDispatcherProperties) getConnectorProperties();
-
         // load the default configuration
-        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "smtpConfigurationClass");
+        String configurationClass = configurationController.getProperty(getConnectorProperties().getProtocol(), "smtpConfigurationClass");
 
         try {
             configuration = (SmtpConfiguration) Class.forName(configurationClass).newInstance();
@@ -68,7 +70,7 @@ public class SmtpDispatcher extends DestinationConnector {
         }
 
         // TODO remove hardcoded HL7v2 reference?
-        this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
+        this.charsetEncoding = CharsetUtils.getEncoding(getConnectorProperties().getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
     }
 
     @Override
@@ -104,18 +106,20 @@ public class SmtpDispatcher extends DestinationConnector {
         smtpDispatcherProperties.setBcc(replacer.replaceValues(smtpDispatcherProperties.getBcc(), connectorMessage));
         smtpDispatcherProperties.setReplyTo(replacer.replaceValues(smtpDispatcherProperties.getReplyTo(), connectorMessage));
 
-        smtpDispatcherProperties.setHeaders(replacer.replaceValuesInMap(smtpDispatcherProperties.getHeaders(), connectorMessage));
+        smtpDispatcherProperties.setHeadersMap(replacer.replaceValuesInMap(smtpDispatcherProperties.getHeadersMap(), connectorMessage));
+        smtpDispatcherProperties.setHeadersVariable(replacer.replaceValues(smtpDispatcherProperties.getHeadersVariable(), connectorMessage));
 
         smtpDispatcherProperties.setFrom(replacer.replaceValues(smtpDispatcherProperties.getFrom(), connectorMessage));
         smtpDispatcherProperties.setSubject(replacer.replaceValues(smtpDispatcherProperties.getSubject(), connectorMessage));
 
         smtpDispatcherProperties.setBody(replacer.replaceValues(smtpDispatcherProperties.getBody(), connectorMessage));
 
-        for (Attachment attachment : smtpDispatcherProperties.getAttachments()) {
+        for (Attachment attachment : smtpDispatcherProperties.getAttachmentsList()) {
             attachment.setName(replacer.replaceValues(attachment.getName(), connectorMessage));
             attachment.setMimeType(replacer.replaceValues(attachment.getMimeType(), connectorMessage));
             attachment.setContent(replacer.replaceValues(attachment.getContent(), connectorMessage));
         }
+        smtpDispatcherProperties.setAttachmentsVariable(replacer.replaceValues(smtpDispatcherProperties.getAttachmentsVariable(), connectorMessage));
     }
 
     @Override
@@ -195,7 +199,8 @@ public class SmtpDispatcher extends DestinationConnector {
                 email.addReplyTo(replyTo);
             }
 
-            for (Entry<String, String> header : smtpDispatcherProperties.getHeaders().entrySet()) {
+            Map<String, String> headers = getHeaders(smtpDispatcherProperties, connectorMessage);
+            for (Entry<String, String> header : headers.entrySet()) {
                 email.addHeader(header.getKey(), header.getValue());
             }
 
@@ -213,13 +218,13 @@ public class SmtpDispatcher extends DestinationConnector {
                     email.setMsg(body);
                 }
             }
-
+            List<Attachment> attachmentSource = getAttachments(smtpDispatcherProperties, connectorMessage);
             /*
              * If the MIME type for the attachment is missing, we display a warning and set the
              * content anyway. If the MIME type is of type "text" or "application/xml", then we add
              * the content. If it is anything else, we assume it should be Base64 decoded first.
              */
-            for (Attachment attachment : smtpDispatcherProperties.getAttachments()) {
+            for (Attachment attachment : attachmentSource) {
                 String name = attachment.getName();
                 String mimeType = attachment.getMimeType();
                 String content = attachment.getContent();
@@ -260,5 +265,69 @@ public class SmtpDispatcher extends DestinationConnector {
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
+    }
+
+    Map<String, String> getHeaders(SmtpDispatcherProperties smtpDispatcherProperties, ConnectorMessage connectorMessage) {
+        Map<String, String> headers;
+
+        if (smtpDispatcherProperties.isUseHeadersVariable()) {
+            headers = new HashMap<String, String>();
+
+            try {
+                Map<?, ?> source = (Map<?, ?>) getMessageMaps().get(smtpDispatcherProperties.getHeadersVariable(), connectorMessage);
+
+                if (source != null) {
+                    for (Entry<?, ?> entry : source.entrySet()) {
+                        headers.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+                    }
+                } else {
+                    logger.trace("Headers map variable '" + smtpDispatcherProperties.getHeadersVariable() + "' not found.");
+                }
+            } catch (Exception e) {
+                logger.warn("Error getting headers from map " + smtpDispatcherProperties.getHeadersVariable(), e);
+            }
+        } else {
+            headers = smtpDispatcherProperties.getHeadersMap();
+        }
+
+        return headers;
+    }
+
+    List<Attachment> getAttachments(SmtpDispatcherProperties smtpDispatcherProperties, ConnectorMessage connectorMessage) {
+        List<Attachment> attachmentSource;
+
+        if (smtpDispatcherProperties.isUseAttachmentsVariable()) {
+            attachmentSource = new ArrayList<Attachment>();
+
+            try {
+                List<?> source = (List<?>) getMessageMaps().get(smtpDispatcherProperties.getAttachmentsVariable(), connectorMessage);
+                if (source != null) {
+                    for (Object entry : source) {
+                        if (entry instanceof AttachmentEntry) {
+                            Attachment att = new Attachment();
+                            att.setName(((AttachmentEntry) entry).getName());
+                            att.setContent(((AttachmentEntry) entry).getContent());
+                            att.setMimeType(((AttachmentEntry) entry).getMimeType());
+                            attachmentSource.add(att);
+                        } else {
+                            logger.trace("Error getting AttachmentEntry from map '" + smtpDispatcherProperties.getAttachmentsVariable() + "'. Skipping entry.");
+                        }
+                    }
+                } else {
+                    logger.warn("Attachments list variable '" + smtpDispatcherProperties.getAttachmentsVariable() + "' not found.");
+                }
+            } catch (Exception e) {
+                logger.warn("Error getting attachments from map " + smtpDispatcherProperties.getAttachmentsVariable(), e);
+            }
+        } else {
+            attachmentSource = smtpDispatcherProperties.getAttachmentsList();
+        }
+
+        return attachmentSource;
+    }
+
+    @Override
+    public SmtpDispatcherProperties getConnectorProperties() {
+        return (SmtpDispatcherProperties) super.getConnectorProperties();
     }
 }

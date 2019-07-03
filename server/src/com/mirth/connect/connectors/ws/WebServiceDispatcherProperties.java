@@ -46,10 +46,14 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     private String envelope;
     private boolean oneWay;
     private Map<String, List<String>> headers;
+    private String headersVariable;
+    private boolean isUseHeadersVariable;
     private boolean useMtom;
     private List<String> attachmentNames;
     private List<String> attachmentContents;
     private List<String> attachmentTypes;
+    private String attachmentsVariable;
+    private boolean isUseAttachmentsVariable;  // true to use attachments, false to use attachmentsVariable
     private String soapAction;
     private DefinitionServiceMap wsdlDefinitionMap;
 
@@ -71,10 +75,14 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.envelope = "";
         this.oneWay = false;
         this.headers = new LinkedHashMap<String, List<String>>();
+        this.isUseHeadersVariable = false;
+        this.headersVariable = "";
         this.useMtom = false;
         this.attachmentNames = new ArrayList<String>();
         this.attachmentContents = new ArrayList<String>();
         this.attachmentTypes = new ArrayList<String>();
+        this.isUseAttachmentsVariable = false;
+        this.attachmentsVariable = "";
         this.soapAction = "";
     }
 
@@ -96,7 +104,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         oneWay = props.isOneWay();
 
         Map<String, List<String>> headerCopy = new LinkedHashMap<String, List<String>>();
-        for (Entry<String, List<String>> entry : props.getHeaders().entrySet()) {
+        for (Entry<String, List<String>> entry : props.getHeadersMap().entrySet()) {
             headerCopy.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
         }
         headers = headerCopy;
@@ -105,6 +113,8 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         attachmentNames = new ArrayList<String>(props.getAttachmentNames());
         attachmentContents = new ArrayList<String>(props.getAttachmentContents());
         attachmentTypes = new ArrayList<String>(props.getAttachmentTypes());
+        isUseAttachmentsVariable = props.isUseAttachmentsVariable();
+        attachmentsVariable = props.getAttachmentsVariable();
         soapAction = props.getSoapAction();
     }
 
@@ -196,11 +206,27 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.oneWay = oneWay;
     }
 
-    public Map<String, List<String>> getHeaders() {
-        return headers;
+    public String getHeadersVariable() {
+        return headersVariable;
     }
 
-    public void setHeaders(Map<String, List<String>> headers) {
+    public void setHeadersVariable(String headersVariable) {
+        this.headersVariable = headersVariable;
+    }
+
+    public boolean isUseHeadersVariable() {
+        return isUseHeadersVariable;
+    }
+
+    public void setUseHeadersVariable(boolean isUseHeadersVariable) {
+        this.isUseHeadersVariable = isUseHeadersVariable;
+    }
+
+    public Map<String, List<String>> getHeadersMap() {
+        return headers;
+    }
+    
+    public void setHeadersMap(Map<String, List<String>> headers) {
         this.headers = headers;
     }
 
@@ -212,10 +238,18 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.useMtom = useMtom;
     }
 
+    public String getAttachmentsVariable() {
+        return attachmentsVariable;
+    }
+
+    public void setAttachmentsVariable(String attachmentsVariable) {
+        this.attachmentsVariable = attachmentsVariable;
+    }
+    
     public List<String> getAttachmentNames() {
         return attachmentNames;
     }
-
+    
     public void setAttachmentNames(List<String> attachmentNames) {
         this.attachmentNames = attachmentNames;
     }
@@ -234,6 +268,14 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
     public void setAttachmentTypes(List<String> attachmentTypes) {
         this.attachmentTypes = attachmentTypes;
+    }
+
+    public boolean isUseAttachmentsVariable() {
+        return isUseAttachmentsVariable;
+    }
+
+    public void setUseAttachmentsVariable(boolean isUseAttachmentsVariable) {
+        this.isUseAttachmentsVariable = isUseAttachmentsVariable;
     }
 
     public String getSoapAction() {
@@ -301,7 +343,12 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
             builder.append(newLine);
         }
 
-        if (MapUtils.isNotEmpty(headers)) {
+        if (isUseHeadersVariable()) {
+            builder.append(newLine);
+            builder.append("[HEADERS]");
+            builder.append(newLine);
+            builder.append("Using variable '" + getHeadersVariable() + "'");            
+        } else if (MapUtils.isNotEmpty(headers)) {
             builder.append(newLine);
             builder.append("[HEADERS]");
             builder.append(newLine);
@@ -317,12 +364,16 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
         builder.append(newLine);
         builder.append("[ATTACHMENTS]");
-        for (int i = 0; i < attachmentNames.size(); i++) {
-            builder.append(newLine);
-            builder.append(attachmentNames.get(i));
-            builder.append(" (");
-            builder.append(attachmentTypes.get(i));
-            builder.append(")");
+        if (isUseAttachmentsVariable()) {
+            builder.append("Using variable '" + getAttachmentsVariable() + "'");       
+        } else {
+            for (int i = 0; i < attachmentNames.size(); i++) {
+                builder.append(newLine);
+                builder.append(attachmentNames.get(i));
+                builder.append(" (");
+                builder.append(attachmentTypes.get(i));
+                builder.append(")");
+            }
         }
         builder.append(newLine);
 

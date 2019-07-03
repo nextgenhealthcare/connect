@@ -116,7 +116,6 @@ public class HttpDispatcher extends DestinationConnector {
     private static final int MAX_MAP_SIZE = 100;
 
     protected Logger logger = Logger.getLogger(this.getClass());
-    protected HttpDispatcherProperties connectorProperties;
 
     protected ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     protected EventController eventController = ControllerFactory.getFactory().createEventController();
@@ -130,8 +129,6 @@ public class HttpDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        this.connectorProperties = (HttpDispatcherProperties) getConnectorProperties();
-
         // load the default configuration
         String configurationClass = getConfigurationClass();
 
@@ -149,7 +146,7 @@ public class HttpDispatcher extends DestinationConnector {
             throw new ConnectorTaskException(e);
         }
 
-        if (connectorProperties.isResponseBinaryMimeTypesRegex()) {
+        if (getConnectorProperties().isResponseBinaryMimeTypesRegex()) {
             binaryMimeTypesRegexMap = new ConcurrentHashMap<String, Pattern>();
         } else {
             binaryMimeTypesArrayMap = new ConcurrentHashMap<String, String[]>();
@@ -191,8 +188,10 @@ public class HttpDispatcher extends DestinationConnector {
         httpDispatcherProperties.setProxyAddress(replacer.replaceValues(httpDispatcherProperties.getProxyAddress(), connectorMessage));
         httpDispatcherProperties.setProxyPort(replacer.replaceValues(httpDispatcherProperties.getProxyPort(), connectorMessage));
         httpDispatcherProperties.setResponseBinaryMimeTypes(replacer.replaceValues(httpDispatcherProperties.getResponseBinaryMimeTypes(), connectorMessage));
-        httpDispatcherProperties.setHeaders(replacer.replaceKeysAndValuesInMap(httpDispatcherProperties.getHeaders(), connectorMessage));
-        httpDispatcherProperties.setParameters(replacer.replaceKeysAndValuesInMap(httpDispatcherProperties.getParameters(), connectorMessage));
+        httpDispatcherProperties.setHeadersMap(replacer.replaceKeysAndValuesInMap(httpDispatcherProperties.getHeadersMap(), connectorMessage));
+        httpDispatcherProperties.setHeadersVariable(replacer.replaceValues(httpDispatcherProperties.getHeadersVariable(), connectorMessage));
+        httpDispatcherProperties.setParametersMap(replacer.replaceKeysAndValuesInMap(httpDispatcherProperties.getParametersMap(), connectorMessage));
+        httpDispatcherProperties.setParametersVariable(replacer.replaceValues(httpDispatcherProperties.getParametersVariable(), connectorMessage));
         httpDispatcherProperties.setUsername(replacer.replaceValues(httpDispatcherProperties.getUsername(), connectorMessage));
         httpDispatcherProperties.setPassword(replacer.replaceValues(httpDispatcherProperties.getPassword(), connectorMessage));
         httpDispatcherProperties.setContent(replacer.replaceValues(httpDispatcherProperties.getContent(), connectorMessage));
@@ -428,7 +427,7 @@ public class HttpDispatcher extends DestinationConnector {
 
     @Override
     protected String getConfigurationClass() {
-        return configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
+        return configurationController.getProperty(getConnectorProperties().getProtocol(), "httpConfigurationClass");
     }
 
     public RegistryBuilder<ConnectionSocketFactory> getSocketFactoryRegistry() {
@@ -438,8 +437,8 @@ public class HttpDispatcher extends DestinationConnector {
     private HttpRequestBase buildHttpRequest(URI hostURI, HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile, ContentType contentType, Charset charset) throws Exception {
         String method = httpDispatcherProperties.getMethod();
         boolean isMultipart = httpDispatcherProperties.isMultipart();
-        Map<String, List<String>> headers = httpDispatcherProperties.getHeaders();
-        Map<String, List<String>> parameters = httpDispatcherProperties.getParameters();
+        Map<String, List<String>> headers = getHeaders(httpDispatcherProperties, connectorMessage);
+        Map<String, List<String>> parameters = getParameters(httpDispatcherProperties, connectorMessage);
 
         Object content = null;
         if (httpDispatcherProperties.isDataTypeBinary()) {
@@ -563,6 +562,14 @@ public class HttpDispatcher extends DestinationConnector {
         return httpMethod;
     }
 
+    Map<String, List<String>> getHeaders(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage) {
+        return HttpUtil.getTableMap(httpDispatcherProperties.isUseHeadersVariable(), httpDispatcherProperties.getHeadersVariable(), httpDispatcherProperties.getHeadersMap(), getMessageMaps(), connectorMessage);
+    }
+
+    Map<String, List<String>> getParameters(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage) {
+        return HttpUtil.getTableMap(httpDispatcherProperties.isUseParametersVariable(), httpDispatcherProperties.getParametersVariable(), httpDispatcherProperties.getParametersMap(), getMessageMaps(), connectorMessage);
+    }
+
     private void setQueryString(URIBuilder uriBuilder, List<NameValuePair> queryParameters) {
         if (queryParameters.size() > 0) {
             uriBuilder.setParameters(queryParameters);
@@ -633,7 +640,7 @@ public class HttpDispatcher extends DestinationConnector {
     private boolean isBinaryContentType(String binaryMimeTypes, ContentType contentType) {
         String mimeType = contentType.getMimeType();
 
-        if (connectorProperties.isResponseBinaryMimeTypesRegex()) {
+        if (getConnectorProperties().isResponseBinaryMimeTypesRegex()) {
             Pattern binaryMimeTypesRegex = binaryMimeTypesRegexMap.get(binaryMimeTypes);
 
             if (binaryMimeTypesRegex == null) {
@@ -667,5 +674,10 @@ public class HttpDispatcher extends DestinationConnector {
 
             return StringUtils.startsWithAny(mimeType, binaryMimeTypesArray);
         }
+    }
+
+    @Override
+    public HttpDispatcherProperties getConnectorProperties() {
+        return (HttpDispatcherProperties) super.getConnectorProperties();
     }
 }
