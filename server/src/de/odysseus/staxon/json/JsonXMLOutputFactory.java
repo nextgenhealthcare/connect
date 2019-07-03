@@ -112,13 +112,13 @@ public class JsonXMLOutputFactory extends AbstractXMLOutputFactory {
 
 	protected JsonStreamFactory streamFactory;
 	protected boolean multiplePI;
-	private QName virtualRoot;
-	private boolean autoArray;
-	private boolean autoPrimitive;
+	protected QName virtualRoot;
+	protected boolean autoArray;
+	protected boolean autoPrimitive;
 	protected boolean prettyPrint;
 	protected char namespaceSeparator;
 	protected boolean namespaceDeclarations;
-	private Map<String, String> namespaceMappings;
+	protected Map<String, String> namespaceMappings;
 
 	public JsonXMLOutputFactory() throws FactoryConfigurationError {
 		this(JsonXMLConfig.DEFAULT);

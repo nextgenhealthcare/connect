@@ -129,6 +129,35 @@ public class XmlUtil {
      */
     public static String toJson(String xmlString, boolean autoArray, boolean autoPrimitive, boolean prettyPrint, boolean normalizeNamespaces) throws Exception {
         JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(autoArray).autoPrimitive(autoPrimitive).prettyPrint(prettyPrint).build();
-        return JsonXmlUtil.xmlToJson(config, xmlString, normalizeNamespaces);
+        return JsonXmlUtil.xmlToJson(config, xmlString, normalizeNamespaces, false, false);
+    }
+
+    /**
+     * Converts an XML string to JSON.
+     * 
+     * @param xmlString
+     *            The XML string to convert.
+     * @param autoArray
+     *            If true, sibling nodes with the same tag name will be consolidated into a JSON
+     *            array. If false, multiple properties with the same name will be present.
+     * @param autoPrimitive
+     *            If true, element text will be converted to JSON primitive values where applicable.
+     *            If false, element text will always be converted to string values.
+     * @param prettyPrint
+     *            Whether or not to fully indent the JSON output.
+     * @param normalizeNamespaces
+     *            Whether or not to normalize namespaces by stripping prefixes.
+     * @param alwaysArray
+     *            If true, all nodes except for the top-level object will be written into JSON
+     *            arrays. Overrides the autoArray option.
+     * @param alwaysExpandObjects
+     *            If true, all values will be written in the expanded "$" syntax.
+     * @return The converted JSON string.
+     * @throws Exception
+     *             If conversion failed.
+     */
+    public static String toJson(String xmlString, boolean autoArray, boolean autoPrimitive, boolean prettyPrint, boolean normalizeNamespaces, boolean alwaysArray, boolean alwaysExpandObjects) throws Exception {
+        JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(autoArray).autoPrimitive(autoPrimitive).prettyPrint(prettyPrint).build();
+        return JsonXmlUtil.xmlToJson(config, xmlString, normalizeNamespaces, alwaysArray, alwaysExpandObjects);
     }
 }

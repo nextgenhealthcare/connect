@@ -43,12 +43,12 @@ public class AutoArrayTarget implements JsonStreamTarget {
     /**
      * Event type
      */
-    static interface Event {
+    protected static interface Event {
         JsonStreamToken token();
         void write(JsonStreamTarget target) throws IOException;
     }
     
-    static final Event START_OBJECT = new Event() {
+    protected static final Event START_OBJECT = new Event() {
         @Override
         public void write(JsonStreamTarget target) throws IOException {
             target.startObject();
@@ -63,7 +63,7 @@ public class AutoArrayTarget implements JsonStreamTarget {
         }
     };
 
-    static final Event END_OBJECT = new Event() {
+    protected static final Event END_OBJECT = new Event() {
         @Override
         public void write(JsonStreamTarget target) throws IOException {
             target.endObject();
@@ -78,7 +78,7 @@ public class AutoArrayTarget implements JsonStreamTarget {
         }
     };
 
-    static final Event END_ARRAY = new Event() {
+    protected static final Event END_ARRAY = new Event() {
         @Override
         public void write(JsonStreamTarget target) throws IOException {
             target.endArray();
@@ -93,11 +93,11 @@ public class AutoArrayTarget implements JsonStreamTarget {
         }
     };
 
-    static final class NameEvent implements Event {
+    protected static final class NameEvent implements Event {
         final String name;
         boolean array;
         
-        NameEvent(String name) {
+        public NameEvent(String name) {
             this.name = name;
         }
         @Override
@@ -130,7 +130,7 @@ public class AutoArrayTarget implements JsonStreamTarget {
         }
     }
     
-    static final class ValueEvent implements Event {
+    protected static final class ValueEvent implements Event {
         final Object value;
         
         ValueEvent(Object value) {
@@ -153,27 +153,27 @@ public class AutoArrayTarget implements JsonStreamTarget {
     /*
      * delegate target
      */
-    private final JsonStreamTarget delegate;
+    protected final JsonStreamTarget delegate;
     
     /*
      * Event queue 
      */
-    private final Deque<Event> events = new LinkedList<Event>();
+    protected final Deque<Event> events = new LinkedList<Event>();
 
     /*
      * Field stack
      */
-    private final Stack<NameEvent> fields = new Stack<NameEvent>();
+    protected final Stack<NameEvent> fields = new Stack<NameEvent>();
     
     public AutoArrayTarget(JsonStreamTarget delegate) {
         this.delegate = delegate;
     }
 
-    private void pushField(String name) {
+    protected void pushField(String name) {
         events.add(fields.push(new NameEvent(name)));
     }
 
-    private void popField() {
+    protected void popField() {
         if (fields.pop().isArray()) {
             events.add(END_ARRAY);
         }
