@@ -53,7 +53,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     private List<String> attachmentContents;
     private List<String> attachmentTypes;
     private String attachmentsVariable;
-    private boolean isUseAttachmentsVariable;  // true to use attachments, false to use attachmentsVariable
+    private boolean isUseAttachmentsVariable; // true to use attachments, false to use attachmentsVariable
     private String soapAction;
     private DefinitionServiceMap wsdlDefinitionMap;
 
@@ -108,6 +108,8 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
             headerCopy.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
         }
         headers = headerCopy;
+        isUseHeadersVariable = props.isUseHeadersVariable();
+        headersVariable = props.getHeadersVariable();
 
         useMtom = props.isUseMtom();
         attachmentNames = new ArrayList<String>(props.getAttachmentNames());
@@ -225,7 +227,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     public Map<String, List<String>> getHeadersMap() {
         return headers;
     }
-    
+
     public void setHeadersMap(Map<String, List<String>> headers) {
         this.headers = headers;
     }
@@ -245,11 +247,11 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     public void setAttachmentsVariable(String attachmentsVariable) {
         this.attachmentsVariable = attachmentsVariable;
     }
-    
+
     public List<String> getAttachmentNames() {
         return attachmentNames;
     }
-    
+
     public void setAttachmentNames(List<String> attachmentNames) {
         this.attachmentNames = attachmentNames;
     }
@@ -347,7 +349,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
             builder.append(newLine);
             builder.append("[HEADERS]");
             builder.append(newLine);
-            builder.append("Using variable '" + getHeadersVariable() + "'");            
+            builder.append("Using variable '" + getHeadersVariable() + "'");
         } else if (MapUtils.isNotEmpty(headers)) {
             builder.append(newLine);
             builder.append("[HEADERS]");
@@ -365,7 +367,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         builder.append(newLine);
         builder.append("[ATTACHMENTS]");
         if (isUseAttachmentsVariable()) {
-            builder.append("Using variable '" + getAttachmentsVariable() + "'");       
+            builder.append("Using variable '" + getAttachmentsVariable() + "'");
         } else {
             for (int i = 0; i < attachmentNames.size(); i++) {
                 builder.append(newLine);
