@@ -112,7 +112,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
                 props.getCredentialsMap().put((String) basicCredentialsTable.getModel().getValueAt(row, 0), (String) basicCredentialsTable.getModel().getValueAt(row, 1));
             }
 
-            props.setCredentialsVariable(basicCredentailsVariableField.getText());
+            props.setCredentialsVariable(basicCredentialsVariableField.getText());
             props.setUseCredentialsVariable(useBasicCredentialsVariableRadio.isSelected());
             
             return props;
@@ -146,7 +146,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
                 props.getCredentialsMap().put((String) digestCredentialsTable.getModel().getValueAt(row, 0), (String) digestCredentialsTable.getModel().getValueAt(row, 1));
             }
 
-            props.setCredentialsVariable(digestCredentailsVariableField.getText());
+            props.setCredentialsVariable(digestCredentialsVariableField.getText());
             props.setUseCredentialsVariable(useDigestCredentialsVariableRadio.isSelected());
             
             return props;
@@ -211,6 +211,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             } else {
                 useBasicCredentialsTableRadio.setSelected(true);
             }
+            basicCredentialsVariableField.setText(props.getCredentialsVariable());
             useBasicCredentialsVariableFieldsEnabled(props.isUseCredentialsVariable());
         } else if (properties instanceof DigestHttpAuthProperties) {
             DigestHttpAuthProperties props = (DigestHttpAuthProperties) properties;
@@ -242,6 +243,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             } else {
                 useDigestCredentialsTableRadio.setSelected(true);
             }
+            digestCredentialsVariableField.setText(props.getCredentialsVariable());
             useDigestCredentialsVariableFieldsEnabled(props.isUseCredentialsVariable());
         } else if (properties instanceof JavaScriptHttpAuthProperties) {
             JavaScriptHttpAuthProperties props = (JavaScriptHttpAuthProperties) properties;
@@ -508,11 +510,11 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
                 useBasicCredentialsVariableFieldsEnabled(true);
             }
         });
-        ButtonGroup basicCredentailsSourceButtonGroup = new ButtonGroup();
-        basicCredentailsSourceButtonGroup.add(useBasicCredentialsTableRadio);
-        basicCredentailsSourceButtonGroup.add(useBasicCredentialsVariableRadio);     
+        ButtonGroup basicCredentialsSourceButtonGroup = new ButtonGroup();
+        basicCredentialsSourceButtonGroup.add(useBasicCredentialsTableRadio);
+        basicCredentialsSourceButtonGroup.add(useBasicCredentialsVariableRadio);     
 
-        basicCredentailsVariableField = new MirthTextField();
+        basicCredentialsVariableField = new MirthTextField();
 
         digestRealmLabel = new JLabel("Realm:");
         digestRealmField = new MirthTextField();
@@ -638,11 +640,11 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
                 useDigestCredentialsVariableFieldsEnabled(true);
             }
         });
-        ButtonGroup digestCredentailsSourceButtonGroup = new ButtonGroup();
-        digestCredentailsSourceButtonGroup.add(useDigestCredentialsTableRadio);
-        digestCredentailsSourceButtonGroup.add(useDigestCredentialsVariableRadio);     
+        ButtonGroup digestCredentialsSourceButtonGroup = new ButtonGroup();
+        digestCredentialsSourceButtonGroup.add(useDigestCredentialsTableRadio);
+        digestCredentialsSourceButtonGroup.add(useDigestCredentialsVariableRadio);     
 
-        digestCredentailsVariableField = new MirthTextField();
+        digestCredentialsVariableField = new MirthTextField();
         
         jsScriptLabel = new JLabel("Script:");
         jsScriptField = new JTextField();
@@ -790,11 +792,11 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         
         useBasicCredentialsTableRadio.setToolTipText("<html>The table below will be used to populate credentials.</html>");
         useBasicCredentialsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate credentials.<br/>The map must have String keys and String values.</html>");
-        basicCredentailsVariableField.setToolTipText("<html>The variable of a Java map to use to populate credentials.<br/>The map must have String keys and String values.</html>");
+        basicCredentialsVariableField.setToolTipText("<html>The variable of a Java map to use to populate credentials.<br/>The map must have String keys and String values.</html>");
         
         useDigestCredentialsTableRadio.setToolTipText("<html>The table below will be used to populate credentials.</html>");
         useDigestCredentialsVariableRadio.setToolTipText("<html>The Java map specified by the following variable will be used to populate credentials.<br/>The map must have String keys and String values.</html>");
-        digestCredentailsVariableField.setToolTipText("<html>The variable of a Java map to use to populate credentials.<br/>The map must have String keys and String values.</html>");
+        digestCredentialsVariableField.setToolTipText("<html>The variable of a Java map to use to populate credentials.<br/>The map must have String keys and String values.</html>");
     }
 
     private void initLayout() {
@@ -809,7 +811,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         add(basicCredentialsLabel, "newline, right");
         add(useBasicCredentialsTableRadio, "split 3");
         add(useBasicCredentialsVariableRadio);
-        add(basicCredentailsVariableField, "w 125");
+        add(basicCredentialsVariableField, "w 125");
         basicCredentialsPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3"));
         basicCredentialsPanel.add(basicCredentialsTableScrollPane, "grow, sy, h 80!, w 300!");
         basicCredentialsPanel.add(basicCredentialsNewButton, "top, w 44!");
@@ -834,7 +836,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         add(digestCredentialsLabel, "newline, right");
         add(useDigestCredentialsTableRadio, "split 3");
         add(useDigestCredentialsVariableRadio);
-        add(digestCredentailsVariableField, "w 125");
+        add(digestCredentialsVariableField, "w 125");
         digestCredentialsPanel.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3"));
         digestCredentialsPanel.add(digestCredentialsTableScrollPane, "grow, sy, h 80!, w 300!");
         digestCredentialsPanel.add(digestCredentialsNewButton, "top, w 44!");
@@ -942,7 +944,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         basicCredentialsPanel.setVisible(false);
         useBasicCredentialsTableRadio.setVisible(false);
         useBasicCredentialsVariableRadio.setVisible(false);
-        basicCredentailsVariableField.setVisible(false);
+        basicCredentialsVariableField.setVisible(false);
         jsScriptLabel.setVisible(false);
         jsScriptField.setVisible(false);
         customClassNameLabel.setVisible(false);
@@ -964,7 +966,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         digestCredentialsPanel.setVisible(false);
         useDigestCredentialsTableRadio.setVisible(false);
         useDigestCredentialsVariableRadio.setVisible(false);
-        digestCredentailsVariableField.setVisible(false);
+        digestCredentialsVariableField.setVisible(false);
         oauth2TokenLabel.setVisible(false);
         oauth2TokenLocationComboBox.setVisible(false);
         oauth2TokenField.setVisible(false);
@@ -985,7 +987,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             basicCredentialsPanel.setVisible(true);
             useBasicCredentialsTableRadio.setVisible(true);
             useBasicCredentialsVariableRadio.setVisible(true);
-            basicCredentailsVariableField.setVisible(true);
+            basicCredentialsVariableField.setVisible(true);
         } else if (authType == AuthType.DIGEST) {
             digestRealmLabel.setVisible(true);
             digestRealmField.setVisible(true);
@@ -1002,7 +1004,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             digestCredentialsPanel.setVisible(true);
             useDigestCredentialsTableRadio.setVisible(true);
             useDigestCredentialsVariableRadio.setVisible(true);
-            digestCredentailsVariableField.setVisible(true);
+            digestCredentialsVariableField.setVisible(true);
         } else if (authType == AuthType.JAVASCRIPT) {
             jsScriptLabel.setVisible(true);
             jsScriptField.setVisible(true);
@@ -1063,14 +1065,14 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
     }
 
     private void useBasicCredentialsVariableFieldsEnabled(boolean useVariable) {
-        basicCredentailsVariableField.setEnabled(useVariable);
+        basicCredentialsVariableField.setEnabled(useVariable);
         basicCredentialsTable.setEnabled(!useVariable);
         basicCredentialsNewButton.setEnabled(!useVariable);
         basicCredentialsDeleteButton.setEnabled(!useVariable);
     }
 
     private void useDigestCredentialsVariableFieldsEnabled(boolean useVariable) {
-        digestCredentailsVariableField.setEnabled(useVariable);
+        digestCredentialsVariableField.setEnabled(useVariable);
         digestCredentialsTable.setEnabled(!useVariable);
         digestCredentialsNewButton.setEnabled(!useVariable);
         digestCredentialsDeleteButton.setEnabled(!useVariable);
@@ -1088,7 +1090,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
     private JPanel basicCredentialsPanel;
     private MirthRadioButton useBasicCredentialsTableRadio;
     private MirthRadioButton useBasicCredentialsVariableRadio;
-    private MirthTextField basicCredentailsVariableField;
+    private MirthTextField basicCredentialsVariableField;
     private MirthTable basicCredentialsTable;
     private JScrollPane basicCredentialsTableScrollPane;
     private JButton basicCredentialsNewButton;
@@ -1110,7 +1112,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
     private JPanel digestCredentialsPanel;
     private MirthRadioButton useDigestCredentialsTableRadio;
     private MirthRadioButton useDigestCredentialsVariableRadio;
-    private MirthTextField digestCredentailsVariableField;
+    private MirthTextField digestCredentialsVariableField;
     private MirthTable digestCredentialsTable;
     private JScrollPane digestCredentialsTableScrollPane;
     private JButton digestCredentialsNewButton;
