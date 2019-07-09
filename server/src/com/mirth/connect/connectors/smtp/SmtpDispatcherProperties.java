@@ -115,7 +115,7 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
         for (Attachment attachment : props.getAttachmentsList()) {
             attachments.add(new Attachment(attachment));
         }
-        isUseHeadersVariable = props.isUseAttachmentsVariable();
+        isUseAttachmentsVariable = props.isUseAttachmentsVariable();
         attachmentsVariable = props.getAttachmentsVariable();
     }
 
