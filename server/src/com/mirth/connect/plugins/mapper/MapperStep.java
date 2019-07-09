@@ -78,7 +78,7 @@ public class MapperStep extends Step implements FilterTransformerIterable<Step> 
 
         script.append("var mapping;\n\n");
         script.append("try {\n\tmapping = " + StringUtils.defaultIfBlank(mapping, "''") + "; \n} ");
-        script.append("catch (e) {\n\tlogger.error(e);\n\tmapping = '';\n}\n\n");
+        script.append("catch (e) {\n\tmapping = '';\n}\n\n");
 
         if (scope != null) {
             script.append(scope.map + ".put(");
@@ -113,7 +113,7 @@ public class MapperStep extends Step implements FilterTransformerIterable<Step> 
 
         script.append("var mapping;\n\n");
         script.append("try {\n\tmapping = ").append(StringUtils.defaultIfBlank(mapping, "''")).append("; \n} ");
-        script.append("catch (e) {\n\tlogger.error(e);\n\tmapping = '';\n}\n\n");
+        script.append("catch (e) {\n\tmapping = '';\n}\n\n");
 
         String tempDefault = defaultValue;
         if (tempDefault.length() == 0) {
