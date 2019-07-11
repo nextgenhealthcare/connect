@@ -12,21 +12,21 @@
 
 <a name="useful-links"></a>
 ## 1. Useful Links
-Download NextGen Connect and the official User Guide at: https://www.nextgen.com/products-and-services/NextGen-Connect-Integration-Engine-Downloads
+- NextGen Connect Downloads and the Official User Guide: https://www.nextgen.com/products-and-services/NextGen-Connect-Integration-Engine-Downloads
 
-View the NextGen Connect wiki at: https://www.mirthcorp.com/community/wiki/display/mirth/Home
-- System requirements: https://www.mirthcorp.com/community/wiki/display/mirth/System+Requirements
-- FAQ: https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+FAQ
-- What's New in NextGen Connect: https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+3.8.0+-+What%27s+New
-- Developer Guide: https://www.mirthcorp.com/community/wiki/pages/viewpage.action?pageId=11174703
-- Examples and Tutorials: https://www.mirthcorp.com/community/wiki/display/mirth/Examples+and+Tutorials
-- FHIR Extension Guide: https://www.mirthcorp.com/community/wiki/display/mirth/User+Guide
+- NextGen Connect wiki: https://www.mirthcorp.com/community/wiki/display/mirth/Home
+  - System requirements: https://www.mirthcorp.com/community/wiki/display/mirth/System+Requirements
+  - FAQ: https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+FAQ
+  - What's New in NextGen Connect: https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+3.8.0+-+What%27s+New
+  - Developer Guide: https://www.mirthcorp.com/community/wiki/pages/viewpage.action?pageId=11174703
+  - Examples and Tutorials: https://www.mirthcorp.com/community/wiki/display/mirth/Examples+and+Tutorials
+  - FHIR Extension Guide: https://www.mirthcorp.com/community/wiki/display/mirth/User+Guide
 
-Join the Mirth Community Forums at: https://www.mirthcorp.com/community/registration
+- Join the Mirth Community Forums: https://www.mirthcorp.com/community/registration
 
-Our public Slack group is located at: https://mirthconnect.slack.com/. You can join up here: https://mirthconnect.herokuapp.com
+- Our public Slack group is located at: https://mirthconnect.slack.com/. You can join up here: https://mirthconnect.herokuapp.com.
 
-View the NextGen Connect issue tracker at: http://www.mirthcorp.com/community/issues
+- NextGen Connect issue tracker: http://www.mirthcorp.com/community/issues
 
 ------------
 
@@ -62,7 +62,7 @@ After the installation, the NextGen Connect directory layout will look as follow
 - /cli-lib: Libraries for the NextGen Connect Command Line Interface (if installed)
 - /client-lib: Libraries for the NextGen Connect Administrator
 - /conf: Configuration files
-- /custom-lib: Place youre custom user libraries here, to be used by the default library resource.
+- /custom-lib: Place your custom user libraries here to be used by the default library resource.
 - /docs: This document and a copy of the NextGen Connect license
 - /docs/javadocs: Generated javadocs for the installed version of NextGen Connect. These documents are also available when the server is running at `http://[server address]:8080/javadocs/` (i.e. `http://localhost:8080/javadocs/`).
 - /extensions: Libraries and meta data for Plug-ins and Connectors
