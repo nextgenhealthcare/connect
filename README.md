@@ -5,28 +5,26 @@
 3. [Installation and Upgrade](#installation-and-upgrade)
 4. [Starting NextGen Connect](#starting-mirth-connect)
 5. [Running NextGen Connect in Java 9 or greater](#java9)
-6. [License](#license)
-7. [Java Licensing](#java-licensing)
+6. [Java Licensing](#java-licensing)
+7. [License](#license)
 
 ------------
 
 <a name="useful-links"></a>
 ## 1. Useful Links
-- NextGen Connect Downloads and the Official User Guide: https://www.nextgen.com/products-and-services/NextGen-Connect-Integration-Engine-Downloads
-
-- NextGen Connect wiki: https://www.mirthcorp.com/community/wiki/display/mirth/Home
-  - System requirements: https://www.mirthcorp.com/community/wiki/display/mirth/System+Requirements
-  - FAQ: https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+FAQ
-  - What's New in NextGen Connect: https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+3.8.0+-+What%27s+New
-  - Developer Guide: https://www.mirthcorp.com/community/wiki/pages/viewpage.action?pageId=11174703
-  - Examples and Tutorials: https://www.mirthcorp.com/community/wiki/display/mirth/Examples+and+Tutorials
-  - FHIR Extension Guide: https://www.mirthcorp.com/community/wiki/display/mirth/User+Guide
-
-- Join the Mirth Community Forums: https://www.mirthcorp.com/community/registration
-
-- Our public Slack group is located at: https://mirthconnect.slack.com/. You can join up here: https://mirthconnect.herokuapp.com.
-
-- NextGen Connect issue tracker: http://www.mirthcorp.com/community/issues
+- [Downloads](https://github.com/nextgenhealthcare/connect/releases) 
+- [User Guide](https://www.nextgen.com/-/media/Files/nextgen-connect/nextgen-connect-38-user-guide.pdf)
+- [Wiki](https://www.mirthcorp.com/community/wiki/display/mirth/Home)
+  - [System requirements](https://www.mirthcorp.com/community/wiki/display/mirth/System+Requirements)
+  - [FAQ](https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+FAQ)
+  - [What's New in NextGen Connect](https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+3.8.0+-+What%27s+New)
+  - [Developer Guide](https://www.mirthcorp.com/community/wiki/pages/viewpage.action?pageId=11174703)
+  - [Examples and Tutorials](https://www.mirthcorp.com/community/wiki/display/mirth/Examples+and+Tutorials)
+  - [FHIR Extension Guide](https://www.mirthcorp.com/community/wiki/display/mirth/User+Guide)
+- [Forums](http://www.mirthcorp.com/community/forums/)
+- [Slack Channel](https://mirthconnect.slack.com/) 
+  - [Slack Registration](https://mirthconnect.herokuapp.com)
+- [Issue Tracker (JIRA)](http://www.mirthcorp.com/community/issues)
 
 ------------
 
@@ -97,14 +95,14 @@ To run the NextGen Connect Command Line Interface, create a new file named mccom
 
 ------------
 
-<a name="license"></a>
-## 6. License
-NextGen Connect is released under the [Mozilla Public License version 1.1](https://www.mozilla.org/en-US/MPL/1.1/ "Mozilla Public License version 1.1"). You can find a copy of the license in `server/docs/LICENSE.txt`.
-
-All licensing information regarding third-party libraries is located in the `server/docs/thirdparty` folder.
+<a name="java-licensing"></a>
+## 6. Java Licensing
+In 2019, Oracle significantly changed licensing for official Oracle Java releases. You must now purchase a license in order to receive updates to the commercial version of Oracle Java. In response to this change, we officially added support for OpenJDK in NextGen Connect. OpenJDK receives free updates from Oracle for a period of 6 months following each release. While the Oracle OpenJDK distribution is recommended for use with Connect, we strive to support third-party OpenJDK distributions as well such as AdoptOpenJDK, Azul Zulu and Amazon Corretto. Third party distributions may receive extended release updates from their respective communities, but these are not guaranteed.
 
 ------------
 
-<a name="java-licensing"></a>
-## 7. Java Licensing
-In 2019, Oracle significantly changed licensing for official Oracle Java releases. Users must now purchase a license in order to receive updates to the commercial version of Oracle Java. In response to this change, NextGen Healthcare officially added support for OpenJDK in the NextGen Connect Integration Engine product. OpenJDK receives free updates from Oracle for a period of 6 months following each release. While the Oracle OpenJDK distribution is recommended for use with NextGen Connect, NextGen strives to support third-party OpenJDK distributions as well such as AdoptOpenJDK, Azul Zulu and Amazon Corretto. Third party distributions may receive extended release updates from their respective communities, but these are not guaranteed.
+<a name="license"></a>
+## 7. License
+NextGen Connect is released under the [Mozilla Public License version 1.1](https://www.mozilla.org/en-US/MPL/1.1/ "Mozilla Public License version 1.1"). You can find a copy of the license in `server/docs/LICENSE.txt`.
+
+All licensing information regarding third-party libraries is located in the `server/docs/thirdparty` folder.
