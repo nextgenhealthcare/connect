@@ -1339,9 +1339,9 @@ public class JdbcDao implements DonkeyDao {
             }
 
             do {
-                String name = columns.getString("COLUMN_NAME").toUpperCase();
+                String name = columns.getString("COLUMN_NAME");
 
-                if (!name.equals("METADATA_ID") && !name.equals("MESSAGE_ID")) {
+                if (!name.equalsIgnoreCase("METADATA_ID") && !name.equalsIgnoreCase("MESSAGE_ID")) {
                     MetaDataColumnType columnType = MetaDataColumnType.fromSqlType(columns.getInt("DATA_TYPE"));
 
                     if (columnType == null) {

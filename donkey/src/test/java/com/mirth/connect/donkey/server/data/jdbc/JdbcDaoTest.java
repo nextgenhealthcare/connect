@@ -9,30 +9,83 @@
 
 package com.mirth.connect.donkey.server.data.jdbc;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Arrays;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-
+import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.StatisticsUpdater;
 import com.mirth.connect.donkey.util.SerializerProvider;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.sql.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class JdbcDaoTest {
+    private JdbcDao dao;
+    private Donkey donkey;
+    private Connection connection;
+
+    @Before
+    public void before() {
+        donkey = mock(Donkey.class);
+        connection = mock(Connection.class);
+        QuerySource querySource = mock(QuerySource.class);
+        PreparedStatementSource statementSource = mock(PreparedStatementSource.class);
+        SerializerProvider serializerProvider = mock(SerializerProvider.class);
+        boolean encryptData = false;
+        boolean decryptData = false;
+        StatisticsUpdater statisticsUpdater = mock(StatisticsUpdater.class);
+        Statistics currentStats = mock(Statistics.class);
+        Statistics totalStats = mock(Statistics.class);
+        String statsServerId = "";
+        dao = new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, statisticsUpdater, currentStats, totalStats, statsServerId);
+    }
+
+    @Test
+    public void testGetNoMetaDataColumns() throws SQLException  {
+        String channelId = "abc";
+
+        DatabaseMetaData metaData = mock(DatabaseMetaData.class);
+        ResultSet metaDataResultSet = mock(ResultSet.class);
+        when(metaData.getColumns(any(), any(), any(), any())).thenReturn(metaDataResultSet);
+        when(metaDataResultSet.next()).thenReturn(true, false);
+        when(metaDataResultSet.getInt(any())).thenReturn(Types.INTEGER);
+        when(connection.getMetaData()).thenReturn(metaData);
+        setLocalChannelId(channelId, 1L);
+
+        when(metaDataResultSet.getString("COLUMN_NAME")).thenReturn("metadata_id");
+        assertEquals(0, dao.getMetaDataColumns(channelId).size());
+    }
+
+    @Test
+    public void testGetTwoMetaDataColumns() throws SQLException  {
+        String channelId = "abc";
+
+        DatabaseMetaData metaData = mock(DatabaseMetaData.class);
+        ResultSet metaDataResultSet = mock(ResultSet.class);
+        when(metaData.getColumns(any(), any(), any(), any())).thenReturn(metaDataResultSet);
+        when(metaDataResultSet.next()).thenReturn(true, true, true, false);
+        when(metaDataResultSet.getInt(any())).thenReturn(Types.INTEGER);
+        when(connection.getMetaData()).thenReturn(metaData);
+        setLocalChannelId(channelId, 1L);
+
+        when(metaDataResultSet.getString("COLUMN_NAME")).thenReturn("myColumn", "metadata_id", "another_Column", "message_id");
+        List<MetaDataColumn> columns =  dao.getMetaDataColumns(channelId);
+        assertEquals(2, columns.size());
+        assertEquals("MYCOLUMN", columns.get(0).getName());
+        assertEquals("ANOTHER_COLUMN", columns.get(1).getName());
+    }
 
     // Test with no current attachment data in database
     @Test
@@ -196,5 +249,13 @@ public class JdbcDaoTest {
         doReturn(deleteStatement).when(dao).prepareStatement(eq("deleteMessageAttachmentLingeringSegments"), eq(channelId));
 
         return dao;
+    }
+
+    private void setLocalChannelId(String channelId, long localChannelId) {
+        Channel channel = mock(Channel.class);
+        when(channel.getLocalChannelId()).thenReturn(localChannelId);
+        Map<String, Channel> channels = new HashMap<>();
+        channels.put(channelId, channel);
+        when(donkey.getDeployedChannels()).thenReturn(channels);
     }
 }
