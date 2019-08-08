@@ -44,7 +44,7 @@ public class VfsUtils {
             String prefix = entry.getValue();
 
             // if the path has this extension and does not have the corresponding uri prefix, then return the path with the uri prefix prepended
-            if (path.length() >= ext.length() && path.substring(path.length() - ext.length()).toLowerCase().equals(ext) && (path.length() < prefix.length() || !path.substring(0, prefix.length()).equals(prefix))) {
+            if (path.length() >= ext.length() && path.substring(path.length() - ext.length()).equalsIgnoreCase(ext) && (path.length() < prefix.length() || !path.substring(0, prefix.length()).equals(prefix))) {
                 return prefix + path;
             }
         }
