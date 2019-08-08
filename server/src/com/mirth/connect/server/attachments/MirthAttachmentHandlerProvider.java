@@ -356,7 +356,7 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
             // If binary, the content should be in base64 so it is necessary to decode the data.
             if (binary) {
                 combined = Base64Util.decodeBase64(combined);
-            } else if (charsetEncoding != null && !charsetEncoding.toUpperCase().equals(Constants.ATTACHMENT_CHARSET.toUpperCase())) {
+            } else if (charsetEncoding != null && !charsetEncoding.equalsIgnoreCase(Constants.ATTACHMENT_CHARSET)) {
                 // Convert the byte array to a string using the internal encoding.
                 String combinedString = StringUtils.newString(combined, Constants.ATTACHMENT_CHARSET);
                 // First release the reference to the old byte data so it can be reallocated if necessary.

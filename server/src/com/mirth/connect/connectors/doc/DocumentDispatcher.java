@@ -171,7 +171,7 @@ public class DocumentDispatcher extends DestinationConnector {
         String stringContents = getAttachmentHandlerProvider().reAttachMessage(contents.toString(), connectorMessage, documentDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        if (documentDispatcherProperties.getDocumentType().toLowerCase().equals("pdf")) {
+        if (documentDispatcherProperties.getDocumentType().equalsIgnoreCase("pdf")) {
             createPDF(new StringReader(stringContents), outputStream, documentDispatcherProperties);
 
             boolean encrypt = documentDispatcherProperties.isEncrypt();
@@ -183,7 +183,7 @@ public class DocumentDispatcher extends DestinationConnector {
                 outputStream = new ByteArrayOutputStream();
                 encryptPDF(inputStream, outputStream, password);
             }
-        } else if (documentDispatcherProperties.getDocumentType().toLowerCase().equals("rtf")) {
+        } else if (documentDispatcherProperties.getDocumentType().equalsIgnoreCase("rtf")) {
             createRTF(new ByteArrayInputStream(stringContents.getBytes()), outputStream, documentDispatcherProperties);
         }
 
