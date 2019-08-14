@@ -1,6 +1,10 @@
 
 # /
 
+.idea
+**/*.iml
+donkey/donkey-src
+donkey/donkey-test
 .sonar
 **/junit-reports
 **/code-coverage-reports

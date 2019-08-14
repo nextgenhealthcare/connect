@@ -536,7 +536,7 @@ public class HttpDispatcher extends DestinationConnector {
             List<String> contentEncodingList = (List<String>) new CaseInsensitiveMap(headers).get(HTTP.CONTENT_ENCODING);
             if (CollectionUtils.isNotEmpty(contentEncodingList)) {
                 for (String contentEncoding : contentEncodingList) {
-                    if (contentEncoding != null && (contentEncoding.toLowerCase().equals("gzip") || contentEncoding.toLowerCase().equals("x-gzip"))) {
+                    if (contentEncoding != null && (contentEncoding.equalsIgnoreCase("gzip") || contentEncoding.equalsIgnoreCase("x-gzip"))) {
                         httpEntity = new GzipCompressingEntity(httpEntity);
                         break;
                     }
