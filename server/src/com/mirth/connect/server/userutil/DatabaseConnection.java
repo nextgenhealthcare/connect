@@ -60,7 +60,7 @@ public class DatabaseConnection {
      *             If a database access error occurs.
      */
     public DatabaseConnection(String address, Properties info) throws SQLException {
-        logger.debug("creating new database connection: address=" + address + ", " + info);
+        logger.debug("creating new database connection: address=" + address);
         this.address = address;
         connection = DriverManager.getConnection(address, info);
     }
@@ -95,7 +95,7 @@ public class DatabaseConnection {
      *             If a database access error occurs.
      */
     public DatabaseConnection(Driver driver, String address, Properties info) throws SQLException {
-        logger.debug("creating new database connection: address=" + address + ", " + info);
+        logger.debug("creating new database connection: address=" + address);
         this.address = address;
         connection = driver.connect(address, info);
     }
