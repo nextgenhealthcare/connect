@@ -45,6 +45,17 @@ public class JsonXmlUtilTest {
     private static final String XML14 = "<Root xmlns:ns1=\"ns1\" xmlns:ns2=\"ns2\"><ns1:Child ns1:value=\"val1\" ns2:value=\"val2\"/><ns2:Child>test</ns2:Child><Child>test2</Child></Root>";
     private static final String XML15 = "<?xml version=\"1.0\"?><Book isbn=\"1234\" pfx:cover=\"hard\" xmlns=\"http://www.library.com\" xmlns:pfx=\"http://www.library.com\"><Title>Sherlock Holmes</Title><Author>Arthur Conan Doyle</Author></Book>";
 
+    // @formatter:off
+    private static final String XML16 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+            "<Root xmlns:ns1=\"ns1\" xmlns:ns2=\"ns2\">\n" + 
+            "    <ns1:Child ns1:value=\"val1\" ns2:value=\"val2\"/>\n" + 
+            "    <ns2:Child>test</ns2:Child>\n" + 
+            "    <Child ns1:value=\"val1\">test2</Child>\n" + 
+            "    <Child2 at1=\"1\">test3</Child2>\n" +
+            "    <Child3>test3</Child3>\n" +
+            "</Root>";
+    // @formatter:on
+
     private static final String JSON1 = "{\"root\":{\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON2 = "{\"root\":{\"node1\":{\"id\":123,\"id\":456,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON3 = "{\"root\":{\"node1\":{\"id\":[\"123\",\"456\"],\"name\":null,\"flag\":\"true\"},\"node2\":{\"id\":\"789\",\"name\":\"testing\",\"flag\":\"false\"}}}";
@@ -222,6 +233,54 @@ public class JsonXmlUtilTest {
         String xmlToJson = XmlUtil.toJson(xml, true);
         String expectedXml = readFile(XML_FILE_OUTPUT_2);
         assertXmlEquals(expectedXml, JsonUtil.toXml(xmlToJson, false, false));
+    }
+
+    @Test
+    public void testAlwaysArrayWithoutNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"ns1:Child\":[{\"@ns1:value\":[\"val1\"],\"@ns2:value\":[\"val2\"]}],\"ns2:Child\":[\"test\"],\"Child\":[{\"@ns1:value\":[\"val1\"],\"$\":\"test2\"}],\"Child2\":[{\"@at1\":[\"1\"],\"$\":\"test3\"}],\"Child3\":[\"test3\"]}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, false, true, false);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
+    }
+
+    @Test
+    public void testAlwaysArrayWithNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"Child\":[{\"@xmlnsprefix\":\"ns1\",\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},{\"@xmlnsprefix\":\"ns2\",\"$\":\"val2\"}]},{\"@xmlnsprefix\":\"ns2\",\"$\":\"test\"},{\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"}],\"$\":\"test2\"}],\"Child2\":[{\"@at1\":[\"1\"],\"$\":\"test3\"}],\"Child3\":[\"test3\"]}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, true, true, false);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
+    }
+
+    @Test
+    public void testAlwaysExpandObjectsWithoutNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"ns1:Child\":{\"@ns1:value\":{\"$\":\"val1\"},\"@ns2:value\":{\"$\":\"val2\"}},\"ns2:Child\":{\"$\":\"test\"},\"Child\":{\"@ns1:value\":{\"$\":\"val1\"},\"$\":\"test2\"},\"Child2\":{\"@at1\":{\"$\":1},\"$\":\"test3\"},\"Child3\":{\"$\":\"test3\"}}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, false, false, true);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
+    }
+
+    @Test
+    public void testAlwaysExpandObjectsWithNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"Child\":[{\"@xmlnsprefix\":\"ns1\",\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},{\"@xmlnsprefix\":\"ns2\",\"$\":\"val2\"}]},{\"@xmlnsprefix\":\"ns2\",\"$\":\"test\"},{\"@value\":{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},\"$\":\"test2\"}],\"Child2\":{\"@at1\":{\"$\":1},\"$\":\"test3\"},\"Child3\":{\"$\":\"test3\"}}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, true, false, true);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
+    }
+
+    @Test
+    public void testAlwaysArrayAndExpandObjectsWithoutNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"ns1:Child\":[{\"@ns1:value\":[{\"$\":\"val1\"}],\"@ns2:value\":[{\"$\":\"val2\"}]}],\"ns2:Child\":[{\"$\":\"test\"}],\"Child\":[{\"@ns1:value\":[{\"$\":\"val1\"}],\"$\":\"test2\"}],\"Child2\":[{\"@at1\":[{\"$\":1}],\"$\":\"test3\"}],\"Child3\":[{\"$\":\"test3\"}]}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, false, true, true);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
+    }
+
+    @Test
+    public void testAlwaysArrayAndExpandObjectsWithNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"Child\":[{\"@xmlnsprefix\":\"ns1\",\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},{\"@xmlnsprefix\":\"ns2\",\"$\":\"val2\"}]},{\"@xmlnsprefix\":\"ns2\",\"$\":\"test\"},{\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"}],\"$\":\"test2\"}],\"Child2\":[{\"@at1\":[{\"$\":1}],\"$\":\"test3\"}],\"Child3\":[{\"$\":\"test3\"}]}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, true, true, true);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
     }
 
     private void assertXmlEquals(String xml1, String xml2) throws Exception {
