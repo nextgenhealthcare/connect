@@ -38,7 +38,6 @@ import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.odysseus.staxon.json.JsonXMLConfig;
@@ -51,8 +50,8 @@ import de.odysseus.staxon.json.stream.JsonStreamFactory;
 import de.odysseus.staxon.json.stream.JsonStreamSource;
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
 import de.odysseus.staxon.json.stream.JsonStreamToken;
-import de.odysseus.staxon.json.stream.util.AutoArrayTarget;
 import de.odysseus.staxon.json.stream.util.AutoPrimitiveTarget;
+import de.odysseus.staxon.json.stream.util.MirthArrayTarget;
 import de.odysseus.staxon.json.stream.util.RemoveRootTarget;
 import de.odysseus.staxon.util.StreamWriterDelegate;
 import de.odysseus.staxon.xml.util.PrettyXMLStreamWriter;
@@ -253,52 +252,15 @@ public class JsonXmlUtil {
             if (virtualRoot != null) {
                 target = new RemoveRootTarget(target, virtualRoot, namespaceSeparator);
             }
-            if (alwaysArray) {
-                target = new AlwaysArrayTarget(target);
-            } else if (autoArray) {
-                target = new AutoArrayTarget(target);
+            
+            if (alwaysArray || autoArray) {
+            	target = new MirthArrayTarget(target, alwaysArray);
             }
+            
             if (autoPrimitive) {
                 target = new AutoPrimitiveTarget(target, false);
             }
             return target;
-        }
-    }
-
-    private static class AlwaysArrayTarget extends AutoArrayTarget {
-
-        public AlwaysArrayTarget(JsonStreamTarget delegate) {
-            super(delegate);
-        }
-
-        @Override
-        public void name(String name) throws IOException {
-            if (events.peekLast().token() == JsonStreamToken.START_OBJECT) {
-                if (events.size() > 1 && !isSpecialField(name)) {
-                    pushArrayField(name);
-                } else {
-                    pushField(name);
-                }
-            } else {
-                if (!name.equals(fields.peek().name())) {
-                    popField();
-                    if (isSpecialField(name)) {
-                        pushField(name);
-                    } else {
-                        pushArrayField(name);
-                    }
-                }
-            }
-        }
-
-        private boolean isSpecialField(String name) {
-            return StringUtils.equals(name, "@xmlns") || StringUtils.equals(name, "@xmlnsprefix") || StringUtils.startsWith(name, "@xmlns:") || StringUtils.equals(name, "$");
-        }
-
-        private void pushArrayField(String name) {
-            NameEvent event = new NameEvent(name);
-            event.setArray(true);
-            events.add(fields.push(event));
         }
     }
 
