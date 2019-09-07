@@ -84,7 +84,11 @@ public class JsonXmlUtilTest {
     private static final String JSON_FILE_OUTPUT_1 = "test-json-xml-util-output01.json";
     private static final String XML_FILE_OUTPUT_2 = "test-json-xml-util-output02.xml";
     private static final String JSON_FILE_OUTPUT_3 = "test-json-xml-util-output03.json";
-
+    
+    private static String XML_WITH_NULL_STRING_VALUE = "<?xml version='1.0' encoding='UTF-8'?><root xmlns:v3=\"http://test\"><v3:streetAddressLine>STREET_ADDRESS</v3:streetAddressLine><v3:streetAddressLine>null</v3:streetAddressLine><v3:streetAddressLine> </v3:streetAddressLine></root>";
+    private static String XML_WITH_NULL_VALUE = "<?xml version='1.0' encoding='UTF-8'?><root xmlns:v3=\"http://test\"><v3:streetAddressLine>STREET_ADDRESS</v3:streetAddressLine><v3:streetAddressLine></v3:streetAddressLine><v3:streetAddressLine> </v3:streetAddressLine></root>";
+    private static String JSON_WITH_NULL_VALUE = "{\"root\":{\"@xmlns:v3\":\"http://test\",\"streetAddressLine\":[{\"@xmlnsprefix\":\"v3\",\"$\":\"STREET_ADDRESS\"},{\"@xmlnsprefix\":\"v3\",\"$\":null},{\"@xmlnsprefix\":\"v3\",\"$\":\" \"}]}}";
+    
     @Test
     public void testXmlToJson1() throws Exception {
         // No pretty printing
@@ -199,6 +203,49 @@ public class JsonXmlUtilTest {
     public void testXmlToJson20() throws Exception {
         // Tests converting out of order arrays
         assertEquals(XmlUtil.toJson(XML18, true), XmlUtil.toJson(XML17, true));
+    }
+    
+    @Test
+    public void testConvertingWithNullStringXml() throws Exception {
+    	assertEquals(JSON_WITH_NULL_VALUE, XmlUtil.toJson(XML_WITH_NULL_STRING_VALUE, true));
+    	assertXmlEquals(XML_WITH_NULL_VALUE, JsonUtil.toXml(JSON_WITH_NULL_VALUE));
+    }
+
+    // Test currently fails not sure if we need to fix it
+//    @Test
+    public void testConvertingWithNullValueXml() throws Exception {
+    	assertEquals(JSON_WITH_NULL_VALUE, XmlUtil.toJson(XML_WITH_NULL_VALUE, true));	// JSON is missing "$"
+    }
+    
+    public void performanceTestXmlToJson1() throws Exception {
+    	for (int i = 0; i < 10000; i++) {
+    		XmlUtil.toJson(XML1, true);
+    		XmlUtil.toJson(XML2, true);
+    		XmlUtil.toJson(XML3, true);
+    		XmlUtil.toJson(XML4, true);
+    		XmlUtil.toJson(XML5, true);
+    		XmlUtil.toJson(XML6, true);
+    		XmlUtil.toJson(XML7, true);
+    		XmlUtil.toJson(XML8, true);
+    		XmlUtil.toJson(XML9, true);
+    		XmlUtil.toJson(XML10, true);
+    		XmlUtil.toJson(XML11, true);
+    		XmlUtil.toJson(XML12, true);
+    		XmlUtil.toJson(XML13, true);
+    		XmlUtil.toJson(XML14, true);
+    		XmlUtil.toJson(XML15, true);
+    		XmlUtil.toJson(XML16, true);
+    		XmlUtil.toJson(XML17, true);
+    		XmlUtil.toJson(XML18, true);
+    		XmlUtil.toJson(XML19, true);
+    		XmlUtil.toJson(XML20, true);
+    	}
+    }
+    
+    public void performanceTestXmlToJson2() throws Exception {
+    	for (int i = 0; i < 10000; i++) {
+    		XmlUtil.toJson(XML17, true);
+    	}
     }
 
     @Test

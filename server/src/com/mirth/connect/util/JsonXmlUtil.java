@@ -469,6 +469,16 @@ public class JsonXmlUtil {
         public NormalizeXMLStreamReader(JsonStreamSource decorate, boolean multiplePI, char namespaceSeparator, Map<String, String> namespaceMappings) throws XMLStreamException {
             super(decorate, multiplePI, namespaceSeparator, namespaceMappings);
         }
+        
+        // Override to fix original's inability to handle JSON with null value
+        @Override
+    	public int getTextLength() {
+        	try {
+        		return super.getTextLength();
+        	} catch (NullPointerException e) {
+        		return 0;
+        	}
+    	}
 
         protected void consumeName(ScopeInfo info) throws XMLStreamException, IOException {
             String fieldName = source.name();
