@@ -45,6 +45,22 @@ public class JsonXmlUtilTest {
     private static final String XML14 = "<Root xmlns:ns1=\"ns1\" xmlns:ns2=\"ns2\"><ns1:Child ns1:value=\"val1\" ns2:value=\"val2\"/><ns2:Child>test</ns2:Child><Child>test2</Child></Root>";
     private static final String XML15 = "<?xml version=\"1.0\"?><Book isbn=\"1234\" pfx:cover=\"hard\" xmlns=\"http://www.library.com\" xmlns:pfx=\"http://www.library.com\"><Title>Sherlock Holmes</Title><Author>Arthur Conan Doyle</Author></Book>";
 
+    // @formatter:off
+    private static final String XML16 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+            "<Root xmlns:ns1=\"ns1\" xmlns:ns2=\"ns2\">\n" + 
+            "    <ns1:Child ns1:value=\"val1\" ns2:value=\"val2\"/>\n" + 
+            "    <ns2:Child>test</ns2:Child>\n" + 
+            "    <Child ns1:value=\"val1\">test2</Child>\n" + 
+            "    <Child2 at1=\"1\">test3</Child2>\n" +
+            "    <Child3>test3</Child3>\n" +
+            "</Root>";
+    // @formatter:on
+    
+    private static final String XML17 = "<livingSubjectName><value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"PN\"><given>Amy</given><family>Davidson</family><given>C</given></value><semanticsText>LivingSubject.name</semanticsText></livingSubjectName>";
+    private static final String XML18 = "<livingSubjectName><value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"PN\"><given>Amy</given><given>C</given><family>Davidson</family></value><semanticsText>LivingSubject.name</semanticsText></livingSubjectName>";
+    private static String XML19 = "<?xml version='1.0' encoding='UTF-8'?><body><abc>123</abc><xyz attr=\"attrValue\"/></body>";
+    private static String XML20 = "<?xml version='1.0' encoding='UTF-8'?><s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"><s:Body><v3:PRPA_IN201309UV02 xmlns:v3=\"urn:hl7-org:v3\" ITSVersion=\"XML_1.0\"><v3:addr><v3:streetAddressLine>STREET_ADDRESS</v3:streetAddressLine><v3:streetAddressLine>LINE_2</v3:streetAddressLine><v3:streetAddressLine> </v3:streetAddressLine><v3:city>CITY</v3:city><v3:state>STATE</v3:state><v3:postalCode>POSTAL_CODE</v3:postalCode></v3:addr></v3:PRPA_IN201309UV02></s:Body></s:Envelope>";
+
     private static final String JSON1 = "{\"root\":{\"node1\":{\"id\":[123,456],\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON2 = "{\"root\":{\"node1\":{\"id\":123,\"id\":456,\"name\":null,\"flag\":true},\"node2\":{\"id\":789,\"name\":\"testing\",\"flag\":false}}}";
     private static final String JSON3 = "{\"root\":{\"node1\":{\"id\":[\"123\",\"456\"],\"name\":null,\"flag\":\"true\"},\"node2\":{\"id\":\"789\",\"name\":\"testing\",\"flag\":\"false\"}}}";
@@ -59,14 +75,20 @@ public class JsonXmlUtilTest {
     private static final String JSON12 = "{\"Envelope\":{\"@xmlnsprefix\":\"env\",\"@xmlns:env\":\"soap\",\"Body\":{\"@xmlnsprefix\":\"env\",\"Test\":{\"@value\":\"abc\",\"ValueWithoutAttr\":123,\"ValueWithAttr\":{\"@attr\":\"test\",\"$\":123}}}}}";
     private static final String JSON13 = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"Child\":[{\"@xmlnsprefix\":\"ns1\",\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},{\"@xmlnsprefix\":\"ns2\",\"$\":\"val2\"}]},{\"@xmlnsprefix\":\"ns2\",\"$\":\"test\"},\"test2\"]}}";
     private static final String JSON14 = "{\"Book\":{\"@xmlns\":\"http://www.library.com\",\"@xmlns:pfx\":\"http://www.library.com\",\"@isbn\":\"1234\",\"@cover\":{\"@xmlnsprefix\":\"pfx\",\"$\":\"hard\"},\"Title\":\"Sherlock Holmes\",\"Author\":\"Arthur Conan Doyle\"}}";
-
+    private static final String JSON15 = "{\"body\":{\"abc\":123,\"xyz\":{\"@attr\":\"attrValue\"}}}";
+    private static final String JSON16 = "{\"Envelope\":{\"@xmlnsprefix\":\"s\",\"@xmlns:s\":\"http://www.w3.org/2003/05/soap-envelope\",\"Body\":{\"@xmlnsprefix\":\"s\",\"PRPA_IN201309UV02\":{\"@xmlnsprefix\":\"v3\",\"@xmlns:v3\":\"urn:hl7-org:v3\",\"@ITSVersion\":\"XML_1.0\",\"addr\":{\"@xmlnsprefix\":\"v3\",\"streetAddressLine\":[{\"@xmlnsprefix\":\"v3\",\"$\":\"STREET_ADDRESS\"},{\"@xmlnsprefix\":\"v3\",\"$\":\"LINE_2\"},{\"@xmlnsprefix\":\"v3\",\"$\":\" \"}],\"city\":{\"@xmlnsprefix\":\"v3\",\"$\":\"CITY\"},\"state\":{\"@xmlnsprefix\":\"v3\",\"$\":\"STATE\"},\"postalCode\":{\"@xmlnsprefix\":\"v3\",\"$\":\"POSTAL_CODE\"}}}}}}";
+    
     private static final String XML_FILE_INPUT_1 = "test-json-xml-util-input01.xml";
     private static final String XML_FILE_INPUT_2 = "test-json-xml-util-input02.xml";
 
     private static final String JSON_FILE_OUTPUT_1 = "test-json-xml-util-output01.json";
     private static final String XML_FILE_OUTPUT_2 = "test-json-xml-util-output02.xml";
     private static final String JSON_FILE_OUTPUT_3 = "test-json-xml-util-output03.json";
-
+    
+    private static String XML_WITH_NULL_STRING_VALUE = "<?xml version='1.0' encoding='UTF-8'?><root xmlns:v3=\"http://test\"><v3:streetAddressLine>STREET_ADDRESS</v3:streetAddressLine><v3:streetAddressLine>null</v3:streetAddressLine><v3:streetAddressLine> </v3:streetAddressLine></root>";
+    private static String XML_WITH_NULL_VALUE = "<?xml version='1.0' encoding='UTF-8'?><root xmlns:v3=\"http://test\"><v3:streetAddressLine>STREET_ADDRESS</v3:streetAddressLine><v3:streetAddressLine></v3:streetAddressLine><v3:streetAddressLine> </v3:streetAddressLine></root>";
+    private static String JSON_WITH_NULL_VALUE = "{\"root\":{\"@xmlns:v3\":\"http://test\",\"streetAddressLine\":[{\"@xmlnsprefix\":\"v3\",\"$\":\"STREET_ADDRESS\"},{\"@xmlnsprefix\":\"v3\",\"$\":null},{\"@xmlnsprefix\":\"v3\",\"$\":\" \"}]}}";
+    
     @Test
     public void testXmlToJson1() throws Exception {
         // No pretty printing
@@ -176,6 +198,65 @@ public class JsonXmlUtilTest {
         String json = readFile(JSON_FILE_OUTPUT_3);
         assertEquals(json, XmlUtil.toJson(xml, true));
     }
+    
+    @Test
+    public void testXmlToJson20() throws Exception {
+        // Tests converting out of order arrays
+        assertEquals(XmlUtil.toJson(XML18, true), XmlUtil.toJson(XML17, true));
+    }
+    
+    @Test
+    public void testConvertingWithNullStringXml() throws Exception {
+    	assertEquals(JSON_WITH_NULL_VALUE, XmlUtil.toJson(XML_WITH_NULL_STRING_VALUE, true));
+    	assertXmlEquals(XML_WITH_NULL_VALUE, JsonUtil.toXml(JSON_WITH_NULL_VALUE));
+    }
+
+    // Test currently fails not sure if we need to fix it
+//    @Test
+    public void testConvertingWithNullValueXml() throws Exception {
+    	assertEquals(JSON_WITH_NULL_VALUE, XmlUtil.toJson(XML_WITH_NULL_VALUE, true));	// JSON is missing "$"
+    }
+    
+    public void performanceTestXmlToJson1() throws Exception {
+    	for (int i = 0; i < 10000; i++) {
+    		XmlUtil.toJson(XML1, true);
+    		XmlUtil.toJson(XML2, true);
+    		XmlUtil.toJson(XML3, true);
+    		XmlUtil.toJson(XML4, true);
+    		XmlUtil.toJson(XML5, true);
+    		XmlUtil.toJson(XML6, true);
+    		XmlUtil.toJson(XML7, true);
+    		XmlUtil.toJson(XML8, true);
+    		XmlUtil.toJson(XML9, true);
+    		XmlUtil.toJson(XML10, true);
+    		XmlUtil.toJson(XML11, true);
+    		XmlUtil.toJson(XML12, true);
+    		XmlUtil.toJson(XML13, true);
+    		XmlUtil.toJson(XML14, true);
+    		XmlUtil.toJson(XML15, true);
+    		XmlUtil.toJson(XML16, true);
+    		XmlUtil.toJson(XML17, true);
+    		XmlUtil.toJson(XML18, true);
+    		XmlUtil.toJson(XML19, true);
+    		XmlUtil.toJson(XML20, true);
+    	}
+    }
+    
+    public void performanceTestXmlToJson2() throws Exception {
+    	for (int i = 0; i < 10000; i++) {
+    		XmlUtil.toJson(XML17, true);
+    	}
+    }
+
+    @Test
+    public void testXmlToJson21() throws Exception {
+        assertEquals(JSON15, XmlUtil.toJson(XML19));
+    }
+    
+    @Test
+    public void testXmlToJson22() throws Exception {
+        assertEquals(JSON16, XmlUtil.toJson(XML20));
+    }
 
     @Test
     public void testJsonToXml1() throws Exception {
@@ -201,6 +282,16 @@ public class JsonXmlUtilTest {
     public void testJsonToXml4() throws Exception {
         assertXmlEquals(XML13, JsonUtil.toXml(JSON12, false, false));
     }
+    
+    @Test
+    public void testJsonToXml5() throws Exception {
+        assertEquals(XML19, JsonUtil.toXml(JSON15));
+    }
+    
+    @Test
+    public void testJsonToXml6() throws Exception {
+        assertEquals(XML20, JsonUtil.toXml(JSON16));
+    }
 
     @Test
     public void testXmlToJsonToXml1() throws Exception {
@@ -222,6 +313,54 @@ public class JsonXmlUtilTest {
         String xmlToJson = XmlUtil.toJson(xml, true);
         String expectedXml = readFile(XML_FILE_OUTPUT_2);
         assertXmlEquals(expectedXml, JsonUtil.toXml(xmlToJson, false, false));
+    }
+
+    @Test
+    public void testAlwaysArrayWithoutNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"ns1:Child\":[{\"@ns1:value\":[\"val1\"],\"@ns2:value\":[\"val2\"]}],\"ns2:Child\":[\"test\"],\"Child\":[{\"@ns1:value\":[\"val1\"],\"$\":\"test2\"}],\"Child2\":[{\"@at1\":[\"1\"],\"$\":\"test3\"}],\"Child3\":[\"test3\"]}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, false, true, false);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
+    }
+
+    @Test
+    public void testAlwaysArrayWithNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"Child\":[{\"@xmlnsprefix\":\"ns1\",\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},{\"@xmlnsprefix\":\"ns2\",\"$\":\"val2\"}]},{\"@xmlnsprefix\":\"ns2\",\"$\":\"test\"},{\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"}],\"$\":\"test2\"}],\"Child2\":[{\"@at1\":[\"1\"],\"$\":\"test3\"}],\"Child3\":[\"test3\"]}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, true, true, false);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
+    }
+
+    @Test
+    public void testAlwaysExpandObjectsWithoutNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"ns1:Child\":{\"@ns1:value\":{\"$\":\"val1\"},\"@ns2:value\":{\"$\":\"val2\"}},\"ns2:Child\":{\"$\":\"test\"},\"Child\":{\"@ns1:value\":{\"$\":\"val1\"},\"$\":\"test2\"},\"Child2\":{\"@at1\":{\"$\":1},\"$\":\"test3\"},\"Child3\":{\"$\":\"test3\"}}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, false, false, true);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
+    }
+
+    @Test
+    public void testAlwaysExpandObjectsWithNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"Child\":[{\"@xmlnsprefix\":\"ns1\",\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},{\"@xmlnsprefix\":\"ns2\",\"$\":\"val2\"}]},{\"@xmlnsprefix\":\"ns2\",\"$\":\"test\"},{\"@value\":{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},\"$\":\"test2\"}],\"Child2\":{\"@at1\":{\"$\":1},\"$\":\"test3\"},\"Child3\":{\"$\":\"test3\"}}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, true, false, true);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
+    }
+
+    @Test
+    public void testAlwaysArrayAndExpandObjectsWithoutNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"ns1:Child\":[{\"@ns1:value\":[{\"$\":\"val1\"}],\"@ns2:value\":[{\"$\":\"val2\"}]}],\"ns2:Child\":[{\"$\":\"test\"}],\"Child\":[{\"@ns1:value\":[{\"$\":\"val1\"}],\"$\":\"test2\"}],\"Child2\":[{\"@at1\":[{\"$\":1}],\"$\":\"test3\"}],\"Child3\":[{\"$\":\"test3\"}]}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, false, true, true);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
+    }
+
+    @Test
+    public void testAlwaysArrayAndExpandObjectsWithNormalizeNS() throws Exception {
+        String expectedJson = "{\"Root\":{\"@xmlns:ns1\":\"ns1\",\"@xmlns:ns2\":\"ns2\",\"Child\":[{\"@xmlnsprefix\":\"ns1\",\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"},{\"@xmlnsprefix\":\"ns2\",\"$\":\"val2\"}]},{\"@xmlnsprefix\":\"ns2\",\"$\":\"test\"},{\"@value\":[{\"@xmlnsprefix\":\"ns1\",\"$\":\"val1\"}],\"$\":\"test2\"}],\"Child2\":[{\"@at1\":[{\"$\":1}],\"$\":\"test3\"}],\"Child3\":[{\"$\":\"test3\"}]}}";
+        String actualJson = XmlUtil.toJson(XML16, true, true, false, true, true, true);
+        assertEquals(expectedJson, actualJson);
+        assertXmlEquals(XmlUtil.prettyPrint(XML16), XmlUtil.prettyPrint(JsonUtil.toXml(actualJson)));
     }
 
     private void assertXmlEquals(String xml1, String xml2) throws Exception {

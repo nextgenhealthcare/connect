@@ -50,6 +50,9 @@ import de.odysseus.staxon.json.stream.JsonStreamFactory;
 import de.odysseus.staxon.json.stream.JsonStreamSource;
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
 import de.odysseus.staxon.json.stream.JsonStreamToken;
+import de.odysseus.staxon.json.stream.util.AutoPrimitiveTarget;
+import de.odysseus.staxon.json.stream.util.MirthArrayTarget;
+import de.odysseus.staxon.json.stream.util.RemoveRootTarget;
 import de.odysseus.staxon.util.StreamWriterDelegate;
 import de.odysseus.staxon.xml.util.PrettyXMLStreamWriter;
 
@@ -62,12 +65,16 @@ public class JsonXmlUtil {
     }
 
     public static String xmlToJson(String xmlStr, boolean normalizeNamespaces) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-        //convert xml to json
-        JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(true).autoPrimitive(true).prettyPrint(false).build();
-        return xmlToJson(config, xmlStr, normalizeNamespaces);
+        return xmlToJson(xmlStr, normalizeNamespaces, false, false);
     }
 
-    public static String xmlToJson(JsonXMLConfig config, String xmlStr, boolean normalizeNamespaces) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+    public static String xmlToJson(String xmlStr, boolean normalizeNamespaces, boolean alwaysArray, boolean alwaysExpandObjects) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+        //convert xml to json
+        JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(true).autoPrimitive(true).prettyPrint(false).build();
+        return xmlToJson(config, xmlStr, normalizeNamespaces, alwaysArray, alwaysExpandObjects);
+    }
+
+    public static String xmlToJson(JsonXMLConfig config, String xmlStr, boolean normalizeNamespaces, boolean alwaysArray, boolean alwaysExpandObjects) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         try (InputStream inputStream = IOUtils.toInputStream(xmlStr);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             // create source (XML)
@@ -76,15 +83,9 @@ public class JsonXmlUtil {
 
             // create result (JSON)
             JsonStreamFactory streamFactory = new CorrectedJsonStreamFactory();
-            XMLStreamWriter writer;
 
-            if (normalizeNamespaces) {
-                JsonXMLOutputFactory outputFactory = new NormalizeJsonOutputFactory(config, streamFactory);
-                writer = new NormalizeJsonStreamWriterDelegate(outputFactory.createXMLStreamWriter(outputStream));
-            } else {
-                JsonXMLOutputFactory outputFactory = new JsonXMLOutputFactory(config, streamFactory);
-                writer = outputFactory.createXMLStreamWriter(outputStream);
-            }
+            JsonXMLOutputFactory outputFactory = new ExtendedJsonOutputFactory(config, streamFactory, alwaysArray, alwaysExpandObjects);
+            XMLStreamWriter writer = new ExtendedJsonStreamWriterDelegate(outputFactory.createXMLStreamWriter(outputStream), normalizeNamespaces, alwaysExpandObjects);
 
             Result result = new StAXResult(writer);
 
@@ -217,16 +218,21 @@ public class JsonXmlUtil {
     }
 
     // XML -> JSON
-    private static class NormalizeJsonOutputFactory extends JsonXMLOutputFactory {
+    private static class ExtendedJsonOutputFactory extends JsonXMLOutputFactory {
 
-        public NormalizeJsonOutputFactory(JsonXMLConfig config, JsonStreamFactory streamFactory) {
+        private boolean alwaysArray;
+        private boolean alwaysExpandObjects;
+
+        public ExtendedJsonOutputFactory(JsonXMLConfig config, JsonStreamFactory streamFactory, boolean alwaysArray, boolean alwaysExpandObjects) {
             super(config, streamFactory);
+            this.alwaysArray = alwaysArray;
+            this.alwaysExpandObjects = alwaysExpandObjects;
         }
 
         @Override
         public JsonXMLStreamWriter createXMLStreamWriter(OutputStream stream) throws XMLStreamException {
             try {
-                return new NormalizeJsonStreamWriter(decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(), multiplePI, namespaceSeparator, namespaceDeclarations);
+                return new NormalizeJsonStreamWriter(decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(), multiplePI, namespaceSeparator, namespaceDeclarations, alwaysExpandObjects);
             } catch (IOException e) {
                 throw new XMLStreamException(e);
             }
@@ -235,50 +241,99 @@ public class JsonXmlUtil {
         @Override
         public JsonXMLStreamWriter createXMLStreamWriter(Writer stream) throws XMLStreamException {
             try {
-                return new NormalizeJsonStreamWriter(decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(), multiplePI, namespaceSeparator, namespaceDeclarations);
+                return new NormalizeJsonStreamWriter(decorate(streamFactory.createJsonStreamTarget(stream, prettyPrint)), repairNamespacesMap(), multiplePI, namespaceSeparator, namespaceDeclarations, alwaysExpandObjects);
             } catch (IOException e) {
                 throw new XMLStreamException(e);
             }
         }
+
+        @Override
+        protected JsonStreamTarget decorate(JsonStreamTarget target) {
+            if (virtualRoot != null) {
+                target = new RemoveRootTarget(target, virtualRoot, namespaceSeparator);
+            }
+            
+            if (alwaysArray || autoArray) {
+            	target = new MirthArrayTarget(target, alwaysArray);
+            }
+            
+            if (autoPrimitive) {
+                target = new AutoPrimitiveTarget(target, false);
+            }
+            return target;
+        }
     }
 
-    private static class NormalizeJsonStreamWriterDelegate extends StreamWriterDelegate {
+    private static class ExtendedJsonStreamWriterDelegate extends StreamWriterDelegate {
 
-        public NormalizeJsonStreamWriterDelegate(XMLStreamWriter parent) {
+        private boolean normalizeNamespaces;
+        private boolean alwaysExpandObjects;
+
+        public ExtendedJsonStreamWriterDelegate(XMLStreamWriter parent, boolean normalizeNamespaces, boolean alwaysExpandObjects) {
             super(parent);
+            this.normalizeNamespaces = normalizeNamespaces;
+            this.alwaysExpandObjects = alwaysExpandObjects;
         }
 
         @Override
         public void writeStartElement(String localName) throws XMLStreamException {
-            Pair<String, String> splitPair = splitPrefixAndLocalName(localName);
-            String prefix = splitPair.getLeft();
-            String local = splitPair.getRight();
-            super.writeStartElement(local);
+            if (normalizeNamespaces) {
+                Pair<String, String> splitPair = splitPrefixAndLocalName(localName);
+                String prefix = splitPair.getLeft();
+                String local = splitPair.getRight();
+                super.writeStartElement(local);
 
-            if (!prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
-                writeAttribute("xmlnsprefix", prefix);
+                if (!prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
+                    super.writeAttribute("xmlnsprefix", prefix);
+                }
+            } else {
+                super.writeStartElement(localName);
+            }
+        }
+
+        @Override
+        public void writeAttribute(String localName, String value) throws XMLStreamException {
+            if (alwaysExpandObjects) {
+                super.writeStartElement("@" + localName);
+                super.writeAttribute("$", value);
+                super.writeEndElement();
+            } else {
+                super.writeAttribute(localName, value);
             }
         }
 
         @Override
         public void writeAttribute(String prefix, String namespaceURI, String localName, String value) throws XMLStreamException {
+            if (normalizeNamespaces) {
+                // XML has special attributes that are prefixed with "xml". This causes problems
+                // because the namespace for the prefix does not have to be declared, so we have to
+                // handle that special case.
+                if (prefix != null && "xml".equals(prefix)) {
+                    prefix = XMLConstants.DEFAULT_NS_PREFIX;
+                    namespaceURI = XMLConstants.NULL_NS_URI;
+                    localName = "xml" + SEPARATOR + localName;
+                }
 
-            // XML has special attributes that are prefixed with "xml". This causes problems
-            // because the namespace for the prefix does not have to be declared, so we have to
-            // handle that special case.
-            if (prefix != null && "xml".equals(prefix)) {
-                prefix = XMLConstants.DEFAULT_NS_PREFIX;
-                namespaceURI = XMLConstants.NULL_NS_URI;
-                localName = "xml" + SEPARATOR + localName;
-            }
-
-            if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
-                super.writeAttribute(prefix, namespaceURI, localName, value);
-            } else {
-                super.writeStartElement("@" + localName);
-                writeAttribute("xmlnsprefix", prefix);
-                writeAttribute("$", value);
+                if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
+                    if (alwaysExpandObjects) {
+                        super.writeStartElement("@" + localName);
+                        super.writeAttribute("$", value);
+                        super.writeEndElement();
+                    } else {
+                        super.writeAttribute(prefix, namespaceURI, localName, value);
+                    }
+                } else {
+                    super.writeStartElement("@" + localName);
+                    super.writeAttribute("xmlnsprefix", prefix);
+                    super.writeAttribute("$", value);
+                    super.writeEndElement();
+                }
+            } else if (alwaysExpandObjects) {
+                super.writeStartElement("@" + prefix + SEPARATOR + localName);
+                super.writeAttribute("$", value);
                 super.writeEndElement();
+            } else {
+                super.writeAttribute(prefix, namespaceURI, localName, value);
             }
         }
 
@@ -300,12 +355,16 @@ public class JsonXmlUtil {
 
     private static class NormalizeJsonStreamWriter extends JsonXMLStreamWriter {
 
-        public NormalizeJsonStreamWriter(JsonStreamTarget target, boolean repairNamespaces, boolean multiplePI, char namespaceSeparator, boolean namespaceDeclarations) {
+        private boolean alwaysExpandObjects;
+
+        public NormalizeJsonStreamWriter(JsonStreamTarget target, boolean repairNamespaces, boolean multiplePI, char namespaceSeparator, boolean namespaceDeclarations, boolean alwaysExpandObjects) {
             super(target, repairNamespaces, multiplePI, namespaceSeparator, namespaceDeclarations);
+            this.alwaysExpandObjects = alwaysExpandObjects;
         }
 
-        public NormalizeJsonStreamWriter(JsonStreamTarget target, Map<String, String> repairNamespaces, boolean multiplePI, char namespaceSeparator, boolean namespaceDeclarations) {
+        public NormalizeJsonStreamWriter(JsonStreamTarget target, Map<String, String> repairNamespaces, boolean multiplePI, char namespaceSeparator, boolean namespaceDeclarations, boolean alwaysExpandObjects) {
             super(target, repairNamespaces, multiplePI, namespaceSeparator, namespaceDeclarations);
+            this.alwaysExpandObjects = alwaysExpandObjects;
         }
 
         @Override
@@ -352,6 +411,16 @@ public class JsonXmlUtil {
                                 throw new XMLStreamException("Cannot append primitive data: " + data);
                             }
                         } else if (getScope().getLastChild() == null) {
+                            if (alwaysExpandObjects) {
+                                try {
+                                    if (!getScope().getInfo().startObjectWritten) {
+                                        target.startObject();
+                                        getScope().getInfo().startObjectWritten = true;
+                                    }
+                                } catch (IOException e) {
+                                    throw new XMLStreamException("Cannot write start element: " + getScope().getLocalName(), e);
+                                }
+                            }
                             getScope().getInfo().setData(data);
                         } else if (getScope().getLastChild().getLocalName().startsWith("@")) {
                             // Added this case to make sure we don't mistakenly think we're dealing
@@ -400,6 +469,16 @@ public class JsonXmlUtil {
         public NormalizeXMLStreamReader(JsonStreamSource decorate, boolean multiplePI, char namespaceSeparator, Map<String, String> namespaceMappings) throws XMLStreamException {
             super(decorate, multiplePI, namespaceSeparator, namespaceMappings);
         }
+        
+        // Override to fix original's inability to handle JSON with null value
+        @Override
+    	public int getTextLength() {
+        	try {
+        		return super.getTextLength();
+        	} catch (NullPointerException e) {
+        		return 0;
+        	}
+    	}
 
         protected void consumeName(ScopeInfo info) throws XMLStreamException, IOException {
             String fieldName = source.name();
