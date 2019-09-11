@@ -1,45 +1,20 @@
-/*
- * Copyright 2011, 2012 Odysseus Software GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package de.odysseus.staxon.json.stream.util;
 
 import java.io.IOException;
 import java.util.Deque;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
-import de.odysseus.staxon.json.JsonXMLStreamWriter;
+import org.apache.commons.lang3.StringUtils;
+
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
 import de.odysseus.staxon.json.stream.JsonStreamToken;
 
-/**
- * Target filter to auto-insert array boundaries.
- * 
- * Note: this class caches all events and flushes to the
- * underlying target after receiving the last close-object
- * event, which may cause memory issues for large documents.
- * Also, auto-recognition of array boundaries never creates
- * arrays with a single element.
- * 
- * It is recommended to handle array boundaries via the
- * {@link JsonXMLStreamWriter#writeStartArray(String)} and
- * {@link JsonXMLStreamWriter#writeEndArray()} methods
- * or by producing <code>&lt;?xml-muliple ...?&gt;</code>
- * processing instructions.
- */
-public class AutoArrayTarget implements JsonStreamTarget {
+public class MirthArrayTarget implements JsonStreamTarget {
     /**
      * Event type
      */
@@ -158,83 +133,138 @@ public class AutoArrayTarget implements JsonStreamTarget {
     /*
      * Event queue 
      */
-    protected final Deque<Event> events = new LinkedList<Event>();
+    private final Stack< Map<String, List<Object>> > levelEventStack = new Stack<>(); 
+    private final Stack<Integer> nameEventCounts = new Stack<>();
 
     /*
      * Field stack
      */
     protected final Stack<NameEvent> fields = new Stack<NameEvent>();
     
-    public AutoArrayTarget(JsonStreamTarget delegate) {
-        this.delegate = delegate;
+    private boolean alwaysArray = false;
+    
+    
+    public MirthArrayTarget(JsonStreamTarget delegate) {
+        this(delegate, false);
     }
-
-    protected void pushField(String name) {
-        events.add(fields.push(new NameEvent(name)));
-    }
-
-    protected void popField() {
-        if (fields.pop().isArray()) {
-            events.add(END_ARRAY);
-        }
+    
+    public MirthArrayTarget(JsonStreamTarget delegate, boolean alwaysArray) {
+    	this.delegate = delegate;
+    	this.alwaysArray = alwaysArray;
     }
     
     @Override
     public void name(String name) throws IOException {
-        if (events.peekLast().token() == JsonStreamToken.START_OBJECT) {
-            pushField(name);
-        } else {
-            if (name.equals(fields.peek().name())) {
-                fields.peek().setArray(true);
-            } else {
-                popField();
-                pushField(name);
-            }
-        }
+    	Map<String, List<Object>> levelEventMap = levelEventStack.peek();
+		if (levelEventMap != null) {
+			List<Object> levelObjects = levelEventMap.get(name);
+			if (levelObjects == null) {
+				levelObjects = new LinkedList<>();
+				levelEventMap.put(name, levelObjects);
+			}
+			fields.push(new NameEvent(name));
+		}
+		nameEventCounts.push(nameEventCounts.pop() + 1);
+    }
+    
+    private boolean isSpecialField(String name) {
+        return StringUtils.equals(name, "@xmlns") || StringUtils.equals(name, "@xmlnsprefix") || StringUtils.startsWith(name, "@xmlns:") || StringUtils.equals(name, "$");
     }
 
     @Override
     public void value(Object value) throws IOException {
-        events.add(new ValueEvent(value));
+    	NameEvent nameEvent = fields.peek();
+    	Map<String, List<Object>> levelEventMap = levelEventStack.peek();
+		if (levelEventMap != null) {
+			List<Object> levelEvents = levelEventMap.get(nameEvent.name);
+			if (levelEvents == null) {
+				levelEvents = new LinkedList<>();
+				levelEventMap.put(nameEvent.name, levelEvents);
+			}
+			levelEvents.add(new ValueEvent(value));
+		}
     }
 
     @Override
     public void startObject() throws IOException {
-        events.add(START_OBJECT);
+    	levelEventStack.push(new LinkedHashMap<>());
+    	nameEventCounts.push(0);
     }
 
     @Override
     public void endObject() throws IOException {
-        if (events.peekLast().token() != JsonStreamToken.START_OBJECT) {
-            popField();
-        }
-        events.add(END_OBJECT);
-        if (fields.isEmpty()) {
-            while (!events.isEmpty()) {
-                events.pollFirst().write(delegate);
-            }
-        }
+    	// Pop from the fields stack, so that we have the NameEvent corresponding to this object on top
+    	Integer nameEvents = nameEventCounts.pop();
+    	for (int i = 0; i < nameEvents; i++) {
+    		fields.pop();
+    	}
+    	
+    	// If we've reached the end of the XML events, write to the delegate
+		if (fields.isEmpty()) {
+			// create events list
+			Deque<Event> events = generateEventList(levelEventStack.peek(), true);
+			
+			//write out events
+			while (!events.isEmpty()) {
+				events.pollFirst().write(delegate);
+			}
+		} else {
+			NameEvent currentName = fields.peek();
+	    	Map<String, List<Object>> levelEventMap = levelEventStack.pop();
+	    	Map<String, List<Object>> currentLevelEventMap = levelEventStack.peek();
+	    	currentLevelEventMap.get(currentName.name).add(levelEventMap);
+		}
     }
-
+    
+    private Deque<Event> generateEventList(Map<String, List<Object>> levelEventMap, boolean root) {
+    	Deque<Event> eventList = new LinkedList<>();
+    	
+    	eventList.add(START_OBJECT);
+    	
+    	for (Entry<String, List<Object>> element : levelEventMap.entrySet()) {
+    		NameEvent event = new NameEvent(element.getKey());
+    		if (alwaysArray) {
+    			if (!root && !isSpecialField(event.name)) {
+    				event.setArray(true);
+    			}
+    		} else if (element.getValue().size() > 1) {
+    			event.setArray(true);
+    		}
+    		// add event to list
+    		eventList.add(event);
+    		
+    		// loop through values
+    		for (Object obj : element.getValue()) {
+        		// if value is a map recursive call
+    			if (obj instanceof Map) {
+    				eventList.addAll(generateEventList((Map<String, List<Object>>)obj, false));
+    			} else { // otherwise add event to list
+    				eventList.add((Event)obj);
+    			}
+    		}
+    		
+    		if (event.isArray()) {
+    			eventList.add(END_ARRAY);
+    		}
+    	}
+    	
+    	eventList.add(END_OBJECT);
+    	return eventList;
+    }
+    
     @Override
     public void startArray() throws IOException {
-        if (fields.peek().isArray()) {
-            throw new IllegalStateException();
-        }
-        fields.peek().setArray(true);
     }
 
     @Override
     public void endArray() throws IOException {
-        if (!fields.peek().isArray()) {
-            throw new IllegalStateException();
-        }
-        // array will be closed automatically
     }
 
     @Override
     public void close() throws IOException {
+    	Deque<Event> events = generateEventList(levelEventStack.peek(), true);
         while (!events.isEmpty()) {
+			//write out events
             events.pollFirst().write(delegate);
         }
         delegate.close();
@@ -244,4 +274,5 @@ public class AutoArrayTarget implements JsonStreamTarget {
     public void flush() throws IOException {
         delegate.flush();
     }
+
 }
