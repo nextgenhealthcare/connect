@@ -2,7 +2,7 @@
 	<name>EDI Data Type</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.8.0</mirthVersion>
+	<mirthVersion>3.8.1</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This plugin provides support for the EDI data type</description>
 	<serverClasses>
