@@ -2,7 +2,7 @@
 	<name>Channel Writer</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.8.0</mirthVersion>
+	<mirthVersion>3.8.1</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This connector allows Mirth Connect to send events to other channels in the same Mirth Connect instance.</description>
 	<clientClassName>com.mirth.connect.connectors.vm.ChannelWriter</clientClassName>
