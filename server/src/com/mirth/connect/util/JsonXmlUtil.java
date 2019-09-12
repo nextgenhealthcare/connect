@@ -38,7 +38,6 @@ import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.odysseus.staxon.json.JsonXMLConfig;
@@ -257,6 +256,7 @@ public class JsonXmlUtil {
             if (alwaysArray || autoArray) {
             	target = new MirthArrayTarget(target, alwaysArray);
             }
+            
             if (autoPrimitive) {
                 target = new AutoPrimitiveTarget(target, false);
             }
