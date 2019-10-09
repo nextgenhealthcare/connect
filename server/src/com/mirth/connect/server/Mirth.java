@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
 
@@ -113,6 +114,12 @@ public class Mirth extends Thread {
 
     public void run() {
         Thread.currentThread().setName("Main Server Thread");
+        
+        // Add the host address as a variable that log4j can output
+        try {
+            MDC.put("hostAddress", InetAddress.getLocalHost().getHostAddress());
+        } catch (UnknownHostException e) {} 
+        
         initializeLogging();
 
         if (initResources()) {
