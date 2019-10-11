@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
@@ -26,11 +27,11 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,39 +42,37 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.AmazonWebServiceRequest;
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
-import com.amazonaws.services.securitytoken.model.Credentials;
-import com.amazonaws.services.securitytoken.model.GetSessionTokenRequest;
-import com.amazonaws.services.securitytoken.model.GetSessionTokenResult;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.S3SchemeProperties;
 import com.mirth.connect.userutil.MessageHeaders;
 
+import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.Credentials;
+import software.amazon.awssdk.services.sts.model.GetSessionTokenRequest;
+import software.amazon.awssdk.services.sts.model.GetSessionTokenResponse;
+
 public class S3ConnectionTest {
 
-    static AmazonS3 client;
-    static AWSSecurityTokenService sts;
+    static S3Client client;
+    static StsClient sts;
 
     @BeforeClass
     public static void setup() throws Exception {
-        client = spy(AmazonS3.class);
+        client = spy(S3Client.class);
 
-        sts = spy(AWSSecurityTokenService.class);
+        sts = spy(StsClient.class);
 
-        GetSessionTokenResult sessionTokenResult = mock(GetSessionTokenResult.class);
-        when(sessionTokenResult.getCredentials()).thenReturn(new Credentials("accessKeyId", "secretAccessKey", "sessionToken", new Date(new Date().getTime() + 60 * 60 * 1000)));
+        GetSessionTokenResponse sessionTokenResult = GetSessionTokenResponse.builder().credentials(Credentials.builder().accessKeyId("accessKeyId").secretAccessKey("secretAccessKey").sessionToken("sessionToken").expiration(Instant.now().plusSeconds(60 * 60)).build()).build();
         doReturn(sessionTokenResult).when(sts).getSessionToken(any(GetSessionTokenRequest.class));
     }
 
@@ -93,45 +92,30 @@ public class S3ConnectionTest {
     }
 
     @Test
-    public void testCreateClientConfiguration() throws Exception {
-        S3Connection s3Conn = getConnection();
-
-        int timeout = 5000;
-        ClientConfiguration clientConfiguration = s3Conn.createClientConfiguration(timeout);
-        assertEquals(timeout, clientConfiguration.getConnectionTimeout());
-        assertEquals(timeout, clientConfiguration.getSocketTimeout());
-
-        timeout = 0;
-        clientConfiguration = s3Conn.createClientConfiguration(timeout);
-        assertEquals(timeout, clientConfiguration.getConnectionTimeout());
-        assertEquals(timeout, clientConfiguration.getSocketTimeout());
-    }
-
-    @Test
     public void testCreateCredentialsProvider() throws Exception {
         S3Connection s3Conn = getConnection();
 
         // Anonymous with DCPC
         FileSystemConnectionOptions fileSystemOptions = getOptions(true, "user", "pass", true, true);
-        AWSCredentialsProvider provider = s3Conn.createCredentialsProvider(fileSystemOptions);
-        assertEquals(AWSStaticCredentialsProvider.class, provider.getClass());
-        assertEquals(AnonymousAWSCredentials.class, ((AWSStaticCredentialsProvider) provider).getCredentials().getClass());
+        AwsCredentialsProvider provider = s3Conn.createCredentialsProvider(fileSystemOptions);
+        assertEquals(AnonymousCredentialsProvider.class, provider.getClass());
+        assertEquals(AwsBasicCredentials.class, provider.resolveCredentials().getClass());
 
         // Anonymous without DCPC
         fileSystemOptions = getOptions(true, null, null, false, false);
         provider = s3Conn.createCredentialsProvider(fileSystemOptions);
-        assertEquals(AWSStaticCredentialsProvider.class, provider.getClass());
-        assertEquals(AnonymousAWSCredentials.class, ((AWSStaticCredentialsProvider) provider).getCredentials().getClass());
+        assertEquals(AnonymousCredentialsProvider.class, provider.getClass());
+        assertEquals(AwsBasicCredentials.class, provider.resolveCredentials().getClass());
 
         // Null credentials with DCPC
         fileSystemOptions = getOptions(false, null, null, true, true);
         provider = s3Conn.createCredentialsProvider(fileSystemOptions);
-        assertEquals(DefaultAWSCredentialsProviderChain.class, provider.getClass());
+        assertEquals(DefaultCredentialsProvider.class, provider.getClass());
 
         // Blank credentials with DCPC
         fileSystemOptions = getOptions(false, " ", " ", true, true);
         provider = s3Conn.createCredentialsProvider(fileSystemOptions);
-        assertEquals(DefaultAWSCredentialsProviderChain.class, provider.getClass());
+        assertEquals(DefaultCredentialsProvider.class, provider.getClass());
 
         // Null credentials without DCPC
         String accessKeyId = null;
@@ -139,39 +123,39 @@ public class S3ConnectionTest {
         fileSystemOptions = getOptions(false, accessKeyId, secretKeyId, false, true);
         try {
             provider = s3Conn.createCredentialsProvider(fileSystemOptions);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) {
+            fail("NullPointerException should have been thrown");
+        } catch (NullPointerException e) {
         }
 
         // Blank credentials without DCPC
         accessKeyId = " ";
         secretKeyId = " ";
         fileSystemOptions = getOptions(false, accessKeyId, secretKeyId, false, true);
-        provider = s3Conn.createCredentialsProvider(fileSystemOptions);
-        assertEquals(AWSStaticCredentialsProvider.class, provider.getClass());
-        assertEquals(BasicAWSCredentials.class, ((AWSStaticCredentialsProvider) provider).getCredentials().getClass());
-        assertEquals(accessKeyId, ((BasicAWSCredentials) ((AWSStaticCredentialsProvider) provider).getCredentials()).getAWSAccessKeyId());
-        assertEquals(secretKeyId, ((BasicAWSCredentials) ((AWSStaticCredentialsProvider) provider).getCredentials()).getAWSSecretKey());
+        try {
+            provider = s3Conn.createCredentialsProvider(fileSystemOptions);
+            fail("NullPointerException should have been thrown");
+        } catch (NullPointerException e) {
+        }
 
         // Valid credentials with DCPC
         accessKeyId = "user";
         secretKeyId = "pass";
         fileSystemOptions = getOptions(false, accessKeyId, secretKeyId, true, true);
         provider = s3Conn.createCredentialsProvider(fileSystemOptions);
-        assertEquals(AWSStaticCredentialsProvider.class, provider.getClass());
-        assertEquals(BasicAWSCredentials.class, ((AWSStaticCredentialsProvider) provider).getCredentials().getClass());
-        assertEquals(accessKeyId, ((BasicAWSCredentials) ((AWSStaticCredentialsProvider) provider).getCredentials()).getAWSAccessKeyId());
-        assertEquals(secretKeyId, ((BasicAWSCredentials) ((AWSStaticCredentialsProvider) provider).getCredentials()).getAWSSecretKey());
+        assertEquals(StaticCredentialsProvider.class, provider.getClass());
+        assertEquals(AwsBasicCredentials.class, provider.resolveCredentials().getClass());
+        assertEquals(accessKeyId, provider.resolveCredentials().accessKeyId());
+        assertEquals(secretKeyId, provider.resolveCredentials().secretAccessKey());
 
         // Valid credentials without DCPC
         accessKeyId = "user";
         secretKeyId = "pass";
         fileSystemOptions = getOptions(false, accessKeyId, secretKeyId, false, true);
         provider = s3Conn.createCredentialsProvider(fileSystemOptions);
-        assertEquals(AWSStaticCredentialsProvider.class, provider.getClass());
-        assertEquals(BasicAWSCredentials.class, ((AWSStaticCredentialsProvider) provider).getCredentials().getClass());
-        assertEquals(accessKeyId, ((BasicAWSCredentials) ((AWSStaticCredentialsProvider) provider).getCredentials()).getAWSAccessKeyId());
-        assertEquals(secretKeyId, ((BasicAWSCredentials) ((AWSStaticCredentialsProvider) provider).getCredentials()).getAWSSecretKey());
+        assertEquals(StaticCredentialsProvider.class, provider.getClass());
+        assertEquals(AwsBasicCredentials.class, provider.resolveCredentials().getClass());
+        assertEquals(accessKeyId, provider.resolveCredentials().accessKeyId());
+        assertEquals(secretKeyId, provider.resolveCredentials().secretAccessKey());
     }
 
     @Test
@@ -296,36 +280,29 @@ public class S3ConnectionTest {
     public void testCreateListRequest() throws Exception {
         S3Connection s3Conn = getConnection();
 
-        ListObjectsV2Request request = s3Conn.createListRequest("test", null);
-        assertEquals("test", request.getBucketName());
-        assertNull(request.getPrefix());
-        assertEquals("/", request.getDelimiter());
+        ListObjectsV2Request request = s3Conn.createListRequest("test", null).build();
+        assertEquals("test", request.bucket());
+        assertNull(request.prefix());
+        assertEquals("/", request.delimiter());
 
-        request = s3Conn.createListRequest("test", "");
-        assertEquals("test", request.getBucketName());
-        assertEquals("", request.getPrefix());
+        request = s3Conn.createListRequest("test", "").build();
+        assertEquals("test", request.bucket());
+        assertEquals("", request.prefix());
 
-        request = s3Conn.createListRequest("test", "prefix");
-        assertEquals("test", request.getBucketName());
-        assertEquals("prefix", request.getPrefix());
+        request = s3Conn.createListRequest("test", "prefix").build();
+        assertEquals("test", request.bucket());
+        assertEquals("prefix", request.prefix());
 
-        request = s3Conn.createListRequest("test", "prefix/dir");
-        assertEquals("test", request.getBucketName());
-        assertEquals("prefix/dir", request.getPrefix());
+        request = s3Conn.createListRequest("test", "prefix/dir").build();
+        assertEquals("test", request.bucket());
+        assertEquals("prefix/dir", request.prefix());
     }
 
     @Test
-    public void testAddCustomHeaders() throws Exception {
+    public void testGetCustomHeaders() throws Exception {
         S3Connection s3Conn = getConnection();
-
-        AmazonWebServiceRequest request = spy(AmazonWebServiceRequest.class);
-        s3Conn.addCustomHeaders(request);
-        assertTrue(MapUtils.isEmpty(request.getCustomRequestHeaders()));
-
         s3Conn.schemeProps.getCustomHeaders().put("X-Custom-Header", Collections.singletonList("Value"));
-        request = spy(AmazonWebServiceRequest.class);
-        s3Conn.addCustomHeaders(request);
-        assertEquals("Value", request.getCustomRequestHeaders().get("X-Custom-Header"));
+        assertEquals("Value", s3Conn.getCustomHeaders().get("X-Custom-Header"));
     }
 
     @Test
@@ -350,13 +327,13 @@ public class S3ConnectionTest {
         s3Conn.populateObjectMetadata(null, null);
 
         Map<String, Object> map = new HashMap<String, Object>();
-        ObjectMetadata objectMetadata = new ObjectMetadata();
+        Map<String, List<String>> objectMetadata = new HashMap<String, List<String>>();
         s3Conn.populateObjectMetadata(map, objectMetadata);
         assertTrue(CollectionUtils.isEmpty(((MessageHeaders) map.get("s3Metadata")).getKeys()));
 
         map = new HashMap<String, Object>();
-        objectMetadata = new ObjectMetadata();
-        objectMetadata.setHeader("key", "value");
+        objectMetadata = new HashMap<String, List<String>>();
+        objectMetadata.put("key", Collections.singletonList("value"));
         s3Conn.populateObjectMetadata(map, objectMetadata);
         assertEquals("value", ((MessageHeaders) map.get("s3Metadata")).getHeader("key"));
     }
@@ -372,7 +349,7 @@ public class S3ConnectionTest {
         try {
             s3Conn.listFiles("test/dir", "*", true, true);
             fail("Exception should have been thrown");
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
         }
 
         s3Conn = spy(getConnection(false, "user", "pass", true, true));
@@ -391,7 +368,7 @@ public class S3ConnectionTest {
         try {
             s3Conn.listDirectories("dir");
             fail("Exception should have been thrown");
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
         }
 
         s3Conn = spy(getConnection(false, "user", "pass", true, true));
@@ -410,7 +387,7 @@ public class S3ConnectionTest {
         try {
             s3Conn.exists("dir", "path");
             fail("Exception should have been thrown");
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
         }
 
         s3Conn = spy(getConnection(false, "user", "pass", true, true));
@@ -429,7 +406,7 @@ public class S3ConnectionTest {
         try {
             s3Conn.readFile("file", "dir", null);
             fail("Exception should have been thrown");
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
         }
 
         s3Conn = spy(getConnection(false, "user", "pass", true, true));
@@ -440,20 +417,20 @@ public class S3ConnectionTest {
     @Test
     public void testWriteFile() throws Exception {
         S3Connection s3Conn = spy(getConnection());
-        doNothing().when(s3Conn).doWriteFile(anyString(), anyString(), anyBoolean(), isNull(), isNull());
-        s3Conn.writeFile("file", "dir", false, null, null);
+        doNothing().when(s3Conn).doWriteFile(anyString(), anyString(), anyBoolean(), isNull(), anyLong(), isNull());
+        s3Conn.writeFile("file", "dir", false, null, 0, null);
 
         s3Conn = spy(getConnection());
-        doAnswer(answer()).when(s3Conn).doWriteFile(anyString(), anyString(), anyBoolean(), isNull(), isNull());
+        doAnswer(answer()).when(s3Conn).doWriteFile(anyString(), anyString(), anyBoolean(), isNull(), anyLong(), isNull());
         try {
-            s3Conn.writeFile("file", "dir", false, null, null);
+            s3Conn.writeFile("file", "dir", false, null, 0, null);
             fail("Exception should have been thrown");
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
         }
 
         s3Conn = spy(getConnection(false, "user", "pass", true, true));
-        doAnswer(answer()).when(s3Conn).doWriteFile(anyString(), anyString(), anyBoolean(), isNull(), isNull());
-        s3Conn.writeFile("file", "dir", false, null, null);
+        doAnswer(answer()).when(s3Conn).doWriteFile(anyString(), anyString(), anyBoolean(), isNull(), anyLong(), isNull());
+        s3Conn.writeFile("file", "dir", false, null, 0, null);
     }
 
     @Test
@@ -467,7 +444,7 @@ public class S3ConnectionTest {
         try {
             s3Conn.delete("file", "dir", false);
             fail("Exception should have been thrown");
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
         }
 
         s3Conn = spy(getConnection(false, "user", "pass", true, true));
@@ -486,7 +463,7 @@ public class S3ConnectionTest {
         try {
             s3Conn.move("fromName", "fromDir", "toName", "toDir");
             fail("Exception should have been thrown");
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
         }
 
         s3Conn = spy(getConnection(false, "user", "pass", true, true));
@@ -523,51 +500,50 @@ public class S3ConnectionTest {
     public void testDestroy() throws Exception {
         S3Connection s3Conn = getConnection();
 
-        AmazonS3 client = mock(AmazonS3.class);
-        AWSSecurityTokenService sts = mock(AWSSecurityTokenService.class);
+        S3Client client = mock(S3Client.class);
+        StsClient sts = mock(StsClient.class);
         s3Conn.client = client;
         s3Conn.sts = sts;
         s3Conn.destroy();
-        verify(client, atLeastOnce()).shutdown();
-        verify(sts, atLeastOnce()).shutdown();
+        verify(client, atLeastOnce()).close();
+        verify(sts, atLeastOnce()).close();
 
-        sts = mock(AWSSecurityTokenService.class);
+        sts = mock(StsClient.class);
         s3Conn.client = null;
         s3Conn.sts = sts;
         s3Conn.destroy();
-        verify(sts, atLeastOnce()).shutdown();
+        verify(sts, atLeastOnce()).close();
     }
 
     @Test
     public void testHandleException() throws Exception {
         // Anonymous with STS
         S3Connection s3Conn = getConnection(true, null, null, true, true);
-        AmazonServiceException err = new AmazonServiceException("");
+        AwsServiceException err = AwsServiceException.builder().message("").build();
         try {
             s3Conn.handleException(err);
             fail("Exception should have been thrown");
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
             assertEquals(err, e);
         }
 
         // Credentials with STS, not expired
         s3Conn = getConnection(false, "user", "pass", true, true);
-        err = new AmazonServiceException("");
+        err = AwsServiceException.builder().message("").build();
         try {
             s3Conn.handleException(err);
             fail("Exception should have been thrown");
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
             assertEquals(err, e);
         }
 
         // Credentials with STS, expired
         s3Conn = getConnection(false, "user", "pass", true, true);
-        AmazonS3 client = mock(AmazonS3.class);
+        S3Client client = mock(S3Client.class);
         s3Conn.client = client;
-        err = new AmazonServiceException("");
-        err.setErrorCode("ExpiredToken");
+        err = AwsServiceException.builder().message("").awsErrorDetails(AwsErrorDetails.builder().errorCode("ExpiredToken").build()).build();
         s3Conn.handleException(err);
-        verify(client, atLeastOnce()).shutdown();
+        verify(client, atLeastOnce()).close();
     }
 
     private S3Connection getConnection() throws Exception {
@@ -575,7 +551,7 @@ public class S3ConnectionTest {
     }
 
     private S3Connection getConnection(boolean anonymous, String username, String password, boolean useDefaultCredentialProviderChain, boolean useTemporaryCredentials) throws Exception {
-        return getConnection(anonymous, username, password, useDefaultCredentialProviderChain, useTemporaryCredentials, 7200, Regions.US_WEST_2.getName());
+        return getConnection(anonymous, username, password, useDefaultCredentialProviderChain, useTemporaryCredentials, 7200, Region.US_WEST_2.id());
     }
 
     private S3Connection getConnection(boolean anonymous, String username, String password, boolean useDefaultCredentialProviderChain, boolean useTemporaryCredentials, int duration, String region) throws Exception {
@@ -587,7 +563,7 @@ public class S3ConnectionTest {
     }
 
     private FileSystemConnectionOptions getOptions(boolean anonymous, String username, String password, boolean useDefaultCredentialProviderChain, boolean useTemporaryCredentials) {
-        return getOptions(anonymous, username, password, useDefaultCredentialProviderChain, useTemporaryCredentials, 7200, Regions.US_WEST_2.getName());
+        return getOptions(anonymous, username, password, useDefaultCredentialProviderChain, useTemporaryCredentials, 7200, Region.US_WEST_2.id());
     }
 
     private FileSystemConnectionOptions getOptions(boolean anonymous, String username, String password, boolean useDefaultCredentialProviderChain, boolean useTemporaryCredentials, int duration, String region) {
@@ -610,9 +586,7 @@ public class S3ConnectionTest {
                 if (count > 1) {
                     return null;
                 } else {
-                    AmazonServiceException e = new AmazonServiceException("");
-                    e.setErrorCode("ExpiredToken");
-                    throw e;
+                    throw AwsServiceException.builder().awsErrorDetails(AwsErrorDetails.builder().errorCode("ExpiredToken").build()).build();
                 }
             }
         };

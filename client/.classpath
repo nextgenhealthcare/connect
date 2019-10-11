@@ -128,8 +128,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/dcm4che-core-2.0.29.jar"/>
-	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
-	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
+	<classpathentry kind="lib" path="/Donkey/lib/slf4j-api-1.7.28.jar"/>
+	<classpathentry kind="lib" path="/Donkey/lib/slf4j-log4j12-1.7.28.jar"/>
 	<classpathentry kind="lib" path="/Server/setup/client-lib/userutil-sources.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-swing-4.2.jar"/>
@@ -143,9 +143,9 @@
 	<classpathentry kind="lib" path="lib/autocomplete-2.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/language_support.jar"/>
 	<classpathentry kind="lib" path="lib/javaparser-1.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-annotations-2.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-core-2.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-databind-2.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.9.10.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar"/>
 	<classpathentry kind="lib" path="lib/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="lib/javax.ws.rs-api-2.0.1.jar"/>
@@ -170,7 +170,6 @@
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7.9.jar"/>
-	<classpathentry kind="lib" path="/Server/lib/extensions/file/aws-java-sdk-core-1.11.194.jar"/>
 	<classpathentry kind="lib" path="lib/commons-vfs2-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/staxon-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-util-9.4.6.v20170531.jar"/>
@@ -182,8 +181,10 @@
 	<classpathentry kind="lib" path="lib/jaxb-api-2.4.0-b180725.0427.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb-runtime-2.4.0-b180725.0644.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.11.jar"/>
-	<classpathentry kind="lib" path="lib/httpclient-4.5.8.jar"/>
-	<classpathentry kind="lib" path="lib/httpcore-4.4.11.jar"/>
-	<classpathentry kind="lib" path="lib/httpmime-4.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.5.10.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.4.12.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.5.10.jar"/>
+	<classpathentry kind="lib" path="lib/regions-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/utils-2.9.14.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
