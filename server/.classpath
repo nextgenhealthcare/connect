@@ -49,8 +49,6 @@
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-net-2.0.29.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmrcv-2.0.29.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmsnd-2.0.29.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/policy-xmlbeans-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
@@ -98,7 +96,6 @@
 	<classpathentry kind="lib" path="lib/swagger/swagger-jersey2-jaxrs-1.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-jetty-http-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-jetty-servlet-2.22.1.jar"/>
-	<classpathentry kind="lib" path="lib/swagger/ext/jackson-dataformat-yaml-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-media-multipart-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-proxy-client-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-collections4-4.0.jar"/>
@@ -136,13 +133,6 @@
 	<classpathentry kind="lib" path="testlib/mockito-core-2.7.9.jar"/>
 	<classpathentry kind="lib" path="testlib/objenesis-2.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/guice-4.1.0.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/file/aws-java-sdk-core-1.11.194.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/file/aws-java-sdk-kms-1.11.194.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/file/aws-java-sdk-s3-1.11.194.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/file/aws-java-sdk-sts-1.11.194.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/file/ion-java-1.0.2.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/file/jmespath-java-1.11.194.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/file/jackson-dataformat-cbor-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/staxon-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/asm-6.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/asm-commons-6.1.1.jar"/>
@@ -152,6 +142,37 @@
 	<classpathentry kind="lib" path="lib/jna-4.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/jna-platform-4.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/oshi-core-3.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-buffer-4.1.41.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-codec-4.1.41.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-codec-http-4.1.41.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-codec-http2-4.1.41.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-common-4.1.41.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-handler-4.1.41.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-nio-client-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-reactive-streams-2.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-reactive-streams-http-2.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-resolver-4.1.41.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-transport-4.1.41.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-transport-native-epoll-4.1.41.Final-linux-x86_64.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-transport-native-unix-common-4.1.41.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/reactive-streams-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/aws/annotations-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/apache-client-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/auth-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/aws-core-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/aws-json-protocol-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/aws-query-protocol-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/aws-xml-protocol-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/eventstream-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/aws/http-client-spi-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/kms-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/profiles-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/protocol-core-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/regions-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/s3-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/sdk-core-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/sts-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/aws/utils-2.9.14.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>
@@ -190,11 +211,14 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/joda-time-2.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/HikariCP-2.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-annotations-2.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-core-2.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-databind-2.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-annotations-2.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-core-2.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-databind-2.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-dataformat-cbor-2.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-dataformat-yaml-2.9.10.jar"/>
 	<classpathentry kind="lib" path="lib/zip4j_1.3.3.jar"/>
 	<classpathentry kind="lib" path="/Donkey/lib/guava-18.0.jar"/>
+	<classpathentry kind="lib" path="/Donkey/lib/slf4j-api-1.7.28.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
@@ -206,8 +230,8 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons/commons-compress-1.17.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-codec-1.11.jar"/>
-	<classpathentry kind="lib" path="lib/commons/httpclient-4.5.8.jar"/>
-	<classpathentry kind="lib" path="lib/commons/httpcore-4.4.11.jar"/>
-	<classpathentry kind="lib" path="lib/commons/httpmime-4.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpclient-4.5.10.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpcore-4.4.12.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpmime-4.5.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

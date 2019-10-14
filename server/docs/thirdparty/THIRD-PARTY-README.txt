@@ -8,6 +8,7 @@ APACHE-LICENSE-2.0.txt):
 	Apache Commons
 	Apache Derby 10.10.1.1 [Mirth Connect only]
 	Apache Geronimo (only components needed for the JMS API) [Mirth Connect only]
+	Apache HttpComponents 4.x
 	Apache Log4j 1.2.16
 	Apache PDFBox 1.8.4 [Mirth Connect only]
 	Apache Standard Taglib 1.2.1 [Mirth Connect only]
@@ -16,7 +17,7 @@ APACHE-LICENSE-2.0.txt):
 	Apache Velocity Engine 1.7
 	Apache Velocity Tools 2.0
 	Apache XMLBeans [Mirth Connect only]
-	AWS SDK for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java)
+	AWS SDK v2 for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java-v2)
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
 	Fast Infoset Project 1.2.13 [Mirth Connect only] (https://github.com/javaee/metro-fi/tree/fastinfoset-project-1.2.13)
 	Google Code Prettify [Mirth Connect only] (https://github.com/google/code-prettify)
@@ -29,6 +30,7 @@ APACHE-LICENSE-2.0.txt):
 	Jetty 9.4.9 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
 	MyBatis 3.1.1 [Mirth Connect only]
+	Netty 4.1.41 [Mirth Connect only]
 	Not-Going-To-Be-Commons-SSL 0.3.18
 	Quartz Scheduler 2.1.7 [Mirth Connect only]
 	SQLite JDBC Driver 3.7.2 [Mirth Connect only] (https://bitbucket.org/xerial/sqlite-jdbc)
@@ -816,12 +818,12 @@ DAMAGE.
 --------------------------------------------------------------------------------
 
 
-The license below pertains to Simple Logging Facade for Java (SLF4J) versions
-1.6.1 and 1.6.6, which are included with Mirth Connect.
+The license below pertains to Simple Logging Facade for Java (SLF4J) version
+1.7.28, which is included with Mirth Connect.
 
 =================== Beginning of License ===================
 
-Copyright (c) 2004-2008 QOS.ch
+Copyright (c) 2004-2017 QOS.ch
 All rights reserved.
 
 Permission is hereby granted, free  of charge, to any person obtaining

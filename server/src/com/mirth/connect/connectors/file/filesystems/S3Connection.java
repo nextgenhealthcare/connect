@@ -9,9 +9,13 @@
 
 package com.mirth.connect.connectors.file.filesystems;
 
+import java.io.BufferedInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,43 +23,51 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.AmazonWebServiceRequest;
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.BasicSessionCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CopyObjectRequest;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
-import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
-import com.amazonaws.services.securitytoken.model.Credentials;
-import com.amazonaws.services.securitytoken.model.GetSessionTokenRequest;
-import com.amazonaws.services.securitytoken.model.GetSessionTokenResult;
 import com.mirth.connect.connectors.file.FileConnectorException;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.S3SchemeProperties;
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 import com.mirth.connect.userutil.MessageHeaders;
+
+import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.http.AbortableInputStream;
+import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
+import software.amazon.awssdk.services.s3.model.CommonPrefix;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.S3Response;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.StsClientBuilder;
+import software.amazon.awssdk.services.sts.auth.StsGetSessionTokenCredentialsProvider;
+import software.amazon.awssdk.services.sts.model.GetSessionTokenRequest;
 
 public class S3Connection implements FileSystemConnection {
 
@@ -63,19 +75,21 @@ public class S3Connection implements FileSystemConnection {
 
     public class S3FileInfo implements FileInfo {
 
-        private S3ObjectSummary summary;
+        private String bucketName;
+        private S3Object s3Object;
         private String parent;
         private String name;
 
-        public S3FileInfo(S3ObjectSummary summary) {
-            this.summary = summary;
-            parent = summary.getBucketName();
-            name = summary.getKey();
+        public S3FileInfo(String bucketName, S3Object s3Object) {
+            this.bucketName = bucketName;
+            this.s3Object = s3Object;
+            parent = bucketName;
+            name = s3Object.key();
 
-            if (StringUtils.contains(summary.getKey(), DELIMITER)) {
-                int index = summary.getKey().lastIndexOf(DELIMITER);
-                parent += DELIMITER + summary.getKey().substring(0, index);
-                name = summary.getKey().substring(index + DELIMITER.length());
+            if (StringUtils.contains(s3Object.key(), DELIMITER)) {
+                int index = s3Object.key().lastIndexOf(DELIMITER);
+                parent += DELIMITER + s3Object.key().substring(0, index);
+                name = s3Object.key().substring(index + DELIMITER.length());
             }
         }
 
@@ -86,7 +100,7 @@ public class S3Connection implements FileSystemConnection {
 
         @Override
         public String getAbsolutePath() {
-            return summary.getBucketName() + DELIMITER + summary.getKey();
+            return bucketName + DELIMITER + s3Object.key();
         }
 
         @Override
@@ -101,12 +115,12 @@ public class S3Connection implements FileSystemConnection {
 
         @Override
         public long getSize() {
-            return summary.getSize();
+            return s3Object.size();
         }
 
         @Override
         public long getLastModified() {
-            return summary.getLastModified().getTime();
+            return s3Object.lastModified().toEpochMilli();
         }
 
         @Override
@@ -126,11 +140,11 @@ public class S3Connection implements FileSystemConnection {
 
         @Override
         public void populateSourceMap(Map<String, Object> sourceMap) {
-            addMetadataIfNotNull(sourceMap, "s3BucketName", summary.getBucketName());
-            addMetadataIfNotNull(sourceMap, "s3ETag", summary.getETag());
-            addMetadataIfNotNull(sourceMap, "s3Key", summary.getKey());
-            addMetadataIfNotNull(sourceMap, "s3Owner", summary.getOwner());
-            addMetadataIfNotNull(sourceMap, "s3StorageClass", summary.getStorageClass());
+            addMetadataIfNotNull(sourceMap, "s3BucketName", bucketName);
+            addMetadataIfNotNull(sourceMap, "s3ETag", unquote(s3Object.eTag()));
+            addMetadataIfNotNull(sourceMap, "s3Key", s3Object.key());
+            addMetadataIfNotNull(sourceMap, "s3Owner", s3Object.owner());
+            addMetadataIfNotNull(sourceMap, "s3StorageClass", s3Object.storageClassAsString());
         }
     }
 
@@ -138,23 +152,23 @@ public class S3Connection implements FileSystemConnection {
 
     FileSystemConnectionOptions fileSystemOptions;
     S3SchemeProperties schemeProps;
-    AmazonS3ClientBuilder clientBuilder;
-    AmazonS3 client;
-    AWSSecurityTokenService sts;
+    S3ClientBuilder clientBuilder;
+    S3Client client;
+    StsClient sts;
     int stsDuration;
 
     public S3Connection(FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
         this.fileSystemOptions = fileSystemOptions;
         schemeProps = (S3SchemeProperties) fileSystemOptions.getSchemeProperties();
 
-        clientBuilder = AmazonS3ClientBuilder.standard();
-        clientBuilder.setClientConfiguration(createClientConfiguration(timeout));
+        clientBuilder = S3Client.builder();
+        clientBuilder.httpClientBuilder(createClientConfiguration(timeout));
 
         if (isSTSEnabled()) {
-            AWSSecurityTokenServiceClientBuilder stsClientBuilder = AWSSecurityTokenServiceClientBuilder.standard();
-            stsClientBuilder.setClientConfiguration(createClientConfiguration(timeout));
-            stsClientBuilder.setCredentials(createCredentialsProvider(fileSystemOptions));
-            stsClientBuilder.setRegion(schemeProps.getRegion());
+            StsClientBuilder stsClientBuilder = StsClient.builder();
+            stsClientBuilder.httpClientBuilder(createClientConfiguration(timeout));
+            stsClientBuilder.credentialsProvider(createCredentialsProvider(fileSystemOptions));
+            stsClientBuilder.region(Region.of(schemeProps.getRegion()));
             sts = stsClientBuilder.build();
 
             // Abide by AWS duration restrictions
@@ -165,8 +179,8 @@ public class S3Connection implements FileSystemConnection {
                 stsDuration = 129600;
             }
         } else {
-            clientBuilder.setCredentials(createCredentialsProvider(fileSystemOptions));
-            clientBuilder.setRegion(schemeProps.getRegion());
+            clientBuilder.credentialsProvider(createCredentialsProvider(fileSystemOptions));
+            clientBuilder.region(Region.of(schemeProps.getRegion()));
             client = clientBuilder.build();
         }
     }
@@ -175,35 +189,28 @@ public class S3Connection implements FileSystemConnection {
         return schemeProps.isUseTemporaryCredentials() && !fileSystemOptions.isAnonymous();
     }
 
-    ClientConfiguration createClientConfiguration(int timeout) {
-        ClientConfiguration clientConfiguration = new ClientConfiguration();
-        clientConfiguration.setConnectionTimeout(timeout);
-        clientConfiguration.setSocketTimeout(timeout);
-        return clientConfiguration;
+    SdkHttpClient.Builder<ApacheHttpClient.Builder> createClientConfiguration(int timeout) {
+        Duration timeoutDuration = Duration.ofMillis(timeout);
+        return ApacheHttpClient.builder().connectionTimeout(timeoutDuration).socketTimeout(timeoutDuration);
     }
 
-    AWSCredentialsProvider createCredentialsProvider(FileSystemConnectionOptions fileSystemOptions) {
+    AwsCredentialsProvider createCredentialsProvider(FileSystemConnectionOptions fileSystemOptions) {
         S3SchemeProperties schemeProps = (S3SchemeProperties) fileSystemOptions.getSchemeProperties();
 
         if (fileSystemOptions.isAnonymous()) {
-            return new AWSStaticCredentialsProvider(new AnonymousAWSCredentials());
+            return AnonymousCredentialsProvider.create();
         } else if (schemeProps.isUseDefaultCredentialProviderChain() && StringUtils.isBlank(fileSystemOptions.getUsername()) && StringUtils.isBlank(fileSystemOptions.getPassword())) {
-            return new DefaultAWSCredentialsProviderChain();
+            return DefaultCredentialsProvider.create();
         } else {
-            return new AWSStaticCredentialsProvider(new BasicAWSCredentials(fileSystemOptions.getUsername(), fileSystemOptions.getPassword()));
+            return StaticCredentialsProvider.create(AwsBasicCredentials.create(fileSystemOptions.getUsername(), fileSystemOptions.getPassword()));
         }
     }
 
-    AmazonS3 getClient() {
+    S3Client getClient() {
         if (isSTSEnabled() && client == null) {
-            GetSessionTokenRequest getSessionTokenRequest = new GetSessionTokenRequest();
-            getSessionTokenRequest.setDurationSeconds(stsDuration);
-
-            GetSessionTokenResult sessionTokenResult = sts.getSessionToken(getSessionTokenRequest);
-            Credentials sessionCredentials = sessionTokenResult.getCredentials();
-            BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(sessionCredentials.getAccessKeyId(), sessionCredentials.getSecretAccessKey(), sessionCredentials.getSessionToken());
-            clientBuilder.setCredentials(new AWSStaticCredentialsProvider(basicSessionCredentials));
-            clientBuilder.setRegion(schemeProps.getRegion());
+            GetSessionTokenRequest getSessionTokenRequest = GetSessionTokenRequest.builder().durationSeconds(stsDuration).build();
+            clientBuilder.credentialsProvider(StsGetSessionTokenCredentialsProvider.builder().stsClient(sts).refreshRequest(getSessionTokenRequest).build());
+            clientBuilder.region(Region.of(schemeProps.getRegion()));
             client = clientBuilder.build();
         }
 
@@ -259,18 +266,22 @@ public class S3Connection implements FileSystemConnection {
         return key;
     }
 
-    ListObjectsV2Request createListRequest(String bucketName, String prefix) {
-        return new ListObjectsV2Request().withBucketName(bucketName).withPrefix(prefix).withDelimiter(DELIMITER);
+    ListObjectsV2Request.Builder createListRequest(String bucketName, String prefix) {
+        return ListObjectsV2Request.builder().bucket(bucketName).prefix(prefix).delimiter(DELIMITER);
     }
 
-    void addCustomHeaders(AmazonWebServiceRequest request) {
+    Map<String, String> getCustomHeaders() {
+        Map<String, String> headers = new HashMap<String, String>();
+
         if (MapUtils.isNotEmpty(schemeProps.getCustomHeaders())) {
             for (Entry<String, List<String>> entry : schemeProps.getCustomHeaders().entrySet()) {
                 for (String value : entry.getValue()) {
-                    request.putCustomRequestHeader(entry.getKey(), value);
+                    headers.put(entry.getKey(), value);
                 }
             }
         }
+
+        return headers;
     }
 
     void addMetadataIfNotNull(Map<String, Object> map, String key, Object value) {
@@ -279,26 +290,21 @@ public class S3Connection implements FileSystemConnection {
         }
     }
 
-    void populateObjectMetadata(Map<String, Object> map, ObjectMetadata objectMetadata) {
+    void populateObjectMetadata(Map<String, Object> map, Map<String, List<String>> objectMetadata) {
         if (map != null) {
-            Map<String, List<String>> metadata = new HashMap<String, List<String>>();
-            for (Entry<String, Object> entry : objectMetadata.getRawMetadata().entrySet()) {
-                List<String> list = metadata.get(entry.getKey());
-                if (list == null) {
-                    list = new ArrayList<String>();
-                    metadata.put(entry.getKey(), list);
-                }
-                list.add(String.valueOf(entry.getValue()));
-            }
-            map.put("s3Metadata", new MessageHeaders(metadata));
+            map.put("s3Metadata", new MessageHeaders(objectMetadata));
         }
+    }
+
+    private String unquote(String str) {
+        return StringUtils.removeEnd(StringUtils.removeStart(str, "\""), "\"");
     }
 
     @Override
     public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
         try {
             return doListFiles(fromDir, filenamePattern, isRegex, ignoreDot);
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
             handleException(e);
             return doListFiles(fromDir, filenamePattern, isRegex, ignoreDot);
         }
@@ -322,28 +328,28 @@ public class S3Connection implements FileSystemConnection {
         }
 
         List<FileInfo> fileInfoList = new ArrayList<FileInfo>();
-        AmazonS3 client = getClient();
+        S3Client client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
         String bucketName = bucketNameAndPrefix.getLeft();
         String dirPrefix = normalizeKey(bucketNameAndPrefix.getRight(), false, true);
 
-        ListObjectsV2Request request = createListRequest(bucketName, dirPrefix);
+        ListObjectsV2Request.Builder requestBuilder = createListRequest(bucketName, dirPrefix);
 
         // Add the file prefix if necessary
         if (StringUtils.isNotBlank(filePrefix)) {
-            request.setPrefix(StringUtils.trimToEmpty(dirPrefix) + filePrefix);
+            requestBuilder.prefix(StringUtils.trimToEmpty(dirPrefix) + filePrefix);
         }
 
-        ListObjectsV2Result result;
+        ListObjectsV2Response result;
 
         do {
-            result = client.listObjectsV2(request);
+            result = client.listObjectsV2(requestBuilder.build());
 
-            for (S3ObjectSummary summary : result.getObjectSummaries()) {
+            for (S3Object s3Object : result.contents()) {
                 // Ignore the folder itself
-                if (!StringUtils.equals(summary.getKey(), dirPrefix)) {
-                    S3FileInfo fileInfo = new S3FileInfo(summary);
+                if (!StringUtils.equals(s3Object.key(), dirPrefix)) {
+                    S3FileInfo fileInfo = new S3FileInfo(bucketName, s3Object);
 
                     // Validate against the filter before adding to the list 
                     if ((filenameFilter == null || filenameFilter.accept(null, fileInfo.getName())) && (!ignoreDot || !StringUtils.startsWith(fileInfo.getName(), "."))) {
@@ -352,7 +358,7 @@ public class S3Connection implements FileSystemConnection {
                 }
             }
 
-            request.setContinuationToken(result.getNextContinuationToken());
+            requestBuilder.continuationToken(result.nextContinuationToken());
         } while (result.isTruncated());
 
         return fileInfoList;
@@ -362,7 +368,7 @@ public class S3Connection implements FileSystemConnection {
     public List<String> listDirectories(String fromDir) throws Exception {
         try {
             return doListDirectories(fromDir);
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
             handleException(e);
             return doListDirectories(fromDir);
         }
@@ -370,23 +376,23 @@ public class S3Connection implements FileSystemConnection {
 
     List<String> doListDirectories(String fromDir) throws Exception {
         List<String> directories = new ArrayList<String>();
-        AmazonS3 client = getClient();
+        S3Client client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
         String bucketName = bucketNameAndPrefix.getLeft();
         String prefix = normalizeKey(bucketNameAndPrefix.getRight(), false, true);
 
-        ListObjectsV2Request request = createListRequest(bucketName, prefix);
-        ListObjectsV2Result result;
+        ListObjectsV2Request.Builder requestBuilder = createListRequest(bucketName, prefix);
+        ListObjectsV2Response result;
 
         do {
-            result = client.listObjectsV2(request);
+            result = client.listObjectsV2(requestBuilder.build());
 
-            for (String commonPrefix : result.getCommonPrefixes()) {
-                directories.add(bucketName + DELIMITER + commonPrefix);
+            for (CommonPrefix commonPrefix : result.commonPrefixes()) {
+                directories.add(bucketName + DELIMITER + commonPrefix.prefix());
             }
 
-            request.setContinuationToken(result.getNextContinuationToken());
+            requestBuilder.continuationToken(result.nextContinuationToken());
         } while (result.isTruncated());
 
         return directories;
@@ -396,14 +402,14 @@ public class S3Connection implements FileSystemConnection {
     public boolean exists(String file, String path) throws Exception {
         try {
             return doExists(file, path);
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
             handleException(e);
             return doExists(file, path);
         }
     }
 
     boolean doExists(String file, String path) throws Exception {
-        AmazonS3 client = getClient();
+        S3Client client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(path);
         String bucketName = bucketNameAndPrefix.getLeft();
@@ -414,21 +420,26 @@ public class S3Connection implements FileSystemConnection {
             key = prefix + key;
         }
 
-        return client.doesObjectExist(bucketName, key);
+        try {
+            HeadObjectResponse response = client.headObject(HeadObjectRequest.builder().bucket(bucketName).key(key).build());
+            return response != null && (response.deleteMarker() == null || !response.deleteMarker());
+        } catch (NoSuchKeyException e) {
+            return false;
+        }
     }
 
     @Override
     public InputStream readFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception {
         try {
             return doReadFile(file, fromDir, sourceMap);
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
             handleException(e);
             return doReadFile(file, fromDir, sourceMap);
         }
     }
 
     InputStream doReadFile(String file, String fromDir, Map<String, Object> sourceMap) throws Exception {
-        AmazonS3 client = getClient();
+        S3Client client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
         String bucketName = bucketNameAndPrefix.getLeft();
@@ -439,13 +450,13 @@ public class S3Connection implements FileSystemConnection {
             key = prefix + key;
         }
 
-        GetObjectRequest request = new GetObjectRequest(bucketName, key);
+        GetObjectRequest request = GetObjectRequest.builder().bucket(bucketName).key(key).build();
 
-        S3Object object = client.getObject(request);
+        CustomS3Response<GetObjectResponse> response = client.getObject(request, new CustomResponseTransformer<GetObjectResponse>());
 
-        populateObjectMetadata(sourceMap, object.getObjectMetadata());
+        populateObjectMetadata(sourceMap, response.getResponse().sdkHttpResponse().headers());
 
-        return object.getObjectContent();
+        return response.getData();
     }
 
     @Override
@@ -458,17 +469,17 @@ public class S3Connection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, InputStream message, Map<String, Object> connectorMap) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream message, long contentLength, Map<String, Object> connectorMap) throws Exception {
         try {
-            doWriteFile(file, toDir, append, message, connectorMap);
-        } catch (AmazonServiceException e) {
+            doWriteFile(file, toDir, append, message, contentLength, connectorMap);
+        } catch (AwsServiceException e) {
             handleException(e);
-            doWriteFile(file, toDir, append, message, connectorMap);
+            doWriteFile(file, toDir, append, message, contentLength, connectorMap);
         }
     }
 
-    void doWriteFile(String file, String toDir, boolean append, InputStream message, Map<String, Object> connectorMap) throws Exception {
-        AmazonS3 client = getClient();
+    void doWriteFile(String file, String toDir, boolean append, InputStream message, long contentLength, Map<String, Object> connectorMap) throws Exception {
+        S3Client client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(toDir);
         String bucketName = bucketNameAndPrefix.getLeft();
@@ -479,20 +490,16 @@ public class S3Connection implements FileSystemConnection {
             key = prefix + key;
         }
 
-        PutObjectRequest putRequest = new PutObjectRequest(bucketName, key, message, null);
-        addCustomHeaders(putRequest);
-
-        PutObjectResult result = client.putObject(putRequest);
+        PutObjectRequest putRequest = PutObjectRequest.builder().bucket(bucketName).key(key).metadata(getCustomHeaders()).build();
+        PutObjectResponse result = client.putObject(putRequest, RequestBody.fromInputStream(message, contentLength));
 
         if (connectorMap != null) {
-            addMetadataIfNotNull(connectorMap, "s3ETag", result.getETag());
-            addMetadataIfNotNull(connectorMap, "s3ExpirationTime", result.getExpirationTime());
-            addMetadataIfNotNull(connectorMap, "s3ExpirationTimeRuleId", result.getExpirationTimeRuleId());
-            addMetadataIfNotNull(connectorMap, "s3SSEAlgorithm", result.getSSEAlgorithm());
-            addMetadataIfNotNull(connectorMap, "s3SSECustomerAlgorithm", result.getSSECustomerAlgorithm());
-            addMetadataIfNotNull(connectorMap, "s3SSECustomerKeyMd5", result.getSSECustomerKeyMd5());
-            addMetadataIfNotNull(connectorMap, "s3VersionId", result.getVersionId());
-            populateObjectMetadata(connectorMap, result.getMetadata());
+            addMetadataIfNotNull(connectorMap, "s3ETag", unquote(result.eTag()));
+            addMetadataIfNotNull(connectorMap, "s3ExpirationTime", result.expiration());
+            addMetadataIfNotNull(connectorMap, "s3SSEAlgorithm", result.serverSideEncryptionAsString());
+            addMetadataIfNotNull(connectorMap, "s3SSECustomerAlgorithm", result.sseCustomerAlgorithm());
+            addMetadataIfNotNull(connectorMap, "s3SSECustomerKeyMd5", result.sseCustomerKeyMD5());
+            addMetadataIfNotNull(connectorMap, "s3VersionId", result.versionId());
         }
     }
 
@@ -500,14 +507,14 @@ public class S3Connection implements FileSystemConnection {
     public void delete(String file, String fromDir, boolean mayNotExist) throws Exception {
         try {
             doDelete(file, fromDir, mayNotExist);
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
             handleException(e);
             doDelete(file, fromDir, mayNotExist);
         }
     }
 
     void doDelete(String file, String fromDir, boolean mayNotExist) throws Exception {
-        AmazonS3 client = getClient();
+        S3Client client = getClient();
 
         Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
         String bucketName = bucketNameAndPrefix.getLeft();
@@ -518,7 +525,7 @@ public class S3Connection implements FileSystemConnection {
             key = prefix + key;
         }
 
-        DeleteObjectRequest deleteRequest = new DeleteObjectRequest(bucketName, key);
+        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder().bucket(bucketName).key(key).build();
 
         client.deleteObject(deleteRequest);
 
@@ -531,14 +538,14 @@ public class S3Connection implements FileSystemConnection {
     public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
         try {
             doMove(fromName, fromDir, toName, toDir);
-        } catch (AmazonServiceException e) {
+        } catch (AwsServiceException e) {
             handleException(e);
             doMove(fromName, fromDir, toName, toDir);
         }
     }
 
     void doMove(String fromName, String fromDir, String toName, String toDir) throws Exception {
-        AmazonS3 client = getClient();
+        S3Client client = getClient();
 
         Pair<String, String> fromBucketNameAndPrefix = getBucketNameAndPrefix(fromDir);
         String fromBucketName = fromBucketNameAndPrefix.getLeft();
@@ -560,20 +567,54 @@ public class S3Connection implements FileSystemConnection {
 
         try {
             if (fileSystemOptions.isAnonymous()) {
-                GetObjectRequest getRequest = new GetObjectRequest(fromBucketName, fromKey);
-                S3Object object = client.getObject(getRequest);
-                PutObjectRequest putRequest = new PutObjectRequest(toBucketName, toKey, object.getObjectContent(), null);
-                addCustomHeaders(putRequest);
-                client.putObject(putRequest);
+                GetObjectRequest getRequest = GetObjectRequest.builder().bucket(fromBucketName).key(fromKey).build();
+                CustomS3Response<GetObjectResponse> response = client.getObject(getRequest, new CustomResponseTransformer<GetObjectResponse>());
+
+                try {
+                    PutObjectRequest putRequest = PutObjectRequest.builder().bucket(toBucketName).key(toKey).metadata(getCustomHeaders()).build();
+                    client.putObject(putRequest, RequestBody.fromInputStream(new BufferedInputStream(response.getData()), response.getResponse().contentLength()));
+                } finally {
+                    IOUtils.closeQuietly(response.getData());
+                }
             } else {
-                CopyObjectRequest copyRequest = new CopyObjectRequest(fromBucketName, fromKey, toBucketName, toKey);
-                client.copyObject(copyRequest);
+                String fromUrl = URLEncoder.encode(fromBucketName + DELIMITER + fromKey, StandardCharsets.UTF_8.toString());
+                client.copyObject(CopyObjectRequest.builder().copySource(fromUrl).bucket(toBucketName).key(toKey).build());
             }
 
             // delete original
             delete(fromName, fromDir, false);
         } catch (Exception e) {
             throw new FileConnectorException("Error moving file from [bucket: " + fromBucketName + ", key: " + fromKey + "] to [bucket: " + toBucketName + ", key: " + toKey + "]", e);
+        }
+    }
+
+    private class CustomS3Response<T extends S3Response> {
+        private T response;
+        private InputStream data;
+
+        public CustomS3Response(T response, InputStream data) {
+            this.response = response;
+            this.data = data;
+        }
+
+        public T getResponse() {
+            return response;
+        }
+
+        public InputStream getData() {
+            return data;
+        }
+    }
+
+    private class CustomResponseTransformer<T extends S3Response> implements ResponseTransformer<T, CustomS3Response<T>> {
+        @Override
+        public CustomS3Response<T> transform(T response, AbortableInputStream inputStream) throws Exception {
+            return new CustomS3Response<T>(response, inputStream);
+        }
+
+        @Override
+        public boolean needsConnectionLeftOpen() {
+            return true;
         }
     }
 
@@ -594,10 +635,10 @@ public class S3Connection implements FileSystemConnection {
     @Override
     public void destroy() {
         if (client != null) {
-            client.shutdown();
+            client.close();
         }
         if (sts != null) {
-            sts.shutdown();
+            sts.close();
         }
     }
 
@@ -609,24 +650,25 @@ public class S3Connection implements FileSystemConnection {
     @Override
     public boolean canRead(String readDir) {
         try {
-            AmazonS3 client = getClient();
+            S3Client client = getClient();
 
             Pair<String, String> bucketNameAndPrefix = getBucketNameAndPrefix(readDir);
             String bucketName = bucketNameAndPrefix.getLeft();
             String prefix = normalizeKey(bucketNameAndPrefix.getRight(), false, false);
             String prefixWithTrailingDelimiter = normalizeKey(bucketNameAndPrefix.getRight(), false, true);
+            CommonPrefix commonPrefixWithTrailingDelimiter = CommonPrefix.builder().prefix(prefixWithTrailingDelimiter).build();
 
-            ListObjectsV2Request request = createListRequest(bucketName, prefix);
-            ListObjectsV2Result result;
+            ListObjectsV2Request.Builder requestBuilder = createListRequest(bucketName, prefix);
+            ListObjectsV2Response result;
 
             do {
-                result = client.listObjectsV2(request);
+                result = client.listObjectsV2(requestBuilder.build());
 
-                if (StringUtils.isBlank(prefixWithTrailingDelimiter) || result.getCommonPrefixes().contains(prefixWithTrailingDelimiter)) {
+                if (StringUtils.isBlank(prefixWithTrailingDelimiter) || result.commonPrefixes().contains(commonPrefixWithTrailingDelimiter)) {
                     return true;
                 }
 
-                request.setContinuationToken(result.getNextContinuationToken());
+                requestBuilder.continuationToken(result.nextContinuationToken());
             } while (result.isTruncated());
         } catch (Exception e) {
             logger.debug("Exception while attempting to read from S3 location \"" + readDir + "\".", e);
@@ -647,10 +689,10 @@ public class S3Connection implements FileSystemConnection {
         return canRead(writeDir);
     }
 
-    void handleException(AmazonServiceException e) throws AmazonServiceException {
-        if (isSTSEnabled() && StringUtils.equals(e.getErrorCode(), "ExpiredToken")) {
+    void handleException(AwsServiceException e) throws AwsServiceException {
+        if (isSTSEnabled() && e.awsErrorDetails() != null && StringUtils.equals(e.awsErrorDetails().errorCode(), "ExpiredToken")) {
             if (client != null) {
-                client.shutdown();
+                client.close();
                 client = null;
             }
         } else {

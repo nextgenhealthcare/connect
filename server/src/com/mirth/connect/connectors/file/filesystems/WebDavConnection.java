@@ -207,7 +207,7 @@ public class WebDavConnection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream is, long contentLength, Map<String, Object> connectorMap) throws Exception {
         String fullPath = getFullPath(toDir, file);
 
         // first check if the toDir exists.
