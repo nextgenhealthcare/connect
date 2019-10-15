@@ -229,7 +229,7 @@ public class AdvancedS3SettingsDialog extends AdvancedSettingsDialog {
 
         useDefaultCredentialProviderChainLabel = new JLabel("Use Default Credential Provider Chain:");
         ButtonGroup useDefaultCredentialProviderChainButtonGroup = new ButtonGroup();
-        String toolTipText = "<html>If enabled and no explicit credentials are provided, the default provider chain looks for credentials in this order:<br/><ul><li><b>Java system properties:</b> aws.accessKeyId and aws.secretKey.</li><li><b>Environment variables:</b> AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.</li><li><b>Default credentials profile file:</b> Typically located at ~/.aws/credentials (location can vary per platform).</li><li><b>ECS container credentials:</b> Loaded from an Amazon ECS environment variable.</li><li><b>Instance profile credentials:</b> Loaded from the EC2 metadata service.</li></ul></html>";
+        String toolTipText = "<html>If enabled and no explicit credentials are provided, the default provider chain looks for credentials in this order:<br/><ul><li><b>Java system properties:</b> aws.accessKeyId and aws.secretAccessKey.</li><li><b>Environment variables:</b> AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.</li><li><b>Default credentials profile file:</b> Typically located at ~/.aws/credentials (location can vary per platform).</li><li><b>ECS container credentials:</b> Loaded from an Amazon ECS environment variable.</li><li><b>Instance profile credentials:</b> Loaded from the EC2 metadata service.</li></ul></html>";
 
         anonymousWarningLabel = new JLabel("Anonymous credentials are currently in use");
         anonymousWarningLabel.setForeground(Color.RED);
