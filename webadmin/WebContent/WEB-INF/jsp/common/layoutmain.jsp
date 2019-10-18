@@ -48,7 +48,7 @@
             <div id="footer"></div>
         
             <!-- Scripts placed at the end of the document so the pages load faster -->
-            <script src="${contextPath}/js/jquery-1.8.0.js"></script>
+            <script src="${contextPath}/js/jquery-1.12.4.js"></script>
             <script src="${contextPath}/js/bootstrap.min.js"></script>
         
             <!-- Script to highlight navbar links as active upon click -->
