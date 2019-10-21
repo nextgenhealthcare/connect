@@ -27,6 +27,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="lib" path="/Server/lib/javax/javax.servlet-api-3.1.0.jar"/>
-	<classpathentry kind="lib" path="/Server/lib/jetty/jsp/org.mortbay.jasper.apache-jsp-8.5.24.2.jar"/>
+	<classpathentry kind="lib" path="/Server/lib/jetty/jsp/org.mortbay.jasper.apache-jsp-8.5.40.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
