@@ -77,7 +77,7 @@
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7.9.jar"/>
 	<classpathentry kind="lib" path="lib/commons-vfs2-2.1.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-util-9.4.6.v20170531.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-9.4.21.v20190926.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.11.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-4.5.10.jar"/>
