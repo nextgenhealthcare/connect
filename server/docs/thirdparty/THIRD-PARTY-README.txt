@@ -27,7 +27,7 @@ APACHE-LICENSE-2.0.txt):
 	Jackson Project (https://github.com/FasterXML/jackson)
 	Jasypt 1.7.1 [Mirth Connect only]
 	Java Native Access (JNA) 4.5.2 [Mirth Connect only] (https://github.com/java-native-access/jna)
-	Jetty 9.4.9 [Mirth Connect only]
+	Jetty 9.4.21 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
 	MyBatis 3.1.1 [Mirth Connect only]
 	Netty 4.1.41 [Mirth Connect only]
@@ -171,7 +171,7 @@ the Common Development and Distribution License version 1.0 (see CDDL-1.0.txt):
 	Java Servlet API 3.1.0 (source code can be downloaded from: https://java.net
 	/projects/glassfish/sources/svn/show/tags/javax.servlet-api-3.1.0)
 	
-	Jetty Apache JSP Implementation 9.4.9 (source code can be downloaded from:
+	Jetty Apache JSP Implementation 9.4.21 (source code can be downloaded from:
 	http://download.eclipse.org/jetty/)
 
 	Swinglabs Wizard (source code can be downloaded from:
