@@ -621,7 +621,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             }
         });
 
-        provideUsageStatsLabel = new JLabel("Prvide usage statistics:");
+        provideUsageStatsLabel = new JLabel("Provide usage statistics:");
         provideUsageStatsButtonGroup = new ButtonGroup();
 
         provideUsageStatsYesRadio = new MirthRadioButton("Yes");
