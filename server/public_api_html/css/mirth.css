@@ -1,6 +1,7 @@
 .swagger-section #header {
   background-color: #E6E6E6;
   padding: 14px 14px 4px 14px;
+  height: 53px;
 }
 
 .swagger-section #header a#mirthLogo {
