@@ -365,11 +365,11 @@ public class SftpConnection implements FileSystemConnection {
 
     @Override
     public void destroy() {
-        if ((client != null) && client.isConnected()) {
+        if (client != null) {
             client.quit();
         }
 
-        if ((session != null) && session.isConnected()) {
+        if (session != null) {
             session.disconnect();
         }
     }
