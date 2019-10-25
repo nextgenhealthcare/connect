@@ -127,7 +127,7 @@ public class MirthWebServer extends Server {
     public MirthWebServer(PropertiesConfiguration mirthProperties) throws Exception {
         // this disables a "form too large" error for occuring by setting
         // form size to infinite
-        System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize", "0");
+        System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize", "-1");
 
         // Suppress logging from the WADL generator for OPTIONS requests 
         Logger.getLogger(WadlGeneratorJAXBGrammarGenerator.class).setLevel(Level.OFF);
