@@ -9,9 +9,9 @@
 
 package com.mirth.connect.connectors.jms;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -32,7 +32,7 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 
 @Path("/connectors/jms")
-@Api("Connector Services")
+
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface JmsConnectorServletInterface extends BaseServletInterface {
@@ -41,28 +41,28 @@ public interface JmsConnectorServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/templates")
-    @ApiOperation("Retrieves JMS connector settings templates.")
+    @Operation(summary="Retrieves JMS connector settings templates.")
     @MirthOperation(name = "getTemplates", display = "Get JMS Templates", type = ExecuteType.ASYNC, auditable = false)
     public LinkedHashMap<String, JmsConnectorProperties> getTemplates() throws ClientException;
 
     @GET
     @Path("/templates/{templateName}")
-    @ApiOperation("Retrieves a single JMS connector settings template.")
+    @Operation(summary="Retrieves a single JMS connector settings template.")
     @MirthOperation(name = "getTemplate", display = "Get JMS Template", type = ExecuteType.ASYNC, auditable = false)
-    public JmsConnectorProperties getTemplate(@Param("templateName") @ApiParam(value = "The name of the template.", required = true) @PathParam("templateName") String templateName) throws ClientException;
+    public JmsConnectorProperties getTemplate(@Param("templateName") @Parameter(description = "The name of the template.", required = true) @PathParam("templateName") String templateName) throws ClientException;
 
     @PUT
     @Path("/templates/{templateName}")
-    @ApiOperation("Creates or updates a JMS connector settings template.")
+    @Operation(summary="Creates or updates a JMS connector settings template.")
     @MirthOperation(name = "saveTemplate", display = "Save JMS Template", type = ExecuteType.ASYNC, auditable = false)
     public Set<String> saveTemplate(// @formatter:off
-            @Param("templateName") @ApiParam(value = "The name of the template.", required = true) @PathParam("templateName") String templateName,
-            @Param("properties") @ApiParam(value = "The JMS connector properties to save.", required = true) JmsConnectorProperties properties) throws ClientException;
+            @Param("templateName") @Parameter(description = "The name of the template.", required = true) @PathParam("templateName") String templateName,
+            @Param("properties") @Parameter(description = "The JMS connector properties to save.", required = true) JmsConnectorProperties properties) throws ClientException;
     // @formatter:on
 
     @DELETE
     @Path("/templates/{templateName}")
-    @ApiOperation("Creates or updates a JMS connector settings template.")
+    @Operation(summary="Creates or updates a JMS connector settings template.")
     @MirthOperation(name = "saveTemplate", display = "Save JMS Template", type = ExecuteType.ASYNC, auditable = false)
-    public Set<String> deleteTemplate(@Param("templateName") @ApiParam(value = "The name of the template.", required = true) @PathParam("templateName") String templateName) throws ClientException;
+    public Set<String> deleteTemplate(@Param("templateName") @Parameter(description = "The name of the template.", required = true) @PathParam("templateName") String templateName) throws ClientException;
 }

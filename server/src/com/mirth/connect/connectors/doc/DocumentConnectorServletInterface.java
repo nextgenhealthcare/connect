@@ -9,9 +9,9 @@
 
 package com.mirth.connect.connectors.doc;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -28,7 +28,7 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/connectors/doc")
-@Api("Connector Services")
+
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface DocumentConnectorServletInterface extends BaseServletInterface {
@@ -38,11 +38,11 @@ public interface DocumentConnectorServletInterface extends BaseServletInterface 
     @POST
     @Path("/_testWrite")
     @Consumes({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML })
-    @ApiOperation("Tests whether a file can be written to the specified directory.")
+    @Operation(summary="Tests whether a file can be written to the specified directory.")
     @MirthOperation(name = "testWrite", display = "Test Write", type = ExecuteType.ASYNC, auditable = false)
     public ConnectionTestResponse testWrite(// @formatter:off
-            @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
-            @Param("channelName") @ApiParam(value = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
-            @Param("directory") @ApiParam(value = "The directory to test writing to.", required = true) String directory) throws ClientException;
+            @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
+            @Param("channelName") @Parameter(description = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
+            @Param("directory") @Parameter(description = "The directory to test writing to.", required = true) String directory) throws ClientException;
     // @formatter:on
 }

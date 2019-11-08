@@ -89,11 +89,12 @@
 	<classpathentry kind="lib" path="lib/jersey/ext/osgi-resource-locator-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/persistence-api-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/ext/validation-api-1.1.0.Final.jar"/>
-	<classpathentry kind="lib" path="lib/swagger/swagger-annotations-1.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/swagger/swagger-core-1.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/swagger/swagger-jaxrs-1.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/swagger/swagger-models-1.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/swagger/swagger-jersey2-jaxrs-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-annotations-2.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-core-2.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-jaxrs2-2.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-models-2.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-integration-2.0.10.jar"/>
+	<!-- <classpathentry kind="lib" path="lib/swagger/swagger-jersey2-jaxrs-1.5.4.jar"/> -->
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-jetty-http-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-jetty-servlet-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-media-multipart-2.22.1.jar"/>

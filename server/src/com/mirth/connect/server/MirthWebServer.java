@@ -96,6 +96,7 @@ import org.reflections.util.ConfigurationBuilder;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.Replaces;
+import com.mirth.connect.client.core.api.servlets.ChannelGroupServletInterface;
 import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.server.api.MirthServlet;
@@ -489,12 +490,46 @@ public class MirthWebServer extends Server {
         }
     }
 
+//    private ApiProviders getApiProviders(Version version) {
+//        // These contain only the shared servlet interfaces, and will be used to generate the Swagger models.
+//        Set<String> servletInterfacePackages = new LinkedHashSet<String>();
+//        Set<Class<?>> servletInterfaces = new LinkedHashSet<Class<?>>();
+//        Set<Class<?>> channelGroupServletInterfaceSet = new HashSet<>();
+//        channelGroupServletInterfaceSet.add(ChannelGroupServletInterface.class);
+//        servletInterfaces.addAll(channelGroupServletInterfaceSet);
+//
+//        // These are JAX-RS providers that should be shared on the client and server.
+//        Set<String> coreProviderPackages = new LinkedHashSet<String>();
+//        Set<Class<?>> coreProviderClasses = new LinkedHashSet<Class<?>>();
+//
+//	      Set<String> serverProviderPackages = new LinkedHashSet<String>();
+//	      serverProviderPackages.add("io.swagger.jaxrs.listing");
+//	      Set<Class<?>> serverProviderClasses = new LinkedHashSet<Class<?>>();
+//	      serverProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.server.api.providers", version, new Class<?>[0], new Class<?>[] {
+//	              Provider.class }));
+//	      serverProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.server.api.servlets", version, new Class<?>[] {
+//	              MirthServlet.class }, new Class<?>[0]));
+//
+//        Set<String> providerPackages = new LinkedHashSet<String>();
+//        Set<Class<?>> providerClasses = new LinkedHashSet<Class<?>>();
+//        providerPackages.addAll(coreProviderPackages);
+//        providerPackages.addAll(serverProviderPackages);
+//        providerClasses.addAll(coreProviderClasses);
+//        providerClasses.addAll(serverProviderClasses);
+//
+//        return new ApiProviders(servletInterfacePackages, servletInterfaces, providerPackages, providerClasses);
+//    	
+//    }
+    
     private ApiProviders getApiProviders(Version version) {
         // These contain only the shared servlet interfaces, and will be used to generate the Swagger models.
         Set<String> servletInterfacePackages = new LinkedHashSet<String>();
         Set<Class<?>> servletInterfaces = new LinkedHashSet<Class<?>>();
-        servletInterfaces.addAll(getApiClassesForVersion("com.mirth.connect.client.core.api.servlets", version, new Class<?>[] {
-                BaseServletInterface.class }, new Class<?>[0]));
+//        servletInterfaces.addAll(getApiClassesForVersion("com.mirth.connect.client.core.api.servlets", version, new Class<?>[] {
+//                BaseServletInterface.class }, new Class<?>[0]));
+        Set<Class<?>> channelGroupServletInterfaceSet = new HashSet<>();
+        channelGroupServletInterfaceSet.add(ChannelGroupServletInterface.class);
+        servletInterfaces.addAll(channelGroupServletInterfaceSet);
 
         // These are JAX-RS providers that should be shared on the client and server.
         Set<String> coreProviderPackages = new LinkedHashSet<String>();
@@ -513,40 +548,40 @@ public class MirthWebServer extends Server {
         Set<Class<?>> serverProviderClasses = new LinkedHashSet<Class<?>>();
         serverProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.server.api.providers", version, new Class<?>[0], new Class<?>[] {
                 Provider.class }));
-        serverProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.server.api.servlets", version, new Class<?>[] {
-                MirthServlet.class }, new Class<?>[0]));
+//        serverProviderClasses.addAll(getApiClassesForVersion("com.mirth.connect.server.api.servlets", version, new Class<?>[] {
+//                MirthServlet.class }, new Class<?>[0]));
 
         // Add JAX-RS providers from extensions
-        for (MetaData metaData : CollectionUtils.union(extensionController.getPluginMetaData().values(), extensionController.getConnectorMetaData().values())) {
-            if (extensionController.isExtensionEnabled(metaData.getName())) {
-                for (ApiProvider apiProvider : metaData.getApiProviders(version)) {
-                    try {
-                        switch (apiProvider.getType()) {
-                            case SERVLET_INTERFACE_PACKAGE:
-                                servletInterfacePackages.add(apiProvider.getName());
-                                break;
-                            case SERVLET_INTERFACE:
-                                servletInterfaces.add(Class.forName(apiProvider.getName()));
-                                break;
-                            case CORE_PACKAGE:
-                                coreProviderPackages.add(apiProvider.getName());
-                                break;
-                            case SERVER_PACKAGE:
-                                serverProviderPackages.add(apiProvider.getName());
-                                break;
-                            case CORE_CLASS:
-                                coreProviderClasses.add(Class.forName(apiProvider.getName()));
-                                break;
-                            case SERVER_CLASS:
-                                serverProviderClasses.add(Class.forName(apiProvider.getName()));
-                                break;
-                        }
-                    } catch (Throwable t) {
-                        logger.error("Error adding API provider to web server: " + apiProvider);
-                    }
-                }
-            }
-        }
+//        for (MetaData metaData : CollectionUtils.union(extensionController.getPluginMetaData().values(), extensionController.getConnectorMetaData().values())) {
+//            if (extensionController.isExtensionEnabled(metaData.getName())) {
+//                for (ApiProvider apiProvider : metaData.getApiProviders(version)) {
+//                    try {
+//                        switch (apiProvider.getType()) {
+//                            case SERVLET_INTERFACE_PACKAGE:
+//                                servletInterfacePackages.add(apiProvider.getName());
+//                                break;
+//                            case SERVLET_INTERFACE:
+//                                servletInterfaces.add(Class.forName(apiProvider.getName()));
+//                                break;
+//                            case CORE_PACKAGE:
+//                                coreProviderPackages.add(apiProvider.getName());
+//                                break;
+//                            case SERVER_PACKAGE:
+//                                serverProviderPackages.add(apiProvider.getName());
+//                                break;
+//                            case CORE_CLASS:
+//                                coreProviderClasses.add(Class.forName(apiProvider.getName()));
+//                                break;
+//                            case SERVER_CLASS:
+//                                serverProviderClasses.add(Class.forName(apiProvider.getName()));
+//                                break;
+//                        }
+//                    } catch (Throwable t) {
+//                        logger.error("Error adding API provider to web server: " + apiProvider);
+//                    }
+//                }
+//            }
+//        }
 
         Set<String> providerPackages = new LinkedHashSet<String>();
         Set<Class<?>> providerClasses = new LinkedHashSet<Class<?>>();

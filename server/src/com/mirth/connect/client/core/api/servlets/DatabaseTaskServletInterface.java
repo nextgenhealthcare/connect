@@ -9,9 +9,9 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import java.util.Map;
 
@@ -31,33 +31,33 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.model.DatabaseTask;
 
 @Path("/databaseTasks")
-@Api("Database Tasks")
+
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface DatabaseTaskServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/")
-    @ApiOperation("Retrieves all current database tasks.")
+    @Operation(summary="Retrieves all current database tasks.")
     @MirthOperation(name = "getDatabaseTasks", display = "Get database tasks", permission = Permissions.DATABASE_TASKS_VIEW)
     public Map<String, DatabaseTask> getDatabaseTasks() throws ClientException;
 
     @GET
     @Path("/{databaseTaskId}")
-    @ApiOperation("Retrieves a single database task.")
+    @Operation(summary="Retrieves a single database task.")
     @MirthOperation(name = "getDatabaseTask", display = "Get database task", permission = Permissions.DATABASE_TASKS_VIEW)
-    public DatabaseTask getDatabaseTask(@Param("databaseTaskId") @ApiParam(value = "The ID of the database task.", required = true) @PathParam("databaseTaskId") String databaseTaskId) throws ClientException;
+    public DatabaseTask getDatabaseTask(@Param("databaseTaskId") @Parameter(description = "The ID of the database task.", required = true) @PathParam("databaseTaskId") String databaseTaskId) throws ClientException;
 
     @POST
     @Path("/{databaseTaskId}/_run")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation("Executes the specified database task.")
+    @Operation(summary="Executes the specified database task.")
     @MirthOperation(name = "runDatabaseTask", display = "Run database task", permission = Permissions.DATABASE_TASKS_MANAGE)
-    public String runDatabaseTask(@Param("databaseTaskId") @ApiParam(value = "The ID of the database task.", required = true) @PathParam("databaseTaskId") String databaseTaskId) throws ClientException;
+    public String runDatabaseTask(@Param("databaseTaskId") @Parameter(description = "The ID of the database task.", required = true) @PathParam("databaseTaskId") String databaseTaskId) throws ClientException;
 
     @POST
     @Path("/{databaseTaskId}/_cancel")
-    @ApiOperation("Cancels execution of the specified database task.")
+    @Operation(summary="Cancels execution of the specified database task.")
     @MirthOperation(name = "cancelDatabaseTask", display = "Cancel database task", permission = Permissions.DATABASE_TASKS_MANAGE)
-    public void cancelDatabaseTask(@Param("databaseTaskId") @ApiParam(value = "The ID of the database task.", required = true) @PathParam("databaseTaskId") String databaseTaskId) throws ClientException;
+    public void cancelDatabaseTask(@Param("databaseTaskId") @Parameter(description = "The ID of the database task.", required = true) @PathParam("databaseTaskId") String databaseTaskId) throws ClientException;
 }

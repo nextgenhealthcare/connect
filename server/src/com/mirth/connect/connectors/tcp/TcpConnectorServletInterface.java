@@ -9,9 +9,9 @@
 
 package com.mirth.connect.connectors.tcp;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -28,7 +28,7 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/connectors/tcp")
-@Api("Connector Services")
+
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface TcpConnectorServletInterface extends BaseServletInterface {
@@ -37,11 +37,11 @@ public interface TcpConnectorServletInterface extends BaseServletInterface {
 
     @POST
     @Path("/_testConnection")
-    @ApiOperation("Tests whether a connection can be successfully established to the destination endpoint.")
+    @Operation(summary="Tests whether a connection can be successfully established to the destination endpoint.")
     @MirthOperation(name = "testConnection", display = "Test TCP Connection", type = ExecuteType.ASYNC, auditable = false)
     public ConnectionTestResponse testConnection(// @formatter:off
-            @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
-            @Param("channelName") @ApiParam(value = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
-            @Param("properties") @ApiParam(value = "The TCP Sender properties to use.", required = true) TcpDispatcherProperties properties) throws ClientException;
+            @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
+            @Param("channelName") @Parameter(description = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
+            @Param("properties") @Parameter(description = "The TCP Sender properties to use.", required = true) TcpDispatcherProperties properties) throws ClientException;
     // @formatter:on
 }

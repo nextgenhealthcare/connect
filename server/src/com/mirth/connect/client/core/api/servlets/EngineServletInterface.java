@@ -9,9 +9,9 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import java.util.Set;
 
@@ -31,50 +31,50 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 
 @Path("/channels")
-@Api("Channel Deployment Operations")
+
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface EngineServletInterface extends BaseServletInterface {
 
     @POST
     @Path("/_redeployAll")
-    @ApiOperation("Redeploys all channels.")
+    @Operation(summary="Redeploys all channels.")
     @MirthOperation(name = "redeployAllChannels", display = "Redeploy all channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
-    public void redeployAllChannels(@Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+    public void redeployAllChannels(@Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
 
     @POST
     @Path("/{channelId}/_deploy")
-    @ApiOperation("Deploys (or redeploys) a single channel.")
+    @Operation(summary="Deploys (or redeploys) a single channel.")
     @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void deployChannel(// @formatter:off
-            @Param("channelId") @ApiParam(value = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
-            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+            @Param("channelId") @Parameter(description = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
     // @formatter:on
 
     @POST
     @Path("/_deploy")
-    @ApiOperation("Deploys (or redeploys) selected channels.")
+    @Operation(summary="Deploys (or redeploys) selected channels.")
     @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void deployChannels(// @formatter:off
-            @Param("channelIds") @ApiParam(value = "The ID of the channel(s) to deploy. If absent, all channels will be deployed.") Set<String> channelIds,
-            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+            @Param("channelIds") @Parameter(description = "The ID of the channel(s) to deploy. If absent, all channels will be deployed.") Set<String> channelIds,
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
     // @formatter:on
 
     @POST
     @Path("/{channelId}/_undeploy")
-    @ApiOperation("Undeploys a single channel.")
+    @Operation(summary="Undeploys a single channel.")
     @MirthOperation(name = "undeployChannels", display = "Undeploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void undeployChannel(// @formatter:off
-            @Param("channelId") @ApiParam(value = "The ID of the channel to undeploy.", required = true) @PathParam("channelId") String channelId,
-            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+            @Param("channelId") @Parameter(description = "The ID of the channel to undeploy.", required = true) @PathParam("channelId") String channelId,
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
     // @formatter:on
 
     @POST
     @Path("/_undeploy")
-    @ApiOperation("Undeploys selected channels.")
+    @Operation(summary="Undeploys selected channels.")
     @MirthOperation(name = "undeployChannels", display = "Undeploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void undeployChannels(// @formatter:off
-            @Param("channelIds") @ApiParam(value = "The ID of the channel(s) to undeploy. If absent, all channels will be undeployed.") Set<String> channelIds,
-            @Param("returnErrors") @ApiParam(value = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+            @Param("channelIds") @Parameter(description = "The ID of the channel(s) to undeploy. If absent, all channels will be undeployed.") Set<String> channelIds,
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
     // @formatter:on
 }

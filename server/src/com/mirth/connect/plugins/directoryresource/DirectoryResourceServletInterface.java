@@ -9,9 +9,9 @@
 
 package com.mirth.connect.plugins.directoryresource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 
 @Path("/extensions/directoryresource")
-@Api("Extension Services")
+
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface DirectoryResourceServletInterface extends BaseServletInterface {
@@ -38,7 +38,7 @@ public interface DirectoryResourceServletInterface extends BaseServletInterface 
 
     @GET
     @Path("/resources/{resourceId}/libraries")
-    @ApiOperation("Retrieves all library URLs for the given directory resource.")
+    @Operation(summary="Retrieves all library URLs for the given directory resource.")
     @MirthOperation(name = "getLibraries", display = "Get libraries", type = ExecuteType.ASYNC)
-    public List<String> getLibraries(@Param("resourceId") @ApiParam(value = "The ID of the directory resource.", required = true) @PathParam("resourceId") String resourceId) throws ClientException;
+    public List<String> getLibraries(@Param("resourceId") @Parameter(description = "The ID of the directory resource.", required = true) @PathParam("resourceId") String resourceId) throws ClientException;
 }
