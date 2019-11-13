@@ -4,6 +4,7 @@
 		<meta charset="UTF-8">
 		<title>Mirth Connect Client API</title>
 		<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="css/swagger-ui.css" >
 		<link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/>
 		<link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/>
 		<link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/>
@@ -20,7 +21,6 @@
 		<script src='lib/handlebars-4.0.5.js' type='text/javascript'></script>
 		<script src='lib/lodash.min.js' type='text/javascript'></script>
 		<script src='lib/backbone-min.js' type='text/javascript'></script>
-		<script src='lib/swagger-ui.js' type='text/javascript'></script>
 		<script src='lib/highlight.9.1.0.pack.js' type='text/javascript'></script>
 		<script src='lib/highlight.9.1.0.pack_extended.js' type='text/javascript'></script>
 		<script src='lib/jsoneditor.min.js' type='text/javascript'></script>
@@ -57,9 +57,11 @@
 				};
 				
 				window.getCurrentUser = function() {
-					var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath;
-					var path = basePath + $('#Users_getCurrentUser div.heading span.path').text().trim();
-					var method = $('#Users_getCurrentUser div.heading span.http_method').text().trim();
+					/* TODO - Figure out how to replace this and get the correct scheme */
+					/* var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath; */
+					var basePath = window.location.origin + "/api";
+					var path = basePath + "/users/current";
+					var method = "GET";
 					
 					$.ajax({
 						url: path,
@@ -88,19 +90,34 @@
 				if(window.SwaggerTranslator) {
 					window.SwaggerTranslator.translate();
 				}
-				window.swaggerUi = new SwaggerUi({
-					url: url,
-					dom_id: "swagger-ui-container",
-					supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-					validatorUrl: null,
-					onComplete: function(swaggerApi, swaggerUi){
-						// If this page is being loaded over HTTPS, endpoints should also be invoked over HTTPS
-						if (window.location.protocol == 'https:' && window.swaggerUi.api.schemes.indexOf('https') >= 0) {
+				
+				window.onload = function() {
+			        // Swagger-ui configuration goes here.
+			        // See further: https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
+			        const ui = SwaggerUIBundle({
+			          deepLinking: true,
+			          presets: [
+			        	  SwaggerUIBundle.presets.apis,
+			        	  SwaggerUIBundle.SwaggerUIStandalonePreset
+						  ],
+			          dom_id: "#swagger-ui-container",
+			          supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+			          validatorUrl: null,
+			          showExtensions: true,
+			          showCommonExtensions: true,
+			          docExpansion: 'none',
+			          operationsSorter: 'alpha',
+			          defaultModelRendering: 'example',
+			          url: url, // <-- adjust this to your webserver's structure
+			          onComplete: function(swaggerApi, swaggerUi){
+			        	/* TODO - Figure out how to replace this */
+			        	// If this page is being loaded over HTTPS, endpoints should also be invoked over HTTPS
+						/* if (window.location.protocol == 'https:' && window.swaggerUi.api.schemes.indexOf('https') >= 0) {
 							window.swapProp(window.swaggerUi.api, 'scheme', 'https');
 						} else if (window.location.protocol == 'http:' && window.swaggerUi.api.schemes.indexOf('http') >= 0) {
 							window.swapProp(window.swaggerUi.api, 'scheme', 'http');
-						}
-					
+						} */
+						
 						if(window.SwaggerTranslator) {
 							window.SwaggerTranslator.translate();
 						}
@@ -109,20 +126,15 @@
 							hljs.highlightBlock(e)
 						});
 	
-						$('#loginImage').show();					
+						$('#loginImage').show();
 						window.getCurrentUser();
-					},
-					onFailure: function(data) {
+			          },
+			          onFailure: function(data) {
 						log("Unable to Load SwaggerUI");
-					},
-					docExpansion: "none",
-					jsonEditor: false,
-					apisSorter: "alpha",
-					defaultModelRendering: 'schema',
-					showRequestHeaders: false
-				});
-	
-				window.swaggerUi.load();
+			          }
+			        });
+			        window.ui = ui;
+			    };
 	
 				function log() {
 					if ('console' in window) {
@@ -133,10 +145,12 @@
 				$('#login').click(function() {
 					$('#loginForm').hide();
 					$('#loginImage').show();
-				
-					var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath;
-					var path = basePath + $('#Users_login div.heading span.path').text().trim();
-					var method = $('#Users_login div.heading span.http_method').text().trim();
+					
+					/* TODO - Figure out how to replace this and get the correct scheme */
+					/* var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath; */
+					var basePath = window.location.origin + "/api";
+					var path = basePath + "/users/_login";
+					var method = "POST";
 					
 					$.ajax({
 						url: path,
@@ -162,9 +176,11 @@
 					$('#loginImage').show();
 					$('#logoutFormUserName').text('');
 					
-					var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath;
-					var path = basePath + $('#Users_logout div.heading span.path').text().trim();
-					var method = $('#Users_logout div.heading span.http_method').text().trim();
+					/* TODO - Figure out how to replace this and get the correct scheme */
+					/* var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath; */
+					var basePath = window.location.origin + "/api";
+					var path = basePath + "/users/_logout";
+					var method = "POST";
 					
 					$.ajax({
 						url: path,
@@ -194,6 +210,8 @@
 	</head>
 
 	<body class="swagger-section">
+		<div id="root"></div>
+		
 		<div id='header'>
 			<div class="swagger-ui-wrap">
 				<a id="mirthLogo" href="https://www.nextgen.com/products-and-services/integration-engine">
@@ -217,5 +235,6 @@
 	
 		<div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
 		<div id="swagger-ui-container" class="swagger-ui-wrap"></div>
+		<script src="lib/swagger-ui-bundle.js" type='text/javascript'></script>
 	</body>
 </html>
