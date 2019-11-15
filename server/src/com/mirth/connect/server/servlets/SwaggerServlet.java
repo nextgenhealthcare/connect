@@ -9,6 +9,11 @@
 
 package com.mirth.connect.server.servlets;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 //import io.swagger.annotations.Api;
 //import io.swagger.annotations.SwaggerDefinition;
 //import io.swagger.jaxrs.config.BeanConfig;
@@ -21,15 +26,25 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.client.core.Version;
 
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+import io.swagger.v3.jaxrs2.integration.ServletOpenApiContextBuilder;
+import io.swagger.v3.jaxrs2.integration.XmlWebOpenApiContext;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.XML;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.servers.Server;
 
 public class SwaggerServlet extends HttpServlet {
 
@@ -39,6 +54,7 @@ public class SwaggerServlet extends HttpServlet {
 	private Set<String> resourcePackages;
 	private Set<Class<?>> resourceClasses;
 	private boolean allowHTTP;
+	private Logger logger = Logger.getLogger(this.getClass());
 
 	public SwaggerServlet(String basePath, Version version, Version apiVersion, Set<String> resourcePackages,
 			Set<Class<?>> resourceClasses, boolean allowHTTP) {
@@ -90,24 +106,60 @@ public class SwaggerServlet extends HttpServlet {
 	// }
 	@Override
 	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+					
+		// Create schema to represent java.util.Properties
+//		Map<String, Schema<String>> properties = new HashMap<>();
+//		properties.put("property", new Schema()
+//				.type("string")
+//				.xml(new XML()
+//						.name("property")));
+//		
+//		OpenAPI oas = new OpenAPI()
+//				.schema("properties", new Schema()
+//						.title("Properties")
+//						.properties(properties)
+//						.xml(new XML()
+//								.name("properties")));
 
 		OpenAPI oas = new OpenAPI();
-		Info info = new Info().title("Swagger Sample App - independent config exposed by dedicated servlet")
-				.description("This is a sample server Petstore server.  You can find out more about Swagger "
-						+ "at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, "
-						+ "you can use the api key `special-key` to test the authorization filters.")
-				.termsOfService("http://swagger.io/terms/").contact(new Contact().email("apiteam@swagger.io"))
-				.license(new License().name("Apache 2.0").url("http://www.apache.org/licenses/LICENSE-2.0.html"));
+		
+//		Server server = new Server();
+//		server.url(basePath);
+//		List<Server> servers = new ArrayList<Server>();
+//		servers.add(server);
+//		oas.servers(servers);
+		
+		Info info = new Info().title("NextGen Connect Client API")
+				.description("Swagger documentation for the NextGen Connect Client API.")
+//				.termsOfService("http://swagger.io/terms/").contact(new Contact().email("apiteam@swagger.io"))
+				.license(new License().name("Mozilla Public License 1.1"))
+//						.url("http://www.apache.org/licenses/LICENSE-2.0.html"))
+				.version(apiVersion.toString());
 
 		oas.info(info);
-		SwaggerConfiguration oasConfig = new SwaggerConfiguration().openAPI(oas)
-				.resourcePackages(Stream.of("io.swagger.sample.resource").collect(Collectors.toSet()));
+		SwaggerConfiguration oasConfig = new SwaggerConfiguration()
+				.openAPI(oas)
+				.prettyPrint(true)
+//				.resourcePackages(resourcePackages);
+				.resourceClasses(resourceClasses.stream().map(Class::getName).collect(Collectors.toSet()));
+//				.readAllResources(true);
 
 		try {
-			new JaxrsOpenApiContextBuilder().servletConfig(config).openApiConfiguration(oasConfig).buildContext(true);
+//			new JaxrsOpenApiContextBuilder()
+//				.servletConfig(config)
+//				.openApiConfiguration(oasConfig)
+//				.buildContext(true);
+//				.read();
+
+			new ServletOpenApiContextBuilder()
+				.servletConfig(config)
+				.openApiConfiguration(oasConfig)
+				.buildContext(true)
+				.read();			
 		} catch (OpenApiConfigurationException e) {
+			logger.error("Failed to initialize Swagger servlet", e);
 			throw new ServletException(e.getMessage(), e);
 		}
-
 	}
 }

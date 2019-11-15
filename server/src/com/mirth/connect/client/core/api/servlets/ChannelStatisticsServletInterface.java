@@ -12,6 +12,7 @@ package com.mirth.connect.client.core.api.servlets;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.model.ChannelStatistics;
 
 @Path("/channels")
-
+@Tag(name = "Channel Statistics")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface ChannelStatisticsServletInterface extends BaseServletInterface {
@@ -78,10 +79,10 @@ public interface ChannelStatisticsServletInterface extends BaseServletInterface 
     @MirthOperation(name = "clearStatistics", display = "Clear statistics", permission = Permissions.CHANNELS_CLEAR_STATS)
     public void clearStatistics(// @formatter:off
             @Param("channelConnectorMap") @Parameter(description = "Channel IDs mapped to lists of metaDataIds (connectors). If the metaDataId list is null, then all statistics for the channel will be cleared.", required = true) Map<String, List<Integer>> channelConnectorMap,
-            @Param("received") @Parameter("If true, received stats will be cleared.") @QueryParam("received") boolean received,
-            @Param("filtered") @Parameter("If true, filtered stats will be cleared.") @QueryParam("filtered") boolean filtered,
-            @Param("sent") @Parameter("If true, sent stats will be cleared.") @QueryParam("sent") boolean sent,
-            @Param("error") @Parameter("If true, error stats will be cleared.") @QueryParam("error") boolean error) throws ClientException;
+            @Param("received") @Parameter(description = "If true, received stats will be cleared.") @QueryParam("received") boolean received,
+            @Param("filtered") @Parameter(description = "If true, filtered stats will be cleared.") @QueryParam("filtered") boolean filtered,
+            @Param("sent") @Parameter(description = "If true, sent stats will be cleared.") @QueryParam("sent") boolean sent,
+            @Param("error") @Parameter(description = "If true, error stats will be cleared.") @QueryParam("error") boolean error) throws ClientException;
     // @formatter:on
 
     @POST

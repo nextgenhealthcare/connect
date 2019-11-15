@@ -10,8 +10,10 @@
 package com.mirth.connect.client.core.api.servlets;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Calendar;
 import java.util.List;
@@ -48,7 +50,7 @@ import com.mirth.connect.util.messagewriter.EncryptionType;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 @Path("/channels")
-
+@Tag(name = "Messages")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface MessageServletInterface extends BaseServletInterface {
@@ -94,7 +96,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     public List<Attachment> getAttachmentsByMessageId(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("messageId") @Parameter(description = "The ID of the message.", required = true) @PathParam("messageId") Long messageId,
-            @Param("includeContent") @Parameter(description = "If false, only the attachment ID and type will be returned.") @QueryParam("includeContent") boolean includeContent) throws ClientException;
+            @Param("includeContent") @Parameter(description = "If false, only the attachment ID and type will be returned.", schema = @Schema(defaultValue = "true")) @QueryParam("includeContent") boolean includeContent) throws ClientException;
     // @formatter:on
 
     @GET
@@ -131,9 +133,9 @@ public interface MessageServletInterface extends BaseServletInterface {
     public List<Message> getMessages(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @PathParam("channelId") String channelId, 
             @Param("filter") @Parameter(description = "The MessageFilter object to use to query messages by.", required = true) MessageFilter filter, 
-            @Param("includeContent") @Parameter(description = "If true, message content will be returned with the results.") @QueryParam("includeContent") Boolean includeContent, 
-            @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.") @QueryParam("offset") Integer offset, 
-            @Param("limit") @Parameter(description = "Used for pagination, determines the maximum number of results to return.") @QueryParam("limit") Integer limit) throws ClientException;
+            @Param("includeContent") @Parameter(description = "If true, message content will be returned with the results.", schema = @Schema(defaultValue = "false")) @QueryParam("includeContent") Boolean includeContent, 
+            @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.", schema = @Schema(defaultValue = "0")) @QueryParam("offset") Integer offset, 
+            @Param("limit") @Parameter(description = "Used for pagination, determines the maximum number of results to return.", schema = @Schema(defaultValue = "20")) @QueryParam("limit") Integer limit) throws ClientException;
     // @formatter:on
 
     @GET
@@ -178,9 +180,9 @@ public interface MessageServletInterface extends BaseServletInterface {
             @Param("maxSendAttempts") @Parameter(description = "The maximum number of send attempts for connector messages.") @QueryParam("maxSendAttempts") Integer maxSendAttempts,
             @Param("attachment") @Parameter(description = "If true, only messages with attachments are included in the results.") @QueryParam("attachment") Boolean attachment,
             @Param("error") @Parameter(description = "If true, only messages with errors are included in the results.") @QueryParam("error") Boolean error,
-            @Param("includeContent") @Parameter(description = "If true, message content will be returned with the results.") @QueryParam("includeContent") Boolean includeContent,
-            @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.") @QueryParam("offset") Integer offset,
-            @Param("limit") @Parameter(description = "Used for pagination, determines the maximum number of results to return.") @QueryParam("limit") Integer limit) throws ClientException;
+            @Param("includeContent") @Parameter(description = "If true, message content will be returned with the results.", schema = @Schema(defaultValue = "false")) @QueryParam("includeContent") Boolean includeContent,
+            @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.", schema = @Schema(defaultValue = "0")) @QueryParam("offset") Integer offset,
+            @Param("limit") @Parameter(description = "Used for pagination, determines the maximum number of results to return.", schema = @Schema(defaultValue = "20")) @QueryParam("limit") Integer limit) throws ClientException;
     // @formatter:on
 
     @POST
@@ -243,8 +245,8 @@ public interface MessageServletInterface extends BaseServletInterface {
     public void reprocessMessages(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("filter") @Parameter(description = "The MessageFilter object to use to query messages by.", required = true) MessageFilter filter,
-            @Param("replace") @Parameter(description = "If true, the message will overwrite the current one") @QueryParam("replace") boolean replace,
-            @Param("filterDestinations") @Parameter(description = "If true, the metaDataId parameter will be used to determine which destinations to reprocess the message through.") @QueryParam("filterDestinations") boolean filterDestinations,
+            @Param("replace") @Parameter(description = "If true, the message will overwrite the current one", schema = @Schema(defaultValue = "false")) @QueryParam("replace") boolean replace,
+            @Param("filterDestinations") @Parameter(description = "If true, the metaDataId parameter will be used to determine which destinations to reprocess the message through.", schema = @Schema(defaultValue = "false")) @QueryParam("filterDestinations") boolean filterDestinations,
             @Param("reprocessMetaDataIds") @Parameter(description = "Indicates which destinations to send the message to.") @QueryParam("metaDataId") Set<Integer> reprocessMetaDataIds) throws ClientException;
     // @formatter:on
 
@@ -291,8 +293,8 @@ public interface MessageServletInterface extends BaseServletInterface {
             @Param("maxSendAttempts") @Parameter(description = "The maximum number of send attempts for connector messages.") @QueryParam("maxSendAttempts") Integer maxSendAttempts,
             @Param("attachment") @Parameter(description = "If true, only messages with attachments are included in the results.") @QueryParam("attachment") Boolean attachment,
             @Param("error") @Parameter(description = "If true, only messages with errors are included in the results.") @QueryParam("error") Boolean error,
-            @Param("replace") @Parameter(description = "If true, the message will overwrite the current one") @QueryParam("replace") boolean replace,
-            @Param("filterDestinations") @Parameter(description = "If true, the metaDataId parameter will be used to determine which destinations to reprocess the message through.") @QueryParam("filterDestinations") boolean filterDestinations,
+            @Param("replace") @Parameter(description = "If true, the message will overwrite the current one", schema = @Schema(defaultValue = "false")) @QueryParam("replace") boolean replace,
+            @Param("filterDestinations") @Parameter(description = "If true, the metaDataId parameter will be used to determine which destinations to reprocess the message through.", schema = @Schema(defaultValue = "false")) @QueryParam("filterDestinations") boolean filterDestinations,
             @Param("reprocessMetaDataIds") @Parameter(description = "Indicates which destinations to send the message to.") @QueryParam("metaDataId") Set<Integer> reprocessMetaDataIds) throws ClientException;
     // @formatter:on
 
@@ -303,8 +305,8 @@ public interface MessageServletInterface extends BaseServletInterface {
     public void reprocessMessage(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("messageId") @Parameter(description = "The ID of the message.", required = true) @PathParam("messageId") Long messageId,
-            @Param("replace") @Parameter(description = "If true, the message will overwrite the current one") @QueryParam("replace") boolean replace,
-            @Param("filterDestinations") @Parameter(description = "If true, the metaDataId parameter will be used to determine which destinations to reprocess the message through.") @QueryParam("filterDestinations") boolean filterDestinations,
+            @Param("replace") @Parameter(description = "If true, the message will overwrite the current one", schema = @Schema(defaultValue = "false")) @QueryParam("replace") boolean replace,
+            @Param("filterDestinations") @Parameter(description = "If true, the metaDataId parameter will be used to determine which destinations to reprocess the message through.", schema = @Schema(defaultValue = "false")) @QueryParam("filterDestinations") boolean filterDestinations,
             @Param("reprocessMetaDataIds") @Parameter(description = "Indicates which destinations to send the message to.") @QueryParam("metaDataId") Set<Integer> reprocessMetaDataIds) throws ClientException;
     // @formatter:on
 
@@ -378,8 +380,8 @@ public interface MessageServletInterface extends BaseServletInterface {
     @MirthOperation(name = "removeAllMessages", display = "Remove all messages", permission = Permissions.MESSAGES_REMOVE_ALL)
     public void removeAllMessages(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
-            @Param("restartRunningChannels") @Parameter(description = "If true, currently running channels will be stopped and restarted as part of the remove process. Otherwise, currently running channels will not be included.") @QueryParam("restartRunningChannels") boolean restartRunningChannels,
-            @Param("clearStatistics") @Parameter(description = "If true, message statistics will also be cleared.") @QueryParam("clearStatistics") boolean clearStatistics) throws ClientException;
+            @Param("restartRunningChannels") @Parameter(description = "If true, currently running channels will be stopped and restarted as part of the remove process. Otherwise, currently running channels will not be included.", schema = @Schema(defaultValue = "false")) @QueryParam("restartRunningChannels") boolean restartRunningChannels,
+            @Param("clearStatistics") @Parameter(description = "If true, message statistics will also be cleared.", schema = @Schema(defaultValue = "true")) @QueryParam("clearStatistics") boolean clearStatistics) throws ClientException;
     // @formatter:on
 
     @DELETE
@@ -388,8 +390,8 @@ public interface MessageServletInterface extends BaseServletInterface {
     @MirthOperation(name = "removeAllMessages", display = "Remove all messages", permission = Permissions.MESSAGES_REMOVE_ALL)
     public void removeAllMessages(// @formatter:off
             @Param("channelIds") @Parameter(description = "The IDs of the channels.", required = true) @QueryParam("channelId") Set<String> channelIds,
-            @Param("restartRunningChannels") @Parameter(description = "If true, currently running channels will be stopped and restarted as part of the remove process. Otherwise, currently running channels will not be included.") @QueryParam("restartRunningChannels") boolean restartRunningChannels,
-            @Param("clearStatistics") @Parameter(description = "If true, message statistics will also be cleared.") @QueryParam("clearStatistics") boolean clearStatistics) throws ClientException;
+            @Param("restartRunningChannels") @Parameter(description = "If true, currently running channels will be stopped and restarted as part of the remove process. Otherwise, currently running channels will not be included.", schema = @Schema(defaultValue = "false")) @QueryParam("restartRunningChannels") boolean restartRunningChannels,
+            @Param("clearStatistics") @Parameter(description = "If true, message statistics will also be cleared.", schema = @Schema(defaultValue = "true")) @QueryParam("clearStatistics") boolean clearStatistics) throws ClientException;
     // @formatter:on
 
     @POST
@@ -398,8 +400,8 @@ public interface MessageServletInterface extends BaseServletInterface {
     @MirthOperation(name = "removeAllMessages", display = "Remove all messages", permission = Permissions.MESSAGES_REMOVE_ALL)
     public void removeAllMessagesPost(// @formatter:off
             @Param("channelIds") @Parameter(description = "The IDs of the channels.", required = true) Set<String> channelIds,
-            @Param("restartRunningChannels") @Parameter(description = "If true, currently running channels will be stopped and restarted as part of the remove process. Otherwise, currently running channels will not be included.") @QueryParam("restartRunningChannels") boolean restartRunningChannels,
-            @Param("clearStatistics") @Parameter(description = "If true, message statistics will also be cleared.") @QueryParam("clearStatistics") boolean clearStatistics) throws ClientException;
+            @Param("restartRunningChannels") @Parameter(description = "If true, currently running channels will be stopped and restarted as part of the remove process. Otherwise, currently running channels will not be included.", schema = @Schema(defaultValue = "false")) @QueryParam("restartRunningChannels") boolean restartRunningChannels,
+            @Param("clearStatistics") @Parameter(description = "If true, message statistics will also be cleared.", schema = @Schema(defaultValue = "true")) @QueryParam("clearStatistics") boolean clearStatistics) throws ClientException;
     // @formatter:on
 
     @POST
@@ -419,7 +421,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     public MessageImportResult importMessagesServer(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("path") @Parameter(description = "The directory path on the server side to import messages from.", required = true) String path,
-            @Param("includeSubfolders") @Parameter(description = "If true, sub-folders will also be scanned recursively for messages.") @QueryParam("includeSubfolders") boolean includeSubfolders) throws ClientException;
+            @Param("includeSubfolders") @Parameter(description = "If true, sub-folders will also be scanned recursively for messages.", schema = @Schema(defaultValue = "false")) @QueryParam("includeSubfolders") boolean includeSubfolders) throws ClientException;
     // @formatter:on
 
     @POST
@@ -478,9 +480,9 @@ public interface MessageServletInterface extends BaseServletInterface {
             @Param("error") @Parameter(description = "If true, only messages with errors are included in the results.") @QueryParam("error") Boolean error,
             @Param("pageSize") @Parameter(description = "The maximum number of messages that will be queried at a time.") @QueryParam("pageSize") int pageSize,
             @Param("contentType") @Parameter(description = "The ContentType that will be extracted from the message for writing. If null or not provided, the entire message will be written in serialized format.") @QueryParam("contentType") ContentType contentType,
-            @Param("destinationContent") @Parameter(description = "If true, the content to write will be extracted from the destination message(s), rather than the source message.") @QueryParam("destinationContent") boolean destinationContent,
-            @Param("encrypt") @Parameter(description = "If true, message content will be encrypted before writing.") @QueryParam("encrypt") boolean encrypt,
-            @Param("includeAttachments") @Parameter(description = "Determines whether attachments will be included with messages.") @QueryParam("includeAttachments") boolean includeAttachments,
+            @Param("destinationContent") @Parameter(description = "If true, the content to write will be extracted from the destination message(s), rather than the source message.", schema = @Schema(defaultValue = "false")) @QueryParam("destinationContent") boolean destinationContent,
+            @Param("encrypt") @Parameter(description = "If true, message content will be encrypted before writing.", schema = @Schema(defaultValue = "false")) @QueryParam("encrypt") boolean encrypt,
+            @Param("includeAttachments") @Parameter(description = "Determines whether attachments will be included with messages.", schema = @Schema(defaultValue = "false")) @QueryParam("includeAttachments") boolean includeAttachments,
             @Param("baseFolder") @Parameter(description = "The base directory to use when resolving relative paths in the root folder.") @QueryParam("baseFolder") String baseFolder,
             @Param("rootFolder") @Parameter(description = "The root folder to contain the written messages/sub-folders.") @QueryParam("rootFolder") String rootFolder,
             @Param("filePattern") @Parameter(description = "A string defining the folder/filename(s) for writing messages. It may contain variables to be replaced.") @QueryParam("filePattern") String filePattern,
@@ -501,6 +503,6 @@ public interface MessageServletInterface extends BaseServletInterface {
             @Param("messageId") @Parameter(description = "The ID of the message.", required = true) @PathParam("messageId") Long messageId,
             @Param("attachmentId") @Parameter(description = "The ID of the attachment.", required = true) @PathParam("attachmentId") String attachmentId,
             @Param("filePath") @Parameter(description = "The file path to export the attachment to.", required = true) String filePath,
-            @Param("binary") @Parameter(description = "Indicates that the attachment is binary and should be Base64 decoded before writing to file.") @QueryParam("binary") boolean binary) throws ClientException;
+            @Param("binary") @Parameter(description = "Indicates that the attachment is binary and should be Base64 decoded before writing to file.", schema = @Schema(defaultValue = "false")) @QueryParam("binary") boolean binary) throws ClientException;
     // @formatter:on
 }

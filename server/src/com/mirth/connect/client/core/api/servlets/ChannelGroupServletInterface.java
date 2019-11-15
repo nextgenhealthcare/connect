@@ -9,10 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-//
-//import io.swagger.v3.oas.annotations.Operation;
-//import io.swagger.v3.oas.annotations.Parameter;
-
 import java.util.List;
 import java.util.Set;
 
@@ -36,9 +32,11 @@ import com.mirth.connect.model.ChannelGroup;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path("/channelgroups")
-//
+@Tag(name = "Channel Groups")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface ChannelGroupServletInterface extends BaseServletInterface {
@@ -63,6 +61,6 @@ public interface ChannelGroupServletInterface extends BaseServletInterface {
     public boolean updateChannelGroups(// @formatter:off
             @Param("channelGroups") @Parameter(description = "The channel group object to update or create.") @FormDataParam("channelGroups") Set<ChannelGroup> channelGroups,
             @Param("removedChannelGroupIds") @Parameter(description = "All channel group IDs known to be removed.") @FormDataParam("removedChannelGroupIds") Set<String> removedChannelGroupIds,
-            @Param("override") @Parameter(description = "If true, the channel groups will be updated even if different revisions exist on the server.") @QueryParam("override") boolean override) throws ClientException;
+            @Param("override") @Parameter(description = "If true, the channel groups will be updated even if different revisions exist on the server.", schema = @Schema(defaultValue = "false")) @QueryParam("override") boolean override) throws ClientException;
     // @formatter:on
 }

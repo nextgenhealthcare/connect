@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.ws;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -29,7 +30,7 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/connectors/ws")
-
+@Tag(name = "Connector Services")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface WebServiceConnectorServletInterface extends BaseServletInterface {

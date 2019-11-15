@@ -12,6 +12,8 @@ package com.mirth.connect.client.core.api.servlets;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Map;
@@ -42,7 +44,7 @@ import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
 
 @Path("/channels")
-
+@Tag(name = "Channels")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface ChannelServletInterface extends BaseServletInterface {
@@ -124,7 +126,7 @@ public interface ChannelServletInterface extends BaseServletInterface {
     @MirthOperation(name = "setChannelInitialState", display = "Set channel initial state", permission = Permissions.CHANNELS_MANAGE)
     public void setChannelInitialState(// @formatter:off
             @Param("channelIds") @Parameter(description = "The IDs of the channels to modify initial states on. If absent, the initial state will be set on all channels.") @FormParam("channelId") Set<String> channelIds,
-            @Param("initialState") @Parameter(description = "The initial state of the channel.", allowableValues = "STARTED, PAUSED, STOPPED", required = true) @FormParam("initialState") DeployedState initialState) throws ClientException;
+            @Param("initialState") @Parameter(description = "The initial state of the channel.", required = true, schema = @Schema(allowableValues = {"STARTED", "PAUSED", "STOPPED"}, type = "string")) @FormParam("initialState") DeployedState initialState) throws ClientException;
     // @formatter:on
 
     @POST
@@ -133,7 +135,7 @@ public interface ChannelServletInterface extends BaseServletInterface {
     @MirthOperation(name = "setChannelInitialState", display = "Set channel initial state", permission = Permissions.CHANNELS_MANAGE)
     public void setChannelInitialState(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
-            @Param("initialState") @Parameter(description = "The initial state of the channel.", allowableValues = "STARTED, PAUSED, STOPPED", required = true) @PathParam("initialState") DeployedState initialState) throws ClientException;
+            @Param("initialState") @Parameter(description = "The initial state of the channel.", required = true, schema = @Schema(allowableValues = {"STARTED", "PAUSED", "STOPPED"}, type = "string")) @PathParam("initialState") DeployedState initialState) throws ClientException;
     // @formatter:on
 
     @PUT
@@ -143,7 +145,7 @@ public interface ChannelServletInterface extends BaseServletInterface {
     public boolean updateChannel(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel to update.", required = true) @PathParam("channelId") String channelId,
             @Param("channel") @Parameter(description = "The Channel object to update with.", required = true) Channel channel,
-            @Param("override") @Parameter(description = "If true, the channel will be updated even if a different revision exists on the server.") @QueryParam("override") boolean override) throws ClientException;
+            @Param("override") @Parameter(description = "If true, the channel will be updated even if a different revision exists on the server.", schema = @Schema(defaultValue = "false")) @QueryParam("override") boolean override) throws ClientException;
     // @formatter:on
 
     @DELETE

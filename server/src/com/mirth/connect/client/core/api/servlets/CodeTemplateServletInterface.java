@@ -10,8 +10,10 @@
 package com.mirth.connect.client.core.api.servlets;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Map;
@@ -42,7 +44,7 @@ import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
 import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
 
 @Path("/")
-
+@Tag(name = "Code Templates")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface CodeTemplateServletInterface extends BaseServletInterface {
@@ -53,7 +55,7 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getCodeTemplateLibraries", display = "Get code template libraries", permission = Permissions.CODE_TEMPLATES_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<CodeTemplateLibrary> getCodeTemplateLibraries(// @formatter:off
             @Param("libraryIds") @Parameter(description = "The ID of the library(s) to retrieve.") @QueryParam("libraryId") Set<String> libraryIds,
-            @Param("includeCodeTemplates") @Parameter(description = "If true, full code templates will be included inside each library.") @QueryParam("includeCodeTemplates") boolean includeCodeTemplates) throws ClientException;
+            @Param("includeCodeTemplates") @Parameter(description = "If true, full code templates will be included inside each library.", schema = @Schema(defaultValue = "false")) @QueryParam("includeCodeTemplates") boolean includeCodeTemplates) throws ClientException;
     // @formatter:on
 
     @POST
@@ -62,7 +64,7 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getCodeTemplateLibraries", display = "Get code template libraries", permission = Permissions.CODE_TEMPLATES_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<CodeTemplateLibrary> getCodeTemplateLibrariesPost(// @formatter:off
             @Param("libraryIds") @Parameter(description = "The ID of the library(s) to retrieve.") Set<String> libraryIds,
-            @Param("includeCodeTemplates") @Parameter(description = "If true, full code templates will be included inside each library.") @QueryParam("includeCodeTemplates") boolean includeCodeTemplates) throws ClientException;
+            @Param("includeCodeTemplates") @Parameter(description = "If true, full code templates will be included inside each library.", schema = @Schema(defaultValue = "false")) @QueryParam("includeCodeTemplates") boolean includeCodeTemplates) throws ClientException;
     // @formatter:on
 
     @GET
@@ -71,7 +73,7 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getCodeTemplateLibrary", display = "Get code template library", permission = Permissions.CODE_TEMPLATES_VIEW, type = ExecuteType.ASYNC)
     public CodeTemplateLibrary getCodeTemplateLibrary(// @formatter:off
             @Param("libraryId") @Parameter(description = "The ID of the library to retrieve.") @PathParam("libraryId") String libraryId,
-            @Param("includeCodeTemplates") @Parameter(description = "If true, full code templates will be included inside each library.") @QueryParam("includeCodeTemplates") boolean includeCodeTemplates) throws ClientException;
+            @Param("includeCodeTemplates") @Parameter(description = "If true, full code templates will be included inside each library.", schema = @Schema(defaultValue = "false")) @QueryParam("includeCodeTemplates") boolean includeCodeTemplates) throws ClientException;
     // @formatter:on
 
     @PUT
@@ -80,7 +82,7 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @MirthOperation(name = "updateCodeTemplateLibraries", display = "Update code template libraries", permission = Permissions.CODE_TEMPLATES_MANAGE)
     public boolean updateCodeTemplateLibraries(// @formatter:off
             @Param("libraries") @Parameter(description = "The list of code template libraries to replace with.", required = true) List<CodeTemplateLibrary> libraries,
-            @Param("override") @Parameter(description = "If true, the code template library will be updated even if a different revision exists on the server.") @QueryParam("override") boolean override) throws ClientException;
+            @Param("override") @Parameter(description = "If true, the code template library will be updated even if a different revision exists on the server.", schema = @Schema(defaultValue = "false")) @QueryParam("override") boolean override) throws ClientException;
     // @formatter:on
 
     @GET
@@ -114,7 +116,7 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     public boolean updateCodeTemplate(// @formatter:off
             @Param("codeTemplateId") @Parameter(description = "The ID of the code template.", required = true) @PathParam("codeTemplateId") String codeTemplateId,
             @Param("codeTemplate") @Parameter(description = "The CodeTemplate object to update with.", required = true) CodeTemplate codeTemplate,
-            @Param("override") @Parameter(description = "If true, the code template will be updated even if a different revision exists on the server.") @QueryParam("override") boolean override) throws ClientException;
+            @Param("override") @Parameter(description = "If true, the code template will be updated even if a different revision exists on the server.", schema = @Schema(defaultValue = "false")) @QueryParam("override") boolean override) throws ClientException;
     // @formatter:on
 
     @DELETE
@@ -133,6 +135,6 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
             @Param("removedLibraryIds") @Parameter(description = "All library IDs known to be removed.") @FormDataParam("removedLibraryIds") Set<String> removedLibraryIds,
             @Param("updatedCodeTemplates") @Parameter(description = "The set of code templates to update.") @FormDataParam("updatedCodeTemplates") List<CodeTemplate> updatedCodeTemplates,
             @Param("removedCodeTemplateIds") @Parameter(description = "All code template IDs known to be removed.") @FormDataParam("removedCodeTemplateIds") Set<String> removedCodeTemplateIds,
-            @Param("override") @Parameter(description = "If true, the libraries and code templates will be updated even if different revisions exist on the server.") @QueryParam("override") boolean override) throws ClientException;
+            @Param("override") @Parameter(description = "If true, the libraries and code templates will be updated even if different revisions exist on the server.", schema = @Schema(defaultValue = "false")) @QueryParam("override") boolean override) throws ClientException;
     // @formatter:on
 }

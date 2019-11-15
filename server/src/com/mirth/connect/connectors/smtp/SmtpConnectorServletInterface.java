@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.smtp;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -28,7 +29,7 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/connectors/smtp")
-
+@Tag(name = "Connector Services")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface SmtpConnectorServletInterface extends BaseServletInterface {

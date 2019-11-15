@@ -10,8 +10,10 @@
 package com.mirth.connect.client.core.api.servlets;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Calendar;
 import java.util.List;
@@ -38,7 +40,7 @@ import com.mirth.connect.model.ServerEvent.Outcome;
 import com.mirth.connect.model.filters.EventFilter;
 
 @Path("/events")
-
+@Tag(name = "Events")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface EventServletInterface extends BaseServletInterface {
@@ -61,8 +63,8 @@ public interface EventServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getEvents", display = "Get events", permission = Permissions.EVENTS_VIEW, auditable = false, abortable = true)
     public List<ServerEvent> getEvents(// @formatter:off
             @Param("filter") @Parameter(description = "The EventFilter object to use to query events by.", required = true) EventFilter filter,
-            @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.") @QueryParam("offset") Integer offset,
-            @Param("limit") @Parameter(description = "Used for pagination, determines the maximum number of results to return.") @QueryParam("limit") Integer limit) throws ClientException;
+            @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.", schema = @Schema(defaultValue = "0")) @QueryParam("offset") Integer offset,
+            @Param("limit") @Parameter(description = "Used for pagination, determines the maximum number of results to return.", schema = @Schema(defaultValue = "20")) @QueryParam("limit") Integer limit) throws ClientException;
     // @formatter:on
 
     @GET
@@ -80,8 +82,8 @@ public interface EventServletInterface extends BaseServletInterface {
             @Param("userId") @Parameter(description = "The user ID to query events by.") @QueryParam("userId") Integer userId,
             @Param("ipAddress") @Parameter(description = "The IP address that originated the event.") @QueryParam("ipAddress") String ipAddress,
             @Param("serverId") @Parameter(description = "The ID of the server that the event was created from.") @QueryParam("serverId") String serverId,
-            @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.") @QueryParam("offset") Integer offset,
-            @Param("limit") @Parameter(description = "Used for pagination, determines the maximum number of results to return.") @QueryParam("limit") Integer limit) throws ClientException;
+            @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.", schema = @Schema(defaultValue = "0")) @QueryParam("offset") Integer offset,
+            @Param("limit") @Parameter(description = "Used for pagination, determines the maximum number of results to return.", schema = @Schema(defaultValue = "20")) @QueryParam("limit") Integer limit) throws ClientException;
     // @formatter:on
 
     @POST
@@ -119,5 +121,5 @@ public interface EventServletInterface extends BaseServletInterface {
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(summary="Remove all events.")
     @MirthOperation(name = "removeAllEvents", display = "Remove all events", permission = Permissions.EVENTS_REMOVE, abortable = true)
-    public String removeAllEvents(@Param("export") @Parameter(description = "If true, messages will be exported into the application data directory on the server before being removed.") @QueryParam("export") boolean export) throws ClientException;
+    public String removeAllEvents(@Param("export") @Parameter(description = "If true, messages will be exported into the application data directory on the server before being removed.", schema = @Schema(defaultValue = "true")) @QueryParam("export") boolean export) throws ClientException;
 }

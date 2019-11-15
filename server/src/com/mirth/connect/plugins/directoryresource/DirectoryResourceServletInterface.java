@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.directoryresource;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 
 @Path("/extensions/directoryresource")
-
+@Tag(name = "Extension Services")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface DirectoryResourceServletInterface extends BaseServletInterface {

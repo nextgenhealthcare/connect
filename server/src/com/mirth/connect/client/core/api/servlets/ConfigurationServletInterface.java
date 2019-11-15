@@ -12,6 +12,11 @@ package com.mirth.connect.client.core.api.servlets;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Calendar;
 import java.util.List;
@@ -52,7 +57,7 @@ import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/server")
-
+@Tag(name = "Server Configuration")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface ConfigurationServletInterface extends BaseServletInterface {
@@ -115,7 +120,7 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @Operation(summary="Returns a ServerConfiguration object which contains all of the channels, alerts, configuration map, and properties stored on the Mirth Connect server.")
     @MirthOperation(name = "getServerConfiguration", display = "Get server configuration", permission = Permissions.SERVER_CONFIGURATION_BACKUP)
     public ServerConfiguration getServerConfiguration(// @formatter:off
-            @Param("initialState") @Parameter(description = "The initial state to set all channels in the configuration to.", allowableValues = "STARTED, PAUSED, STOPPED") @QueryParam("initialState") DeployedState initialState,
+            @Param("initialState") @Parameter(description = "The initial state to set all channels in the configuration to.", schema = @Schema(allowableValues = {"STARTED", "PAUSED", "STOPPED"}, type = "string")) @QueryParam("initialState") DeployedState initialState,
             @Param("pollingOnly") @Parameter(description = "If true, and the initialState parameter is set, only channels with polling source connectors will have their initial states overwritten in the returned server configuration.") @QueryParam("pollingOnly") boolean pollingOnly,
             @Param("disableAlerts") @Parameter(description = "If true, all alerts returned in the server configuration will be disabled.") @QueryParam("disableAlerts") boolean disableAlerts) throws ClientException;
     // @formatter:on
@@ -126,7 +131,7 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @MirthOperation(name = "setServerConfiguration", display = "Set server configuration", permission = Permissions.SERVER_CONFIGURATION_RESTORE, type = ExecuteType.ASYNC)
     public void setServerConfiguration(// @formatter:off
             @Param("serverConfiguration") @Parameter(description = "The ServerConfiguration object containing all channels, users, alerts, and properties to update.", required = true) ServerConfiguration serverConfiguration,
-            @Param("deploy") @Parameter(description = "If true, all enabled channels will be deployed after the configuration is restored.") @QueryParam(value = "deploy") boolean deploy,
+            @Param("deploy") @Parameter(description = "If true, all enabled channels will be deployed after the configuration is restored.", schema = @Schema(defaultValue = "false")) @QueryParam(value = "deploy") boolean deploy,
             @Param("overwriteConfigMap") @Parameter(description = "If true, overwrite the Configuration Map") @QueryParam(value = "overwriteConfigMap") boolean overwriteConfigMap) throws ClientException;
     // @formatter:on
 
@@ -154,11 +159,17 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @MirthOperation(name = "getEncryptionSettings", display = "Get encryption settings")
     public EncryptionSettings getEncryptionSettings() throws ClientException;
 
-    @POST
-    @Path("/_testEmail")
-    @Operation(summary="Sends a test e-mail.")
-    @MirthOperation(name = "sendTestEmail", display = "Send Test Email", permission = Permissions.SERVER_SEND_TEST_EMAIL)
-    public ConnectionTestResponse sendTestEmail(@Param("properties") @Parameter(description = "Contains all properties needed to send the e-mail. Properties include: port, encryption, host, timeout, authentication, username, password, toAddress, fromAddress", required = true) Properties properties) throws ClientException;
+	@POST
+	@Path("/_testEmail")
+	@Operation(summary = "Sends a test e-mail.")
+	@MirthOperation(name = "sendTestEmail", display = "Send Test Email", permission = Permissions.SERVER_SEND_TEST_EMAIL)
+	public ConnectionTestResponse sendTestEmail(
+			@Param("properties") @RequestBody(description = "Contains all properties needed to send the e-mail. Properties include: port, encryption, host, timeout, authentication, username, password, toAddress, fromAddress", required = true, content = {
+					@Content(mediaType = MediaType.APPLICATION_XML, schema = @Schema(implementation = Properties.class), examples = {
+							@ExampleObject(name = "properties", value = BaseServletInterface.PROPERTIES_XML_EXAMPLE) }),
+					@Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Properties.class), examples = {
+							@ExampleObject(name = "properties", value = BaseServletInterface.PROPERTIES_JSON_EXAMPLE) }) }) Properties properties)
+			throws ClientException;
 
     @GET
     @Path("/updateSettings")

@@ -12,6 +12,8 @@ package com.mirth.connect.client.core.api.servlets;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Map;
@@ -37,7 +39,7 @@ import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 
 @Path("/channels")
-
+@Tag(name = "Channel Status Operations")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface ChannelStatusServletInterface extends BaseServletInterface {
@@ -46,7 +48,7 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @Path("/{channelId}/status")
     @Operation(summary="Returns the dashboard status for a single channel ID.")
     @MirthOperation(name = "getChannelStatus", display = "Get status for single channel", permission = Permissions.DASHBOARD_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public DashboardStatus getChannelStatus(@Param("channelId") @Parameter("The channel ID to return a dashboard status for.") @PathParam("channelId") String channelId) throws ClientException;
+    public DashboardStatus getChannelStatus(@Param("channelId") @Parameter(description = "The channel ID to return a dashboard status for.") @PathParam("channelId") String channelId) throws ClientException;
 
     @GET
     @Path("/statuses")
@@ -73,7 +75,7 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @Operation(summary="Returns a DashboardChannelInfo object containing a partial channel status list and a set of remaining channel IDs.")
     @MirthOperation(name = "getChannelStatusListInitial", display = "Get initial channel status list", permission = Permissions.DASHBOARD_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public DashboardChannelInfo getDashboardChannelInfo(// @formatter:off
-            @Param("fetchSize") @Parameter(description = "Specifies the maximum number of statuses to return.", required = true) @QueryParam("fetchSize") int fetchSize,
+            @Param("fetchSize") @Parameter(description = "Specifies the maximum number of statuses to return.", required = true, schema = @Schema(defaultValue = "100")) @QueryParam("fetchSize") int fetchSize,
             @Param("filter") @Parameter(description = "The filter string to limit dashboard statuses with.") @QueryParam("filter") String filter) throws ClientException;
     // @formatter:on
 

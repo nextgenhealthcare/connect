@@ -12,6 +12,7 @@ package com.mirth.connect.client.core.api.servlets;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Map;
 
@@ -31,7 +32,7 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.model.DatabaseTask;
 
 @Path("/databaseTasks")
-
+@Tag(name = "Database Tasks")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface DatabaseTaskServletInterface extends BaseServletInterface {

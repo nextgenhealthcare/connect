@@ -10,8 +10,10 @@
 package com.mirth.connect.connectors.jdbc;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Set;
 import java.util.SortedSet;
@@ -31,7 +33,7 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 
 @Path("/connectors/jdbc")
-
+@Tag(name = "Connector Services")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface DatabaseConnectorServletInterface extends BaseServletInterface {
@@ -50,7 +52,7 @@ public interface DatabaseConnectorServletInterface extends BaseServletInterface 
             @Param("username") @Parameter(description = "The username to authenticate with.") @DefaultValue("") @QueryParam("username") String username,
             @Param(value = "password", excludeFromAudit = true) @Parameter(description = "The password to authenticate with.") @DefaultValue("") @QueryParam("password") String password,
             @Param("tableNamePatterns") @Parameter(description = "If specified, filters by table name. Wildcards (* or %) are allowed.") @QueryParam("tableNamePattern") Set<String> tableNamePatterns,
-            @Param("selectLimit") @Parameter(description = "A simple query to use to retrieve database metadata information.") @DefaultValue("SELECT * FROM ? LIMIT 1") @QueryParam("selectLimit") String selectLimit,
+            @Param("selectLimit") @Parameter(description = "A simple query to use to retrieve database metadata information.", schema = @Schema(defaultValue = "SELECT * FROM ? LIMIT 1")) @DefaultValue("SELECT * FROM ? LIMIT 1") @QueryParam("selectLimit") String selectLimit,
             @Param("resourceIds") @Parameter(description = "Library resource IDs to use, if a custom driver is necessary.") @QueryParam("resourceId") Set<String> resourceIds) throws ClientException;
     // @formatter:on)
 }

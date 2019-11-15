@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.jms;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -32,7 +33,7 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 
 @Path("/connectors/jms")
-
+@Tag(name = "Connector Services")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface JmsConnectorServletInterface extends BaseServletInterface {

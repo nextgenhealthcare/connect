@@ -10,8 +10,14 @@
 package com.mirth.connect.client.core.api.servlets;
 
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Properties;
@@ -39,7 +45,7 @@ import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 
 @Path("/users")
-
+@Tag(name = "Users")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface UserServletInterface extends BaseServletInterface {
@@ -52,8 +58,8 @@ public interface UserServletInterface extends BaseServletInterface {
     @Operation(summary="Logs in to the Mirth Connect server using the specified name and password.")
     @MirthOperation(name = "login", display = "Login")
     public LoginStatus login(// @formatter:off
-            @Param("username") @Parameter(description = "The username to login with.", required = true) @FormParam("username") String username,
-            @Param(value = "password", excludeFromAudit = true) @Parameter(description = "The password to login with.", required = true) @FormParam("password") String password) throws ClientException;
+            @Param("username") @Parameter(description = "The username to login with.", required = true, schema = @Schema(defaultValue = "admin")) @FormParam("username") String username,
+            @Param(value = "password", excludeFromAudit = true) @Parameter(description = "The password to login with.", required = true, schema = @Schema(defaultValue = "admin")) @FormParam("password") String password) throws ClientException;
     // @formatter:on
 
     @POST
@@ -124,10 +130,15 @@ public interface UserServletInterface extends BaseServletInterface {
     @MirthOperation(name = "isUserLoggedIn", display = "Check if user is logged in", permission = Permissions.USERS_MANAGE)
     public boolean isUserLoggedIn(@Param("userId") @Parameter(description = "The unique ID of the user.", required = true) @PathParam("userId") Integer userId) throws ClientException;
 
-    @GET
-    @Path("/{userId}/preferences")
-    @Operation(summary="Returns a Map of user preferences, optionally filtered by a set of property names.")
-    @MirthOperation(name = "getUserPreferences", display = "Get user preferences", auditable = false)
+	@GET
+	@Path("/{userId}/preferences")
+	@Operation(summary = "Returns a Map of user preferences, optionally filtered by a set of property names.")
+	@MirthOperation(name = "getUserPreferences", display = "Get user preferences", auditable = false)
+	@ApiResponse(responseCode = "200", content = {
+			@Content(mediaType = MediaType.APPLICATION_XML, schema = @Schema(implementation = Properties.class), examples = {
+					@ExampleObject(name = "properties", value = BaseServletInterface.PROPERTIES_XML_EXAMPLE) }),
+			@Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Properties.class), examples = {
+					@ExampleObject(name = "properties", value = BaseServletInterface.PROPERTIES_JSON_EXAMPLE) }) })
     public Properties getUserPreferences(// @formatter:off
             @Param("userId") @Parameter(description = "The unique ID of the user.", required = true) @PathParam("userId") Integer userId,
             @Param("names") @Parameter(description = "An optional set of property names to filter by.") @QueryParam("name") Set<String> names) throws ClientException;
@@ -143,13 +154,18 @@ public interface UserServletInterface extends BaseServletInterface {
             @Param("name") @Parameter(description = "The name of the user property to retrieve.", required = true) @PathParam("name") String name) throws ClientException;
     // @formatter:on
 
-    @PUT
-    @Path("/{userId}/preferences")
-    @Operation(summary="Updates multiple user preferences.")
-    @MirthOperation(name = "setUserPreferences", display = "Set user preferences")
-    public void setUserPreferences(// @formatter:off
-            @Param("userId") @Parameter(description = "The unique ID of the user.", required = true) @PathParam("userId") Integer userId,
-            @Param("properties") @Parameter(description = "The properties to update for the user.", required = true) Properties properties) throws ClientException;
+	@PUT
+	@Path("/{userId}/preferences")
+	@Operation(summary = "Updates multiple user preferences.")
+	@MirthOperation(name = "setUserPreferences", display = "Set user preferences")
+	public void setUserPreferences(// @formatter:off
+			@Param("userId") @Parameter(description = "The unique ID of the user.", required = true) @PathParam("userId") Integer userId,
+			@Param("properties") @RequestBody(description = "The properties to update for the user.", required = true, content = {
+					@Content(mediaType = MediaType.APPLICATION_XML, schema = @Schema(implementation = Properties.class), examples = {
+							@ExampleObject(name = "properties", value = BaseServletInterface.PROPERTIES_XML_EXAMPLE) }),
+					@Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Properties.class), examples = {
+							@ExampleObject(name = "properties", value = BaseServletInterface.PROPERTIES_JSON_EXAMPLE) }) }) Properties properties)
+			throws ClientException;
     // @formatter:on
 
     @PUT

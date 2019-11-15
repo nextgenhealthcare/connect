@@ -11,6 +11,7 @@ package com.mirth.connect.plugins.datapruner;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Calendar;
 import java.util.Map;
@@ -27,7 +28,7 @@ import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 
 @Path("/extensions/datapruner")
-
+@Tag(name = "Extension Services")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface DataPrunerServletInterface extends BaseServletInterface {

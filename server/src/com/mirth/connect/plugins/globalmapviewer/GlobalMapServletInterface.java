@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.globalmapviewer;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +33,7 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 
 @Path("/extensions/globalmapviewer")
-
+@Tag(name = "Extension Services")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface GlobalMapServletInterface extends BaseServletInterface {
