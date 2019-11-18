@@ -98,7 +98,6 @@
 				window.onload = function() {
 			        // Swagger-ui configuration goes here.
 			        // See further: https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
-			        console.log(url);
 			        const ui = SwaggerUIBundle({
 			          deepLinking: true,
 			          presets: [
@@ -113,6 +112,7 @@
 			          docExpansion: 'none',
 			          operationsSorter: 'alpha',
 			          defaultModelRendering: 'example',
+			          tagsSorter: 'alpha',
 			          url: url, // <-- adjust this to your webserver's structure
 			          onComplete: function(swaggerApi, swaggerUi){
 			        	/* TODO - Figure out how to replace this */
