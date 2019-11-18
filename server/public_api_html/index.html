@@ -7,7 +7,6 @@
 		<link rel="stylesheet" type="text/css" href="css/swagger-ui.css" >
 		<link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/>
 		<link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/>
-		<link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/>
 		<link href='css/reset.css' media='print' rel='stylesheet' type='text/css'/>
 		<link href='css/print.css' media='print' rel='stylesheet' type='text/css'/>
 		<link href='css/bootstrap-glyph.css' media='screen' rel='stylesheet' type='text/css'>
@@ -33,11 +32,17 @@
 	
 		<script type="text/javascript">
 			$(function () {
+				var basePath = window.location.href;
+				var poundIndex = basePath.indexOf('#');
+				if (poundIndex != -1) {
+					basePath = basePath.substring(0, poundIndex);
+				}
+				
 				var url = window.location.search.match(/url=([^&]+)/);
 				if (url && url.length > 1) {
 					url = decodeURIComponent(url[1]);
 				} else {
-					url = "swagger.json";
+					url = basePath + "openapi.json";
 				}
 				
 				window.swapProp = function(node, name, value, depth) {
@@ -56,11 +61,10 @@
 					}
 				};
 				
-				window.getCurrentUser = function() {
+				window.getCurrentUser = function(apiPath) {
 					/* TODO - Figure out how to replace this and get the correct scheme */
 					/* var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath; */
-					var basePath = window.location.origin + "/api";
-					var path = basePath + "/users/current";
+					var path = basePath + "users/current";
 					var method = "GET";
 					
 					$.ajax({
@@ -94,12 +98,13 @@
 				window.onload = function() {
 			        // Swagger-ui configuration goes here.
 			        // See further: https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
+			        console.log(url);
 			        const ui = SwaggerUIBundle({
 			          deepLinking: true,
 			          presets: [
 			        	  SwaggerUIBundle.presets.apis,
 			        	  SwaggerUIBundle.SwaggerUIStandalonePreset
-						  ],
+					  ],
 			          dom_id: "#swagger-ui-container",
 			          supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
 			          validatorUrl: null,
@@ -126,8 +131,16 @@
 							hljs.highlightBlock(e)
 						});
 	
+						/* Get the list of servers */
+						var serversArray = new Array;
+						$('.servers label[for="servers"] select option').each ( function() {
+							serversArray.push($(this).val());
+						});
+
+						window.servers = serversArray;
+						
 						$('#loginImage').show();
-						window.getCurrentUser();
+						window.getCurrentUser(window.servers[0]);
 			          },
 			          onFailure: function(data) {
 						log("Unable to Load SwaggerUI");
@@ -145,11 +158,8 @@
 				$('#login').click(function() {
 					$('#loginForm').hide();
 					$('#loginImage').show();
-					
-					/* TODO - Figure out how to replace this and get the correct scheme */
-					/* var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath; */
-					var basePath = window.location.origin + "/api";
-					var path = basePath + "/users/_login";
+
+					var path = basePath + "users/_login";
 					var method = "POST";
 					
 					$.ajax({
@@ -161,7 +171,7 @@
 						},
 						dataType: 'xml',
 						success: function(data, textStatus, jqXHR) {
-							window.getCurrentUser();
+							window.getCurrentUser(window.servers[0]);
 						},
 						error: function(jqXHR, textStatus, errorThrown) {
 							$.removeCookie('JSESSIONID', { path: '/' });
@@ -175,11 +185,8 @@
 					$('#logoutForm').hide();
 					$('#loginImage').show();
 					$('#logoutFormUserName').text('');
-					
-					/* TODO - Figure out how to replace this and get the correct scheme */
-					/* var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath; */
-					var basePath = window.location.origin + "/api";
-					var path = basePath + "/users/_logout";
+
+					var path = basePath + "users/_logout";
 					var method = "POST";
 					
 					$.ajax({

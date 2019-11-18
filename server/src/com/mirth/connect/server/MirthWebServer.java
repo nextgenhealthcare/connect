@@ -315,7 +315,9 @@ public class MirthWebServer extends Server {
         }
 
         // TODO: Fully support backward compatibility for models before exposing earlier servlets
-        addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, Version.getLatest(), mirthProperties);
+        ServletContextHandler apiServletContextHandler = createApiServletContextHandler(contextPath, baseAPI, apiAllowHTTP, Version.getLatest(), mirthProperties);
+        
+        addApiServlets(handlers, apiServletContextHandler, contextPath, baseAPI, apiAllowHTTP, Version.getLatest(), mirthProperties);
         // Add Jersey API / swagger servlets for each specific version
 //        Version version = Version.getApiEarliest();
 //        while (version != null) {
@@ -323,7 +325,10 @@ public class MirthWebServer extends Server {
 //            version = version.getNextVersion();
 //        }
         // Add servlets for the main (default) API endpoint
-        addApiServlets(handlers, contextPath, baseAPI, apiAllowHTTP, null, mirthProperties);
+        apiServletContextHandler = createApiServletContextHandler(contextPath, baseAPI, apiAllowHTTP, null, mirthProperties);
+        addApiServlets(handlers, apiServletContextHandler, contextPath, baseAPI, apiAllowHTTP, null, mirthProperties);
+        
+        addSwaggerServlets(handlers, apiServletContextHandler, contextPath, baseAPI, apiAllowHTTP, null);
 
         // Create the webstart servlet handler
         ServletContextHandler servletContextHandler = new ServletContextHandler();
@@ -421,17 +426,15 @@ public class MirthWebServer extends Server {
         return sslConnector;
     }
 
-    private void addApiServlets(HandlerList handlers, String contextPath, String baseAPI, boolean apiAllowHTTP, Version version, PropertiesConfiguration mirthProperties) {
-        String apiPath = "";
+    private ServletContextHandler createApiServletContextHandler(String contextPath, String baseAPI, boolean apiAllowHTTP, Version version, PropertiesConfiguration mirthProperties) {
+    	String apiPath = "";
         Version apiVersion = version;
         if (apiVersion != null) {
             apiPath += "/" + apiVersion.toString();
-        } else {
-            apiVersion = Version.getLatest();
         }
-
+    	
         // Create the servlet handler for the API
-        ServletContextHandler apiServletContextHandler = new ServletContextHandler();
+    	ServletContextHandler apiServletContextHandler = new ServletContextHandler();
         apiServletContextHandler.setMaxFormContentSize(0);
         apiServletContextHandler.setSessionHandler(new SessionHandler());
         apiServletContextHandler.setContextPath(contextPath + baseAPI + apiPath);
@@ -439,6 +442,15 @@ public class MirthWebServer extends Server {
         apiServletContextHandler.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new MethodFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
         setConnectorNames(apiServletContextHandler, apiAllowHTTP);
+    	
+        return apiServletContextHandler;
+    }
+    
+    private void addApiServlets(HandlerList handlers, ServletContextHandler apiServletContextHandler, String contextPath, String baseAPI, boolean apiAllowHTTP, Version version, PropertiesConfiguration mirthProperties) {
+        Version apiVersion = version;
+        if (apiVersion == null) {
+        	apiVersion = Version.getLatest();
+        }
 
         ApiProviders apiProviders = getApiProviders(apiVersion);
 
@@ -448,14 +460,25 @@ public class MirthWebServer extends Server {
         jerseyVersionedServlet.setInitParameter(ServerProperties.PROVIDER_PACKAGES, StringUtils.join(apiProviders.providerPackages, ','));
         jerseyVersionedServlet.setInitParameter(ServerProperties.PROVIDER_CLASSNAMES, joinClasses(apiProviders.providerClasses));
 
+        // Add API handler
+        handlers.addHandler(apiServletContextHandler);
+    }
+    
+    private void addSwaggerServlets(HandlerList handlers, ServletContextHandler apiServletContextHandler, String contextPath, String baseAPI, boolean apiAllowHTTP, PropertiesConfiguration mirthProperties) {
+    	String apiPath = "";
+        Version apiVersion = Version.getLatest();
+
+        ApiProviders apiProviders = getApiProviders(apiVersion);
+
         // Add versioned Swagger bootstrap configuration servlet
-        ServletHolder swaggerVersionedServlet = new ServletHolder(new SwaggerServlet(contextPath + baseAPI + apiPath, version, apiVersion, apiProviders.servletInterfacePackages, apiProviders.servletInterfaces, apiAllowHTTP));
+        ServletHolder swaggerVersionedServlet = new ServletHolder(new SwaggerServlet(contextPath + baseAPI + apiPath, null, apiVersion, apiProviders.servletInterfacePackages, apiProviders.servletInterfaces, apiAllowHTTP));
         swaggerVersionedServlet.setInitOrder(2);
         apiServletContextHandler.addServlet(swaggerVersionedServlet, contextPath + baseAPI + apiPath + "/openapi.json");
         apiServletContextHandler.addServlet(swaggerVersionedServlet, contextPath + baseAPI + apiPath + "/openapi.yaml");
 
         // Add Swagger UI web page servlet
-        handlers.addHandler(getSwaggerContextHandler(contextPath, baseAPI, apiAllowHTTP, version));
+        handlers.addHandler(getSwaggerContextHandler(contextPath, baseAPI, apiAllowHTTP, null));
+        
         // Add API handler
         handlers.addHandler(apiServletContextHandler);
     }
