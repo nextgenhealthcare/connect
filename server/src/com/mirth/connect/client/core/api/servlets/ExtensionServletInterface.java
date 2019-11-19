@@ -9,9 +9,13 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import java.io.InputStream;
 import java.util.*;
@@ -38,7 +42,7 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginMetaData;
 
 @Path("/extensions")
-@Api("Extensions")
+@Tag(name = "Extensions")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface ExtensionServletInterface extends BaseServletInterface {
@@ -50,65 +54,78 @@ public interface ExtensionServletInterface extends BaseServletInterface {
     @POST
     @Path("/_install")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @ApiOperation("Installs an extension.")
+    @Operation(summary="Installs an extension.")
     @MirthOperation(name = "installExtension", display = "Install extension", permission = Permissions.EXTENSIONS_MANAGE)
-    public void installExtension(@Param("inputStream") @ApiParam(value = "The extension file to upload.") @FormDataParam("file") InputStream inputStream) throws ClientException;
+    public void installExtension(@Param("inputStream") @Parameter(description = "The extension file to upload.") @FormDataParam("file") InputStream inputStream) throws ClientException;
 
     @POST
     @Path("/_uninstall")
-    @ApiOperation("Uninstalls an extension.")
+    @Operation(summary="Uninstalls an extension.")
     @MirthOperation(name = "uninstallExtension", display = "Uninstall extension", permission = Permissions.EXTENSIONS_MANAGE)
-    public void uninstallExtension(@Param("extensionPath") @ApiParam(value = "The path attribute of the extension to uninstall.", required = true) String extensionPath) throws ClientException;
+    public void uninstallExtension(@Param("extensionPath") @Parameter(description = "The path attribute of the extension to uninstall.", required = true) String extensionPath) throws ClientException;
 
     @GET
     @Path("/{extensionName}")
-    @ApiOperation("Returns extension metadata by name.")
+    @Operation(summary="Returns extension metadata by name.")
     @MirthOperation(name = "getMetaDataByName", display = "Get extension metadata by name", auditable = false)
-    public MetaData getExtensionMetaData(@Param("extensionName") @ApiParam(value = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName) throws ClientException;
+    public MetaData getExtensionMetaData(@Param("extensionName") @Parameter(description = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName) throws ClientException;
 
     @GET
     @Path("/connectors")
-    @ApiOperation("Returns all active connector metadata.")
+    @Operation(summary="Returns all active connector metadata.")
     @MirthOperation(name = "getConnectorMetaData", display = "Get connector metadata", auditable = false)
     public Map<String, ConnectorMetaData> getConnectorMetaData() throws ClientException;
 
     @GET
     @Path("/plugins")
-    @ApiOperation("Returns all active plugin metadata.")
+    @Operation(summary="Returns all active plugin metadata.")
     @MirthOperation(name = "getPluginMetaData", display = "Get plugin metadata", auditable = false)
     public Map<String, PluginMetaData> getPluginMetaData() throws ClientException;
 
     @GET
     @Path("/{extensionName}/enabled")
-    @ApiOperation("Returns the enabled status of an extension.")
+    @Operation(summary="Returns the enabled status of an extension.")
     @MirthOperation(name = "isExtensionEnabled", display = "Check if extension is enabled", auditable = false)
-    public boolean isExtensionEnabled(@Param("extensionName") @ApiParam(value = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName) throws ClientException;
+    public boolean isExtensionEnabled(@Param("extensionName") @Parameter(description = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName) throws ClientException;
 
     @POST
     @Path("/{extensionName}/_setEnabled")
-    @ApiOperation("Enables or disables an extension.")
+    @Operation(summary="Enables or disables an extension.")
     @MirthOperation(name = "setExtensionEnabled", display = "Enable or disable an extension", permission = Permissions.EXTENSIONS_MANAGE)
     public void setExtensionEnabled(// @formatter:off
-            @Param("extensionName") @ApiParam(value = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
-            @Param("enabled") @ApiParam(value = "The new enabled status to set.", required = true) @QueryParam("enabled") boolean enabled) throws ClientException;
+            @Param("extensionName") @Parameter(description = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
+            @Param("enabled") @Parameter(description = "The new enabled status to set.", required = true) @QueryParam("enabled") boolean enabled) throws ClientException;
     // @formatter:on
 
     @GET
     @Path("/{extensionName}/properties")
-    @ApiOperation("Returns filtered properties for a specified extension.")
+    @Operation(summary="Returns filtered properties for a specified extension.")
     @MirthOperation(name = OPERATION_PLUGIN_PROPERTIES_GET, display = "Get filtered plugin properties", auditable = false)
     public Properties getPluginProperties(// @formatter:off
-        @Param("extensionName") @ApiParam(value = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
-        @Param("propertyKeys") @ApiParam(value = "The set of properties to retrieve.", required = false) @QueryParam("propertyKeys") Set<String> propertyKeys) throws ClientException;
+        @Param("extensionName") @Parameter(description = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
+        @Param("propertyKeys") @Parameter(description = "The set of properties to retrieve.", required = false) @QueryParam("propertyKeys") Set<String> propertyKeys) throws ClientException;
     // @formatter:on
 
     @PUT
     @Path("/{extensionName}/properties")
-    @ApiOperation("Sets properties for a specified extension.")
+    @Operation(summary="Sets properties for a specified extension.")
     @MirthOperation(name = OPERATION_PLUGIN_PROPERTIES_SET, display = "Set plugin properties")
     public void setPluginProperties(// @formatter:off
-            @Param("extensionName") @ApiParam(value = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
-            @Param("properties") @ApiParam(value = "The new properties to set.", required = true) Properties properties,
-            @Param("mergeProperties") @ApiParam(value = "Merge or replace properties. Defaults to replace.", required = false, defaultValue = "false") @QueryParam("mergeProperties") boolean mergeProperties) throws ClientException;
+        @Param("extensionName") @Parameter(description = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
+        @Param("properties") @RequestBody(description = "description", 
+        									content = {@Content(mediaType = MediaType.APPLICATION_XML, 
+        														schema = @Schema(implementation = Properties.class), 
+        														examples = {@ExampleObject(name = "properties", 
+        																					value = BaseServletInterface.PROPERTIES_XML_EXAMPLE
+        																	)}
+        														),
+        											@Content(mediaType = MediaType.APPLICATION_JSON, 
+													schema = @Schema(implementation = Properties.class), 
+													examples = {@ExampleObject(name = "properties", 
+																				value = BaseServletInterface.PROPERTIES_JSON_EXAMPLE
+																)}
+													)}
+        								) Properties properties,
+        @Param("mergeProperties") @Parameter(description = "Merge or replace properties. Defaults to replace.", required = false, schema = @Schema(defaultValue = "false")) @QueryParam("mergeProperties") boolean mergeProperties) throws ClientException;
     // @formatter:on
 }

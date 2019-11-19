@@ -9,9 +9,14 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Calendar;
 import java.util.List;
@@ -52,7 +57,7 @@ import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/server")
-@Api("Server Configuration")
+@Tag(name = "Server Configuration")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface ConfigurationServletInterface extends BaseServletInterface {
@@ -60,236 +65,242 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     @GET
     @Path("/id")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation("Returns the server id.")
+    @Operation(summary="Returns the server id.")
     @MirthOperation(name = "getServerId", display = "Get server ID", auditable = false)
     public String getServerId() throws ClientException;
 
     @GET
     @Path("/version")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation("Returns the version of the Mirth Connect server.")
+    @Operation(summary="Returns the version of the Mirth Connect server.")
     @MirthOperation(name = "getVersion", display = "Get version", auditable = false)
     public String getVersion() throws ClientException;
 
     @GET
     @Path("/buildDate")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation("Returns the build date of the Mirth Connect server.")
+    @Operation(summary="Returns the build date of the Mirth Connect server.")
     @MirthOperation(name = "getBuildDate", display = "Get build date", auditable = false)
     public String getBuildDate() throws ClientException;
 
     @GET
     @Path("/status")
-    @ApiOperation("Returns the status of the Mirth Connect server.")
+    @Operation(summary="Returns the status of the Mirth Connect server.")
     @MirthOperation(name = "getStatus", display = "Get status")
     public int getStatus() throws ClientException;
 
     @GET
     @Path("/timezone")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation("Returns the time zone of the server.")
+    @Operation(summary="Returns the time zone of the server.")
     @MirthOperation(name = "getServerTimezone", display = "Get server timezone", auditable = false)
     public String getServerTimezone() throws ClientException;
 
     @GET
     @Path("/time")
-    @ApiOperation("Returns the time of the server.")
+    @Operation(summary="Returns the time of the server.")
     @MirthOperation(name = "getServerTime", display = "Get server time", auditable = false)
     public Calendar getServerTime() throws ClientException;
 
     @GET
     @Path("/jvm")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation("Returns the name of the JVM running Mirth Connect.")
+    @Operation(summary="Returns the name of the JVM running Mirth Connect.")
     @MirthOperation(name = "getJVMName", display = "Get JVM name", auditable = false)
     public String getJVMName() throws ClientException;
 
     @GET
     @Path("/about")
-    @ApiOperation("Returns a map of common information about the Mirth Connect server.")
+    @Operation(summary="Returns a map of common information about the Mirth Connect server.")
     @MirthOperation(name = "getAbout", display = "Get about information", auditable = false)
     public Map<String, Object> getAbout() throws ClientException;
 
     @GET
     @Path("/configuration")
-    @ApiOperation("Returns a ServerConfiguration object which contains all of the channels, alerts, configuration map, and properties stored on the Mirth Connect server.")
+    @Operation(summary="Returns a ServerConfiguration object which contains all of the channels, alerts, configuration map, and properties stored on the Mirth Connect server.")
     @MirthOperation(name = "getServerConfiguration", display = "Get server configuration", permission = Permissions.SERVER_CONFIGURATION_BACKUP)
     public ServerConfiguration getServerConfiguration(// @formatter:off
-            @Param("initialState") @ApiParam(value = "The initial state to set all channels in the configuration to.", allowableValues = "STARTED, PAUSED, STOPPED") @QueryParam("initialState") DeployedState initialState,
-            @Param("pollingOnly") @ApiParam(value = "If true, and the initialState parameter is set, only channels with polling source connectors will have their initial states overwritten in the returned server configuration.") @QueryParam("pollingOnly") boolean pollingOnly,
-            @Param("disableAlerts") @ApiParam(value = "If true, all alerts returned in the server configuration will be disabled.") @QueryParam("disableAlerts") boolean disableAlerts) throws ClientException;
+            @Param("initialState") @Parameter(description = "The initial state to set all channels in the configuration to.", schema = @Schema(allowableValues = {"STARTED", "PAUSED", "STOPPED"}, type = "string")) @QueryParam("initialState") DeployedState initialState,
+            @Param("pollingOnly") @Parameter(description = "If true, and the initialState parameter is set, only channels with polling source connectors will have their initial states overwritten in the returned server configuration.") @QueryParam("pollingOnly") boolean pollingOnly,
+            @Param("disableAlerts") @Parameter(description = "If true, all alerts returned in the server configuration will be disabled.") @QueryParam("disableAlerts") boolean disableAlerts) throws ClientException;
     // @formatter:on
 
     @PUT
     @Path("/configuration")
-    @ApiOperation("Updates all of the channels, alerts and properties stored on the Mirth Connect server.")
+    @Operation(summary="Updates all of the channels, alerts and properties stored on the Mirth Connect server.")
     @MirthOperation(name = "setServerConfiguration", display = "Set server configuration", permission = Permissions.SERVER_CONFIGURATION_RESTORE, type = ExecuteType.ASYNC)
     public void setServerConfiguration(// @formatter:off
-            @Param("serverConfiguration") @ApiParam(value = "The ServerConfiguration object containing all channels, users, alerts, and properties to update.", required = true) ServerConfiguration serverConfiguration,
-            @Param("deploy") @ApiParam(value = "If true, all enabled channels will be deployed after the configuration is restored.", defaultValue = "false") @QueryParam(value = "deploy") boolean deploy,
-            @Param("overwriteConfigMap") @ApiParam(value = "If true, overwrite the Configuration Map", defaultValue = "false") @QueryParam(value = "overwriteConfigMap") boolean overwriteConfigMap) throws ClientException;
+            @Param("serverConfiguration") @Parameter(description = "The ServerConfiguration object containing all channels, users, alerts, and properties to update.", required = true) ServerConfiguration serverConfiguration,
+            @Param("deploy") @Parameter(description = "If true, all enabled channels will be deployed after the configuration is restored.", schema = @Schema(defaultValue = "false")) @QueryParam(value = "deploy") boolean deploy,
+            @Param("overwriteConfigMap") @Parameter(description = "If true, overwrite the Configuration Map") @QueryParam(value = "overwriteConfigMap") boolean overwriteConfigMap) throws ClientException;
     // @formatter:on
 
     @GET
     @Path("/charsets")
-    @ApiOperation("Returns a List of all of the charset encodings supported by the server.")
+    @Operation(summary="Returns a List of all of the charset encodings supported by the server.")
     @MirthOperation(name = "getAvailableCharsetEncodings", display = "Get available charset encodings", auditable = false)
     public List<String> getAvailableCharsetEncodings() throws ClientException;
 
     @GET
     @Path("/settings")
-    @ApiOperation("Returns a ServerSettings object with all server settings.")
+    @Operation(summary="Returns a ServerSettings object with all server settings.")
     @MirthOperation(name = "getServerSettings", display = "Get server settings", permission = Permissions.SERVER_SETTINGS_VIEW, auditable = false)
     public ServerSettings getServerSettings() throws ClientException;
 
     @PUT
     @Path("/settings")
-    @ApiOperation("Updates the server configuration settings.")
+    @Operation(summary="Updates the server configuration settings.")
     @MirthOperation(name = "setServerSettings", display = "Set server settings", permission = Permissions.SERVER_SETTINGS_EDIT)
-    public void setServerSettings(@Param("settings") @ApiParam(value = "The ServerSettings object containing all of the settings to update.", required = true) ServerSettings settings) throws ClientException;
+    public void setServerSettings(@Param("settings") @Parameter(description = "The ServerSettings object containing all of the settings to update.", required = true) ServerSettings settings) throws ClientException;
 
     @GET
     @Path("/encryption")
-    @ApiOperation("Returns an EncryptionSettings object with all encryption settings.")
+    @Operation(summary="Returns an EncryptionSettings object with all encryption settings.")
     @MirthOperation(name = "getEncryptionSettings", display = "Get encryption settings")
     public EncryptionSettings getEncryptionSettings() throws ClientException;
 
-    @POST
-    @Path("/_testEmail")
-    @ApiOperation("Sends a test e-mail.")
-    @MirthOperation(name = "sendTestEmail", display = "Send Test Email", permission = Permissions.SERVER_SEND_TEST_EMAIL)
-    public ConnectionTestResponse sendTestEmail(@Param("properties") @ApiParam(value = "Contains all properties needed to send the e-mail. Properties include: port, encryption, host, timeout, authentication, username, password, toAddress, fromAddress", required = true) Properties properties) throws ClientException;
+	@POST
+	@Path("/_testEmail")
+	@Operation(summary = "Sends a test e-mail.")
+	@MirthOperation(name = "sendTestEmail", display = "Send Test Email", permission = Permissions.SERVER_SEND_TEST_EMAIL)
+	public ConnectionTestResponse sendTestEmail(
+			@Param("properties") @RequestBody(description = "Contains all properties needed to send the e-mail. Properties include: port, encryption, host, timeout, authentication, username, password, toAddress, fromAddress", required = true, content = {
+					@Content(mediaType = MediaType.APPLICATION_XML, schema = @Schema(implementation = Properties.class), examples = {
+							@ExampleObject(name = "properties", value = BaseServletInterface.PROPERTIES_XML_EXAMPLE) }),
+					@Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Properties.class), examples = {
+							@ExampleObject(name = "properties", value = BaseServletInterface.PROPERTIES_JSON_EXAMPLE) }) }) Properties properties)
+			throws ClientException;
 
     @GET
     @Path("/updateSettings")
-    @ApiOperation("Returns an UpdateSettings object with all update settings.")
+    @Operation(summary="Returns an UpdateSettings object with all update settings.")
     @MirthOperation(name = "getUpdateSettings", display = "Get update settings", auditable = false)
     public UpdateSettings getUpdateSettings() throws ClientException;
 
     @PUT
     @Path("/updateSettings")
-    @ApiOperation("Updates the update settings.")
+    @Operation(summary="Updates the update settings.")
     @MirthOperation(name = "setUpdateSettings", display = "Set update settings", auditable = false)
-    public void setUpdateSettings(@Param("settings") @ApiParam(value = "The UpdateSettings object containing all of the settings to update.", required = true) UpdateSettings settings) throws ClientException;
+    public void setUpdateSettings(@Param("settings") @Parameter(description = "The UpdateSettings object containing all of the settings to update.", required = true) UpdateSettings settings) throws ClientException;
 
     @GET
     @Path("/licenseInfo")
-    @ApiOperation("Returns a LicenseInfo object with the expiration date and other information.")
+    @Operation(summary="Returns a LicenseInfo object with the expiration date and other information.")
     @MirthOperation(name = "getLicenseInfo", display = "Get license info", auditable = false)
     public LicenseInfo getLicenseInfo() throws ClientException;
 
     @POST
     @Path("/_generateGUID")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation("Returns a globally unique id.")
+    @Operation(summary="Returns a globally unique id.")
     @MirthOperation(name = "getGuid", display = "Get GUID", auditable = false)
     public String getGuid() throws ClientException;
 
     @GET
     @Path("/globalScripts")
-    @ApiOperation("Returns a map containing all of the global scripts.")
+    @Operation(summary="Returns a map containing all of the global scripts.")
     @MirthOperation(name = "getGlobalScripts", display = "Get global scripts", permission = Permissions.GLOBAL_SCRIPTS_VIEW)
     public Map<String, String> getGlobalScripts() throws ClientException;
 
     @PUT
     @Path("/globalScripts")
-    @ApiOperation("Updates all of the global scripts.")
+    @Operation(summary="Updates all of the global scripts.")
     @MirthOperation(name = "setGlobalScripts", display = "Set global scripts", permission = Permissions.GLOBAL_SCRIPTS_EDIT)
-    public void setGlobalScripts(@Param("scripts") @ApiParam(value = "The map of global scripts to update with. Script keys: " + ScriptController.DEPLOY_SCRIPT_KEY + ", " + ScriptController.UNDEPLOY_SCRIPT_KEY + ", " + ScriptController.PREPROCESSOR_SCRIPT_KEY + ", " + ScriptController.POSTPROCESSOR_SCRIPT_KEY, required = true) Map<String, String> scripts) throws ClientException;
+    public void setGlobalScripts(@Param("scripts") @Parameter(description = "The map of global scripts to update with. Script keys: " + ScriptController.DEPLOY_SCRIPT_KEY + ", " + ScriptController.UNDEPLOY_SCRIPT_KEY + ", " + ScriptController.PREPROCESSOR_SCRIPT_KEY + ", " + ScriptController.POSTPROCESSOR_SCRIPT_KEY, required = true) Map<String, String> scripts) throws ClientException;
 
     @GET
     @Path("/configurationMap")
-    @ApiOperation("Returns all entries in the configuration map.")
+    @Operation(summary="Returns all entries in the configuration map.")
     @MirthOperation(name = "getConfigurationMap", display = "Get configuration map", permission = Permissions.CONFIGURATION_MAP_VIEW)
     public Map<String, ConfigurationProperty> getConfigurationMap() throws ClientException;
 
     @PUT
     @Path("/configurationMap")
-    @ApiOperation("Updates all entries in the configuration map.")
+    @Operation(summary="Updates all entries in the configuration map.")
     @MirthOperation(name = "setConfigurationMap", display = "Set configuration map", permission = Permissions.CONFIGURATION_MAP_EDIT)
-    public void setConfigurationMap(@Param("map") @ApiParam(value = "The new configuration map to update with.", required = true) Map<String, ConfigurationProperty> map) throws ClientException;
+    public void setConfigurationMap(@Param("map") @Parameter(description = "The new configuration map to update with.", required = true) Map<String, ConfigurationProperty> map) throws ClientException;
 
     @GET
     @Path("/databaseDrivers")
-    @ApiOperation("Returns the database driver list.")
+    @Operation(summary="Returns the database driver list.")
     @MirthOperation(name = "getDatabaseDrivers", display = "Get database drivers", auditable = false, type = ExecuteType.ASYNC)
     public List<DriverInfo> getDatabaseDrivers() throws ClientException;
 
     @PUT
     @Path("/databaseDrivers")
-    @ApiOperation("Updates the list of database drivers.")
+    @Operation(summary="Updates the list of database drivers.")
     @MirthOperation(name = "setDatabaseDrivers", display = "Update database drivers", permission = Permissions.DATABASE_DRIVERS_EDIT)
-    public void setDatabaseDrivers(@Param("drivers") @ApiParam(value = "The new list of database drivers to update.", required = true) List<DriverInfo> drivers) throws ClientException;
+    public void setDatabaseDrivers(@Param("drivers") @Parameter(description = "The new list of database drivers to update.", required = true) List<DriverInfo> drivers) throws ClientException;
 
     @GET
     @Path("/passwordRequirements")
-    @ApiOperation("Returns all password requirements for the server.")
+    @Operation(summary="Returns all password requirements for the server.")
     @MirthOperation(name = "getPasswordRequirements", display = "Get password requirements")
     public PasswordRequirements getPasswordRequirements() throws ClientException;
 
     @GET
     @Path("/resources")
-    @ApiOperation("Returns all resources for the server.")
+    @Operation(summary="Returns all resources for the server.")
     @MirthOperation(name = "getResources", display = "Get resources", permission = Permissions.RESOURCES_VIEW, type = ExecuteType.ASYNC)
     public List<ResourceProperties> getResources() throws ClientException;
 
     @PUT
     @Path("/resources")
-    @ApiOperation("Updates all resources for the server.")
+    @Operation(summary="Updates all resources for the server.")
     @MirthOperation(name = "setResources", display = "Set resources", permission = Permissions.RESOURCES_EDIT, type = ExecuteType.ASYNC)
-    public void setResources(@Param("resources") @ApiParam(value = "The new list of resource properties to update with.", required = true) List<ResourceProperties> resources) throws ClientException;
+    public void setResources(@Param("resources") @Parameter(description = "The new list of resource properties to update with.", required = true) List<ResourceProperties> resources) throws ClientException;
 
     @POST
     @Path("/resources/{resourceId}/_reload")
-    @ApiOperation("Reloads a resource and all libraries associated with it.")
+    @Operation(summary="Reloads a resource and all libraries associated with it.")
     @MirthOperation(name = "reloadResource", display = "Reload resource", permission = Permissions.RESOURCES_RELOAD, type = ExecuteType.ASYNC)
-    public void reloadResource(@Param("resourceId") @ApiParam(value = "The unique ID of the resource to reload.", required = true) @PathParam("resourceId") String resourceId) throws ClientException;
+    public void reloadResource(@Param("resourceId") @Parameter(description = "The unique ID of the resource to reload.", required = true) @PathParam("resourceId") String resourceId) throws ClientException;
 
     @GET
     @Path("/channelDependencies")
-    @ApiOperation("Returns all channel dependencies for the server.")
+    @Operation(summary="Returns all channel dependencies for the server.")
     @MirthOperation(name = "getChannelDependencies", display = "Get channel dependencies", auditable = false)
     public Set<ChannelDependency> getChannelDependencies() throws ClientException;
 
     @PUT
     @Path("/channelDependencies")
-    @ApiOperation("Updates all channel dependencies for the server.")
+    @Operation(summary="Updates all channel dependencies for the server.")
     @MirthOperation(name = "setChannelDependencies", display = "Set channel dependencies", permission = Permissions.CHANNELS_MANAGE)
-    public void setChannelDependencies(@Param("dependencies") @ApiParam(value = "The channel dependencies to set.", required = true) Set<ChannelDependency> dependencies) throws ClientException;
+    public void setChannelDependencies(@Param("dependencies") @Parameter(description = "The channel dependencies to set.", required = true) Set<ChannelDependency> dependencies) throws ClientException;
 
     @GET
     @Path("/channelMetadata")
-    @ApiOperation("Returns all channel metadata for the server.")
+    @Operation(summary="Returns all channel metadata for the server.")
     @MirthOperation(name = "getChannelMetadata", display = "Get channel metadata", auditable = false)
     public Map<String, ChannelMetadata> getChannelMetadata() throws ClientException;
 
     @PUT
     @Path("/channelMetadata")
-    @ApiOperation("Updates all channel metadata for the server.")
+    @Operation(summary="Updates all channel metadata for the server.")
     @MirthOperation(name = "setChannelMetadata", display = "Set channel metadata", permission = Permissions.CHANNELS_MANAGE)
-    public void setChannelMetadata(@Param("metadata") @ApiParam(value = "The map of channel metadata to set.", required = true) Map<String, ChannelMetadata> metadata) throws ClientException;
+    public void setChannelMetadata(@Param("metadata") @Parameter(description = "The map of channel metadata to set.", required = true) Map<String, ChannelMetadata> metadata) throws ClientException;
 
     @GET
     @Path("/protocolsAndCipherSuites")
-    @ApiOperation("Returns a map containing all supported and enabled TLS protocols and cipher suites.")
+    @Operation(summary="Returns a map containing all supported and enabled TLS protocols and cipher suites.")
     @MirthOperation(name = "getProtocolsAndCipherSuites", display = "Get protocols and cipher suites", type = ExecuteType.ASYNC, auditable = false)
     public Map<String, String[]> getProtocolsAndCipherSuites() throws ClientException;
 
     @GET
     @Path("/channelTags")
-    @ApiOperation("Returns a set containing all channel tags for the server.")
+    @Operation(summary="Returns a set containing all channel tags for the server.")
     @MirthOperation(name = "getChannelTags", display = "Get channel tags", permission = Permissions.TAGS_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public Set<ChannelTag> getChannelTags() throws ClientException;
 
     @PUT
     @Path("/channelTags")
-    @ApiOperation("Updates all channel tags.")
+    @Operation(summary="Updates all channel tags.")
     @MirthOperation(name = "updateChannelTags", display = "Update channel tags", permission = Permissions.TAGS_MANAGE)
-    public void setChannelTags(@Param("channelTags") @ApiParam(value = "The channel tags to set.", required = true) Set<ChannelTag> channelTags) throws ClientException;
+    public void setChannelTags(@Param("channelTags") @Parameter(description = "The channel tags to set.", required = true) Set<ChannelTag> channelTags) throws ClientException;
 
     @GET
     @Path("/rhinoLanguageVersion")
-    @ApiOperation("Returns the language version that the Rhino engine should use.")
+    @Operation(summary="Returns the language version that the Rhino engine should use.")
     @MirthOperation(name = "getRhinoLanguageVersion", display = "Get rhino language version", type = ExecuteType.ASYNC, auditable = false)
     public int getRhinoLanguageVersion() throws ClientException;
 }

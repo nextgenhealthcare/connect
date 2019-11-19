@@ -149,7 +149,6 @@
 	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar"/>
 	<classpathentry kind="lib" path="lib/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="lib/javax.ws.rs-api-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/swagger-annotations-1.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-client-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-proxy-client-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections4-4.0.jar"/>
@@ -186,5 +185,6 @@
 	<classpathentry kind="lib" path="lib/httpmime-4.5.10.jar"/>
 	<classpathentry kind="lib" path="lib/regions-2.9.14.jar"/>
 	<classpathentry kind="lib" path="lib/utils-2.9.14.jar"/>
+	<classpathentry kind="lib" path="lib/swagger-annotations-2.0.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

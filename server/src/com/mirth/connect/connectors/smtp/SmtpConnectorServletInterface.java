@@ -9,9 +9,10 @@
 
 package com.mirth.connect.connectors.smtp;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -28,7 +29,7 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/connectors/smtp")
-@Api("Connector Services")
+@Tag(name = "Connector Services")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface SmtpConnectorServletInterface extends BaseServletInterface {
@@ -37,11 +38,11 @@ public interface SmtpConnectorServletInterface extends BaseServletInterface {
 
     @POST
     @Path("/_sendTestEmail")
-    @ApiOperation("Sends a test e-mail, replacing any connector properties first.")
+    @Operation(summary="Sends a test e-mail, replacing any connector properties first.")
     @MirthOperation(name = "sendTestEmail", display = "Send Test Email", type = ExecuteType.ASYNC, auditable = false)
     public ConnectionTestResponse sendTestEmail(// @formatter:off
-            @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
-            @Param("channelName") @ApiParam(value = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
-            @Param("properties") @ApiParam(value = "The SMTP Sender properties to use.", required = true) SmtpDispatcherProperties properties) throws ClientException;
+            @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
+            @Param("channelName") @Parameter(description = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
+            @Param("properties") @Parameter(description = "The SMTP Sender properties to use.", required = true) SmtpDispatcherProperties properties) throws ClientException;
     // @formatter:on
 }

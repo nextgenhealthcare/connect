@@ -9,8 +9,9 @@
 
 package com.mirth.connect.plugins.datapruner;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Calendar;
 import java.util.Map;
@@ -27,7 +28,7 @@ import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 
 @Path("/extensions/datapruner")
-@Api("Extension Services")
+@Tag(name = "Extension Services")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface DataPrunerServletInterface extends BaseServletInterface {
@@ -43,19 +44,19 @@ public interface DataPrunerServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/status")
-    @ApiOperation("Retrieves the current data pruner status.")
+    @Operation(summary="Retrieves the current data pruner status.")
     @MirthOperation(name = "getDataPrunerStatusMap", display = "Get status", permission = PERMISSION_VIEW)
     public Map<String, String> getStatusMap() throws ClientException;
 
     @POST
     @Path("/_start")
-    @ApiOperation("Starts the data pruner on-demand.")
+    @Operation(summary="Starts the data pruner on-demand.")
     @MirthOperation(name = "startDataPruner", display = "Start pruner", permission = PERMISSION_START_STOP)
     public Calendar start() throws ClientException;
 
     @POST
     @Path("/_stop")
-    @ApiOperation("Stops the data pruner if currently running.")
+    @Operation(summary="Stops the data pruner if currently running.")
     @MirthOperation(name = "stopDataPruner", display = "Stop pruner", permission = PERMISSION_START_STOP)
     public void stop() throws ClientException;
 }

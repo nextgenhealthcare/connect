@@ -9,9 +9,10 @@
 
 package com.mirth.connect.connectors.file;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -28,7 +29,7 @@ import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/connectors/file")
-@Api("Connector Services")
+@Tag(name = "Connector Services")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface FileConnectorServletInterface extends BaseServletInterface {
@@ -37,21 +38,21 @@ public interface FileConnectorServletInterface extends BaseServletInterface {
 
     @POST
     @Path("/_testRead")
-    @ApiOperation("Tests whether a file can be read from the specified directory.")
+    @Operation(summary="Tests whether a file can be read from the specified directory.")
     @MirthOperation(name = "testRead", display = "Test Read", type = ExecuteType.ASYNC, auditable = false)
     public ConnectionTestResponse testRead(// @formatter:off
-            @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
-            @Param("channelName") @ApiParam(value = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
-            @Param("properties") @ApiParam(value = "The File Reader properties to use.", required = true) FileReceiverProperties properties) throws ClientException;
+            @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
+            @Param("channelName") @Parameter(description = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
+            @Param("properties") @Parameter(description = "The File Reader properties to use.", required = true) FileReceiverProperties properties) throws ClientException;
     // @formatter:on
 
     @POST
     @Path("/_testWrite")
-    @ApiOperation("Tests whether a file can be written to the specified directory.")
+    @Operation(summary="Tests whether a file can be written to the specified directory.")
     @MirthOperation(name = "testWrite", display = "Test Write", type = ExecuteType.ASYNC, auditable = false)
     public ConnectionTestResponse testWrite(// @formatter:off
-            @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
-            @Param("channelName") @ApiParam(value = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
-            @Param("properties") @ApiParam(value = "The File Writer properties to use.", required = true) FileDispatcherProperties properties) throws ClientException;
+            @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
+            @Param("channelName") @Parameter(description = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
+            @Param("properties") @Parameter(description = "The File Writer properties to use.", required = true) FileDispatcherProperties properties) throws ClientException;
     // @formatter:on
 }

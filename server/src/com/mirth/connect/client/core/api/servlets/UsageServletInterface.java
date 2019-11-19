@@ -9,9 +9,10 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Map;
 
@@ -28,7 +29,7 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 
 @Path("/usageData")
-@Api("Usage Data")
+@Tag(name = "Usage Data")
 @Consumes(MediaType.APPLICATION_XML)
 @Produces(MediaType.APPLICATION_XML)
 public interface UsageServletInterface extends BaseServletInterface {
@@ -36,7 +37,7 @@ public interface UsageServletInterface extends BaseServletInterface {
     @POST
     @Path("/_generate")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation("Generates usage document using data from both the client and server.")
+    @Operation(summary="Generates usage document using data from both the client and server.")
     @MirthOperation(name = "getUsageData", display = "Get usage data", type = ExecuteType.ASYNC, auditable = false)
-    public String getUsageData(@Param("clientStats") @ApiParam(value = "The map of client usage data to use.", required = true) Map<String, Object> clientStats) throws ClientException;
+    public String getUsageData(@Param("clientStats") @Parameter(description = "The map of client usage data to use.", required = true) Map<String, Object> clientStats) throws ClientException;
 }
