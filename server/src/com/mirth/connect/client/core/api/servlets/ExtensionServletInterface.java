@@ -111,26 +111,21 @@ public interface ExtensionServletInterface extends BaseServletInterface {
     @Operation(summary="Sets properties for a specified extension.")
     @MirthOperation(name = OPERATION_PLUGIN_PROPERTIES_SET, display = "Set plugin properties")
     public void setPluginProperties(// @formatter:off
-            @Param("extensionName") @Parameter(description = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
-//            @Param("properties") @Parameter(description = "The new properties to set.", required = true, schema = @Schema(ref = "https://localhost:8444/schemas.json#/components/schemas/properties")) Properties properties,
-//            @Param("properties") @Parameter(description = "The new properties to set.", required = true, schema = @Schema(ref = "#/components/schemas/properties")) Properties properties,
-//            @Param("properties") @Parameter(description = "The new properties to set.", required = true, content = @Content(mediaType = MediaType.APPLICATION_XML, schema = @Schema(title = "Properties", name = "properties", example = "<example>hi</example>"), examples = {@ExampleObject(name = "properties", value = "<example>hi</example>", summary = "Summary")}), schema = @Schema(title = "Properties", name = "properties", example = "<example>hi</example>")) Properties properties,
-//            @Param("properties") @Parameter(description = "The new properties to set.", required = true, examples = {@ExampleObject(name = "properties", value = "<example>hi</example>", summary = "Summary")}) Properties properties,
-//            @Param("properties") @Parameter(description = "The new properties to set.", required = true, schema = @Schema(implementation = Properties.class), content = @Content(schema = @Schema(implementation = Properties.class), examples = {@ExampleObject(name = "properties", value = "<example>hi</example>", summary = "Summary")})) Properties properties,
-            @Param("properties") @RequestBody(description = "description", 
-            									content = {@Content(mediaType = MediaType.APPLICATION_XML, 
-            														schema = @Schema(implementation = Properties.class), 
-            														examples = {@ExampleObject(name = "properties", 
-            																					value = BaseServletInterface.PROPERTIES_XML_EXAMPLE
-            																	)}
-            														),
-            											@Content(mediaType = MediaType.APPLICATION_JSON, 
-														schema = @Schema(implementation = Properties.class), 
-														examples = {@ExampleObject(name = "properties", 
-																					value = BaseServletInterface.PROPERTIES_JSON_EXAMPLE
-																	)}
-														)}
-            								) Properties properties,
-            @Param("mergeProperties") @Parameter(description = "Merge or replace properties. Defaults to replace.", required = false, schema = @Schema(defaultValue = "false")) @QueryParam("mergeProperties") boolean mergeProperties) throws ClientException;
+        @Param("extensionName") @Parameter(description = "The name of the extension to retrieve.", required = true) @PathParam("extensionName") String extensionName,
+        @Param("properties") @RequestBody(description = "description", 
+        									content = {@Content(mediaType = MediaType.APPLICATION_XML, 
+        														schema = @Schema(implementation = Properties.class), 
+        														examples = {@ExampleObject(name = "properties", 
+        																					value = BaseServletInterface.PROPERTIES_XML_EXAMPLE
+        																	)}
+        														),
+        											@Content(mediaType = MediaType.APPLICATION_JSON, 
+													schema = @Schema(implementation = Properties.class), 
+													examples = {@ExampleObject(name = "properties", 
+																				value = BaseServletInterface.PROPERTIES_JSON_EXAMPLE
+																)}
+													)}
+        								) Properties properties,
+        @Param("mergeProperties") @Parameter(description = "Merge or replace properties. Defaults to replace.", required = false, schema = @Schema(defaultValue = "false")) @QueryParam("mergeProperties") boolean mergeProperties) throws ClientException;
     // @formatter:on
 }
