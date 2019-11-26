@@ -96,7 +96,6 @@
 	<classpathentry kind="lib" path="lib/swagger/swagger-integration-2.0.10.jar"/>
 	<classpathentry kind="lib" path="lib/swagger/swagger-jaxrs2-servlet-initializer-2.0.10.jar"/>
 	<classpathentry kind="lib" path="lib/classgraph-4.8.53.jar"/>
-	<!-- <classpathentry kind="lib" path="lib/swagger/swagger-jersey2-jaxrs-1.5.4.jar"/> -->
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-jetty-http-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-jetty-servlet-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-media-multipart-2.22.1.jar"/>

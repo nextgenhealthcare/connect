@@ -45,8 +45,8 @@ import com.mirth.connect.model.ChannelSummary;
 
 @Path("/channels")
 @Tag(name = "Channels")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface ChannelServletInterface extends BaseServletInterface {
 
     @POST
