@@ -38,33 +38,32 @@ public class ObjectJSONSerializerTest {
         assertEquals(GOOD_OLD_CHANNEL_ID, channel.getId());
         assertTrue(channel.getExportData().getMetadata().getPruningSettings().isArchiveEnabled());
     }
-    
+
     @Test
     public void testDeserializeInvalidChannel() {
-    	Channel channel = ObjectJSONSerializer.getInstance().deserialize(INVALID_CHANNEL, Channel.class);
-    	assertTrue(channel instanceof InvalidChannel);
-    	assertEquals(INVALID_CHANNEL_ID, channel.getId());
+        Channel channel = ObjectJSONSerializer.getInstance().deserialize(INVALID_CHANNEL, Channel.class);
+        assertTrue(channel instanceof InvalidChannel);
+        assertEquals(INVALID_CHANNEL_ID, channel.getId());
     }
-    
+
     @Test
     public void testSerializeChannel() throws IOException {
-    	Channel channel = new Channel();
-    	channel.setId(GOOD_OLD_CHANNEL_ID);
-    	String channelId = channel.getId();
-    	
-    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    	ObjectJSONSerializer.getInstance().serialize(channel, baos);
-    	
-    	String jsonString = baos.toString();
-    	ByteArrayInputStream iaos = new ByteArrayInputStream(jsonString.getBytes());
-    	JsonReader jsonReader = Json.createReader(iaos);
-    	JsonObject jsonObject = jsonReader.readObject();
-    	jsonReader.close();
-    	
-    	String id = jsonObject.getJsonObject("channel").getString("id");
-    	assertEquals(channelId, id);
+        Channel channel = new Channel();
+        channel.setId(GOOD_OLD_CHANNEL_ID);
+        String channelId = channel.getId();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectJSONSerializer.getInstance().serialize(channel, baos);
+
+        ByteArrayInputStream iaos = new ByteArrayInputStream(baos.toByteArray());
+        JsonReader jsonReader = Json.createReader(iaos);
+        JsonObject jsonObject = jsonReader.readObject();
+        jsonReader.close();
+
+        String id = jsonObject.getJsonObject("channel").getString("id");
+        assertEquals(channelId, id);
     }
-    
+
     private static final String GOOD_OLD_CHANNEL_ID = "e084f86d-7743-4df8-a6eb-91d1cdf2ab0f";
     // @formatter:off
     private static final String GOOD_OLD_CHANNEL = 
@@ -538,7 +537,7 @@ public class ObjectJSONSerializerTest {
             "    }\n" + 
             "}";
     // @formatter:on
-    
+
     private static final String INVALID_CHANNEL_ID = "b96f0f57-cd27-430d-9059-484211660fb7";
     // @formatter:off
     private static final String INVALID_CHANNEL = 

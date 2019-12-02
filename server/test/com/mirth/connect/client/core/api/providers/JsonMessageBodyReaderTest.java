@@ -45,7 +45,7 @@ public class JsonMessageBodyReaderTest {
     
     @Test
     public void testReadFromSingleObject() throws WebApplicationException, IOException {
-        InputStream entityStream = new ByteArrayInputStream(GOOD_CHANNEL.getBytes());
+        InputStream entityStream = new ByteArrayInputStream(GOOD_CHANNEL.getBytes("UTF-8"));
         MediaType mediaType = new MediaType("application", "json");
         
         @SuppressWarnings("unchecked")
