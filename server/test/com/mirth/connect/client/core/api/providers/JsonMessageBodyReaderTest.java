@@ -64,7 +64,7 @@ public class JsonMessageBodyReaderTest {
     
     @Test
     public void testReadFromList() throws WebApplicationException, IOException, ClassNotFoundException {
-        InputStream entityStream = new ByteArrayInputStream("{\"list\":{\"string\":[\"hello\",\"world\"]}}".getBytes());
+        InputStream entityStream = new ByteArrayInputStream("{\"list\":{\"string\":[\"hello\",\"world\"]}}".getBytes("UTF-8"));
         MediaType mediaType = new MediaType("application", "json");
         
         @SuppressWarnings("unchecked")
