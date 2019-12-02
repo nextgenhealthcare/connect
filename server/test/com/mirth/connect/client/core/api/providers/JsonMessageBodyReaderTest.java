@@ -89,7 +89,7 @@ public class JsonMessageBodyReaderTest {
             "{\n" + 
             "  \"channel\": {\n" + 
             "    \"@version\": \"3.9.0\",\n" + 
-            "    \"id\": \"" + "340f6381-7259-4a4d-baf3-694432697ae6" + "\",\n" + 
+            "    \"id\": \"" + GOOD_CHANNEL_ID + "\",\n" + 
             "    \"nextMetaDataId\": 2,\n" + 
             "    \"name\": \"test1\",\n" + 
             "    \"description\": null,\n" + 
@@ -548,7 +548,7 @@ public class JsonMessageBodyReaderTest {
             "}";
     // @formatter:on
     
-    private class TestJsonMessageBodyReader extends JsonMessageBodyReader {
+    private static class TestJsonMessageBodyReader extends JsonMessageBodyReader {
         ObjectJSONSerializer serializer;
         
         public TestJsonMessageBodyReader() {
