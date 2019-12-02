@@ -25,6 +25,10 @@ import com.mirth.connect.model.converters.ObjectJSONSerializer;
 @Consumes(MediaType.APPLICATION_JSON)
 public class JsonMessageBodyReader implements MessageBodyReader<Object> {
 
+    protected ObjectJSONSerializer getObjectJsonSerializer() {
+        return ObjectJSONSerializer.getInstance();
+    }
+    
     @Override
     public boolean isReadable(Class<?> arg0, Type arg1, Annotation[] arg2, MediaType arg3) {
         return true;
@@ -36,10 +40,9 @@ public class JsonMessageBodyReader implements MessageBodyReader<Object> {
         if (type.equals(List.class) && genericType instanceof ParameterizedType) {
             Type[] actualTypes = ((ParameterizedType) genericType).getActualTypeArguments();
             if (ArrayUtils.isNotEmpty(actualTypes) && actualTypes[0] instanceof Class) {
-                return ObjectJSONSerializer.getInstance().deserializeList(IOUtils.toString(entityStream, "UTF-8"), (Class<?>) actualTypes[0]);
+                return getObjectJsonSerializer().deserializeList(IOUtils.toString(entityStream, "UTF-8"), (Class<?>) actualTypes[0]);
             }
         }
-        return ObjectJSONSerializer.getInstance().deserialize(IOUtils.toString(entityStream, "UTF-8"), type);
+        return getObjectJsonSerializer().deserialize(IOUtils.toString(entityStream, "UTF-8"), type);
     }
-
 }

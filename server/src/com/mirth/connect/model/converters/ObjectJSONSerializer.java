@@ -34,7 +34,6 @@ public class ObjectJSONSerializer {
         try {
             jsonString = JsonXmlUtil.xmlToJson(xmlString);
         } catch (Exception e) {
-            // TODO: handle exception
             logger.error(e);
             throw new SerializerException(e);
         }
