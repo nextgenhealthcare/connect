@@ -46,8 +46,8 @@ import com.mirth.connect.model.User;
 
 @Path("/users")
 @Tag(name = "Users")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface UserServletInterface extends BaseServletInterface {
 
     public static final String LOGIN_DATA_HEADER = "X-Mirth-Login-Data";

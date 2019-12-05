@@ -43,8 +43,8 @@ import com.mirth.connect.model.PluginMetaData;
 
 @Path("/extensions")
 @Tag(name = "Extensions")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface ExtensionServletInterface extends BaseServletInterface {
 
     // These are statically declared because extensions can choose to include them in specific permission groups.
