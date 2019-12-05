@@ -41,8 +41,8 @@ import com.mirth.connect.model.filters.EventFilter;
 
 @Path("/events")
 @Tag(name = "Events")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface EventServletInterface extends BaseServletInterface {
 
     @GET

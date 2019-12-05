@@ -51,8 +51,8 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 @Path("/channels")
 @Tag(name = "Messages")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface MessageServletInterface extends BaseServletInterface {
 
     @POST

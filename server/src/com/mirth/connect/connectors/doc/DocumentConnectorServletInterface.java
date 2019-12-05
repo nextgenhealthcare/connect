@@ -30,15 +30,15 @@ import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/connectors/doc")
 @Tag(name = "Connector Services")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface DocumentConnectorServletInterface extends BaseServletInterface {
 
     public static final String PLUGIN_POINT = "Document Connector Service";
 
     @POST
     @Path("/_testWrite")
-    @Consumes({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML })
+    @Consumes(MediaType.TEXT_PLAIN)
     @Operation(summary="Tests whether a file can be written to the specified directory.")
     @MirthOperation(name = "testWrite", display = "Test Write", type = ExecuteType.ASYNC, auditable = false)
     public ConnectionTestResponse testWrite(// @formatter:off

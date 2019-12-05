@@ -30,8 +30,8 @@ import com.mirth.connect.client.core.api.Param;
 
 @Path("/usageData")
 @Tag(name = "Usage Data")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface UsageServletInterface extends BaseServletInterface {
 
     @POST

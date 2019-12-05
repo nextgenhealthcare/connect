@@ -27,8 +27,8 @@ import com.mirth.connect.model.SystemStats;
 
 @Path("/system")
 @Tag(name = "System Information and Statistics")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface SystemServletInterface extends BaseServletInterface {
     @GET
     @Path("/info")

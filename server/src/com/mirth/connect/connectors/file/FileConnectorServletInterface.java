@@ -30,8 +30,8 @@ import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/connectors/file")
 @Tag(name = "Connector Services")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface FileConnectorServletInterface extends BaseServletInterface {
 
     public static final String PLUGIN_POINT = "File Connector Service";

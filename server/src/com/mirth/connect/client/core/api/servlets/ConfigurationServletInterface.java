@@ -58,8 +58,8 @@ import com.mirth.connect.util.ConnectionTestResponse;
 
 @Path("/server")
 @Tag(name = "Server Configuration")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface ConfigurationServletInterface extends BaseServletInterface {
 
     @GET

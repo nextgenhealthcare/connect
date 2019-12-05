@@ -29,8 +29,8 @@ import com.mirth.connect.client.core.api.MirthOperation;
 
 @Path("/extensions/datapruner")
 @Tag(name = "Extension Services")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface DataPrunerServletInterface extends BaseServletInterface {
 
     public static final String PLUGIN_POINT = "Data Pruner";

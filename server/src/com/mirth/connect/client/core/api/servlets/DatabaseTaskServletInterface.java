@@ -33,8 +33,8 @@ import com.mirth.connect.model.DatabaseTask;
 
 @Path("/databaseTasks")
 @Tag(name = "Database Tasks")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface DatabaseTaskServletInterface extends BaseServletInterface {
 
     @GET

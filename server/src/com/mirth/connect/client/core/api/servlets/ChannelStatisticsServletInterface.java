@@ -38,8 +38,8 @@ import com.mirth.connect.model.ChannelStatistics;
 
 @Path("/channels")
 @Tag(name = "Channel Statistics")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface ChannelStatisticsServletInterface extends BaseServletInterface {
 
     @GET

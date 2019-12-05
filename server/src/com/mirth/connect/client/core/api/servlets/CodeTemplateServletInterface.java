@@ -45,8 +45,8 @@ import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
 
 @Path("/")
 @Tag(name = "Code Templates")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface CodeTemplateServletInterface extends BaseServletInterface {
 
     @GET

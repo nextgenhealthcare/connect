@@ -33,8 +33,8 @@ import com.mirth.connect.client.core.api.Param;
 
 @Path("/channels")
 @Tag(name = "Channel Deployment Operations")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface EngineServletInterface extends BaseServletInterface {
 
     @POST

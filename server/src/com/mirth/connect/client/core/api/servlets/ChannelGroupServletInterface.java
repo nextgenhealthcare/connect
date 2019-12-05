@@ -37,8 +37,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path("/channelgroups")
 @Tag(name = "Channel Groups")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface ChannelGroupServletInterface extends BaseServletInterface {
 
     @GET
