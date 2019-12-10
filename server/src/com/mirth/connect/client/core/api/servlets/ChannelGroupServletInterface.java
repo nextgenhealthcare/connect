@@ -59,8 +59,21 @@ public interface ChannelGroupServletInterface extends BaseServletInterface {
     @Operation(summary="Updates all channel groups in one request.")
     @MirthOperation(name = "updateChannelGroups", display = "Update channel groups", permission = Permissions.CHANNELS_MANAGE)
     public boolean updateChannelGroups(// @formatter:off
-            @Param("channelGroups") @Parameter(description = "The channel group object to update or create.") @FormDataParam("channelGroups") Set<ChannelGroup> channelGroups,
-            @Param("removedChannelGroupIds") @Parameter(description = "All channel group IDs known to be removed.") @FormDataParam("removedChannelGroupIds") Set<String> removedChannelGroupIds,
-            @Param("override") @Parameter(description = "If true, the channel groups will be updated even if different revisions exist on the server.", schema = @Schema(defaultValue = "false")) @QueryParam("override") boolean override) throws ClientException;
+            @Param("channelGroups") 
+            @Parameter(description = "The channel group object to update or create.")
+            @Schema(description = "The channel group object to update or create.", type = "object")
+            @FormDataParam("channelGroups")
+            Set<ChannelGroup> channelGroups,
+            
+            @Param("removedChannelGroupIds") 
+            @Parameter(description = "All channel group IDs known to be removed.") 
+            @Schema(description = "All channel group IDs known to be removed.", type = "object")
+            @FormDataParam("removedChannelGroupIds") 
+            Set<String> removedChannelGroupIds,
+            
+            @Param("override") 
+            @Parameter(description = "If true, the channel groups will be updated even if different revisions exist on the server.", schema = @Schema(defaultValue = "false")) 
+            @QueryParam("override") 
+            boolean override) throws ClientException;
     // @formatter:on
 }

@@ -56,7 +56,11 @@ public interface ExtensionServletInterface extends BaseServletInterface {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Operation(summary="Installs an extension.")
     @MirthOperation(name = "installExtension", display = "Install extension", permission = Permissions.EXTENSIONS_MANAGE)
-    public void installExtension(@Param("inputStream") @Parameter(description = "The extension file to upload.") @FormDataParam("file") InputStream inputStream) throws ClientException;
+    public void installExtension(
+    		@Param("inputStream") 
+    		@Parameter(description = "The extension file to upload.", schema = @Schema(description = "The extension file to upload.", type = "string", format = "binary"))
+    		@FormDataParam("file") 
+    		InputStream inputStream) throws ClientException;
 
     @POST
     @Path("/_uninstall")
