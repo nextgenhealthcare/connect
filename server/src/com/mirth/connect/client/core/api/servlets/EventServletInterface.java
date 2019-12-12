@@ -9,8 +9,11 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,35 +44,52 @@ import com.mirth.connect.model.filters.EventFilter;
 
 @Path("/events")
 @Tag(name = "Events")
-@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface EventServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/maxEventId")
-    @Operation(summary="Returns the maximum event ID currently in the database.")
+    @Operation(summary = "Returns the maximum event ID currently in the database.")
     @MirthOperation(name = "getMaxEventId", display = "Get max event ID", permission = Permissions.EVENTS_VIEW, auditable = false)
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
     public Integer getMaxEventId() throws ClientException;
 
     @GET
     @Path("/{eventId}")
-    @Operation(summary="Retrieves an event by ID.")
+    @Operation(summary = "Retrieves an event by ID.")
+    @ApiResponse(content = { @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+            @ExampleObject(name = "serverEvent", ref = "../apiexamples/server_event_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "serverEvent", ref = "../apiexamples/server_event_json") }) })
     @MirthOperation(name = "getEvent", display = "Get event by ID", permission = Permissions.EVENTS_VIEW, auditable = false, abortable = true)
     public ServerEvent getEvent(@Param("eventId") @Parameter(description = "The ID of the event.", required = true) @PathParam("eventId") Integer eventId) throws ClientException;
 
     @POST
     @Path("/_search")
-    @Operation(summary="Search for events by specific filter criteria.")
+    @Operation(summary = "Search for events by specific filter criteria.")
+    @ApiResponse(content = { @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+            @ExampleObject(name = "serverEventList", ref = "../apiexamples/server_event_list_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "serverEventList", ref = "../apiexamples/server_event_list_json") }) })
     @MirthOperation(name = "getEvents", display = "Get events", permission = Permissions.EVENTS_VIEW, auditable = false, abortable = true)
     public List<ServerEvent> getEvents(// @formatter:off
-            @Param("filter") @Parameter(description = "The EventFilter object to use to query events by.", required = true) EventFilter filter,
+            @Param("filter") @RequestBody(description = "The EventFilter object to use to query events by.", required = true, content = {
+                    @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                            @ExampleObject(name = "event_filter", ref = "../apiexamples/event_filter_xml") }),
+                    @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                            @ExampleObject(name = "event_filter", ref = "../apiexamples/event_filter_json") }) }) EventFilter filter,
             @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.", schema = @Schema(defaultValue = "0")) @QueryParam("offset") Integer offset,
             @Param("limit") @Parameter(description = "Used for pagination, determines the maximum number of results to return.", schema = @Schema(defaultValue = "20")) @QueryParam("limit") Integer limit) throws ClientException;
     // @formatter:on
 
     @GET
     @Path("/")
-    @Operation(summary="Search for events by specific filter criteria.")
+    @Operation(summary = "Search for events by specific filter criteria.")
+    @ApiResponse(content = { @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+            @ExampleObject(name = "serverEventList", ref = "../apiexamples/server_event_list_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "serverEventList", ref = "../apiexamples/server_event_list_json") }) })
     @MirthOperation(name = "getEvents", display = "Get events", permission = Permissions.EVENTS_VIEW, auditable = false, abortable = true)
     public List<ServerEvent> getEvents(// @formatter:off
             @Param("maxEventId") @Parameter(description = "The maximum event ID to query.") @QueryParam("maxEventId") Integer maxEventId,
@@ -88,14 +108,20 @@ public interface EventServletInterface extends BaseServletInterface {
 
     @POST
     @Path("/count/_search")
-    @Operation(summary="Count number for events by specific filter criteria.")
+    @Operation(summary = "Count number for events by specific filter criteria.")
     @MirthOperation(name = "getEventCount", display = "Get events results count", permission = Permissions.EVENTS_VIEW, auditable = false, abortable = true)
-    public Long getEventCount(@Param("filter") @Parameter(description = "The EventFilter object to use to query events by.", required = true) EventFilter filter) throws ClientException;
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Long getEventCount(@Param("filter") @RequestBody(description = "The EventFilter object to use to query events by.", required = true, content = {
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "event_filter", ref = "../apiexamples/event_filter_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "event_filter", ref = "../apiexamples/event_filter_json") }) }) EventFilter filter) throws ClientException;
 
     @GET
     @Path("/count")
-    @Operation(summary="Count number for events by specific filter criteria.")
+    @Operation(summary = "Count number for events by specific filter criteria.")
     @MirthOperation(name = "getEventCount", display = "Get events results count", permission = Permissions.EVENTS_VIEW, auditable = false, abortable = true)
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
     public Long getEventCount(// @formatter:off
             @Param("maxEventId") @Parameter(description = "The maximum event ID to query.") @QueryParam("maxEventId") Integer maxEventId,
             @Param("minEventId") @Parameter(description = "The minimum event ID to query.") @QueryParam("minEventId") Integer minEventId,
@@ -112,14 +138,14 @@ public interface EventServletInterface extends BaseServletInterface {
     @POST
     @Path("/_export")
     @Produces(MediaType.TEXT_PLAIN)
-    @Operation(summary="Exports all events to the application data directory on the server.")
+    @Operation(summary = "Exports all events to the application data directory on the server.")
     @MirthOperation(name = "exportAllEvents", display = "Export all events", permission = Permissions.EVENTS_VIEW)
     public String exportAllEvents() throws ClientException;
 
     @DELETE
     @Path("/")
     @Produces(MediaType.TEXT_PLAIN)
-    @Operation(summary="Remove all events.")
+    @Operation(summary = "Remove all events.")
     @MirthOperation(name = "removeAllEvents", display = "Remove all events", permission = Permissions.EVENTS_REMOVE, abortable = true)
     public String removeAllEvents(@Param("export") @Parameter(description = "If true, messages will be exported into the application data directory on the server before being removed.", schema = @Schema(defaultValue = "true")) @QueryParam("export") boolean export) throws ClientException;
 }
