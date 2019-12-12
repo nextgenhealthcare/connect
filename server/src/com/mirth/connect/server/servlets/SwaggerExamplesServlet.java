@@ -22,13 +22,20 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mirth.connect.connectors.vm.VmDispatcherProperties;
 import com.mirth.connect.connectors.vm.VmReceiverProperties;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
+import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
+import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.DashboardChannelInfo;
+import com.mirth.connect.model.DashboardStatus;
+import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertInfo;
 import com.mirth.connect.model.alert.AlertModel;
@@ -77,10 +84,26 @@ public class SwaggerExamplesServlet extends HttpServlet {
 			requestedObject = getChannelHeaderMapExample();
 		} else if (exampleRequested.equals("channel_list")) {
 			requestedObject = getChannelListExample();
+		} else if (exampleRequested.equals("channel_group_list")) {
+		    requestedObject = getChannelGroupListExample();
+		} else if (exampleRequested.equals("channel_statistics")) {
+		    requestedObject = getChannelStatisticsExample();
+		} else if (exampleRequested.equals("channel_statistics_list")) {
+		    requestedObject = getChannelStatisticsListExample();
+		} else if (exampleRequested.equals("connector_map")) {
+		    requestedObject = getConnectorMap(true);
+		} else if (exampleRequested.equals("start_connector_map")) {
+		    requestedObject = getConnectorMap(false);
 		} else if (exampleRequested.equals("connector_name_map")) {
 			requestedObject = getConnectorNameMapExample();
 		} else if (exampleRequested.equals("channel_summary_list")) {
 			requestedObject = getChannelSummaryListExample();
+		} else if (exampleRequested.equals("dashboard_channel_info")) {
+		    requestedObject = getDashboardChannelInfoExample();
+		} else if (exampleRequested.equals("dashboard_status")) {
+		    requestedObject = getDashboardStatusExample();
+		} else if (exampleRequested.equals("dashboard_status_list")) {
+		    requestedObject = getDashboardStatusListExample();
 		} else if (exampleRequested.equals("guid_to_name_map")) {
 			requestedObject = getGuidToNameMapExample();
 		} else if (exampleRequested.equals("guid_set")) {
@@ -178,12 +201,44 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		return channelList;
 	}
 	
+	private List<Channel> getMinimalChannelListExample() {
+	    List<Channel> channelList = new ArrayList<>();
+	    channelList.add(getMinimalChannelExample());
+	    return channelList;
+	}
+	
+	private Channel getMinimalChannelExample() {
+	    Channel channel = new Channel(UUID.randomUUID().toString());
+	    return channel;
+	}
+	
+	private List<ChannelGroup> getChannelGroupListExample() {
+	    List<ChannelGroup> groupList = new ArrayList<>();
+	    ChannelGroup group = new ChannelGroup("Group Name", "Group Description");
+	    group.setChannels(getMinimalChannelListExample());
+	    groupList.add(group);
+	    return groupList;
+	}
+	
 	private List<ChannelSummary> getChannelSummaryListExample() {
 		List<ChannelSummary> channelSummaries = new ArrayList<>();
 		ChannelSummary channelSummary = new ChannelSummary(UUID.randomUUID().toString());
 		channelSummary.setChannelStatus(getChannelStatusExample());
 		channelSummaries.add(channelSummary);
 		return channelSummaries;
+	}
+	
+	private ChannelStatistics getChannelStatisticsExample() {
+	    ChannelStatistics stats = new ChannelStatistics();
+        stats.setServerId(UUID.randomUUID().toString());
+        stats.setChannelId(UUID.randomUUID().toString());
+        return stats;
+	}
+	
+	private List<ChannelStatistics> getChannelStatisticsListExample() {
+	    List<ChannelStatistics> channelStatisticsList = new ArrayList<>();
+	    channelStatisticsList.add(getChannelStatisticsExample());
+	    return channelStatisticsList;
 	}
 	
 	private ChannelStatus getChannelStatusExample() {
@@ -194,12 +249,58 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		return channelStatus;
 	}
 	
+	private Map<String, List<Integer>> getConnectorMap(boolean includeNull) {
+	    Map<String, List<Integer>> connectorMap = new HashMap<>();
+	    List<Integer> connectorList = new ArrayList<>();
+	    if (includeNull) {
+	        connectorList.add(null); // channel stats
+	    }
+	    connectorList.add(0); // source connector stats
+	    connectorList.add(1); // destination 1 connector stats
+	    connectorMap.put(UUID.randomUUID().toString(), connectorList);
+	    return connectorMap;
+	}
+	
 	private Map<Integer, String> getConnectorNameMapExample() {
 		Map<Integer, String> connectorNameMap = new LinkedHashMap<>();
 		connectorNameMap.put(0, "Source");
 		connectorNameMap.put(1, "Destination 1");
 		connectorNameMap.put(2, "Destination 2");
 		return connectorNameMap;
+	}
+	
+	private DashboardChannelInfo getDashboardChannelInfoExample() {
+	    DashboardChannelInfo dashboardChannelInfo = new DashboardChannelInfo(getDashboardStatusListExample(), getGuidSetExample(), 0);
+	    return dashboardChannelInfo;
+	}
+	
+	private DashboardStatus getDashboardStatusExample() {
+	    DashboardStatus status = new DashboardStatus();
+
+	    Map<Status, Long> statistics = new LinkedHashMap<>();
+	    for (Status s: Status.values()) {
+	        statistics.put(s, 0L);
+	    }
+	    
+	    status.setChannelId(UUID.randomUUID().toString());
+	    status.setDeployedDate(dateNow);
+	    status.setDeployedRevisionDelta(0);
+	    status.setLifetimeStatistics(statistics);
+	    status.setMetaDataId(0);
+	    status.setName("Channel Name");
+	    status.setQueueEnabled(false);
+	    status.setQueued(0L);
+	    status.setState(DeployedState.STARTED);
+	    status.setStatistics(statistics);
+	    status.setStatusType(StatusType.CHANNEL);
+	    status.setWaitForPrevious(false);
+	    return status;
+	}
+	
+	private List<DashboardStatus> getDashboardStatusListExample() {
+	    List<DashboardStatus> statusList = new ArrayList<>();
+	    statusList.add(getDashboardStatusExample());
+	    return statusList;
 	}
 	
 	private Set<String> getGuidSetExample() {
