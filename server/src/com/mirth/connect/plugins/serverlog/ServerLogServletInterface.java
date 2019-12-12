@@ -9,8 +9,10 @@
 
 package com.mirth.connect.plugins.serverlog;
 
-
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,8 +34,8 @@ import com.mirth.connect.client.core.api.Param;
 
 @Path("/extensions/serverlog")
 @Tag(name = "Extension Services")
-@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface ServerLogServletInterface extends BaseServletInterface {
 
     public static final String PLUGIN_POINT = "Server Log";
@@ -41,7 +43,11 @@ public interface ServerLogServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/")
-    @Operation(summary="Retrieves server log entries.")
+    @Operation(summary = "Retrieves server log entries.")
+    @ApiResponse(content = { @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+            @ExampleObject(name = "serverLogList", ref = "../apiexamples/server_log_item_list_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "serverLogList", ref = "../apiexamples/server_log_item_list_json") }) })
     @MirthOperation(name = "getMirthServerLogs", display = "View Server Log", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<ServerLogItem> getServerLogs(// @formatter:off
             @Param("fetchSize") @Parameter(description = "Specifies the maximum number of log items to return.", required = true, schema = @Schema(defaultValue = "100")) @QueryParam("fetchSize") int fetchSize,

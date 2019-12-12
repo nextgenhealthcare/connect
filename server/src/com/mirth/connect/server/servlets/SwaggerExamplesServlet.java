@@ -1,13 +1,16 @@
 package com.mirth.connect.server.servlets;
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +32,9 @@ import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ServerEvent;
+import com.mirth.connect.model.ServerEvent.Level;
+import com.mirth.connect.model.ServerEvent.Outcome;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertInfo;
 import com.mirth.connect.model.alert.AlertModel;
@@ -36,16 +42,24 @@ import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.alert.DefaultTrigger;
 import com.mirth.connect.model.converters.ObjectJSONSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.filters.EventFilter;
+import com.mirth.connect.plugins.dashboardstatus.ConnectionLogItem;
+import com.mirth.connect.plugins.serverlog.ServerLogItem;
 
 public class SwaggerExamplesServlet extends HttpServlet {
 	
 	private Calendar dateNow;
+	private Calendar dateTomorrow;
+	private SimpleDateFormat dateFormat;
 	
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {
 		System.out.println("Init");
 		super.init(servletConfig);
 		dateNow = Calendar.getInstance();
+		dateTomorrow = Calendar.getInstance();
+		dateTomorrow.add(Calendar.DAY_OF_MONTH, 1);
+		dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
 	}
 	
 	@Override
@@ -71,23 +85,43 @@ public class SwaggerExamplesServlet extends HttpServlet {
 			requestedObject = getAlertProtocolOptions();
 		} else if (exampleRequested.equals("alert_status_list")) {
 			requestedObject = getAlertStatusListExample();
-		} else if (exampleRequested.equals("channel")) {
+		} else if (exampleRequested.equals("calendar")) {
+            requestedObject = getCalendarExample();
+        } else if (exampleRequested.equals("channel")) {
 			requestedObject = getChannelExample();
 		} else if (exampleRequested.equals("channel_header_map")) {
 			requestedObject = getChannelHeaderMapExample();
 		} else if (exampleRequested.equals("channel_list")) {
 			requestedObject = getChannelListExample();
+		} else if (exampleRequested.equals("connection_log_item_linked_list")) {
+		    requestedObject = getConnectionLogItemLinkedListExample();
 		} else if (exampleRequested.equals("connector_name_map")) {
 			requestedObject = getConnectorNameMapExample();
 		} else if (exampleRequested.equals("channel_summary_list")) {
 			requestedObject = getChannelSummaryListExample();
-		} else if (exampleRequested.equals("guid_to_name_map")) {
+		} else if (exampleRequested.equals("dashboard_channel_state_map")) {
+		    requestedObject = getDashboardChannelStateMapExample();
+		} else if (exampleRequested.equals("dashboard_connector_state_map")) {
+		    requestedObject = getDashboardConnectorStateMapExample();
+		} else if (exampleRequested.equals("data_pruner_status_map")) {
+		    requestedObject = getDataPrunerStatusMapExample();
+		} else if (exampleRequested.equals("event_filter")) {
+            requestedObject = getEventFilterExample();
+        } else if (exampleRequested.equals("guid_to_name_map")) {
 			requestedObject = getGuidToNameMapExample();
 		} else if (exampleRequested.equals("guid_set")) {
 			requestedObject = getGuidSetExample();
-		} else if (exampleRequested.equals("metadatacolumn_list")) {
+		} else if (exampleRequested.equals("library_list")) {
+            requestedObject = getLibraryListExample();
+        } else if (exampleRequested.equals("metadatacolumn_list")) {
 			requestedObject = getMetaDataColumnListExample();
-		}
+		} else if (exampleRequested.equals("server_event")) {
+		    requestedObject = getServerEventExample();
+		} else if (exampleRequested.equals("server_event_list")) {
+            requestedObject = getServerEventListExample();
+        } else if (exampleRequested.equals("server_log_item_list")) {
+            requestedObject = getServerLogItemListExample();
+        }
 		
 		if (req.getPathInfo().endsWith("_json")) {
 			resp.setContentType("application/json");
@@ -154,6 +188,10 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		return list;
 	}
 	
+	private Calendar getCalendarExample() {
+	    return dateNow;
+	}
+	
 	private Channel getChannelExample() {
 		Channel channel = new Channel();
 		channel.setId(UUID.randomUUID().toString());
@@ -194,12 +232,67 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		return channelStatus;
 	}
 	
+	private ConnectionLogItem getConnectionLogItemExample() {
+	    ConnectionLogItem logItem = new ConnectionLogItem(1L, UUID.randomUUID().toString(), UUID.randomUUID().toString(), 0L, dateFormat.format(dateNow.getTime()), "Channel 1", "Source: Channel Reader (HL7V2 -> JSON)", "Idle", "");
+	    return logItem;
+	}
+	
+	private LinkedList<ConnectionLogItem> getConnectionLogItemLinkedListExample() {
+	    LinkedList<ConnectionLogItem> logItems = new LinkedList<>();
+	    logItems.add(getConnectionLogItemExample());
+	    return logItems;
+	}
+	
 	private Map<Integer, String> getConnectorNameMapExample() {
 		Map<Integer, String> connectorNameMap = new LinkedHashMap<>();
 		connectorNameMap.put(0, "Source");
 		connectorNameMap.put(1, "Destination 1");
 		connectorNameMap.put(2, "Destination 2");
 		return connectorNameMap;
+	}
+	
+	private Map<String, String> getDashboardChannelStateMapExample() {
+        Map<String, String> stateMap = new HashMap<>();
+        stateMap.put(UUID.randomUUID().toString(), "Idle");
+        return stateMap;
+    }
+	
+	private Map<String, Object[]> getDashboardConnectorStateMapExample() {
+	    Map<String, Object[]> stateMap = new HashMap<>();
+	    String channelId = UUID.randomUUID().toString();
+	    Object[] states = new Object[2];
+	    states[0] = new Color(255, 255, 0, 255);
+	    states[1] = "Idle";
+	    stateMap.put(channelId + "_0", states);
+	    stateMap.put(channelId + "_1", states);
+	    return stateMap;
+	}
+	
+	private Map<String, String> getDataPrunerStatusMapExample() {
+	    Map<String, String> statusMap = new HashMap<>();
+	    statusMap.put("lastProcess", "-");
+	    statusMap.put("isRunning", "false");
+	    statusMap.put("currentState", "Not running");
+	    statusMap.put("nextProcess", "Scheduled Monday, Jan 1, 1:00:00 AM");
+	    statusMap.put("currentProcess", "-");
+	    return statusMap;
+	}
+	
+	private EventFilter getEventFilterExample() {
+	    EventFilter eventFilter = new EventFilter();
+	    eventFilter.setMaxEventId(2);
+	    eventFilter.setMinEventId(1);
+	    eventFilter.setId(1);
+	    Set<Level> levels = new HashSet<>();
+	    levels.add(Level.INFORMATION);
+	    eventFilter.setLevels(levels);
+	    eventFilter.setStartDate(dateNow);
+	    eventFilter.setEndDate(dateTomorrow);
+	    eventFilter.setOutcome(Outcome.SUCCESS);
+	    eventFilter.setUserId(1);
+	    eventFilter.setIpAddress("0:0:0:0:0:0:0:1");
+	    eventFilter.setServerId(UUID.randomUUID().toString());
+	    return eventFilter;
 	}
 	
 	private Set<String> getGuidSetExample() {
@@ -216,10 +309,42 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		return guidToNameMap;
 	}
 	
+	private List<String> getLibraryListExample() {
+	    List<String> libraryList = new ArrayList<>();
+	    libraryList.add("library1.jar");
+	    libraryList.add("library2.jar");
+	    return libraryList;
+	}
+	
 	private List<MetaDataColumn> getMetaDataColumnListExample() {
 		List<MetaDataColumn> metaDataColumns = new ArrayList<>();
 		metaDataColumns.add(new MetaDataColumn("SOURCE", MetaDataColumnType.STRING, "mirth_source"));
 		metaDataColumns.add(new MetaDataColumn("TYPE", MetaDataColumnType.STRING, "mirth_type"));
 		return metaDataColumns;
+	}
+	
+	private ServerEvent getServerEventExample() {
+	    ServerEvent serverEvent = new ServerEvent();
+	    serverEvent.setName("Name 1");
+	    serverEvent.addAttribute("key", "value");
+	    serverEvent.setIpAddress("0:0:0:0:0:0:0:1");
+	    serverEvent.setServerId(UUID.randomUUID().toString());
+	    return serverEvent;
+	}
+	
+	private List<ServerEvent> getServerEventListExample() {
+	    List<ServerEvent> serverEventList = new ArrayList<>();
+	    serverEventList.add(getServerEventExample());
+	    return serverEventList;
+	}
+	
+	private ServerLogItem getServerLogItemExample() {
+	    return new ServerLogItem(UUID.randomUUID().toString(), 1L, "INFO", dateNow.getTime(), "Main Server Thread", "com.mirth.connect.server.Mirth", "1", "Example message", "Example throwable information");
+	}
+	
+	private List<ServerLogItem> getServerLogItemListExample() {
+	    List<ServerLogItem> serverLogList = new ArrayList();
+	    serverLogList.add(getServerLogItemExample());
+	    return serverLogList;
 	}
 }
