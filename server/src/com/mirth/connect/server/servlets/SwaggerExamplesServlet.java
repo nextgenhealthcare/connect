@@ -60,6 +60,10 @@ import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.alert.DefaultTrigger;
 import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
+import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult.CodeTemplateUpdateResult;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult.LibraryUpdateResult;
 import com.mirth.connect.model.converters.ObjectJSONSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
@@ -120,6 +124,10 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getChannelStatisticsExample();
 		} else if (exampleRequested.equals("channel_statistics_list")) {
 		    requestedObject = getChannelStatisticsListExample();
+		} else if (exampleRequested.equals("code_template")) {
+		    requestedObject = getCodeTemplateExample(true);
+		} else if (exampleRequested.equals("code_template_list")) {
+		    requestedObject = getCodeTemplateListExample(true);
 		} else if (exampleRequested.equals("code_template_library")) {
 		    requestedObject = getCodeTemplateLibraryExample(false);
 		} else if (exampleRequested.equals("code_template_library_full_templates")) {
@@ -128,6 +136,12 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getCodeTemplateLibraryListExample(false);
 		} else if (exampleRequested.equals("code_template_library_list_full_templates")) {
             requestedObject = getCodeTemplateLibraryListExample(true);
+		} else if (exampleRequested.equals("code_template_library_saved_result")) {
+		    requestedObject = getCodeTemplateLibrarySavedResultExample();
+		} else if (exampleRequested.equals("code_template_summary_list_revision_changed")) {
+		    requestedObject = getCodeTemplateSummaryListExample(true);
+		} else if (exampleRequested.equals("code_template_summary_list")) {
+            requestedObject = getCodeTemplateSummaryListExample(false);
 		} else if (exampleRequested.equals("connector_map")) {
 		    requestedObject = getConnectorMap(true);
 		} else if (exampleRequested.equals("connector_metadata")) {
@@ -162,6 +176,8 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getGlobalMapExample();
         } else if (exampleRequested.equals("global_maps")) {
             requestedObject = getGlobalMapsExample();
+        } else if (exampleRequested.equals("guid_to_int_map")) {
+            requestedObject = getGuidToIntMapExample();
         } else if (exampleRequested.equals("guid_to_name_map")) {
 			requestedObject = getGuidToNameMapExample();
 		} else if (exampleRequested.equals("guid_set")) {
@@ -363,6 +379,41 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return list;
 	}
 	
+	private CodeTemplateLibrarySaveResult getCodeTemplateLibrarySavedResultExample() {
+	    CodeTemplateLibrarySaveResult savedResult = new CodeTemplateLibrarySaveResult();
+	    savedResult.setOverrideNeeded(true);
+	    savedResult.setLibrariesSuccess(true);
+	    
+	    CodeTemplateUpdateResult templateUpdateResult = new CodeTemplateUpdateResult();
+	    templateUpdateResult.setNewLastModified(dateNow);
+	    templateUpdateResult.setNewRevision(2);
+	    templateUpdateResult.setSuccess(true);
+	    Map<String, CodeTemplateUpdateResult> codeTemplateResults = new HashMap<String, CodeTemplateUpdateResult>();
+	    codeTemplateResults.put(UUID.randomUUID().toString(), templateUpdateResult);
+	    savedResult.setCodeTemplateResults(codeTemplateResults);
+	    
+	    LibraryUpdateResult libraryUpdateResult = new LibraryUpdateResult();
+	    libraryUpdateResult.setNewLastModified(dateNow);
+	    libraryUpdateResult.setNewRevision(2);
+	    Map<String, LibraryUpdateResult> libraryResults = new HashMap<String, LibraryUpdateResult>();
+	    libraryResults.put(UUID.randomUUID().toString(), libraryUpdateResult);
+	    savedResult.setLibraryResults(libraryResults);
+	    
+	    return savedResult;
+	}
+	
+	private CodeTemplateSummary getCodeTemplateSummary() {
+        return new CodeTemplateSummary(UUID.randomUUID().toString(), getCodeTemplateExample(true));
+	}
+	
+	private List<CodeTemplateSummary> getCodeTemplateSummaryListExample(boolean revisionChanged) {
+	    List<CodeTemplateSummary> list = new ArrayList<>();
+	    if (revisionChanged) {
+	        list.add(getCodeTemplateSummary());
+	    }
+	    return list;
+	}
+	
 	private Map<String, List<Integer>> getConnectorMap(boolean includeNull) {
 	    Map<String, List<Integer>> connectorMap = new HashMap<>();
 	    List<Integer> connectorList = new ArrayList<>();
@@ -545,6 +596,12 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		stringSet.add(UUID.randomUUID().toString());
 		stringSet.add(UUID.randomUUID().toString());
 		return stringSet;
+	}
+	
+	private Map<String, Integer> getGuidToIntMapExample() {
+	    Map<String, Integer> guidToIntMap = new HashMap<>();
+	    guidToIntMap.put(UUID.randomUUID().toString(), 1);
+	    return guidToIntMap;
 	}
 	
 	private Map<String, String> getGuidToNameMapExample() {
