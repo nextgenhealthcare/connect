@@ -47,6 +47,8 @@ import com.mirth.connect.model.alert.AlertInfo;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.alert.DefaultTrigger;
+import com.mirth.connect.model.codetemplates.CodeTemplate;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.converters.ObjectJSONSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
@@ -106,6 +108,14 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getChannelStatisticsExample();
 		} else if (exampleRequested.equals("channel_statistics_list")) {
 		    requestedObject = getChannelStatisticsListExample();
+		} else if (exampleRequested.equals("code_template_library")) {
+		    requestedObject = getCodeTemplateLibraryExample(false);
+		} else if (exampleRequested.equals("code_template_library_full_templates")) {
+            requestedObject = getCodeTemplateLibraryExample(true);
+		} else if (exampleRequested.equals("code_template_library_list")) {
+            requestedObject = getCodeTemplateLibraryListExample(false);
+		} else if (exampleRequested.equals("code_template_library_list_full_templates")) {
+            requestedObject = getCodeTemplateLibraryListExample(true);
 		} else if (exampleRequested.equals("connector_map")) {
 		    requestedObject = getConnectorMap(true);
 		} else if (exampleRequested.equals("start_connector_map")) {
@@ -285,6 +295,39 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		channelStatus.setDeployedRevisionDelta(0);
 		channelStatus.setDeployedDate(dateNow);
 		return channelStatus;
+	}
+	
+	private CodeTemplate getCodeTemplateExample(boolean includeFullTemplates) {
+	    if (includeFullTemplates) {
+	        return CodeTemplate.getDefaultCodeTemplate("Template 1");
+	    } else {
+	        return new CodeTemplate(UUID.randomUUID().toString());
+	    }
+	}
+	
+	private List<CodeTemplate> getCodeTemplateListExample(boolean includeFullTemplates) {
+	    List<CodeTemplate> list = new ArrayList<>();
+	    list.add(getCodeTemplateExample(includeFullTemplates));
+	    return list;
+	}
+	
+	private CodeTemplateLibrary getCodeTemplateLibraryExample(boolean includeFullTemplates) {
+	    CodeTemplateLibrary library = new CodeTemplateLibrary();
+        library.setName("Library Name");
+        library.setDescription("Library Description");
+        library.setRevision(1);
+        library.setLastModified(dateNow);
+        Set<String> disabledChannelIds = new HashSet<>();
+        disabledChannelIds.add(UUID.randomUUID().toString());
+        library.setDisabledChannelIds(disabledChannelIds);
+        library.setCodeTemplates(getCodeTemplateListExample(includeFullTemplates));
+        return library;
+	}
+	
+	private List<CodeTemplateLibrary> getCodeTemplateLibraryListExample(boolean includeFullTemplates) {
+	    List<CodeTemplateLibrary> list = new ArrayList<>();
+	    list.add(getCodeTemplateLibraryExample(includeFullTemplates));
+	    return list;
 	}
 	
 	private Map<String, List<Integer>> getConnectorMap(boolean includeNull) {

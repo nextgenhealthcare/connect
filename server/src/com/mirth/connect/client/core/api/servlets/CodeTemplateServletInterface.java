@@ -10,7 +10,11 @@
 package com.mirth.connect.client.core.api.servlets;
 
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,6 +56,14 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @GET
     @Path("/codeTemplateLibraries")
     @Operation(summary="Retrieves multiple code template libraries by ID, or all libraries if not specified.")
+    @ApiResponse(content = { 
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "code_template_library_list", ref = "../apiexamples/code_template_library_list_xml"),
+                    @ExampleObject(name = "code_template_library_list_full_templates", ref = "../apiexamples/code_template_library_list_full_templates_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "code_template_library_list", ref = "../apiexamples/code_template_library_list_json"),
+                    @ExampleObject(name = "code_template_library_list_full_templates", ref = "../apiexamples/code_template_library_list_full_templates_json") })
+    })
     @MirthOperation(name = "getCodeTemplateLibraries", display = "Get code template libraries", permission = Permissions.CODE_TEMPLATES_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<CodeTemplateLibrary> getCodeTemplateLibraries(// @formatter:off
             @Param("libraryIds") @Parameter(description = "The ID of the library(s) to retrieve.") @QueryParam("libraryId") Set<String> libraryIds,
@@ -61,15 +73,37 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @POST
     @Path("/codeTemplateLibraries/_getCodeTemplateLibraries")
     @Operation(summary="Retrieves multiple code template libraries by ID, or all libraries if not specified. This is a POST request alternative to GET /codeTemplateLibraries that may be used when there are too many library IDs to include in the query parameters.")
+    @ApiResponse(content = { 
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "code_template_library_list", ref = "../apiexamples/code_template_library_list_xml"),
+                    @ExampleObject(name = "code_template_library_list_full_templates", ref = "../apiexamples/code_template_library_list_full_templates_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "code_template_library_list", ref = "../apiexamples/code_template_library_list_json"),
+                    @ExampleObject(name = "code_template_library_list_full_templates", ref = "../apiexamples/code_template_library_list_full_templates_json") })
+    })
     @MirthOperation(name = "getCodeTemplateLibraries", display = "Get code template libraries", permission = Permissions.CODE_TEMPLATES_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<CodeTemplateLibrary> getCodeTemplateLibrariesPost(// @formatter:off
-            @Param("libraryIds") @Parameter(description = "The ID of the library(s) to retrieve.") Set<String> libraryIds,
+            @Param("libraryIds") 
+            @RequestBody(description = "The ID of the library(s) to retrieve.", content = {
+                    @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                            @ExampleObject(name = "code_template_library_id_set", ref = "../apiexamples/guid_set_xml") }),
+                    @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                            @ExampleObject(name = "code_template_library_id_set", ref = "../apiexamples/guid_set_json") }) })
+            Set<String> libraryIds,
             @Param("includeCodeTemplates") @Parameter(description = "If true, full code templates will be included inside each library.", schema = @Schema(defaultValue = "false")) @QueryParam("includeCodeTemplates") boolean includeCodeTemplates) throws ClientException;
     // @formatter:on
 
     @GET
     @Path("/codeTemplateLibraries/{libraryId}")
     @Operation(summary="Retrieves a single code template library.")
+    @ApiResponse(content = { 
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "code_template_library", ref = "../apiexamples/code_template_library_xml"),
+                    @ExampleObject(name = "code_template_library_full_templates", ref = "../apiexamples/code_template_library_full_templates_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "code_template_library", ref = "../apiexamples/code_template_library_json"),
+                    @ExampleObject(name = "code_template_library_full_templates", ref = "../apiexamples/code_template_library_full_templates_json") })
+    })
     @MirthOperation(name = "getCodeTemplateLibrary", display = "Get code template library", permission = Permissions.CODE_TEMPLATES_VIEW, type = ExecuteType.ASYNC)
     public CodeTemplateLibrary getCodeTemplateLibrary(// @formatter:off
             @Param("libraryId") @Parameter(description = "The ID of the library to retrieve.") @PathParam("libraryId") String libraryId,
@@ -79,9 +113,16 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @PUT
     @Path("/codeTemplateLibraries")
     @Operation(summary="Replaces all code template libraries.")
+    
     @MirthOperation(name = "updateCodeTemplateLibraries", display = "Update code template libraries", permission = Permissions.CODE_TEMPLATES_MANAGE)
     public boolean updateCodeTemplateLibraries(// @formatter:off
-            @Param("libraries") @Parameter(description = "The list of code template libraries to replace with.", required = true) List<CodeTemplateLibrary> libraries,
+            @Param("libraries") 
+            @RequestBody(description = "The list of code template libraries to replace with.", required = true, content = {
+                    @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                            @ExampleObject(name = "code_template_library_list_full_templates", ref = "../apiexamples/code_template_library_list_full_templates_xml") }),
+                    @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                            @ExampleObject(name = "code_template_library_list_full_templates", ref = "../apiexamples/code_template_library_list_full_templates_json") }) })
+            List<CodeTemplateLibrary> libraries,
             @Param("override") @Parameter(description = "If true, the code template library will be updated even if a different revision exists on the server.", schema = @Schema(defaultValue = "false")) @QueryParam("override") boolean override) throws ClientException;
     // @formatter:on
 
