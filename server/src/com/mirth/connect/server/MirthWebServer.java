@@ -482,9 +482,10 @@ public class MirthWebServer extends Server {
         
         // Add Swagger examples servlet
         ServletContextHandler swaggerExamplesServletContextHandler = new ServletContextHandler();
+        swaggerExamplesServletContextHandler.setContextPath("/apiexamples");
         ServletHolder swaggerExamplesServlet = new ServletHolder(new SwaggerExamplesServlet());
         swaggerExamplesServlet.setInitOrder(3);
-        swaggerExamplesServletContextHandler.addServlet(swaggerExamplesServlet, "/apiexamples/*");
+        swaggerExamplesServletContextHandler.addServlet(swaggerExamplesServlet, "/*");
         
         // Add API handler
         handlers.addHandler(apiServletContextHandler);
