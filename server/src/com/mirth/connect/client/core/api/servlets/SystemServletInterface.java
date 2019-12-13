@@ -11,6 +11,9 @@ package com.mirth.connect.client.core.api.servlets;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
@@ -33,12 +36,22 @@ public interface SystemServletInterface extends BaseServletInterface {
     @GET
     @Path("/info")
     @Operation(summary="Returns information about the underlying system.")
+    @ApiResponse(content = {
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "systemInfo", ref = "../apiexamples/system_info_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "systemInfo", ref = "../apiexamples/system_info_json") }) })
     @MirthOperation(name = "getJVMInfo", display = "Get System Information", auditable = false)
     public SystemInfo getInfo() throws ClientException;
 
     @GET
     @Path("/stats")
     @Operation(summary="Returns statistics for the underlying system.")
+    @ApiResponse(content = {
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "systemStats", ref = "../apiexamples/system_stats_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "systemStats", ref = "../apiexamples/system_stats_json") }) })
     @MirthOperation(name = "getStats", display = "Get System Statistics", auditable = false)
     public SystemStats getStats() throws ClientException;
 }

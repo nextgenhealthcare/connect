@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,12 +25,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mirth.connect.client.core.Version;
 import com.mirth.connect.connectors.vm.VmDispatcherProperties;
 import com.mirth.connect.connectors.vm.VmReceiverProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
@@ -36,12 +40,19 @@ import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
+import com.mirth.connect.model.ExtensionLibrary;
+import com.mirth.connect.model.MetaData;
+import com.mirth.connect.model.PluginClass;
+import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.model.ServerEvent.Outcome;
+import com.mirth.connect.model.SystemInfo;
+import com.mirth.connect.model.SystemStats;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertInfo;
 import com.mirth.connect.model.alert.AlertModel;
@@ -61,7 +72,6 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {
-		System.out.println("Init");
 		super.init(servletConfig);
 		dateNow = Calendar.getInstance();
 		dateTomorrow = Calendar.getInstance();
@@ -92,7 +102,9 @@ public class SwaggerExamplesServlet extends HttpServlet {
 			requestedObject = getAlertProtocolOptions();
 		} else if (exampleRequested.equals("alert_status_list")) {
 			requestedObject = getAlertStatusListExample();
-		} else if (exampleRequested.equals("calendar")) {
+		} else if (exampleRequested.equals("boolean")) {
+            requestedObject = new Boolean(true);
+        } else if (exampleRequested.equals("calendar")) {
             requestedObject = getCalendarExample();
         } else if (exampleRequested.equals("channel")) {
 			requestedObject = getChannelExample();
@@ -108,7 +120,11 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getChannelStatisticsListExample();
 		} else if (exampleRequested.equals("connector_map")) {
 		    requestedObject = getConnectorMap(true);
-		} else if (exampleRequested.equals("start_connector_map")) {
+		} else if (exampleRequested.equals("connector_metadata")) {
+            requestedObject = getConnectorMetaDataExample();
+        } else if (exampleRequested.equals("connector_metadata_map")) {
+            requestedObject = getConnectorMetaDataMapExample();
+        } else if (exampleRequested.equals("start_connector_map")) {
 		    requestedObject = getConnectorMap(false);
 		} else if (exampleRequested.equals("connection_log_item_linked_list")) {
 		    requestedObject = getConnectionLogItemLinkedListExample();
@@ -130,6 +146,12 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getDataPrunerStatusMapExample();
 		} else if (exampleRequested.equals("event_filter")) {
             requestedObject = getEventFilterExample();
+        } else if (exampleRequested.equals("generic_map")) {
+            requestedObject = getGenericMapExample();
+        } else if (exampleRequested.equals("global_map")) {
+            requestedObject = getGlobalMapExample();
+        } else if (exampleRequested.equals("global_maps")) {
+            requestedObject = getGlobalMapsExample();
         } else if (exampleRequested.equals("guid_to_name_map")) {
 			requestedObject = getGuidToNameMapExample();
 		} else if (exampleRequested.equals("guid_set")) {
@@ -138,38 +160,49 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getLibraryListExample();
         } else if (exampleRequested.equals("metadatacolumn_list")) {
 			requestedObject = getMetaDataColumnListExample();
-		} else if (exampleRequested.equals("server_event")) {
+		} else if (exampleRequested.equals("plugin_metadata_map")) {
+            requestedObject = getPluginMetaDataMapExample();
+        } else if (exampleRequested.equals("properties")) {
+            requestedObject = getPropertiesExample();
+        } else if (exampleRequested.equals("server_event")) {
 		    requestedObject = getServerEventExample();
 		} else if (exampleRequested.equals("server_event_list")) {
             requestedObject = getServerEventListExample();
         } else if (exampleRequested.equals("server_log_item_list")) {
             requestedObject = getServerLogItemListExample();
-        }
+        } else if (exampleRequested.equals("system_info")) {
+            requestedObject = getSystemInfoExample();
+        } else if (exampleRequested.equals("system_stats")) {
+            requestedObject = getSystemStatsExample();
+        } 
 		
 		if (req.getPathInfo().endsWith("_json")) {
 			resp.setContentType("application/json");
-			
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	        ObjectJSONSerializer.getInstance().serialize(requestedObject, baos);
-	        
-	        String serializedObject = baos.toString("UTF-8");
+	        String serializedObject = jsonSerialize(requestedObject);
 	        String returnString = "{\"summary\": \"" + exampleRequested + "\", \"value\": " + serializedObject + "}";
 	        resp.getWriter().write(returnString);
 		} else if (req.getPathInfo().endsWith("_xml")) {
 			resp.setContentType("application/json");
-			
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			OutputStreamWriter writer = new OutputStreamWriter(baos, "UTF-8");
-	        ObjectXMLSerializer.getInstance().serialize(requestedObject, writer);
-	        
-	        String serializedObject = baos.toString("UTF-8");
-	        
+			String serializedObject = xmlSerialize(requestedObject);    
 	        Map<String, Object> params = new HashMap<>();
 	        params.put("summary", exampleRequested);
 	        params.put("value", serializedObject);
 	        String oasExample = new ObjectMapper().writeValueAsString(params);
 	        resp.getWriter().write(oasExample);
 		}
+	}
+	
+	private String jsonSerialize(Object object) throws IOException {
+	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectJSONSerializer.getInstance().serialize(object, baos);
+        return baos.toString("UTF-8");
+	}
+	
+	private String xmlSerialize(Object object) throws UnsupportedEncodingException {
+	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(baos, "UTF-8");
+        ObjectXMLSerializer.getInstance().serialize(object, writer);
+        return baos.toString("UTF-8");
 	}
 	
 	private AlertModel getAlertExample() {
@@ -310,6 +343,48 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return logItems;
 	}
 	
+	private ConnectorMetaData getConnectorMetaDataExample() {
+        ConnectorMetaData metaData = new ConnectorMetaData();
+        configureMetaData(metaData);
+        metaData.setServerClassName("com.example.package.ServerClass");
+        metaData.setSharedClassName("com.example.package.SharedClass");
+        metaData.setClientClassName("com.example.package.ClientClass");
+        metaData.setTransformers("");
+        metaData.setProtocol("protocol");
+        metaData.setType(ConnectorMetaData.Type.DESTINATION);
+        return metaData;
+    }
+	
+	private void configureMetaData(MetaData metaData) {
+        List<ApiProvider> apiProviders = new ArrayList<>();
+        ApiProvider apiProvider = new ApiProvider();
+        apiProvider.setType(ApiProvider.Type.SERVLET_INTERFACE);
+        apiProvider.setName("com.example.package.ServletInterface");
+        apiProviders.add(apiProvider);
+        
+        List<ExtensionLibrary> extensionLibraries = new ArrayList<>();
+        ExtensionLibrary extensionLibrary = new ExtensionLibrary();
+        extensionLibrary.setPath("client.jar");
+        extensionLibrary.setType(ExtensionLibrary.Type.CLIENT);
+        extensionLibraries.add(extensionLibrary);
+        
+        metaData.setPath("path");
+        metaData.setName("Name");
+        metaData.setAuthor("Author");
+        metaData.setMirthVersion(Version.getLatest().toString());
+        metaData.setPluginVersion(Version.getLatest().toString());
+        metaData.setUrl("http://exampleurl.com");
+        metaData.setDescription("Example description.");
+        metaData.setApiProviders(apiProviders);
+        metaData.setLibraries(extensionLibraries);
+    }
+	
+	private Map<String, ConnectorMetaData> getConnectorMetaDataMapExample() {
+	    Map<String, ConnectorMetaData> connectorMetaDataMap = new HashMap<>();
+	    connectorMetaDataMap.put("Name", getConnectorMetaDataExample());
+	    return connectorMetaDataMap;
+	}
+	
 	private Map<Integer, String> getConnectorNameMapExample() {
 		Map<Integer, String> connectorNameMap = new LinkedHashMap<>();
 		connectorNameMap.put(0, "Source");
@@ -396,6 +471,32 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return eventFilter;
 	}
 	
+	private Map<String, String> getGenericMapExample() {
+        Map<String, String> genericMap = new HashMap<>();
+        genericMap.put("exampleKey", "exampleValue");
+        return genericMap;
+    }
+	
+	private String getGenericMapStringExample() {
+	    try {
+	        return xmlSerialize(getGenericMapExample());
+	    } catch (UnsupportedEncodingException e) {}
+	    
+	    return "";
+	}
+	
+	private Map<String, String> getGlobalMapExample() {
+	    Map<String, String> globalMap = new HashMap<>();
+	    globalMap.put(null, getGenericMapStringExample());
+	    return globalMap;
+	}
+	
+	private Map<String, Map<String, String>> getGlobalMapsExample() {
+	    Map<String, Map<String, String>> globalMaps = new HashMap<>();
+	    globalMaps.put(UUID.randomUUID().toString(), getGlobalMapExample());
+	    return globalMaps;
+	}
+
 	private Set<String> getGuidSetExample() {
 		Set<String> stringSet = new HashSet<>();
 		stringSet.add(UUID.randomUUID().toString());
@@ -424,6 +525,38 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		return metaDataColumns;
 	}
 	
+	private PluginMetaData getPluginMetaDataExample() {
+	    PluginMetaData metaData = new PluginMetaData();
+	    configureMetaData(metaData);
+	    
+	    List<PluginClass> serverClasses = new ArrayList<>();
+	    PluginClass serverClass = new PluginClass();
+	    serverClass.setName("com.example.package.ServerPlugin");
+	    serverClasses.add(serverClass);
+	    metaData.setServerClasses(serverClasses);
+	    
+	    List<PluginClass> clientClasses = new ArrayList<>();
+	    PluginClass clientClass = new PluginClass();
+        clientClass.setName("com.example.package.ClientPlugin");
+        clientClasses.add(clientClass);
+	    metaData.setClientClasses(clientClasses);
+	    
+	    return metaData;
+	}
+	
+	private Map<String, PluginMetaData> getPluginMetaDataMapExample() {
+	    Map<String, PluginMetaData> pluginMetaDataMap = new HashMap<>();
+	    pluginMetaDataMap.put("Name", getPluginMetaDataExample());
+	    return pluginMetaDataMap;
+	}
+	
+	private Properties getPropertiesExample() {
+	    Properties properties = new Properties();
+	    properties.setProperty("exampleKey1", "exampleValue1");
+	    properties.setProperty("exampleKey2", "exampleValue2");
+	    return properties;
+	}
+	
 	private ServerEvent getServerEventExample() {
 	    ServerEvent serverEvent = new ServerEvent();
 	    serverEvent.setName("Name 1");
@@ -444,8 +577,31 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	}
 	
 	private List<ServerLogItem> getServerLogItemListExample() {
-	    List<ServerLogItem> serverLogList = new ArrayList();
+	    List<ServerLogItem> serverLogList = new ArrayList<>();
 	    serverLogList.add(getServerLogItemExample());
 	    return serverLogList;
+	}
+	
+	private SystemInfo getSystemInfoExample() {
+	    SystemInfo systemInfo = new SystemInfo();
+	    systemInfo.setJvmVersion("1.8.0_172");
+	    systemInfo.setOsName("Mac OS X");
+	    systemInfo.setOsVersion("10.14.5");
+	    systemInfo.setOsArchitecture("x86_64");
+	    systemInfo.setDbName("PostgreSQL");
+	    systemInfo.setDbVersion("9.6.15");
+	    return systemInfo;
+	}
+	
+	private SystemStats getSystemStatsExample() {
+	    SystemStats systemStats = new SystemStats();
+	    systemStats.setTimestamp(dateNow);
+	    systemStats.setCpuUsagePct(50.0);
+	    systemStats.setAllocatedMemoryBytes(300_000_000L);
+	    systemStats.setFreeMemoryBytes(200_000_000L);
+	    systemStats.setMaxMemoryBytes(500_000_000L);
+	    systemStats.setDiskFreeBytes(70_000_000_000L);
+	    systemStats.setDiskTotalBytes(500_000_000_000L);
+	    return systemStats;
 	}
 }

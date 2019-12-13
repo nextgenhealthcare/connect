@@ -76,9 +76,9 @@ public interface EventServletInterface extends BaseServletInterface {
     public List<ServerEvent> getEvents(// @formatter:off
             @Param("filter") @RequestBody(description = "The EventFilter object to use to query events by.", required = true, content = {
                     @Content(mediaType = MediaType.APPLICATION_XML, examples = {
-                            @ExampleObject(name = "event_filter", ref = "../apiexamples/event_filter_xml") }),
+                            @ExampleObject(name = "filter", ref = "../apiexamples/event_filter_xml") }),
                     @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
-                            @ExampleObject(name = "event_filter", ref = "../apiexamples/event_filter_json") }) }) EventFilter filter,
+                            @ExampleObject(name = "filter", ref = "../apiexamples/event_filter_json") }) }) EventFilter filter,
             @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.", schema = @Schema(defaultValue = "0")) @QueryParam("offset") Integer offset,
             @Param("limit") @Parameter(description = "Used for pagination, determines the maximum number of results to return.", schema = @Schema(defaultValue = "20")) @QueryParam("limit") Integer limit) throws ClientException;
     // @formatter:on
@@ -113,9 +113,9 @@ public interface EventServletInterface extends BaseServletInterface {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
     public Long getEventCount(@Param("filter") @RequestBody(description = "The EventFilter object to use to query events by.", required = true, content = {
             @Content(mediaType = MediaType.APPLICATION_XML, examples = {
-                    @ExampleObject(name = "event_filter", ref = "../apiexamples/event_filter_xml") }),
+                    @ExampleObject(name = "filter", ref = "../apiexamples/event_filter_xml") }),
             @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
-                    @ExampleObject(name = "event_filter", ref = "../apiexamples/event_filter_json") }) }) EventFilter filter) throws ClientException;
+                    @ExampleObject(name = "filter", ref = "../apiexamples/event_filter_json") }) }) EventFilter filter) throws ClientException;
 
     @GET
     @Path("/count")
