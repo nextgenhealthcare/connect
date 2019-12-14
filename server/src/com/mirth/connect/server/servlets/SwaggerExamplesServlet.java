@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -23,6 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mirth.connect.client.core.Version;
@@ -31,7 +33,11 @@ import com.mirth.connect.connectors.vm.VmReceiverProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelGroup;
@@ -45,6 +51,7 @@ import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.ExtensionLibrary;
+import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginClass;
 import com.mirth.connect.model.PluginMetaData;
@@ -61,6 +68,10 @@ import com.mirth.connect.model.alert.DefaultTrigger;
 import com.mirth.connect.model.converters.ObjectJSONSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
+import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.model.filters.elements.ContentSearchElement;
+import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
+import com.mirth.connect.model.purged.PurgedDocument;
 import com.mirth.connect.plugins.dashboardstatus.ConnectionLogItem;
 import com.mirth.connect.plugins.serverlog.ServerLogItem;
 
@@ -102,7 +113,11 @@ public class SwaggerExamplesServlet extends HttpServlet {
 			requestedObject = getAlertProtocolOptions();
 		} else if (exampleRequested.equals("alert_status_list")) {
 			requestedObject = getAlertStatusListExample();
-		} else if (exampleRequested.equals("boolean")) {
+		} else if (exampleRequested.equals("attachment")) {
+            requestedObject = getAttachmentExample();
+        } else if (exampleRequested.equals("attachment_list")) {
+            requestedObject = getAttachmentListExample();
+        } else if (exampleRequested.equals("boolean")) {
             requestedObject = new Boolean(true);
         } else if (exampleRequested.equals("calendar")) {
             requestedObject = getCalendarExample();
@@ -120,7 +135,9 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getChannelStatisticsListExample();
 		} else if (exampleRequested.equals("connector_map")) {
 		    requestedObject = getConnectorMap(true);
-		} else if (exampleRequested.equals("connector_metadata")) {
+		} else if (exampleRequested.equals("connector_message")) {
+            requestedObject = getConnectorMessageExample();
+        } else if (exampleRequested.equals("connector_metadata")) {
             requestedObject = getConnectorMetaDataExample();
         } else if (exampleRequested.equals("connector_metadata_map")) {
             requestedObject = getConnectorMetaDataMapExample();
@@ -158,12 +175,26 @@ public class SwaggerExamplesServlet extends HttpServlet {
 			requestedObject = getGuidSetExample();
 		} else if (exampleRequested.equals("library_list")) {
             requestedObject = getLibraryListExample();
+        } else if (exampleRequested.equals("long")) {
+            requestedObject = getLongExample();
+        } else if (exampleRequested.equals("message")) {
+            requestedObject = getMessageExample();
+        } else if (exampleRequested.equals("message_list")) {
+            requestedObject = getMessageListExample();
+        } else if (exampleRequested.equals("message_filter")) {
+            requestedObject = getMessageFilterExample();
+        } else if (exampleRequested.equals("message_import_result")) {
+            requestedObject = getMessageImportResultExample();
         } else if (exampleRequested.equals("metadatacolumn_list")) {
 			requestedObject = getMetaDataColumnListExample();
 		} else if (exampleRequested.equals("plugin_metadata_map")) {
             requestedObject = getPluginMetaDataMapExample();
         } else if (exampleRequested.equals("properties")) {
             requestedObject = getPropertiesExample();
+        } else if (exampleRequested.equals("purged_document")) {
+            requestedObject = getPurgedDocumentExample();
+        } else if (exampleRequested.equals("raw_message")) {
+            requestedObject = getRawMessageExample();
         } else if (exampleRequested.equals("server_event")) {
 		    requestedObject = getServerEventExample();
 		} else if (exampleRequested.equals("server_event_list")) {
@@ -242,6 +273,18 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		List<AlertStatus> list = new ArrayList<>();
 		list.add(status);
 		return list;
+	}
+	
+	private Attachment getAttachmentExample() {
+	    Attachment attachment = new Attachment("attachmentId", "Example content".getBytes(), MediaType.TEXT_PLAIN);
+	    attachment.setEncrypted(false);
+	    return attachment;
+	}
+	
+	private List<Attachment> getAttachmentListExample() {
+	    List<Attachment> attachments = new ArrayList<>();
+	    attachments.add(getAttachmentExample());
+	    return attachments;
 	}
 	
 	private Calendar getCalendarExample() {
@@ -378,6 +421,11 @@ public class SwaggerExamplesServlet extends HttpServlet {
         metaData.setApiProviders(apiProviders);
         metaData.setLibraries(extensionLibraries);
     }
+	
+	private ConnectorMessage getConnectorMessageExample() {
+	    ConnectorMessage connectorMessage = new ConnectorMessage(UUID.randomUUID().toString(), "Channel 1", 1L, 0, UUID.randomUUID().toString(), dateNow, Status.SENT);
+	    return connectorMessage;
+	}
 	
 	private Map<String, ConnectorMetaData> getConnectorMetaDataMapExample() {
 	    Map<String, ConnectorMetaData> connectorMetaDataMap = new HashMap<>();
@@ -518,6 +566,69 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return libraryList;
 	}
 	
+	private Long getLongExample() {
+	    return 2L;
+	}
+	
+	private Message getMessageExample() {
+	    Message message = new Message();
+	    message.setServerId(UUID.randomUUID().toString());
+	    message.setChannelId(UUID.randomUUID().toString());
+	    message.setReceivedDate(dateNow);
+	    message.setProcessed(true);
+	    message.getConnectorMessages().put(1, getConnectorMessageExample());
+	    return message;
+	}
+	
+	private List<Message> getMessageListExample() {
+	    List<Message> messages = new ArrayList<>();
+	    messages.add(getMessageExample());
+	    return messages;
+	}
+	
+	private MessageFilter getMessageFilterExample() {
+	    List<ContentSearchElement> contentSearch = new ArrayList<>();
+	    List<String> searches = new ArrayList<>();
+	    searches.add("keyword");
+	    contentSearch.add(new ContentSearchElement(1, searches));
+	    
+	    List<Integer> excludedMetaDataIds = new ArrayList<>();
+	    excludedMetaDataIds.add(2);
+	    
+	    List<Integer> includedMetaDataIds = new ArrayList<>();
+	    includedMetaDataIds.add(0);
+	    includedMetaDataIds.add(1);
+	    
+	    List<MetaDataSearchElement> metaDataSearch = new ArrayList<>();
+	    metaDataSearch.add(new MetaDataSearchElement("Column 1", "operator", "example value", true));
+	    
+	    Set<Status> statuses = new HashSet<>();
+	    statuses.add(Status.ERROR);
+	    
+	    MessageFilter messageFilter = new MessageFilter();
+	    messageFilter.setAttachment(false);
+	    messageFilter.setContentSearch(contentSearch);
+	    messageFilter.setEndDate(dateTomorrow);
+	    messageFilter.setError(false);
+	    messageFilter.setImportIdLower(1L);
+	    messageFilter.setIncludedMetaDataIds(includedMetaDataIds);
+	    messageFilter.setMaxMessageId(200L);
+	    messageFilter.setMetaDataSearch(metaDataSearch);
+	    messageFilter.setMinMessageId(5L);
+	    messageFilter.setOriginalIdUpper(25L);
+	    messageFilter.setSendAttemptsLower(0);
+	    messageFilter.setServerId(UUID.randomUUID().toString());
+	    messageFilter.setStartDate(dateNow);
+	    messageFilter.setStatuses(statuses);
+	    messageFilter.setTextSearch("keyword");
+	    return messageFilter;
+	}
+	
+	private MessageImportResult getMessageImportResultExample() {
+	    MessageImportResult result = new MessageImportResult(10, 8);
+	    return result;
+	}
+	
 	private List<MetaDataColumn> getMetaDataColumnListExample() {
 		List<MetaDataColumn> metaDataColumns = new ArrayList<>();
 		metaDataColumns.add(new MetaDataColumn("SOURCE", MetaDataColumnType.STRING, "mirth_source"));
@@ -555,6 +666,26 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    properties.setProperty("exampleKey1", "exampleValue1");
 	    properties.setProperty("exampleKey2", "exampleValue2");
 	    return properties;
+	}
+	
+	private PurgedDocument getPurgedDocumentExample() {
+	    PurgedDocument purgedDocument = new PurgedDocument();
+	    purgedDocument.setServerId(UUID.randomUUID().toString());
+	    purgedDocument.setMirthVersion(Version.getLatest().toString());
+	    purgedDocument.setUsers(10);
+	    return purgedDocument;
+	}
+	
+	private RawMessage getRawMessageExample() {
+	    String rawData = "Example raw data.";
+	    Collection<Integer> destinationMetaDataIds = new HashSet<>();
+	    destinationMetaDataIds.add(1);
+	    Map<String, Object> sourceMap = new HashMap<>();
+	    sourceMap.put("exampleKey", "exampleValue");
+	    List<Attachment> attachments = getAttachmentListExample();
+	    
+	    RawMessage rawMessage = new RawMessage(rawData, destinationMetaDataIds, sourceMap, attachments);
+	    return rawMessage;
 	}
 	
 	private ServerEvent getServerEventExample() {
