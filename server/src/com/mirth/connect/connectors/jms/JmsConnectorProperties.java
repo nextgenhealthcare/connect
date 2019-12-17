@@ -31,7 +31,7 @@ public class JmsConnectorProperties extends ConnectorProperties {
     private boolean topic;
     private String clientId;
 
-    protected JmsConnectorProperties() {
+    public JmsConnectorProperties() {
         useJndi = false;
         jndiProviderUrl = "";
         jndiInitialContextFactory = "";
