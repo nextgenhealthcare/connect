@@ -39,6 +39,7 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
@@ -51,6 +52,7 @@ import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
@@ -58,6 +60,7 @@ import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.ExtensionLibrary;
+import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.LicenseInfo;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.MessageImportResult;
@@ -73,6 +76,7 @@ import com.mirth.connect.model.ServerEvent.Outcome;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.SystemInfo;
 import com.mirth.connect.model.SystemStats;
+import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertActionGroup;
@@ -94,8 +98,10 @@ import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.purged.PurgedDocument;
 import com.mirth.connect.plugins.dashboardstatus.ConnectionLogItem;
+import com.mirth.connect.plugins.datatypes.raw.RawDataTypeProperties;
 import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
 import com.mirth.connect.plugins.serverlog.ServerLogItem;
+import com.mirth.connect.server.transformers.JavaScriptResponseTransformer;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 
@@ -377,15 +383,62 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return dateNow;
 	}
 	
+	private Connector getSourceConnectorExample() {
+	    Transformer transformer = new Transformer();
+	    transformer.setElements(new ArrayList<>());
+	    transformer.setInboundTemplate("");
+	    transformer.setOutboundTemplate("");
+	    transformer.setInboundDataType("RAW");
+	    transformer.setOutboundDataType("RAW");
+	    transformer.setInboundProperties(new RawDataTypeProperties());
+	    transformer.setOutboundProperties(new RawDataTypeProperties());
+	    
+	    Connector connector = new Connector();
+        connector.setProperties(new VmReceiverProperties());
+        connector.setName("sourceConnector");
+        connector.setTransformer(transformer);
+        connector.setFilter(new Filter());
+        connector.setTransportName("Channel Reader");
+        connector.setMode(Mode.SOURCE);
+        connector.setEnabled(true);
+        connector.setWaitForPrevious(true);
+        return connector;
+	}
+	
+	private Connector getDestinationConnectorExample() {
+	    Transformer transformer = new Transformer();
+        transformer.setElements(new ArrayList<>());
+        transformer.setInboundTemplate("");
+        transformer.setOutboundTemplate("");
+        transformer.setInboundDataType("RAW");
+        transformer.setOutboundDataType("RAW");
+        transformer.setInboundProperties(new RawDataTypeProperties());
+        transformer.setOutboundProperties(new RawDataTypeProperties());
+        
+	    Connector connector = new Connector();
+        connector.setProperties(new VmDispatcherProperties());
+        connector.setName("Destination 1");
+        connector.setTransformer(transformer);
+        connector.setResponseTransformer(transformer);
+        connector.setFilter(new Filter());
+        connector.setTransportName("Channel Writer");
+        connector.setMode(Mode.DESTINATION);
+        connector.setEnabled(true);
+        connector.setWaitForPrevious(true);
+        return connector;
+	}
+	
 	private Channel getChannelExample() {
 		Channel channel = new Channel();
 		channel.setId(UUID.randomUUID().toString());
-		Connector sourceConnector = new Connector();
-		sourceConnector.setProperties(new VmReceiverProperties());
-		Connector destinationConnector = new Connector();
-		destinationConnector.setProperties(new VmDispatcherProperties());
-		channel.setSourceConnector(sourceConnector);
-		channel.addDestination(destinationConnector);
+		channel.setName("Channel 1");
+		channel.setDescription("Example description.");
+		channel.setSourceConnector(getSourceConnectorExample());
+		channel.addDestination(getDestinationConnectorExample());
+		channel.setPreprocessingScript("");
+		channel.setPostprocessingScript("");
+		channel.setDeployScript("");
+		channel.setUndeployScript("");
 		return channel;
 	}
 	
