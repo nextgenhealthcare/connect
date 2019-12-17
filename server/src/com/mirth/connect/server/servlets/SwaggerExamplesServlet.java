@@ -52,7 +52,6 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
@@ -115,7 +114,6 @@ import com.mirth.connect.plugins.dashboardstatus.ConnectionLogItem;
 import com.mirth.connect.plugins.datatypes.raw.RawDataTypeProperties;
 import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
 import com.mirth.connect.plugins.serverlog.ServerLogItem;
-import com.mirth.connect.server.transformers.JavaScriptResponseTransformer;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 
