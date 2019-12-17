@@ -68,6 +68,7 @@ import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
+import com.mirth.connect.model.DatabaseTask;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.ExtensionLibrary;
@@ -238,6 +239,10 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getDashboardConnectorStateMapExample();
 		} else if (exampleRequested.equals("data_pruner_status_map")) {
 		    requestedObject = getDataPrunerStatusMapExample();
+		} else if (exampleRequested.equals("database_task")) {
+            requestedObject = getDatabaseTaskExample();
+		} else if (exampleRequested.equals("database_task_map")) {
+		    requestedObject = getDatabaseTaskMapExample();
 		} else if (exampleRequested.equals("definition_service_map")) {
 		    requestedObject = getDefinitionServiceMapExample();
 		} else if (exampleRequested.equals("driver_info_list")) {
@@ -792,6 +797,18 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    statusMap.put("nextProcess", "Scheduled Monday, Jan 1, 1:00:00 AM");
 	    statusMap.put("currentProcess", "-");
 	    return statusMap;
+	}
+	
+	private DatabaseTask getDatabaseTaskExample() {
+        DatabaseTask task = new DatabaseTask(UUID.randomUUID().toString(), "DB Task 1", "DB Task Description", "DB Task Confirmation Message");
+        return task;
+    }
+	
+	private Map<String, DatabaseTask> getDatabaseTaskMapExample() {
+	    Map<String, DatabaseTask> taskMap = new HashMap<>();
+	    DatabaseTask task = getDatabaseTaskExample();
+	    taskMap.put(task.getId(), task);
+	    return taskMap;
 	}
 	
 	private DefinitionServiceMap getDefinitionServiceMapExample() {
