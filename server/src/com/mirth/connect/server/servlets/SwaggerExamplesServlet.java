@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import javax.servlet.ServletConfig;
@@ -26,8 +27,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mirth.connect.client.core.Version;
+import com.mirth.connect.connectors.file.FileDispatcherProperties;
+import com.mirth.connect.connectors.file.FileReceiverProperties;
+import com.mirth.connect.connectors.http.HttpDispatcherProperties;
+import com.mirth.connect.connectors.jdbc.Column;
+import com.mirth.connect.connectors.jdbc.Table;
+import com.mirth.connect.connectors.jms.JmsConnectorProperties;
+import com.mirth.connect.connectors.smtp.SmtpDispatcherProperties;
+import com.mirth.connect.connectors.tcp.TcpDispatcherProperties;
 import com.mirth.connect.connectors.vm.VmDispatcherProperties;
 import com.mirth.connect.connectors.vm.VmReceiverProperties;
+import com.mirth.connect.connectors.ws.DefinitionServiceMap;
+import com.mirth.connect.connectors.ws.DefinitionServiceMap.DefinitionPortMap;
+import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
+import com.mirth.connect.connectors.ws.WebServiceDispatcherProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
@@ -69,6 +82,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.plugins.dashboardstatus.ConnectionLogItem;
 import com.mirth.connect.plugins.serverlog.ServerLogItem;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 public class SwaggerExamplesServlet extends HttpServlet {
 	
@@ -143,15 +157,25 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		} else if (exampleRequested.equals("code_template_summary_list")) {
             requestedObject = getCodeTemplateSummaryListExample(false);
 		} else if (exampleRequested.equals("connector_map")) {
-		    requestedObject = getConnectorMap(true);
+		    requestedObject = getConnectorMapExample(true);
 		} else if (exampleRequested.equals("connector_metadata")) {
             requestedObject = getConnectorMetaDataExample();
         } else if (exampleRequested.equals("connector_metadata_map")) {
             requestedObject = getConnectorMetaDataMapExample();
         } else if (exampleRequested.equals("start_connector_map")) {
-		    requestedObject = getConnectorMap(false);
+		    requestedObject = getConnectorMapExample(false);
 		} else if (exampleRequested.equals("connection_log_item_linked_list")) {
 		    requestedObject = getConnectionLogItemLinkedListExample();
+		} else if (exampleRequested.equals("connection_test_response_file")) {
+		    requestedObject = getFileConnectionTestResponseExample();
+		} else if (exampleRequested.equals("connection_test_response_http")) {
+		    requestedObject = getHttpConnectionTestResponseExample();
+		} else if (exampleRequested.equals("connection_test_response_smtp")) {
+		    requestedObject = getSmtpConnectionTestResponseExample();
+		} else if (exampleRequested.equals("connection_test_response_tcp")) {
+		    requestedObject = getTcpConnectionTestResponseExample();
+		} else if (exampleRequested.equals("connection_test_response_ws")) {
+            requestedObject = getWsConnectionTestResponseExample();
 		} else if (exampleRequested.equals("connector_name_map")) {
 			requestedObject = getConnectorNameMapExample();
 		} else if (exampleRequested.equals("channel_summary_list")) {
@@ -168,8 +192,16 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getDashboardConnectorStateMapExample();
 		} else if (exampleRequested.equals("data_pruner_status_map")) {
 		    requestedObject = getDataPrunerStatusMapExample();
+		} else if (exampleRequested.equals("definition_service_map")) {
+		    requestedObject = getDefinitionServiceMapExample();
 		} else if (exampleRequested.equals("event_filter")) {
             requestedObject = getEventFilterExample();
+		} else if (exampleRequested.equals("file_dispatcher_properties")) {
+		    requestedObject = getFileDispatcherPropertiesExample();
+		} else if (exampleRequested.equals("file_receiver_properties")) {
+		    requestedObject = getFileReceiverPropertiesExample();
+		} else if (exampleRequested.equals("generate_envelope")) {
+		    requestedObject = getGenerateEnvelopeExample();
         } else if (exampleRequested.equals("generic_map")) {
             requestedObject = getGenericMapExample();
         } else if (exampleRequested.equals("global_map")) {
@@ -182,10 +214,20 @@ public class SwaggerExamplesServlet extends HttpServlet {
 			requestedObject = getGuidToNameMapExample();
 		} else if (exampleRequested.equals("guid_set")) {
 			requestedObject = getGuidSetExample();
+		} else if (exampleRequested.equals("http_dispatcher_properties")) {
+		    requestedObject = getHttpDispatcherPropertiesExample();
+		} else if (exampleRequested.equals("jms_template_name_set")) {
+		    requestedObject = getJmsTemplateNameSetExample();
+		} else if (exampleRequested.equals("jms_connector_properties")) {
+		    requestedObject = getJmsConnectorPropertiesExample();
+		} else if (exampleRequested.equals("jms_connector_properties_map")) {
+            requestedObject = getJmsConnectorPropertiesMapExample();
 		} else if (exampleRequested.equals("library_list")) {
             requestedObject = getLibraryListExample();
         } else if (exampleRequested.equals("metadatacolumn_list")) {
 			requestedObject = getMetaDataColumnListExample();
+        } else if (exampleRequested.equals("null")) {
+            requestedObject = null;
 		} else if (exampleRequested.equals("plugin_metadata_map")) {
             requestedObject = getPluginMetaDataMapExample();
         } else if (exampleRequested.equals("properties")) {
@@ -196,25 +238,43 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getServerEventListExample();
         } else if (exampleRequested.equals("server_log_item_list")) {
             requestedObject = getServerLogItemListExample();
+        } else if (exampleRequested.equals("smtp_dispatcher_properties")) {
+            requestedObject = getSmtpDispatcherPropertiesExample("none");
+        } else if (exampleRequested.equals("smtp_dispatcher_properties_ssl")) {
+            requestedObject = getSmtpDispatcherPropertiesExample("SSL");
+        } else if (exampleRequested.equals("smtp_dispatcher_properties_tls")) {
+            requestedObject = getSmtpDispatcherPropertiesExample("TLS");
         } else if (exampleRequested.equals("system_info")) {
             requestedObject = getSystemInfoExample();
         } else if (exampleRequested.equals("system_stats")) {
             requestedObject = getSystemStatsExample();
-        } 
+        } else if (exampleRequested.equals("table_set")) {
+            requestedObject = getTableSetExample();
+        } else if (exampleRequested.equals("tcp_dispatcher_properties")) {
+            requestedObject = getTcpDispatcherPropertiesExample();
+        } else if (exampleRequested.equals("ws_dispatcher_properties")) {
+            requestedObject = getWsDispatcherPropertiesExample();
+        }
 		
+		resp.setContentType("application/json");
 		if (req.getPathInfo().endsWith("_json")) {
-			resp.setContentType("application/json");
 	        String serializedObject = jsonSerialize(requestedObject);
 	        String returnString = "{\"summary\": \"" + exampleRequested + "\", \"value\": " + serializedObject + "}";
 	        resp.getWriter().write(returnString);
 		} else if (req.getPathInfo().endsWith("_xml")) {
-			resp.setContentType("application/json");
 			String serializedObject = xmlSerialize(requestedObject);    
 	        Map<String, Object> params = new HashMap<>();
 	        params.put("summary", exampleRequested);
 	        params.put("value", serializedObject);
 	        String oasExample = new ObjectMapper().writeValueAsString(params);
 	        resp.getWriter().write(oasExample);
+		} else if (req.getPathInfo().endsWith("_txt")) {
+		    String serializedObject = (String)requestedObject;
+		    Map<String, Object> params = new HashMap<>();
+            params.put("summary", exampleRequested);
+            params.put("value", serializedObject);
+            String oasExample = new ObjectMapper().writeValueAsString(params);
+            resp.getWriter().write(oasExample);
 		}
 	}
 	
@@ -414,7 +474,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return list;
 	}
 	
-	private Map<String, List<Integer>> getConnectorMap(boolean includeNull) {
+	private Map<String, List<Integer>> getConnectorMapExample(boolean includeNull) {
 	    Map<String, List<Integer>> connectorMap = new HashMap<>();
 	    List<Integer> connectorList = new ArrayList<>();
 	    if (includeNull) {
@@ -436,6 +496,26 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    logItems.add(getConnectionLogItemExample());
 	    return logItems;
 	}
+	
+	private ConnectionTestResponse getFileConnectionTestResponseExample() {
+        return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to: /some_folder");
+	}
+	
+	private ConnectionTestResponse getHttpConnectionTestResponseExample() {
+	    return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to host: 0.0.0.0:54551 -> 1.1.1.1:9000", "0.0.0.0:54551 -> 1.1.1.1:9000");
+	}
+	
+	private ConnectionTestResponse getSmtpConnectionTestResponseExample() {
+	    return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Sucessfully sent test email to: " + "test@example.com");
+	}
+	
+	private ConnectionTestResponse getTcpConnectionTestResponseExample() {
+	    return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to host: 0.0.0.0:53930 -> 1.1.1.1:6661", "0.0.0.0:53930 -> 1.1.1.1:6661");
+	}
+	
+    private ConnectionTestResponse getWsConnectionTestResponseExample() {
+        return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to host: 0.0.0.0:53930 -> 1.1.1.1:8081", "0.0.0.0:53930 -> 1.1.1.1:8081");
+    }
 	
 	private ConnectorMetaData getConnectorMetaDataExample() {
         ConnectorMetaData metaData = new ConnectorMetaData();
@@ -548,6 +628,25 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return statusMap;
 	}
 	
+	private DefinitionServiceMap getDefinitionServiceMapExample() {
+	    DefinitionServiceMap definitionMap = new DefinitionServiceMap();
+	    Map<String, DefinitionPortMap> portMap = definitionMap.getMap();
+	    DefinitionPortMap definitionPortMap = new DefinitionPortMap();
+	    Map<String, PortInformation> portInformationMap = definitionPortMap.getMap();
+	    
+	    List<String> operationList = new ArrayList<>();
+	    operationList.add("acceptMessage");
+	    List<String> actionList = new ArrayList<>();
+	    actionList.add("SomeAction");
+	    PortInformation portInformation = new PortInformation(operationList, actionList, "http://example.com:8081/services/SomeService");
+	    
+	    portInformationMap.put("{http://ws.connectors.connect.mirth.com/}DefaultAcceptMessagePort", portInformation);
+	    
+	    portMap.put("{http://ws.connectors.connect.mirth.com/}DefaultAcceptMessageService", definitionPortMap);
+	    
+	    return definitionMap;
+	}
+	
 	private EventFilter getEventFilterExample() {
 	    EventFilter eventFilter = new EventFilter();
 	    eventFilter.setMaxEventId(2);
@@ -563,6 +662,29 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    eventFilter.setIpAddress("0:0:0:0:0:0:0:1");
 	    eventFilter.setServerId(UUID.randomUUID().toString());
 	    return eventFilter;
+	}
+	
+	private FileReceiverProperties getFileReceiverPropertiesExample() {
+	    FileReceiverProperties receiverProperties = new FileReceiverProperties();
+	    receiverProperties.setHost("/some_folder");
+	    return receiverProperties;
+	}
+	
+	private FileDispatcherProperties getFileDispatcherPropertiesExample() {
+	    FileDispatcherProperties dispatcherProperties = new FileDispatcherProperties();
+	    dispatcherProperties.setHost("/some_folder");
+	    dispatcherProperties.setOutputPattern("some_file.ext");
+	    return dispatcherProperties;
+	}
+	
+	private String getGenerateEnvelopeExample() {
+	    String envelope = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ws=\"http://ws.connectors.connect.mirth.com/\">\n" + 
+	            "   <soapenv:Header/>\n" + 
+	            "   <soapenv:Body>\n" + 
+	            "      <ws:acceptMessage/>\n" + 
+	            "   </soapenv:Body>\n" + 
+	            "</soapenv:Envelope>";
+	    return envelope;
 	}
 	
 	private Map<String, String> getGenericMapExample() {
@@ -609,6 +731,34 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		guidToNameMap.put(UUID.randomUUID().toString(), "Name 1");
 		guidToNameMap.put(UUID.randomUUID().toString(), "Name 2");
 		return guidToNameMap;
+	}
+	
+	private HttpDispatcherProperties getHttpDispatcherPropertiesExample() {
+	    HttpDispatcherProperties dispatcherProperties = new HttpDispatcherProperties();
+	    dispatcherProperties.setHost("http://example.com:9000");
+	    return dispatcherProperties;
+	}
+	
+	private Set<String> getJmsTemplateNameSetExample() {
+	    Set<String> templateSet = new HashSet<>();
+	    templateSet.add("Template 1");
+	    templateSet.add("Template 2");
+	    return templateSet;
+	}
+	
+	private JmsConnectorProperties getJmsConnectorPropertiesExample() {
+        JmsConnectorProperties properties = new JmsConnectorProperties();
+        properties.setUseJndi(false);
+        properties.setConnectionFactoryClass("com.some.connection.FactoryClass");
+        properties.getConnectionProperties().put("property1", "value1");
+        properties.getConnectionProperties().put("property2", "value2");
+        return properties;
+	}
+	
+	private Map<String, JmsConnectorProperties> getJmsConnectorPropertiesMapExample() {
+	    Map<String, JmsConnectorProperties> map = new LinkedHashMap<>();
+        map.put("Template 1", getJmsConnectorPropertiesExample());
+        return map;
 	}
 	
 	private List<String> getLibraryListExample() {
@@ -682,6 +832,32 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return serverLogList;
 	}
 	
+	private SmtpDispatcherProperties getSmtpDispatcherPropertiesExample(String encryption) {
+	    SmtpDispatcherProperties props = new SmtpDispatcherProperties();
+	    if ("SSL".equalsIgnoreCase(encryption)) {
+	        props.setSmtpPort("465");
+            props.setEncryption("SSL");
+            props.setAuthentication(true);
+            props.setUsername("username@example.com");
+            props.setPassword("your_password");
+	    } else if ("TLS".equalsIgnoreCase(encryption)) {
+	        props.setSmtpPort("587");
+            props.setEncryption("TLS");
+            props.setAuthentication(true);
+            props.setUsername("username@example.com");
+            props.setPassword("your_password");
+	    } else {
+	        props.setSmtpPort("25");
+	        props.setEncryption("none");
+	    }
+        
+	    props.setSmtpHost("smtp.example.com");
+	    props.setTo("test@example.com");
+	    props.setFrom("you@test.com");
+	    
+	    return props;
+	}
+	
 	private SystemInfo getSystemInfoExample() {
 	    SystemInfo systemInfo = new SystemInfo();
 	    systemInfo.setJvmVersion("1.8.0_172");
@@ -703,5 +879,28 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    systemStats.setDiskFreeBytes(70_000_000_000L);
 	    systemStats.setDiskTotalBytes(500_000_000_000L);
 	    return systemStats;
+	}
+	
+	private Set<Table> getTableSetExample() {
+	    Set<Table> tableSet = new TreeSet<>();
+	    List<Column> columns = new ArrayList<>();
+	    columns.add(new Column("id", "bpchar", 36));
+	    columns.add(new Column("name", "varchar", 255));
+	    tableSet.add(new Table("table_name", columns));
+	    return tableSet;
+	}
+	
+	private TcpDispatcherProperties getTcpDispatcherPropertiesExample() {
+	    TcpDispatcherProperties props = new TcpDispatcherProperties();
+	    props.setRemoteAddress("example.com");
+	    props.setRemotePort("6661");
+	    return props;
+	}
+	
+	private WebServiceDispatcherProperties getWsDispatcherPropertiesExample() {
+	    WebServiceDispatcherProperties props = new WebServiceDispatcherProperties();
+	    props.setWsdlUrl("http://example.com:8081/services/SomeService?wsdl");
+	    props.setLocationURI("http://example.com:8081/services/SomeService");
+	    return props;
 	}
 }
