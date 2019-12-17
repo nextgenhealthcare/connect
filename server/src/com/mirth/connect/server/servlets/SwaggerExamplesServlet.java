@@ -303,6 +303,8 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getMessageImportResultExample();
         } else if (exampleRequested.equals("metadatacolumn_list")) {
 			requestedObject = getMetaDataColumnListExample();
+        } else if (exampleRequested.equals("new_user")) {
+            requestedObject = getNewUserExample();
         } else if (exampleRequested.equals("null")) {
             requestedObject = null;
 		} else if (exampleRequested.equals("password_requirements")) {
@@ -1345,21 +1347,26 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return updateSettings;
 	}
 	
-	private User getUserExample() {
+	private User getNewUserExample() {
 	    User user = new User();
-	    user.setEmail("newuser@email.com");
-	    user.setFirstName("John");
-	    user.setLastName("Doe");
-	    user.setGracePeriodStart(dateNow);
+        user.setEmail("newuser@email.com");
+        user.setFirstName("John");
+        user.setLastName("Doe");
+        user.setGracePeriodStart(dateNow);
+        user.setUsername("newuser");
+        user.setDescription("");
+        user.setIndustry("");
+        user.setLastLogin(dateNow);
+        user.setLastStrikeTime(dateNow);
+        user.setOrganization("");
+        user.setPhoneNumber("");
+        user.setStrikeCount(0);
+        return user;
+	}
+	
+	private User getUserExample() {
+	    User user = getNewUserExample();
 	    user.setId(1);
-	    user.setUsername("newuser");
-	    user.setDescription("");
-	    user.setIndustry("");
-	    user.setLastLogin(dateNow);
-	    user.setLastStrikeTime(dateNow);
-	    user.setOrganization("");
-	    user.setPhoneNumber("");
-	    user.setStrikeCount(0);
 	    return user;
 	}
 	
