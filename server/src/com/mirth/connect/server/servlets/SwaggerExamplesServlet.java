@@ -129,7 +129,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		dateNow = Calendar.getInstance();
 		dateTomorrow = Calendar.getInstance();
 		dateTomorrow.add(Calendar.DAY_OF_MONTH, 1);
-		dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+		dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	}
 	
 	@Override
