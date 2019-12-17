@@ -129,7 +129,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		dateNow = Calendar.getInstance();
 		dateTomorrow = Calendar.getInstance();
 		dateTomorrow.add(Calendar.DAY_OF_MONTH, 1);
-		dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+		dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	}
 	
 	@Override
@@ -432,7 +432,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	}
 	
 	private Attachment getAttachmentExample() {
-	    Attachment attachment = new Attachment("attachmentId", "Example content".getBytes(), MediaType.TEXT_PLAIN);
+	    Attachment attachment = new Attachment("attachmentId", "Example content".getBytes(Charsets.UTF_8), MediaType.TEXT_PLAIN);
 	    attachment.setEncrypted(false);
 	    return attachment;
 	}
