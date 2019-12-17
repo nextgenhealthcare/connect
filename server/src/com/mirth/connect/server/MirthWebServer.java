@@ -104,6 +104,7 @@ import com.mirth.connect.server.api.providers.ClickjackingFilter;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
+import com.mirth.connect.server.servlets.SwaggerExamplesServlet;
 import com.mirth.connect.server.servlets.SwaggerServlet;
 import com.mirth.connect.server.servlets.WebStartServlet;
 import com.mirth.connect.server.tools.ClassPathResource;
@@ -479,8 +480,16 @@ public class MirthWebServer extends Server {
         // Add Swagger UI web page servlet
         handlers.addHandler(getSwaggerContextHandler(contextPath, baseAPI, apiAllowHTTP, null));
         
+        // Add Swagger examples servlet
+        ServletContextHandler swaggerExamplesServletContextHandler = new ServletContextHandler();
+        swaggerExamplesServletContextHandler.setContextPath("/apiexamples");
+        ServletHolder swaggerExamplesServlet = new ServletHolder(new SwaggerExamplesServlet());
+        swaggerExamplesServlet.setInitOrder(3);
+        swaggerExamplesServletContextHandler.addServlet(swaggerExamplesServlet, "/*");
+        
         // Add API handler
         handlers.addHandler(apiServletContextHandler);
+        handlers.addHandler(swaggerExamplesServletContextHandler);
     }
 
     private ContextHandler getSwaggerContextHandler(String contextPath, String baseAPI, boolean apiAllowHTTP, Version version) {
