@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Charsets;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.connectors.vm.VmDispatcherProperties;
 import com.mirth.connect.connectors.vm.VmReceiverProperties;
@@ -40,26 +41,40 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
 import com.mirth.connect.model.ChannelHeader;
+import com.mirth.connect.model.ChannelMetadata;
+import com.mirth.connect.model.ChannelPruningSettings;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
+import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
+import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.ExtensionLibrary;
+import com.mirth.connect.model.LicenseInfo;
+import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.MetaData;
+import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginClass;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.ResourceProperties;
+import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.model.ServerEvent.Outcome;
+import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.SystemInfo;
 import com.mirth.connect.model.SystemStats;
+import com.mirth.connect.model.UpdateSettings;
+import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertInfo;
 import com.mirth.connect.model.alert.AlertModel;
@@ -79,7 +94,10 @@ import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.purged.PurgedDocument;
 import com.mirth.connect.plugins.dashboardstatus.ConnectionLogItem;
+import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
 import com.mirth.connect.plugins.serverlog.ServerLogItem;
+import com.mirth.connect.util.ConfigurationProperty;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 public class SwaggerExamplesServlet extends HttpServlet {
 	
@@ -133,13 +151,21 @@ public class SwaggerExamplesServlet extends HttpServlet {
 			requestedObject = getChannelHeaderMapExample();
 		} else if (exampleRequested.equals("channel_list")) {
 			requestedObject = getChannelListExample();
-		} else if (exampleRequested.equals("channel_group_list")) {
+		} else if (exampleRequested.equals("channel_dependency_set")) {
+            requestedObject = getChannelDependencySetExample();
+        } else if (exampleRequested.equals("channel_group_list")) {
 		    requestedObject = getChannelGroupListExample();
-		} else if (exampleRequested.equals("channel_statistics")) {
+		} else if (exampleRequested.equals("channel_metadata_map")) {
+            requestedObject = getChannelMetadataMapExample();
+        } else if (exampleRequested.equals("channel_statistics")) {
 		    requestedObject = getChannelStatisticsExample();
 		} else if (exampleRequested.equals("channel_statistics_list")) {
 		    requestedObject = getChannelStatisticsListExample();
-		} else if (exampleRequested.equals("code_template")) {
+		} else if (exampleRequested.equals("channel_tag_set")) {
+            requestedObject = getChannelTagSetExample();
+        } else if (exampleRequested.equals("charset_encoding_list")) {
+            requestedObject = getCharsetEncodingListExample();
+        } else if (exampleRequested.equals("code_template")) {
 		    requestedObject = getCodeTemplateExample(true);
 		} else if (exampleRequested.equals("code_template_list")) {
 		    requestedObject = getCodeTemplateListExample(true);
@@ -173,7 +199,11 @@ public class SwaggerExamplesServlet extends HttpServlet {
 			requestedObject = getConnectorNameMapExample();
 		} else if (exampleRequested.equals("channel_summary_list")) {
 			requestedObject = getChannelSummaryListExample();
-		} else if (exampleRequested.equals("dashboard_channel_info")) {
+		} else if (exampleRequested.equals("configuration_map")) {
+            requestedObject = getConfigurationMapExample();
+        } else if (exampleRequested.equals("connection_test_response")) {
+            requestedObject = getConnectionTestResponseExample();
+        } else if (exampleRequested.equals("dashboard_channel_info")) {
 		    requestedObject = getDashboardChannelInfoExample();
 		} else if (exampleRequested.equals("dashboard_status")) {
 		    requestedObject = getDashboardStatusExample();
@@ -185,7 +215,11 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getDashboardConnectorStateMapExample();
 		} else if (exampleRequested.equals("data_pruner_status_map")) {
 		    requestedObject = getDataPrunerStatusMapExample();
-		} else if (exampleRequested.equals("event_filter")) {
+		} else if (exampleRequested.equals("driver_info_list")) {
+            requestedObject = getDriverInfoListExample();
+        } else if (exampleRequested.equals("encryption_settings")) {
+            requestedObject = getEncryptionSettingsExample();
+        } else if (exampleRequested.equals("event_filter")) {
             requestedObject = getEventFilterExample();
         } else if (exampleRequested.equals("generic_map")) {
             requestedObject = getGenericMapExample();
@@ -193,14 +227,22 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getGlobalMapExample();
         } else if (exampleRequested.equals("global_maps")) {
             requestedObject = getGlobalMapsExample();
+        } else if (exampleRequested.equals("global_scripts")) {
+            requestedObject = getGlobalScriptsExample();
         } else if (exampleRequested.equals("guid_to_int_map")) {
             requestedObject = getGuidToIntMapExample();
         } else if (exampleRequested.equals("guid_to_name_map")) {
 			requestedObject = getGuidToNameMapExample();
 		} else if (exampleRequested.equals("guid_set")) {
-			requestedObject = getGuidSetExample();
+		    requestedObject = getGuidSetExample();
+		} else if (exampleRequested.equals("integer")) {
+			requestedObject = new Integer(1);
 		} else if (exampleRequested.equals("library_list")) {
             requestedObject = getLibraryListExample();
+        } else if (exampleRequested.equals("license_info")) {
+            requestedObject = getLicenseInfoExample();
+        } else if (exampleRequested.equals("login_status")) {
+            requestedObject = getLoginStatusExample();
         } else if (exampleRequested.equals("long")) {
             requestedObject = getLongExample();
         } else if (exampleRequested.equals("message")) {
@@ -213,25 +255,43 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getMessageImportResultExample();
         } else if (exampleRequested.equals("metadatacolumn_list")) {
 			requestedObject = getMetaDataColumnListExample();
-		} else if (exampleRequested.equals("plugin_metadata_map")) {
+		} else if (exampleRequested.equals("password_requirements")) {
+            requestedObject = getPasswordRequirementsExample();
+        } else if (exampleRequested.equals("password_requirement_list")) {
+            requestedObject = getPasswordRequirementListExample();
+        } else if (exampleRequested.equals("plugin_metadata_map")) {
             requestedObject = getPluginMetaDataMapExample();
         } else if (exampleRequested.equals("properties")) {
             requestedObject = getPropertiesExample();
+        } else if (exampleRequested.equals("protocols_and_cipher_suites_map")) {
+            requestedObject = getProtocolsAndCipherSuitesMapExample();
         } else if (exampleRequested.equals("purged_document")) {
             requestedObject = getPurgedDocumentExample();
         } else if (exampleRequested.equals("raw_message")) {
             requestedObject = getRawMessageExample();
+        } else if (exampleRequested.equals("resource_properties_list")) {
+            requestedObject = getResourcePropertiesListExample();
+        } else if (exampleRequested.equals("server_configuration")) {
+            requestedObject = getServerConfigurationExample();
         } else if (exampleRequested.equals("server_event")) {
 		    requestedObject = getServerEventExample();
 		} else if (exampleRequested.equals("server_event_list")) {
             requestedObject = getServerEventListExample();
         } else if (exampleRequested.equals("server_log_item_list")) {
             requestedObject = getServerLogItemListExample();
+        } else if (exampleRequested.equals("server_settings")) {
+            requestedObject = getServerSettingsExample();
         } else if (exampleRequested.equals("system_info")) {
             requestedObject = getSystemInfoExample();
         } else if (exampleRequested.equals("system_stats")) {
             requestedObject = getSystemStatsExample();
-        } 
+        } else if (exampleRequested.equals("update_settings")) {
+            requestedObject = getUpdateSettingsExample();
+        } else if (exampleRequested.equals("user")) {
+            requestedObject = getUserExample();
+        } else if (exampleRequested.equals("user_list")) {
+            requestedObject = getUserListExample();
+        }
 		
 		if (req.getPathInfo().endsWith("_json")) {
 			resp.setContentType("application/json");
@@ -352,12 +412,41 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return channel;
 	}
 	
+	private ChannelDependency getChannelDependencyExample() {
+	    return new ChannelDependency(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+	}
+	
+	private Set<ChannelDependency> getChannelDependencySetExample() {
+	    Set<ChannelDependency> channelDependencies = new HashSet<>();
+	    channelDependencies.add(getChannelDependencyExample());
+	    return channelDependencies;
+	}
+	
 	private List<ChannelGroup> getChannelGroupListExample() {
 	    List<ChannelGroup> groupList = new ArrayList<>();
 	    ChannelGroup group = new ChannelGroup("Group Name", "Group Description");
 	    group.setChannels(getMinimalChannelListExample());
 	    groupList.add(group);
 	    return groupList;
+	}
+	
+	private ChannelMetadata getChannelMetadataExample() {
+	    ChannelPruningSettings pruningSettings = new ChannelPruningSettings();
+	    pruningSettings.setArchiveEnabled(true);
+	    pruningSettings.setPruneContentDays(7);
+	    pruningSettings.setPruneMetaDataDays(14);
+	    
+	    ChannelMetadata channelMetadata = new ChannelMetadata();
+	    channelMetadata.setEnabled(true);
+	    channelMetadata.setLastModified(dateNow);
+	    channelMetadata.setPruningSettings(pruningSettings);
+	    return channelMetadata;
+	}
+	
+	private Map<String, ChannelMetadata> getChannelMetadataMapExample() {
+	    Map<String, ChannelMetadata> channelMetadataMap = new HashMap<>();
+	    channelMetadataMap.put(UUID.randomUUID().toString(), getChannelMetadataExample());
+	    return channelMetadataMap;
 	}
 	
 	private List<ChannelSummary> getChannelSummaryListExample() {
@@ -387,6 +476,25 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		channelStatus.setDeployedRevisionDelta(0);
 		channelStatus.setDeployedDate(dateNow);
 		return channelStatus;
+	}
+	
+	private ChannelTag getChannelTagExample() {
+	    return new ChannelTag(UUID.randomUUID().toString(), "Tag 1", getGuidSetExample(), Color.RED);
+	}
+	
+	private Set<ChannelTag> getChannelTagSetExample() {
+	    Set<ChannelTag> channelTags = new HashSet<>();
+	    channelTags.add(getChannelTagExample());
+	    return channelTags;
+	}
+	
+	private List<String>  getCharsetEncodingListExample() {
+	    List<String> charsetEncodings = new ArrayList<>();
+	    charsetEncodings.add("Big5");
+	    charsetEncodings.add("ISO-8859-1");
+	    charsetEncodings.add("US-ASCII");
+	    charsetEncodings.add("UTF-8");
+	    return charsetEncodings;
 	}
 	
 	private CodeTemplate getCodeTemplateExample(boolean includeFullTemplates) {
@@ -455,6 +563,13 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	        list.add(getCodeTemplateSummary());
 	    }
 	    return list;
+	}
+	
+	private Map<String, ConfigurationProperty> getConfigurationMapExample() {
+	    Map<String, ConfigurationProperty> configurationMap = new HashMap<>();
+	    configurationMap.put("exampleKey1", new ConfigurationProperty("exampleValue1", "Example comment 1"));
+	    configurationMap.put("exampleKey2", new ConfigurationProperty("exampleValue2", "Example comment 2"));
+	    return configurationMap;
 	}
 	
 	private Map<String, List<Integer>> getConnectorMap(boolean includeNull) {
@@ -535,6 +650,10 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		return connectorNameMap;
 	}
 	
+	private ConnectionTestResponse getConnectionTestResponseExample() {
+	    return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Success", "Connection info");
+	}
+	
 	private DashboardChannelInfo getDashboardChannelInfoExample() {
 	    DashboardChannelInfo dashboardChannelInfo = new DashboardChannelInfo(getDashboardStatusListExample(), getGuidSetExample(), 0);
 	    return dashboardChannelInfo;
@@ -596,6 +715,29 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return statusMap;
 	}
 	
+	private DriverInfo getDriverInfoExample() {
+	    DriverInfo driverInfo = new DriverInfo("PostgreSQL", "org.postgresql.Driver", "jdbc:postgresql://host:port/dbname", "SELECT * FROM ? LIMIT 1", new ArrayList<>());
+	    return driverInfo;
+	}
+	
+	private List<DriverInfo> getDriverInfoListExample() {
+	    List<DriverInfo> driverInfoList = new ArrayList<>();
+	    driverInfoList.add(getDriverInfoExample());
+	    return driverInfoList;
+	}
+	
+	private EncryptionSettings getEncryptionSettingsExample() {
+	    EncryptionSettings encryptionSettings = new EncryptionSettings();
+	    encryptionSettings.setEncryptExport(false);
+	    encryptionSettings.setEncryptProperties(false);
+	    encryptionSettings.setEncryptionAlgorithm("AES");
+	    encryptionSettings.setEncryptionKeyLength(128);
+	    encryptionSettings.setDigestAlgorithm("SHA256");
+	    encryptionSettings.setSecurityProvider("org.bouncycastle.jce.provider.BouncyCastleProvider");
+	    encryptionSettings.setSecretKey("exampleSecretKey".getBytes(Charsets.UTF_8));
+	    return encryptionSettings;
+	}
+	
 	private EventFilter getEventFilterExample() {
 	    EventFilter eventFilter = new EventFilter();
 	    eventFilter.setMaxEventId(2);
@@ -638,6 +780,15 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    globalMaps.put(UUID.randomUUID().toString(), getGlobalMapExample());
 	    return globalMaps;
 	}
+	
+	private Map<String, String> getGlobalScriptsExample() {
+	    Map<String, String> globalScripts = new HashMap<>();
+	    globalScripts.put("Undeploy", "// Example undeploy script\nreturn;");
+	    globalScripts.put("Postprocessor", "// Example postprocessor script\nreturn;");
+	    globalScripts.put("Deploy", "// Example deploy script\nreturn;");
+	    globalScripts.put("Preprocessor", "// Example preprocessor script\nreturn message;");
+	    return globalScripts;
+	}
 
 	private Set<String> getGuidSetExample() {
 		Set<String> stringSet = new HashSet<>();
@@ -664,6 +815,24 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    libraryList.add("library1.jar");
 	    libraryList.add("library2.jar");
 	    return libraryList;
+	}
+	
+	private LicenseInfo getLicenseInfoExample() {
+	    Set<String> extensions = new HashSet<>();
+	    extensions.add("SSL Manager");
+	    extensions.add("Advanced Clustering");
+	    
+	    LicenseInfo licenseInfo = new LicenseInfo();
+	    licenseInfo.setActivated(true);
+	    licenseInfo.setExpirationDate(dateTomorrow.getTimeInMillis());
+	    licenseInfo.setExtensions(extensions);
+	    licenseInfo.setGracePeriod(7L);
+	    return licenseInfo;
+	}
+	
+	private LoginStatus getLoginStatusExample() {
+	    LoginStatus loginStatus = new LoginStatus(LoginStatus.Status.SUCCESS, "", "newUserName");
+	    return loginStatus;
 	}
 	
 	private Long getLongExample() {
@@ -736,6 +905,17 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		return metaDataColumns;
 	}
 	
+	private PasswordRequirements getPasswordRequirementsExample() {
+	    return new PasswordRequirements(8, 1, 1, 1, 1, 3, 0, 0, 0, 0, 3);
+	}
+	
+	private List<String> getPasswordRequirementListExample() {
+	    List<String> requirements = new ArrayList<>();
+	    requirements.add("Password is too short. Minimum length is 8 characters");
+	    requirements.add("Password must contain 1 special character(s)");
+	    return requirements;
+	}
+	
 	private PluginMetaData getPluginMetaDataExample() {
 	    PluginMetaData metaData = new PluginMetaData();
 	    configureMetaData(metaData);
@@ -768,6 +948,16 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return properties;
 	}
 	
+	private Map<String, String[]> getProtocolsAndCipherSuitesMapExample() {
+	    Map<String, String[]> protocolsAndCipherSuites = new HashMap<>();
+    	protocolsAndCipherSuites.put("enabledCipherSuites", new String[] {"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA"});
+    	protocolsAndCipherSuites.put("enabledClientProtocols", new String[] {"TLSv1.2", "TLSv1.1"});
+    	protocolsAndCipherSuites.put("supportedCipherSuites", new String[] {"TLS_DHE_DSS_WITH_AES_256_GCM_SHA384"});
+    	protocolsAndCipherSuites.put("supportedProtocols", new String[] {"SSLv2Hello", "TLSv1.2"});
+    	protocolsAndCipherSuites.put("enabledServerProtocols", new String[] {"TLSv1.2", "TLSv1.1"});
+	    return protocolsAndCipherSuites;
+	}
+	
 	private PurgedDocument getPurgedDocumentExample() {
 	    PurgedDocument purgedDocument = new PurgedDocument();
 	    purgedDocument.setServerId(UUID.randomUUID().toString());
@@ -788,6 +978,23 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return rawMessage;
 	}
 	
+	private ResourceProperties getResourcePropertiesExample() {
+	    DirectoryResourceProperties resourceProperties = new DirectoryResourceProperties();
+	    resourceProperties.setDescription("Custom directory resources");
+	    resourceProperties.setDirectory("/path/to/directory");
+	    resourceProperties.setDirectoryRecursion(true);
+	    resourceProperties.setId(UUID.randomUUID().toString());
+	    resourceProperties.setIncludeWithGlobalScripts(false);
+	    resourceProperties.setName("Custom resources 1");
+	    return resourceProperties;
+	}
+	
+	private List<ResourceProperties> getResourcePropertiesListExample() {
+	    List<ResourceProperties> resourceProperties = new ArrayList<>();
+	    resourceProperties.add(getResourcePropertiesExample());
+	    return resourceProperties;
+	}
+	
 	private ServerEvent getServerEventExample() {
 	    ServerEvent serverEvent = new ServerEvent();
 	    serverEvent.setName("Name 1");
@@ -795,6 +1002,22 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    serverEvent.setIpAddress("0:0:0:0:0:0:0:1");
 	    serverEvent.setServerId(UUID.randomUUID().toString());
 	    return serverEvent;
+	}
+	
+	private ServerConfiguration getServerConfigurationExample() {
+	    ServerConfiguration serverConfiguration = new ServerConfiguration();
+	    serverConfiguration.setAlerts(getAlertListExample());
+	    serverConfiguration.setChannelDependencies(getChannelDependencySetExample());
+	    serverConfiguration.setChannelGroups(getChannelGroupListExample());
+	    serverConfiguration.setChannels(getChannelListExample());
+	    serverConfiguration.setChannelTags(getChannelTagSetExample());
+	    serverConfiguration.setCodeTemplateLibraries(getCodeTemplateLibraryListExample(true));
+	    serverConfiguration.setConfigurationMap(getConfigurationMapExample());
+	    serverConfiguration.setGlobalScripts(getGlobalScriptsExample());
+	    serverConfiguration.setServerSettings(getServerSettingsExample());
+	    serverConfiguration.setUpdateSettings(getUpdateSettingsExample());
+	    serverConfiguration.setUsers(getUserListExample());
+	    return serverConfiguration;
 	}
 	
 	private List<ServerEvent> getServerEventListExample() {
@@ -811,6 +1034,18 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    List<ServerLogItem> serverLogList = new ArrayList<>();
 	    serverLogList.add(getServerLogItemExample());
 	    return serverLogList;
+	}
+	
+	private ServerSettings getServerSettingsExample() {
+	    ServerSettings serverSettings = new ServerSettings("Environment 1", "Server 1", getPropertiesExample());
+	    serverSettings.setClearGlobalMap(true);
+	    serverSettings.setSmtpHost("");
+	    serverSettings.setSmtpPort("");
+	    serverSettings.setSmtpTimeout("5000");
+	    serverSettings.setSmtpFrom("");
+	    serverSettings.setSmtpUsername("");
+	    serverSettings.setSmtpPassword("");
+	    return serverSettings;
 	}
 	
 	private SystemInfo getSystemInfoExample() {
@@ -834,5 +1069,37 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    systemStats.setDiskFreeBytes(70_000_000_000L);
 	    systemStats.setDiskTotalBytes(500_000_000_000L);
 	    return systemStats;
+	}
+	
+	private UpdateSettings getUpdateSettingsExample() {
+	    UpdateSettings updateSettings = new UpdateSettings();
+	    updateSettings.setLastStatsTime(dateNow.getTimeInMillis());
+	    updateSettings.setStatsEnabled(true);
+	    updateSettings.setProperties(getPropertiesExample());
+	    return updateSettings;
+	}
+	
+	private User getUserExample() {
+	    User user = new User();
+	    user.setEmail("newuser@email.com");
+	    user.setFirstName("John");
+	    user.setLastName("Doe");
+	    user.setGracePeriodStart(dateNow);
+	    user.setId(1);
+	    user.setUsername("newuser");
+	    user.setDescription("");
+	    user.setIndustry("");
+	    user.setLastLogin(dateNow);
+	    user.setLastStrikeTime(dateNow);
+	    user.setOrganization("");
+	    user.setPhoneNumber("");
+	    user.setStrikeCount(0);
+	    return user;
+	}
+	
+	private List<User> getUserListExample() {
+	    List<User> users = new ArrayList<>();
+	    users.add(getUserExample());
+	    return users;
 	}
 }
