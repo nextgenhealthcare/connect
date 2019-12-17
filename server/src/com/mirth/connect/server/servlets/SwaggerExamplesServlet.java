@@ -430,7 +430,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	}
 	
 	private Attachment getAttachmentExample() {
-	    Attachment attachment = new Attachment("attachmentId", "Example content".getBytes(), MediaType.TEXT_PLAIN);
+	    Attachment attachment = new Attachment("attachmentId", "Example content".getBytes(Charsets.UTF_8), MediaType.TEXT_PLAIN);
 	    attachment.setEncrypted(false);
 	    return attachment;
 	}
