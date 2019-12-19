@@ -110,10 +110,12 @@ import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.purged.PurgedDocument;
+import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.plugins.dashboardstatus.ConnectionLogItem;
 import com.mirth.connect.plugins.datatypes.raw.RawDataTypeProperties;
 import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
 import com.mirth.connect.plugins.serverlog.ServerLogItem;
+import com.mirth.connect.server.controllers.DefaultExtensionController;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 
@@ -135,17 +137,21 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String exampleRequested = "";
-		try {
-			 exampleRequested = req.getPathInfo().substring(1, req.getPathInfo().lastIndexOf("_"));
-		} catch (Exception e) {
-			resp.setContentType("text/plain");
-			resp.getWriter().write("No Example Found");
-			return;
-		}
-		
-		Object requestedObject = null;
-		
-		if (exampleRequested.equals("alert")) {
+        boolean isExtension = false;
+        try {
+             exampleRequested = req.getPathInfo().substring(1, req.getPathInfo().lastIndexOf("_"));
+             isExtension = exampleRequested.startsWith("ext_");
+        } catch (Exception e) {
+            resp.setContentType("text/plain");
+            resp.getWriter().write("No Example Found");
+            return;
+        }
+        
+        Object requestedObject = null;
+        
+        if (isExtension) {
+            requestedObject = getExtensionExample(exampleRequested);
+        } else if (exampleRequested.equals("alert")) {
 			requestedObject = getAlertExample();
 		} else if (exampleRequested.equals("alert_info")) {
 			requestedObject = getAlertInfoExample();
@@ -391,6 +397,23 @@ public class SwaggerExamplesServlet extends HttpServlet {
         ObjectXMLSerializer.getInstance().serialize(object, writer);
         return baos.toString("UTF-8");
 	}
+	
+	private Object getExtensionExample(String exampleRequested) {
+        DefaultExtensionController controller = (DefaultExtensionController)DefaultExtensionController.getInstance();
+        
+        Collection<ServicePlugin> servicePlugins = controller.getServicePlugins().values();
+        
+        for (ServicePlugin plugin: servicePlugins) {
+            Map<String, Object> examples = plugin.getObjectsForSwaggerExamples();
+            if (examples != null) {
+                Object example = examples.get(exampleRequested);
+                if (example != null) {
+                    return example;
+                }
+            }
+        }
+        return null;
+    }
 	
 	private AlertModel getAlertExample() {
 		DefaultTrigger trigger = new DefaultTrigger();

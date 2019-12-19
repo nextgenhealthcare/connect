@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins;
 
+import java.util.Map;
 import java.util.Properties;
 
 import com.mirth.connect.model.ExtensionPermission;
@@ -31,4 +32,11 @@ public interface ServicePlugin extends ServerPlugin {
      * @return
      */
     public ExtensionPermission[] getExtensionPermissions();
+    
+    /**
+     * Returns a map of strings to example objects for use in populating swagger's examples.
+     * 
+     * @return
+     */
+    public Map<String, Object> getObjectsForSwaggerExamples();
 }
