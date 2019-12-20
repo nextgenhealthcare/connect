@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.dashboardstatus;
 import static com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusServletInterface.PERMISSION_VIEW;
 import static com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusServletInterface.PLUGIN_POINT;
 
+import java.util.Map;
 import java.util.Properties;
 
 import com.mirth.connect.client.core.api.util.OperationUtil;
@@ -61,5 +62,11 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
     public ExtensionPermission[] getExtensionPermissions() {
         ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_VIEW, "Displays the connection status and history of the selected channel on the Dashboard.", OperationUtil.getOperationNamesForPermission(PERMISSION_VIEW, DashboardConnectorStatusServletInterface.class), new String[] {});
         return new ExtensionPermission[] { viewPermission };
+    }
+    
+    @Override
+    public Map<String, Object> getObjectsForSwaggerExamples() {
+    	// TODO Auto-generated method stub
+    	return null;
     }
 }

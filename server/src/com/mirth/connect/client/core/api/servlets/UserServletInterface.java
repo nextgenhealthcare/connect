@@ -77,9 +77,9 @@ public interface UserServletInterface extends BaseServletInterface {
     @MirthOperation(name = "createUser", display = "Create new user", permission = Permissions.USERS_MANAGE)
     public void createUser(@Param("user") @RequestBody(description = "The User object to create.", required = true, content = {
             @Content(mediaType = MediaType.APPLICATION_XML, examples = {
-                    @ExampleObject(name = "user", ref = "../apiexamples/user_xml") }),
+                    @ExampleObject(name = "user", ref = "../apiexamples/new_user_xml") }),
             @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
-                    @ExampleObject(name = "user", ref = "../apiexamples/user_json") }) }) User user) throws ClientException;
+                    @ExampleObject(name = "user", ref = "../apiexamples/new_user_json") }) }) User user) throws ClientException;
 
     @GET
     @Path("/")
