@@ -121,9 +121,9 @@ import com.mirth.connect.util.ConnectionTestResponse;
 
 public class SwaggerExamplesServlet extends HttpServlet {
 	
-	private Calendar dateNow;
-	private Calendar dateTomorrow;
-	private SimpleDateFormat dateFormat;
+	private static Calendar dateNow;
+	private static Calendar dateTomorrow;
+	private static SimpleDateFormat dateFormat;
 	
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {
@@ -385,13 +385,13 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		}
 	}
 	
-	private String jsonSerialize(Object object) throws IOException {
+	public static String jsonSerialize(Object object) throws IOException {
 	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectJSONSerializer.getInstance().serialize(object, baos);
         return baos.toString("UTF-8");
 	}
 	
-	private String xmlSerialize(Object object) throws UnsupportedEncodingException {
+	public static String xmlSerialize(Object object) throws UnsupportedEncodingException {
 	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(baos, "UTF-8");
         ObjectXMLSerializer.getInstance().serialize(object, writer);
@@ -470,7 +470,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return dateNow;
 	}
 	
-	private Connector getSourceConnectorExample() {
+	private static Connector getSourceConnectorExample() {
 	    Transformer transformer = new Transformer();
 	    transformer.setElements(new ArrayList<>());
 	    transformer.setInboundTemplate("");
@@ -492,7 +492,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
         return connector;
 	}
 	
-	private Connector getDestinationConnectorExample() {
+	private static Connector getDestinationConnectorExample() {
 	    Transformer transformer = new Transformer();
         transformer.setElements(new ArrayList<>());
         transformer.setInboundTemplate("");
@@ -515,7 +515,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
         return connector;
 	}
 	
-	private Channel getChannelExample() {
+	public static Channel getChannelExample() {
 		Channel channel = new Channel();
 		channel.setId(UUID.randomUUID().toString());
 		channel.setName("Channel 1");
@@ -637,7 +637,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return charsetEncodings;
 	}
 	
-	private CodeTemplate getCodeTemplateExample(boolean includeFullTemplates) {
+	public static CodeTemplate getCodeTemplateExample(boolean includeFullTemplates) {
 	    if (includeFullTemplates) {
 	        return CodeTemplate.getDefaultCodeTemplate("Template 1");
 	    } else {
@@ -645,13 +645,13 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    }
 	}
 	
-	private List<CodeTemplate> getCodeTemplateListExample(boolean includeFullTemplates) {
+	private static List<CodeTemplate> getCodeTemplateListExample(boolean includeFullTemplates) {
 	    List<CodeTemplate> list = new ArrayList<>();
 	    list.add(getCodeTemplateExample(includeFullTemplates));
 	    return list;
 	}
 	
-	private CodeTemplateLibrary getCodeTemplateLibraryExample(boolean includeFullTemplates) {
+	public static CodeTemplateLibrary getCodeTemplateLibraryExample(boolean includeFullTemplates) {
 	    CodeTemplateLibrary library = new CodeTemplateLibrary();
         library.setName("Library Name");
         library.setDescription("Library Description");
