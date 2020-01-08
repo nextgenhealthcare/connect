@@ -1007,7 +1007,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public void initializeSecuritySettings() {
-        try {
+        try {        	
             /*
              * Load the encryption settings so that they can be referenced client side.
              */
@@ -1063,7 +1063,8 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
-    /**
+
+	/**
      * Creates a random 12-character alphanumeric password.
      */
     private String generateNewPassword() {
@@ -1462,4 +1463,8 @@ public class DefaultConfigurationController extends ConfigurationController {
             return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, e.getMessage());
         }
     }
+    
+    public static void main(String[] arg) {
+    	System.exit(STATUS_OK);
+    	}
 }

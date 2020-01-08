@@ -9,18 +9,42 @@
 
 package com.mirth.connect.connectors.ws;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.util.Arrays;
 import java.util.Map;
 
+import javax.inject.Singleton;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.ssl.SSLContexts;
 
+import com.cloudsolutions.ssl.CompositeX509KeyManager;
+import com.cloudsolutions.ssl.CompositeX509TrustManager;
+import com.cloudsolutions.ssl.SSLUtils;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.inject.Provides;
 import com.mirth.connect.donkey.server.channel.Connector;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.DefaultConfigurationController;
 import com.mirth.connect.util.MirthSSLUtil;
 import com.sun.net.httpserver.HttpServer;
 
@@ -30,14 +54,14 @@ public class DefaultWebServiceConfiguration implements WebServiceConfiguration {
     private SSLContext sslContext;
     private String[] enabledProtocols;
     private String[] enabledCipherSuites;
-
+            
     @Override
-    public void configureConnectorDeploy(Connector connector) throws Exception {
-        if (connector instanceof WebServiceDispatcher) {
-            sslContext = SSLContexts.createSystemDefault();
+    public void configureConnectorDeploy(Connector connector) throws Exception {    	
+        if (connector instanceof WebServiceDispatcher) {        	    	
+            sslContext = SSLContexts.createSystemDefault();            
             enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols());
-            enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites());
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, enabledProtocols, enabledCipherSuites, NoopHostnameVerifier.INSTANCE);
+            enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites());            
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, enabledProtocols, enabledCipherSuites, NoopHostnameVerifier.INSTANCE);            
             ((WebServiceDispatcher) connector).getSocketFactoryRegistry().register("https", sslConnectionSocketFactory);
         }
     }
@@ -51,8 +75,8 @@ public class DefaultWebServiceConfiguration implements WebServiceConfiguration {
     }
 
     @Override
-    public void configureDispatcher(WebServiceDispatcher connector, WebServiceDispatcherProperties connectorProperties, Map<String, Object> requestContext) throws Exception {
-        SSLSocketFactory socketFactory = new SSLSocketFactoryWrapper(sslContext.getSocketFactory(), enabledProtocols, enabledCipherSuites);
+    public void configureDispatcher(WebServiceDispatcher connector, WebServiceDispatcherProperties connectorProperties, Map<String, Object> requestContext) throws Exception {    	
+    	SSLSocketFactory socketFactory = new SSLSocketFactoryWrapper(sslContext.getSocketFactory(), enabledProtocols, enabledCipherSuites);    	
         requestContext.put("com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory", socketFactory);
         requestContext.put("com.sun.xml.ws.transport.https.client.SSLSocketFactory", socketFactory); // JAX-WS RI
     }

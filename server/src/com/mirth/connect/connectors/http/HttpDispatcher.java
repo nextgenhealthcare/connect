@@ -63,12 +63,14 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -89,6 +91,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 
+import com.cloudsolutions.ssl.SSLUtils;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
@@ -227,6 +230,10 @@ public class HttpDispatcher extends DestinationConnector {
                 httpClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(socketTimeout).build());
                 HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager);
                 HttpUtil.configureClientBuilder(clientBuilder);
+                String scheme=new URI(httpDispatcherProperties.getHost()).getScheme();
+                if(scheme.equalsIgnoreCase("https")) {
+                	SSLUtils.switchToProjectSSL_Context(clientBuilder, socketTimeout);
+              }
 
                 if (httpDispatcherProperties.isUseProxyServer()) {
                     clientBuilder.setRoutePlanner(new DynamicProxyRoutePlanner());
@@ -247,6 +254,7 @@ public class HttpDispatcher extends DestinationConnector {
                     port = 80;
                 }
             }
+            
 
             // Parse the content type field first, and then add the charset if needed
             ContentType contentType = ContentType.parse(httpDispatcherProperties.getContentType());
