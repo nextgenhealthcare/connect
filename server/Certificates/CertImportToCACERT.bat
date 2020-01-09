@@ -1,0 +1,1 @@
+keytool -importcert -file mirth_Connect_CodeSign.cer -alias MirthCodeSign -keystore "C:\Program Files\Java\jdk1.8.0_192\jre\lib\security\cacerts" -storepass changeit

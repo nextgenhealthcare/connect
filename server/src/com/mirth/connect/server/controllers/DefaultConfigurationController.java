@@ -1036,13 +1036,15 @@ public class DefaultConfigurationController extends ConfigurationController {
                  * create new passwords.
                  */
                 if (Arrays.equals(keyStorePassword, DEFAULT_STOREPASS.toCharArray()) && Arrays.equals(keyPassword, DEFAULT_STOREPASS.toCharArray())) {
-                    String keyStorePasswordStr = generateNewPassword();
-                    mirthConfig.setProperty("keystore.storepass", keyStorePasswordStr);
-                    keyStorePassword = keyStorePasswordStr.toCharArray();
-
-                    String keyPasswordStr = generateNewPassword();
-                    mirthConfig.setProperty("keystore.keypass", keyPasswordStr);
-                    keyPassword = keyPasswordStr.toCharArray();
+//		Auto password generation disabled for development environment                	
+//                    String keyStorePasswordStr = generateNewPassword();
+//                    mirthConfig.setProperty("keystore.storepass", keyStorePasswordStr);
+//                    keyStorePassword = keyStorePasswordStr.toCharArray();                    
+//                    String keyPasswordStr = generateNewPassword();
+//                    mirthConfig.setProperty("keystore.keypass", keyPasswordStr);
+//                    keyPassword = keyPasswordStr.toCharArray();                	
+                	mirthConfig.setProperty("keystore.storepass", DEFAULT_STOREPASS);
+                    mirthConfig.setProperty("keystore.keypass", DEFAULT_STOREPASS);
 
                     saveMirthConfig();
                 }
