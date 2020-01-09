@@ -24,6 +24,7 @@ import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
@@ -53,10 +54,9 @@ public class SSLUtils {
 	public static void switchToProjectSSL_Context(HttpClientBuilder clientBuilder,int timeout) {
 		try {			
 		//Setting SSL_Socket_Factory to HttpClientBuilder
-		@SuppressWarnings("deprecation")
 		SSLConnectionSocketFactory sslConnectionFactory = new SSLConnectionSocketFactory(
 		  SSLUtils.getATNAContext(),
-            SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);		 
+            null,null,new NoopHostnameVerifier());		 
 		clientBuilder.setSSLSocketFactory(sslConnectionFactory);
 		//Creating registry for factory
 	    Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
@@ -64,6 +64,7 @@ public class SSLUtils {
         .build();
 	    //Setting new connection manager
 	    BasicHttpClientConnectionManager httpsClientConnectionManager=new BasicHttpClientConnectionManager(registry);
+	    
 	    httpsClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build());
 	    clientBuilder.setConnectionManager(httpsClientConnectionManager);
 		} catch (Exception e) {

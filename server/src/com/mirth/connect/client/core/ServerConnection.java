@@ -199,6 +199,9 @@ public class ServerConnection implements Connector {
         httpClientConnectionManager.setValidateAfterInactivity(5000);
 
         HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager).setDefaultCookieStore(cookieStore).setKeepAliveStrategy(keepAliveStrategy);
+        //Disables Host Name Verification.
+        //Karspersky Antivirus SSL interfere connection, either we use this line or we need to add karsperky certificate into jks
+        clientBuilder.setSSLHostnameVerifier(new NoopHostnameVerifier());
         HttpUtil.configureClientBuilder(clientBuilder);
 
         client = clientBuilder.build();
