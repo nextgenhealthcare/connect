@@ -203,7 +203,7 @@ public interface CodeTemplateServletInterface extends BaseServletInterface {
     @POST
     @Path("/codeTemplateLibraries/_bulkUpdate")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Operation(summary = "Updates all libraries and updates/removes selected code templates in one request.")
+    @Operation(summary = "Updates all libraries and updates/removes selected code templates in one request. " + SWAGGER_TRY_IT_OUT_DISCLAIMER)
     @ApiResponse(content = { @Content(mediaType = MediaType.APPLICATION_XML, examples = {
             @ExampleObject(name = "code_template_library_saved_result", ref = "../apiexamples/code_template_library_saved_result_xml") }),
             @Content(mediaType = MediaType.APPLICATION_JSON, examples = {

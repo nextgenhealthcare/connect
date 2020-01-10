@@ -73,7 +73,7 @@ public interface ChannelGroupServletInterface extends BaseServletInterface {
     @Path("/_bulkUpdate")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    @Operation(summary = "Updates all channel groups in one request.")
+    @Operation(summary = "Updates all channel groups in one request. " + SWAGGER_TRY_IT_OUT_DISCLAIMER)
     @MirthOperation(name = "updateChannelGroups", display = "Update channel groups", permission = Permissions.CHANNELS_MANAGE)
     public boolean updateChannelGroups(// @formatter:off
             @Param("channelGroups") 

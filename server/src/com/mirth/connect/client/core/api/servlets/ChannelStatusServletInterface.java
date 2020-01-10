@@ -117,7 +117,7 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @POST
     @Path("/_start")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Operation(summary = "Starts the channels with the specified IDs.")
+    @Operation(summary = "Starts the channels with the specified IDs. " + SWAGGER_ARRAY_DISCLAIMER)
     @MirthOperation(name = "startChannels", display = "Start channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
     public void startChannels(// @formatter:off
             @Param("channelIds") @Parameter(description = "The channel IDs to start.", required = true) @FormParam("channelId") Set<String> channelIds,
@@ -136,7 +136,7 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @POST
     @Path("/_stop")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Operation(summary = "Stops the channels with the specified IDs.")
+    @Operation(summary = "Stops the channels with the specified IDs. " + SWAGGER_ARRAY_DISCLAIMER)
     @MirthOperation(name = "stopChannels", display = "Stop channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
     public void stopChannels(// @formatter:off
             @Param("channelIds") @Parameter(description = "The channel IDs to stop.", required = true) @FormParam("channelId") Set<String> channelIds,
@@ -155,7 +155,7 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @POST
     @Path("/_halt")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Operation(summary = "Halts the channels with the specified IDs.")
+    @Operation(summary = "Halts the channels with the specified IDs. " + SWAGGER_ARRAY_DISCLAIMER)
     @MirthOperation(name = "haltChannels", display = "Halt channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
     public void haltChannels(// @formatter:off
             @Param("channelIds") @Parameter(description = "The channel IDs to halt.", required = true) @FormParam("channelId") Set<String> channelIds,
@@ -174,7 +174,7 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @POST
     @Path("/_pause")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Operation(summary = "Pauses the channels with the specified IDs.")
+    @Operation(summary = "Pauses the channels with the specified IDs. " + SWAGGER_ARRAY_DISCLAIMER)
     @MirthOperation(name = "pauseChannels", display = "Pause channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
     public void pauseChannels(// @formatter:off
             @Param("channelIds") @Parameter(description = "The channel IDs to pause.", required = true) @FormParam("channelId") Set<String> channelIds,
@@ -193,7 +193,7 @@ public interface ChannelStatusServletInterface extends BaseServletInterface {
     @POST
     @Path("/_resume")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Operation(summary = "Resume the channels with the specified IDs.")
+    @Operation(summary = "Resume the channels with the specified IDs. " + SWAGGER_ARRAY_DISCLAIMER)
     @MirthOperation(name = "resumeChannels", display = "Resume channels", permission = Permissions.CHANNELS_START_STOP, type = ExecuteType.ABORT_PENDING)
     public void resumeChannels(// @formatter:off
             @Param("channelIds") @Parameter(description = "The channel IDs to resume.", required = true) @FormParam("channelId") Set<String> channelIds,

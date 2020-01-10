@@ -516,7 +516,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @POST
     @Path("/{channelId}/messages/_exportUsingFilter")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Operation(summary = "Exports messages into a specific directory path accessible by the server.")
+    @Operation(summary = "Exports messages into a specific directory path accessible by the server. " + SWAGGER_TRY_IT_OUT_DISCLAIMER)
     @MirthOperation(name = "exportMessage", display = "Export message", permission = Permissions.MESSAGES_EXPORT_SERVER, type = ExecuteType.ASYNC)
     public int exportMessagesServer(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,

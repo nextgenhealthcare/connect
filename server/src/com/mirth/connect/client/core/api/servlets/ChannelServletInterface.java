@@ -171,7 +171,7 @@ public interface ChannelServletInterface extends BaseServletInterface {
 	@POST
 	@Path("/_setEnabled")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Operation(summary = "Enables/disables the specified channels.")
+	@Operation(summary = "Enables/disables the specified channels. " + SWAGGER_ARRAY_DISCLAIMER)
 	@MirthOperation(name = "setChannelEnabled", display = "Set channel enabled flag", permission = Permissions.CHANNELS_MANAGE)
 	public void setChannelEnabled(// @formatter:off
 			@Param("channelIds") @Parameter(description = "The IDs of the channels to enable/disable. If absent, all channels will be enabled/disabled.") @FormParam("channelId") Set<String> channelIds,
@@ -192,7 +192,7 @@ public interface ChannelServletInterface extends BaseServletInterface {
 	@POST
 	@Path("/_setInitialState")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Operation(summary = "Sets the initial state for the specified channels.")
+	@Operation(summary = "Sets the initial state for the specified channels. " + SWAGGER_ARRAY_DISCLAIMER)
 	@MirthOperation(name = "setChannelInitialState", display = "Set channel initial state", permission = Permissions.CHANNELS_MANAGE)
 	public void setChannelInitialState(// @formatter:off
 			@Param("channelIds") @Parameter(description = "The IDs of the channels to modify initial states on. If absent, the initial state will be set on all channels.") @FormParam("channelId") Set<String> channelIds,
