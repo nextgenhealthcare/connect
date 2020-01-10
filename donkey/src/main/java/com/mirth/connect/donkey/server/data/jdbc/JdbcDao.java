@@ -1512,9 +1512,12 @@ public class JdbcDao implements DonkeyDao {
 
                     // write the current segment to the output stream buffer
                     byte[] segment = resultSet.getBytes("content");
-                    System.arraycopy(segment, 0, content, offset, segment.length);
 
-                    offset += segment.length;
+                    if (segment != null) {
+                        System.arraycopy(segment, 0, content, offset, segment.length);
+
+                        offset += segment.length;
+                    }
                 }
             }
 
@@ -1577,9 +1580,12 @@ public class JdbcDao implements DonkeyDao {
 
                 // write the current segment to the output stream buffer
                 byte[] segment = resultSet.getBytes("content");
-                System.arraycopy(segment, 0, content, offset, segment.length);
 
-                offset += segment.length;
+                if (segment != null) {
+                    System.arraycopy(segment, 0, content, offset, segment.length);
+
+                    offset += segment.length;
+                }
             }
 
             // Finish the message if one exists by adding it to the list of attachments to return
