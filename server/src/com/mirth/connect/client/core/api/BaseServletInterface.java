@@ -14,11 +14,6 @@ package com.mirth.connect.client.core.api;
  * because JAX-RS will not scan them.
  */
 public abstract interface BaseServletInterface {
-	public static final String PROPERTIES_XML_EXAMPLE = "<properties>\n    <property name=\"propertyName\">0</property>\n</properties>";
-	public static final String PROPERTIES_JSON_EXAMPLE = "{\n" + 
-			"    \"properties\" = [\n" + 
-			"        \"propertyName\" = \"something\",\n" + 
-			"        \"propertyname\" = \"something else\"\n" + 
-			"    ]\n" + 
-			"}";
+    public static final String SWAGGER_TRY_IT_OUT_DISCLAIMER = "(\"Try it out\" doesn't work for this endpoint, but the descriptions are valid. Please use another tool for testing.)";
+	public static final String SWAGGER_ARRAY_DISCLAIMER = "(\"Try it Out\" only works when submitting an array containing one element for this endpoint, but the descriptions are valid. If you want to modify multiple items at once, please use another tool for testing.)";
 }
