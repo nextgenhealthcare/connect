@@ -9,14 +9,21 @@
 
 package com.mirth.connect.connectors.tcp;
 
+import java.awt.Color;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.GroupLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
@@ -25,7 +32,13 @@ import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthCheckBox;
+import com.mirth.connect.client.ui.components.MirthComboBox;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthIconTextField;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
+import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
+import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -35,6 +48,8 @@ import com.mirth.connect.plugins.BasicModeClientProvider;
 import com.mirth.connect.plugins.TransmissionModeClientProvider;
 import com.mirth.connect.plugins.TransmissionModePlugin;
 import com.mirth.connect.util.ConnectionTestResponse;
+
+import net.miginfocom.swing.MigLayout;
 
 public class TcpSender extends ConnectorSettingsPanel implements ActionListener {
 
@@ -49,6 +64,8 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     public TcpSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        initLayout();
+        
         sendTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         responseTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
@@ -66,8 +83,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         transmissionModeComboBox.setModel(model);
 
-        settingsPlaceHolder = settingsPlaceHolderLabel;
-
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
@@ -83,11 +98,13 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         if (transmissionModeProvider != null) {
             properties.setTransmissionModeProperties((TransmissionModeProperties) transmissionModeProvider.getProperties());
         }
+        properties.setServerMode(modeServerRadio.isSelected());
         properties.setRemoteAddress(remoteAddressField.getText());
         properties.setRemotePort(remotePortField.getText());
         properties.setOverrideLocalBinding(overrideLocalBindingYesRadio.isSelected());
         properties.setLocalAddress(localAddressField.getText());
         properties.setLocalPort(localPortField.getText());
+        properties.setMaxConnections(maxConnectionsField.getText());
         properties.setSendTimeout(sendTimeoutField.getText());
         properties.setBufferSize(bufferSizeField.getText());
         properties.setKeepConnectionOpen(keepConnectionOpenYesRadio.isSelected());
@@ -123,6 +140,14 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         if (transmissionModeProvider != null) {
             transmissionModeProvider.setProperties(modeProps);
         }
+        
+        if (props.isServerMode()) {
+            modeServerRadio.setSelected(true);
+            modeServerRadioActionPerformed();
+        } else {
+            modeClientRadio.setSelected(true);
+            modeClientRadioActionPerformed();
+        }
 
         remoteAddressField.setText(props.getRemoteAddress());
         remotePortField.setText(props.getRemotePort());
@@ -137,6 +162,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         localAddressField.setText(props.getLocalAddress());
         localPortField.setText(props.getLocalPort());
+        maxConnectionsField.setText(props.getMaxConnections());
         sendTimeoutField.setText(props.getSendTimeout());
         bufferSizeField.setText(props.getBufferSize());
 
@@ -199,19 +225,23 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                 valid = false;
             }
         }
-        if (props.getRemoteAddress().length() <= 3) {
-            valid = false;
-            if (highlight) {
-                remoteAddressField.setBackground(UIConstants.INVALID_COLOR);
-            }
+        
+        if (!props.isServerMode()) {
+	        if (props.getRemoteAddress().length() <= 3) {
+	            valid = false;
+	            if (highlight) {
+	                remoteAddressField.setBackground(UIConstants.INVALID_COLOR);
+	            }
+	        }
+	        if (props.getRemotePort().length() == 0) {
+	            valid = false;
+	            if (highlight) {
+	                remotePortField.setBackground(UIConstants.INVALID_COLOR);
+	            }
+	        }
         }
-        if (props.getRemotePort().length() == 0) {
-            valid = false;
-            if (highlight) {
-                remotePortField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-        if (props.isOverrideLocalBinding()) {
+        
+        if (props.isServerMode() || props.isOverrideLocalBinding()) {
             if (props.getLocalAddress().length() <= 3) {
                 valid = false;
                 if (highlight) {
@@ -225,7 +255,16 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                 }
             }
         }
-        if (props.isKeepConnectionOpen()) {
+        
+        if (props.isServerMode() &&
+        		(props.getMaxConnections().length() == 0 || NumberUtils.toInt(props.getMaxConnections()) <= 0)) {
+        	valid = false;
+            if (highlight) {
+                maxConnectionsField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        
+        if (!props.isServerMode() && props.isKeepConnectionOpen()) {
             if (props.getSendTimeout().length() == 0) {
                 valid = false;
                 if (highlight) {
@@ -265,6 +304,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         remotePortField.setBackground(null);
         localAddressField.setBackground(null);
         localPortField.setBackground(null);
+        maxConnectionsField.setBackground(null);
         sendTimeoutField.setBackground(null);
         bufferSizeField.setBackground(null);
         responseTimeoutField.setBackground(null);
@@ -298,73 +338,66 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     }
 
     // @formatter:off
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        keepConnectionOpenGroup = new javax.swing.ButtonGroup();
-        dataTypeButtonGroup = new javax.swing.ButtonGroup();
-        overrideLocalBindingButtonGroup = new javax.swing.ButtonGroup();
-        queueOnResponseTimeoutButtonGroup = new javax.swing.ButtonGroup();
-        checkRemoteHostButtonGroup = new javax.swing.ButtonGroup();
-        keepConnectionOpenLabel = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
-        sendTimeoutLabel = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
-        remotePortField = new com.mirth.connect.client.ui.components.MirthTextField();
-        sendTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
-        bufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
-        keepConnectionOpenYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        keepConnectionOpenNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        remoteAddressField = new com.mirth.connect.client.ui.components.MirthIconTextField();
-        responseTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
-        responseTimeoutLabel = new javax.swing.JLabel();
-        charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        encodingLabel = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        templateTextArea = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        ignoreResponseCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        dataTypeASCIIRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        dataTypeBinaryRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        dataTypeLabel = new javax.swing.JLabel();
-        testConnection = new javax.swing.JButton();
-        transmissionModeComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        transmissionModeLabel = new javax.swing.JLabel();
-        sampleLabel = new javax.swing.JLabel();
-        sampleValue = new javax.swing.JLabel();
-        localAddressLabel = new javax.swing.JLabel();
-        localAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
-        localPortLabel = new javax.swing.JLabel();
-        localPortField = new com.mirth.connect.client.ui.components.MirthTextField();
-        keepConnectionOpenLabel1 = new javax.swing.JLabel();
-        overrideLocalBindingYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        overrideLocalBindingNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        settingsPlaceHolderLabel = new javax.swing.JLabel();
-        queueOnResponseTimeoutLabel = new javax.swing.JLabel();
-        queueOnResponseTimeoutYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        queueOnResponseTimeoutNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        checkRemoteHostLabel = new javax.swing.JLabel();
-        checkRemoteHostYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        checkRemoteHostNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        keepConnectionOpenGroup = new ButtonGroup();
+        dataTypeButtonGroup = new ButtonGroup();
+        overrideLocalBindingButtonGroup = new ButtonGroup();
+        queueOnResponseTimeoutButtonGroup = new ButtonGroup();
+        checkRemoteHostButtonGroup = new ButtonGroup();
+        keepConnectionOpenLabel = new JLabel();
+        bufferSizeLabel = new JLabel();
+        sendTimeoutLabel = new JLabel();
+        remotePortLabel = new JLabel();
+        remoteAddressLabel = new JLabel();
+        remotePortField = new MirthTextField();
+        sendTimeoutField = new MirthTextField();
+        bufferSizeField = new MirthTextField();
+        keepConnectionOpenYesRadio = new MirthRadioButton();
+        keepConnectionOpenNoRadio = new MirthRadioButton();
+        remoteAddressField = new MirthIconTextField();
+        responseTimeoutField = new MirthTextField();
+        responseTimeoutLabel = new JLabel();
+        charsetEncodingCombobox = new MirthComboBox();
+        charsetEncodingLabel = new JLabel();
+        templateLabel = new JLabel();
+        templateTextArea = new MirthSyntaxTextArea();
+        ignoreResponseCheckBox = new MirthCheckBox();
+        dataTypeASCIIRadio = new MirthRadioButton();
+        dataTypeBinaryRadio = new MirthRadioButton();
+        dataTypeLabel = new JLabel();
+        testConnection = new JButton();
+        transmissionModeComboBox = new MirthComboBox();
+        transmissionModeLabel = new JLabel();
+        sampleLabel = new JLabel();
+        sampleValue = new JLabel();
+        localAddressLabel = new JLabel();
+        localAddressField = new MirthTextField();
+        localPortLabel = new JLabel();
+        localPortField = new MirthTextField();
+        overrideLocalBindingLabel = new JLabel();
+        overrideLocalBindingYesRadio = new MirthRadioButton();
+        overrideLocalBindingNoRadio = new MirthRadioButton();
+        settingsPlaceHolder = new JPanel();
+        queueOnResponseTimeoutLabel = new JLabel();
+        queueOnResponseTimeoutYesRadio = new MirthRadioButton();
+        queueOnResponseTimeoutNoRadio = new MirthRadioButton();
+        checkRemoteHostLabel = new JLabel();
+        checkRemoteHostYesRadio = new MirthRadioButton();
+        checkRemoteHostNoRadio = new MirthRadioButton();
 
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        setBackground(new Color(255, 255, 255));
+        setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         keepConnectionOpenLabel.setText("Keep Connection Open:");
 
-        jLabel15.setText("Buffer Size (bytes):");
+        bufferSizeLabel.setText("Buffer Size (bytes):");
 
         sendTimeoutLabel.setText("Send Timeout (ms):");
 
-        jLabel17.setText("Remote Port:");
+        remotePortLabel.setText("Remote Port:");
 
-        jLabel18.setText("Remote Address:");
+        remoteAddressLabel.setText("Remote Address:");
 
         remotePortField.setToolTipText("<html>The port on which to connect.</html>");
 
@@ -372,26 +405,26 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         bufferSizeField.setToolTipText("<html>The size, in bytes, of the buffer to be used to hold messages waiting to be sent. Generally, the default value is fine.<html>");
 
-        keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        keepConnectionOpenYesRadio.setBackground(new Color(255, 255, 255));
+        keepConnectionOpenYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         keepConnectionOpenGroup.add(keepConnectionOpenYesRadio);
         keepConnectionOpenYesRadio.setText("Yes");
         keepConnectionOpenYesRadio.setToolTipText("<html>Select Yes to keep the connection to the host open across multiple messages.<br>Select No to immediately the close the connection to the host after sending each message.</html>");
-        keepConnectionOpenYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        keepConnectionOpenYesRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        keepConnectionOpenYesRadio.setMargin(new Insets(0, 0, 0, 0));
+        keepConnectionOpenYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 keepConnectionOpenYesRadioActionPerformed(evt);
             }
         });
 
-        keepConnectionOpenNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        keepConnectionOpenNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        keepConnectionOpenNoRadio.setBackground(new Color(255, 255, 255));
+        keepConnectionOpenNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
         keepConnectionOpenNoRadio.setText("No");
         keepConnectionOpenNoRadio.setToolTipText("<html>Select Yes to keep the connection to the host open across multiple messages.<br>Select No to immediately the close the connection to the host after sending each message.</html>");
-        keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        keepConnectionOpenNoRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        keepConnectionOpenNoRadio.setMargin(new Insets(0, 0, 0, 0));
+        keepConnectionOpenNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 keepConnectionOpenNoRadioActionPerformed(evt);
             }
         });
@@ -402,52 +435,52 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         responseTimeoutLabel.setText("Response Timeout (ms):");
 
-        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
+        charsetEncodingCombobox.setModel(new DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
         charsetEncodingCombobox.setToolTipText("<html>The character set encoding to use when converting the outbound message to a byte stream if Data Type Text is selected.<br>Select Default to use the default character set encoding for the JVM running the Mirth Connect server.</html>");
-        charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        charsetEncodingCombobox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 charsetEncodingComboboxActionPerformed(evt);
             }
         });
 
-        encodingLabel.setText("Encoding:");
+        charsetEncodingLabel.setText("Encoding:");
 
-        jLabel7.setText("Template:");
+        templateLabel.setText("Template:");
 
-        templateTextArea.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        templateTextArea.setBorder(BorderFactory.createEtchedBorder());
 
-        ignoreResponseCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        ignoreResponseCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        ignoreResponseCheckBox.setBackground(new Color(255, 255, 255));
+        ignoreResponseCheckBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         ignoreResponseCheckBox.setText("Ignore Response");
         ignoreResponseCheckBox.setToolTipText("<html>If checked, the connector will not wait for a response after sending a message.<br>If unchecked, the connector will wait for a response from the host after each message is sent.</html>");
-        ignoreResponseCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        ignoreResponseCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        ignoreResponseCheckBox.setMargin(new Insets(0, 0, 0, 0));
+        ignoreResponseCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 ignoreResponseCheckBoxActionPerformed(evt);
             }
         });
 
-        dataTypeASCIIRadio.setBackground(new java.awt.Color(255, 255, 255));
-        dataTypeASCIIRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        dataTypeASCIIRadio.setBackground(new Color(255, 255, 255));
+        dataTypeASCIIRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         dataTypeButtonGroup.add(dataTypeASCIIRadio);
         dataTypeASCIIRadio.setSelected(true);
         dataTypeASCIIRadio.setText("Text");
         dataTypeASCIIRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select Text if the outbound message is text (will be encoded with the specified character set encoding).</html>");
-        dataTypeASCIIRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        dataTypeASCIIRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        dataTypeASCIIRadio.setMargin(new Insets(0, 0, 0, 0));
+        dataTypeASCIIRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 dataTypeASCIIRadioActionPerformed(evt);
             }
         });
 
-        dataTypeBinaryRadio.setBackground(new java.awt.Color(255, 255, 255));
-        dataTypeBinaryRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        dataTypeBinaryRadio.setBackground(new Color(255, 255, 255));
+        dataTypeBinaryRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         dataTypeButtonGroup.add(dataTypeBinaryRadio);
         dataTypeBinaryRadio.setText("Binary");
         dataTypeBinaryRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select Text if the outbound message is text (will be encoded with the specified character set encoding).</html>");
-        dataTypeBinaryRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        dataTypeBinaryRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        dataTypeBinaryRadio.setMargin(new Insets(0, 0, 0, 0));
+        dataTypeBinaryRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 dataTypeBinaryRadioActionPerformed(evt);
             }
         });
@@ -455,16 +488,16 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         dataTypeLabel.setText("Data Type:");
 
         testConnection.setText("Test Connection");
-        testConnection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        testConnection.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 testConnectionActionPerformed(evt);
             }
         });
 
-        transmissionModeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP" }));
+        transmissionModeComboBox.setModel(new DefaultComboBoxModel(new String[] { "MLLP" }));
         transmissionModeComboBox.setToolTipText("<html>Select the transmission mode to use for sending and receiving data.<br/></html>");
-        transmissionModeComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        transmissionModeComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 transmissionModeComboBoxActionPerformed(evt);
             }
         });
@@ -474,7 +507,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         sampleLabel.setText("Sample Frame:");
 
-        sampleValue.setForeground(new java.awt.Color(153, 153, 153));
+        sampleValue.setForeground(new Color(153, 153, 153));
         sampleValue.setText("<html><b>&lt;VT&gt;</b> <i>&lt;Message Data&gt;</i> <b>&lt;FS&gt;&lt;CR&gt;</b></html>");
         sampleValue.setEnabled(false);
 
@@ -486,243 +519,168 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         localPortField.setToolTipText("<html>The local port that the client socket will be bound to, if Override Local Binding is set to Yes.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
 
-        keepConnectionOpenLabel1.setText("Override Local Binding:");
+        overrideLocalBindingLabel.setText("Override Local Binding:");
 
-        overrideLocalBindingYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        overrideLocalBindingYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        overrideLocalBindingYesRadio.setBackground(new Color(255, 255, 255));
+        overrideLocalBindingYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         overrideLocalBindingButtonGroup.add(overrideLocalBindingYesRadio);
         overrideLocalBindingYesRadio.setText("Yes");
         overrideLocalBindingYesRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 0.0.0.0:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
-        overrideLocalBindingYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        overrideLocalBindingYesRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        overrideLocalBindingYesRadio.setMargin(new Insets(0, 0, 0, 0));
+        overrideLocalBindingYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 overrideLocalBindingYesRadioActionPerformed(evt);
             }
         });
 
-        overrideLocalBindingNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        overrideLocalBindingNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        overrideLocalBindingNoRadio.setBackground(new Color(255, 255, 255));
+        overrideLocalBindingNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         overrideLocalBindingButtonGroup.add(overrideLocalBindingNoRadio);
         overrideLocalBindingNoRadio.setText("No");
         overrideLocalBindingNoRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 0.0.0.0:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
-        overrideLocalBindingNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        overrideLocalBindingNoRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        overrideLocalBindingNoRadio.setMargin(new Insets(0, 0, 0, 0));
+        overrideLocalBindingNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 overrideLocalBindingNoRadioActionPerformed(evt);
             }
         });
 
-        settingsPlaceHolderLabel.setText("     ");
-
         queueOnResponseTimeoutLabel.setText("Queue on Response Timeout:");
 
-        queueOnResponseTimeoutYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        queueOnResponseTimeoutYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        queueOnResponseTimeoutYesRadio.setBackground(new Color(255, 255, 255));
+        queueOnResponseTimeoutYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         queueOnResponseTimeoutButtonGroup.add(queueOnResponseTimeoutYesRadio);
         queueOnResponseTimeoutYesRadio.setText("Yes");
         queueOnResponseTimeoutYesRadio.setToolTipText("<html>If enabled, the message is queued when a timeout occurs while waiting for a response.<br/>Otherwise, the message is set to errored when a timeout occurs while waiting for a response.<br/>This setting has no effect unless queuing is enabled for the connector.</html>");
-        queueOnResponseTimeoutYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        queueOnResponseTimeoutYesRadio.setMargin(new Insets(0, 0, 0, 0));
 
-        queueOnResponseTimeoutNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        queueOnResponseTimeoutNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        queueOnResponseTimeoutNoRadio.setBackground(new Color(255, 255, 255));
+        queueOnResponseTimeoutNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         queueOnResponseTimeoutButtonGroup.add(queueOnResponseTimeoutNoRadio);
         queueOnResponseTimeoutNoRadio.setText("No");
         queueOnResponseTimeoutNoRadio.setToolTipText("<html>If enabled, the message is queued when a timeout occurs while waiting for a response.<br/>Otherwise, the message is set to errored when a timeout occurs while waiting for a response.<br/>This setting has no effect unless queuing is enabled for the connector.</html>");
-        queueOnResponseTimeoutNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        queueOnResponseTimeoutNoRadio.setMargin(new Insets(0, 0, 0, 0));
 
         checkRemoteHostLabel.setText("Check Remote Host:");
 
-        checkRemoteHostYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        checkRemoteHostYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        checkRemoteHostYesRadio.setBackground(new Color(255, 255, 255));
+        checkRemoteHostYesRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         checkRemoteHostButtonGroup.add(checkRemoteHostYesRadio);
         checkRemoteHostYesRadio.setText("Yes");
         checkRemoteHostYesRadio.setToolTipText("<html>Select Yes to check if the remote host has closed the connection before each message.<br>Select No to assume the remote host has not closed the connection.<br>Checking the remote host will decrease throughput but will prevent the message from<br>erroring if the remote side closed the connection and queueing is disabled.</html>");
-        checkRemoteHostYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        checkRemoteHostYesRadio.setMargin(new Insets(0, 0, 0, 0));
 
-        checkRemoteHostNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        checkRemoteHostNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        checkRemoteHostNoRadio.setBackground(new Color(255, 255, 255));
+        checkRemoteHostNoRadio.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         checkRemoteHostButtonGroup.add(checkRemoteHostNoRadio);
         checkRemoteHostNoRadio.setText("No");
         checkRemoteHostNoRadio.setToolTipText("<html>Select Yes to check if the remote host has closed the connection before each message.<br>Select No to assume the remote host has not closed the connection.<br>Checking the remote host will decrease throughput but will prevent the message from<br>erroring if the remote side closed the connection and queueing is disabled.</html>");
         checkRemoteHostNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        
+        modeLabel = new JLabel("Mode:");
+        ButtonGroup modeButtonGroup = new ButtonGroup();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(13, 13, 13)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(encodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(keepConnectionOpenLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(queueOnResponseTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(dataTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel15, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(keepConnectionOpenLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sendTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel17, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel18, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(checkRemoteHostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(transmissionModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sampleLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(localAddressLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(localPortLabel, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(sampleValue)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(transmissionModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(settingsPlaceHolderLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(remoteAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(testConnection))
-                            .addComponent(remotePortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(responseTimeoutField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(bufferSizeField, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(queueOnResponseTimeoutYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(queueOnResponseTimeoutNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(checkRemoteHostYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(checkRemoteHostNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(transmissionModeLabel)
-                    .addComponent(transmissionModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(settingsPlaceHolderLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sampleLabel)
-                    .addComponent(sampleValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel18)
-                    .addComponent(remoteAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(testConnection))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel17)
-                    .addComponent(remotePortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(keepConnectionOpenLabel1)
-                    .addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(localAddressLabel)
-                    .addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(localPortLabel)
-                    .addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(keepConnectionOpenLabel)
-                    .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkRemoteHostLabel)
-                    .addComponent(checkRemoteHostYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(checkRemoteHostNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sendTimeoutLabel)
-                    .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel15)
-                    .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseTimeoutLabel)
-                    .addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(queueOnResponseTimeoutLabel)
-                    .addComponent(queueOnResponseTimeoutYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(queueOnResponseTimeoutNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(dataTypeLabel)
-                    .addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(encodingLabel)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
-                .addContainerGap())
-        );
+        String toolTipText = "<html>Select Server to listen for connections from clients, or Client to connect to a TCP Server.</html>";
+        modeServerRadio = new MirthRadioButton("Server");
+        modeServerRadio.setToolTipText(toolTipText);
+        modeServerRadio.setBackground(getBackground());
+        modeServerRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                modeServerRadioActionPerformed();
+            }
+        });
+        modeButtonGroup.add(modeServerRadio);
 
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {settingsPlaceHolderLabel, transmissionModeComboBox});
-
-    }// </editor-fold>//GEN-END:initComponents
+        modeClientRadio = new MirthRadioButton("Client");
+        modeClientRadio.setToolTipText(toolTipText);
+        modeClientRadio.setBackground(getBackground());
+        modeClientRadio.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                modeClientRadioActionPerformed();
+            }
+        });
+        modeButtonGroup.add(modeClientRadio);
+        
+        maxConnectionsLabel = new JLabel("Max Connections:");
+        maxConnectionsField = new MirthTextField();
+        maxConnectionsField.setToolTipText("<html>The maximum number of client connections to accept.<br/>After this number has been reached, subsequent socket requests will result in a rejection.</html>");
+    }
     // @formatter:on
+    
+    private void initLayout() {
+    	setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, gap 12 6", "", "[][]4[]4[][]4[]4[][][][]4[]4[]4[]4[]4[][]"));
+    	
+    	add(transmissionModeLabel, "right");
+        add(transmissionModeComboBox, "h 22!, split 2");
+        
+        settingsPlaceHolder.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
+        add(settingsPlaceHolder, "gapbefore 6, h 22!");
+        
+        add(sampleLabel, "newline, right");
+        add(sampleValue, "growx, sx");
+        add(modeLabel, "newline, right");
+        add(modeClientRadio, "split 2");
+        add(modeServerRadio);
+        add(remoteAddressLabel, "newline, right");
+        add(remoteAddressField, "w 200!, split 2, spanx");
+        add(testConnection, "gapleft 6");
+        add(remotePortLabel, "newline, right");
+        add(remotePortField, "w 50!, sx");
+        add(overrideLocalBindingLabel, "newline, right");
+        add(overrideLocalBindingYesRadio, "split 2");
+        add(overrideLocalBindingNoRadio);
+        add(localAddressLabel, "newline, right");
+        add(localAddressField, "w 200!, sx");
+        add(localPortLabel, "newline, right");
+        add(localPortField, "w 50!, sx");
+        add(maxConnectionsLabel, "newline, right");
+        add(maxConnectionsField, "w 75!, sx");
+        add(keepConnectionOpenLabel, "newline, right");
+        add(keepConnectionOpenYesRadio, "split 2");
+        add(keepConnectionOpenNoRadio);
+        add(checkRemoteHostLabel, "newline, right");
+        add(checkRemoteHostYesRadio, "split 2");
+        add(checkRemoteHostNoRadio);
+        add(sendTimeoutLabel, "newline, right");
+        add(sendTimeoutField, "w 75!, sx");
+        add(bufferSizeLabel, "newline, right");
+        add(bufferSizeField, "w 75!, sx");
+        add(responseTimeoutLabel, "newline, right");
+        add(responseTimeoutField, "w 75!, split 2, spanx");
+        add(ignoreResponseCheckBox, "gapleft 8");
+        add(queueOnResponseTimeoutLabel, "newline, right");
+        add(queueOnResponseTimeoutYesRadio, "split 2");
+        add(queueOnResponseTimeoutNoRadio);
+        add(dataTypeLabel, "newline, right");
+        add(dataTypeBinaryRadio, "split 2");
+        add(dataTypeASCIIRadio);
+        add(charsetEncodingLabel, "newline, right");
+        add(charsetEncodingCombobox);
+        add(templateLabel, "newline, aligny top, right");
+        add(templateTextArea, "w 425, h 105, grow, span, push");
+    }
 
-    private void dataTypeBinaryRadioActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeBinaryRadioActionPerformed
-    {//GEN-HEADEREND:event_dataTypeBinaryRadioActionPerformed
-        encodingLabel.setEnabled(false);
+    private void dataTypeBinaryRadioActionPerformed(ActionEvent evt) {
+        charsetEncodingLabel.setEnabled(false);
         charsetEncodingCombobox.setEnabled(false);
         charsetEncodingCombobox.setSelectedIndex(0);
-    }//GEN-LAST:event_dataTypeBinaryRadioActionPerformed
+    }
 
-    private void dataTypeASCIIRadioActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeASCIIRadioActionPerformed
-    {//GEN-HEADEREND:event_dataTypeASCIIRadioActionPerformed
-        encodingLabel.setEnabled(true);
+    private void dataTypeASCIIRadioActionPerformed(ActionEvent evt) {
+        charsetEncodingLabel.setEnabled(true);
         charsetEncodingCombobox.setEnabled(true);
-    }//GEN-LAST:event_dataTypeASCIIRadioActionPerformed
+    }
 
-    private void ignoreResponseCheckBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ignoreResponseCheckBoxActionPerformed
-    {//GEN-HEADEREND:event_ignoreResponseCheckBoxActionPerformed
+    private void ignoreResponseCheckBoxActionPerformed(ActionEvent evt) {
         boolean selected = ignoreResponseCheckBox.isSelected();
         queueOnResponseTimeoutLabel.setEnabled(!selected);
         queueOnResponseTimeoutYesRadio.setEnabled(!selected);
         queueOnResponseTimeoutNoRadio.setEnabled(!selected);
-    }//GEN-LAST:event_ignoreResponseCheckBoxActionPerformed
+    }
 
-    private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
+    private void testConnectionActionPerformed(ActionEvent evt) {
         ResponseHandler handler = new ResponseHandler() {
             @Override
             public void handle(Object response) {
@@ -742,25 +700,33 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         } catch (ClientException e) {
             // Should not happen
         }
-    }//GEN-LAST:event_testConnectionActionPerformed
+    }
+    
+    private void updateKeepConnectionOpenUI() {
+    	if (keepConnectionOpenYesRadio.isSelected()) {
+    		keepConnectionOpenYesRadioActionPerformed(null);
+    	} else {
+    		keepConnectionOpenNoRadioActionPerformed(null);
+    	}
+    }
 
-    private void keepConnectionOpenYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_keepConnectionOpenYesRadioActionPerformed
-        sendTimeoutLabel.setEnabled(true);
+    private void keepConnectionOpenYesRadioActionPerformed(ActionEvent evt) {
+    	sendTimeoutLabel.setEnabled(true);
         sendTimeoutField.setEnabled(true);
         checkRemoteHostLabel.setEnabled(true);
         checkRemoteHostYesRadio.setEnabled(true);
         checkRemoteHostNoRadio.setEnabled(true);
-    }//GEN-LAST:event_keepConnectionOpenYesRadioActionPerformed
+    }
 
-    private void keepConnectionOpenNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_keepConnectionOpenNoRadioActionPerformed
+    private void keepConnectionOpenNoRadioActionPerformed(ActionEvent evt) {
         sendTimeoutLabel.setEnabled(false);
         sendTimeoutField.setEnabled(false);
         checkRemoteHostLabel.setEnabled(false);
         checkRemoteHostYesRadio.setEnabled(false);
         checkRemoteHostNoRadio.setEnabled(false);
-    }//GEN-LAST:event_keepConnectionOpenNoRadioActionPerformed
+    }
 
-    private void transmissionModeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transmissionModeComboBoxActionPerformed
+    private void transmissionModeComboBoxActionPerformed(ActionEvent evt) {
         String name = (String) transmissionModeComboBox.getSelectedItem();
 
         if (!modeLock && transmissionModeProvider != null) {
@@ -787,73 +753,129 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         if (transmissionModeProvider != null) {
             transmissionModeProvider.initialize(this);
-            ((GroupLayout) getLayout()).replace(settingsPlaceHolder, transmissionModeProvider.getSettingsComponent());
-            settingsPlaceHolder = transmissionModeProvider.getSettingsComponent();
+            settingsPlaceHolder.removeAll();
+            settingsPlaceHolder.add(transmissionModeProvider.getSettingsComponent());
         }
-    }//GEN-LAST:event_transmissionModeComboBoxActionPerformed
+    }
+    
+    private void modeClientRadioActionPerformed() {
+        remoteAddressLabel.setEnabled(true);
+        remoteAddressField.setEnabled(true);
+        remotePortLabel.setEnabled(true);
+        remotePortField.setEnabled(true);
+        testConnection.setEnabled(true);
+        overrideLocalBindingLabel.setEnabled(true);
+        overrideLocalBindingYesRadio.setEnabled(true);
+        overrideLocalBindingNoRadio.setEnabled(true);
+        keepConnectionOpenLabel.setEnabled(true);
+        keepConnectionOpenYesRadio.setEnabled(true);
+        keepConnectionOpenNoRadio.setEnabled(true);
+        
+        updateOverrideLocalBindingUI();
+        updateKeepConnectionOpenUI();
+        
+        maxConnectionsLabel.setEnabled(false);
+        maxConnectionsField.setEnabled(false);
+    }
 
-    private void overrideLocalBindingYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideLocalBindingYesRadioActionPerformed
+    private void modeServerRadioActionPerformed() {    	
+        remoteAddressLabel.setEnabled(false);
+        remoteAddressField.setEnabled(false);
+        remotePortLabel.setEnabled(false);
+        remotePortField.setEnabled(false);
+        testConnection.setEnabled(false);
+        overrideLocalBindingLabel.setEnabled(false);
+        overrideLocalBindingYesRadio.setEnabled(false);
+        overrideLocalBindingNoRadio.setEnabled(false);
+        keepConnectionOpenLabel.setEnabled(false);
+        keepConnectionOpenYesRadio.setEnabled(false);
+        keepConnectionOpenNoRadio.setEnabled(false);
+        checkRemoteHostLabel.setEnabled(false);
+        checkRemoteHostYesRadio.setEnabled(false);
+        checkRemoteHostNoRadio.setEnabled(false);
+        sendTimeoutLabel.setEnabled(false);
+        sendTimeoutField.setEnabled(false);
+        
+        localAddressLabel.setEnabled(true);
+        localAddressField.setEnabled(true);
+        localPortLabel.setEnabled(true);
+        localPortField.setEnabled(true);
+        maxConnectionsLabel.setEnabled(true);
+        maxConnectionsField.setEnabled(true);
+    }
+    
+    private void updateOverrideLocalBindingUI() {
+    	if (overrideLocalBindingYesRadio.isSelected()) {
+    		overrideLocalBindingYesRadioActionPerformed(null);
+    	} else {
+    		overrideLocalBindingNoRadioActionPerformed(null);
+    	}
+    }
+
+    private void overrideLocalBindingYesRadioActionPerformed(ActionEvent evt) {
         localAddressField.setEnabled(true);
         localAddressLabel.setEnabled(true);
         localPortField.setEnabled(true);
         localPortLabel.setEnabled(true);
-    }//GEN-LAST:event_overrideLocalBindingYesRadioActionPerformed
+    }
 
-    private void overrideLocalBindingNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideLocalBindingNoRadioActionPerformed
+    private void overrideLocalBindingNoRadioActionPerformed(ActionEvent evt) {
         localAddressField.setEnabled(false);
         localAddressLabel.setEnabled(false);
         localPortField.setEnabled(false);
         localPortLabel.setEnabled(false);
-    }//GEN-LAST:event_overrideLocalBindingNoRadioActionPerformed
+    }
 
-    private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
-    }// GEN-LAST:event_charsetEncodingComboboxActionPerformed
-     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private void charsetEncodingComboboxActionPerformed(ActionEvent evt) {
+    }
 
-    private com.mirth.connect.client.ui.components.MirthTextField bufferSizeField;
-    private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
-    private javax.swing.ButtonGroup checkRemoteHostButtonGroup;
-    private javax.swing.JLabel checkRemoteHostLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton checkRemoteHostNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton checkRemoteHostYesRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeASCIIRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeBinaryRadio;
-    private javax.swing.ButtonGroup dataTypeButtonGroup;
-    private javax.swing.JLabel dataTypeLabel;
-    private javax.swing.JLabel encodingLabel;
-    private com.mirth.connect.client.ui.components.MirthCheckBox ignoreResponseCheckBox;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.ButtonGroup keepConnectionOpenGroup;
-    private javax.swing.JLabel keepConnectionOpenLabel;
-    private javax.swing.JLabel keepConnectionOpenLabel1;
-    private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField localAddressField;
-    private javax.swing.JLabel localAddressLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField localPortField;
-    private javax.swing.JLabel localPortLabel;
-    private javax.swing.ButtonGroup overrideLocalBindingButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingYesRadio;
-    private javax.swing.ButtonGroup queueOnResponseTimeoutButtonGroup;
-    private javax.swing.JLabel queueOnResponseTimeoutLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton queueOnResponseTimeoutNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton queueOnResponseTimeoutYesRadio;
-    private com.mirth.connect.client.ui.components.MirthIconTextField remoteAddressField;
-    private com.mirth.connect.client.ui.components.MirthTextField remotePortField;
-    private com.mirth.connect.client.ui.components.MirthTextField responseTimeoutField;
-    private javax.swing.JLabel responseTimeoutLabel;
-    private javax.swing.JLabel sampleLabel;
-    private javax.swing.JLabel sampleValue;
-    private com.mirth.connect.client.ui.components.MirthTextField sendTimeoutField;
-    private javax.swing.JLabel sendTimeoutLabel;
-    private javax.swing.JLabel settingsPlaceHolderLabel;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea templateTextArea;
-    private javax.swing.JButton testConnection;
-    private com.mirth.connect.client.ui.components.MirthComboBox transmissionModeComboBox;
-    private javax.swing.JLabel transmissionModeLabel;
-    // End of variables declaration//GEN-END:variables
+    private JLabel modeLabel;
+    public MirthRadioButton modeServerRadio;
+    public MirthRadioButton modeClientRadio;
+    private MirthTextField bufferSizeField;
+    private MirthComboBox charsetEncodingCombobox;
+    private ButtonGroup checkRemoteHostButtonGroup;
+    private JLabel checkRemoteHostLabel;
+    private MirthRadioButton checkRemoteHostNoRadio;
+    private MirthRadioButton checkRemoteHostYesRadio;
+    private MirthRadioButton dataTypeASCIIRadio;
+    private MirthRadioButton dataTypeBinaryRadio;
+    private ButtonGroup dataTypeButtonGroup;
+    private JLabel dataTypeLabel;
+    private JLabel charsetEncodingLabel;
+    private MirthCheckBox ignoreResponseCheckBox;
+    private JLabel bufferSizeLabel;
+    private JLabel remotePortLabel;
+    private JLabel remoteAddressLabel;
+    private JLabel templateLabel;
+    private ButtonGroup keepConnectionOpenGroup;
+    private JLabel keepConnectionOpenLabel;
+    private JLabel overrideLocalBindingLabel;
+    private MirthRadioButton keepConnectionOpenNoRadio;
+    private MirthRadioButton keepConnectionOpenYesRadio;
+    private MirthTextField localAddressField;
+    private JLabel localAddressLabel;
+    private MirthTextField localPortField;
+    private JLabel localPortLabel;
+    private JLabel maxConnectionsLabel;
+    private MirthTextField maxConnectionsField;
+    private ButtonGroup overrideLocalBindingButtonGroup;
+    private MirthRadioButton overrideLocalBindingNoRadio;
+    private MirthRadioButton overrideLocalBindingYesRadio;
+    private ButtonGroup queueOnResponseTimeoutButtonGroup;
+    private JLabel queueOnResponseTimeoutLabel;
+    private MirthRadioButton queueOnResponseTimeoutNoRadio;
+    private MirthRadioButton queueOnResponseTimeoutYesRadio;
+    private MirthIconTextField remoteAddressField;
+    private MirthTextField remotePortField;
+    private MirthTextField responseTimeoutField;
+    private JLabel responseTimeoutLabel;
+    private JLabel sampleLabel;
+    private JLabel sampleValue;
+    private MirthTextField sendTimeoutField;
+    private JLabel sendTimeoutLabel;
+    private MirthSyntaxTextArea templateTextArea;
+    private JButton testConnection;
+    private MirthComboBox transmissionModeComboBox;
+    private JLabel transmissionModeLabel;
 }

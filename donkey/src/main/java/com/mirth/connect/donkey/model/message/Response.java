@@ -34,6 +34,10 @@ public class Response implements Serializable {
     public Response() {
         this(new String());
     }
+    
+    public Response(Response response) {
+    	this(response.getStatus(), response.getMessage(), response.getStatusMessage(), response.getError(), response.isValidate());
+    }
 
     /**
      * Instantiates a new Response object.
