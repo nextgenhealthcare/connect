@@ -9,8 +9,10 @@ import java.util.List;
 import javax.net.ssl.X509KeyManager;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Iterables;
 import com.sun.istack.Nullable;
+
 
 /**
  * Represents an ordered list of {@link X509KeyManager}s with most-preferred managers first.
@@ -32,7 +34,7 @@ public class CompositeX509KeyManager implements X509KeyManager {
    *
    * @param keyManagers the X509 key managers, ordered with the most-preferred managers first.
    */
-  public CompositeX509KeyManager(List keyManagers) {
+  public CompositeX509KeyManager(List<X509KeyManager> keyManagers) {
     this.keyManagers = ImmutableList.copyOf(keyManagers);
   }
 
@@ -102,7 +104,7 @@ public class CompositeX509KeyManager implements X509KeyManager {
    */
   @Override
   public @Nullable String[] getClientAliases(String keyType, Principal[] issuers) {
-    ImmutableList.Builder aliases = ImmutableList.builder();
+    Builder<String> aliases = ImmutableList.builder();
     for (X509KeyManager keyManager : keyManagers) {
       aliases.add(keyManager.getClientAliases(keyType, issuers));
     }
@@ -116,11 +118,11 @@ public class CompositeX509KeyManager implements X509KeyManager {
    */
   @Override
   public @Nullable String[] getServerAliases(String keyType, Principal[] issuers) {
-    ImmutableList.Builder aliases = ImmutableList.builder();
+    Builder<String> aliases = ImmutableList.builder();
     for (X509KeyManager keyManager : keyManagers) {
       aliases.add(keyManager.getServerAliases(keyType, issuers));
     }
-    return emptyToNull((String[])Iterables.toArray(aliases.build(), String.class));
+    return emptyToNull(Iterables.toArray(aliases.build(), String.class));
   }
 
   @Nullable

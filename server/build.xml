@@ -27,6 +27,7 @@
 		<property name="connectors.tcp" value="${extensions}/tcp" />
 		<property name="connectors.file" value="${extensions}/file" />
 		<property name="connectors.js" value="${extensions}/js" />
+		<property name="connectors.udp" value="${extensions}/udp" />
 		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.vm" value="${extensions}/vm" />
 
@@ -316,6 +317,29 @@
 				<exclude name="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties.class" />
 			</fileset>
 		</jar>
+		
+		<!-- connectors.udp -->
+		<mkdir dir="${connectors.udp}" />
+		<copy todir="${connectors.udp}">
+			<fileset dir="${src}/com/mirth/connect/connectors/udp">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${connectors.udp}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/udp" />
+		</copy>
+		<jar destfile="${connectors.udp}/udp-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/udp/**" />
+			<!--include name="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties.class" /-->
+		</jar>
+		<jar destfile="${connectors.udp}/udp-server.jar">
+			<fileset dir="${classes}">
+				<include name="com/mirth/connect/connectors/udp/**" />
+				<!--exclude name="com/mirth/connect/connectors/udp/JavaScriptReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/udp/JavaScriptDispatcherProperties.class" /-->
+			</fileset>
+		</jar>
+		
 
 		<!-- connectors.smtp -->
 		<mkdir dir="${connectors.smtp}" />
