@@ -1,0 +1,17 @@
+<connectorMetaData path="udp">
+	<name>UDP Writer</name>
+	<author>Davut Gurbuz</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.9.0</mirthVersion>
+	<url>http://www.cloudsolution-sa.com</url>
+	<description>This connector allows Mirth Connect to execute UDP to connect to an arbitrary destination.</description>
+	<clientClassName>com.mirth.connect.connectors.udp.UdpWriter</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.udp.UdpDispatcher</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.udp.UdpDispatcherProperties</sharedClassName>
+	<library type="CLIENT" path="udp-client.jar" />
+	<library type="SHARED" path="udp-shared.jar" />
+	<library type="SERVER" path="udp-server.jar" />
+	<transformers></transformers>
+	<protocol>udp</protocol>
+	<type>DESTINATION</type>
+</connectorMetaData>

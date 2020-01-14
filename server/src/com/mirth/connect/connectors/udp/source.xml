@@ -1,0 +1,17 @@
+<connectorMetaData path="udp">
+	<name>UDP Reader</name>
+	<author>Davut Gurbuz</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.9.0</mirthVersion>
+	<url>http://www.cloudsolution-sa.com</url>
+	<description>This connector allows Mirth Connect to execute arbitrary UDP to pull in messages to a channel.</description>
+	<clientClassName>com.mirth.connect.connectors.udp.UdpReader</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.udp.UdpReceiver</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.udp.UdpReceiverProperties</sharedClassName>
+	<library type="CLIENT" path="udp-client.jar" />
+	<library type="SHARED" path="udp-shared.jar" />
+	<library type="SERVER" path="udp-server.jar" />
+	<transformers>ResultMapToXML</transformers>
+	<protocol>udp</protocol>
+	<type>SOURCE</type>
+</connectorMetaData>
