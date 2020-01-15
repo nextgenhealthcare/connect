@@ -37,8 +37,6 @@ public class UdpReceiver extends PollConnector {
 	private ContextFactoryController contextFactoryController = ControllerFactory.getFactory()
 			.createContextFactoryController();
 	private UdpReceiverProperties connectorProperties;
-	private String scriptId;
-	private String contextFactoryId;
 
 	private DatagramSocket socket;
 	private boolean running;
@@ -47,26 +45,12 @@ public class UdpReceiver extends PollConnector {
 	@Override
 	public void onDeploy() throws ConnectorTaskException {
 		this.connectorProperties = (UdpReceiverProperties) getConnectorProperties();
-
-		scriptId = UUID.randomUUID().toString();
-
-		try {
-			MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
-			contextFactoryId = contextFactory.getId();
-			JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, scriptId,
-					connectorProperties.getScript(), ContextType.SOURCE_RECEIVER, null, null);
-		} catch (Exception e) {
-			throw new ConnectorTaskException(
-					"Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
-		}
-
 		eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(),
 				ConnectionStatusEventType.IDLE));
 	}
 
 	@Override
 	public void onUndeploy() throws ConnectorTaskException {
-		JavaScriptUtil.removeScriptFromCache(scriptId);
 	}
 
 	Thread t = null;
@@ -74,16 +58,12 @@ public class UdpReceiver extends PollConnector {
 	@Override
 	public void onStart() throws ConnectorTaskException {
 		try {
-			socket = new DatagramSocket(4445);
+			socket = new DatagramSocket(connectorProperties.getPort());
 			t = new Thread(runThread);
 			t.start();
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private int getLocalPort() {
-		return connectorProperties.getPort();
 	}
 
 	public Runnable runThread = new Runnable() {
@@ -118,8 +98,8 @@ public class UdpReceiver extends PollConnector {
 					} finally {
 						finishDispatch(dispatchResult);
 					}
-
-					socket.send(packet);
+					socket.send(new DatagramPacket("ACK".getBytes(), "ACK".getBytes().length,address, port));
+//					socket.send(packet);
 				}
 				socket.close();
 			} catch (Exception e) {

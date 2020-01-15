@@ -48,9 +48,7 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class UdpDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
-    private Logger scriptLogger = Logger.getLogger("udp-connector");
-    private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();    
     private UdpDispatcherProperties connectorProperties;
     private String scriptId;
     private DatagramSocket socket;
@@ -74,7 +72,7 @@ public class UdpDispatcher extends DestinationConnector {
     	
         try {
 			socket = new DatagramSocket();
-			address = InetAddress.getByName("localhost");
+			address = InetAddress.getByName(connectorProperties.getAddress());		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -96,13 +94,13 @@ public class UdpDispatcher extends DestinationConnector {
 
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage msg) throws InterruptedException {
-        UdpDispatcherProperties javaScriptDispatcherProperties = (UdpDispatcherProperties) connectorProperties;
+       UdpDispatcherProperties udpDispPopsParam = (UdpDispatcherProperties) connectorProperties;
 
         try {         
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.SENDING));
             buf = msg.getEncoded().getContent().getBytes();
             DatagramPacket packet 
-              = new DatagramPacket(buf, buf.length, address, 4445);
+              = new DatagramPacket(buf, buf.length, address, this.connectorProperties.getPort());
             socket.send(packet);
             packet = new DatagramPacket(buf, buf.length);
             socket.receive(packet);
@@ -111,11 +109,13 @@ public class UdpDispatcher extends DestinationConnector {
             
             //TODO:Execute UDP package send
             Response response = new Response(received);
-            response.setValidate(javaScriptDispatcherProperties.getDestinationConnectorProperties().isValidateResponse());
+            response.setMessage("UDP Message sent");
+            response.setStatus(Status.SENT);
+//            response.setValidate(udpDispPopsParam.getDestinationConnectorProperties().isValidateResponse());
 
             return response;
         } catch (Exception e) {
-            logger.error("Error executing script (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+            logger.error("Error sending message (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), msg.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error executing script", e));
             return new Response(Status.ERROR, null, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error executing script", e));
         } finally {

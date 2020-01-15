@@ -26,7 +26,6 @@ public class UdpReceiverProperties extends ConnectorProperties implements PollCo
 
     private PollConnectorProperties pollConnectorProperties;
     private SourceConnectorProperties sourceConnectorProperties;
-    private String script;
     private int port;
 
     public int getPort() {
@@ -40,8 +39,6 @@ public class UdpReceiverProperties extends ConnectorProperties implements PollCo
 	public UdpReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
         sourceConnectorProperties = new SourceConnectorProperties();
-
-        script = "";
     }
 
     @Override
@@ -52,14 +49,6 @@ public class UdpReceiverProperties extends ConnectorProperties implements PollCo
     @Override
     public String getName() {
         return NAME;
-    }
-
-    public String getScript() {
-        return script;
-    }
-
-    public void setScript(String script) {
-        this.script = script;
     }
 
     @Override
@@ -109,7 +98,8 @@ public class UdpReceiverProperties extends ConnectorProperties implements PollCo
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("pollConnectorProperties", pollConnectorProperties.getPurgedProperties());
         purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
-        purgedProperties.put("scriptLines", PurgeUtil.countLines(script));
         return purgedProperties;
     }
+
+
 }

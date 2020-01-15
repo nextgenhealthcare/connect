@@ -23,19 +23,16 @@ public class UdpDispatcherProperties extends ConnectorProperties implements Dest
     public static final String NAME = "UDP Writer";
 
     private DestinationConnectorProperties destinationConnectorProperties;
-    private String script;
+    private String address;
+    private int port=0;
 
     public UdpDispatcherProperties() {
         destinationConnectorProperties = new DestinationConnectorProperties(false);
-
-        script = "";
     }
 
     public UdpDispatcherProperties(UdpDispatcherProperties props) {
         super(props);
         destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
-
-        script = props.getScript();
     }
 
     @Override
@@ -46,17 +43,17 @@ public class UdpDispatcherProperties extends ConnectorProperties implements Dest
     @Override
     public String getName() {
         return NAME;
-    }
+    }    
 
-    public String getScript() {
-        return script;
-    }
+    public int getPort() {
+		return port;
+	}
 
-    public void setScript(String script) {
-        this.script = script;
-    }
+	public void setPort(int port) {
+		this.port = port;
+	}
 
-    @Override
+	@Override
     public String toFormattedString() {
         return "Script Executed";
     }
@@ -101,8 +98,15 @@ public class UdpDispatcherProperties extends ConnectorProperties implements Dest
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
-        purgedProperties.put("scriptLines", PurgeUtil.countLines(script));
+        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());        
         return purgedProperties;
     }
+
+	public String getAddress() {
+		return this.address;		
+	}
+	
+	public void setAddress(String address) {
+		this.address=address;		
+	}
 }

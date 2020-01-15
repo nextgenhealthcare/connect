@@ -27,6 +27,10 @@ import com.mirth.connect.connectors.udp.UdpReceiverProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.JavaScriptSharedUtil;
+import javax.swing.JTextField;
+import java.awt.FlowLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class UdpReader extends ConnectorSettingsPanel {
 
@@ -44,8 +48,6 @@ public class UdpReader extends ConnectorSettingsPanel {
     public ConnectorProperties getProperties() {
     	UdpReceiverProperties properties = new UdpReceiverProperties();
 
-        properties.setScript(javascriptTextPane.getText());
-
         return properties;
     }
 
@@ -53,7 +55,7 @@ public class UdpReader extends ConnectorSettingsPanel {
     public void setProperties(ConnectorProperties properties) {
     	UdpReceiverProperties props = (UdpReceiverProperties) properties;
 
-        javascriptTextPane.setText(props.getScript());
+        portField.setText(props.getPort()+"");
     }
 
     @Override
@@ -67,10 +69,10 @@ public class UdpReader extends ConnectorSettingsPanel {
 
         boolean valid = true;
 
-        if (props.getScript().length() == 0) {
+        if (portField.getText().equals("0")) {
             valid = false;
             if (highlight) {
-                javascriptTextPane.setBackground(UIConstants.INVALID_COLOR);
+                portField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -83,13 +85,12 @@ public class UdpReader extends ConnectorSettingsPanel {
 
     @Override
     public void resetInvalidProperties() {
-        javascriptTextPane.setBackground(null);
+        portField.setBackground(null);
     }
 
     @Override
     public void setVisible(boolean aFlag) {
         super.setVisible(aFlag);
-        javascriptTextPane.updateDisplayOptions();
     }
 
     @Override
@@ -97,26 +98,10 @@ public class UdpReader extends ConnectorSettingsPanel {
     	UdpReceiverProperties props = (UdpReceiverProperties) properties;
 
         String error = null;
-
-        String script = props.getScript();
-
-        if (script.length() != 0) {
-            Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
-            try {
-                context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
-            } catch (EvaluatorException e) {
-                if (error == null) {
-                    error = "";
-                }
-                error += "Error in connector \"" + getName() + "\" at Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
-            } catch (Exception e) {
-                if (error == null) {
-                    error = "";
-                }
-                error += "Error in connector \"" + getName() + "\" at Javascript:\nUnknown error occurred during validation.";
-            }
-
-            Context.exit();
+        if (portField.getText().equals("0")) {
+            error = "Error in connector \"" + getName() + "\" please enter a valid port number.";
+        }else {
+        	props.setPort(Integer.parseInt(portField.getText().trim()));
         }
 
         return error;
@@ -124,17 +109,26 @@ public class UdpReader extends ConnectorSettingsPanel {
 
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
-        jsLabel = new JLabel("JavaScript:");
-        javascriptTextPane = new MirthRTextScrollPane(ContextType.SOURCE_RECEIVER, true);
-        javascriptTextPane.setBorder(BorderFactory.createEtchedBorder());
+        portLabel = new JLabel("Port :");
+        portLabel.setBounds(12, 16, 63, 16);
     }
 
     private void initLayout() {
-        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill, gap 6 6", "6[]13[]"));
-        add(jsLabel, "top, right");
-        add(javascriptTextPane, "grow, push, w :400, h :100");
+        setLayout(null);
+        add(portLabel);
+        
+        portField = new JTextField();
+        portField.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+        		((UdpReceiverProperties)getProperties()).setPort(Integer.parseInt(portField.getText().trim()));
+        	}
+        });
+        portField.setText("0");
+        portField.setBounds(87, 13, 116, 22);
+        add(portField);
+        portField.setColumns(10);
     }
 
-    private JLabel jsLabel;
-    private MirthRTextScrollPane javascriptTextPane;
+    private JLabel portLabel;
+    private JTextField portField;
 }
