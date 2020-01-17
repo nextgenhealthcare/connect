@@ -12,6 +12,7 @@ package com.mirth.connect.server.launcher;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class MirthLauncher {
     private static LoggerWrapper logger;
 
     public static void main(String[] args) {
+        JarFile mirthClientCoreJarFile = null;
         try {
             List<URL> classpathUrls = new ArrayList<>();
             // Always add log4j
@@ -68,8 +70,8 @@ public class MirthLauncher {
             Properties mirthProperties = new Properties();
             String includeCustomLib = null;
 
-            try {
-                mirthProperties.load(new FileInputStream(new File(MIRTH_PROPERTIES_FILE)));
+            try (FileInputStream inputStream = new FileInputStream(new File(MIRTH_PROPERTIES_FILE))) {
+                mirthProperties.load(inputStream);
                 includeCustomLib = mirthProperties.getProperty(PROPERTY_INCLUDE_CUSTOM_LIB);
                 createAppdataDir(mirthProperties);
             } catch (Exception e) {
@@ -94,7 +96,7 @@ public class MirthLauncher {
             ManifestEntry[] manifest = manifestList.toArray(new ManifestEntry[manifestList.size()]);
 
             // Get the current server version
-            JarFile mirthClientCoreJarFile = new JarFile(mirthClientCoreJar.getName());
+            mirthClientCoreJarFile = new JarFile(mirthClientCoreJar.getName());
             Properties versionProperties = new Properties();
             versionProperties.load(mirthClientCoreJarFile.getInputStream(mirthClientCoreJarFile.getJarEntry("version.properties")));
             String currentVersion = versionProperties.getProperty("mirth.version");
@@ -108,6 +110,14 @@ public class MirthLauncher {
             mirthThread.start();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (mirthClientCoreJarFile != null) {
+                    mirthClientCoreJarFile.close();
+                }
+            } catch (IOException e) {
+                logger.error("Error closing mirthClientCoreJarFile.", e);
+            }
         }
     }
 
