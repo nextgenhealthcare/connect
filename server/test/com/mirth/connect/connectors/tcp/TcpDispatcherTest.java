@@ -150,6 +150,15 @@ public class TcpDispatcherTest {
 		return dispatcher;
 	}
 
+	/*
+	 * testMessageSent()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -BASIC mode
+	 * -create listener socket that connects to the TCP Sender socket
+	 * -send message through TCP Sender
+	 * -verify that listener socket received the message
+	 */
 	@Test
 	public void testMessageSent() throws Exception {
 		setupBasicDispatcher();
@@ -165,6 +174,15 @@ public class TcpDispatcherTest {
         assertEquals(TEST_MESSAGE_TEMPLATE, socketResult.get("result" + socketListenerId));
 	}
 	
+	/*
+	 * testMLLPMessageSent()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -MLLP mode
+	 * -create listener socket that connects to the TCP Sender socket
+	 * -send message through TCP Sender
+	 * -verify that listener socket received the message
+	 */
 	@Test
 	public void testMLLPMessageSent() throws Exception {
 		setupMLLPDispatcher();
@@ -180,6 +198,15 @@ public class TcpDispatcherTest {
         assertEquals(TEST_MESSAGE_TEMPLATE, socketResult.get("result" + socketListenerId));
 	}
 	
+	/*
+	 * testMessageSentToMultipleClients()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -BASIC mode
+	 * -create 3x listener sockets that connect to the TCP Sender socket
+	 * -send message through TCP Sender
+	 * -verify that all 3 listener sockets received the message
+	 */
 	@Test
 	public void testMessageSentToMultipleClients() throws Exception {
 		setupBasicDispatcher();
@@ -201,6 +228,15 @@ public class TcpDispatcherTest {
         }
 	}
 	
+	/*
+	 * testMLLPMessageSentToMultipleClients()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -MLLP mode
+	 * -create 3x listener sockets that connect to the TCP Sender socket
+	 * -send message through TCP Sender
+	 * -verify that all 3 listener sockets received the message
+	 */
 	@Test
 	public void testMLLPMessageSentToMultipleClients() throws Exception {
 		setupMLLPDispatcher();
@@ -222,6 +258,18 @@ public class TcpDispatcherTest {
         }
 	}
 	
+	/*
+	 * testMessageSentWhenOneOfMultipleClientsClosed()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -BASIC mode
+	 * -create 3x listener sockets that connect to the TCP Sender socket
+	 * -close one of the listener sockets
+	 * -send message through TCP Sender
+	 * -verify that the 2 open listener sockets received the message
+	 * -verify connectorMap says numberOfClients==2
+	 * -verify connectorMap says successfulSends==2
+	 */
 	@Test
 	public void testMessageSentWhenOneOfMultipleClientsClosed() throws Exception {
 		setupBasicDispatcher();
@@ -257,6 +305,18 @@ public class TcpDispatcherTest {
         assertEquals(new Integer(2), numberOfClients);
 	}
 	
+	/*
+	 * testMLLPMessageSentWhenOneOfMultipleClientsClosed()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -MLLP mode
+	 * -create 3x listener sockets that connect to the TCP Sender socket
+	 * -close one of the listener sockets
+	 * -send message through TCP Sender
+	 * -verify that the 2 open listener sockets received the message
+	 * -verify connectorMap says numberOfClients==2
+	 * -verify connectorMap says successfulSends==2
+	 */
 	@Test
 	public void testMLLPMessageSentWhenOneOfMultipleClientsClosed() throws Exception {
 		setupMLLPDispatcher();
@@ -293,6 +353,17 @@ public class TcpDispatcherTest {
         assertEquals(new Integer(2), numberOfClients);
 	}
 	
+	/*
+	 * testMaxConnections()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -BASIC mode
+	 *   -Max connections: 1
+	 * -create 3x listener sockets that connect to the TCP Sender socket
+	 * -send message through TCP Sender
+	 * -verify connectorMap says numberOfClients==1
+	 * -verify connectorMap says successfulSends==1
+	 */
 	@Test
 	public void testMaxConnections() throws Exception {
 		TcpDispatcherProperties dispatcherProps = createTcpDispatcherProperties();
@@ -320,6 +391,16 @@ public class TcpDispatcherTest {
         assertEquals(new Integer(1), numberOfClients);
 	}
 	
+	/*
+	 * testMessageResponseWithNoConnections()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -BASIC mode
+	 * -send message through TCP Sender
+	 * -verify message status==QUEUED
+	 * -verify connectorMap says numberOfClients==1
+	 * -verify connectorMap says successfulSends==1
+	 */
 	@Test
 	public void testMessageResponseWithNoConnections() throws Exception {
 		setupBasicDispatcher();
@@ -334,6 +415,18 @@ public class TcpDispatcherTest {
         assertEquals(new Integer(0), numberOfClients);
 	}
 	
+	/*
+	 * testMessageResponseWhenAllConnectionsClosed()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -BASIC mode
+	 * -create 3x listener sockets that connect to the TCP Sender socket
+	 * -close ALL of the listener sockets
+	 * -send message through TCP Sender
+	 * -verify message status==QUEUED
+	 * -verify connectorMap says numberOfClients==0
+	 * -verify connectorMap says successfulSends==0
+	 */
 	@Test
 	public void testMessageResponseWhenAllConnectionsClosed() throws Exception {
 		setupBasicDispatcher();
@@ -366,6 +459,18 @@ public class TcpDispatcherTest {
         assertEquals(new Integer(0), numberOfClients);
 	}
 	
+	/*
+	 * testMLLPMessageResponseWhenAllConnectionsClosed()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -MLLP mode
+	 * -create 3x listener sockets that connect to the TCP Sender socket
+	 * -close ALL of the listener sockets
+	 * -send message through TCP Sender
+	 * -verify message status==QUEUED
+	 * -verify connectorMap says numberOfClients==0
+	 * -verify connectorMap says successfulSends==0
+	 */
 	@Test
 	public void testMLLPMessageResponseWhenAllConnectionsClosed() throws Exception {
 		setupMLLPDispatcher();
@@ -398,41 +503,18 @@ public class TcpDispatcherTest {
         assertEquals(new Integer(0), numberOfClients);
 	}
 	
-	@Test
-	public void testConnectionsPrunedAfterConnectionClosed() throws Exception {
-		setupBasicDispatcher();
-		Map<String, String> socketResult = new ConcurrentHashMap<>();
-		
-		Map<Integer, SocketThread> socketListeners = new HashMap<>();
-		for (int i = 0; i < 3; i++) {
-			int socketListenerId = getNextSocketListenerId();
-			SocketThread socketListenerThread = createSocketListenerThread(socketListenerId, socketResult, dispatcherProps, true, 0);
-			socketListeners.put(socketListenerId, socketListenerThread);
-			socketListenerThread.start();
-		}
-		Thread.sleep(1000);
-		
-		for (SocketThread thread : socketListeners.values()) {
-			thread.closeSocket();
-		}
-		for (SocketThread thread : socketListeners.values()) {
-			thread.join();
-		}
-		
-		log("Sending first message...");
-		ConnectorMessage message = new ConnectorMessage(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, 1L, 1, TEST_SERVER_ID, Calendar.getInstance(), Status.PENDING);
-		dispatcher.send(dispatcherProps, message);
-		
-		log("Sending second message...");
-		message = new ConnectorMessage(TEST_CHANNEL_ID, TEST_CHANNEL_NAME, 2L, 1, TEST_SERVER_ID, Calendar.getInstance(), Status.PENDING);
-		dispatcher.send(dispatcherProps, message);
-        Integer numberOfClients = (Integer) message.getConnectorMap().get(CONNECTOR_MAP_NO_OF_CLIENTS_KEY);
-        Integer successfulSends = (Integer) message.getConnectorMap().get(CONNECTOR_MAP_SUCCESSFUL_SENDS_KEY);
-
-        assertEquals(new Integer(0), successfulSends);
-        assertEquals(new Integer(0), numberOfClients);
-	}
-	
+	/*
+	 * testQueueOnResponseTimeout()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -BASIC mode
+	 *   -Queue on response timeout=true
+	 *   -Response timeout=1000
+	 * -create listener socket that connects to the TCP Sender socket
+	 *   -this socket will do nothing after receiving a message
+	 * -send message through TCP Sender
+	 * -verify message status==QUEUED
+	 */
 	@Test
 	public void testQueueOnResponseTimeout() throws Exception {
 		TcpDispatcherProperties props = createTcpDispatcherProperties();
@@ -453,6 +535,18 @@ public class TcpDispatcherTest {
         assertEquals(Status.QUEUED, response.getStatus());
 	}
 	
+	/*
+	 * testQueueOnResponseTimeoutIsFalse()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -BASIC mode
+	 *   -Queue on response timeout=false
+	 *   -Response timeout=1000
+	 * -create listener socket that connects to the TCP Sender socket
+	 *   -this socket will do nothing after receiving a message
+	 * -send message through TCP Sender
+	 * -verify message status==ERROR
+	 */
 	@Test
 	public void testQueueOnResponseTimeoutIsFalse() throws Exception {
 		TcpDispatcherProperties props = createTcpDispatcherProperties();
@@ -473,6 +567,21 @@ public class TcpDispatcherTest {
         assertEquals(Status.ERROR, response.getStatus());
 	}
 	
+	/*
+	 * testWhenSendToOneOfMultipleClientsErrors()
+	 * -create TCP Sender
+	 *   -Server mode
+	 *   -BASIC mode
+	 *   -Queue on response timeout=false
+	 *   -Response timeout=1000
+	 * -create 2x listener sockets that connect to the TCP Sender socket
+	 * -create listener socket that connects to the TCP Sender socket
+	 *   -this socket will do nothing after receiving a message
+	 * -send message through TCP Sender
+	 * -verify message status==SENT
+	 * -verify connectorMap says numberOfClients==3
+	 * -verify connectorMap says successfulSends==2
+	 */
 	@Test
 	public void testWhenSendToOneOfMultipleClientsErrors() throws Exception {
 		TcpDispatcherProperties props = createTcpDispatcherProperties();
