@@ -418,30 +418,41 @@ public class TcpDispatcher extends DestinationConnector {
 				int successes = 0;
 				
 				for (Socket serverModeSocket : serverModeSockets) {
-					Response currentResponse = send(tcpDispatcherProperties, message, serverModeSocket, socketKey);
+					try {
+						// Initialize a new socket if our current one is invalid, the remote side has closed
+		                if (serverModeSocket == null || serverModeSocket.isClosed() || (serverModeSocket instanceof StateAwareSocketInterface && ((StateAwareSocketInterface) serverModeSocket).remoteSideHasClosed())) {
+		                	closeServerModeSocketQuietly(serverModeSocket);
+		                } 
+					} catch (IOException e) {
+						closeServerModeSocketQuietly(serverModeSocket);
+					}
 					
-					responseList.add(currentResponse);
-					
-					if (response == null) {
-						response = currentResponse;
-						if (response.getStatus() == Status.SENT) {
-							successes++;
-						}
-					} else {
-						switch (currentResponse.getStatus()) {
-						case SENT:
-							if (response.getStatus() != Status.SENT) {
-								response = currentResponse;
+					if (!serverModeSocket.isClosed()) {
+						Response currentResponse = send(tcpDispatcherProperties, message, serverModeSocket, socketKey);
+						
+						responseList.add(currentResponse);
+						
+						if (response == null) {
+							response = currentResponse;
+							if (response.getStatus() == Status.SENT) {
+								successes++;
 							}
-							successes++;
-							break;
-						case QUEUED:
-							if (response.getStatus() != Status.SENT) {
-								response = currentResponse;
+						} else {
+							switch (currentResponse.getStatus()) {
+							case SENT:
+								if (response.getStatus() != Status.SENT) {
+									response = currentResponse;
+								}
+								successes++;
+								break;
+							case QUEUED:
+								if (response.getStatus() != Status.SENT) {
+									response = currentResponse;
+								}
+								break;
+							default:
+								break;
 							}
-							break;
-						default:
-							break;
 						}
 					}
 				}
@@ -461,6 +472,7 @@ public class TcpDispatcher extends DestinationConnector {
 				connectorMap.put("localAddress", getLocalAddress());
 				connectorMap.put("localPort", getLocalPort());
 				connectorMap.put("numberOfClients", responseList.size());
+				connectorMap.put("successfulSends", successes);
 				
 				for (Iterator<Socket> iter = serverModeSockets.iterator(); iter.hasNext();) {
 					if (iter.next().isClosed()) {
@@ -559,14 +571,16 @@ public class TcpDispatcher extends DestinationConnector {
                 responseStatusMessage = "Message successfully sent.";
             }
 
-            if (tcpDispatcherProperties.isKeepConnectionOpen() && (getCurrentState() == DeployedState.STARTED || getCurrentState() == DeployedState.STARTING)) {
-                if (sendTimeout > 0) {
-                    // Close the connection after the send timeout has been reached
-                    startThread(socketKey);
-                }
-            } else {
-                // If keep connection open is false, then close the socket right now
-                closeSocketQuietly(socketKey);
+            if (!tcpDispatcherProperties.isServerMode()) {
+	            if (tcpDispatcherProperties.isKeepConnectionOpen() && (getCurrentState() == DeployedState.STARTED || getCurrentState() == DeployedState.STARTING)) {
+	                if (sendTimeout > 0) {
+	                    // Close the connection after the send timeout has been reached
+	                    startThread(socketKey);
+	                }
+	            } else {
+	                // If keep connection open is false, then close the socket right now
+	                closeSocketQuietly(socketKey);
+	            }
             }
         } catch (Throwable t) {
         	if (tcpDispatcherProperties.isServerMode()) {
@@ -792,7 +806,7 @@ public class TcpDispatcher extends DestinationConnector {
         logger.debug("Initializing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
         socket.setReceiveBufferSize(bufferSize);
         socket.setSendBufferSize(bufferSize);
-        socket.setSoTimeout(0);
+        socket.setSoTimeout(responseTimeout);
         socket.setKeepAlive(true);
         socket.setReuseAddress(true);
         socket.setTcpNoDelay(true);
