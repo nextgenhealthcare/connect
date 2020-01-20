@@ -380,11 +380,89 @@ public class TcpDispatcher extends DestinationConnector {
             }
 
             ThreadUtils.checkInterruptedStatus();
-        } catch (Throwable t) {
-            disposeThreadQuietly(socketKey);
-            closeSocketQuietly(socketKey);
+            
+            if (tcpDispatcherProperties.isServerMode()) {
+                synchronized (serverModeSockets) {
+                    List<Response> responseList = new ArrayList<>();
+                    int successes = 0;
+                    
+                    for (Socket serverModeSocket : serverModeSockets) {
+                        try {
+                            // Initialize a new socket if our current one is invalid, the remote side has closed
+                            if (serverModeSocket == null || serverModeSocket.isClosed() || (serverModeSocket instanceof StateAwareSocketInterface && ((StateAwareSocketInterface) serverModeSocket).remoteSideHasClosed())) {
+                                closeServerModeSocketQuietly(serverModeSocket);
+                            } 
+                        } catch (IOException e) {
+                            closeServerModeSocketQuietly(serverModeSocket);
+                        }
+                        
+                        if (!serverModeSocket.isClosed()) {
+                            Response currentResponse = send(tcpDispatcherProperties, message, serverModeSocket, socketKey);
+                            
+                            responseList.add(currentResponse);
+                            
+                            if (response == null) {
+                                response = currentResponse;
+                                if (response.getStatus() == Status.SENT) {
+                                    successes++;
+                                }
+                            } else {
+                                switch (currentResponse.getStatus()) {
+                                case SENT:
+                                    if (response.getStatus() != Status.SENT) {
+                                        response = currentResponse;
+                                    }
+                                    successes++;
+                                    break;
+                                case QUEUED:
+                                    if (response.getStatus() != Status.SENT) {
+                                        response = currentResponse;
+                                    }
+                                    break;
+                                default:
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // set response status message
+                    if (response != null) {
+                        response = new Response(response);
+                    } else {
+                        response = new Response(responseStatus, null, responseStatusMessage, responseError, validateResponse);
+                    }
+                    response.setStatusMessage(getStatusMessage(responseList, response, successes));
+                    
+                    // compile all responses and add to connector map
+                    Map<String, Object> connectorMap = message.getConnectorMap();
+                    connectorMap.put("allResponses", responseList);
+                    
+                    connectorMap.put("localAddress", getLocalAddress());
+                    connectorMap.put("localPort", getLocalPort());
+                    connectorMap.put("numberOfClients", responseList.size());
+                    connectorMap.put("successfulSends", successes);
+                    
+                    for (Iterator<Socket> iter = serverModeSockets.iterator(); iter.hasNext();) {
+                        if (iter.next().isClosed()) {
+                            iter.remove();
+                        }
+                    }
+                }
+            } else {
+                response = send(tcpDispatcherProperties, message, socket, socketKey);
+            }
 
-            String monitorMessage = "Error sending message (" + SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket) + "): " + t.getMessage();
+            return response;
+        } catch (Throwable t) {
+            String monitorMessage = "Error sending message: " + t.getMessage();
+            
+            if (!tcpDispatcherProperties.isServerMode()) {
+                disposeThreadQuietly(socketKey);
+                closeSocketQuietly(socketKey);
+                monitorMessage = "Error sending message (" + SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket) + "): " + t.getMessage();
+            }
+            
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.FAILURE, monitorMessage));
 
             // If an exception occurred then close the socket, even if keep connection open is true
@@ -411,80 +489,6 @@ public class TcpDispatcher extends DestinationConnector {
         } finally {
             eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), (Boolean) null));
         }
-
-        if (tcpDispatcherProperties.isServerMode()) {
-			synchronized (serverModeSockets) {
-				List<Response> responseList = new ArrayList<>();
-				int successes = 0;
-				
-				for (Socket serverModeSocket : serverModeSockets) {
-					try {
-						// Initialize a new socket if our current one is invalid, the remote side has closed
-		                if (serverModeSocket == null || serverModeSocket.isClosed() || (serverModeSocket instanceof StateAwareSocketInterface && ((StateAwareSocketInterface) serverModeSocket).remoteSideHasClosed())) {
-		                	closeServerModeSocketQuietly(serverModeSocket);
-		                } 
-					} catch (IOException e) {
-						closeServerModeSocketQuietly(serverModeSocket);
-					}
-					
-					if (!serverModeSocket.isClosed()) {
-						Response currentResponse = send(tcpDispatcherProperties, message, serverModeSocket, socketKey);
-						
-						responseList.add(currentResponse);
-						
-						if (response == null) {
-							response = currentResponse;
-							if (response.getStatus() == Status.SENT) {
-								successes++;
-							}
-						} else {
-							switch (currentResponse.getStatus()) {
-							case SENT:
-								if (response.getStatus() != Status.SENT) {
-									response = currentResponse;
-								}
-								successes++;
-								break;
-							case QUEUED:
-								if (response.getStatus() != Status.SENT) {
-									response = currentResponse;
-								}
-								break;
-							default:
-								break;
-							}
-						}
-					}
-				}
-				
-				// set response status message
-				if (response != null) {
-					response = new Response(response);
-				} else {
-					response = new Response(responseStatus, null, responseStatusMessage, responseError, validateResponse);
-				}
-				response.setStatusMessage(getStatusMessage(responseList, response, successes));
-				
-				// compile all responses and add to connector map
-				Map<String, Object> connectorMap = message.getConnectorMap();
-				connectorMap.put("allResponses", responseList);
-				
-				connectorMap.put("localAddress", getLocalAddress());
-				connectorMap.put("localPort", getLocalPort());
-				connectorMap.put("numberOfClients", responseList.size());
-				connectorMap.put("successfulSends", successes);
-				
-				for (Iterator<Socket> iter = serverModeSockets.iterator(); iter.hasNext();) {
-					if (iter.next().isClosed()) {
-						iter.remove();
-					}
-				}
-			}
-        } else {
-            response = send(tcpDispatcherProperties, message, socket, socketKey);
-        }
-
-        return response;
     }
     
     private String getStatusMessage(List<Response> responseList, Response response, int successes) {
@@ -612,8 +616,6 @@ public class TcpDispatcher extends DestinationConnector {
             }
 
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), message.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error sending message via TCP.", t));
-        } finally {
-            eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), (Boolean) null));
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
