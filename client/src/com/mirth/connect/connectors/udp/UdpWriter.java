@@ -29,6 +29,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.SwingConstants;
 
 public class UdpWriter extends ConnectorSettingsPanel {
 
@@ -123,7 +124,7 @@ public class UdpWriter extends ConnectorSettingsPanel {
 		setBackground(new java.awt.Color(255, 255, 255));
 		setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-		portLabel.setText("Port:");
+		portLabel.setText("Port");
 
 		portField = new JTextField();
 		portField.addActionListener(new ActionListener() {
@@ -143,9 +144,17 @@ public class UdpWriter extends ConnectorSettingsPanel {
 		addressField.setText("localhost");
 		addressField.setColumns(10);
 		
-		JLabel addressLabel = new JLabel("Address :");
+		JLabel addressLabel = new JLabel("Address");
 		
 		JLabel lblUdpWriter = new JLabel("UDP Writer");
+		
+		JLabel label_1 = new JLabel();
+		label_1.setText(":");
+		label_1.setHorizontalAlignment(SwingConstants.RIGHT);
+		
+		JLabel label = new JLabel();
+		label.setText(":");
+		label.setHorizontalAlignment(SwingConstants.RIGHT);
 
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
 		layout.setHorizontalGroup(
@@ -155,29 +164,35 @@ public class UdpWriter extends ConnectorSettingsPanel {
 					.addGroup(layout.createParallelGroup(Alignment.LEADING)
 						.addComponent(lblUdpWriter)
 						.addGroup(layout.createSequentialGroup()
-							.addComponent(addressLabel, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+							.addGroup(layout.createParallelGroup(Alignment.LEADING)
+								.addComponent(addressLabel, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+								.addComponent(portLabel))
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(addressField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addGroup(layout.createSequentialGroup()
-							.addComponent(portLabel)
+							.addGroup(layout.createParallelGroup(Alignment.LEADING)
+								.addComponent(label_1)
+								.addComponent(label, GroupLayout.PREFERRED_SIZE, 5, GroupLayout.PREFERRED_SIZE))
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(portField, GroupLayout.PREFERRED_SIZE, 59, GroupLayout.PREFERRED_SIZE)))
-					.addGap(17))
+							.addGroup(layout.createParallelGroup(Alignment.LEADING)
+								.addComponent(addressField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(portField, GroupLayout.PREFERRED_SIZE, 59, GroupLayout.PREFERRED_SIZE))))
+					.addGap(47))
 		);
 		layout.setVerticalGroup(
 			layout.createParallelGroup(Alignment.LEADING)
 				.addGroup(layout.createSequentialGroup()
 					.addContainerGap()
 					.addComponent(lblUdpWriter)
-					.addGap(11)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(addressLabel)
-						.addComponent(addressField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(label_1)
+						.addComponent(addressField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(addressLabel))
 					.addGap(10)
 					.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(portLabel)
-						.addComponent(portField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(204, Short.MAX_VALUE))
+						.addComponent(label)
+						.addComponent(portField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(portLabel))
+					.addContainerGap(208, Short.MAX_VALUE))
 		);
 		this.setLayout(layout);
 	}// </editor-fold>//GEN-END:initComponents
