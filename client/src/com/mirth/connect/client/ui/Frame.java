@@ -2986,7 +2986,7 @@ public class Frame extends JXFrame {
             return alertEditTasks.getContentPane().getComponent(0).isVisible();
         } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
             return globalScriptsTasks.getContentPane().getComponent(0).isVisible();
-        } else if (currentContentPage == codeTemplatePanel) {
+        } else if (currentContentPage == codeTemplatePanel && !(currentContentPage==null &&codeTemplatePanel==null)) {
             return codeTemplatePanel.changesHaveBeenMade();
         } else {
             return false;

@@ -18,6 +18,8 @@ import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
+import com.mirth.connect.client.ui.components.MirthIconTextField;
+import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.codetemplates.ContextType;
@@ -126,7 +128,7 @@ public class UdpWriter extends ConnectorSettingsPanel {
 
 		portLabel.setText("Port");
 
-		portField = new JTextField();
+		portField = new MirthTextField();
 		portField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				((UdpDispatcherProperties)getProperties()).setPort(Integer.parseInt(portField.getText()));
@@ -135,7 +137,7 @@ public class UdpWriter extends ConnectorSettingsPanel {
 		portField.setText(((UdpDispatcherProperties) getProperties()).getPort()+"");
 		portField.setColumns(10);
 		
-		addressField = new JTextField();
+		addressField = new MirthIconTextField();
 		addressField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				((UdpDispatcherProperties)getProperties()).setAddress(addressField.getText());
@@ -198,6 +200,6 @@ public class UdpWriter extends ConnectorSettingsPanel {
 	}// </editor-fold>//GEN-END:initComponents
 
 	private javax.swing.JLabel portLabel;
-	private JTextField portField;
-	private JTextField addressField;
+	private MirthTextField portField;
+	private MirthIconTextField addressField;
 }

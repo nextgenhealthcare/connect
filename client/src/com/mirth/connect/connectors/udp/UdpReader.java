@@ -9,28 +9,16 @@
 
 package com.mirth.connect.connectors.udp;
 
-import java.util.UUID;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-
-import net.miginfocom.swing.MigLayout;
-
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
-import com.mirth.connect.client.ui.components.rsta.MirthRTextScrollPane;
+import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
-import com.mirth.connect.connectors.udp.UdpReceiverProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.model.codetemplates.ContextType;
-import com.mirth.connect.util.JavaScriptSharedUtil;
-import javax.swing.JTextField;
-import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class UdpReader extends ConnectorSettingsPanel {
 
@@ -111,13 +99,13 @@ public class UdpReader extends ConnectorSettingsPanel {
         setBackground(UIConstants.BACKGROUND_COLOR);
         portLabel = new JLabel("Port :");
         portLabel.setBounds(12, 16, 63, 16);
+        portField = new MirthTextField();
     }
 
     private void initLayout() {
         setLayout(null);
-        add(portLabel);
-        
-        portField = new JTextField();
+        add(portLabel);      
+        add(portField);
         portField.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
         		((UdpReceiverProperties)getProperties()).setPort(Integer.parseInt(portField.getText().trim()));
@@ -127,8 +115,9 @@ public class UdpReader extends ConnectorSettingsPanel {
         portField.setBounds(87, 13, 116, 22);
         add(portField);
         portField.setColumns(10);
+        
     }
 
     private JLabel portLabel;
-    private JTextField portField;
+    private MirthTextField portField;
 }
