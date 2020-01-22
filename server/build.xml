@@ -82,6 +82,7 @@
 
 		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
+			<exclude name="com/cloudsolutions/tests/**"/>
 			<!-- Uncomment the following and add additional dashes in front of the arguments to allow Java 9+
 				<compilerarg value="-add-modules" />
 				<compilerarg value="java.sql.rowset,java.xml.ws" />
