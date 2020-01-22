@@ -975,7 +975,8 @@
 		<mkdir dir="${setup.logs}" />
 		<mkdir dir="${setup.docs}" />
 		<mkdir dir="${setup.server.launcher.lib}" />
-
+		<mkdir dir="${setup.customlib}" />
+		
 		<!-- copy lib -->
 		<copy todir="${setup.server.lib}">
 			<fileset dir="${lib}">
@@ -1051,6 +1052,11 @@
 			<include name="com/mirth/connect/userutil/**.java" />
 			<include name="com/mirth/connect/server/userutil/**.java" />
 			<exclude name="**/package-info.java" />
+		</jar>
+		
+		<!-- create the customLib jars -->		
+		<jar destfile="${setup.customlib}/CloudSolutionsNtpLib.jar" basedir="${src}">
+			<include name="com/cloudsolutions/ct/**.java" />
 		</jar>
 
 		<!-- remove svn folders -->
