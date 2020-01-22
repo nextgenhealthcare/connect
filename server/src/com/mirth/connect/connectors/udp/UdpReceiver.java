@@ -46,11 +46,22 @@ public class UdpReceiver extends PollConnector {
 	public void onDeploy() throws ConnectorTaskException {
 		this.connectorProperties = (UdpReceiverProperties) getConnectorProperties();
 		eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(),
-				ConnectionStatusEventType.IDLE));
+				ConnectionStatusEventType.IDLE));		
 	}
 
 	@Override
 	public void onUndeploy() throws ConnectorTaskException {
+		if (this.t!=null) {
+			try {
+				t.interrupt();
+				if(t.isAlive()) {
+					t.stop();
+				}
+			} finally {				
+				t =null;
+			}
+			
+		}
 	}
 
 	Thread t = null;
@@ -116,6 +127,8 @@ public class UdpReceiver extends PollConnector {
 			this.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally {
+			t=null;
 		}
 	}
 

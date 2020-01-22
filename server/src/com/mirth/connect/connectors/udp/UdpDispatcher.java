@@ -50,8 +50,8 @@ public class UdpDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private EventController eventController = ControllerFactory.getFactory().createEventController();    
     private UdpDispatcherProperties connectorProperties;
-    private String scriptId;
-    private DatagramSocket socket;
+ 
+    private DatagramSocket socket=null;
     private InetAddress  address;
  
     private byte[] buf;
@@ -64,7 +64,15 @@ public class UdpDispatcher extends DestinationConnector {
 
     @Override
     public void onUndeploy() throws ConnectorTaskException {
-        JavaScriptUtil.removeScriptFromCache(scriptId);
+    	try {
+			if(socket!=null) {
+				socket.close();
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			socket=null;
+		}
     }
 
     @Override
@@ -81,7 +89,15 @@ public class UdpDispatcher extends DestinationConnector {
 
     @Override
     public void onStop() throws ConnectorTaskException {
-    	socket.close();
+    	try {
+			if(socket!=null) {
+				socket.close();
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			socket=null;
+		}
     }
 
     @Override
