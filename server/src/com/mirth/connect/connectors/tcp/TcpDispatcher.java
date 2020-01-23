@@ -159,15 +159,19 @@ public class TcpDispatcher extends DestinationConnector {
                             Socket serverModeSocket = serverSocket.accept();
                             initSocket(serverModeSocket);
                             logger.trace("Accepted new socket: " + serverModeSocket.getRemoteSocketAddress().toString() + " -> " + serverModeSocket.getLocalSocketAddress());
-                            
-                            synchronized(serverModeSockets) {
-                            	if (serverModeSockets.size() < maxConnections) {
-                            		serverModeSockets.add(serverModeSocket);
-                            	} else {
-                            		serverModeSocket.close();
-                            		logger.debug("Reached maximum connnections (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
-                            	}
-                                
+
+                            if (serverModeSocket instanceof StateAwareSocketInterface && ((StateAwareSocketInterface) serverModeSocket).remoteSideHasClosed()) {
+                                logger.debug("Remote side closed connection (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
+                                serverModeSocket.close();
+                            } else {
+                                synchronized (serverModeSockets) {
+                                    if (serverModeSockets.size() < maxConnections) {
+                                        serverModeSockets.add(serverModeSocket);
+                                    } else {
+                                        serverModeSocket.close();
+                                        logger.debug("Reached maximum connnections (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
+                                    }
+                                }
                             }
                         } catch (java.io.InterruptedIOException e) {
                             logger.debug("Interruption during server socket accept operation (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
