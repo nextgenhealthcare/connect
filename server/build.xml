@@ -1055,8 +1055,8 @@
 		</jar>
 		
 		<!-- create the customLib jars -->		
-		<jar destfile="${setup.customlib}/CloudSolutionsNtpLib.jar" basedir="${src}">
-			<include name="com/cloudsolutions/ct/**.java" />
+		<jar destfile="${setup.customlib}/CloudSolutionsNtpLib.jar" basedir="${classes}">
+			<include name="com/cloudsolutions/ct/**" />
 		</jar>
 
 		<!-- remove svn folders -->

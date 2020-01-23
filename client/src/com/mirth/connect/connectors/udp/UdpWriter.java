@@ -18,6 +18,7 @@ import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
+import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthIconTextField;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
@@ -55,6 +56,8 @@ public class UdpWriter extends ConnectorSettingsPanel {
 	public void setProperties(ConnectorProperties properties) {
 		UdpDispatcherProperties props = (UdpDispatcherProperties) properties;
 		portField.setText(props.getPort() + "");
+		addressField.setText(props.getAddress());
+		isMessageByteArrayField.setSelected(props.isMessageByteArray());
 	}
 
 	@Override
@@ -68,12 +71,20 @@ public class UdpWriter extends ConnectorSettingsPanel {
 
 		boolean valid = true;
 
-		if (portField.getText().equals("0")) {
+		if (portField==null||portField.getText().equals("0")) {
 			valid = false;
 			if (highlight) {
 				portField.setBackground(UIConstants.INVALID_COLOR);
 			}
 		}
+		
+
+		if (addressField==null||addressField.getText().length()==0) {
+			valid = false;
+			if (highlight) {
+				addressField.setBackground(UIConstants.INVALID_COLOR);
+			}
+		}		
 
 		return valid;
 	}
@@ -85,6 +96,7 @@ public class UdpWriter extends ConnectorSettingsPanel {
 	@Override
 	public void resetInvalidProperties() {
 		portField.setBackground(null);
+		addressField.setBackground(null);
 	}
 
 	@Override
@@ -96,11 +108,21 @@ public class UdpWriter extends ConnectorSettingsPanel {
 	public String doValidate(ConnectorProperties properties, boolean highlight) {
 		UdpDispatcherProperties props = (UdpDispatcherProperties) properties;
 		String error = null;
-		if (portField.getText().equals("0")) {
+		if (portField.getText()==null || portField.getText().equals("0")) {
 			error += "Error in connector \"" + getName() + "\" a valid port number must be set.";
 		}else {
 			props.setPort(Integer.parseInt(portField.getText().trim()));
 		}
+		
+		if(addressField.getText()==null || addressField.getText().length()==0) {
+			error += "Error in connector \"" + getName() + "\" a valid address value,it must be set.";
+		}else {
+			props.setAddress(addressField.getText());
+		}
+
+		
+		props.setMessageByteArray(isMessageByteArrayField.isSelected());
+		
 		return error;
 	}
 
@@ -137,13 +159,22 @@ public class UdpWriter extends ConnectorSettingsPanel {
 		portField.setText(((UdpDispatcherProperties) getProperties()).getPort()+"");
 		portField.setColumns(10);
 		
+		isMessageByteArrayField=new MirthCheckBox("Is Message Byte Array");
+		isMessageByteArrayField.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((UdpDispatcherProperties)getProperties()).setMessageByteArray(isMessageByteArrayField.isSelected());				
+			}
+		});
+		
 		addressField = new MirthIconTextField();
 		addressField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				((UdpDispatcherProperties)getProperties()).setAddress(addressField.getText());
 			}
 		});
-		addressField.setText("localhost");
+//		addressField.setText("localhost");
 		addressField.setColumns(10);
 		
 		JLabel addressLabel = new JLabel("Address");
@@ -164,6 +195,7 @@ public class UdpWriter extends ConnectorSettingsPanel {
 				.addGroup(layout.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(layout.createParallelGroup(Alignment.LEADING)
+						.addComponent(isMessageByteArrayField, GroupLayout.PREFERRED_SIZE, 159, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lblUdpWriter)
 						.addGroup(layout.createSequentialGroup()
 							.addGroup(layout.createParallelGroup(Alignment.LEADING)
@@ -177,7 +209,7 @@ public class UdpWriter extends ConnectorSettingsPanel {
 							.addGroup(layout.createParallelGroup(Alignment.LEADING)
 								.addComponent(addressField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 								.addComponent(portField, GroupLayout.PREFERRED_SIZE, 59, GroupLayout.PREFERRED_SIZE))))
-					.addGap(47))
+					.addContainerGap(240, Short.MAX_VALUE))
 		);
 		layout.setVerticalGroup(
 			layout.createParallelGroup(Alignment.LEADING)
@@ -194,7 +226,12 @@ public class UdpWriter extends ConnectorSettingsPanel {
 						.addComponent(label)
 						.addComponent(portField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(portLabel))
-					.addContainerGap(208, Short.MAX_VALUE))
+					.addGroup(layout.createParallelGroup(Alignment.LEADING)
+						.addComponent(label)
+						.addComponent(portLabel))
+					.addGap(18)
+					.addComponent(isMessageByteArrayField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(168, Short.MAX_VALUE))
 		);
 		this.setLayout(layout);
 	}// </editor-fold>//GEN-END:initComponents
@@ -202,4 +239,5 @@ public class UdpWriter extends ConnectorSettingsPanel {
 	private javax.swing.JLabel portLabel;
 	private MirthTextField portField;
 	private MirthIconTextField addressField;
+	private MirthCheckBox isMessageByteArrayField;
 }

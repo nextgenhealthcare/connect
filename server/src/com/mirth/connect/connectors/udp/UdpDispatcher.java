@@ -110,11 +110,16 @@ public class UdpDispatcher extends DestinationConnector {
 
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage msg) throws InterruptedException {
-       UdpDispatcherProperties udpDispPopsParam = (UdpDispatcherProperties) connectorProperties;
-
+       UdpDispatcherProperties udpDispPopsParam = (UdpDispatcherProperties) this.connectorProperties;
         try {         
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.SENDING));
-            buf = msg.getEncoded().getContent().getBytes();
+            if(this.connectorProperties.isMessageByteArray())
+            {
+            	buf=(byte[])msg.getChannelMap().get("message");
+            }	
+            else {
+            	buf = msg.getEncoded().getContent().getBytes();
+            }
             DatagramPacket packet 
               = new DatagramPacket(buf, buf.length, address, this.connectorProperties.getPort());
             socket.send(packet);
@@ -125,6 +130,9 @@ public class UdpDispatcher extends DestinationConnector {
             
             //TODO:Execute UDP package send
             Response response = new Response(received);
+            if(this.connectorProperties.isMessageByteArray()) {
+            	msg.getChannelMap().put("response",packet.getData());
+            }
             response.setMessage("UDP Message sent");
             response.setStatus(Status.SENT);
 //            response.setValidate(udpDispPopsParam.getDestinationConnectorProperties().isValidateResponse());

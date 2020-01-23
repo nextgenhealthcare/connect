@@ -25,7 +25,7 @@ public class UdpDispatcherProperties extends ConnectorProperties implements Dest
     private DestinationConnectorProperties destinationConnectorProperties;
     private String address;
     private int port=0;
-
+    private boolean isMessageByteArray;
     public UdpDispatcherProperties() {
         destinationConnectorProperties = new DestinationConnectorProperties(false);
     }
@@ -108,5 +108,13 @@ public class UdpDispatcherProperties extends ConnectorProperties implements Dest
 	
 	public void setAddress(String address) {
 		this.address=address;		
+	}
+
+	public void setMessageByteArray(boolean isMessageByteArray) {
+		this.isMessageByteArray = isMessageByteArray;
+	}
+
+	public boolean isMessageByteArray() {
+		return isMessageByteArray;
 	}
 }
