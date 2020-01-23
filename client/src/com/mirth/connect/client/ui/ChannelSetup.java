@@ -857,8 +857,8 @@ public class ChannelSetup extends JPanel {
         }
     }
 
-    public void decorateConnectorType(ConnectorTypeDecoration connectorTypeDecoration) {
-        if (connectorTypeDecoration != null && connectorTypeDecoration.getMode() == Mode.DESTINATION && destinationTable.getSelectedModelIndex() >= 0) {
+    public void decorateConnectorType(ConnectorTypeDecoration connectorTypeDecoration, boolean isDestination) {
+        if (connectorTypeDecoration != null && isDestination && destinationTable.getSelectedModelIndex() >= 0) {
             ConnectorTypeData connectorTypeData = (ConnectorTypeData) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
             connectorTypeData.setDecoration(connectorTypeDecoration);
             destinationTable.getModel().setValueAt(connectorTypeData, destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));

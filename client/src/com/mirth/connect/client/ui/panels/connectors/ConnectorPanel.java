@@ -374,7 +374,7 @@ public class ConnectorPanel extends JPanel {
             }
         }
 
-        channelSetup.decorateConnectorType(connectorTypeDecoration);
+        channelSetup.decorateConnectorType(connectorTypeDecoration, getConnectorSettingsPanel().getDefaults() instanceof DestinationConnectorPropertiesInterface);
 
         currentPanel.doLocalDecoration(connectorTypeDecoration);
         for (ConnectorPropertiesPlugin connectorPropertiesPlugin : LoadedExtensions.getInstance().getConnectorPropertiesPlugins().values()) {
