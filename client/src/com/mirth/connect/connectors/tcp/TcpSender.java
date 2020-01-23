@@ -302,10 +302,10 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
             transmissionModeProvider.resetInvalidProperties();
         }
         remoteAddressField.setBackground(null);
-        decorateConnectorType();
         remotePortField.setBackground(null);
         localAddressField.setBackground(null);
         localPortField.setBackground(null);
+        decorateConnectorType();
         maxConnectionsField.setBackground(null);
         sendTimeoutField.setBackground(null);
         bufferSizeField.setBackground(null);
@@ -321,10 +321,25 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     @Override
     public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
         if (connectorTypeDecoration != null) {
-            remoteAddressField.setIcon(connectorTypeDecoration.getIcon());
-            remoteAddressField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
-            remoteAddressField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
-            remoteAddressField.setBackground(connectorTypeDecoration.getHighlightColor());
+            if (modeServerRadio.isSelected()) {
+                localAddressField.setIcon(connectorTypeDecoration.getIcon());
+                localAddressField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
+                localAddressField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
+                localAddressField.setBackground(connectorTypeDecoration.getHighlightColor());
+                remoteAddressField.setIcon(null);
+                remoteAddressField.setAlternateToolTipText(null);
+                remoteAddressField.setIconPopupMenuComponent(null);
+                remoteAddressField.setBackground(null);
+            } else {
+                localAddressField.setIcon(null);
+                localAddressField.setAlternateToolTipText(null);
+                localAddressField.setIconPopupMenuComponent(null);
+                localAddressField.setBackground(null);
+                remoteAddressField.setIcon(connectorTypeDecoration.getIcon());
+                remoteAddressField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
+                remoteAddressField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
+                remoteAddressField.setBackground(connectorTypeDecoration.getHighlightColor());
+            }
         }
     }
 
@@ -374,7 +389,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         sampleLabel = new JLabel();
         sampleValue = new JLabel();
         localAddressLabel = new JLabel();
-        localAddressField = new MirthTextField();
+        localAddressField = new MirthIconTextField();
         localPortLabel = new JLabel();
         localPortField = new MirthTextField();
         overrideLocalBindingLabel = new JLabel();
@@ -855,7 +870,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     private JLabel overrideLocalBindingLabel;
     private MirthRadioButton keepConnectionOpenNoRadio;
     private MirthRadioButton keepConnectionOpenYesRadio;
-    private MirthTextField localAddressField;
+    private MirthIconTextField localAddressField;
     private JLabel localAddressLabel;
     private MirthTextField localPortField;
     private JLabel localPortLabel;
