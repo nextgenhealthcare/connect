@@ -308,7 +308,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
     }
 
     @Override
-    public boolean checkProperties(ConnectorPluginProperties properties, Mode mode, String transportName, boolean highlight) {
+    public boolean checkProperties(ConnectorProperties connectorProperties, ConnectorPluginProperties properties, Mode mode, String transportName, boolean highlight) {
         boolean valid = true;
 
         if (properties instanceof BasicHttpAuthProperties) {
@@ -368,7 +368,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
             if (connectorPropertiesPanel != null && props.getConnectorPluginProperties() != null) {
                 for (ConnectorPluginProperties pluginProperties : props.getConnectorPluginProperties()) {
                     if (!(pluginProperties instanceof InvalidConnectorPluginProperties)) {
-                        if (!connectorPropertiesPanel.checkProperties(pluginProperties, Mode.DESTINATION, new HttpDispatcherProperties().getName(), highlight)) {
+                        if (!connectorPropertiesPanel.checkProperties(connectorProperties, pluginProperties, Mode.DESTINATION, new HttpDispatcherProperties().getName(), highlight)) {
                             valid = false;
                         }
                     }

@@ -298,7 +298,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         if (responseConnectorPropertiesPanel != null && props.getResponseConnectorPluginProperties() != null) {
             for (ConnectorPluginProperties pluginProperties : props.getResponseConnectorPluginProperties()) {
                 if (!(pluginProperties instanceof InvalidConnectorPluginProperties)) {
-                    responseConnectorPropertiesPanel.checkProperties(pluginProperties, Mode.DESTINATION, props.getName(), highlight);
+                    responseConnectorPropertiesPanel.checkProperties(props, pluginProperties, Mode.DESTINATION, props.getName(), highlight);
                 }
             }
         }

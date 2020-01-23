@@ -250,7 +250,7 @@ public class ConnectorPanel extends JPanel {
 
                     if (connectorPluginPropertiesPanel != null) {
                         connectorPluginPropertiesPanel.resetInvalidProperties();
-                        if (!connectorPluginPropertiesPanel.checkProperties(connectorPluginProperties, mode, properties.getName(), highlight)) {
+                        if (!connectorPluginPropertiesPanel.checkProperties(properties, connectorPluginProperties, mode, properties.getName(), highlight)) {
                             pluginProperties = false;
                         }
                     }
