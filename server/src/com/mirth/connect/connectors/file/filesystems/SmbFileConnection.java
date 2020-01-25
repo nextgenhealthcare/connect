@@ -15,10 +15,15 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.CIFSContext;
+import jcifs.DialectVersion;
+import jcifs.config.PropertyConfiguration;
+import jcifs.context.BaseContext;
+import jcifs.smb.NtlmPasswordAuthenticator;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileFilter;
@@ -102,8 +107,9 @@ public class SmbFileConnection implements FileSystemConnection {
     }
 
     private Logger logger = Logger.getLogger(getClass());
-    private NtlmPasswordAuthentication auth = null;
+    private NtlmPasswordAuthenticator auth = null;
     private SmbFile share = null;
+    private int timeout;
 
     public SmbFileConnection(String share, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
         String domainAndUser = fileSystemOptions.getUsername();
@@ -121,22 +127,45 @@ public class SmbFileConnection implements FileSystemConnection {
         }
 
         if ((username != null) && (password != null)) {
-            auth = new NtlmPasswordAuthentication(domain, username, password);
+            auth = new NtlmPasswordAuthenticator(domain, username, password);
         }
-        this.share = new SmbFile("smb://" + share, auth);
+        
+        Properties jcifsProperties = new Properties();
+        jcifsProperties.setProperty("jcifs.smb.client.minVersion", DialectVersion.SMB1.toString());
+        jcifsProperties.setProperty("jcifs.smb.client.minVersion", DialectVersion.SMB202.toString());
+//        jcifsProperties.setProperty("jcifs.smb.client.minVersion", DialectVersion.SMB311.toString());
+//        jcifsProperties.setProperty("jcifs.smb.client.maxVersion", DialectVersion.SMB311.toString());
+        
+        CIFSContext baseContext = new BaseContext(new PropertyConfiguration(jcifsProperties)).withCredentials(auth);
+        this.share = new SmbFile("smb://" + share, baseContext);
         this.share.setConnectTimeout(timeout);
+        this.timeout = timeout;
     }
 
     private String getPath(String dir, String name) {
+        if (dir.endsWith("/")) {
+            dir = dir.substring(0, dir.length() - 1);
+        }
+        
+        if (!dir.startsWith("smb://")) {
+            dir = share.getURL().toString() + dir;
+        }
+        
         if (name != null) {
+            if (name.startsWith("/")) {
+                name = name.substring(1, name.length());
+            }
             return dir + "/" + name;
         } else {
             return dir + "/";
         }
     }
-
-    private SmbFile getSmbFile(SmbFile context, String name) throws Exception {
-        return new SmbFile(context, name);
+    
+    private SmbFile getSmbFile(SmbFile share, String name) throws Exception {
+        CIFSContext context = share.getContext();
+        SmbFile smbFile = new SmbFile(name, context);
+        smbFile.setConnectTimeout(timeout);
+        return smbFile;
     }
 
     @Override
