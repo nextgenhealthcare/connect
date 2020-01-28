@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.file.FileConnectorException;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
+import com.mirth.connect.connectors.file.SmbSchemeProperties;
 import com.mirth.connect.connectors.file.filters.SmbFilenameWildcardFilter;
 
 /**
@@ -131,10 +132,19 @@ public class SmbFileConnection implements FileSystemConnection {
         }
         
         Properties jcifsProperties = new Properties();
-        jcifsProperties.setProperty("jcifs.smb.client.minVersion", DialectVersion.SMB1.toString());
-        jcifsProperties.setProperty("jcifs.smb.client.minVersion", DialectVersion.SMB202.toString());
-//        jcifsProperties.setProperty("jcifs.smb.client.minVersion", DialectVersion.SMB311.toString());
-//        jcifsProperties.setProperty("jcifs.smb.client.maxVersion", DialectVersion.SMB311.toString());
+        
+        String version = ((SmbSchemeProperties) fileSystemOptions.getSchemeProperties()).getSmbVersion();
+        jcifsProperties.setProperty("jcifs.smb.client.minVersion", version);
+        jcifsProperties.setProperty("jcifs.smb.client.maxVersion", version);
+        if (version.equals(DialectVersion.SMB1.toString())) {
+        	// use ntlm v1
+            jcifsProperties.setProperty("jcifs.smb.client.useExtendedSecurity", "false");
+            jcifsProperties.setProperty("jcifs.smb.lmCompatibility", "2");
+        } else {
+        	// use ntlm v2
+            jcifsProperties.setProperty("jcifs.smb.client.useExtendedSecurity", "true");
+            jcifsProperties.setProperty("jcifs.smb.lmCompatibility", "3");
+        }
         
         CIFSContext baseContext = new BaseContext(new PropertyConfiguration(jcifsProperties)).withCredentials(auth);
         this.share = new SmbFile("smb://" + share, baseContext);
