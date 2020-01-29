@@ -278,9 +278,9 @@ available at http://www.soapui.org/.
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes the JCIFS SMB client library in Java version 1.3.17. This
+Mirth Connect includes the jcifs-ng SMB client library in Java version 2.1.3. This
 library and it's use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The
-library source code is available at http://jcifs.samba.org/.
+library source code is available at https://github.com/AgNO3/jcifs-ng/.
 
 
 --------------------------------------------------------------------------------

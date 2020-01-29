@@ -6,7 +6,7 @@ import java.util.Map;
 import jcifs.DialectVersion;
 
 public class SmbSchemeProperties extends SchemeProperties {
-	private static final String DEFAULT_SMB_VERSION = DialectVersion.SMB202.toString();
+	private static final String DEFAULT_SMB_VERSION = DialectVersion.SMB311.toString();
 	
 	private String smbVersion;
 	private static final SmbDialectVersion[] supportedVersions = new SmbDialectVersion[] {
