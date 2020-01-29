@@ -48,7 +48,7 @@ public abstract class AbstractConnectorPropertiesPanel extends JPanel {
      * @param highlight
      * @return
      */
-    public abstract boolean checkProperties(ConnectorPluginProperties properties, Mode mode, String transportName, boolean highlight);
+    public abstract boolean checkProperties(ConnectorProperties connectorProperties, ConnectorPluginProperties properties, Mode mode, String transportName, boolean highlight);
 
     /**
      * Resets the highlighting on fields that could be highlighted.
