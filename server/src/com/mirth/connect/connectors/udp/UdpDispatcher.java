@@ -13,6 +13,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -108,6 +109,7 @@ public class UdpDispatcher extends DestinationConnector {
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {}
 
+    int timeout=10000;
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage msg) throws InterruptedException {
        UdpDispatcherProperties udpDispPopsParam = (UdpDispatcherProperties) this.connectorProperties;
@@ -124,7 +126,13 @@ public class UdpDispatcher extends DestinationConnector {
               = new DatagramPacket(buf, buf.length, address, this.connectorProperties.getPort());
             socket.send(packet);
             packet = new DatagramPacket(buf, buf.length);
-            socket.receive(packet);
+            socket.setSoTimeout(this.timeout);
+            try {
+            	socket.receive(packet);	
+			} catch (SocketTimeoutException te) {
+				return new Response(Status.ERROR, null, ErrorMessageBuilder.buildErrorResponse("Error in message response", te), ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "no response within timeout period ", te));
+			}
+            
             String received = new String(
               packet.getData(), 0, packet.getLength());           
             

@@ -48,7 +48,12 @@ public class UdpWriter extends ConnectorSettingsPanel {
 	@Override
 	public ConnectorProperties getProperties() {
 		UdpDispatcherProperties properties = new UdpDispatcherProperties();
-
+		if(addressField!=null)
+		{
+			properties.setAddress(addressField.getText());
+			properties.setPort(Integer.parseInt(portField.getText().trim()));
+			properties.setMessageByteArray(isMessageByteArrayField.isSelected());
+		}
 		return properties;
 	}
 
@@ -110,18 +115,21 @@ public class UdpWriter extends ConnectorSettingsPanel {
 		String error = null;
 		if (portField.getText()==null || portField.getText().equals("0")) {
 			error += "Error in connector \"" + getName() + "\" a valid port number must be set.";
-		}else {
-			props.setPort(Integer.parseInt(portField.getText().trim()));
 		}
+//		else {
+//			props.setPort(Integer.parseInt(portField.getText().trim()));
+//		}
 		
 		if(addressField.getText()==null || addressField.getText().length()==0) {
 			error += "Error in connector \"" + getName() + "\" a valid address value,it must be set.";
-		}else {
-			props.setAddress(addressField.getText());
 		}
+		
+//		else {
+//			props.setAddress(addressField.getText());
+//		}
 
 		
-		props.setMessageByteArray(isMessageByteArrayField.isSelected());
+		//props.setMessageByteArray(isMessageByteArrayField.isSelected());
 		
 		return error;
 	}

@@ -28,6 +28,9 @@ public class UdpDispatcherProperties extends ConnectorProperties implements Dest
     private boolean isMessageByteArray;
     public UdpDispatcherProperties() {
         destinationConnectorProperties = new DestinationConnectorProperties(false);
+        port=0;
+        address="";
+        isMessageByteArray=false;
     }
 
     public UdpDispatcherProperties(UdpDispatcherProperties props) {
