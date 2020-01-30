@@ -463,7 +463,6 @@ public class WebServiceDispatcher extends DestinationConnector {
 
                 dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, currentUsername);
                 dispatch.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, currentPassword);
-                logger.debug("Using authentication: username=" + currentUsername + ", password length=" + currentPassword.length());
             }
 
             // See: http://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383528
