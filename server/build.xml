@@ -188,6 +188,8 @@
 		<jar destfile="${connectors.file}/file-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/file/SchemeProperties.class" />
 			<include name="com/mirth/connect/connectors/file/FTPSchemeProperties.class" />
+			<include name="com/mirth/connect/connectors/file/SmbDialectVersion.class" />
+			<include name="com/mirth/connect/connectors/file/SmbSchemeProperties.class" />
 			<include name="com/mirth/connect/connectors/file/SftpSchemeProperties.class" />
 			<include name="com/mirth/connect/connectors/file/S3SchemeProperties.class" />
 			<include name="com/mirth/connect/connectors/file/FileReceiverProperties.class" />

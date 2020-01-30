@@ -18,6 +18,8 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/Unit"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SchemeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FTPSchemeProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SmbDialectVersion"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SmbSchemeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SftpSchemeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/S3SchemeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileReceiverProperties"/>
@@ -186,5 +188,6 @@
 	<classpathentry kind="lib" path="lib/regions-2.9.14.jar"/>
 	<classpathentry kind="lib" path="lib/utils-2.9.14.jar"/>
 	<classpathentry kind="lib" path="lib/swagger-annotations-2.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/jcifs-ng-2.1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
