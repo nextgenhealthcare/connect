@@ -151,14 +151,28 @@ public class SmbFileConnection implements FileSystemConnection {
         this.share.setConnectTimeout(timeout);
         this.timeout = timeout;
     }
+    
+    protected SmbFile getShare() {
+        return share;
+    }
 
-    private String getPath(String dir, String name) {
+    protected String getPath(String dir, String name) {
+    	if (dir == null) {
+    		dir = "";
+    	}
+    	
         if (dir.endsWith("/")) {
             dir = dir.substring(0, dir.length() - 1);
         }
         
         if (!dir.startsWith("smb://")) {
-            dir = share.getURL().toString() + dir;
+        	if (dir.length() < 1) {
+        		dir = share.getURL().toString();
+        	} else if (dir.startsWith("/")) {
+        		dir = share.getURL().toString() + dir;
+        	} else {
+        		dir = share.getURL().toString() + "/" + dir;
+        	}
         }
         
         if (name != null) {
@@ -171,7 +185,7 @@ public class SmbFileConnection implements FileSystemConnection {
         }
     }
     
-    private SmbFile getSmbFile(SmbFile share, String name) throws Exception {
+    protected SmbFile getSmbFile(SmbFile share, String name) throws Exception {
         CIFSContext context = share.getContext();
         SmbFile smbFile = new SmbFile(name, context);
         smbFile.setConnectTimeout(timeout);
