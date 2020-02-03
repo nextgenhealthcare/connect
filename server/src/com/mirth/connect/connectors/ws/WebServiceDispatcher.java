@@ -511,6 +511,9 @@ public class WebServiceDispatcher extends DestinationConnector {
 
 			Dispatch<SOAPMessage> dispatch = dispatchContainer.getDispatch();
 			createDispatch(webServiceDispatcherProperties, dispatchContainer, timeout);
+			if(dispatch==null) {
+				dispatch = dispatchContainer.getDispatch();
+			}
 
 			configuration.configureDispatcher(this, webServiceDispatcherProperties, dispatch.getRequestContext());
 
