@@ -17,41 +17,32 @@ public class SmbFileConnectionTest {
     @Test
     public void testShareConfiguration() throws Exception {
         SmbSchemeProperties schemeProperties = new SmbSchemeProperties();
-        schemeProperties.setSmbVersion(DialectVersion.SMB1.toString());
+        schemeProperties.setSmbMinVersion(DialectVersion.SMB1.toString());
+        schemeProperties.setSmbMaxVersion(DialectVersion.SMB1.toString());
         FileSystemConnectionOptions fileSystemOptions = new FileSystemConnectionOptions(false, "localhost/testuser", "testpassword", schemeProperties);
         SmbFileConnection smbFileConnection = new SmbFileConnection("host1", fileSystemOptions, 1000);
         SmbFile smbFile = smbFileConnection.getShare();
         PropertyConfiguration config = (PropertyConfiguration) smbFile.getContext().getConfig();
-        assertEquals(2, config.getLanManCompatibility());
+        assertEquals(3, config.getLanManCompatibility());
         assertEquals(DialectVersion.SMB1, config.getMinimumVersion());
         assertEquals(DialectVersion.SMB1, config.getMaximumVersion());
         assertEquals("localhost", smbFile.getContext().getCredentials().getUserDomain());
         
         schemeProperties = new SmbSchemeProperties();
-        schemeProperties.setSmbVersion(DialectVersion.SMB202.toString());
+        schemeProperties.setSmbMinVersion(DialectVersion.SMB1.toString());
+        schemeProperties.setSmbMaxVersion(DialectVersion.SMB202.toString());
         fileSystemOptions = new FileSystemConnectionOptions(false, "testuser", "testpassword", schemeProperties);
         smbFileConnection = new SmbFileConnection("host1", fileSystemOptions, 1000);
         smbFile = smbFileConnection.getShare();
         config = (PropertyConfiguration) smbFile.getContext().getConfig();
         assertEquals(3, config.getLanManCompatibility());
-        assertEquals(DialectVersion.SMB202, config.getMinimumVersion());
+        assertEquals(DialectVersion.SMB1, config.getMinimumVersion());
         assertEquals(DialectVersion.SMB202, config.getMaximumVersion());
-        
-        schemeProperties = new SmbSchemeProperties();
-        schemeProperties.setSmbVersion(DialectVersion.SMB311.toString());
-        fileSystemOptions = new FileSystemConnectionOptions(false, "testuser", "testpassword", schemeProperties);
-        smbFileConnection = new SmbFileConnection("host1", fileSystemOptions, 1000);
-        smbFile = smbFileConnection.getShare();
-        config = (PropertyConfiguration) smbFile.getContext().getConfig();
-        assertEquals(3, config.getLanManCompatibility());
-        assertEquals(DialectVersion.SMB311, config.getMinimumVersion());
-        assertEquals(DialectVersion.SMB311, config.getMaximumVersion());
     }
     
     @Test
     public void testGetPath() throws Exception {
         SmbSchemeProperties schemeProperties = new SmbSchemeProperties();
-        schemeProperties.setSmbVersion(DialectVersion.SMB1.toString());
         FileSystemConnectionOptions fileSystemOptions = new FileSystemConnectionOptions(false, "testuser", "testpassword", schemeProperties);
         SmbFileConnection smbFileConnection = new SmbFileConnection("host1", fileSystemOptions, 1000);
         
@@ -79,7 +70,6 @@ public class SmbFileConnectionTest {
     @Test
     public void testGetSmbFile() throws Exception {
     	 SmbSchemeProperties schemeProperties = new SmbSchemeProperties();
-         schemeProperties.setSmbVersion(DialectVersion.SMB1.toString());
          FileSystemConnectionOptions fileSystemOptions = new FileSystemConnectionOptions(false, "localhost/testuser", "testpassword", schemeProperties);
          SmbFileConnection smbFileConnection = new SmbFileConnection("host1", fileSystemOptions, 1000);
          SmbFile share = smbFileConnection.getShare();
@@ -91,5 +81,4 @@ public class SmbFileConnectionTest {
     	 assertEquals("testuser", auth.getUsername());
     	 assertEquals("testpassword", auth.getPassword());
     }
-
 }

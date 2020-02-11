@@ -6,9 +6,11 @@ import java.util.Map;
 import jcifs.DialectVersion;
 
 public class SmbSchemeProperties extends SchemeProperties {
-	private static final String DEFAULT_SMB_VERSION = DialectVersion.SMB311.toString();
+	private static final String DEFAULT_SMB_MIN_VERSION = DialectVersion.SMB202.toString();
+	private static final String DEFAULT_SMB_MAX_VERSION = DialectVersion.SMB210.toString();
 	
-	private String smbVersion;
+	private String smbMinVersion;
+	private String smbMaxVersion;
 	private static final SmbDialectVersion[] supportedVersions = new SmbDialectVersion[] {
 			new SmbDialectVersion(DialectVersion.SMB1.toString(), "SMB v1"),
 			new SmbDialectVersion(DialectVersion.SMB202.toString(), "SMB v2.02"),
@@ -19,11 +21,13 @@ public class SmbSchemeProperties extends SchemeProperties {
 		};
 	
 	public SmbSchemeProperties() {
-		smbVersion = DEFAULT_SMB_VERSION;
+		smbMinVersion = DEFAULT_SMB_MIN_VERSION;
+		smbMaxVersion = DEFAULT_SMB_MAX_VERSION;
 	}
 	
 	public SmbSchemeProperties(SmbSchemeProperties props) {
-		smbVersion = props.getSmbVersion();
+		smbMinVersion = props.getSmbMinVersion();
+		smbMaxVersion = props.getSmbMaxVersion();
 	}
 	
 	public static SmbDialectVersion[] getSupportedVersions() {
@@ -48,18 +52,27 @@ public class SmbSchemeProperties extends SchemeProperties {
 		return null;
 	}
 	
-	public String getSmbVersion() {
-		return smbVersion;
+	public String getSmbMinVersion() {
+		return smbMinVersion;
 	}
 
-	public void setSmbVersion(String smbVersion) {
-		this.smbVersion = smbVersion;
+	public void setSmbMinVersion(String smbMinVersion) {
+		this.smbMinVersion = smbMinVersion;
+	}
+	
+	public String getSmbMaxVersion() {
+		return smbMaxVersion;
+	}
+
+	public void setSmbMaxVersion(String smbMaxVersion) {
+		this.smbMaxVersion = smbMaxVersion;
 	}
 
 	@Override
 	public Map<String, Object> getPurgedProperties() {
 		Map<String, Object> purgedProperties = new HashMap<String, Object>();
-        purgedProperties.put("smbVersion", smbVersion);
+		purgedProperties.put("smbMinVersion", smbMinVersion);
+		purgedProperties.put("smbMaxVersion", smbMaxVersion);
         return purgedProperties;
 	}
 
@@ -70,12 +83,12 @@ public class SmbSchemeProperties extends SchemeProperties {
 
 	@Override
 	public String getSummaryText() {
-		return "Using " + getReadableVersion(smbVersion);
+		return "Using " + getReadableVersion(smbMinVersion) + " - " + getReadableVersion(smbMaxVersion);
 	}
 
 	@Override
 	public String toFormattedString() {
-		return smbVersion;
+		return "SMB: " + getReadableVersion(smbMinVersion) + "-" + getReadableVersion(smbMaxVersion);
 	}
 
 	@Override

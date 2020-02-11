@@ -38,7 +38,8 @@ public class FileReceiverPropertiesTest {
 		props.migrate3_9_0(donkey);
 
 		assertNotNull(donkey.getChildElement("schemeProperties"));
-		assertEquals("SMB1", donkey.getChildElement("schemeProperties").getChildElement("smbVersion").getTextContent());
+		assertEquals("SMB1", donkey.getChildElement("schemeProperties").getChildElement("smbMinVersion").getTextContent());
+		assertEquals("SMB210", donkey.getChildElement("schemeProperties").getChildElement("smbMaxVersion").getTextContent());
 
 		// Test schemeProperties is not added
 		donkey = new DonkeyElement(propertiesBeforeMigrate3_9File);

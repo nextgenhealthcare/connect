@@ -131,20 +131,15 @@ public class SmbFileConnection implements FileSystemConnection {
             auth = new NtlmPasswordAuthenticator(domain, username, password);
         }
         
-        Properties jcifsProperties = new Properties();
+        String minVersion = ((SmbSchemeProperties) fileSystemOptions.getSchemeProperties()).getSmbMinVersion();
+        String maxVersion = ((SmbSchemeProperties) fileSystemOptions.getSchemeProperties()).getSmbMaxVersion();
         
-        String version = ((SmbSchemeProperties) fileSystemOptions.getSchemeProperties()).getSmbVersion();
-        jcifsProperties.setProperty("jcifs.smb.client.minVersion", version);
-        jcifsProperties.setProperty("jcifs.smb.client.maxVersion", version);
-        if (version.equals(DialectVersion.SMB1.toString())) {
-        	// use ntlm v1
-            jcifsProperties.setProperty("jcifs.smb.client.useExtendedSecurity", "false");
-            jcifsProperties.setProperty("jcifs.smb.lmCompatibility", "2");
-        } else {
-        	// use ntlm v2
-            jcifsProperties.setProperty("jcifs.smb.client.useExtendedSecurity", "true");
-            jcifsProperties.setProperty("jcifs.smb.lmCompatibility", "3");
-        }
+        Properties jcifsProperties = new Properties();
+        jcifsProperties.setProperty("jcifs.smb.client.minVersion", minVersion);
+        jcifsProperties.setProperty("jcifs.smb.client.maxVersion", maxVersion);
+        jcifsProperties.setProperty("jcifs.smb.client.useExtendedSecurity", "true");
+        jcifsProperties.setProperty("jcifs.smb.lmCompatibility", "3");
+        
         
         CIFSContext baseContext = new BaseContext(new PropertyConfiguration(jcifsProperties)).withCredentials(auth);
         this.share = new SmbFile("smb://" + share, baseContext);
