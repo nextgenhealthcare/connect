@@ -35,81 +35,102 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 
 public class SSLUtils {
-	
-	SSLContext atnaContext=null;
-	
-	public static KeyStore readKeyStoreFile(String filePath, String password) {		
-		KeyStore keyStore=null;
+
+	SSLContext atnaContext = null;
+
+	public static KeyStore readKeyStoreFile(String filePath, String password) {
+		KeyStore keyStore = null;
 		try {
 			FileInputStream is = new FileInputStream(new File(filePath));
 			keyStore = KeyStore.getInstance("JCEKS");
 			keyStore.load(is, password.toCharArray());
 			IOUtils.closeQuietly(is);
-		}catch (Exception e) {
-			e.printStackTrace();			
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return keyStore;
 	}
-	
-	public static void switchToProjectSSL_Context(HttpClientBuilder clientBuilder,int timeout) {
-		try {			
-		//Setting SSL_Socket_Factory to HttpClientBuilder
-		SSLConnectionSocketFactory sslConnectionFactory = new SSLConnectionSocketFactory(
-		  SSLUtils.getATNAContext(),
-            null,null,new NoopHostnameVerifier());		 
-		clientBuilder.setSSLSocketFactory(sslConnectionFactory);
-		//Creating registry for factory
-	    Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-        .register("https", sslConnectionFactory)
-        .build();
-	    //Setting new connection manager
-	    BasicHttpClientConnectionManager httpsClientConnectionManager=new BasicHttpClientConnectionManager(registry);
-	    
-	    httpsClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build());
-	    clientBuilder.setConnectionManager(httpsClientConnectionManager);
+
+//	//Hacky Way just for ref
+//	public static void switchToProjectSSL_Context() {
+//		PropertiesConfiguration mirthProperties;
+//		try {
+//			mirthProperties = new PropertiesConfiguration("mirth.properties");
+//			String atnakeystorePath = mirthProperties.getProperty("atna.keystore.path").toString();
+//			String atnakeystorePass = mirthProperties.getProperty("atna.keystore.storepass").toString();
+//			KeyStore keyStore = SSLUtils.readKeyStoreFile(atnakeystorePath, atnakeystorePass);
+//			System.setProperty("javax.net.ssl.keyStore", atnakeystorePath);
+//			System.setProperty("javax.net.ssl.keyStorePassword", atnakeystorePass);
+//			System.setProperty("javax.net.ssl.trustStore", atnakeystorePath);
+//			System.setProperty("javax.net.ssl.trustStorePassword", atnakeystorePass);
+//		} catch (ConfigurationException e) {
+//			e.printStackTrace();
+//		}
+//	}
+
+	public static void switchToProjectSSL_Context(HttpClientBuilder clientBuilder, int timeout) {
+		try {
+			// Setting SSL_Socket_Factory to HttpClientBuilder
+			SSLConnectionSocketFactory sslConnectionFactory = new SSLConnectionSocketFactory(SSLUtils.getATNAContext(),
+					null, null, new NoopHostnameVerifier());
+			clientBuilder.setSSLSocketFactory(sslConnectionFactory);
+			// Creating registry for factory
+			Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+					.register("https", sslConnectionFactory).build();
+			// Setting new connection manager
+			BasicHttpClientConnectionManager httpsClientConnectionManager = new BasicHttpClientConnectionManager(
+					registry);
+
+			httpsClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build());
+			clientBuilder.setConnectionManager(httpsClientConnectionManager);
 		} catch (Exception e) {
 			System.err.println("Error occured while switching to project SSLs. For details check below trace..");
 			e.printStackTrace();
 		}
 	}
-	
-	public static SSLContext getATNAContext() throws KeyManagementException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, ConfigurationException {
-    	PropertiesConfiguration mirthProperties=new PropertiesConfiguration("mirth.properties");
-    	String atnakeystorePath=mirthProperties.getProperty("atna.keystore.path").toString();
-    	String atnakeystorePass=mirthProperties.getProperty("atna.keystore.storepass").toString();
-    	KeyStore keyStore=SSLUtils.readKeyStoreFile(atnakeystorePath, atnakeystorePass);
-        return provideSSLContext(keyStore, atnakeystorePass.toCharArray());
+
+	public static SSLContext getATNAContext() throws KeyManagementException, UnrecoverableKeyException,
+			NoSuchAlgorithmException, KeyStoreException, ConfigurationException {
+		PropertiesConfiguration mirthProperties = new PropertiesConfiguration("mirth.properties");
+		String atnakeystorePath = mirthProperties.getProperty("atna.keystore.path").toString();
+		String atnakeystorePass = mirthProperties.getProperty("atna.keystore.storepass").toString();
+		KeyStore keyStore = SSLUtils.readKeyStoreFile(atnakeystorePath, atnakeystorePass);
+		return provideSSLContext(keyStore, atnakeystorePass.toCharArray());
 	}
-	
-    @Provides @Singleton
-    static SSLContext provideSSLContext(KeyStore keystore, char[] password) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
-      String defaultAlgorithm = KeyManagerFactory.getDefaultAlgorithm();
-      X509KeyManager customKeyManager = getKeyManager("SunX509", keystore, password);
-      X509KeyManager jvmKeyManager = getKeyManager(defaultAlgorithm, null, null);
-      X509TrustManager customTrustManager = getTrustManager("SunX509", keystore);
-      X509TrustManager jvmTrustManager = getTrustManager(defaultAlgorithm, null);
 
-      KeyManager[] keyManagers = { new CompositeX509KeyManager(ImmutableList.of(jvmKeyManager, customKeyManager)) };
-      TrustManager[] trustManagers = { new CompositeX509TrustManager(ImmutableList.of(jvmTrustManager, customTrustManager)) };
+	@Provides
+	@Singleton
+	static SSLContext provideSSLContext(KeyStore keystore, char[] password)
+			throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
+		String defaultAlgorithm = KeyManagerFactory.getDefaultAlgorithm();
+		X509KeyManager customKeyManager = getKeyManager("SunX509", keystore, password);
+		X509KeyManager jvmKeyManager = getKeyManager(defaultAlgorithm, null, null);
+		X509TrustManager customTrustManager = getTrustManager("SunX509", keystore);
+		X509TrustManager jvmTrustManager = getTrustManager(defaultAlgorithm, null);
 
-      SSLContext sslContext = SSLContext.getInstance("SSL");
-      sslContext.init(keyManagers, trustManagers, null);
-      return sslContext;
-    }
+		KeyManager[] keyManagers = { new CompositeX509KeyManager(ImmutableList.of(jvmKeyManager, customKeyManager)) };
+		TrustManager[] trustManagers = {
+				new CompositeX509TrustManager(ImmutableList.of(jvmTrustManager, customTrustManager)) };
 
-    private static X509KeyManager getKeyManager(String algorithm, KeyStore keystore, char[] password) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException {
-      KeyManagerFactory factory = KeyManagerFactory.getInstance(algorithm);
-      factory.init(keystore, password);
-      return Iterables.getFirst(Iterables.filter(
-          Arrays.asList(factory.getKeyManagers()), X509KeyManager.class), null);
-    }
+		SSLContext sslContext = SSLContext.getInstance("SSL");
+		sslContext.init(keyManagers, trustManagers, null);
+		return sslContext;
+	}
 
-    private static X509TrustManager getTrustManager(String algorithm, KeyStore keystore) throws NoSuchAlgorithmException, KeyStoreException {
-      TrustManagerFactory factory = TrustManagerFactory.getInstance(algorithm);
-      factory.init(keystore);
-      return Iterables.getFirst(Iterables.filter(
-          Arrays.asList(factory.getTrustManagers()), X509TrustManager.class), null); 
-    }
-    
-	
+	private static X509KeyManager getKeyManager(String algorithm, KeyStore keystore, char[] password)
+			throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException {
+		KeyManagerFactory factory = KeyManagerFactory.getInstance(algorithm);
+		factory.init(keystore, password);
+		return Iterables.getFirst(Iterables.filter(Arrays.asList(factory.getKeyManagers()), X509KeyManager.class),
+				null);
+	}
+
+	private static X509TrustManager getTrustManager(String algorithm, KeyStore keystore)
+			throws NoSuchAlgorithmException, KeyStoreException {
+		TrustManagerFactory factory = TrustManagerFactory.getInstance(algorithm);
+		factory.init(keystore);
+		return Iterables.getFirst(Iterables.filter(Arrays.asList(factory.getTrustManagers()), X509TrustManager.class),
+				null);
+	}
+
 }

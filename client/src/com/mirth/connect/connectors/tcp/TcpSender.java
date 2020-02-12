@@ -15,7 +15,9 @@ import java.awt.event.ActionListener;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
 
 import org.apache.log4j.Logger;
 
@@ -25,6 +27,7 @@ import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
@@ -98,6 +101,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         properties.setDataTypeBinary(dataTypeBinaryRadio.isSelected());
         properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.setTemplate(templateTextArea.getText());
+        properties.setTLSEnabled(isTLSEnabledField.isSelected());
 
         logger.debug("getProperties: properties=" + properties);
 
@@ -176,6 +180,8 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharsetEncoding());
 
         templateTextArea.setText(props.getTemplate());
+        
+        isTLSEnabledField.setSelected(props.isTLSEnabled());    
     }
 
     @Override
@@ -546,6 +552,21 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         checkRemoteHostNoRadio.setToolTipText("<html>Select Yes to check if the remote host has closed the connection before each message.<br>Select No to assume the remote host has not closed the connection.<br>Checking the remote host will decrease throughput but will prevent the message from<br>erroring if the remote side closed the connection and queueing is disabled.</html>");
         checkRemoteHostNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        lblTlssslEnabled = new JLabel("TLS/SSL Enabled:");
+        lblTlssslEnabled.setHorizontalAlignment(SwingConstants.RIGHT);
+        
+        isTLSEnabledField = new MirthCheckBox("");
+        isTLSEnabledField.setText(""); 
+        isTLSEnabledField.setHorizontalAlignment(SwingConstants.LEFT);
+        isTLSEnabledField.setVerticalAlignment(SwingConstants.TOP);
+       
+        isTLSEnabledField.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((TcpDispatcherProperties)getProperties()).setTLSEnabled(isTLSEnabledField.isSelected());				
+			}
+		});
+        
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -563,12 +584,14 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                     .addComponent(keepConnectionOpenLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(sendTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel17, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblTlssslEnabled,javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel18, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(checkRemoteHostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(transmissionModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(sampleLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(localAddressLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(localPortLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(localPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)                    
+                    )
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(sampleValue)
@@ -584,6 +607,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(testConnection))
                             .addComponent(remotePortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(isTLSEnabledField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE) 
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -613,7 +637,8 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(checkRemoteHostYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(checkRemoteHostNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(checkRemoteHostNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))                                                                        
+                        		)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -637,6 +662,9 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel17)
                     .addComponent(remotePortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblTlssslEnabled)
+                        .addComponent(isTLSEnabledField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))                
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(keepConnectionOpenLabel1)
@@ -692,7 +720,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel7)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
+                    .addComponent(templateTextArea, javax.swing.GroupLayout.PREFERRED_SIZE, 95, Short.MAX_VALUE))            	
                 .addContainerGap())
         );
 
@@ -855,5 +883,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     private javax.swing.JButton testConnection;
     private com.mirth.connect.client.ui.components.MirthComboBox transmissionModeComboBox;
     private javax.swing.JLabel transmissionModeLabel;
+    private MirthCheckBox isTLSEnabledField;
+    private JLabel lblTlssslEnabled;
     // End of variables declaration//GEN-END:variables
 }

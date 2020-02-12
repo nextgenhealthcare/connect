@@ -317,7 +317,9 @@ public class WebServiceDispatcher extends DestinationConnector {
 		String scheme=uri.getScheme();
 		
 		// If the URL points to file, just return it
-		if (!scheme.equalsIgnoreCase("file")) {
+		if (!scheme.equalsIgnoreCase("file") || webServiceDispatcherProperties.getLocationURI().toLowerCase().startsWith("https")) {
+			
+
 			BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(
 					socketFactoryRegistry.build());
 											
@@ -336,7 +338,11 @@ public class WebServiceDispatcher extends DestinationConnector {
 			HttpUtil.configureClientBuilder(clientBuilder);
 			CloseableHttpClient client = clientBuilder.build();
 			
-			
+			if(scheme.equalsIgnoreCase("file") && webServiceDispatcherProperties.getLocationURI().toLowerCase().startsWith("https"))
+			{
+				SSLUtils.switchToProjectSSL_Context(clientBuilder, timeout);
+				return uri.toURL();
+			}
 
 			try {
 				clients.add(client);
@@ -515,7 +521,8 @@ public class WebServiceDispatcher extends DestinationConnector {
 				dispatch = dispatchContainer.getDispatch();
 			}
 
-			configuration.configureDispatcher(this, webServiceDispatcherProperties, dispatch.getRequestContext());
+			//This is setting to default Mirth SSL context.
+			//configuration.configureDispatcher(this, webServiceDispatcherProperties, dispatch.getRequestContext());
 
 			SOAPBinding soapBinding = (SOAPBinding) dispatch.getBinding();
 

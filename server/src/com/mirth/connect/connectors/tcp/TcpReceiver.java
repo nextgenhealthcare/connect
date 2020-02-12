@@ -117,7 +117,11 @@ public class TcpReceiver extends SourceConnector {
             configuration = (TcpConfiguration) Class.forName(configurationClass).newInstance();
         } catch (Throwable t) {
             logger.trace("could not find custom configuration class, using default");
-            configuration = new DefaultTcpConfiguration();
+			if (connectorProperties.isTLSEnabled()) {
+				configuration = new DefaultTcpConfigurationSecure();
+			} else {
+				configuration = new DefaultTcpConfiguration();
+			}
         }
 
         try {
