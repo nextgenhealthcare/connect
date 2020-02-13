@@ -289,6 +289,18 @@ library source code is available at https://github.com/AgNO3/jcifs-ng/.
 --------------------------------------------------------------------------------
 
 
+Mirth Connect includes modified versions of files from jcifs-ng. This
+library and it's use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). 
+The following files have changed:
+
+	jcifs/internal/smb2/nego/Smb2NegotiateResponse.java
+	
+	Changes: Modified to prevent OutOfMemoryError when SMB max version is 3.1.1.
+	
+	
+--------------------------------------------------------------------------------
+
+
 Mirth Connect includes the Pdf-renderer library ([Mirth Connect Install
 Folder]/extensions/pdfviewer/lib/PDFRenderer.jar). This library and it's use are
 covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source code is

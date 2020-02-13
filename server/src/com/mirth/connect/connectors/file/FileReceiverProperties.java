@@ -413,7 +413,8 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
             DonkeyElement schemeProperties = element.addChildElementIfNotExists("schemeProperties");
             if (schemeProperties != null) {
                 schemeProperties.setAttribute("class", "com.mirth.connect.connectors.file.SmbSchemeProperties");
-                schemeProperties.addChildElementIfNotExists("smbVersion", "SMB1");
+                schemeProperties.addChildElementIfNotExists("smbMinVersion", "SMB1");
+                schemeProperties.addChildElementIfNotExists("smbMaxVersion", "SMB311");
             }
         }
     }

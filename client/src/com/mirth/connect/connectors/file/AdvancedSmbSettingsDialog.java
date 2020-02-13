@@ -10,6 +10,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.WindowConstants;
@@ -29,7 +30,7 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 	public AdvancedSmbSettingsDialog(SmbSchemeProperties schemeProperties) {
 		setTitle("Method Settings");
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		setSize(new Dimension(200, 140));
+		setSize(new Dimension(250, 170));
 		DisplayUtil.setResizable(this, false);
 		setLayout(new MigLayout("insets 8 8 0 8, novisualpadding, hidemode 3"));
 		getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);
@@ -38,7 +39,7 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 
 		initComponents();
 		initLayout();
-		updateSmbVersionComboBox();
+		initSmbVersionComboBoxes();
 
 		setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
 		setVisible(true);
@@ -52,31 +53,53 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 	@Override
 	public SchemeProperties getSchemeProperties() {
 		SmbSchemeProperties props = new SmbSchemeProperties();
-		props.setSmbVersion(((SmbDialectVersion) smbVersionComboBox.getSelectedItem()).getVersion());
+		props.setSmbMinVersion(((SmbDialectVersion) smbMinVersionComboBox.getSelectedItem()).getVersion());
+		props.setSmbMaxVersion(((SmbDialectVersion) smbMaxVersionComboBox.getSelectedItem()).getVersion());
 		return props;
 	}
 
-	public void updateSmbVersionComboBox() {
-		smbVersionComboBox.setCanEnableSave(false);
-		smbVersionComboBox.setSelectedItem(SmbSchemeProperties.getSmbDialectVersion(schemeProperties.getSmbVersion()));
-		smbVersionComboBox.setCanEnableSave(true);
+	public void initSmbVersionComboBoxes() {
+		smbMinVersionComboBox.setCanEnableSave(false);
+		smbMinVersionComboBox.setSelectedItem(SmbSchemeProperties.getSmbDialectVersion(schemeProperties.getSmbMinVersion()));
+		smbMinVersionComboBox.setCanEnableSave(true);
+		
+		smbMaxVersionComboBox.setCanEnableSave(false);
+		smbMaxVersionComboBox.setSelectedItem(SmbSchemeProperties.getSmbDialectVersion(schemeProperties.getSmbMaxVersion()));
+		smbMaxVersionComboBox.setCanEnableSave(true);
 	}
 
 	public boolean validateProperties() {
-		return true;
+		boolean valid = true;
+		SmbDialectVersion minVersion = (SmbDialectVersion) smbMinVersionComboBox.getSelectedItem();
+		SmbDialectVersion maxVersion = (SmbDialectVersion) smbMaxVersionComboBox.getSelectedItem();
+		
+		if (minVersion.getVersion().compareTo(maxVersion.getVersion()) > 0) {
+			smbMinVersionComboBox.setBackground(UIConstants.INVALID_COLOR);
+			smbMaxVersionComboBox.setBackground(UIConstants.INVALID_COLOR);
+			valid = false;
+		} else {
+			smbMinVersionComboBox.setBackground(null);
+			smbMaxVersionComboBox.setBackground(null);
+		}
+		return valid;
 	}
 
 	private void initComponents() {
-		smbVersionLabel = new JLabel("SMB Version:");
-		smbVersionComboBox = new MirthComboBox<>();
-		smbVersionComboBox.setModel(new DefaultComboBoxModel<SmbDialectVersion>(SmbSchemeProperties.getSupportedVersions()));
-		smbVersionComboBox.setToolTipText("Select the SMB version to connect with.");
+		smbMinVersionLabel = new JLabel("SMB Minimum Version:");
+		smbMinVersionComboBox = new MirthComboBox<>();
+		smbMinVersionComboBox.setModel(new DefaultComboBoxModel<SmbDialectVersion>(SmbSchemeProperties.getSupportedVersions()));
+		smbMinVersionComboBox.setToolTipText("Select the minimum SMB version to connect with.");
+		
+		smbMaxVersionLabel = new JLabel("SMB Maximum Version:");
+		smbMaxVersionComboBox = new MirthComboBox<>();
+		smbMaxVersionComboBox.setModel(new DefaultComboBoxModel<SmbDialectVersion>(SmbSchemeProperties.getSupportedVersions()));
+		smbMaxVersionComboBox.setToolTipText("Select the maximum SMB version to connect with.");
 		
 		okButton = new JButton("OK");
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				okCancelButtonActionPerformed();
+				okButtonActionPerformed();
 			}
 		});
 
@@ -97,8 +120,11 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 				BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "SMB Settings",
 				TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-		propertiesPanel.add(smbVersionLabel);
-		propertiesPanel.add(smbVersionComboBox);
+		propertiesPanel.add(smbMinVersionLabel);
+		propertiesPanel.add(smbMinVersionComboBox);
+		
+		propertiesPanel.add(smbMaxVersionLabel, "newline");
+		propertiesPanel.add(smbMaxVersionComboBox);
 
 		add(propertiesPanel, "grow, push, top, wrap");
 
@@ -111,18 +137,26 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 		add(buttonPanel, "south, span");
 	}
 
-	private void okCancelButtonActionPerformed() {
+	private void okButtonActionPerformed() {
 		if (!validateProperties()) {
 			return;
 		}
+		
+		if (((SmbDialectVersion) smbMinVersionComboBox.getSelectedItem()).getVersion().equals("SMB1") || ((SmbDialectVersion) smbMaxVersionComboBox.getSelectedItem()).getVersion().equals("SMB1")) {
+            if (JOptionPane.showConfirmDialog(this, "It is a security risk to use an SMB v1. Do you wish to proceed?", "SMB Version Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == 1) {
+                return;
+            }
+        }
 
 		saved = true;
 		PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
 		dispose();
 	}
 
-	private JLabel smbVersionLabel;
-	private MirthComboBox<SmbDialectVersion> smbVersionComboBox;
+	private JLabel smbMinVersionLabel;
+	private MirthComboBox<SmbDialectVersion> smbMinVersionComboBox;
+	private JLabel smbMaxVersionLabel;
+	private MirthComboBox<SmbDialectVersion> smbMaxVersionComboBox;
 
 	private JButton okButton;
 	private JButton cancelButton;
