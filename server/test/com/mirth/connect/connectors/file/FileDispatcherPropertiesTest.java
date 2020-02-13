@@ -90,7 +90,7 @@ public class FileDispatcherPropertiesTest {
     	
     	assertNotNull(donkey.getChildElement("schemeProperties"));
     	assertEquals("SMB1", donkey.getChildElement("schemeProperties").getChildElement("smbMinVersion").getTextContent());
-    	assertEquals("SMB210", donkey.getChildElement("schemeProperties").getChildElement("smbMaxVersion").getTextContent());
+    	assertEquals("SMB311", donkey.getChildElement("schemeProperties").getChildElement("smbMaxVersion").getTextContent());
     	
     	// Test schemeProperties is not added
     	donkey = new DonkeyElement(propertiesBeforeMigrate3_9File);

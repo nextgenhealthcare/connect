@@ -385,7 +385,7 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
             if (schemeProperties != null) {
                 schemeProperties.setAttribute("class", "com.mirth.connect.connectors.file.SmbSchemeProperties");
                 schemeProperties.addChildElementIfNotExists("smbMinVersion", "SMB1");
-                schemeProperties.addChildElementIfNotExists("smbMaxVersion", "SMB210");
+                schemeProperties.addChildElementIfNotExists("smbMaxVersion", "SMB311");
             }
         }
     }

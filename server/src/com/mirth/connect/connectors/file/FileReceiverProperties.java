@@ -414,7 +414,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
             if (schemeProperties != null) {
                 schemeProperties.setAttribute("class", "com.mirth.connect.connectors.file.SmbSchemeProperties");
                 schemeProperties.addChildElementIfNotExists("smbMinVersion", "SMB1");
-                schemeProperties.addChildElementIfNotExists("smbMaxVersion", "SMB210");
+                schemeProperties.addChildElementIfNotExists("smbMaxVersion", "SMB311");
             }
         }
     }

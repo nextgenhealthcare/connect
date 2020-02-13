@@ -34,17 +34,17 @@ public class FileReceiverPropertiesTest {
 		// Test schemeProperties is added for SMB
 		DonkeyElement donkey = new DonkeyElement(propertiesBeforeMigrate3_9Smb);
 		assertNull(donkey.getChildElement("schemeProperties"));
-		FileDispatcherProperties props = new FileDispatcherProperties();
+		FileReceiverProperties props = new FileReceiverProperties();
 		props.migrate3_9_0(donkey);
 
 		assertNotNull(donkey.getChildElement("schemeProperties"));
 		assertEquals("SMB1", donkey.getChildElement("schemeProperties").getChildElement("smbMinVersion").getTextContent());
-		assertEquals("SMB210", donkey.getChildElement("schemeProperties").getChildElement("smbMaxVersion").getTextContent());
+		assertEquals("SMB311", donkey.getChildElement("schemeProperties").getChildElement("smbMaxVersion").getTextContent());
 
 		// Test schemeProperties is not added
 		donkey = new DonkeyElement(propertiesBeforeMigrate3_9File);
 		assertNull(donkey.getChildElement("schemeProperties"));
-		props = new FileDispatcherProperties();
+		props = new FileReceiverProperties();
 		props.migrate3_9_0(donkey);
 
 		assertNull(donkey.getChildElement("schemeProperties"));
@@ -52,7 +52,7 @@ public class FileReceiverPropertiesTest {
 		// Test schemeProperties is not overridden
 		donkey = new DonkeyElement(propertiesBeforeMigrate3_9Ftp);
 		assertNotNull(donkey.getChildElement("schemeProperties"));
-		props = new FileDispatcherProperties();
+		props = new FileReceiverProperties();
 		props.migrate3_9_0(donkey);
 
 		DonkeyElement schemeProperties = donkey.getChildElement("schemeProperties");

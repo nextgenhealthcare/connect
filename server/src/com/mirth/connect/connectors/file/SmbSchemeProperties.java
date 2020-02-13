@@ -7,7 +7,7 @@ import jcifs.DialectVersion;
 
 public class SmbSchemeProperties extends SchemeProperties {
 	private static final String DEFAULT_SMB_MIN_VERSION = DialectVersion.SMB202.toString();
-	private static final String DEFAULT_SMB_MAX_VERSION = DialectVersion.SMB210.toString();
+	private static final String DEFAULT_SMB_MAX_VERSION = DialectVersion.SMB311.toString();
 	
 	private String smbMinVersion;
 	private String smbMaxVersion;
