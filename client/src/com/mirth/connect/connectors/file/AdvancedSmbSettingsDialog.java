@@ -10,6 +10,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.WindowConstants;
@@ -38,7 +39,7 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 
 		initComponents();
 		initLayout();
-		updateSmbVersionComboBoxes();
+		initSmbVersionComboBoxes();
 
 		setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
 		setVisible(true);
@@ -57,7 +58,7 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 		return props;
 	}
 
-	public void updateSmbVersionComboBoxes() {
+	public void initSmbVersionComboBoxes() {
 		smbMinVersionComboBox.setCanEnableSave(false);
 		smbMinVersionComboBox.setSelectedItem(SmbSchemeProperties.getSmbDialectVersion(schemeProperties.getSmbMinVersion()));
 		smbMinVersionComboBox.setCanEnableSave(true);
@@ -98,7 +99,7 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				okCancelButtonActionPerformed();
+				okButtonActionPerformed();
 			}
 		});
 
@@ -136,10 +137,16 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 		add(buttonPanel, "south, span");
 	}
 
-	private void okCancelButtonActionPerformed() {
+	private void okButtonActionPerformed() {
 		if (!validateProperties()) {
 			return;
 		}
+		
+		if (((SmbDialectVersion) smbMinVersionComboBox.getSelectedItem()).getVersion().equals("SMB1") || ((SmbDialectVersion) smbMaxVersionComboBox.getSelectedItem()).getVersion().equals("SMB1")) {
+            if (JOptionPane.showConfirmDialog(this, "It is a security risk to use an SMB v1. Do you wish to proceed?", "SMB Version Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == 1) {
+                return;
+            }
+        }
 
 		saved = true;
 		PlatformUI.MIRTH_FRAME.setSaveEnabled(true);

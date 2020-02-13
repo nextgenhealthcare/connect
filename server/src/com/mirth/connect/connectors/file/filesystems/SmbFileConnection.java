@@ -20,7 +20,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import jcifs.CIFSContext;
-import jcifs.DialectVersion;
 import jcifs.config.PropertyConfiguration;
 import jcifs.context.BaseContext;
 import jcifs.smb.NtlmPasswordAuthenticator;
