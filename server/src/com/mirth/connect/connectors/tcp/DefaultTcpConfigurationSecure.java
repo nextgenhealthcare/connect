@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -32,7 +33,7 @@ public class DefaultTcpConfigurationSecure implements TcpConfiguration {
 		try {
 			SSLContext ctx = SSLUtils.getATNAContext();
 			ssf = (SSLServerSocketFactory) ctx.getServerSocketFactory();
-			scf = (SSLSocketFactory) ctx.getSocketFactory();
+			scf = (SSLSocketFactory) ctx.getSocketFactory();			
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
@@ -45,12 +46,16 @@ public class DefaultTcpConfigurationSecure implements TcpConfiguration {
 
 	@Override
 	public ServerSocket createServerSocket(int port, int backlog) throws IOException {
-		return ssf.createServerSocket(port, backlog);
+		SSLServerSocket sslServerSocket=(SSLServerSocket)ssf.createServerSocket(port, backlog);
+		sslServerSocket.setNeedClientAuth(true);
+		return sslServerSocket;
 	}
 
 	@Override
 	public ServerSocket createServerSocket(int port, int backlog, InetAddress bindAddr) throws IOException {
-		return ssf.createServerSocket(port, backlog, bindAddr);
+		SSLServerSocket sslServerSocket=(SSLServerSocket)ssf.createServerSocket(port, backlog, bindAddr);
+		sslServerSocket.setNeedClientAuth(true);
+		return sslServerSocket;
 	}
 
 	@Override
@@ -59,7 +64,7 @@ public class DefaultTcpConfigurationSecure implements TcpConfiguration {
 	}
 
 	@Override
-	public Socket createResponseSocket() throws IOException {
+	public Socket createResponseSocket() throws IOException {	
 		return scf.createSocket();
 	}
 
