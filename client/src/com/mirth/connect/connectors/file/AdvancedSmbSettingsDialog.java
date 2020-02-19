@@ -28,7 +28,7 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 	private SmbSchemeProperties schemeProperties;
 
 	public AdvancedSmbSettingsDialog(SmbSchemeProperties schemeProperties) {
-		setTitle("Method Settings");
+		setTitle("SMB Settings");
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setSize(new Dimension(250, 170));
 		DisplayUtil.setResizable(this, false);
