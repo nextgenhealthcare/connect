@@ -15,7 +15,7 @@ public class WindowsSetSystemTime {
 
     public boolean SetLocalTime(double offsetInMilliSeconds) throws IOException {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("mm-dd-yy HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yy HH:mm:ss");
 
         long currentTime = System.currentTimeMillis();
         System.out.println("Current Time = " + sdf.format(new Date(currentTime)).toString());
