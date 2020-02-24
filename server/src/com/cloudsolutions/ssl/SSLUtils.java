@@ -12,6 +12,7 @@ import java.util.Arrays;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509KeyManager;
@@ -112,7 +113,10 @@ public class SSLUtils {
 		TrustManager[] trustManagers = {
 				new CompositeX509TrustManager(ImmutableList.of(jvmTrustManager, customTrustManager)) };
 
-		SSLContext sslContext = SSLContext.getInstance("SSL");
+		SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+		SSLParameters params= SSLContext.getDefault().getSupportedSSLParameters();
+		params.setProtocols(new String[] {"SSLv2Hello", "SSLv3", "TLSv1.1", "TLSv1.2"}); //disables TLSv1
+		
 		sslContext.init(keyManagers, trustManagers, null);
 		return sslContext;
 	}
