@@ -13,7 +13,7 @@ public class SmbSchemeProperties extends SchemeProperties {
 	private String smbMaxVersion;
 	private static final SmbDialectVersion[] supportedVersions = new SmbDialectVersion[] {
 			new SmbDialectVersion(DialectVersion.SMB1.toString(), "SMB v1"),
-			new SmbDialectVersion(DialectVersion.SMB202.toString(), "SMB v2.02"),
+			new SmbDialectVersion(DialectVersion.SMB202.toString(), "SMB v2.0.2"),
 			new SmbDialectVersion(DialectVersion.SMB210.toString(), "SMB v2.1"),
 			new SmbDialectVersion(DialectVersion.SMB300.toString(), "SMB v3.0"),
 			new SmbDialectVersion(DialectVersion.SMB302.toString(), "SMB v3.0.2"),
