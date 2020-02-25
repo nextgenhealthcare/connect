@@ -143,7 +143,7 @@ public class AdvancedSmbSettingsDialog extends AdvancedSettingsDialog {
 		}
 		
 		if (((SmbDialectVersion) smbMinVersionComboBox.getSelectedItem()).getVersion().equals("SMB1") || ((SmbDialectVersion) smbMaxVersionComboBox.getSelectedItem()).getVersion().equals("SMB1")) {
-            if (JOptionPane.showConfirmDialog(this, "It is a security risk to use an SMB v1. Do you wish to proceed?", "SMB Version Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == 1) {
+            if (JOptionPane.showConfirmDialog(this, "SMB v1 is outdated and may pose a security risk. Do you wish to proceed?", "Outdated SMB Version", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == 1) {
                 return;
             }
         }
