@@ -10,12 +10,20 @@
 package com.mirth.connect.connectors.dimse;
 
 import java.io.File;
+import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
+import org.dcm4che2.data.BasicDicomObject;
+import org.dcm4che2.data.DicomElement;
+import org.dcm4che2.data.DicomObject;
+import org.dcm4che2.data.Tag;
+import org.dcm4che2.net.Association;
 import org.dcm4che2.net.UserIdentity;
+import org.dcm4che2.tool.dcmsnd.CustomDimseRSPHandler;
 import org.dcm4che2.tool.dcmsnd.MirthDcmSnd;
+import org.dcm4che2.util.StringUtils;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -27,6 +35,7 @@ import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -223,7 +232,8 @@ public class DICOMDispatcher extends DestinationConnector {
             dcmSnd.start();
 
             dcmSnd.open();
-            dcmSnd.send();
+            CommandDataDimseRSPHandler rspHandler = new CommandDataDimseRSPHandler();
+            dcmSnd.send(rspHandler);
 
             if (dcmSnd.isStorageCommitment() && !dcmSnd.commit()) {
                 logger.error("Failed to send Storage Commitment request.");
@@ -231,8 +241,21 @@ public class DICOMDispatcher extends DestinationConnector {
 
             dcmSnd.close();
 
-            responseStatusMessage = "DICOM message successfully sent";
-            responseStatus = Status.SENT;
+            int status = rspHandler.getStatus();
+
+            if (status == 0) {
+                responseStatusMessage = "DICOM message successfully sent";
+                responseStatus = Status.SENT;
+            } else if (status == 0xB000 || status == 0xB006 || status == 0xB007) {
+                // These status codes are used in DcmSnd.onDimseRSP to flag warnings
+                responseStatusMessage = "DICOM message successfully sent with warning status code: 0x" + StringUtils.shortToHex(status);
+                responseStatus = Status.SENT;
+            } else {
+                // Any other status is considered unsuccessful
+                responseStatusMessage = "Error status code received from DICOM server: 0x" + StringUtils.shortToHex(status);
+                responseStatus = Status.QUEUED;
+            }
+            responseData = rspHandler.getCommandData();
         } catch (Exception e) {
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), e.getMessage(), null);
@@ -248,5 +271,46 @@ public class DICOMDispatcher extends DestinationConnector {
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
+    }
+
+    private class CommandDataDimseRSPHandler extends CustomDimseRSPHandler {
+
+        private DicomObject cmd;
+
+        @Override
+        public void onDimseRSP(Association as, DicomObject cmd, DicomObject data) {
+            this.cmd = cmd;
+        }
+
+        public int getStatus() {
+            if (cmd != null) {
+                return cmd.getInt(Tag.Status);
+            } else {
+                return 0;
+            }
+        }
+
+        public String getCommandData() {
+            if (cmd instanceof BasicDicomObject) {
+                try {
+                    DonkeyElement dicom = new DonkeyElement("<dicom/>");
+
+                    for (Iterator<DicomElement> it = ((BasicDicomObject) cmd).commandIterator(); it.hasNext();) {
+                        DicomElement element = it.next();
+                        String tag = StringUtils.shortToHex(element.tag() >> 16) + StringUtils.shortToHex(element.tag());
+
+                        DonkeyElement child = dicom.addChildElement("tag" + tag, element.getValueAsString(null, 0));
+                        child.setAttribute("len", String.valueOf(element.length()));
+                        child.setAttribute("tag", tag);
+                        child.setAttribute("vr", String.valueOf(element.vr()));
+                    }
+
+                    return dicom.toXml();
+                } catch (Throwable t) {
+                    logger.error("Unable to extract DICOM command data from response", t);
+                }
+            }
+            return null;
+        }
     }
 }

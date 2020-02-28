@@ -20,12 +20,12 @@ import org.dcm4che2.net.Device;
 import org.dcm4che2.net.DicomServiceException;
 import org.dcm4che2.net.NetworkConnection;
 import org.dcm4che2.net.PDVInputStream;
+import org.dcm4che2.net.Status;
 import org.dcm4che2.net.pdu.PresentationContext;
 import org.dcm4che2.net.pdu.UserIdentityRQ;
 
 import com.mirth.connect.connectors.dimse.DICOMConfiguration;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
@@ -159,9 +159,9 @@ public class MirthDcmRcv extends DcmRcv {
             } finally {
                 sourceConnector.finishDispatch(dispatchResult);
             }
-        } catch (ChannelException e) {
-        } catch (Exception e) {
-            logger.error(e);
+        } catch (Throwable t) {
+            logger.error("Error receiving DICOM message on channel " + sourceConnector.getChannelId(), t);
+            throw new DicomServiceException(rq, Status.ProcessingFailure, "Error processing DICOM message: " + t.getMessage());
         } finally {
             Thread.currentThread().setName(originalThreadName);
             // Let the dispose take care of closing the socket
