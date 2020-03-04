@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +63,7 @@ public class DefaultChannelController extends ChannelController {
     private Logger logger = Logger.getLogger(this.getClass());
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     private ChannelCache channelCache = new ChannelCache();
     private DeployedChannelCache deployedChannelCache = new DeployedChannelCache();
@@ -95,11 +97,19 @@ public class DefaultChannelController extends ChannelController {
         List<Channel> channels = new ArrayList<Channel>();
 
         if (channelIds == null) {
-            channels.addAll(channelMap.values());
+            channels.addAll(channelMap.values()
+                    .stream()
+                    .map(channel -> {
+                        addExportData(channel);
+                        return channel;
+                    })
+                    .collect(Collectors.toList()));
         } else {
             for (String channelId : channelIds) {
                 if (channelMap.containsKey(channelId)) {
-                    channels.add(channelMap.get(channelId));
+                    Channel channel = channelMap.get(channelId);
+                    addExportData(channel);
+                    channels.add(channel);
                 } else {
                     logger.error("Cannot find channel, it may have been removed: " + channelId);
                 }
@@ -111,12 +121,55 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public Channel getChannelById(String channelId) {
-        return channelCache.getCachedItemById(channelId);
+        Channel channel =  getChannelById(channelId, false);
+        addExportData(channel);
+        return channel;
+    }
+    
+    public Channel getChannelById(String channelId, boolean includeExportData) {
+        Channel channel = channelCache.getCachedItemById(channelId);
+        addExportData(channel);
+        return channel;
     }
 
     @Override
     public Channel getChannelByName(String channelName) {
-        return channelCache.getCachedItemByName(channelName);
+        Channel channel = channelCache.getCachedItemByName(channelName);
+        addExportData(channel);
+        return channel;
+    }
+    
+    protected void addExportData(Channel channel) {
+        if (channel != null) {
+            channel.getExportData().setMetadata(configurationController.getChannelMetadata().get(channel.getId()));
+            channel.getExportData().setChannelTags(configurationController.getChannelTags()
+                    .stream()
+                    .filter(tag -> tag.getChannelIds().contains(channel.getId()))
+                    .collect(Collectors.toList()));
+            
+            Set<ChannelDependency> channelDependencies = configurationController.getChannelDependencies();
+            channel.getExportData().setDependencyIds(channelDependencies
+                    .stream()
+                    .filter(dependency -> channel.getId().equals(dependency.getDependentId()))
+                    .map(dependency -> dependency.getDependencyId())
+                    .collect(Collectors.toSet()));
+            channel.getExportData().setDependentIds(channelDependencies
+                    .stream()
+                    .filter(dependency -> channel.getId().equals(dependency.getDependencyId()))
+                    .map(dependency -> dependency.getDependentId())
+                    .collect(Collectors.toSet()));
+            
+            try {
+                channel.getExportData().setCodeTemplateLibraries(
+                        codeTemplateController.getLibraries(null, false)
+                        .stream()
+                        .filter(library -> library.getEnabledChannelIds().contains(channel.getId()))
+                        .collect(Collectors.toList()));
+            } catch (ControllerException e) {
+                logger.warn("An error occurred when attempting to get code template libraries.", e);
+                channel.getExportData().setCodeTemplateLibraries(new ArrayList<>());
+            }
+        }
     }
 
     @Override
@@ -256,7 +309,6 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public synchronized void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException {
-        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
         Map<String, ChannelMetadata> metadataMap = configurationController.getChannelMetadata();
         Map<String, Channel> cachedChannelMap = channelCache.getAllItems();
         boolean changed = false;
@@ -441,8 +493,6 @@ public class DefaultChannelController extends ChannelController {
     }
 
     private void updateChannelMetadata(String channelId, ChannelMetadata metadata) {
-        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-
         Map<String, ChannelMetadata> metadataMap = configurationController.getChannelMetadata();
         if (!Objects.equals(metadataMap.get(channelId), metadata)) {
             // Only need to update if the metadata has changed
@@ -452,8 +502,6 @@ public class DefaultChannelController extends ChannelController {
     }
 
     private void updateChannelTags(String channelId, List<ChannelTag> channelTags) {
-        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-
         boolean updateTags = false;
         Set<ChannelTag> serverChannelTags = configurationController.getChannelTags();
         for (ChannelTag existingTag : serverChannelTags) {
@@ -540,7 +588,6 @@ public class DefaultChannelController extends ChannelController {
             }
 
             // Remove any dependencies that were tied to this channel
-            ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
             Set<ChannelDependency> dependencies = configurationController.getChannelDependencies();
             boolean dependenciesChanged = false;
             for (Iterator<ChannelDependency> it = dependencies.iterator(); it.hasNext();) {
