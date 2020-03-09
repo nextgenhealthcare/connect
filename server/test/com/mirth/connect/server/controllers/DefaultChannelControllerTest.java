@@ -102,7 +102,7 @@ public class DefaultChannelControllerTest {
         channel.setId(CHANNEL_ID_1);
 
         DefaultChannelController controller = new DefaultChannelController();
-        controller.addExportData(channel);
+        controller.addExportData(channel, true);
 
         ChannelExportData exportData = channel.getExportData();
         assertTrue(exportData.getMetadata().isEnabled());

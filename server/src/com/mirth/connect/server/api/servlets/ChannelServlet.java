@@ -67,7 +67,7 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
 
     @Override
     @DontCheckAuthorized
-    public List<Channel> getChannels(Set<String> channelIds, boolean pollingOnly) {
+    public List<Channel> getChannels(Set<String> channelIds, boolean pollingOnly, boolean includeCodeTemplateLibraries) {
         if (CollectionUtils.isNotEmpty(channelIds)) {
             parameterMap.put("channelIds", channelIds);
         }
@@ -77,9 +77,9 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
 
         List<Channel> channels;
         if (CollectionUtils.isEmpty(channelIds)) {
-            channels = redactChannels(channelController.getChannels(null));
+            channels = redactChannels(channelController.getChannels(null, includeCodeTemplateLibraries));
         } else {
-            channels = channelController.getChannels(redactChannelIds(channelIds));
+            channels = channelController.getChannels(redactChannelIds(channelIds), includeCodeTemplateLibraries);
         }
 
         if (pollingOnly) {
@@ -91,18 +91,18 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
 
     @Override
     @DontCheckAuthorized
-    public List<Channel> getChannelsPost(Set<String> channelIds, boolean pollingOnly) {
-        return getChannels(channelIds, pollingOnly);
+    public List<Channel> getChannelsPost(Set<String> channelIds, boolean pollingOnly, boolean includeCodeTemplateLibraries) {
+        return getChannels(channelIds, pollingOnly, includeCodeTemplateLibraries);
     }
 
     @Override
     @DontCheckAuthorized
-    public Channel getChannel(String channelId) {
+    public Channel getChannel(String channelId, boolean includeCodeTemplateLibraries) {
         parameterMap.put("channelId", channelId);
         if (!isUserAuthorized() || isChannelRedacted(channelId)) {
             return null;
         }
-        return channelController.getChannelById(channelId);
+        return channelController.getChannelById(channelId, includeCodeTemplateLibraries);
     }
 
     @Override

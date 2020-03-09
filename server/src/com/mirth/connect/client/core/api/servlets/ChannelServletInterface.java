@@ -57,19 +57,19 @@ public interface ChannelServletInterface extends BaseServletInterface {
     @Path("/")
     @ApiOperation("Retrieve a list of all channels, or multiple channels by ID.")
     @MirthOperation(name = "getChannels", display = "Get channels", permission = Permissions.CHANNELS_VIEW)
-    public List<Channel> getChannels(@Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") @QueryParam("channelId") Set<String> channelIds, @Param("pollingOnly") @ApiParam(value = "If true, only channels with polling source connectors will be returned.") @QueryParam("pollingOnly") boolean pollingOnly) throws ClientException;
+    public List<Channel> getChannels(@Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") @QueryParam("channelId") Set<String> channelIds, @Param("pollingOnly") @ApiParam(value = "If true, only channels with polling source connectors will be returned.") @QueryParam("pollingOnly") boolean pollingOnly, @Param("includeCodeTemplateLibraries") @ApiParam(value = "If true, code template libraries will be included in the channel.") @QueryParam("includeCodeTemplateLibraries") boolean includeCodeTemplateLibraries) throws ClientException;
 
     @POST
     @Path("/_getChannels")
     @ApiOperation("Retrieve a list of all channels, or multiple channels by ID. This is a POST request alternative to GET /channels that may be used when there are too many channel IDs to include in the query parameters.")
     @MirthOperation(name = "getChannels", display = "Get channels", permission = Permissions.CHANNELS_VIEW)
-    public List<Channel> getChannelsPost(@Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") Set<String> channelIds, @Param("pollingOnly") @ApiParam(value = "If true, only channels with polling source connectors will be returned.") @QueryParam("pollingOnly") boolean pollingOnly) throws ClientException;
+    public List<Channel> getChannelsPost(@Param("channelIds") @ApiParam(value = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") Set<String> channelIds, @Param("pollingOnly") @ApiParam(value = "If true, only channels with polling source connectors will be returned.") @QueryParam("pollingOnly") boolean pollingOnly, @Param("includeCodeTemplateLibraries") @ApiParam(value = "If true, code template libraries will be included in the channel.") @QueryParam("includeCodeTemplateLibraries") boolean includeCodeTemplateLibraries) throws ClientException;
 
     @GET
     @Path("/{channelId}")
     @ApiOperation("Retrieve a single channel by ID.")
     @MirthOperation(name = "getChannel", display = "Get channel", permission = Permissions.CHANNELS_VIEW)
-    public Channel getChannel(@Param("channelId") @ApiParam(value = "The ID of the channel to retrieve.", required = true) @PathParam("channelId") String channelId) throws ClientException;
+    public Channel getChannel(@Param("channelId") @ApiParam(value = "The ID of the channel to retrieve.", required = true) @PathParam("channelId") String channelId, @Param("includeCodeTemplateLibraries") @ApiParam(value = "If true, code template libraries will be included in the channel.") @QueryParam("includeCodeTemplateLibraries") boolean includeCodeTemplateLibraries) throws ClientException;
 
     @GET
     @Path("/{channelId}/connectorNames")

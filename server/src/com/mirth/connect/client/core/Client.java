@@ -924,7 +924,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelServletInterface#getAllChannels
      */
     public List<Channel> getAllChannels() throws ClientException {
-        return getServlet(ChannelServletInterface.class).getChannels(null, false);
+        return getServlet(ChannelServletInterface.class).getChannels(null, false, false);
     }
 
     /**
@@ -933,7 +933,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelServletInterface#getChannels
      */
     public List<Channel> getChannels(Set<String> channelIds) throws ClientException {
-        return getServlet(ChannelServletInterface.class).getChannels(channelIds, false);
+        return getServlet(ChannelServletInterface.class).getChannels(channelIds, false, false);
     }
 
     /**
@@ -942,11 +942,11 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelServletInterface#getChannels
      */
     @Override
-    public List<Channel> getChannels(Set<String> channelIds, boolean pollingOnly) throws ClientException {
+    public List<Channel> getChannels(Set<String> channelIds, boolean pollingOnly, boolean includeCodeTemplateLibraries) throws ClientException {
         if (CollectionUtils.size(channelIds) > MAX_QUERY_PARAM_COLLECTION_SIZE) {
-            return getChannelsPost(channelIds, pollingOnly);
+            return getChannelsPost(channelIds, pollingOnly, includeCodeTemplateLibraries);
         }
-        return getServlet(ChannelServletInterface.class).getChannels(channelIds, pollingOnly);
+        return getServlet(ChannelServletInterface.class).getChannels(channelIds, pollingOnly, includeCodeTemplateLibraries);
     }
 
     /**
@@ -956,8 +956,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelServletInterface#getChannels
      */
     @Override
-    public List<Channel> getChannelsPost(Set<String> channelIds, boolean pollingOnly) throws ClientException {
-        return getServlet(ChannelServletInterface.class).getChannelsPost(channelIds, pollingOnly);
+    public List<Channel> getChannelsPost(Set<String> channelIds, boolean pollingOnly, boolean includeCodeTemplateLibraries) throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannelsPost(channelIds, pollingOnly, includeCodeTemplateLibraries);
     }
 
     /**
@@ -966,8 +966,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelServletInterface#getChannel
      */
     @Override
-    public Channel getChannel(String channelId) throws ClientException {
-        return getServlet(ChannelServletInterface.class).getChannel(channelId);
+    public Channel getChannel(String channelId, boolean includeCodeTemplateLibraries) throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannel(channelId, includeCodeTemplateLibraries);
     }
 
     /**

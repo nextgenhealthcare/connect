@@ -1018,6 +1018,8 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         saveProperty(PROPERTIES_CORE, PROPERTIES_DEPENDENCIES, ObjectXMLSerializer.getInstance().serialize(dependencies));
+        ControllerFactory.getFactory().createChannelController().refreshChannelDependencies();
+        
     }
 
     @Override
@@ -1055,6 +1057,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             tags = new HashSet<ChannelTag>(tagMap.values());
         }
         saveProperty(PROPERTIES_CORE, PROPERTIES_CHANNEL_TAGS, ObjectXMLSerializer.getInstance().serialize(tags));
+        ControllerFactory.getFactory().createChannelController().refreshChannelTags();
     }
 
     @Override
@@ -1074,6 +1077,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public void setChannelMetadata(Map<String, ChannelMetadata> channelMetadata) {
         saveProperty(PROPERTIES_CORE, PROPERTIES_CHANNEL_METADATA, ObjectXMLSerializer.getInstance().serialize(channelMetadata));
+        ControllerFactory.getFactory().createChannelController().refreshChannelMetadata();
     }
 
     @Override

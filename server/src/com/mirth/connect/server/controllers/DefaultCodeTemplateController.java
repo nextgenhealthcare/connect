@@ -258,6 +258,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             StatementLock.getInstance(VACUUM_LOCK_LIBRARY_STATEMENT_ID).readUnlock();
         }
 
+        ControllerFactory.getFactory().createChannelController().refreshCodeTemplateLibraries();
         return true;
     }
 
@@ -511,6 +512,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             throw new ControllerException(e);
         } finally {
             StatementLock.getInstance(VACUUM_LOCK_CODE_TEMPLATE_STATEMENT_ID).readUnlock();
+            ControllerFactory.getFactory().createChannelController().refreshCodeTemplateLibraries();
         }
     }
 
@@ -558,6 +560,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
         if (changed) {
             updateLibraries(libraries, context, true);
+            ControllerFactory.getFactory().createChannelController().refreshCodeTemplateLibraries();
         }
     }
 
@@ -669,6 +672,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             updateSummary.getCodeTemplateResults().put(removedCodeTemplateId, result);
         }
 
+        ControllerFactory.getFactory().createChannelController().refreshCodeTemplateLibraries();
         return updateSummary;
     }
 
