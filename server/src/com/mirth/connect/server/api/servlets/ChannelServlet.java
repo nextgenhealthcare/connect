@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -25,6 +26,7 @@ import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ControllerException;
@@ -34,12 +36,18 @@ import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelHeader;
+import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelSummary;
+import com.mirth.connect.model.ChannelTag;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.server.api.CheckAuthorizedChannelId;
 import com.mirth.connect.server.api.DontCheckAuthorized;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.CodeTemplateController;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 
@@ -47,6 +55,9 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
 
     private static final EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private static final ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+    private static final CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
+    private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private Logger logger = Logger.getLogger(getClass());
 
     public ChannelServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
@@ -77,16 +88,30 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
 
         List<Channel> channels;
         if (CollectionUtils.isEmpty(channelIds)) {
-            channels = redactChannels(channelController.getChannels(null, includeCodeTemplateLibraries));
+            channels = redactChannels(channelController.getChannels(null));
         } else {
-            channels = channelController.getChannels(redactChannelIds(channelIds), includeCodeTemplateLibraries);
+            channels = channelController.getChannels(redactChannelIds(channelIds));
         }
 
         if (pollingOnly) {
             retainPollingChannels(channels);
         }
+        
+        // Add export data to each channel
+        Map<String, ChannelMetadata> channelMetadata = configurationController.getChannelMetadata();
+        Set<ChannelTag> channelTags = configurationController.getChannelTags();
+        Set<ChannelDependency> channelDependencies = configurationController.getChannelDependencies();
+        List<CodeTemplateLibrary> codeTemplateLibraries = includeCodeTemplateLibraries ? getCodeTemplateLibraries() : null;
+        
+        List<Channel> clonedChannels = new ArrayList<>();
+        for (Channel channel : channels) {
+            // We clone the channel, so that we do not modify channels in the ChannelController's cache
+            Channel clonedChannel = channel.clone();
+            addExportData(clonedChannel, channelMetadata, channelTags, channelDependencies, codeTemplateLibraries);
+            clonedChannels.add(clonedChannel);
+        }
 
-        return channels;
+        return clonedChannels;
     }
 
     @Override
@@ -102,7 +127,10 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
         if (!isUserAuthorized() || isChannelRedacted(channelId)) {
             return null;
         }
-        return channelController.getChannelById(channelId, includeCodeTemplateLibraries);
+        // We clone the channel, so that we do not modify channels in the ChannelController's cache
+        Channel channel = channelController.getChannelById(channelId).clone();
+        addExportData(channel, includeCodeTemplateLibraries);
+        return channel;
     }
 
     @Override
@@ -233,5 +261,52 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
                 it.remove();
             }
         }
+    }
+    
+    protected void addExportData(Channel channel, boolean includeCodeTemplateLibraries) {
+        if (channel != null) {
+            List<CodeTemplateLibrary> codeTemplateLibraries = includeCodeTemplateLibraries ? getCodeTemplateLibraries() : null;
+            addExportData(channel, configurationController.getChannelMetadata(), configurationController.getChannelTags(), configurationController.getChannelDependencies(), codeTemplateLibraries);
+        }
+    }
+    
+    protected void addExportData(Channel channel, Map<String, ChannelMetadata> channelMetadata, Set<ChannelTag> channelTags, Set<ChannelDependency> channelDependencies, List<CodeTemplateLibrary> codeTemplateLibraries) {
+        if (channel != null) {
+            channel.getExportData().setMetadata(channelMetadata.get(channel.getId()));
+            channel.getExportData().setChannelTags(channelTags
+                    .stream()
+                    .filter(tag -> tag.getChannelIds().contains(channel.getId()))
+                    .collect(Collectors.toList()));
+
+            channel.getExportData().setDependencyIds(channelDependencies
+                    .stream()
+                    .filter(dependency -> channel.getId().equals(dependency.getDependentId()))
+                    .map(dependency -> dependency.getDependencyId())
+                    .collect(Collectors.toSet()));
+            channel.getExportData().setDependentIds(channelDependencies
+                    .stream()
+                    .filter(dependency -> channel.getId().equals(dependency.getDependencyId()))
+                    .map(dependency -> dependency.getDependentId())
+                    .collect(Collectors.toSet()));
+            
+            if (codeTemplateLibraries != null) {
+                channel.getExportData().setCodeTemplateLibraries(
+                        codeTemplateLibraries
+                        .stream()
+                        .filter(library -> library.getEnabledChannelIds().contains(channel.getId()))
+                        .collect(Collectors.toList()));
+            }
+        }
+    }
+    
+    private List<CodeTemplateLibrary> getCodeTemplateLibraries() {
+        List<CodeTemplateLibrary> codeTemplateLibraries = null;
+        try {
+            codeTemplateLibraries = codeTemplateController.getLibraries(null, true);
+        } catch (ControllerException e) {
+            logger.error("Failed to get code template libraries.", e);
+            codeTemplateLibraries = null;
+        }
+        return codeTemplateLibraries;
     }
 }

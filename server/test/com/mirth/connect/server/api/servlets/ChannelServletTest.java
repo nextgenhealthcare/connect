@@ -1,6 +1,7 @@
-package com.mirth.connect.server.controllers;
+package com.mirth.connect.server.api.servlets;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -14,6 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.SecurityContext;
+
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -25,23 +30,37 @@ import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelExportData;
 import com.mirth.connect.model.ChannelMetadata;
 import com.mirth.connect.model.ChannelTag;
+import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
+import com.mirth.connect.server.api.ServletTestBase;
+import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.CodeTemplateController;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
-public class DefaultChannelControllerTest {
+public class ChannelServletTest extends ServletTestBase {
 
     private static final String CHANNEL_ID_1 = "channelId1";
     private static final String CHANNEL_ID_2 = "channelId2";
     private static final String CHANNEL_ID_3 = "channelId3";
+    
+    private ChannelServlet channelServlet;
 
     @SuppressWarnings("unchecked")
     @BeforeClass
-    public static void setupClass() throws Exception {
-        ControllerFactory controllerFactory = mock(ControllerFactory.class);
-
-        ExtensionController extensionController = mock(ExtensionController.class);
-        when(controllerFactory.createExtensionController()).thenReturn(extensionController);
+    public static void beforeClass() throws Exception {
+        ServletTestBase.setup();
+        
+        ChannelController channelController = mock(ChannelController.class);
+        when(controllerFactory.createChannelController()).thenReturn(channelController);
+        
+        Channel channel1 = createChannel(CHANNEL_ID_1);
+        Channel channel2 = createChannel(CHANNEL_ID_2);
+        Channel channel3 = createChannel(CHANNEL_ID_3);
+        when(channelController.getChannels(isNull())).thenReturn(Arrays.asList(new Channel[] { channel1, channel2, channel3 }));
+        when(channelController.getChannelById(CHANNEL_ID_1)).thenReturn(channel1);
 
         ConfigurationController configurationController = mock(ConfigurationController.class);
         when(controllerFactory.createConfigurationController()).thenReturn(configurationController);
@@ -94,16 +113,74 @@ public class DefaultChannelControllerTest {
         });
         injector.getInstance(ControllerFactory.class);
     }
+    
+    private static Channel createChannel(String id) {
+        Channel channel = new Channel();
+        channel.setId(id);
+        channel.setName("Channel " + id);
+        channel.setSourceConnector(new Connector());
+        return channel;
+    }
+    
+    @Before
+    public void beforeTest() {
+        channelServlet = new TestChannelServlet(request, mock(SecurityContext.class));
+    }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testAddExportData() throws Exception {
         Channel channel = new Channel();
         channel.setId(CHANNEL_ID_1);
 
-        DefaultChannelController controller = new DefaultChannelController();
-        controller.addExportData(channel, true);
+        channelServlet.addExportData(channel, true);
+        verifyChannel1(channel, true);
+    }
+    
+    @Test
+    public void testAddExportDataWithoutCodeTemplateLibraries() throws Exception {
+        Channel channel = new Channel();
+        channel.setId(CHANNEL_ID_1);
 
+        // Testing a case where the code template libraries would incorrectly be returned if they had previously been added to the export data of the channel
+        channelServlet.addExportData(channel, true);
+        channelServlet.addExportData(channel, false);
+        ChannelExportData exportData = channel.getExportData();
+        
+        assertTrue(exportData.getCodeTemplateLibraries().isEmpty());
+    }
+    
+    @Test
+    public void testGetChannels() throws Exception {
+        verifyChannels(channelServlet.getChannels(null, false, true), true);
+        verifyChannels(channelServlet.getChannels(null, false, false), false);
+    }
+
+    @Test
+    public void testGetChannelsPost() throws Exception {
+        verifyChannels(channelServlet.getChannelsPost(null, false, true), true);
+        verifyChannels(channelServlet.getChannelsPost(null, false, false), false);
+    }
+
+    @Test
+    public void testGetChannel() throws Exception {
+        Channel channel = channelServlet.getChannel(CHANNEL_ID_1, true);
+        verifyChannel1(channel, true);
+        channel = channelServlet.getChannel(CHANNEL_ID_1, false);
+        verifyChannel1(channel, false);
+    }
+
+    private void verifyChannels(List<Channel> channels, boolean includeCodeTemplateLibraries) {
+        assertEquals(3, channels.size());
+
+        for (Channel channel : channels) {
+            if (CHANNEL_ID_1.equals(channel.getId())) {
+                verifyChannel1(channel, includeCodeTemplateLibraries);
+            } 
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void verifyChannel1(Channel channel, boolean includeCodeTemplateLibraries) {
         ChannelExportData exportData = channel.getExportData();
         assertTrue(exportData.getMetadata().isEnabled());
         assertTrue(exportData.getMetadata().getPruningSettings().isArchiveEnabled());
@@ -118,28 +195,29 @@ public class DefaultChannelControllerTest {
         assertEquals(1, exportData.getDependentIds().size());
         assertTrue(exportData.getDependentIds().contains(CHANNEL_ID_3));
 
-        assertEquals(1, exportData.getCodeTemplateLibraries().size());
-        CodeTemplateLibrary library = exportData.getCodeTemplateLibraries().get(0);
-        assertEquals("libraryId1", library.getId());
-        assertEquals("Library 1", library.getName());
-        assertEquals(2, library.getEnabledChannelIds().size());
-        assertTrue(library.getEnabledChannelIds().contains(CHANNEL_ID_1));
-        assertEquals(1, library.getDisabledChannelIds().size());
+        if (includeCodeTemplateLibraries) {
+            assertNotNull(exportData.getCodeTemplateLibraries());
+            assertEquals(1, exportData.getCodeTemplateLibraries().size());
+            CodeTemplateLibrary library = exportData.getCodeTemplateLibraries().get(0);
+            assertEquals("libraryId1", library.getId());
+            assertEquals("Library 1", library.getName());
+            assertEquals(2, library.getEnabledChannelIds().size());
+            assertTrue(library.getEnabledChannelIds().contains(CHANNEL_ID_1));
+            assertEquals(1, library.getDisabledChannelIds().size());
+        } else {
+            assertTrue(exportData.getCodeTemplateLibraries().isEmpty());
+        }
     }
     
-    @Test
-    public void testAddExportDataWithoutCodeTemplateLibraries() throws Exception {
-        Channel channel = new Channel();
-        channel.setId(CHANNEL_ID_1);
+    public class TestChannelServlet extends ChannelServlet {
+        public TestChannelServlet(HttpServletRequest request, SecurityContext sc) {
+            super(request, sc);
+        }
 
-        DefaultChannelController controller = new DefaultChannelController();
-        // Testing a case where the code template libraries would incorrectly be returned if they had previously been added to the export data of the channel
-        controller.addExportData(channel, true);
-        controller.addExportData(channel, false);
-        ChannelExportData exportData = channel.getExportData();
-        
-        assertEquals(0, exportData.getCodeTemplateLibraries().size());
+        @Override
+        protected boolean isUserAuthorized() {
+            return true;
+        }
     }
-    
 
 }

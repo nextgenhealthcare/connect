@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -92,34 +91,16 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public List<Channel> getChannels(Set<String> channelIds) {
-        return getChannels(channelIds, false);
-    }
-
-    @Override
-    public List<Channel> getChannels(Set<String> channelIds, boolean includeCodeTemplateLibraries) {
         Map<String, Channel> channelMap = channelCache.getAllItems();
 
         List<Channel> channels = new ArrayList<Channel>();
         
-        Map<String, ChannelMetadata> channelMetadata = configurationController.getChannelMetadata();
-        Set<ChannelTag> channelTags = configurationController.getChannelTags();
-        Set<ChannelDependency> channelDependencies = configurationController.getChannelDependencies();
-        List<CodeTemplateLibrary> codeTemplateLibraries = includeCodeTemplateLibraries ? getCodeTemplateLibraries() : null;
-
         if (channelIds == null) {
-            channels.addAll(channelMap.values()
-                    .stream()
-                    .map(channel -> {
-                        addExportData(channel, channelMetadata, channelTags, channelDependencies, codeTemplateLibraries);
-                        return channel;
-                    })
-                    .collect(Collectors.toList()));
+            channels.addAll(channelMap.values());
         } else {
             for (String channelId : channelIds) {
                 if (channelMap.containsKey(channelId)) {
-                    Channel channel = channelMap.get(channelId);
-                    addExportData(channel, channelMetadata, channelTags, channelDependencies, codeTemplateLibraries);
-                    channels.add(channel);
+                    channels.add(channelMap.get(channelId));
                 } else {
                     logger.error("Cannot find channel, it may have been removed: " + channelId);
                 }
@@ -131,75 +112,12 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public Channel getChannelById(String channelId) {
-        return getChannelById(channelId, false);
+        return channelCache.getCachedItemById(channelId);
     }
-
-    @Override
-    public Channel getChannelById(String channelId, boolean includeCodeTemplateLibraries) {
-        Channel channel = channelCache.getCachedItemById(channelId);
-        addExportData(channel, includeCodeTemplateLibraries);
-        return channel;
-    }
-
+    
     @Override
     public Channel getChannelByName(String channelName) {
-        return getChannelByName(channelName, false);
-    }
-
-    @Override
-    public Channel getChannelByName(String channelName, boolean includeCodeTemplateLibraries) {
-        Channel channel = channelCache.getCachedItemByName(channelName);
-        addExportData(channel, includeCodeTemplateLibraries);
-        return channel;
-    }
-    
-    protected void addExportData(Channel channel, boolean includeCodeTemplateLibraries) {
-        if (channel != null) {
-            List<CodeTemplateLibrary> codeTemplateLibraries = includeCodeTemplateLibraries ? getCodeTemplateLibraries() : null;
-            addExportData(channel, configurationController.getChannelMetadata(), configurationController.getChannelTags(), configurationController.getChannelDependencies(), codeTemplateLibraries);
-        }
-    }
-    
-    protected void addExportData(Channel channel, Map<String, ChannelMetadata> channelMetadata, Set<ChannelTag> channelTags, Set<ChannelDependency> channelDependencies, List<CodeTemplateLibrary> codeTemplateLibraries) {
-        if (channel != null) {
-            channel.getExportData().setMetadata(channelMetadata.get(channel.getId()));
-            channel.getExportData().setChannelTags(channelTags
-                    .stream()
-                    .filter(tag -> tag.getChannelIds().contains(channel.getId()))
-                    .collect(Collectors.toList()));
-
-            channel.getExportData().setDependencyIds(channelDependencies
-                    .stream()
-                    .filter(dependency -> channel.getId().equals(dependency.getDependentId()))
-                    .map(dependency -> dependency.getDependencyId())
-                    .collect(Collectors.toSet()));
-            channel.getExportData().setDependentIds(channelDependencies
-                    .stream()
-                    .filter(dependency -> channel.getId().equals(dependency.getDependencyId()))
-                    .map(dependency -> dependency.getDependentId())
-                    .collect(Collectors.toSet()));
-            
-            if (codeTemplateLibraries != null) {
-                channel.getExportData().setCodeTemplateLibraries(
-                        codeTemplateLibraries
-                        .stream()
-                        .filter(library -> library.getEnabledChannelIds().contains(channel.getId()))
-                        .collect(Collectors.toList()));
-            } else {
-                channel.getExportData().setCodeTemplateLibraries(null);
-            }
-        }
-    }
-    
-    private List<CodeTemplateLibrary> getCodeTemplateLibraries() {
-        List<CodeTemplateLibrary> codeTemplateLibraries = null;
-        try {
-            codeTemplateLibraries = codeTemplateController.getLibraries(null, true);
-        } catch (ControllerException e) {
-            logger.error("Failed to get code template libraries.", e);
-            codeTemplateLibraries = null;
-        }
-        return codeTemplateLibraries;
+        return channelCache.getCachedItemByName(channelName);
     }
 
     @Override

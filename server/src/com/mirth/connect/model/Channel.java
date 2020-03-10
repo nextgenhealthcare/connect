@@ -61,7 +61,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
     public Channel(String id) {
         this.id = id;
     }
-
+    
     @Override
     public String getId() {
         return this.id;
@@ -188,6 +188,25 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
     @Override
     public Channel cloneIfNeeded() {
         return this;
+    }
+    
+    public Channel clone() {
+        // This does not do a deep copy of each object
+        Channel channel = new Channel();
+        channel.setId(id);
+        channel.setNextMetaDataId(nextMetaDataId);
+        channel.setName(name);
+        channel.setDescription(description);
+        channel.setRevision(revision);
+        channel.setSourceConnector(sourceConnector);
+        channel.getDestinationConnectors().addAll(destinationConnectors);
+        channel.setPreprocessingScript(preprocessingScript);
+        channel.setPostprocessingScript(postprocessingScript);
+        channel.setDeployScript(deployScript);
+        channel.setUndeployScript(undeployScript);
+        channel.properties = properties;
+        channel.setExportData(exportData);
+        return channel;
     }
 
     public boolean equals(Object that) {

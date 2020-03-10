@@ -36,16 +36,10 @@ public abstract class ChannelController extends Controller {
     }
 
     public abstract List<Channel> getChannels(Set<String> channelIds);
-    
-    public abstract List<Channel> getChannels(Set<String> channelIds, boolean addCodeTemplateLibraries);
 
     public abstract Channel getChannelById(String channelId);
-    
-    public abstract Channel getChannelById(String channelId, boolean addCodeTemplateLibraries);
 
     public abstract Channel getChannelByName(String channelName);
-    
-    public abstract Channel getChannelByName(String channelName, boolean addCodeTemplateLibraries);
 
     public abstract String getDestinationName(String channelId, int metaDataId);
 
