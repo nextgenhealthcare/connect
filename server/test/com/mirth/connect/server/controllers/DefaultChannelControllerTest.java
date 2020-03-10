@@ -126,5 +126,20 @@ public class DefaultChannelControllerTest {
         assertTrue(library.getEnabledChannelIds().contains(CHANNEL_ID_1));
         assertEquals(1, library.getDisabledChannelIds().size());
     }
+    
+    @Test
+    public void testAddExportDataWithoutCodeTemplateLibraries() throws Exception {
+        Channel channel = new Channel();
+        channel.setId(CHANNEL_ID_1);
+
+        DefaultChannelController controller = new DefaultChannelController();
+        // Testing a case where the code template libraries would incorrectly be returned if they had previously been added to the export data of the channel
+        controller.addExportData(channel, true);
+        controller.addExportData(channel, false);
+        ChannelExportData exportData = channel.getExportData();
+        
+        assertEquals(0, exportData.getCodeTemplateLibraries().size());
+    }
+    
 
 }

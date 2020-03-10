@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
@@ -69,8 +68,6 @@ public class DefaultChannelController extends ChannelController {
     private ChannelCache channelCache = new ChannelCache();
     private DeployedChannelCache deployedChannelCache = new DeployedChannelCache();
     private Cache<ChannelGroup> channelGroupCache = new Cache<ChannelGroup>("Channel Group", "Channel.getChannelGroupRevision", "Channel.getChannelGroup");
-    private ConfigurationCache configurationCache = new ConfigurationCache();
-    private CodeTemplateLibraryCache codeTemplateLibraryCache = new CodeTemplateLibraryCache();
     private Donkey donkey;
 
     private static ChannelController instance = null;
@@ -103,12 +100,17 @@ public class DefaultChannelController extends ChannelController {
         Map<String, Channel> channelMap = channelCache.getAllItems();
 
         List<Channel> channels = new ArrayList<Channel>();
+        
+        Map<String, ChannelMetadata> channelMetadata = configurationController.getChannelMetadata();
+        Set<ChannelTag> channelTags = configurationController.getChannelTags();
+        Set<ChannelDependency> channelDependencies = configurationController.getChannelDependencies();
+        List<CodeTemplateLibrary> codeTemplateLibraries = includeCodeTemplateLibraries ? getCodeTemplateLibraries() : null;
 
         if (channelIds == null) {
             channels.addAll(channelMap.values()
                     .stream()
                     .map(channel -> {
-                        addExportData(channel, includeCodeTemplateLibraries);
+                        addExportData(channel, channelMetadata, channelTags, channelDependencies, codeTemplateLibraries);
                         return channel;
                     })
                     .collect(Collectors.toList()));
@@ -116,7 +118,7 @@ public class DefaultChannelController extends ChannelController {
             for (String channelId : channelIds) {
                 if (channelMap.containsKey(channelId)) {
                     Channel channel = channelMap.get(channelId);
-                    addExportData(channel, includeCodeTemplateLibraries);
+                    addExportData(channel, channelMetadata, channelTags, channelDependencies, codeTemplateLibraries);
                     channels.add(channel);
                 } else {
                     logger.error("Cannot find channel, it may have been removed: " + channelId);
@@ -153,13 +155,19 @@ public class DefaultChannelController extends ChannelController {
     
     protected void addExportData(Channel channel, boolean includeCodeTemplateLibraries) {
         if (channel != null) {
-            channel.getExportData().setMetadata(configurationCache.getChannelMetadata().get(channel.getId()));
-            channel.getExportData().setChannelTags(configurationCache.getChannelTags()
+            List<CodeTemplateLibrary> codeTemplateLibraries = includeCodeTemplateLibraries ? getCodeTemplateLibraries() : null;
+            addExportData(channel, configurationController.getChannelMetadata(), configurationController.getChannelTags(), configurationController.getChannelDependencies(), codeTemplateLibraries);
+        }
+    }
+    
+    protected void addExportData(Channel channel, Map<String, ChannelMetadata> channelMetadata, Set<ChannelTag> channelTags, Set<ChannelDependency> channelDependencies, List<CodeTemplateLibrary> codeTemplateLibraries) {
+        if (channel != null) {
+            channel.getExportData().setMetadata(channelMetadata.get(channel.getId()));
+            channel.getExportData().setChannelTags(channelTags
                     .stream()
                     .filter(tag -> tag.getChannelIds().contains(channel.getId()))
                     .collect(Collectors.toList()));
-            
-            Set<ChannelDependency> channelDependencies = configurationCache.getChannelDependencies();
+
             channel.getExportData().setDependencyIds(channelDependencies
                     .stream()
                     .filter(dependency -> channel.getId().equals(dependency.getDependentId()))
@@ -171,14 +179,27 @@ public class DefaultChannelController extends ChannelController {
                     .map(dependency -> dependency.getDependentId())
                     .collect(Collectors.toSet()));
             
-            if (includeCodeTemplateLibraries) {
+            if (codeTemplateLibraries != null) {
                 channel.getExportData().setCodeTemplateLibraries(
-                        codeTemplateLibraryCache.getCodeTemplateLibraries()
+                        codeTemplateLibraries
                         .stream()
                         .filter(library -> library.getEnabledChannelIds().contains(channel.getId()))
                         .collect(Collectors.toList()));
+            } else {
+                channel.getExportData().setCodeTemplateLibraries(null);
             }
         }
+    }
+    
+    private List<CodeTemplateLibrary> getCodeTemplateLibraries() {
+        List<CodeTemplateLibrary> codeTemplateLibraries = null;
+        try {
+            codeTemplateLibraries = codeTemplateController.getLibraries(null, true);
+        } catch (ControllerException e) {
+            logger.error("Failed to get code template libraries.", e);
+            codeTemplateLibraries = null;
+        }
+        return codeTemplateLibraries;
     }
 
     @Override
@@ -979,28 +1000,6 @@ public class DefaultChannelController extends ChannelController {
 
         return true;
     }
-    
-    // configuration cache
-    @Override
-    public void refreshChannelMetadata() {
-        configurationCache.refreshChannelMetadata();
-    }
-    
-    @Override
-    public void refreshChannelTags() {
-        configurationCache.refreshChannelTags();
-    }
-    
-    @Override
-    public void refreshChannelDependencies() {
-        configurationCache.refreshChannelDependencies();   
-    }
-    
-    // code template library cache
-    @Override
-    public void refreshCodeTemplateLibraries() {
-        codeTemplateLibraryCache.refreshCodeTemplateLibraries();   
-    }
 
     // ---------- CHANNEL CACHE ----------
 
@@ -1167,98 +1166,5 @@ public class DefaultChannelController extends ChannelController {
                 readLock.unlock();
             }
         }
-    }
-    
-    private class ConfigurationCache {
-        private Map<String, ChannelMetadata> channelMetadata = null;
-        private Set<ChannelTag> channelTags = null;
-        private Set<ChannelDependency> channelDependencies = null;
-        
-        private Lock channelMetadataLock = new ReentrantLock();
-        private Lock channelTagsLock = new ReentrantLock();
-        private Lock channelDependenciesLock = new ReentrantLock();
-        
-        public Map<String, ChannelMetadata> getChannelMetadata() {
-            if (channelMetadata == null) {
-                channelMetadataLock.lock();
-                if (channelMetadata == null) {
-                    channelMetadata = configurationController.getChannelMetadata();
-                }
-                channelMetadataLock.unlock();
-            }
-            return channelMetadata;
-        }
-        
-        public void refreshChannelMetadata() {
-            channelMetadataLock.lock();
-            channelMetadata = configurationController.getChannelMetadata();
-            channelMetadataLock.unlock();
-        }
-        
-        public Set<ChannelTag> getChannelTags() {
-            if (channelTags == null) {
-                channelTagsLock.lock();
-                if (channelTags == null) {
-                    channelTags = configurationController.getChannelTags();
-                }
-                channelTagsLock.unlock();
-            }
-            return channelTags;
-        }
-        
-        public void refreshChannelTags() {
-            channelTagsLock.lock();
-            channelTags = configurationController.getChannelTags();
-            channelTagsLock.unlock();
-        }
-        
-        public Set<ChannelDependency> getChannelDependencies() {
-            if (channelDependencies == null) {
-                channelDependenciesLock.lock();
-                if (channelDependencies == null) {
-                    channelDependencies = configurationController.getChannelDependencies();
-                }
-                channelDependenciesLock.unlock();
-            }
-            return channelDependencies;
-        }
-        
-        public void refreshChannelDependencies() {
-            channelDependenciesLock.lock();
-            channelDependencies = configurationController.getChannelDependencies();
-            channelDependenciesLock.unlock();
-        }
-    }
-    
-    private class CodeTemplateLibraryCache {
-        private List<CodeTemplateLibrary> codeTemplateLibraries = null;
-        private Lock codeTemplateLibraryLock = new ReentrantLock();
-        
-        public List<CodeTemplateLibrary> getCodeTemplateLibraries() {
-            if (codeTemplateLibraries == null) {
-                codeTemplateLibraryLock.lock();
-                if (codeTemplateLibraries == null) {
-                    updateCodeTemplateLibraries();
-                }
-                codeTemplateLibraryLock.unlock();
-            }
-            return codeTemplateLibraries;
-        }
-        
-        public void refreshCodeTemplateLibraries() {
-            codeTemplateLibraryLock.lock();
-            updateCodeTemplateLibraries();
-            codeTemplateLibraryLock.unlock();
-        }
-        
-        private void updateCodeTemplateLibraries() {
-            try {
-                codeTemplateLibraries = codeTemplateController.getLibraries(null, true);
-            } catch (ControllerException e) {
-                codeTemplateLibraries = null;
-                logger.error("Failed to get code template libraries.", e);
-            }
-        }
-        
     }
 }
