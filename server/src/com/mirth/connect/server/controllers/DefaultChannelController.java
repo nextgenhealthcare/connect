@@ -62,6 +62,7 @@ public class DefaultChannelController extends ChannelController {
     private Logger logger = Logger.getLogger(this.getClass());
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     private ChannelCache channelCache = new ChannelCache();
     private DeployedChannelCache deployedChannelCache = new DeployedChannelCache();
@@ -256,7 +257,6 @@ public class DefaultChannelController extends ChannelController {
 
     @Override
     public synchronized void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException {
-        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
         Map<String, ChannelMetadata> metadataMap = configurationController.getChannelMetadata();
         Map<String, Channel> cachedChannelMap = channelCache.getAllItems();
         boolean changed = false;
@@ -441,8 +441,6 @@ public class DefaultChannelController extends ChannelController {
     }
 
     private void updateChannelMetadata(String channelId, ChannelMetadata metadata) {
-        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-
         Map<String, ChannelMetadata> metadataMap = configurationController.getChannelMetadata();
         if (!Objects.equals(metadataMap.get(channelId), metadata)) {
             // Only need to update if the metadata has changed
@@ -452,8 +450,6 @@ public class DefaultChannelController extends ChannelController {
     }
 
     private void updateChannelTags(String channelId, List<ChannelTag> channelTags) {
-        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-
         boolean updateTags = false;
         Set<ChannelTag> serverChannelTags = configurationController.getChannelTags();
         for (ChannelTag existingTag : serverChannelTags) {
@@ -540,7 +536,6 @@ public class DefaultChannelController extends ChannelController {
             }
 
             // Remove any dependencies that were tied to this channel
-            ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
             Set<ChannelDependency> dependencies = configurationController.getChannelDependencies();
             boolean dependenciesChanged = false;
             for (Iterator<ChannelDependency> it = dependencies.iterator(); it.hasNext();) {

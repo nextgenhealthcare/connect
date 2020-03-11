@@ -78,7 +78,8 @@ public interface ChannelServletInterface extends BaseServletInterface {
 	@MirthOperation(name = "getChannels", display = "Get channels", permission = Permissions.CHANNELS_VIEW)
 	public List<Channel> getChannels(
 			@Param("channelIds") @Parameter(description = "The IDs of the channels to retrieve. If absent, all channels will be retrieved.") @QueryParam("channelId") Set<String> channelIds,
-			@Param("pollingOnly") @Parameter(description = "If true, only channels with polling source connectors will be returned.") @QueryParam("pollingOnly") boolean pollingOnly)
+			@Param("pollingOnly") @Parameter(description = "If true, only channels with polling source connectors will be returned.") @QueryParam("pollingOnly") boolean pollingOnly,
+			@Param("includeCodeTemplateLibraries") @Parameter(description = "If true, code template libraries will be included in the channel.") @QueryParam("includeCodeTemplateLibraries") boolean includeCodeTemplateLibraries)
 			throws ClientException;
 
 	@POST
@@ -96,7 +97,8 @@ public interface ChannelServletInterface extends BaseServletInterface {
 							@ExampleObject(name = "channelIds", ref = "../apiexamples/guid_set_xml") }),
 					@Content(mediaType = MediaType.APPLICATION_JSON, examples = {
 							@ExampleObject(name = "channelIds", ref = "../apiexamples/guid_set_json") }) }) Set<String> channelIds,
-			@Param("pollingOnly") @Parameter(description = "If true, only channels with polling source connectors will be returned.") @QueryParam("pollingOnly") boolean pollingOnly)
+			@Param("pollingOnly") @Parameter(description = "If true, only channels with polling source connectors will be returned.") @QueryParam("pollingOnly") boolean pollingOnly,
+			@Param("includeCodeTemplateLibraries") @Parameter(description = "If true, code template libraries will be included in the channel.") @QueryParam("includeCodeTemplateLibraries") boolean includeCodeTemplateLibraries)
 			throws ClientException;
 
 	@GET
@@ -109,7 +111,8 @@ public interface ChannelServletInterface extends BaseServletInterface {
 					@ExampleObject(name = "channel", ref = "../apiexamples/channel_json") }) })
 	@MirthOperation(name = "getChannel", display = "Get channel", permission = Permissions.CHANNELS_VIEW)
 	public Channel getChannel(
-			@Param("channelId") @Parameter(description = "The ID of the channel to retrieve.", required = true) @PathParam("channelId") String channelId)
+			@Param("channelId") @Parameter(description = "The ID of the channel to retrieve.", required = true) @PathParam("channelId") String channelId,
+			@Param("includeCodeTemplateLibraries") @Parameter(description = "If true, code template libraries will be included in the channel.") @QueryParam("includeCodeTemplateLibraries") boolean includeCodeTemplateLibraries)
 			throws ClientException;
 
 	@GET
