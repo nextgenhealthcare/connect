@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,7 +40,6 @@ import com.mirth.connect.server.controllers.CodeTemplateController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class ChannelServletTest extends ServletTestBase {
 
@@ -50,7 +50,6 @@ public class ChannelServletTest extends ServletTestBase {
     
     private ChannelServlet channelServlet;
 
-    @SuppressWarnings("unchecked")
     @BeforeClass
     public static void beforeClass() throws Exception {
         ServletTestBase.setup();
@@ -164,7 +163,6 @@ public class ChannelServletTest extends ServletTestBase {
         verifyChannels(channelServlet.getChannelsPost(null, false, false), false);
     }
     
-    @SuppressWarnings("unchecked")
     @Test
     public void testGetChannelsIsNull() throws Exception {
         List<Channel> channels = channelServlet.getChannels(new HashSet<String>(Arrays.asList(new String[] { NONEXISTENT_CHANNEL_ID })), false, true);
@@ -195,7 +193,6 @@ public class ChannelServletTest extends ServletTestBase {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void verifyChannel1(Channel channel, boolean includeCodeTemplateLibraries) {
         ChannelExportData exportData = channel.getExportData();
         assertTrue(exportData.getMetadata().isEnabled());
