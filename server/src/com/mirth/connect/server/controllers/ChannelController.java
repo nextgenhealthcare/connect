@@ -96,4 +96,5 @@ public abstract class ChannelController extends Controller {
     public abstract List<ChannelGroup> getChannelGroups(Set<String> channelGroupIds);
 
     public abstract boolean updateChannelGroups(Set<ChannelGroup> channelGroups, Set<String> removedChannelGroupIds, boolean override) throws ControllerException;
+
 }
