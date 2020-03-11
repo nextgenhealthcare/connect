@@ -2,6 +2,7 @@ package com.mirth.connect.server.api.servlets;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -45,6 +46,7 @@ public class ChannelServletTest extends ServletTestBase {
     private static final String CHANNEL_ID_1 = "channelId1";
     private static final String CHANNEL_ID_2 = "channelId2";
     private static final String CHANNEL_ID_3 = "channelId3";
+    private static final String NONEXISTENT_CHANNEL_ID = "nonexistentChannelId";
     
     private ChannelServlet channelServlet;
 
@@ -60,6 +62,7 @@ public class ChannelServletTest extends ServletTestBase {
         Channel channel2 = createChannel(CHANNEL_ID_2);
         Channel channel3 = createChannel(CHANNEL_ID_3);
         when(channelController.getChannels(isNull())).thenReturn(Arrays.asList(new Channel[] { channel1, channel2, channel3 }));
+        when(channelController.getChannels(new HashSet<String>(Arrays.asList(new String[] { NONEXISTENT_CHANNEL_ID })))).thenReturn(null);
         when(channelController.getChannelById(CHANNEL_ID_1)).thenReturn(channel1);
 
         ConfigurationController configurationController = mock(ConfigurationController.class);
@@ -160,6 +163,13 @@ public class ChannelServletTest extends ServletTestBase {
         verifyChannels(channelServlet.getChannelsPost(null, false, true), true);
         verifyChannels(channelServlet.getChannelsPost(null, false, false), false);
     }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testGetChannelsIsNull() throws Exception {
+        List<Channel> channels = channelServlet.getChannels(new HashSet<String>(Arrays.asList(new String[] { NONEXISTENT_CHANNEL_ID })), false, true);
+        assertNull(channels);
+    }
 
     @Test
     public void testGetChannel() throws Exception {
@@ -167,6 +177,12 @@ public class ChannelServletTest extends ServletTestBase {
         verifyChannel1(channel, true);
         channel = channelServlet.getChannel(CHANNEL_ID_1, false);
         verifyChannel1(channel, false);
+    }
+    
+    @Test
+    public void testGetChannelIsNull() throws Exception {
+        Channel channel = channelServlet.getChannel(NONEXISTENT_CHANNEL_ID, true);
+        assertNull(channel);
     }
 
     private void verifyChannels(List<Channel> channels, boolean includeCodeTemplateLibraries) {

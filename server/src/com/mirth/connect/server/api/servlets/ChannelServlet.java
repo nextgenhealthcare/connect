@@ -97,21 +97,26 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
             retainPollingChannels(channels);
         }
         
-        // Add export data to each channel
-        Map<String, ChannelMetadata> channelMetadata = configurationController.getChannelMetadata();
-        Set<ChannelTag> channelTags = configurationController.getChannelTags();
-        Set<ChannelDependency> channelDependencies = configurationController.getChannelDependencies();
-        List<CodeTemplateLibrary> codeTemplateLibraries = includeCodeTemplateLibraries ? getCodeTemplateLibraries() : null;
-        
-        List<Channel> clonedChannels = new ArrayList<>();
-        for (Channel channel : channels) {
-            // We clone the channel, so that we do not modify channels in the ChannelController's cache
-            Channel clonedChannel = channel.clone();
-            addExportData(clonedChannel, channelMetadata, channelTags, channelDependencies, codeTemplateLibraries);
-            clonedChannels.add(clonedChannel);
+        if (channels == null) {
+            return channels;
+        } else {
+            // Add export data to each channel
+            Map<String, ChannelMetadata> channelMetadata = configurationController.getChannelMetadata();
+            Set<ChannelTag> channelTags = configurationController.getChannelTags();
+            Set<ChannelDependency> channelDependencies = configurationController.getChannelDependencies();
+            List<CodeTemplateLibrary> codeTemplateLibraries = includeCodeTemplateLibraries ? getCodeTemplateLibraries() : null;
+            
+            List<Channel> clonedChannels = new ArrayList<>();
+            
+            for (Channel channel : channels) {
+                // We clone the channel, so that we do not modify channels in the ChannelController's cache
+                Channel clonedChannel = channel.clone();
+                addExportData(clonedChannel, channelMetadata, channelTags, channelDependencies, codeTemplateLibraries);
+                clonedChannels.add(clonedChannel);
+            }
+            
+            return clonedChannels;
         }
-
-        return clonedChannels;
     }
 
     @Override
@@ -127,10 +132,16 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
         if (!isUserAuthorized() || isChannelRedacted(channelId)) {
             return null;
         }
-        // We clone the channel, so that we do not modify channels in the ChannelController's cache
-        Channel channel = channelController.getChannelById(channelId).clone();
-        addExportData(channel, includeCodeTemplateLibraries);
-        return channel;
+        
+        Channel channel = channelController.getChannelById(channelId);
+        if (channel == null) {
+            return channel;
+        } else {
+            // We clone the channel, so that we do not modify channels in the ChannelController's cache
+            Channel clonedChannel = channel.clone();
+            addExportData(clonedChannel, includeCodeTemplateLibraries);
+            return clonedChannel;
+        }
     }
 
     @Override
@@ -295,6 +306,8 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
                         .stream()
                         .filter(library -> library.getEnabledChannelIds().contains(channel.getId()))
                         .collect(Collectors.toList()));
+            } else {
+                channel.getExportData().setCodeTemplateLibraries(null);
             }
         }
     }
