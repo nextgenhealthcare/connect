@@ -165,10 +165,10 @@ public class MirthDcmRcv extends DcmRcv {
                 sourceConnector.finishDispatch(dispatchResult);
             }
         } catch (Throwable t) {
+        	logger.error("Error receiving DICOM message on channel " + sourceConnector.getChannelId(), t);
             if (t instanceof DicomServiceException) {
                 throw (DicomServiceException) t;
             } else {
-                logger.error("Error receiving DICOM message on channel " + sourceConnector.getChannelId(), t);
                 throw new DicomServiceException(rq, org.dcm4che2.net.Status.ProcessingFailure, "Error processing DICOM message: " + t.getMessage());
             }
         } finally {
