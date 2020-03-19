@@ -49,7 +49,7 @@ public class DICOMDispatcher extends DestinationConnector {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private DICOMConfiguration configuration = null;
+    protected DICOMConfiguration configuration = null;
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
@@ -124,7 +124,7 @@ public class DICOMDispatcher extends DestinationConnector {
         Status responseStatus = Status.QUEUED;
 
         File tempFile = null;
-        MirthDcmSnd dcmSnd = new MirthDcmSnd(configuration);
+        MirthDcmSnd dcmSnd = getDcmSnd(configuration);
 
         try {
             tempFile = File.createTempFile("temp", "tmp");
@@ -272,8 +272,12 @@ public class DICOMDispatcher extends DestinationConnector {
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
+    
+    protected MirthDcmSnd getDcmSnd(DICOMConfiguration configuration) {
+        return new MirthDcmSnd(configuration);
+    }
 
-    private class CommandDataDimseRSPHandler extends CustomDimseRSPHandler {
+    protected class CommandDataDimseRSPHandler extends CustomDimseRSPHandler {
 
         private DicomObject cmd;
 
