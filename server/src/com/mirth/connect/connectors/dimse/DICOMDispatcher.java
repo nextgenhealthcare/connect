@@ -235,8 +235,9 @@ public class DICOMDispatcher extends DestinationConnector {
             CommandDataDimseRSPHandler rspHandler = new CommandDataDimseRSPHandler();
             dcmSnd.send(rspHandler);
 
+            boolean storageCommitmentFailed = false;
             if (dcmSnd.isStorageCommitment() && !dcmSnd.commit()) {
-                logger.error("Failed to send Storage Commitment request.");
+                storageCommitmentFailed = true;
             }
 
             dcmSnd.close();
@@ -255,6 +256,12 @@ public class DICOMDispatcher extends DestinationConnector {
                 responseStatusMessage = "Error status code received from DICOM server: 0x" + StringUtils.shortToHex(status);
                 responseStatus = Status.QUEUED;
             }
+            
+            if (storageCommitmentFailed && responseStatus == Status.SENT) {
+                responseStatusMessage += " but Storage Commitment failed";
+                responseStatus = Status.QUEUED;
+            }
+            
             responseData = rspHandler.getCommandData();
         } catch (Exception e) {
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);

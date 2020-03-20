@@ -42,6 +42,7 @@ public class DICOMDispatcherTest {
         Status status = null;
         String statusMessage = null;
         
+        TestMirthDcmSnd.setCommitSucceeded(true);
         TestMirthDcmSnd.setCmdStatus(0);
         response = dispatcher.send(props, message);
         status = response.getStatus();
@@ -93,6 +94,7 @@ public class DICOMDispatcherTest {
         ConnectorMessage message = new ConnectorMessage();
         
         TestMirthDcmSnd.setCmdStatus(0);
+        TestMirthDcmSnd.setCommitSucceeded(true);
         Response response = dispatcher.send(props, message);
         String responseData = response.getMessage();
         
@@ -103,9 +105,63 @@ public class DICOMDispatcherTest {
         DonkeyElement dicom = new DonkeyElement(expectedResponseString);
         assertEquals(dicom.toXml(), responseData);
     }
+    
+    @Test
+    public void testStorageCommitment() throws Exception {
+        TestDICOMDispatcher dispatcher = new TestDICOMDispatcher();
+        dispatcher.configuration = new DefaultDICOMConfiguration();
+        DICOMDispatcherProperties props = new DICOMDispatcherProperties();
+        props.setHost("host");
+        props.setPort("9000");
+        props.setStgcmt(true);
+        ConnectorMessage message = new ConnectorMessage();
+        
+        TestMirthDcmSnd.setCmdStatus(0);
+        TestMirthDcmSnd.setCommitSucceeded(false);
+        
+        Response response = null;
+        Status status = null;
+        String statusMessage = null;
+        
+        response = dispatcher.send(props, message);
+        status = response.getStatus();
+        statusMessage = response.getStatusMessage();
+        
+        assertEquals(Status.QUEUED, status);
+        assertEquals("DICOM message successfully sent but Storage Commitment failed", statusMessage);
+        
+        // test that a failed storage commitment doesn't cause the message to fail 
+        // if the dispatcher isn't configured to care
+        props.setStgcmt(false);
+        response = dispatcher.send(props, message);
+        status = response.getStatus();
+        statusMessage = response.getStatusMessage();
+
+        assertEquals(Status.SENT, status);
+        assertEquals("DICOM message successfully sent", statusMessage);
+
+        // check with 0xB000 and requesting storage commitment
+        props.setStgcmt(true);
+        TestMirthDcmSnd.setCmdStatus(0xB000);
+        response = dispatcher.send(props, message);
+        status = response.getStatus();
+        statusMessage = response.getStatusMessage();
+        assertEquals(Status.QUEUED, status);
+        String expectedMessage = "DICOM message successfully sent with warning status code: 0x" + StringUtils.shortToHex(0xB000) + " but Storage Commitment failed";
+        assertEquals(expectedMessage, statusMessage);
+        
+        // check other status and requesting storage commitment
+        TestMirthDcmSnd.setCmdStatus(0xB008);
+        response = dispatcher.send(props, message);
+        status = response.getStatus();
+        statusMessage = response.getStatusMessage();
+        assertEquals(Status.QUEUED, status);
+        assertEquals("Error status code received from DICOM server: 0x" + StringUtils.shortToHex(0xB008), statusMessage);
+    }
 
     private static class TestMirthDcmSnd extends MirthDcmSnd {
         private static int cmdStatus;
+        private static boolean commitSucceeded = true;
         
         public TestMirthDcmSnd(DICOMConfiguration configuration) {
             super(configuration);
@@ -113,6 +169,10 @@ public class DICOMDispatcherTest {
         
         public static void setCmdStatus(int status) {
             cmdStatus = status;
+        }
+        
+        public static void setCommitSucceeded(boolean succeeded) {
+            commitSucceeded = succeeded;
         }
         
         @Override
@@ -147,6 +207,11 @@ public class DICOMDispatcherTest {
         @Override
         protected NetworkConnection createNetworkConnection() {
             return mock(NetworkConnection.class);
+        }
+        
+        @Override
+        public boolean commit() {
+            return commitSucceeded;
         }
     }
     
