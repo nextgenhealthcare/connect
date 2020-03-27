@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.dcm4che2.data.BasicDicomObject;
+import org.dcm4che2.data.DicomObject;
+import org.dcm4che2.data.SequenceDicomElement;
 import org.dcm4che2.data.Tag;
 import org.dcm4che2.data.VR;
 import org.dcm4che2.net.ConfigurationException;
@@ -130,6 +132,22 @@ public class DICOMDispatcherTest {
         assertEquals(Status.QUEUED, status);
         assertEquals("DICOM message successfully sent but Storage Commitment failed with reason: Unknown", statusMessage);
         
+        // Test the case where the stgcmt request succeeds but contains failed SOP items
+        TestMirthDcmSnd.setCommitSucceeded(true);
+        TestMirthDcmSnd.setFailedSOP(true);
+        TestMirthDcmSnd.setFailureReason(1);
+        
+        response = dispatcher.send(props, message);
+        status = response.getStatus();
+        statusMessage = response.getStatusMessage();
+        
+        assertEquals(Status.QUEUED, status);
+        assertEquals("DICOM message successfully sent but Storage Commitment failed with reason: 1", statusMessage);
+        
+        TestMirthDcmSnd.setCommitSucceeded(false);
+        TestMirthDcmSnd.setFailedSOP(false);
+        TestMirthDcmSnd.setFailureReason(0);
+        
         // test that a failed storage commitment doesn't cause the message to fail 
         // if the dispatcher isn't configured to care
         props.setStgcmt(false);
@@ -162,6 +180,8 @@ public class DICOMDispatcherTest {
     private static class TestMirthDcmSnd extends MirthDcmSnd {
         private static int cmdStatus;
         private static boolean commitSucceeded = true;
+        private static boolean failedSOP = false;
+        private static int failureReason = 0;
         
         public TestMirthDcmSnd(DICOMConfiguration configuration) {
             super(configuration);
@@ -173,6 +193,14 @@ public class DICOMDispatcherTest {
         
         public static void setCommitSucceeded(boolean succeeded) {
             commitSucceeded = succeeded;
+        }
+        
+        public static void setFailedSOP(boolean failedSOP) {
+            TestMirthDcmSnd.failedSOP = failedSOP;
+        }
+        
+        public static void setFailureReason(int failureReason) {
+            TestMirthDcmSnd.failureReason = failureReason;
         }
         
         @Override
@@ -202,6 +230,18 @@ public class DICOMDispatcherTest {
             BasicDicomObject cmd = new BasicDicomObject();
             cmd.putInt(Tag.Status, VR.IS, cmdStatus);
             handler.onDimseRSP(null, cmd, null);
+        }
+        
+        @Override
+        public synchronized DicomObject waitForStgCmtResult() throws InterruptedException {
+            BasicDicomObject rsp = new BasicDicomObject();
+            if (failedSOP) {
+                SequenceDicomElement failedSOPSq = (SequenceDicomElement) rsp.putSequence(Tag.FailedSOPSequence);
+                BasicDicomObject failedSOPItem = new BasicDicomObject();
+                failedSOPItem.putInt(Tag.FailureReason, VR.IS, failureReason);
+                failedSOPSq.addDicomObject(failedSOPItem);
+            }
+            return rsp;
         }
         
         @Override
