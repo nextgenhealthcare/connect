@@ -39,21 +39,21 @@ public class DICOMDispatcherTest {
         props.setHost("host");
         props.setPort("9000");
         ConnectorMessage message = new ConnectorMessage();
-        
+
         Response response = null;
         Status status = null;
         String statusMessage = null;
-        
+
         TestMirthDcmSnd.setCommitSucceeded(true);
         TestMirthDcmSnd.setCmdStatus(0);
         response = dispatcher.send(props, message);
         status = response.getStatus();
         statusMessage = response.getStatusMessage();
-        
+
         // check with 0 status
         assertEquals(Status.SENT, status);
         assertEquals("DICOM message successfully sent", statusMessage);
-        
+
         // check with 0xB000 || 0xB006 || 0xB007 status
         TestMirthDcmSnd.setCmdStatus(0xB000);
         response = dispatcher.send(props, message);
@@ -61,7 +61,7 @@ public class DICOMDispatcherTest {
         statusMessage = response.getStatusMessage();
         assertEquals(Status.SENT, status);
         assertEquals("DICOM message successfully sent with warning status code: 0x" + StringUtils.shortToHex(0xB000), statusMessage);
-        
+
         TestMirthDcmSnd.setCmdStatus(0xB006);
         response = dispatcher.send(props, message);
         status = response.getStatus();
@@ -75,7 +75,7 @@ public class DICOMDispatcherTest {
         statusMessage = response.getStatusMessage();
         assertEquals(Status.SENT, status);
         assertEquals("DICOM message successfully sent with warning status code: 0x" + StringUtils.shortToHex(0xB007), statusMessage);
-        
+
         // check other status == QUEUED
         TestMirthDcmSnd.setCmdStatus(0xB008);
         response = dispatcher.send(props, message);
@@ -84,7 +84,7 @@ public class DICOMDispatcherTest {
         assertEquals(Status.QUEUED, status);
         assertEquals("Error status code received from DICOM server: 0x" + StringUtils.shortToHex(0xB008), statusMessage);
     }
-    
+
     @Test
     public void testResponseData() throws DonkeyElementException {
         // send message using our custom MirthDcmSnd
@@ -94,20 +94,17 @@ public class DICOMDispatcherTest {
         props.setHost("host");
         props.setPort("9000");
         ConnectorMessage message = new ConnectorMessage();
-        
+
         TestMirthDcmSnd.setCmdStatus(0);
         TestMirthDcmSnd.setCommitSucceeded(true);
         Response response = dispatcher.send(props, message);
         String responseData = response.getMessage();
-        
-        String expectedResponseString = "<dicom>\n" + 
-                "<tag00000900 len=\"2\" tag=\"00000900\" vr=\"IS\">0</tag00000900>\n" + 
-                "</dicom>\n" + 
-                "";
+
+        String expectedResponseString = "<dicom>\n" + "<tag00000900 len=\"2\" tag=\"00000900\" vr=\"IS\">0</tag00000900>\n" + "</dicom>\n" + "";
         DonkeyElement dicom = new DonkeyElement(expectedResponseString);
         assertEquals(dicom.toXml(), responseData);
     }
-    
+
     @Test
     public void testStorageCommitment() throws Exception {
         TestDICOMDispatcher dispatcher = new TestDICOMDispatcher();
@@ -117,37 +114,37 @@ public class DICOMDispatcherTest {
         props.setPort("9000");
         props.setStgcmt(true);
         ConnectorMessage message = new ConnectorMessage();
-        
+
         TestMirthDcmSnd.setCmdStatus(0);
         TestMirthDcmSnd.setCommitSucceeded(false);
-        
+
         Response response = null;
         Status status = null;
         String statusMessage = null;
-        
+
         response = dispatcher.send(props, message);
         status = response.getStatus();
         statusMessage = response.getStatusMessage();
-        
+
         assertEquals(Status.QUEUED, status);
         assertEquals("DICOM message successfully sent but Storage Commitment failed with reason: Unknown", statusMessage);
-        
+
         // Test the case where the stgcmt request succeeds but contains failed SOP items
         TestMirthDcmSnd.setCommitSucceeded(true);
         TestMirthDcmSnd.setFailedSOP(true);
         TestMirthDcmSnd.setFailureReason(1);
-        
+
         response = dispatcher.send(props, message);
         status = response.getStatus();
         statusMessage = response.getStatusMessage();
-        
+
         assertEquals(Status.QUEUED, status);
         assertEquals("DICOM message successfully sent but Storage Commitment failed with reason: 1", statusMessage);
-        
+
         TestMirthDcmSnd.setCommitSucceeded(false);
         TestMirthDcmSnd.setFailedSOP(false);
         TestMirthDcmSnd.setFailureReason(0);
-        
+
         // test that a failed storage commitment doesn't cause the message to fail 
         // if the dispatcher isn't configured to care
         props.setStgcmt(false);
@@ -167,7 +164,7 @@ public class DICOMDispatcherTest {
         assertEquals(Status.QUEUED, status);
         String expectedMessage = "DICOM message successfully sent with warning status code: 0x" + StringUtils.shortToHex(0xB000) + " but Storage Commitment failed with reason: Unknown";
         assertEquals(expectedMessage, statusMessage);
-        
+
         // check other status and requesting storage commitment
         TestMirthDcmSnd.setCmdStatus(0xB008);
         response = dispatcher.send(props, message);
@@ -182,48 +179,48 @@ public class DICOMDispatcherTest {
         private static boolean commitSucceeded = true;
         private static boolean failedSOP = false;
         private static int failureReason = 0;
-        
+
         public TestMirthDcmSnd(DICOMConfiguration configuration) {
             super(configuration);
         }
-        
+
         public static void setCmdStatus(int status) {
             cmdStatus = status;
         }
-        
+
         public static void setCommitSucceeded(boolean succeeded) {
             commitSucceeded = succeeded;
         }
-        
+
         public static void setFailedSOP(boolean failedSOP) {
             TestMirthDcmSnd.failedSOP = failedSOP;
         }
-        
+
         public static void setFailureReason(int failureReason) {
             TestMirthDcmSnd.failureReason = failureReason;
         }
-        
+
         @Override
         protected void init() {
             conn = createNetworkConnection();
             remoteConn = createNetworkConnection();
         }
-        
+
         @Override
         public void start() throws IOException {}
-        
+
         @Override
         public void open() throws IOException, ConfigurationException, InterruptedException {}
-        
+
         @Override
         public void close() {}
-        
+
         @Override
         public void stop() {}
-        
+
         @Override
         public void addFile(File f) {}
-        
+
         @Override
         public void send(CustomDimseRSPHandler responseHandler) {
             CommandDataDimseRSPHandler handler = (CommandDataDimseRSPHandler) responseHandler;
@@ -231,7 +228,7 @@ public class DICOMDispatcherTest {
             cmd.putInt(Tag.Status, VR.IS, cmdStatus);
             handler.onDimseRSP(null, cmd, null);
         }
-        
+
         @Override
         public synchronized DicomObject waitForStgCmtResult() throws InterruptedException {
             BasicDicomObject rsp = new BasicDicomObject();
@@ -243,35 +240,35 @@ public class DICOMDispatcherTest {
             }
             return rsp;
         }
-        
+
         @Override
         protected NetworkConnection createNetworkConnection() {
             return mock(NetworkConnection.class);
         }
-        
+
         @Override
         public boolean commit() {
             return commitSucceeded;
         }
     }
-    
+
     private class TestDICOMDispatcher extends DICOMDispatcher {
         @Override
         protected MirthDcmSnd getDcmSnd(DICOMConfiguration configuration) {
             return new TestMirthDcmSnd(configuration);
         }
-        
+
         @Override
         protected AttachmentHandlerProvider getAttachmentHandlerProvider() {
             return new TestAttachmentHandlerProvider(null);
         }
     }
-    
+
     private class TestAttachmentHandlerProvider extends DICOMAttachmentHandlerProvider {
         public TestAttachmentHandlerProvider(MessageController messageController) {
             super(messageController);
         }
-        
+
         @Override
         public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach) {
             return "".getBytes();
