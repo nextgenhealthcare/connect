@@ -128,7 +128,7 @@ public class DICOMDispatcherTest {
         statusMessage = response.getStatusMessage();
         
         assertEquals(Status.QUEUED, status);
-        assertEquals("DICOM message successfully sent but Storage Commitment failed", statusMessage);
+        assertEquals("DICOM message successfully sent but Storage Commitment failed with reason: Unknown", statusMessage);
         
         // test that a failed storage commitment doesn't cause the message to fail 
         // if the dispatcher isn't configured to care
@@ -147,7 +147,7 @@ public class DICOMDispatcherTest {
         status = response.getStatus();
         statusMessage = response.getStatusMessage();
         assertEquals(Status.QUEUED, status);
-        String expectedMessage = "DICOM message successfully sent with warning status code: 0x" + StringUtils.shortToHex(0xB000) + " but Storage Commitment failed";
+        String expectedMessage = "DICOM message successfully sent with warning status code: 0x" + StringUtils.shortToHex(0xB000) + " but Storage Commitment failed with reason: Unknown";
         assertEquals(expectedMessage, statusMessage);
         
         // check other status and requesting storage commitment
