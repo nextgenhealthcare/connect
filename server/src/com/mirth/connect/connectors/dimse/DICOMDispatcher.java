@@ -236,8 +236,22 @@ public class DICOMDispatcher extends DestinationConnector {
             dcmSnd.send(rspHandler);
 
             boolean storageCommitmentFailed = false;
-            if (dcmSnd.isStorageCommitment() && !dcmSnd.commit()) {
-                storageCommitmentFailed = true;
+            String storageCommitmentFailureReason = "Unknown";
+            if (dcmSnd.isStorageCommitment()) {
+                if (dcmSnd.commit()) {
+                    DicomObject cmtrslt = dcmSnd.waitForStgCmtResult();
+                    DicomElement failedSOPSq = cmtrslt.get(Tag.FailedSOPSequence);
+                    if (failedSOPSq != null && failedSOPSq.countItems() > 0) {
+                        storageCommitmentFailed = true;
+                        DicomObject failedSOPItem = failedSOPSq.getDicomObject();
+                        int failureReason = failedSOPItem.getInt(Tag.FailureReason);
+                        if (failureReason != 0) {
+                            storageCommitmentFailureReason = String.valueOf(failureReason);
+                        }
+                    }
+                } else {
+                    storageCommitmentFailed = true;
+                }
             }
 
             dcmSnd.close();
@@ -256,12 +270,12 @@ public class DICOMDispatcher extends DestinationConnector {
                 responseStatusMessage = "Error status code received from DICOM server: 0x" + StringUtils.shortToHex(status);
                 responseStatus = Status.QUEUED;
             }
-            
+
             if (storageCommitmentFailed && responseStatus == Status.SENT) {
-                responseStatusMessage += " but Storage Commitment failed";
+                responseStatusMessage += " but Storage Commitment failed with reason: " + storageCommitmentFailureReason;
                 responseStatus = Status.QUEUED;
             }
-            
+
             responseData = rspHandler.getCommandData();
         } catch (Exception e) {
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
@@ -279,7 +293,7 @@ public class DICOMDispatcher extends DestinationConnector {
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
-    
+
     protected MirthDcmSnd getDcmSnd(DICOMConfiguration configuration) {
         return new MirthDcmSnd(configuration);
     }
