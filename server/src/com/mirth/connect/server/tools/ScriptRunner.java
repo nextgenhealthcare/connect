@@ -11,10 +11,12 @@ package com.mirth.connect.server.tools;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -35,14 +37,33 @@ public class ScriptRunner {
     }
 
     public static void runScript(String scriptFile) {
+        Connection connection = null;
+        InputStream in = null;
+        
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
-            Connection connection = DriverManager.getConnection("jdbc:derby:mirthdb;create=true");
-            InputStream in = new FileInputStream(new File(scriptFile));
+            connection = DriverManager.getConnection("jdbc:derby:mirthdb;create=true");
+            in = new FileInputStream(new File(scriptFile));
             OutputStream out = new NullOutputStream();
             ij.runScript(connection, in, "UTF-8", out, "UTF-8");
         } catch (Exception e) {
             logger.error("error executing script", e);
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    logger.error("Error closing database connection.", e);
+                }
+            }
+            
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    logger.error("Error closing file input stream.", e);
+                }
+            }
         }
     }
 
