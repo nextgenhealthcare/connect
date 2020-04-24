@@ -9,6 +9,7 @@
 
 package com.mirth.connect.util;
 
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,6 +45,8 @@ import org.mozilla.javascript.ast.XmlDotQuery;
 import org.mozilla.javascript.ast.XmlElemRef;
 import org.mozilla.javascript.ast.XmlMemberGet;
 import org.mozilla.javascript.ast.XmlPropRef;
+
+import com.mirth.connect.server.util.ResourceUtil;
 
 public class JavaScriptSharedUtil {
 
@@ -191,8 +194,11 @@ public class JavaScriptSharedUtil {
 
     private static ScriptableObject getFormatterScope() {
         Context context = getGlobalContextForValidation();
+        InputStream is = null;
+        
         try {
-            String script = IOUtils.toString(JavaScriptSharedUtil.class.getResourceAsStream("beautify-1.6.8.js"));
+            is = JavaScriptSharedUtil.class.getResourceAsStream("beautify-1.6.8.js");
+            String script = IOUtils.toString(is);
             ScriptableObject scope = context.initStandardObjects();
             context.evaluateString(scope, "var global = {};", UUID.randomUUID().toString(), 1, null);
             context.evaluateString(scope, script, UUID.randomUUID().toString(), 1, null);
@@ -202,6 +208,7 @@ public class JavaScriptSharedUtil {
             logger.error("Failed to load beautify library.");
             return null;
         } finally {
+            ResourceUtil.closeResourceQuietly(is);
             Context.exit();
         }
     }

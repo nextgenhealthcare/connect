@@ -27,7 +27,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -52,6 +51,7 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.util.CharsetUtils;
 
 public class DatabaseReceiver extends PollConnector {
@@ -403,19 +403,21 @@ public class DatabaseReceiver extends PollConnector {
 
     private String clobToString(Clob clob) throws Exception {
         StringBuilder stringBuilder = new StringBuilder();
-        Reader reader = clob.getCharacterStream();
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        int c;
+        Reader reader = null;
+        BufferedReader bufferedReader = null;
 
         try {
+            reader = clob.getCharacterStream();
+            bufferedReader = new BufferedReader(reader);
+            int c;
             while ((c = bufferedReader.read()) != -1) {
                 stringBuilder.append((char) c);
             }
 
             return stringBuilder.toString();
         } finally {
-            IOUtils.closeQuietly(bufferedReader);
-            IOUtils.closeQuietly(reader);
+            ResourceUtil.closeResourceQuietly(bufferedReader);
+            ResourceUtil.closeResourceQuietly(reader);
         }
     }
 

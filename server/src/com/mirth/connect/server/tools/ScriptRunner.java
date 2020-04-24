@@ -24,6 +24,7 @@ import org.apache.derby.tools.ij;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.ResourceUtil;
 
 public class ScriptRunner {
     private static Logger logger = Logger.getLogger("ScriptRunner");
@@ -57,13 +58,7 @@ public class ScriptRunner {
                 }
             }
             
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    logger.error("Error closing file input stream.", e);
-                }
-            }
+            ResourceUtil.closeResourceQuietly(in);
         }
     }
 

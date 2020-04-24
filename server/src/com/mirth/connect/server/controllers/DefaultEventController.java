@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
@@ -37,6 +36,7 @@ import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.event.AuditableEventListener;
 import com.mirth.connect.server.event.EventListener;
 import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
 public class DefaultEventController extends EventController {
@@ -228,8 +228,9 @@ public class DefaultEventController extends EventController {
         exportDir.mkdir();
         File exportFile = new File(exportDir, currentDateTime + "-events.txt");
 
+        FileWriter writer = null;
         try {
-            FileWriter writer = new FileWriter(exportFile, true);
+            writer = new FileWriter(exportFile, true);
 
             // write the CSV headers to the file
             writer.write(ServerEvent.getExportHeader());
@@ -254,7 +255,6 @@ public class DefaultEventController extends EventController {
                 events = getEvents(filter, null, interval);
             }
 
-            IOUtils.closeQuietly(writer);
             logger.debug("events exported to file: " + exportFile.getAbsolutePath());
 
             ServerEvent event = new ServerEvent(ControllerFactory.getFactory().createConfigurationController().getServerId(), "Sucessfully exported events");
@@ -262,6 +262,8 @@ public class DefaultEventController extends EventController {
             dispatchEvent(event);
         } catch (IOException e) {
             throw new ControllerException("Error exporting events to file.", e);
+        } finally {
+            ResourceUtil.closeResourceQuietly(writer);
         }
 
         return exportFile.getAbsolutePath();

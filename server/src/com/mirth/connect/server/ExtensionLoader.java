@@ -20,7 +20,6 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -236,9 +235,15 @@ public class ExtensionLoader {
     private String getServerVersion() throws FileNotFoundException, ConfigurationException {
         PropertiesConfiguration versionConfig = new PropertiesConfiguration();
         versionConfig.setDelimiterParsingDisabled(true);
-        InputStream versionPropertiesStream = ResourceUtil.getResourceStream(ExtensionLoader.class, "version.properties");
-        versionConfig.load(versionPropertiesStream);
-        IOUtils.closeQuietly(versionPropertiesStream);
+        
+        InputStream versionPropertiesStream = null;
+        try {
+            versionPropertiesStream = ResourceUtil.getResourceStream(ExtensionLoader.class, "version.properties");
+            versionConfig.load(versionPropertiesStream);
+        } finally {
+            ResourceUtil.closeResourceQuietly(versionPropertiesStream);
+        }
+        
         return versionConfig.getString("mirth.version");
     }
 }

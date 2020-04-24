@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.donkey.util.ResourceUtil;
 
 public class ManagerController {
 
@@ -75,6 +76,8 @@ public class ManagerController {
                 versionProperties.load(is);
             } catch (ConfigurationException e) {
                 alertErrorDialog("Could not load resource: " + ManagerConstants.PATH_VERSION_FILE);
+            } finally {
+                ResourceUtil.closeResourceQuietly(is);
             }
         } else {
             versionProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_VERSION_FILE, true);
