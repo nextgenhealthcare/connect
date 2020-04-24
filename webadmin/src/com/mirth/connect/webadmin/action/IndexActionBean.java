@@ -21,6 +21,7 @@ import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
 
+import com.mirth.connect.donkey.util.ResourceUtil;
 import com.mirth.connect.webadmin.utils.Constants;
 
 public class IndexActionBean extends BaseActionBean {
@@ -64,6 +65,8 @@ public class IndexActionBean extends BaseActionBean {
 
             } catch (IOException e) {
                 // Ignore
+            } finally {
+                ResourceUtil.closeResourceQuietly(mirthPropertiesStream);
             }
         }
 

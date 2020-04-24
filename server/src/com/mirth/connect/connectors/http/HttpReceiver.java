@@ -112,6 +112,7 @@ import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.userutil.MessageHeaders;
 import com.mirth.connect.userutil.MessageParameters;
@@ -717,7 +718,13 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
                 if (staticResource.getResourceType() == ResourceType.FILE) {
                     // Just stream the file itself back to the client
-                    IOUtils.copy(new FileInputStream(value), responseOutputStream);
+                    InputStream is = null;
+                    try {
+                        is = new FileInputStream(value);
+                        IOUtils.copy(is, responseOutputStream);
+                    } finally {
+                        ResourceUtil.closeResourceQuietly(is);
+                    }
                 } else if (staticResource.getResourceType() == ResourceType.DIRECTORY) {
                     File file = new File(value);
 
@@ -747,7 +754,13 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                         }
 
                         // A valid file was found; stream it back to the client
-                        IOUtils.copy(new FileInputStream(file), responseOutputStream);
+                        InputStream is = null;
+                        try {
+                            is = new FileInputStream(file);
+                            IOUtils.copy(is, responseOutputStream);
+                        } finally {
+                            ResourceUtil.closeResourceQuietly(is);
+                        }
                     } else {
                         // File does not exist, pass to the next request handler
                         servletResponse.reset();

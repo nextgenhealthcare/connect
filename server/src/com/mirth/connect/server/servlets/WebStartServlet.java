@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -91,16 +90,29 @@ public class WebStartServlet extends HttpServlet {
     }
 
     private Document getAdministratorJnlp(HttpServletRequest request) throws Exception {
-        InputStream is = ResourceUtil.getResourceStream(this.getClass(), "mirth-client.jnlp");
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-        IOUtils.closeQuietly(is);
+        InputStream clientJnlpIs = null;
+        Document document;
+        try {
+            clientJnlpIs = ResourceUtil.getResourceStream(this.getClass(), "mirth-client.jnlp");
+            document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(clientJnlpIs);
+        } finally {
+            ResourceUtil.closeResourceQuietly(clientJnlpIs);
+        }
 
         Element jnlpElement = document.getDocumentElement();
 
         // Change the title to include the version of Mirth Connect
         PropertiesConfiguration versionProperties = new PropertiesConfiguration();
         versionProperties.setDelimiterParsingDisabled(true);
-        versionProperties.load(ResourceUtil.getResourceStream(getClass(), "version.properties"));
+        
+        InputStream versionPropsIs = null;
+        try {
+            versionPropsIs = ResourceUtil.getResourceStream(getClass(), "version.properties");
+            versionProperties.load(versionPropsIs);
+        } finally {
+            ResourceUtil.closeResourceQuietly(versionPropsIs);
+        }
+        
         String version = versionProperties.getString("mirth.version");
 
         jnlpElement.setAttribute("version", version);
@@ -131,7 +143,14 @@ public class WebStartServlet extends HttpServlet {
 
         PropertiesConfiguration mirthProperties = new PropertiesConfiguration();
         mirthProperties.setDelimiterParsingDisabled(true);
-        mirthProperties.load(ResourceUtil.getResourceStream(getClass(), "mirth.properties"));
+        
+        InputStream mirthPropsIs = null;
+        try {
+            mirthPropsIs = ResourceUtil.getResourceStream(getClass(), "mirth.properties"); 
+            mirthProperties.load(mirthPropsIs);
+        } finally {
+            ResourceUtil.closeResourceQuietly(mirthPropsIs);
+        }
 
         String server = null;
 
@@ -333,6 +352,7 @@ public class WebStartServlet extends HttpServlet {
     }
 
     private String getDigest(File directory, String filePath) throws Exception {
+        FileInputStream fis = null;
         BufferedInputStream bis = null;
         try {
             String canonicalDirPath = directory.getCanonicalPath();
@@ -342,7 +362,8 @@ public class WebStartServlet extends HttpServlet {
                 throw new Exception("File " + filePath + " does not reside within directory " + directory);
             }
 
-            bis = new BufferedInputStream(new FileInputStream(file));
+            fis = new FileInputStream(file);
+            bis = new BufferedInputStream(fis);
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
             byte[] buffer = new byte[4096];
@@ -353,7 +374,8 @@ public class WebStartServlet extends HttpServlet {
 
             return Base64.getEncoder().encodeToString(digest.digest());
         } finally {
-            IOUtils.closeQuietly(bis);
+            ResourceUtil.closeResourceQuietly(fis);
+            ResourceUtil.closeResourceQuietly(bis);
         }
     }
 }

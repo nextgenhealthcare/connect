@@ -35,7 +35,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.PropertiesConfigurationLayout;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -157,6 +156,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     private void initialize() {
+        InputStream versionPropertiesStream = null;
+        
         try {
             // Disable delimiter parsing so getString() returns the whole
             // property, even if there are commas
@@ -168,9 +169,8 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             // load the server version
             versionConfig.setDelimiterParsingDisabled(true);
-            InputStream versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
+            versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
             versionConfig.load(versionPropertiesStream);
-            IOUtils.closeQuietly(versionPropertiesStream);
 
             if (mirthConfig.getString(PROPERTY_TEMP_DIR) != null) {
                 File tempDataDirFile = new File(mirthConfig.getString(PROPERTY_TEMP_DIR));
@@ -318,6 +318,8 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
         } catch (Exception e) {
             logger.error("Failed to initialize configuration controller", e);
+        } finally {
+            ResourceUtil.closeResourceQuietly(versionPropertiesStream);
         }
     }
 
@@ -1007,6 +1009,9 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public void initializeSecuritySettings() {
+        InputStream keyStoreFileIs = null;
+        FileOutputStream fos = null;
+        
         try {
             /*
              * Load the encryption settings so that they can be referenced client side.
@@ -1028,7 +1033,8 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             if (keyStoreFile.exists()) {
-                keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
+                keyStoreFileIs = new FileInputStream(keyStoreFile);
+                keyStore.load(keyStoreFileIs, keyStorePassword);
                 logger.debug("found and loaded keystore: " + keyStoreFile.getAbsolutePath());
             } else {
                 /*
@@ -1055,11 +1061,13 @@ public class DefaultConfigurationController extends ConfigurationController {
             generateDefaultCertificate(provider, keyStore, keyPassword);
 
             // write the keystore back to the file
-            FileOutputStream fos = new FileOutputStream(keyStoreFile);
+            fos = new FileOutputStream(keyStoreFile);
             keyStore.store(fos, keyStorePassword);
-            IOUtils.closeQuietly(fos);
         } catch (Exception e) {
             logger.error("Could not initialize security settings.", e);
+        } finally {
+            ResourceUtil.closeResourceQuietly(keyStoreFileIs);
+            ResourceUtil.closeResourceQuietly(fos);
         }
     }
 
@@ -1136,7 +1144,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         try {
             mirthConfig.save(os);
         } finally {
-            IOUtils.closeQuietly(os);
+            ResourceUtil.closeResourceQuietly(os);
         }
     }
 
@@ -1155,10 +1163,14 @@ public class DefaultConfigurationController extends ConfigurationController {
         PropertiesConfiguration properties = new PropertiesConfiguration();
         properties.setDelimiterParsingDisabled(true);
 
+        InputStream mirthPropsIs = null;
+        OutputStream keyStoreOuputStream = null;
+        
         try {
             if (getProperty(PROPERTIES_CORE, "encryption.key") != null) {
                 // load the keystore path and passwords
-                properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
+                mirthPropsIs = ResourceUtil.getResourceStream(this.getClass(), "mirth.properties");
+                properties.load(mirthPropsIs);
                 File keyStoreFile = new File(properties.getString("keystore.path"));
                 char[] keyStorePassword = properties.getString("keystore.storepass").toCharArray();
                 char[] keyPassword = properties.getString("keystore.keypass").toCharArray();
@@ -1202,13 +1214,8 @@ public class DefaultConfigurationController extends ConfigurationController {
                 keyStore.setEntry(SECRET_KEY_ALIAS, entry, new KeyStore.PasswordProtection(keyPassword));
 
                 // save the keystore to the filesystem
-                OutputStream keyStoreOuputStream = new FileOutputStream(keyStoreFile);
-
-                try {
-                    keyStore.store(keyStoreOuputStream, keyStorePassword);
-                } finally {
-                    IOUtils.closeQuietly(keyStoreOuputStream);
-                }
+                keyStoreOuputStream = new FileOutputStream(keyStoreFile);
+                keyStore.store(keyStoreOuputStream, keyStorePassword);
 
                 // remove the property from CONFIGURATION
                 removeProperty(PROPERTIES_CORE, "encryption.key");
@@ -1218,6 +1225,9 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
         } catch (Exception e) {
             logger.error("Error migrating encryption key from database to keystore.", e);
+        } finally {
+            ResourceUtil.closeResourceQuietly(mirthPropsIs);
+            ResourceUtil.closeResourceQuietly(keyStoreOuputStream);
         }
     }
 
