@@ -127,6 +127,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String HTTPS_CLIENT_PROTOCOLS = "https.client.protocols";
     private static final String HTTPS_SERVER_PROTOCOLS = "https.server.protocols";
     private static final String HTTPS_CIPHER_SUITES = "https.ciphersuites";
+    private static final String TLS_PROFILE_DEFAULT = "tls.profile.default";
     private static final String STARTUP_DEPLOY = "server.startupdeploy";
     private static final String API_BYPASSWORD = "server.api.bypassword";
     private static final String STATS_UPDATE_INTERVAL = "donkey.statsupdateinterval";
@@ -243,7 +244,8 @@ public class DefaultConfigurationController extends ConfigurationController {
                 httpsServerProtocols = MirthSSLUtil.DEFAULT_HTTPS_SERVER_PROTOCOLS;
             }
 
-            String[] httpsCipherSuitesArray = mirthConfig.getStringArray(HTTPS_CIPHER_SUITES);
+            String defaultTlsProfile = mirthConfig.getString(TLS_PROFILE_DEFAULT);
+            String[] httpsCipherSuitesArray = mirthConfig.getStringArray(HTTPS_CIPHER_SUITES + "." + defaultTlsProfile);
             if (ArrayUtils.isNotEmpty(httpsCipherSuitesArray)) {
                 // Support both comma separated and multiline values
                 List<String> httpsCipherSuitesList = new ArrayList<String>();

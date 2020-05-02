@@ -107,27 +107,29 @@ public class DcmSnd extends StorageCommitmentService {
 
     private static final int PEEK_LEN = 1024;
 
-    private static final String USAGE = 
-        "dcmsnd <aet>[@<host>[:<port>]] <file>|<directory>... [Options]";
+    private static final String USAGE =
+            "dcmsnd <aet>[@<host>[:<port>]] <file>|<directory>... [Options]";
 
-    private static final String DESCRIPTION = 
-        "\nLoad composite DICOM Object(s) from specified DICOM file(s) and send it "
-      + "to the specified remote Application Entity. If a directory is specified,"
-      + "DICOM Object in files under that directory and further sub-directories "
-      + "are sent. If <port> is not specified, DICOM default port 104 is assumed. "
-      + "If also no <host> is specified, localhost is assumed. Optionally, a "
-      + "Storage Commitment Request for successfully tranferred objects is sent "
-      + "to the remote Application Entity after the storage. The Storage Commitment "
-      + "result is accepted on the same association or - if a local port is "
-      + "specified by option -L - in a separate association initiated by the "
-      + "remote Application Entity\n"
-      + "OPTIONS:";
+    private static final String DESCRIPTION =
+            "\nLoad composite DICOM Object(s) from specified DICOM file(s) and send it "
+                    + "to the specified remote Application Entity. If a directory is specified,"
+                    + "DICOM Object in files under that directory and further sub-directories "
+                    + "are sent. If <port> is not specified, DICOM default port 104 is assumed. "
+                    + "If also no <host> is specified, localhost is assumed. Optionally, a "
+                    + "Storage Commitment Request for successfully tranferred objects is sent "
+                    + "to the remote Application Entity after the storage. The Storage Commitment "
+                    + "result is accepted on the same association or - if a local port is "
+                    + "specified by option -L - in a separate association initiated by the "
+                    + "remote Application Entity\n"
+                    + "OPTIONS:";
 
-    private static final String EXAMPLE = 
-        "\nExample: dcmsnd STORESCP@localhost:11112 image.dcm -stgcmt -L DCMSND:11113 \n"
-      + "=> Start listening on local port 11113 for receiving Storage Commitment "
-      + "results, send DICOM object image.dcm to Application Entity STORESCP, "
-      + "listening on local port 11112, and request Storage Commitment in same association.";
+    private static final String EXAMPLE =
+            "\nExample: dcmsnd STORESCP@localhost:11112 image.dcm -stgcmt -L DCMSND:11113 \n"
+                    + "=> Start listening on local port 11113 for receiving Storage Commitment "
+                    + "results, send DICOM object image.dcm to Application Entity STORESCP, "
+                    + "listening on local port 11112, and request Storage Commitment in same association.";
+
+    private static String[] TLS12 = { "TLSv1.2" };
 
     private static String[] TLS1 = { "TLSv1" };
 
@@ -140,27 +142,27 @@ public class DcmSnd extends StorageCommitmentService {
     private static String[] NO_SSL3 = { "TLSv1", "SSLv2Hello" };
 
     private static char[] SECRET = { 's', 'e', 'c', 'r', 'e', 't' };
-    
-    private static final String[] ONLY_IVLE_TS = { 
-        UID.ImplicitVRLittleEndian
+
+    private static final String[] ONLY_IVLE_TS = {
+            UID.ImplicitVRLittleEndian
     };
 
-    private static final String[] IVLE_TS = { 
-        UID.ImplicitVRLittleEndian,
-        UID.ExplicitVRLittleEndian, 
-        UID.ExplicitVRBigEndian,
+    private static final String[] IVLE_TS = {
+            UID.ImplicitVRLittleEndian,
+            UID.ExplicitVRLittleEndian,
+            UID.ExplicitVRBigEndian,
     };
 
     private static final String[] EVLE_TS = {
-        UID.ExplicitVRLittleEndian,
-        UID.ImplicitVRLittleEndian,
-        UID.ExplicitVRBigEndian, 
+            UID.ExplicitVRLittleEndian,
+            UID.ImplicitVRLittleEndian,
+            UID.ExplicitVRBigEndian,
     };
 
-    private static final String[] EVBE_TS = { 
-        UID.ExplicitVRBigEndian,
-        UID.ExplicitVRLittleEndian, 
-        UID.ImplicitVRLittleEndian, 
+    private static final String[] EVBE_TS = {
+            UID.ExplicitVRBigEndian,
+            UID.ExplicitVRLittleEndian,
+            UID.ImplicitVRLittleEndian,
     };
 
     private static final int STG_CMT_ACTION_TYPE = 1;
@@ -194,7 +196,7 @@ public class DcmSnd extends StorageCommitmentService {
     private Association assoc;
 
     private int priority = 0;
-    
+
     private int transcoderBufferSize = 1024;
 
     private int filesSent = 0;
@@ -204,9 +206,9 @@ public class DcmSnd extends StorageCommitmentService {
     private boolean fileref = false;
 
     private boolean stgcmt = false;
-    
+
     private long shutdownDelay = 1000L;
-    
+
     private DicomObject stgCmtResult;
 
     private DicomObject coerceAttrs;
@@ -214,17 +216,17 @@ public class DcmSnd extends StorageCommitmentService {
     private String[] suffixUID;
 
     private String keyStoreURL = "resource:tls/test_sys_1.p12";
-    
-    private char[] keyStorePassword = SECRET; 
 
-    private char[] keyPassword; 
-    
+    private char[] keyStorePassword = SECRET;
+
+    private char[] keyPassword;
+
     private String trustStoreURL = "resource:tls/mesa_certs.jks";
-    
+
     private char[] trustStorePassword = SECRET;
-    
+
     private int batchSize = 0;
-    
+
     private int lastSentFile = 0;
 
     private Anonymizer anonymizer;
@@ -313,27 +315,27 @@ public class DcmSnd extends StorageCommitmentService {
         remoteConn.setTlsAES_128_CBC();
         remoteStgcmtConn.setTlsAES_128_CBC();
     }
-    
+
     public final void setTlsNeedClientAuth(boolean needClientAuth) {
         conn.setTlsNeedClientAuth(needClientAuth);
-    }  
-    
+    }
+
     public final void setKeyStoreURL(String url) {
         keyStoreURL = url;
     }
-    
+
     public final void setKeyStorePassword(String pw) {
         keyStorePassword = pw.toCharArray();
     }
-    
+
     public final void setKeyPassword(String pw) {
         keyPassword = pw.toCharArray();
     }
-    
+
     public final void setTrustStorePassword(String pw) {
         trustStorePassword = pw.toCharArray();
     }
-    
+
     public final void setTrustStoreURL(String url) {
         trustStoreURL = url;
     }
@@ -345,11 +347,11 @@ public class DcmSnd extends StorageCommitmentService {
     public final void setCalling(String calling) {
         ae.setAETitle(calling);
     }
-    
+
     public final void setUserIdentity(UserIdentity userIdentity) {
         ae.setUserIdentity(userIdentity);
     }
-    
+
     public final void setOfferDefaultTransferSyntaxInSeparatePresentationContext(
             boolean enable) {
         ae.setOfferDefaultTransferSyntaxInSeparatePresentationContext(enable);
@@ -379,7 +381,7 @@ public class DcmSnd extends StorageCommitmentService {
     public final void setShutdownDelay(int shutdownDelay) {
         this.shutdownDelay = shutdownDelay;
     }
-    
+
 
     public final void setConnectTimeout(int connectTimeout) {
         conn.setConnectTimeout(connectTimeout);
@@ -444,11 +446,11 @@ public class DcmSnd extends StorageCommitmentService {
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
     }
-    
+
     public int getBatchSize() {
         return batchSize;
     }
-    
+
     public int getLastSentFile() {
         return lastSentFile;
     }
@@ -464,7 +466,7 @@ public class DcmSnd extends StorageCommitmentService {
     public final long getTotalSizeSent() {
         return totalSize;
     }
-    
+
     public List<FileInfo> getFileInfos() {
         return files;
     }
@@ -482,8 +484,8 @@ public class DcmSnd extends StorageCommitmentService {
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "set AET, local address and listening port of local "
-                + "Application Entity, use device name and pick up any valid "
-                + "local address to bind the socket by default");
+                        + "Application Entity, use device name and pick up any valid "
+                        + "local address to bind the socket by default");
         opts.addOption(OptionBuilder.create("L"));
 
         opts.addOption("ts1", false, "offer Default Transfer Syntax in " +
@@ -492,28 +494,28 @@ public class DcmSnd extends StorageCommitmentService {
 
         opts.addOption("fileref", false,
                 "send objects without pixel data, but with a reference to " +
-                "the DICOM file using DCM4CHE URI Referenced Transfer Syntax " +
-                "to import DICOM objects on a given file system to a DCM4CHEE " +
-                "archive.");
+                        "the DICOM file using DCM4CHE URI Referenced Transfer Syntax " +
+                        "to import DICOM objects on a given file system to a DCM4CHEE " +
+                        "archive.");
 
         OptionBuilder.withArgName("username");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "enable User Identity Negotiation with specified username and "
-                + " optional passcode");
+                        + " optional passcode");
         opts.addOption(OptionBuilder.create("username"));
 
         OptionBuilder.withArgName("passcode");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "optional passcode for User Identity Negotiation, "
-                + "only effective with option -username");
+                        + "only effective with option -username");
         opts.addOption(OptionBuilder.create("passcode"));
 
         opts.addOption("uidnegrsp", false,
                 "request positive User Identity Negotation response, "
-                + "only effective with option -username");
-                
+                        + "only effective with option -username");
+
         OptionBuilder.withArgName("NULL|3DES|AES");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
@@ -521,6 +523,8 @@ public class DcmSnd extends StorageCommitmentService {
         opts.addOption(OptionBuilder.create("tls"));
 
         OptionGroup tlsProtocol = new OptionGroup();
+        tlsProtocol.addOption(new Option("tls12",
+                "disable the use of tsl1, SSLv3 -tls and SSLv2 for TLS connections"));
         tlsProtocol.addOption(new Option("tls1",
                 "disable the use of SSLv3 and SSLv2 for TLS connections"));
         tlsProtocol.addOption(new Option("ssl3",
@@ -570,14 +574,14 @@ public class DcmSnd extends StorageCommitmentService {
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "request storage commitment of (successfully) sent objects " +
-                "afterwards in new association to specified remote " +
-                "Application Entity");
+                        "afterwards in new association to specified remote " +
+                        "Application Entity");
         opts.addOption(OptionBuilder.create("stgcmtae"));
 
         opts.addOption("stgcmt", false,
                 "request storage commitment of (successfully) sent objects " +
-                "afterwards in same association");
-        
+                        "afterwards in same association");
+
         OptionBuilder.withArgName("attr=value");
         OptionBuilder.hasArgs();
         OptionBuilder.withValueSeparator('=');
@@ -590,7 +594,7 @@ public class DcmSnd extends StorageCommitmentService {
         OptionBuilder.withArgName("salt");
         OptionBuilder.hasArgs();
         OptionBuilder.withDescription("Anonymize the files.  Set to 0 for a random anonymization (not repeatable) or 1 for a daily anonymization or another" +
-            " value for a specific salt for reproducible anonymization (useful for allowing studies to be sent at a later date and still correctly named/associated)");
+                " value for a specific salt for reproducible anonymization (useful for allowing studies to be sent at a later date and still correctly named/associated)");
         OptionBuilder.withLongOpt("anonymize");
         opts.addOption(OptionBuilder.create("a"));
 
@@ -604,13 +608,13 @@ public class DcmSnd extends StorageCommitmentService {
         OptionBuilder.withArgName("maxops");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
-                "maximum number of outstanding operations it may invoke " + 
-                "asynchronously, unlimited by default.");
+                "maximum number of outstanding operations it may invoke " +
+                        "asynchronously, unlimited by default.");
         opts.addOption(OptionBuilder.create("async"));
 
         opts.addOption("pdv1", false,
-                "send only one PDV in one P-Data-TF PDU, " + 
-                "pack command and data PDV in one P-DATA-TF PDU by default.");
+                "send only one PDV in one P-Data-TF PDU, " +
+                        "pack command and data PDV in one P-DATA-TF PDU by default.");
         opts.addOption("tcpdelay", false,
                 "set TCP_NODELAY socket option to false, true by default");
 
@@ -624,21 +628,21 @@ public class DcmSnd extends StorageCommitmentService {
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "delay in ms for Socket close after sending A-ABORT, " +
-                "50ms by default");
+                        "50ms by default");
         opts.addOption(OptionBuilder.create("soclosedelay"));
 
         OptionBuilder.withArgName("ms");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "delay in ms for closing the listening socket, " +
-                "1000ms by default");
+                        "1000ms by default");
         opts.addOption(OptionBuilder.create("shutdowndelay"));
 
         OptionBuilder.withArgName("ms");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "period in ms to check for outstanding DIMSE-RSP, " +
-                "10s by default");
+                        "10s by default");
         opts.addOption(OptionBuilder.create("reaper"));
 
         OptionBuilder.withArgName("ms");
@@ -688,12 +692,12 @@ public class DcmSnd extends StorageCommitmentService {
         OptionBuilder.withDescription(
                 "transcoder buffer size in KB, 1KB by default");
         opts.addOption(OptionBuilder.create("bufsize"));
-        
+
         OptionBuilder.withArgName("count");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "Batch size - Number of files to be sent in each batch, " +
-                "where a storage commit is done between batches ");
+                        "where a storage commit is done between batches ");
         opts.addOption(OptionBuilder.create("batchsize"));
 
         opts.addOption("lowprior", false,
@@ -726,7 +730,7 @@ public class DcmSnd extends StorageCommitmentService {
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         CommandLine cl = parse(args);
-        DcmSnd dcmsnd = new DcmSnd(cl.hasOption("device") 
+        DcmSnd dcmsnd = new DcmSnd(cl.hasOption("device")
                 ? cl.getOptionValue("device") : "DCMSND");
         final List<String> argList = cl.getArgList();
         String remoteAE = argList.get(0);
@@ -744,7 +748,7 @@ public class DcmSnd extends StorageCommitmentService {
             String localAE = cl.getOptionValue("L");
             String[] localPort = split(localAE, ':');
             if (localPort[1] != null) {
-                dcmsnd.setLocalPort(toPort(localPort[1]));                
+                dcmsnd.setLocalPort(toPort(localPort[1]));
             }
             String[] callingAETHost = split(localPort[0], '@');
             dcmsnd.setCalling(callingAETHost[0]);
@@ -798,15 +802,15 @@ public class DcmSnd extends StorageCommitmentService {
         if (cl.hasOption("reaper"))
             dcmsnd.setAssociationReaperPeriod(
                     parseInt(cl.getOptionValue("reaper"),
-                    "illegal argument of option -reaper",
-                    1, Integer.MAX_VALUE));
+                            "illegal argument of option -reaper",
+                            1, Integer.MAX_VALUE));
         if (cl.hasOption("rspTO"))
             dcmsnd.setDimseRspTimeout(parseInt(cl.getOptionValue("rspTO"),
                     "illegal argument of option -rspTO",
                     1, Integer.MAX_VALUE));
         if (cl.hasOption("acceptTO"))
             dcmsnd.setAcceptTimeout(parseInt(cl.getOptionValue("acceptTO"),
-                    "illegal argument of option -acceptTO", 
+                    "illegal argument of option -acceptTO",
                     1, Integer.MAX_VALUE));
         if (cl.hasOption("releaseTO"))
             dcmsnd.setReleaseTimeout(parseInt(cl.getOptionValue("releaseTO"),
@@ -815,17 +819,17 @@ public class DcmSnd extends StorageCommitmentService {
         if (cl.hasOption("soclosedelay"))
             dcmsnd.setSocketCloseDelay(
                     parseInt(cl.getOptionValue("soclosedelay"),
-                    "illegal argument of option -soclosedelay", 1, 10000));
+                            "illegal argument of option -soclosedelay", 1, 10000));
         if (cl.hasOption("shutdowndelay"))
             dcmsnd.setShutdownDelay(
                     parseInt(cl.getOptionValue("shutdowndelay"),
-                    "illegal argument of option -shutdowndelay", 1, 10000));
+                            "illegal argument of option -shutdowndelay", 1, 10000));
         if (cl.hasOption("anonymize"))
             dcmsnd.setAnonymize(Long.parseLong(cl.getOptionValue("anonymize")));
         if (cl.hasOption("rcvpdulen"))
             dcmsnd.setMaxPDULengthReceive(
                     parseInt(cl.getOptionValue("rcvpdulen"),
-                    "illegal argument of option -rcvpdulen", 1, 10000) * KB);
+                            "illegal argument of option -rcvpdulen", 1, 10000) * KB);
         if (cl.hasOption("sndpdulen"))
             dcmsnd.setMaxPDULengthSend(parseInt(cl.getOptionValue("sndpdulen"),
                     "illegal argument of option -sndpdulen", 1, 10000) * KB);
@@ -838,7 +842,7 @@ public class DcmSnd extends StorageCommitmentService {
         if (cl.hasOption("bufsize"))
             dcmsnd.setTranscoderBufferSize(
                     parseInt(cl.getOptionValue("bufsize"),
-                    "illegal argument of option -bufsize", 1, 10000) * KB);
+                            "illegal argument of option -bufsize", 1, 10000) * KB);
         if (cl.hasOption("batchsize"))
             dcmsnd.setBatchSize(Integer.parseInt(cl.getOptionValue("batchsize")));
         dcmsnd.setPackPDV(!cl.hasOption("pdv1"));
@@ -874,7 +878,9 @@ public class DcmSnd extends StorageCommitmentService {
                 exit("Invalid parameter for option -tls: " + cipher);
             }
 
-            if (cl.hasOption("tls1")) {
+            if (cl.hasOption("tls12")) {
+                dcmsnd.setTlsProtocol(TLS12);
+            } else if (cl.hasOption("tls1")) {
                 dcmsnd.setTlsProtocol(TLS1);
             } else if (cl.hasOption("ssl3")) {
                 dcmsnd.setTlsProtocol(SSL3);
@@ -931,9 +937,9 @@ public class DcmSnd extends StorageCommitmentService {
                     System.exit(2);
                 }
                 t2 = System.currentTimeMillis();
-                System.out.println("Connected to " + remoteAE + " in " 
+                System.out.println("Connected to " + remoteAE + " in "
                         + ((t2 - t1) / 1000F) + "s");
-        
+
                 t1 = System.currentTimeMillis();
                 dcmsnd.send();
                 t2 = System.currentTimeMillis();
@@ -942,7 +948,7 @@ public class DcmSnd extends StorageCommitmentService {
                     t1 = System.currentTimeMillis();
                     if (dcmsnd.commit()) {
                         t2 = System.currentTimeMillis();
-                        System.out.println("Request Storage Commitment from " 
+                        System.out.println("Request Storage Commitment from "
                                 + remoteAE + " in " + ((t2 - t1) / 1000F) + "s");
                         System.out.println("Waiting for Storage Commitment Result..");
                         try {
@@ -953,7 +959,7 @@ public class DcmSnd extends StorageCommitmentService {
                             System.err.println("ERROR:" + e.getMessage());
                         }
                     }
-                 }
+                }
                 dcmsnd.close();
                 System.out.println("Released connection to " + remoteAE);
                 if (remoteStgCmtAE != null) {
@@ -966,12 +972,12 @@ public class DcmSnd extends StorageCommitmentService {
                         System.exit(2);
                     }
                     t2 = System.currentTimeMillis();
-                    System.out.println("Connected to " + remoteStgCmtAE + " in " 
+                    System.out.println("Connected to " + remoteStgCmtAE + " in "
                             + ((t2 - t1) / 1000F) + "s");
                     t1 = System.currentTimeMillis();
                     if (dcmsnd.commit()) {
                         t2 = System.currentTimeMillis();
-                        System.out.println("Request Storage Commitment from " 
+                        System.out.println("Request Storage Commitment from "
                                 + remoteStgCmtAE + " in " + ((t2 - t1) / 1000F) + "s");
                         System.out.println("Waiting for Storage Commitment Result..");
                         try {
@@ -1021,7 +1027,7 @@ public class DcmSnd extends StorageCommitmentService {
         DicomElement failedSOPSq = cmtrslt.get(Tag.FailedSOPSequence);
         if (failedSOPSq != null) {
             System.out.print(failedSOPSq.countItems());
-            System.out.println(" FAILED!");                       
+            System.out.println(" FAILED!");
         }
     }
 
@@ -1097,7 +1103,7 @@ public class DcmSnd extends StorageCommitmentService {
 
         if(f.isHidden())
             return;
-        
+
         FileInfo info = new FileInfo(f);
         DicomObject dcmObj = new BasicDicomObject();
         DicomInputStream in = null;
@@ -1161,7 +1167,7 @@ public class DcmSnd extends StorageCommitmentService {
         if (off > 0) {
             tc[0] = new TransferCapability(
                     UID.StorageCommitmentPushModelSOPClass,
-                    ONLY_IVLE_TS, 
+                    ONLY_IVLE_TS,
                     TransferCapability.SCU);
         }
         Iterator<Map.Entry<String, Set<String>>> iter = as2ts.entrySet().iterator();
@@ -1169,14 +1175,14 @@ public class DcmSnd extends StorageCommitmentService {
             Map.Entry<String, Set<String>> e = iter.next();
             String cuid = e.getKey();
             Set<String> ts = e.getValue();
-            tc[i] = new TransferCapability(cuid, 
+            tc[i] = new TransferCapability(cuid,
                     ts.toArray(new String[ts.size()]),
                     TransferCapability.SCU);
         }
         ae.setTransferCapability(tc);
     }
 
-    public void start() throws IOException { 
+    public void start() throws IOException {
         if (conn.isListening()) {
             conn.bind(executor );
             System.out.println("Start Server listening on port " + conn.getPort());
@@ -1189,12 +1195,12 @@ public class DcmSnd extends StorageCommitmentService {
                 Thread.sleep(shutdownDelay);
             } catch (InterruptedException e) {
                 // Should not happen
-                e.printStackTrace();                
+                e.printStackTrace();
             }
             conn.unbind();
         }
     }
-    
+
     public void open() throws IOException, ConfigurationException,
             InterruptedException {
         assoc = ae.connect(remoteAE, executor);
@@ -1230,8 +1236,8 @@ public class DcmSnd extends StorageCommitmentService {
                         info.cuid)
                         + " with "
                         + UIDDictionary.getDictionary().prompt(
-                                fileref ? DCM4CHEE_URI_REFERENCED_TS_UID 
-                                        : info.tsuid)
+                        fileref ? DCM4CHEE_URI_REFERENCED_TS_UID
+                                : info.tsuid)
                         + " not supported by " + remoteAE.getAETitle());
                 System.out.println("skip file " + info.f);
                 continue;
@@ -1240,7 +1246,7 @@ public class DcmSnd extends StorageCommitmentService {
                 DimseRSPHandler rspHandler = new DimseRSPHandler() {
                     @Override
                     public void onDimseRSP(Association as, DicomObject cmd,
-                            DicomObject data) {
+                                           DicomObject data) {
                         DcmSnd.this.onDimseRSP(cmd);
                         if (responseHandler != null) {
                             responseHandler.onDimseRSP(as, cmd, data);
@@ -1265,7 +1271,7 @@ public class DcmSnd extends StorageCommitmentService {
             }
         }
         lastSentFile += i;
-        
+
         try {
             assoc.waitForDimseRSP();
         } catch (InterruptedException e) {
@@ -1290,8 +1296,8 @@ public class DcmSnd extends StorageCommitmentService {
         try {
             stgCmtResult = null;
             DimseRSP rsp = assoc.naction(UID.StorageCommitmentPushModelSOPClass,
-                UID.StorageCommitmentPushModelSOPInstance, STG_CMT_ACTION_TYPE,
-                actionInfo, UID.ImplicitVRLittleEndian);
+                    UID.StorageCommitmentPushModelSOPInstance, STG_CMT_ACTION_TYPE,
+                    actionInfo, UID.ImplicitVRLittleEndian);
             rsp.next();
             DicomObject cmd = rsp.getCommand();
             int status = cmd.getInt(Tag.Status);
@@ -1300,7 +1306,7 @@ public class DcmSnd extends StorageCommitmentService {
             }
             System.err.println(
                     "WARNING: Storage Commitment request failed with status: "
-                    + StringUtils.shortToHex(status) + "H");
+                            + StringUtils.shortToHex(status) + "H");
             System.err.println(cmd.toString());
         } catch (NoPresentationContextException e) {
             System.err.println("WARNING: " + e.getMessage()
@@ -1309,14 +1315,14 @@ public class DcmSnd extends StorageCommitmentService {
             e.printStackTrace();
             System.err.println(
                     "ERROR: Failed to send Storage Commitment request: "
-                    + e.getMessage());
+                            + e.getMessage());
         } catch (InterruptedException e) {
             // should not happen
             e.printStackTrace();
         }
         return false;
     }
-    
+
     private String selectTransferSyntax(String[] available, String tsuid) {
         if (tsuid.equals(UID.ImplicitVRLittleEndian))
             return selectTransferSyntax(available, IVLE_TS);
@@ -1358,16 +1364,16 @@ public class DcmSnd extends StorageCommitmentService {
         long fmiEndPos;
 
         long length;
-        
+
         boolean transferred;
-        
+
         int status;
 
         public FileInfo(File f) {
             this.f = f;
             this.length = f.length();
         }
-                
+
     }
 
     private class DataWriter implements org.dcm4che2.net.DataWriter {
@@ -1423,7 +1429,7 @@ public class DcmSnd extends StorageCommitmentService {
                 DicomOutputStream dos = new DicomOutputStream(out);
                 attrs.putString(Tag.RetrieveURI, VR.UT, info.f.toURI().toString());
                 dos.writeDataset(attrs, tsuid);
-             } else {
+            } else {
                 DicomInputStream dis = new DicomInputStream(info.f);
                 try {
                     DicomOutputStream dos = new DicomOutputStream(out);
@@ -1462,7 +1468,7 @@ public class DcmSnd extends StorageCommitmentService {
     }
 
     private void copyPixelData(DicomInputStream dis, DicomOutputStream dos,
-            PDVOutputStream out) throws IOException {
+                               PDVOutputStream out) throws IOException {
         int vallen = dis.valueLength();
         dos.writeHeader(dis.tag(), dis.vr(), vallen);
         if (vallen == -1) {
@@ -1479,7 +1485,7 @@ public class DcmSnd extends StorageCommitmentService {
     }
 
     private void promptErrRSP(String prefix, int status, FileInfo info,
-            DicomObject cmd) {
+                              DicomObject cmd) {
         System.err.println(prefix + StringUtils.shortToHex(status) + "H for "
                 + info.f + ", cuid=" + info.cuid + ", tsuid=" + info.tsuid);
         System.err.println(cmd.toString());
@@ -1491,31 +1497,31 @@ public class DcmSnd extends StorageCommitmentService {
         FileInfo info = files.get(msgId - 1);
         info.status = status;
         switch (status) {
-        case 0:
-            info.transferred = true;
-            totalSize += info.length;
-            ++filesSent;
-            System.out.print('.');
-            break;
-        case 0xB000:
-        case 0xB006:
-        case 0xB007:
-            info.transferred = true;
-            totalSize += info.length;
-            ++filesSent;
-            promptErrRSP("WARNING: Received RSP with Status ", status, info,
-                    cmd);
-            System.out.print('W');
-            break;
-        default:
-            promptErrRSP("ERROR: Received RSP with Status ", status, info, cmd);
-            System.out.print('F');
+            case 0:
+                info.transferred = true;
+                totalSize += info.length;
+                ++filesSent;
+                System.out.print('.');
+                break;
+            case 0xB000:
+            case 0xB006:
+            case 0xB007:
+                info.transferred = true;
+                totalSize += info.length;
+                ++filesSent;
+                promptErrRSP("WARNING: Received RSP with Status ", status, info,
+                        cmd);
+                System.out.print('W');
+                break;
+            default:
+                promptErrRSP("ERROR: Received RSP with Status ", status, info, cmd);
+                System.out.print('F');
         }
     }
-    
+
     @Override
     protected synchronized void onNEventReportRSP(Association as, int pcid,
-            DicomObject rq, DicomObject info, DicomObject rsp) {
+                                                  DicomObject rq, DicomObject info, DicomObject rsp) {
         stgCmtResult = info;
         notifyAll();
     }
@@ -1527,7 +1533,7 @@ public class DcmSnd extends StorageCommitmentService {
                 keyPassword != null ? keyPassword : keyStorePassword,
                 trustStore);
     }
-    
+
     private static KeyStore loadKeyStore(String url, char[] password)
             throws GeneralSecurityException, IOException {
         KeyStore key = KeyStore.getInstance(toKeyStoreType(url));
@@ -1554,6 +1560,6 @@ public class DcmSnd extends StorageCommitmentService {
 
     private static String toKeyStoreType(String fname) {
         return fname.endsWith(".p12") || fname.endsWith(".P12")
-                 ? "PKCS12" : "JKS";
+                ? "PKCS12" : "JKS";
     }
 }
