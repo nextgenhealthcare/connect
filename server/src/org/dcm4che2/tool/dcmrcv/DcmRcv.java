@@ -48,12 +48,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.concurrent.Executor;
-import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
