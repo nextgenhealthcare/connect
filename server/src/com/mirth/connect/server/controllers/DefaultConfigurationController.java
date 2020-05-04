@@ -254,7 +254,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 }
                 httpsCipherSuites = httpsCipherSuitesList.toArray(new String[httpsCipherSuitesList.size()]);
             } else {
-                httpsCipherSuites = MirthSSLUtil.PREFERRED_HTTPS_CIPHER_SUITES;
+                httpsCipherSuites = MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES;
             }
 
             String deploy = String.valueOf(mirthConfig.getProperty(STARTUP_DEPLOY));

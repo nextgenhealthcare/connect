@@ -37,10 +37,10 @@ public class PlatformUI {
     public static String BUILD_DATE;
     public static Color DEFAULT_BACKGROUND_COLOR = ServerSettings.DEFAULT_COLOR;
     public static String[] HTTPS_PROTOCOLS = MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS;
-    public static String[] HTTPS_CIPHER_SUITES = MirthSSLUtil.PREFERRED_HTTPS_CIPHER_SUITES;
+    public static String[] HTTPS_CIPHER_SUITES = MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES;
     public static String[] SERVER_HTTPS_SUPPORTED_PROTOCOLS = MirthSSLUtil.getSupportedHttpsProtocols();
     public static String[] SERVER_HTTPS_ENABLED_CLIENT_PROTOCOLS = MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS;
     public static String[] SERVER_HTTPS_ENABLED_SERVER_PROTOCOLS = MirthSSLUtil.DEFAULT_HTTPS_SERVER_PROTOCOLS;
     public static String[] SERVER_HTTPS_SUPPORTED_CIPHER_SUITES = MirthSSLUtil.getSupportedHttpsCipherSuites();
-    public static String[] SERVER_HTTPS_ENABLED_CIPHER_SUITES = MirthSSLUtil.PREFERRED_HTTPS_CIPHER_SUITES;
+    public static String[] SERVER_HTTPS_ENABLED_CIPHER_SUITES = MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES;
 }
