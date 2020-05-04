@@ -114,6 +114,10 @@ public class DcmRcv {
             + "requests with DCMRCV as called AE title. Received objects "
             + "are stored to /tmp.";
 
+    private static final String[] PREFERRED_HTTPS_CIPHER_SUITES = new String[] {
+            "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256","TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+            "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384","TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+    };
 
     private static String[] TLS12 = { "TLSv1.2" };
 
@@ -338,7 +342,7 @@ public class DcmRcv {
     }
 
     public final void setTlsAES_128_CBC() {
-        nc.setTlsAES_128_CBC();
+        nc.setTlsCipherSuite(PREFERRED_HTTPS_CIPHER_SUITES);
     }
 
     public final void setTlsNeedClientAuth(boolean needClientAuth) {
