@@ -506,7 +506,7 @@ public class DICOMListener extends ConnectorSettingsPanel {
 
         tlsBCPRadio.setBackground(new java.awt.Color(255, 255, 255));
         tlsBCPRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        tlsButtonGroup.add(tlsBCPRadio);
+        buttonGroup6.add(tlsBCPRadio);
         tlsBCPRadio.setText("BCP 195");
         tlsBCPRadio.setToolTipText("BCP 195 profile.");
         tlsBCPRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -518,7 +518,7 @@ public class DICOMListener extends ConnectorSettingsPanel {
 
         tlsNonBCPRadio.setBackground(new java.awt.Color(255, 255, 255));
         tlsNonBCPRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        tlsButtonGroup.add(tlsNonBCPRadio);
+        buttonGroup6.add(tlsNonBCPRadio);
         tlsNonBCPRadio.setText("BCP 195 Non Downgrading");
         tlsNonBCPRadio.setToolTipText("BCP 195 Non Downgrading profile.");
         tlsNonBCPRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
